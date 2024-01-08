@@ -1,29 +1,27 @@
-use crate::config;
 use anyhow::{bail, Context, Ok, Result};
-use env_logger;
+
 use futures_util::StreamExt;
 use indicatif;
 use indicatif::{ProgressBar, ProgressStyle};
 use log::debug;
-use reqwest::{self, Request};
-use sha256::{digest, try_digest};
+use reqwest;
+use sha256::try_digest;
 use std::clone::Clone;
 use std::io::Write;
 use std::path::PathBuf;
-// https://huggingface.co/ggerganov/whisper.cpp/tree/main
 
-struct Downloader {
+pub struct Downloader {
     client: reqwest::Client,
 }
 
 impl Downloader {
-    fn new() -> Self {
+    pub fn new() -> Self {
         let client = reqwest::Client::new();
 
         Downloader { client }
     }
 
-    async fn download(&mut self, url: &str, path: PathBuf, hash: Option<&str>) -> Result<()> {
+    pub async fn download(&mut self, url: &str, path: PathBuf, hash: Option<&str>) -> Result<()> {
         if path.exists() {
             debug!("file {} exists!", path.display());
             return Ok(());

@@ -7,6 +7,9 @@ use std::{fs::OpenOptions, mem, path::PathBuf};
 use tempfile::TempDir;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
+use crate::args::Args;
+use crate::config;
+
 struct Model {}
 
 fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
@@ -31,15 +34,15 @@ fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
     Ok(result)
 }
 
-pub fn transcribe(
-    audio_path: PathBuf,
-    whisper_path: PathBuf,
-    output_path: Option<PathBuf>,
-    language: Option<&str>,
-    verbose: bool,
-    n_threads: Option<i32>,
-) -> Result<()> {
-    if !whisper_path.exists() {
+pub fn transcribe(args: Args) -> Result<()> {
+    let model_path: PathBuf = if let Some(model_str) = args.model {
+        PathBuf::from(model_str)
+    } else {
+        config::get_model_path()?
+    };
+    let audio_path = PathBuf::from(args.path);
+
+    if !model_path.exists() {
         bail!("whisper file doesn't exist")
     }
 
@@ -51,7 +54,7 @@ pub fn transcribe(
     let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
 
     debug!("open model...");
-    let ctx = WhisperContext::new_with_params(&whisper_path.to_string_lossy(), WhisperContextParameters::default())
+    let ctx = WhisperContext::new_with_params(&model_path.to_string_lossy(), WhisperContextParameters::default())
         .expect("failed to open model");
     let mut state = ctx.create_state().expect("failed to create key");
 
@@ -64,10 +67,10 @@ pub fn transcribe(
     // params.set_initial_prompt("experience");
     debug!("set progress bar...");
 
-    debug!("set language to {:?}", language);
-    params.set_language(language);
+    debug!("set language to {:?}", args.lang);
+    params.set_language(args.lang.map(Into::into));
 
-    if let Some(n_threads) = n_threads {
+    if let Some(n_threads) = args.n_threads {
         params.set_n_threads(n_threads);
     }
     // params.set_print_special(verbose);
@@ -81,7 +84,7 @@ pub fn transcribe(
     debug!("getting segments count...");
     let num_segments = state.full_n_segments().expect("failed to get number of segments");
     debug!("found {} segments", num_segments);
-    if let Some(output_path) = &output_path {
+    if let Some(output_path) = &args.output {
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
@@ -117,7 +120,7 @@ pub fn transcribe(
 
 #[cfg(test)]
 mod tests {
-    use crate::{audio::Audio, config};
+    use crate::{args, audio::Audio, config};
 
     use super::*;
     use anyhow::Result;
@@ -153,7 +156,15 @@ mod tests {
         audio.convert(input_file_path.clone(), output_file_path.clone())?;
         debug!("check output at {}", output_file_path.display());
         wait_for_enter()?;
-        transcribe(input_file_path, config::get_model_path()?, None, None, true, None)?;
+        let args = args::Args {
+            path: input_file_path.to_str().unwrap().to_owned(),
+            model: Some(config::get_model_path()?.to_str().unwrap().to_owned()),
+            lang: None,
+            n_threads: None,
+            output: None,
+            verbose: false,
+        };
+        transcribe(args)?;
 
         Ok(())
     }

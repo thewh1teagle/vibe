@@ -3,7 +3,6 @@ use app_dirs2;
 use app_dirs2::{app_root, AppDataType, AppInfo};
 use std::path::PathBuf;
 
-pub const APP_NAME: &str = "ruscribe";
 pub const URL: &str = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true";
 pub const FILENAME: &str = "ggml-medium.bin";
 pub const HASH: &str = ""; // TODO
