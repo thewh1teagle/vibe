@@ -59,16 +59,17 @@ pub fn transcribe(args: Args) -> Result<()> {
     let mut state = ctx.create_state().expect("failed to create key");
 
     let mut params = FullParams::new(SamplingStrategy::default());
+    debug!("set language to {:?}", args.lang);
+    if args.lang.is_some() {
+        params.set_language(args.lang.map(Into::into));
+    }
     params.set_print_special(false);
-    params.set_print_progress(false);
+    params.set_print_progress(true);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
     params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));
     // params.set_initial_prompt("experience");
     debug!("set progress bar...");
-
-    debug!("set language to {:?}", args.lang);
-    params.set_language(args.lang.map(Into::into));
 
     if let Some(n_threads) = args.n_threads {
         params.set_n_threads(n_threads);
