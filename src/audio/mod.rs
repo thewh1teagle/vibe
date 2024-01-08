@@ -1,27 +1,83 @@
-use anyhow::Result;
-use ffmpeg_next as ffmpeg;
+use anyhow::{bail, Result};
+use ffmpeg_next::Rescale;
+use hound::{SampleFormat, WavReader};
+use log::debug;
 use std::path::PathBuf;
 mod encoder;
-pub struct Audio {}
 
-impl Audio {
-    pub fn try_create() -> Result<Self> {
-        Ok(Audio {})
+pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
+    ffmpeg_next::init().unwrap();
+
+    let filter = "anull";
+    let seek = seek.parse::<i64>().ok();
+
+    debug!("input is {} and output is {}", input.display(), output.display());
+    let mut ictx = ffmpeg_next::format::input(&input).unwrap();
+    let mut octx = ffmpeg_next::format::output(&output).unwrap();
+    let mut transcoder = encoder::transcoder(&mut ictx, &mut octx, &output, &filter).unwrap();
+
+    if let Some(position) = seek {
+        // If the position was given in seconds, rescale it to ffmpegs base timebase.
+        let position = position.rescale((1, 1), ffmpeg_next::rescale::TIME_BASE);
+        // If this seek was embedded in the transcoding loop, a call of `flush()`
+        // for every opened buffer after the successful seek would be advisable.
+        ictx.seek(position, ..position).unwrap();
     }
 
-    pub fn convert(&self, input: PathBuf, output: PathBuf) -> Result<()> {
-        encoder::convert_to_16khz(input, output, None, None)?;
-        Ok(())
+    octx.set_metadata(ictx.metadata().to_owned());
+    octx.write_header().unwrap();
+
+    for (stream, mut packet) in ictx.packets() {
+        if stream.index() == transcoder.stream {
+            packet.rescale_ts(stream.time_base(), transcoder.in_time_base);
+            transcoder.send_packet_to_decoder(&packet);
+            transcoder.receive_and_process_decoded_frames(&mut octx);
+        }
     }
+
+    transcoder.send_eof_to_decoder();
+    transcoder.receive_and_process_decoded_frames(&mut octx);
+
+    transcoder.flush_filter();
+    transcoder.get_and_process_filtered_frames(&mut octx);
+
+    transcoder.send_eof_to_encoder();
+    transcoder.receive_and_process_encoded_packets(&mut octx);
+
+    octx.write_trailer().unwrap();
+    Ok(())
+}
+
+pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
+    let reader = WavReader::open(path).expect("failed to read file");
+    debug!("parsing {}", path.display());
+
+    let channels = reader.spec().channels;
+    if reader.spec().channels != 1 {
+        bail!("expected mono audio file and found {} channels!", channels);
+    }
+    if reader.spec().sample_format != SampleFormat::Int {
+        bail!("expected integer sample format");
+    }
+    if reader.spec().sample_rate != 16000 {
+        bail!("expected 16KHz sample rate");
+    }
+    if reader.spec().bits_per_sample != 16 {
+        bail!("expected 16 bits per sample");
+    }
+
+    let result = reader.into_samples::<i16>().map(|x| x.expect("sample")).collect::<Vec<_>>();
+    Ok(result)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use anyhow::Result;
     use log::debug;
     use std::fs;
     use tempfile::tempdir;
+
+    use crate::audio;
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -46,11 +102,10 @@ mod tests {
         // Copy a sample input file to the temporary directory.
         debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
-        wait_for_enter();
-        let mut audio = Audio::try_create()?;
-        audio.convert(input_file_path, output_file_path.clone())?;
+        wait_for_enter()?;
+        audio::normalize(input_file_path, output_file_path.clone(), "0".to_owned())?;
         debug!("check output at {}", output_file_path.display());
-        wait_for_enter();
+        wait_for_enter()?;
 
         Ok(())
     }

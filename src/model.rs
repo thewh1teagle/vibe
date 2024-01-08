@@ -1,38 +1,14 @@
-use anyhow::{bail, Context, Ok, Result};
-use hound::{SampleFormat, WavReader};
+use anyhow::{bail, Ok, Result};
+
 use log::debug;
 use std::io::Write;
-use std::path::Path;
-use std::{fs::OpenOptions, mem, path::PathBuf};
-use tempfile::TempDir;
+
+use std::{fs::OpenOptions, path::PathBuf};
+
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 use crate::args::Args;
-use crate::config;
-
-struct Model {}
-
-fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
-    let reader = WavReader::open(path).expect("failed to read file");
-    debug!("parsing {}", path.display());
-
-    let channels = reader.spec().channels;
-    if reader.spec().channels != 1 {
-        bail!("expected mono audio file and found {} channels!", channels);
-    }
-    if reader.spec().sample_format != SampleFormat::Int {
-        bail!("expected integer sample format");
-    }
-    if reader.spec().sample_rate != 16000 {
-        bail!("expected 16KHz sample rate");
-    }
-    if reader.spec().bits_per_sample != 16 {
-        bail!("expected 16 bits per sample");
-    }
-
-    let result = reader.into_samples::<i16>().map(|x| x.expect("sample")).collect::<Vec<_>>();
-    Ok(result)
-}
+use crate::{audio, config};
 
 pub fn transcribe(args: Args) -> Result<()> {
     let model_path: PathBuf = if let Some(model_str) = args.model {
@@ -50,7 +26,13 @@ pub fn transcribe(args: Args) -> Result<()> {
         bail!("audio file doesn't exist")
     }
 
-    let original_samples = parse_wav_file(&audio_path)?;
+    let out_path = tempfile::Builder::new()
+        .suffix(".wav")
+        .tempfile()?
+        .into_temp_path()
+        .to_path_buf();
+    audio::normalize(audio_path, out_path.clone(), "0".to_owned())?;
+    let original_samples = audio::parse_wav_file(&out_path)?;
     let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
 
     debug!("open model...");
@@ -77,10 +59,10 @@ pub fn transcribe(args: Args) -> Result<()> {
     // params.set_print_special(verbose);
 
     debug!("set start time...");
-    let st = std::time::Instant::now();
+    let _st = std::time::Instant::now();
     debug!("setting state full...");
     state.full(params, &samples).expect("failed to convert samples");
-    let et = std::time::Instant::now();
+    let _et = std::time::Instant::now();
 
     debug!("getting segments count...");
     let num_segments = state.full_n_segments().expect("failed to get number of segments");
@@ -121,7 +103,7 @@ pub fn transcribe(args: Args) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{args, audio::Audio, config};
+    use crate::{args, audio, config};
 
     use super::*;
     use anyhow::Result;
@@ -153,8 +135,7 @@ mod tests {
         debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
         wait_for_enter()?;
-        let audio = Audio::try_create()?;
-        audio.convert(input_file_path.clone(), output_file_path.clone())?;
+        audio::normalize(input_file_path.clone(), output_file_path.clone(), "".to_owned())?;
         debug!("check output at {}", output_file_path.display());
         wait_for_enter()?;
         let args = args::Args {

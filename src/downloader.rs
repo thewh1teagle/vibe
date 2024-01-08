@@ -21,7 +21,7 @@ impl Downloader {
         Downloader { client }
     }
 
-    pub async fn download(&mut self, url: &str, path: PathBuf, hash: Option<&str>) -> Result<()> {
+    pub async fn download(&mut self, url: &str, path: PathBuf, _hash: Option<&str>) -> Result<()> {
         if path.exists() {
             debug!("file {} exists!", path.display());
             return Ok(());
@@ -64,7 +64,6 @@ impl Downloader {
 mod tests {
     use crate::{config, downloader};
     use anyhow::{Context, Result};
-    use app_dirs2::*;
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -74,7 +73,6 @@ mod tests {
     async fn test_download() -> Result<()> {
         init();
         let mut d = downloader::Downloader::new();
-        let app_config = app_root(AppDataType::UserData, &config::APP_INFO)?;
         let filepath = config::get_model_path()?;
         d.download(config::URL, filepath, Some(config::HASH))
             .await
