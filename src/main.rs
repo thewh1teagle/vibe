@@ -1,13 +1,12 @@
 mod audio;
-mod model;
-mod downloader;
 mod config;
+mod downloader;
+mod model;
 use std::path::PathBuf;
 
 use anyhow::Result;
-use clap::{Parser,ArgAction};
+use clap::{ArgAction, Parser};
 use env_logger;
-
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -58,8 +57,7 @@ fn main() -> Result<()> {
         output_path,
         args.language.as_deref(),
         args.verbose,
-        args.n_threads
-        
+        args.n_threads,
     );
     Ok(())
 }

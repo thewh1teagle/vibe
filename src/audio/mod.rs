@@ -1,13 +1,11 @@
-use std::path::PathBuf;
 use anyhow::Result;
 use ffmpeg_next as ffmpeg;
+use std::path::PathBuf;
 mod encoder;
 pub struct Audio {}
 
-
 impl Audio {
     pub fn try_create() -> Result<Self> {
-        
         Ok(Audio {})
     }
 
@@ -15,25 +13,25 @@ impl Audio {
         encoder::convert_to_16khz(input, output, None, None)?;
         Ok(())
     }
-
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
-    use tempfile::tempdir;
     use anyhow::Result;
     use log::debug;
+    use std::fs;
+    use tempfile::tempdir;
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
     }
 
-    fn wait_for_enter() {
+    fn wait_for_enter() -> Result<()> {
         println!("PRESS ENTER");
         let mut buffer = String::new();
-        std::io::stdin().read_line(&mut buffer).unwrap();
+        std::io::stdin().read_line(&mut buffer)?;
+        Ok(())
     }
 
     #[test]

@@ -1,38 +1,34 @@
-use std::path::PathBuf;
 use crate::config;
-use indicatif;
-use reqwest::{self, Request};
-use anyhow::{Result, Context, Ok, bail};
-use indicatif::{ProgressBar, ProgressStyle};
-use futures_util::StreamExt;
-use std::io::Write;
-use std::clone::Clone;
+use anyhow::{bail, Context, Ok, Result};
 use env_logger;
+use futures_util::StreamExt;
+use indicatif;
+use indicatif::{ProgressBar, ProgressStyle};
 use log::debug;
+use reqwest::{self, Request};
 use sha256::{digest, try_digest};
+use std::clone::Clone;
+use std::io::Write;
+use std::path::PathBuf;
 // https://huggingface.co/ggerganov/whisper.cpp/tree/main
 
-
 struct Downloader {
-    client: reqwest::Client
+    client: reqwest::Client,
 }
 
 impl Downloader {
     fn new() -> Self {
         let client = reqwest::Client::new();
-        
+
         Downloader { client }
     }
-
 
     async fn download(&mut self, url: &str, path: PathBuf, hash: Option<&str>) -> Result<()> {
         if path.exists() {
             debug!("file {} exists!", path.display());
             return Ok(());
         }
-        let res = self.client.get(url)
-            .send()
-            .await?;
+        let res = self.client.get(url).send().await?;
         let total_size = res
             .content_length()
             .context(format!("Failed to get content length from '{}'", url))?;
@@ -56,8 +52,9 @@ impl Downloader {
         Ok(())
     }
 
-    async fn _verify(path: &PathBuf, hash: String) -> Result<()> { // TODO
-        let val = try_digest(path).unwrap();
+    async fn _verify(path: &PathBuf, hash: String) -> Result<()> {
+        // TODO
+        let val = try_digest(path)?;
         if val != hash {
             bail!("Invalid file hash!");
         }
@@ -67,9 +64,9 @@ impl Downloader {
 
 #[cfg(test)]
 mod tests {
+    use crate::{config, downloader};
     use anyhow::{Context, Result};
     use app_dirs2::*;
-    use crate::{downloader, config};
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -81,8 +78,9 @@ mod tests {
         let mut d = downloader::Downloader::new();
         let app_config = app_root(AppDataType::UserData, &config::APP_INFO)?;
         let filepath = config::get_model_path()?;
-        d.download(config::URL, filepath, Some(config::HASH)).await.context("Cant download")?;
+        d.download(config::URL, filepath, Some(config::HASH))
+            .await
+            .context("Cant download")?;
         Ok(())
     }
-
 }
