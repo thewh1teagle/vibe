@@ -45,10 +45,14 @@ pub fn transcribe(args: Args) -> Result<()> {
     if args.lang.is_some() {
         params.set_language(args.lang.map(Into::into));
     }
+
     params.set_print_special(false);
     params.set_print_progress(true);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
+    params.set_print_timestamps(false);
+    params.set_suppress_blank(true);
+    params.set_token_timestamps(true);
     params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));
     // params.set_initial_prompt("experience");
     debug!("set progress bar...");
