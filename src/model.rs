@@ -50,7 +50,6 @@ pub fn transcribe(args: Args) -> Result<()> {
     params.set_print_progress(true);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
-    params.set_print_timestamps(false);
     params.set_suppress_blank(true);
     params.set_token_timestamps(true);
     params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));
