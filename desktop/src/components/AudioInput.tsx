@@ -32,7 +32,6 @@ export default function AudioInput({
   }
 
   function onEnd() {
-    console.log('end')
     setPlaying(false);
   }
 
