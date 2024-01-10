@@ -49,6 +49,7 @@ pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
 }
 
 pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
+    debug!("wav reader read from {:?}", path);
     let reader = WavReader::open(path).expect("failed to read file");
     debug!("parsing {}", path.display());
 

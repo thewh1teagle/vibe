@@ -1,10 +1,10 @@
-# ruscribe
+# Vibe
 
-Transcribe audio in any language easily
+Transcribe audio in any language
 
 
 # Install
-Download `ruscribe.exe` from [releases](github.com/thewh1teagle/ruscribe)
+Download `vibe.exe` from [releases](github.com/thewh1teagle/ruscribe)
 
 # Usage
 Execute

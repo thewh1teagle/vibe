@@ -1,4 +1,3 @@
-/target
 *.wav
 *.opus
 !src/audio/test_audio.wav
@@ -7,3 +6,4 @@
 *.vtt
 *.dll
 *.exe
+target/

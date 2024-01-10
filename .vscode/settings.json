@@ -2,5 +2,9 @@
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer",
         "editor.formatOnSave": true
-    }
+    },
+    "terminal.integrated.env.windows": {
+        "PATH": "/c/Program Files/nodejs:${env:PATH}",
+    },
+    "rust-analyzer.server.extraEnv": { "CARGO_TARGET_DIR": "target/rust-analyzer" },
 }
