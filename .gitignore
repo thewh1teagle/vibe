@@ -7,3 +7,4 @@
 *.dll
 *.exe
 target/
+*.old.json
