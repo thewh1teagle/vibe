@@ -85,7 +85,7 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
         // file.flush().expect("failed to flush to file!");
     }
 
-    Ok((buffer))
+    Ok(buffer)
 }
 
 #[cfg(test)]
