@@ -25,7 +25,6 @@ export default function AudioInput({
       ],
     });
     if (selected)  {
-        console.log('filepath => ', selected)
         const resourcePath = convertFileSrc(selected as string);
         audioRef.current = new Audio(resourcePath as string);
         setName(selected as string);
@@ -52,7 +51,6 @@ export default function AudioInput({
     )
   }
 
-  console.log(name.split('/'))
   return (
     <div className='flex-row  h-10 shadow-lg flex justify-between items-center bg-base-200 rounded-lg w-[100%] m-auto px-3 my-3'>
         <p>{name?.split('\\').pop()}</p>

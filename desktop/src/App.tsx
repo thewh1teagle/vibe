@@ -20,11 +20,10 @@ function App() {
   async function transcribe() {
     setLoading(true)
     try {
-      console.log('name => ', name)
       const res: any = await invoke("transcribe", {path, lang})
-      console.log('res => ', res)
       setLoading(false)
       setText(res?.text as string)
+      setPath('')
     } catch (e) {
       setLoading(false)
       console.error('error: ', e)
