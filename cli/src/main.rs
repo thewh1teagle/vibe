@@ -41,13 +41,13 @@ async fn main() -> Result<()> {
         .download(vibe::config::URL, vibe::config::get_model_path()?, Some(""))
         .await?;
     let args = vibe::config::ModelArgs {
-        lang: args.lang,
+        lang: args.lang.and_then(|a| Some(a.as_str().to_string())),
         model: vibe::config::get_model_path()?,
-        output: PathBuf::from(args.output),
         path: PathBuf::from(args.path),
         n_threads: args.n_threads,
         verbose: args.verbose,
     };
-    vibe::model::transcribe(&args)?;
+    let text = vibe::model::transcribe(&args)?;
+    println!("{}", text);
     Ok(())
 }

@@ -1,14 +1,9 @@
 use anyhow::{bail, Ok, Result};
-
 use log::debug;
-use std::io::Write;
-
-use std::{fs::OpenOptions, path::PathBuf};
-
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 use crate::audio;
-use crate::config::{self, ModelArgs};
+use crate::config::ModelArgs;
 
 pub fn transcribe(options: &ModelArgs) -> Result<String> {
     if !options.model.exists() {
@@ -90,7 +85,7 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{args, audio, config};
+    use crate::{audio, config};
 
     use super::*;
     use anyhow::Result;
@@ -125,12 +120,11 @@ mod tests {
         audio::normalize(input_file_path.clone(), output_file_path.clone(), "".to_owned())?;
         debug!("check output at {}", output_file_path.display());
         wait_for_enter()?;
-        let args = args::Args {
-            path: input_file_path.to_str().unwrap().to_owned(),
-            model: Some(config::get_model_path()?.to_str().unwrap().to_owned()),
+        let args = &config::ModelArgs {
+            path: input_file_path.to_str().unwrap().to_owned().into(),
+            model: config::get_model_path()?,
             lang: None,
             n_threads: None,
-            output: None,
             verbose: false,
         };
         transcribe(args)?;

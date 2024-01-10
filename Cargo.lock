@@ -3970,6 +3970,7 @@ dependencies = [
  "anyhow",
  "app_dirs2",
  "clap",
+ "env_logger",
  "ffmpeg-next",
  "futures-util",
  "hound",

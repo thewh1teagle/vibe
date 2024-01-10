@@ -1,8 +1,6 @@
-use crate::language::Language;
 use anyhow::Result;
 use app_dirs2;
 use app_dirs2::{app_root, AppDataType, AppInfo};
-use clap::{ArgAction, Parser};
 use std::path::PathBuf;
 
 pub const URL: &str = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true";
