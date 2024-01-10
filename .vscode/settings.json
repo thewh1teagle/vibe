@@ -4,7 +4,7 @@
         "editor.formatOnSave": true
     },
     "terminal.integrated.env.windows": {
-        "PATH": "/c/Program Files/nodejs:${env:PATH}",
+        "PATH": "${env:PATH}:/c/Program Files/nodejs",
     },
     "rust-analyzer.server.extraEnv": { "CARGO_TARGET_DIR": "target/rust-analyzer" },
 }

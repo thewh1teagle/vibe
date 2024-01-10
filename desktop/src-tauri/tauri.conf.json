@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "vibe",
-    "version": "0.0.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -15,6 +15,17 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "dialog": {
+        "all": true,
+        "ask": true, 
+        "confirm": true, 
+        "message": true, 
+        "open": true, 
+        "save": true 
+      },
+      "fs": {
+        "writeFile": true
       }
     },
     "bundle": {

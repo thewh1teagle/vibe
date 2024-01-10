@@ -10,7 +10,7 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextPar
 use crate::audio;
 use crate::config::{self, ModelArgs};
 
-pub fn transcribe(options: &ModelArgs) -> Result<()> {
+pub fn transcribe(options: &ModelArgs) -> Result<String> {
     if !options.model.exists() {
         bail!("whisper file doesn't exist")
     }
@@ -36,7 +36,7 @@ pub fn transcribe(options: &ModelArgs) -> Result<()> {
     let mut params = FullParams::new(SamplingStrategy::default());
     debug!("set language to {:?}", options.lang);
     if options.lang.is_some() {
-        params.set_language(options.lang.map(Into::into));
+        params.set_language(options.lang.as_deref());
     }
 
     params.set_print_special(false);
@@ -63,12 +63,13 @@ pub fn transcribe(options: &ModelArgs) -> Result<()> {
     debug!("getting segments count...");
     let num_segments = state.full_n_segments().expect("failed to get number of segments");
     debug!("found {} segments", num_segments);
-    let mut file = OpenOptions::new()
-        .create(true)
-        .write(true)
-        .append(true) // Change to .truncate(true) for overwrite instead of append
-        .open(options.output.clone())
-        .expect("failed to open file");
+    let mut buffer = String::new();
+    // let mut file = OpenOptions::new()
+    //     .create(true)
+    //     .write(true)
+    //     .append(true) // Change to .truncate(true) for overwrite instead of append
+    //     .open(options.output.clone())
+    //     .expect("failed to open file");
     debug!("looping segments...");
     for i in 0..num_segments {
         let segment = state.full_get_segment_text(i).expect("failed to get segment");
@@ -79,11 +80,12 @@ pub fn transcribe(options: &ModelArgs) -> Result<()> {
         println!("[{} - {}]\n{}", start_timestamp, end_timestamp, segment);
 
         // Write to file
-        writeln!(file, "[{} - {}]\n{}", start_timestamp, end_timestamp, segment).expect("failed to write to file");
-        file.flush().expect("failed to flush to file!");
+        buffer.push_str(&format!("[{} - {}]\n{}", start_timestamp, end_timestamp, segment))
+        // writeln!(file, "[{} - {}]\n{}", start_timestamp, end_timestamp, segment).expect("failed to write to file");
+        // file.flush().expect("failed to flush to file!");
     }
 
-    Ok(())
+    Ok((buffer))
 }
 
 #[cfg(test)]

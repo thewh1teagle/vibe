@@ -21,9 +21,8 @@ pub fn get_model_path() -> Result<PathBuf> {
 
 pub struct ModelArgs {
     pub path: PathBuf,
-    pub output: PathBuf,
     pub model: PathBuf,
-    pub lang: Option<Language>,
+    pub lang: Option<String>,
     pub verbose: bool,
 
     pub n_threads: Option<i32>,
