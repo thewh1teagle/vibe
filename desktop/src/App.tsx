@@ -2,33 +2,26 @@ import { useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import ThemeToggle from "./components/ThemeToggle";
-import { open, save } from '@tauri-apps/api/dialog';
+import { save } from '@tauri-apps/api/dialog';
 import { fs } from "@tauri-apps/api";
 import LanguageInput from "./components/LanguageInput";
+import AudioInput from "./components/AudioInput";
 
 
 function App() {
-  const [name, setName] = useState<string | string[] | null>("");
+
+  const [path, setPath] = useState('')
   const [loading, setLoading] = useState(false)
   const [text, setText] = useState('')
   const [lang, setLang] = useState('')
 
-  async function select() {
-    const selected = await open({
-      multiple: true,
-      filters: [{
-        name: 'Audio',
-        extensions: ['mp3', 'wav', "aac", "flac", "oga", "ogg", "opic"]
-      }]
-    });
-    setName(selected?.[0] ?? null)
-  }
+
 
   async function transcribe() {
     setLoading(true)
     try {
       console.log('name => ', name)
-      const res: any = await invoke("transcribe", {path: name as string, lang})
+      const res: any = await invoke("transcribe", {path, lang})
       console.log('res => ', res)
       setLoading(false)
       setText(res?.text as string)
@@ -69,11 +62,8 @@ function App() {
       <ThemeToggle />
       </div>
       <LanguageInput onChange={lang => setLang(lang)} />
-      {!name && <button onClick={select} className="btn btn-primary">Select Audio File</button>}
-      {name && (
-        <p>{name}</p>
-      )}
-      {name && (
+      <AudioInput onChange={newPath => setPath(newPath)} />
+      {path && (
         <button onClick={transcribe} className="btn btn-primary">Transcribe</button>
       )}
       </div>

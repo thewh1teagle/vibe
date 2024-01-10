@@ -25,7 +25,17 @@
         "save": true 
       },
       "fs": {
-        "writeFile": true
+        "writeFile": true,
+        "scope": [
+          "**"
+        ]
+      },
+      "protocol": {
+        "asset": true,
+        "assetScope": ["**"]
+      },
+      "path": {
+        "all": true
       }
     },
     "bundle": {
