@@ -5,3 +5,5 @@
 *.txt
 *.srt
 *.vtt
+*.dll
+*.exe

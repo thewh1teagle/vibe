@@ -1,16 +1,18 @@
 # ruscribe
 
-# test
-```
-export RUST_LOG=trace
-cargo test -- --nocapture
+Transcribe audio in any language easily
+
+
+# Install
+Download `ruscribe.exe` from [releases](github.com/thewh1teagle/ruscribe)
+
+# Usage
+Execute
+```console
+ruscribe -h
 ```
 
-```console
-ffmpeg -i 1.opus -ar 16000 1.wav
-cargo run -- --path 1.wav --output out.txt --n-threads 10
-```
+# Build
+see [BUILDING.md](BUILDING.md)
 
-```console
-rustup override set stable-x86_64-pc-windows-gnu
-```
+
