@@ -3,8 +3,8 @@ import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import ThemeToggle from "./components/ThemeToggle";
 import { open, save } from '@tauri-apps/api/dialog';
-import LanguageInput from "./components/LanguageINput";
 import { fs } from "@tauri-apps/api";
+import LanguageInput from "./components/LanguageInput";
 
 
 function App() {

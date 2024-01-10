@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 // https://www.codeconvert.ai/rust-to-typescript-converter
