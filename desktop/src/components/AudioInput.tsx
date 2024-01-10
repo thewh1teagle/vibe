@@ -33,9 +33,14 @@ export default function AudioInput({
 
   }
 
+  function onEnd() {
+    setPlaying(false)
+  }
+
   function play() {
     audioRef?.current?.play()
     setPlaying(true)
+    audioRef?.current?.addEventListener('ended', onEnd)
   }
   
   function pause() {
