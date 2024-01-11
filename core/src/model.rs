@@ -20,7 +20,7 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
         .into_temp_path()
         .to_path_buf();
     audio::normalize(options.path.clone(), out_path.clone(), "0".to_owned())?;
-    let original_samples = audio::parse_wav_file(&options.path.clone())?;
+    let original_samples = audio::parse_wav_file(&out_path)?;
     let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
 
     debug!("open model...");
