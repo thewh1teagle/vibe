@@ -1,8 +1,6 @@
 use anyhow::{bail, Context, Ok, Result};
 
-use futures_util::StreamExt;
-use indicatif;
-use indicatif::{ProgressBar, ProgressStyle};
+use futures_util::{Future, StreamExt};
 use log::debug;
 use reqwest;
 use sha256::try_digest;
@@ -21,7 +19,11 @@ impl Downloader {
         Downloader { client }
     }
 
-    pub async fn download(&mut self, url: &str, path: PathBuf, _hash: Option<&str>) -> Result<()> {
+    pub async fn download<F, Fut>(&mut self, url: &str, path: PathBuf, _hash: Option<&str>, on_progress: F) -> Result<()>
+    where
+        F: Fn(u64, u64) -> Fut,
+        Fut: Future<Output = ()>,
+    {
         if path.exists() {
             debug!("file {} exists!", path.display());
             return Ok(());
@@ -30,23 +32,24 @@ impl Downloader {
         let total_size = res
             .content_length()
             .context(format!("Failed to get content length from '{}'", url))?;
-        let pb = ProgressBar::new(total_size);
-        pb.set_style(ProgressStyle::default_bar()
-            .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")?
-            .progress_chars("#>-"));
-        pb.set_message(format!("Downloading {} to {}", url, path.display()));
         let mut file = std::fs::File::create(path.clone()).context(format!("Failed to create file {}", path.display()))?;
         let mut downloaded: u64 = 0;
+        let callback_limit = 1 * 1024 * 1024; // 1MB limit
+        let mut callback_offset = 0;
         let mut stream = res.bytes_stream();
         while let Some(item) = stream.next().await {
             let chunk = item.context("Error while downloading file")?;
             file.write_all(&chunk)
                 .context(format!("Error while writing to file {}", path.display()))?;
-            let new = std::cmp::min(downloaded + (chunk.len() as u64), total_size);
-            downloaded = new;
-            pb.set_position(new);
+            // Check if downloaded size is a multiple of 10MB
+            if downloaded > callback_offset + callback_limit {
+                debug!("setting on progress with total {total_size} and new {downloaded}");
+                on_progress(downloaded, total_size).await;
+
+                callback_offset = downloaded;
+            }
+            downloaded += chunk.len() as u64;
         }
-        pb.finish_with_message(format!("Downloaded {} to {}", url, path.display()));
         Ok(())
     }
 
@@ -69,12 +72,14 @@ mod tests {
         let _ = env_logger::builder().is_test(true).try_init();
     }
 
+    async fn on_download_progress(_: u64, _: u64) {}
+
     #[tokio::test]
     async fn test_download() -> Result<()> {
         init();
         let mut d = downloader::Downloader::new();
         let filepath = config::get_model_path()?;
-        d.download(config::URL, filepath, Some(config::HASH))
+        d.download(config::URL, filepath, Some(config::HASH), on_download_progress)
             .await
             .context("Cant download")?;
         Ok(())

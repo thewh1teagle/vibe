@@ -14,14 +14,16 @@ import { listen } from "@tauri-apps/api/event";
 
 function App() {
   const [path, setPath] = useState("");
+  const [modelExists, setModelExists] = useState(false)
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState("");
   const [lang, setLang] = useState("");
   const [progress, setProgress] = useState(0);
+  const [downloadProgress, setDownloadProgress] = useState(0)
 
   useEffect(() => {
     async function handleEvents() {
-      await listen("progress", (event) => {
+      await listen("transcribe_progress", (event) => {
         // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
         // event.payload is the payload object
         setProgress(event.payload as number);
@@ -29,6 +31,41 @@ function App() {
     }
     handleEvents();
   }, []);
+
+  useEffect(() => {
+    async function checkModelExists() {
+      const path: string = await invoke('get_model_path')
+      const exists = await fs.exists(path)
+      setModelExists(exists)
+      if (!exists) {
+        console.log('listening for download progress')
+        await listen("download_progress", (event) => {
+          console.log(event)
+          // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
+          // event.payload is the payload object
+          const [current, total] = event.payload as [number, number]
+          const newDownloadProgress = Number(current / total) * 100
+          console.log(newDownloadProgress)
+          if (newDownloadProgress > downloadProgress) { // for some reason it jumps if not
+            setDownloadProgress(newDownloadProgress);
+          }
+          
+        });
+        try {
+          await invoke('download_model')
+        } catch (e: any) {
+          console.error(e)
+          await dialogMessage(e?.toString(), { title: "Error", type: "error" });
+        }
+        setModelExists(true)
+        setDownloadProgress(0)
+      } else {
+        console.log('found model in ', path)
+      }
+    }
+    checkModelExists()
+  }, [])
+
   
   async function download() {
     const filePath = await save({
@@ -65,6 +102,30 @@ function App() {
       appWindow.unminimize();
       appWindow.setFocus();
     }
+  }
+
+  if (!modelExists) {
+    return (
+      <div className="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
+        <div className="absolute right-16 top-16">
+          <ThemeToggle />
+        </div>
+        <div className="text-3xl m-5 font-bold">Downloading OpenAI Model...</div>
+        {downloadProgress > 0 && (
+          <>
+          <progress
+            className="progress progress-primary w-56 my-2"
+            value={downloadProgress}
+            max="100"
+          ></progress>
+          <p className="text-neutral-content">This happens only once! 🎉</p>
+          </>
+        )}
+        {downloadProgress === 0 && (
+          <span className="loading loading-spinner loading-lg"></span>
+        )}
+      </div>
+    )
   }
 
   if (loading) {

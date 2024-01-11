@@ -29,7 +29,7 @@
         "save": true 
       },
       "fs": {
-        "writeFile": true,
+        "all": true,
         "scope": [
           "**"
         ]

@@ -480,6 +480,8 @@ dependencies = [
  "anyhow",
  "clap",
  "env_logger",
+ "indicatif",
+ "once_cell",
  "tokio",
  "vibe",
 ]

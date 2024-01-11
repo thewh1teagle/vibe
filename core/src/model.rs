@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use anyhow::{bail, Context, Ok, Result};
 use log::debug;
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters, whisper_sys_log};
 
 use crate::audio;
 use crate::config::ModelArgs;
@@ -45,9 +45,8 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     if options.lang.is_some() {
         params.set_language(options.lang.as_deref());
     }
-
     params.set_print_special(false);
-    params.set_print_progress(true);
+    params.set_print_progress(false);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
     params.set_suppress_blank(true);
