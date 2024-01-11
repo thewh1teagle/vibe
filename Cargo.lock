@@ -4022,7 +4022,6 @@ dependencies = [
  "ffmpeg-next",
  "futures-util",
  "hound",
- "indicatif",
  "log",
  "num",
  "once_cell",

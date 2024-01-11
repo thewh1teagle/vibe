@@ -3,7 +3,7 @@
 
 mod config;
 use env_logger;
-use log::debug;
+use log::{debug,error};
 use std::{path::PathBuf, sync::Mutex};
 use tauri::Manager;
 use vibe::transcript::Transcript;
@@ -18,7 +18,7 @@ fn on_transcribe_progress(progress: i32) {
         let window: tauri::Window = app.get_window("main").unwrap();
         window.emit("transcribe_progress", progress).unwrap();
     } else {
-        println!("App instance not available");
+        error!("App instance not available");
     }
 }
 
@@ -27,7 +27,7 @@ async fn on_download_progress(current: u64, total: u64) {
         let window: tauri::Window = app.get_window("main").unwrap();
         window.emit("download_progress", (current, total)).unwrap();
     } else {
-        println!("App instance not available");
+        error!("App instance not available");
     }
 }
 
