@@ -1,5 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+use env_logger;
+use log::debug;
 use std::{path::PathBuf, sync::Mutex};
 use tauri::Manager;
 use vibe::transcript::Transcript;
@@ -8,10 +11,9 @@ static APP_INSTANCE: once_cell::sync::Lazy<Mutex<Option<tauri::AppHandle>>> = on
 
 fn on_progress_change(progress: i32) {
     if let Some(app) = APP_INSTANCE.lock().unwrap().as_ref() {
-        println!("desktop progress is {}", progress);
+        debug!("desktop progress is {}", progress);
         let window: tauri::Window = app.get_window("main").unwrap();
         window.emit("progress", progress).unwrap();
-        // Access app instance here if needed
     } else {
         println!("App instance not available");
     }
@@ -34,6 +36,8 @@ async fn transcribe(app: tauri::AppHandle, path: &str, lang: &str) -> Result<Tra
 }
 
 fn main() {
+    env_logger::init();
+    debug!("App started");
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![transcribe])
         .run(tauri::generate_context!())

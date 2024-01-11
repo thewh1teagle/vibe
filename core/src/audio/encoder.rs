@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use ffmpeg_next::{codec, filter, format, frame, media};
+use log::debug;
 use std::path::Path;
 
 pub fn filter(spec: &str, decoder: &codec::decoder::Audio, encoder: &codec::encoder::Audio) -> Result<filter::Graph> {
@@ -32,7 +33,7 @@ pub fn filter(spec: &str, decoder: &codec::decoder::Audio, encoder: &codec::enco
     filter.output("in", 0)?.input("out", 0)?.parse(spec)?;
     filter.validate()?;
 
-    println!("{}", filter.dump());
+    debug!("{}", filter.dump());
 
     if let Some(codec) = encoder.codec() {
         if !codec
@@ -81,7 +82,7 @@ pub fn transcoder<P: AsRef<Path>>(
     let context = ffmpeg_next::codec::context::Context::from_parameters(output.parameters())?;
     let mut encoder = context.encoder().audio()?;
 
-    println!("decoder channel layout is {}", decoder.channel_layout().channels());
+    debug!("decoder channel layout is {}", decoder.channel_layout().channels());
     if global {
         encoder.set_flags(ffmpeg_next::codec::flag::Flags::GLOBAL_HEADER);
     }

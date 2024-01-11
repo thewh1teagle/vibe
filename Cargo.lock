@@ -4036,6 +4036,8 @@ dependencies = [
 name = "vibe-desktop"
 version = "0.0.0"
 dependencies = [
+ "env_logger",
+ "log",
  "once_cell",
  "serde",
  "serde_json",

@@ -54,7 +54,7 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     params.set_token_timestamps(true);
     if let Some(_) = ON_PROGRESS_CHANGE.lock().unwrap().as_ref() {
         params.set_progress_callback_safe(|progress| {
-            println!("Progress callback: {}%", progress);
+            debug!("progress callback {}", progress);
             if let Some(callback) = ON_PROGRESS_CHANGE.lock().unwrap().as_ref() {
                 callback(progress);
             }
@@ -95,12 +95,6 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
         utterances.push(Utternace { text, start, stop });
-        // Write to file
-        // buffer.push_str(&format!("[{} - {}]\n{}\n", start, end, segment));
-        // Print to console
-        // println!("[{} - {}]\n{}", start, end, segment);
-        // writeln!(file, "[{} - {}]\n{}", start_timestamp, end_timestamp, segment)context("failed to write to file");
-        // file.flush().context("failed to flush to file!");
         let num_tokens = state.full_n_tokens(s)?;
         for t in 0..num_tokens {
             let text = state.full_get_token_text(s, t)?;
