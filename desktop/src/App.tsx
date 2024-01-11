@@ -6,7 +6,9 @@ import { save } from '@tauri-apps/api/dialog';
 import { fs } from "@tauri-apps/api";
 import LanguageInput from "./components/LanguageInput";
 import AudioInput from "./components/AudioInput";
-
+import {message as dialogMessage} from '@tauri-apps/api/dialog';
+import {appWindow} from '@tauri-apps/api/window';
+import successSound from './assets/success.wav'
 
 function App() {
 
@@ -22,11 +24,17 @@ function App() {
     try {
       const res: any = await invoke("transcribe", {path, lang})
       setLoading(false)
+      new Audio(successSound).play()
       setText(res?.text as string)
       setPath('')
-    } catch (e) {
-      setLoading(false)
+    } catch (e: any) {
       console.error('error: ', e)
+      await dialogMessage(e?.toString(), { title: 'Error', type: 'error' });
+      setLoading(false)
+      setPath('')
+    } finally {
+      appWindow.unminimize()
+      appWindow.setFocus()      
     }
     
   }

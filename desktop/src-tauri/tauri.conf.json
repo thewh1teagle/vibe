@@ -3,7 +3,8 @@
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
     "devPath": "http://localhost:1420",
-    "distDir": "../dist"
+    "distDir": "../dist",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "vibe",
@@ -12,6 +13,9 @@
   "tauri": {
     "allowlist": {
       "all": false,
+      "window": {
+        "all": true
+      },
       "shell": {
         "all": false,
         "open": true
@@ -29,9 +33,6 @@
         "scope": [
           "**"
         ]
-      },
-      "window": {
-        "all": true
       },
       "protocol": {
         "asset": true,
@@ -62,7 +63,9 @@
         "resizable": true,
         "title": "vibe",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "focus": true,
+        "visible": true
       }
     ]
   }
