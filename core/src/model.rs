@@ -75,7 +75,7 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
         println!("[{} - {}]\n{}", start_timestamp, end_timestamp, segment);
 
         // Write to file
-        buffer.push_str(&format!("[{} - {}]\n{}", start_timestamp, end_timestamp, segment))
+        buffer.push_str(&format!("[{} - {}]\n{}\n", start_timestamp, end_timestamp, segment))
         // writeln!(file, "[{} - {}]\n{}", start_timestamp, end_timestamp, segment)context("failed to write to file");
         // file.flush().context("failed to flush to file!");
     }
