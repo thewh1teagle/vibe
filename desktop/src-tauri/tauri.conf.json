@@ -44,7 +44,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": "all",
+      "targets": ["nsis", "appimage", "dmg"],
       "identifier": "github.com.thewh1teagle.vibe",
       "icon": [
         "icons/32x32.png",
