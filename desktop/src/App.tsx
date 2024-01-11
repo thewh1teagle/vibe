@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import ThemeToggle from "./components/ThemeToggle";
@@ -9,6 +9,9 @@ import AudioInput from "./components/AudioInput";
 import {message as dialogMessage} from '@tauri-apps/api/dialog';
 import {appWindow} from '@tauri-apps/api/window';
 import successSound from './assets/success.wav'
+import { Transcript } from "./interfaces";
+import { listen } from "@tauri-apps/api/event";
+
 
 function App() {
 
@@ -16,16 +19,31 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [text, setText] = useState('')
   const [lang, setLang] = useState('')
+  const [progress, setProgress] = useState(0)
 
 
+  useEffect(() => {
+    async function handleEvents() {
+      await listen('progress', (event) => {
+        // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
+        // event.payload is the payload object
+        setProgress(event.payload as number)
+      })
+    }
+    handleEvents()
+  }, [])
 
   async function transcribe() {
     setLoading(true)
     try {
-      const res: any = await invoke("transcribe", {path, lang})
+      const res: Transcript = await invoke("transcribe", {path, lang})
       setLoading(false)
+      setProgress(0)
       new Audio(successSound).play()
-      setText(res?.text as string)
+      console.log('result => ', res)
+      const finalText = res?.utterances?.map(w => w.text).join('\n') as string
+      console.log('final => ', finalText)
+      setText(finalText)
       setPath('')
     } catch (e: any) {
       console.error('error: ', e)
@@ -44,7 +62,9 @@ function App() {
     return (
       <div className="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
         <div className="text-3xl m-5 font-bold">Transcribing...</div>
-        <span className="loading loading-spinner loading-lg"></span>
+        {progress > 0 && <progress className="progress progress-primary w-56 my-2" value={progress} max="100"></progress>}
+        {progress === 0 && <span className="loading loading-spinner loading-lg"></span> }
+        <p className="text-neutral-content">Wait for notification when it's done!</p>
       </div>
     )
   }

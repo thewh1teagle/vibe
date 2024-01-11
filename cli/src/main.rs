@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
         n_threads: args.n_threads,
         verbose: args.verbose,
     };
-    let text = vibe::model::transcribe(&args)?;
-    println!("{}", text);
+    let transcript = vibe::model::transcribe(&args, None)?;
+    println!("{}", transcript.as_text());
     Ok(())
 }

@@ -1,17 +1,29 @@
+use std::sync::Mutex;
+use std::time::Instant;
+
 use anyhow::{bail, Context, Ok, Result};
 use log::debug;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 use crate::audio;
 use crate::config::ModelArgs;
+use crate::transcript::{Transcript, Utternace};
+use once_cell;
 
-pub fn transcribe(options: &ModelArgs) -> Result<String> {
+static ON_PROGRESS_CHANGE: once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>> =
+    once_cell::sync::Lazy::new(|| Mutex::new(None));
+
+pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> Result<Transcript> {
     if !options.model.exists() {
         bail!("whisper file doesn't exist")
     }
 
     if !options.path.clone().exists() {
         bail!("audio file doesn't exist")
+    }
+    if let Some(callback) = on_progress_change {
+        let mut guard = ON_PROGRESS_CHANGE.lock().unwrap();
+        *guard = Some(Box::new(callback));
     }
 
     let out_path = tempfile::Builder::new()
@@ -40,7 +52,14 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
     params.set_print_timestamps(false);
     params.set_suppress_blank(true);
     params.set_token_timestamps(true);
-    params.set_progress_callback_safe(|progress| println!("Progress callback: {}%", progress));
+    if let Some(_) = ON_PROGRESS_CHANGE.lock().unwrap().as_ref() {
+        params.set_progress_callback_safe(|progress| {
+            println!("Progress callback: {}%", progress);
+            if let Some(callback) = ON_PROGRESS_CHANGE.lock().unwrap().as_ref() {
+                callback(progress);
+            }
+        });
+    }
     // params.set_initial_prompt("experience");
     debug!("set progress bar...");
 
@@ -50,15 +69,19 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
     // params.set_print_special(verbose);
 
     debug!("set start time...");
-    let _st = std::time::Instant::now();
+    let st = std::time::Instant::now();
     debug!("setting state full...");
-    state.full(params, &samples).context("failed to convert samples")?;
+    state.full(params, &samples).context("failed to transcribe")?;
     let _et = std::time::Instant::now();
 
     debug!("getting segments count...");
     let num_segments = state.full_n_segments().context("failed to get number of segments")?;
+    if num_segments == 0 {
+        bail!("no segements found!")
+    }
     debug!("found {} segments", num_segments);
-    let mut buffer = String::new();
+    let mut words = Vec::new();
+    let mut utterances = Vec::new();
     // let mut file = OpenOptions::new()
     //     .create(true)
     //     .write(true)
@@ -66,21 +89,39 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
     //     .open(options.output.clone())
     //     .context("failed to open file");
     debug!("looping segments...");
-    for i in 0..num_segments {
-        let segment = state.full_get_segment_text(i).context("failed to get segment")?;
-        let start_timestamp = state.full_get_segment_t0(i).context("failed to get start timestamp")?;
-        let end_timestamp = state.full_get_segment_t1(i).context("failed to get end timestamp")?;
+    for s in 0..num_segments {
+        let text = state.full_get_segment_text(s).context("failed to get segment")?;
+        let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
+        let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
-        // Print to console
-        println!("[{} - {}]\n{}", start_timestamp, end_timestamp, segment);
-
+        utterances.push(Utternace { text, start, stop });
         // Write to file
-        buffer.push_str(&format!("[{} - {}]\n{}\n", start_timestamp, end_timestamp, segment))
+        // buffer.push_str(&format!("[{} - {}]\n{}\n", start, end, segment));
+        // Print to console
+        // println!("[{} - {}]\n{}", start, end, segment);
         // writeln!(file, "[{} - {}]\n{}", start_timestamp, end_timestamp, segment)context("failed to write to file");
         // file.flush().context("failed to flush to file!");
+        let num_tokens = state.full_n_tokens(s)?;
+        for t in 0..num_tokens {
+            let text = state.full_get_token_text(s, t)?;
+            let token_data = state.full_get_token_data(s, t)?;
+            if text.starts_with("[_") {
+                continue;
+            }
+
+            words.push(Utternace {
+                text,
+                start: token_data.t0,
+                stop: token_data.t1,
+            });
+        }
     }
 
-    Ok(buffer)
+    Ok(Transcript {
+        utterances,
+        processing_time: Instant::now().duration_since(st),
+        word_utterances: Some(words),
+    })
 }
 
 #[cfg(test)]
@@ -127,7 +168,7 @@ mod tests {
             n_threads: None,
             verbose: false,
         };
-        transcribe(args)?;
+        transcribe(args, None)?;
 
         Ok(())
     }

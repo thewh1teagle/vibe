@@ -65,7 +65,8 @@
         "width": 800,
         "height": 600,
         "focus": true,
-        "visible": true
+        "visible": true,
+        "label": "main"
       }
     ]
   }
