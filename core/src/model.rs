@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use anyhow::{bail, Context, Ok, Result};
 use log::debug;
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters, whisper_sys_log};
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 use crate::audio;
 use crate::config::ModelArgs;
