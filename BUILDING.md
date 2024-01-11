@@ -12,7 +12,7 @@ cargo build --release
 ## Desktop
 for building to desktop you must use msys2 environment along with NodeJS installed outside of the environemnt.
 ```
-PATH="/c/Program Files/nodejs:$PATH" cargo tauri dev
+PATH="/c/Program Files/nodejs:$PATH" cargo tauri build
 ```
 
 ## Test

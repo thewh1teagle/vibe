@@ -1,4 +1,4 @@
-use anyhow::{bail, Ok, Result};
+use anyhow::{bail, Context, Ok, Result};
 use log::debug;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
@@ -25,8 +25,8 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
 
     debug!("open model...");
     let ctx = WhisperContext::new_with_params(&options.model.to_str().unwrap(), WhisperContextParameters::default())
-        .expect("failed to open model");
-    let mut state = ctx.create_state().expect("failed to create key");
+        .context("failed to open model")?;
+    let mut state = ctx.create_state().context("failed to create key")?;
 
     let mut params = FullParams::new(SamplingStrategy::default());
     debug!("set language to {:?}", options.lang);
@@ -52,11 +52,11 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
     debug!("set start time...");
     let _st = std::time::Instant::now();
     debug!("setting state full...");
-    state.full(params, &samples).expect("failed to convert samples");
+    state.full(params, &samples).context("failed to convert samples")?;
     let _et = std::time::Instant::now();
 
     debug!("getting segments count...");
-    let num_segments = state.full_n_segments().expect("failed to get number of segments");
+    let num_segments = state.full_n_segments().context("failed to get number of segments")?;
     debug!("found {} segments", num_segments);
     let mut buffer = String::new();
     // let mut file = OpenOptions::new()
@@ -64,20 +64,20 @@ pub fn transcribe(options: &ModelArgs) -> Result<String> {
     //     .write(true)
     //     .append(true) // Change to .truncate(true) for overwrite instead of append
     //     .open(options.output.clone())
-    //     .expect("failed to open file");
+    //     .context("failed to open file");
     debug!("looping segments...");
     for i in 0..num_segments {
-        let segment = state.full_get_segment_text(i).expect("failed to get segment");
-        let start_timestamp = state.full_get_segment_t0(i).expect("failed to get start timestamp");
-        let end_timestamp = state.full_get_segment_t1(i).expect("failed to get end timestamp");
+        let segment = state.full_get_segment_text(i).context("failed to get segment")?;
+        let start_timestamp = state.full_get_segment_t0(i).context("failed to get start timestamp")?;
+        let end_timestamp = state.full_get_segment_t1(i).context("failed to get end timestamp")?;
 
         // Print to console
         println!("[{} - {}]\n{}", start_timestamp, end_timestamp, segment);
 
         // Write to file
         buffer.push_str(&format!("[{} - {}]\n{}", start_timestamp, end_timestamp, segment))
-        // writeln!(file, "[{} - {}]\n{}", start_timestamp, end_timestamp, segment).expect("failed to write to file");
-        // file.flush().expect("failed to flush to file!");
+        // writeln!(file, "[{} - {}]\n{}", start_timestamp, end_timestamp, segment)context("failed to write to file");
+        // file.flush().context("failed to flush to file!");
     }
 
     Ok(buffer)

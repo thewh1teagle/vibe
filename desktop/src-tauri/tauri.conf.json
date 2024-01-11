@@ -30,6 +30,9 @@
           "**"
         ]
       },
+      "window": {
+        "all": true
+      },
       "protocol": {
         "asset": true,
         "assetScope": ["**"]

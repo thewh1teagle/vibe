@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use ffmpeg_next::Rescale;
 use hound::{SampleFormat, WavReader};
 use log::debug;
@@ -50,7 +50,7 @@ pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
 
 pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
     debug!("wav reader read from {:?}", path);
-    let reader = WavReader::open(path).expect("failed to read file");
+    let reader = WavReader::open(path).context("failed to read file")?;
     debug!("parsing {}", path.display());
 
     let channels = reader.spec().channels;
@@ -67,8 +67,8 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
         bail!("expected 16 bits per sample");
     }
 
-    let result = reader.into_samples::<i16>().map(|x| x.expect("sample")).collect::<Vec<_>>();
-    Ok(result)
+    let result: Result<Vec<i16>> = reader.into_samples::<i16>().map(|x| x.context("sample")).collect();
+    Ok(result?)
 }
 
 #[cfg(test)]

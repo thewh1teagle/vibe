@@ -1,11 +1,8 @@
+use anyhow::{Context, Result};
 use ffmpeg_next::{codec, filter, format, frame, media};
 use std::path::Path;
 
-pub fn filter(
-    spec: &str,
-    decoder: &codec::decoder::Audio,
-    encoder: &codec::encoder::Audio,
-) -> Result<filter::Graph, ffmpeg_next::Error> {
+pub fn filter(spec: &str, decoder: &codec::decoder::Audio, encoder: &codec::encoder::Audio) -> Result<filter::Graph> {
     let mut filter = filter::Graph::new();
 
     let channel_layout = if !decoder.channel_layout().is_empty() {
@@ -63,15 +60,15 @@ pub fn transcoder<P: AsRef<Path>>(
     octx: &mut format::context::Output,
     path: &P,
     filter_spec: &str,
-) -> Result<Transcoder, ffmpeg_next::Error> {
+) -> Result<Transcoder> {
     let input = ictx
         .streams()
         .best(media::Type::Audio)
-        .expect("could not find best audio stream");
+        .context("could not find best audio stream")?;
     let context = ffmpeg_next::codec::context::Context::from_parameters(input.parameters())?;
     let mut decoder = context.decoder().audio()?;
     let codec = ffmpeg_next::encoder::find(octx.format().codec(path, media::Type::Audio))
-        .expect("failed to find encoder")
+        .context("failed to find encoder")?
         .audio()?;
     let global = octx
         .format()
@@ -92,7 +89,7 @@ pub fn transcoder<P: AsRef<Path>>(
     encoder.set_rate(16000); // 16khz
     encoder.set_channel_layout(ffmpeg_next::channel_layout::ChannelLayout::MONO); // mono
     encoder.set_channels(1); // mono
-    encoder.set_format(codec.formats().expect("unknown supported formats").next().unwrap());
+    encoder.set_format(codec.formats().context("unknown supported formats")?.next().unwrap());
     encoder.set_bit_rate(decoder.bit_rate());
     encoder.set_max_bit_rate(decoder.max_bit_rate());
 
