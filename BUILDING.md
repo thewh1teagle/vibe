@@ -9,6 +9,12 @@ rustup override set stable-x86_64-pc-windows-gnu # if not already
 cargo build --release
 ```
 
+With OpenBlas
+```
+pacman --needed -S $MINGW_PACKAGE_PREFIX-openblas
+OPENBLAS_PATH=$MINGW_PREFIX PATH="/c/Program Files/nodejs:$PATH" cargo tauri build
+```
+
 ## Desktop
 for building to desktop you must use msys2 environment along with NodeJS installed outside of the environemnt.
 ``` 
