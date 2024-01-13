@@ -2,9 +2,10 @@
 
 Transcribe audio in any language
 
-<img src="https://github.com/thewh1teagle/vibe/assets/61390950/f11a1a39-8912-4f1c-a0fe-39de1a7ba1e0" width=600>
+<img src="https://github.com/thewh1teagle/vibe/assets/61390950/ece19b81-26c6-4c13-81de-33175bb898d9" width=600>
 
 # Install
+
 
 Download `vibe.exe` from [releases](https://github.com/thewh1teagle/vibe/releases)
 
