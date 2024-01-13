@@ -79,7 +79,7 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         bail!("no segements found!")
     }
     debug!("found {} segments", num_segments);
-    let mut words = Vec::new();
+    // let mut words = Vec::new();
     let mut utterances = Vec::new();
     // let mut file = OpenOptions::new()
     //     .create(true)
@@ -95,25 +95,25 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
 
         utterances.push(Utternace { text, start, stop });
         let num_tokens = state.full_n_tokens(s)?;
-        for t in 0..num_tokens {
-            let text = state.full_get_token_text(s, t)?;
-            let token_data = state.full_get_token_data(s, t)?;
-            if text.starts_with("[_") {
-                continue;
-            }
+        // for t in 0..num_tokens {
+        //     let text = state.full_get_token_text(s, t)?;
+        //     let token_data = state.full_get_token_data(s, t)?;
+        //     if text.starts_with("[_") {
+        //         continue;
+        //     }
 
-            words.push(Utternace {
-                text,
-                start: token_data.t0,
-                stop: token_data.t1,
-            });
-        }
+        //     words.push(Utternace {
+        //         text,
+        //         start: token_data.t0,
+        //         stop: token_data.t1,
+        //     });
+        // }
     }
 
     Ok(Transcript {
         utterances,
         processing_time: Instant::now().duration_since(st),
-        word_utterances: Some(words),
+        // word_utterances: Some(words),
     })
 }
 

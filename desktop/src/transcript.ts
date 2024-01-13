@@ -19,7 +19,7 @@ export interface Utternace {
 export interface Transcript {
     processing_time: Duration;
     utterances: Utternace[];
-    word_utterances?: Utternace[];
+    // word_utterances?: Utternace[];
 }
 
 export function formatTimestamp(

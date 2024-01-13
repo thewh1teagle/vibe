@@ -28,7 +28,7 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
 pub struct Transcript {
     pub processing_time: Duration,
     pub utterances: Vec<Utternace>,
-    pub word_utterances: Option<Vec<Utternace>>,
+    // pub word_utterances: Option<Vec<Utternace>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,9 +46,7 @@ impl Transcript {
     }
 
     pub fn as_vtt(&self) -> String {
-        self.word_utterances
-            .as_ref()
-            .unwrap_or(&self.utterances)
+        self.utterances
             .iter()
             .fold(String::new(), |transcript, fragment| {
                 transcript
@@ -63,9 +61,7 @@ impl Transcript {
     }
 
     pub fn as_srt(&self) -> String {
-        self.word_utterances
-            .as_ref()
-            .unwrap_or(&self.utterances)
+        self.utterances
             .iter()
             .fold((1, String::new()), |(i, transcript), fragment| {
                 (

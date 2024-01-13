@@ -1,5 +1,5 @@
 import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { open } from "@tauri-apps/api/dialog";
 import PlayIcon from "../icons/Play";
 import PauseIcon from "../icons/Pause";
@@ -12,6 +12,11 @@ export default function AudioInput({
   const audioRef = useRef<HTMLAudioElement>();
   const [playing, setPlaying] = useState(false);
   const [name, setName] = useState<string | null>("");
+
+  
+  useEffect(() => {
+    return () => audioRef?.current?.pause()
+  }, [])
 
   async function select() {
     const selected = await open({
