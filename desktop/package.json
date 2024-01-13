@@ -14,6 +14,7 @@
     "@tauri-apps/api": "^1.5.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.2",
     "usehooks-ts": "^2.9.2"
   },
   "devDependencies": {
