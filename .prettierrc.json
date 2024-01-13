@@ -1,8 +1,8 @@
 {
-	"printWidth": 120,
-	"tabWidth": 4,
-	"useTabs": true,
-	"bracketSameLine": true,
-	"endOfLine": "lf",
-	"singleQuote": false
+  "printWidth": 60,
+  "tabWidth": 2,
+  "useTabs": false,
+  "bracketSameLine": true,
+  "endOfLine": "lf",
+  "singleQuote": false
 }

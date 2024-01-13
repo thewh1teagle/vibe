@@ -1,0 +1,118 @@
+import { fs } from "@tauri-apps/api";
+import { save } from "@tauri-apps/api/dialog";
+import { useState } from "react";
+import { useLocalStorage } from "usehooks-ts";
+import { cx } from "../utils";
+
+async function download(text: string) {
+  const filePath = await save({
+    filters: [
+      {
+        name: "Text",
+        extensions: ["txt"],
+      },
+    ],
+  });
+  if (filePath) {
+    fs.writeTextFile(filePath, text);
+  }
+}
+
+export default function TextArea({
+  defaultText,
+}: {
+  defaultText: string;
+}) {
+  const [direction, setDirection] = useLocalStorage<
+    "ltr" | "rtl"
+  >("direction", "ltr");
+  const [text, setText] = useState(defaultText);
+  return (
+    <div className="w-full h-full">
+      <div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row">
+        <button
+          className="btn btn-square btn-md"
+          onClick={() =>
+            navigator.clipboard.writeText(text)
+          }>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
+            />
+          </svg>
+        </button>
+        <button
+          onClick={() => download(text)}
+          className="btn btn-square btn-md">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
+            />
+          </svg>
+        </button>
+        <button
+          onClick={() => setDirection("ltr")}
+          className={cx(
+            "btn btn-square btn-md",
+            direction == "ltr" && "bg-base-100"
+          )}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
+            />
+          </svg>
+        </button>
+        <button
+          onClick={() => setDirection("rtl")}
+          className={cx(
+            "btn btn-square btn-md",
+            direction == "rtl" && "bg-base-100"
+          )}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25"
+            />
+          </svg>
+        </button>
+      </div>
+      <textarea
+        onChange={(e) => setText(e.target.value)}
+        defaultValue={text}
+        dir={direction}
+        className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
+      />
+    </div>
+  );
+}
