@@ -1,8 +1,8 @@
+import { open } from "@tauri-apps/api/dialog";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { useEffect, useRef, useState } from "react";
-import { open } from "@tauri-apps/api/dialog";
-import PlayIcon from "../icons/Play";
 import PauseIcon from "../icons/Pause";
+import PlayIcon from "../icons/Play";
 
 export default function AudioInput({
   onChange,

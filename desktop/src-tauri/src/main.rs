@@ -3,7 +3,7 @@
 
 mod config;
 use env_logger;
-use log::{debug,error};
+use log::{debug, error};
 use std::{path::PathBuf, sync::Mutex};
 use tauri::Manager;
 use vibe::transcript::Transcript;

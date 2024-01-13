@@ -1,10 +1,18 @@
 {
-    "[rust]": {
-        "editor.defaultFormatter": "rust-lang.rust-analyzer",
-        "editor.formatOnSave": true
-    },
-    "terminal.integrated.env.windows": {
-        "PATH": "${env:PATH}:/c/Program Files/nodejs",
-    },
-    "rust-analyzer.server.extraEnv": { "CARGO_TARGET_DIR": "target/rust-analyzer" },
+	"rust-analyzer.checkOnSave": false,
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer"
+	},
+	"terminal.integrated.env.windows": {
+		"PATH": "${env:PATH}:/c/Program Files/nodejs"
+	},
+	"rust-analyzer.server.extraEnv": { "CARGO_TARGET_DIR": "target/rust-analyzer" },
+	"prettier.ignorePath": ".gitignore",
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": true,
+		"source.fixAll": true
+	},
+	"prettier.configPath": ".prettierrc.json",
+	"files.eol": "\n"
 }

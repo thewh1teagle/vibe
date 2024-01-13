@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
-import "./App.css";
-import ThemeToggle from "./components/ThemeToggle";
-import { save } from "@tauri-apps/api/dialog";
 import { fs } from "@tauri-apps/api";
-import LanguageInput from "./components/LanguageInput";
-import AudioInput from "./components/AudioInput";
-import { message as dialogMessage } from "@tauri-apps/api/dialog";
-import { appWindow } from "@tauri-apps/api/window";
-import successSound from "./assets/success.wav";
-import * as transcript from "./transcript";
+import { message as dialogMessage, save } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/tauri";
+import { appWindow } from "@tauri-apps/api/window";
+import { useEffect, useState } from "react";
+import "./App.css";
+import successSound from "./assets/success.wav";
+import AudioInput from "./components/AudioInput";
+import LanguageInput from "./components/LanguageInput";
+import ThemeToggle from "./components/ThemeToggle";
+import * as transcript from "./transcript";
 
 function App() {
   const [path, setPath] = useState("");
