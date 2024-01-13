@@ -32,17 +32,15 @@ async fn on_download_progress(current: u64, total: u64) {
 }
 
 #[tauri::command]
-fn get_model_path(app: tauri::AppHandle) -> String {
-    let app_data = app.path_resolver().app_local_data_dir().unwrap();
-    let model_path = app_data.join(config::FILENAME);
-    return model_path.to_str().unwrap().to_string();
+fn get_model_path(app: tauri::AppHandle) -> Result<String, String> {
+    let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
+    Ok(model_path.to_str().unwrap().to_string())
 }
 
 #[tauri::command]
 async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
     *APP_ASYNC_INSTANCE.lock().await = Some(app.clone());
-    let app_data = app.path_resolver().app_local_data_dir().unwrap();
-    let model_path = app_data.join(config::FILENAME);
+    let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
     let mut downloader = vibe::downloader::Downloader::new();
     debug!("Download model invoked! with path {}", model_path.display());
     downloader
@@ -56,8 +54,7 @@ async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
 async fn transcribe(app: tauri::AppHandle, path: &str, lang: &str) -> Result<Transcript, String> {
     // Store the app instance in the global static variable
     *APP_INSTANCE.lock().unwrap() = Some(app.clone());
-    let app_data = app.path_resolver().app_local_data_dir().unwrap();
-    let model_path = app_data.join(config::FILENAME);
+    let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
     let options = vibe::config::ModelArgs {
         lang: Some(lang.to_owned()),
         model: model_path,
@@ -66,7 +63,7 @@ async fn transcribe(app: tauri::AppHandle, path: &str, lang: &str) -> Result<Tra
         verbose: false,
     };
     let transcript = vibe::model::transcribe(&options, Some(on_transcribe_progress)).map_err(|e| e.to_string())?;
-    return Ok(transcript);
+    Ok(transcript)
 }
 
 fn main() {
