@@ -1,8 +1,16 @@
 import { fs } from "@tauri-apps/api";
 import { save } from "@tauri-apps/api/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
+import {
+  Transcript,
+  asSrt,
+  asText,
+  asVtt,
+} from "../transcript";
 import { cx } from "../utils";
+
+type textFormat = "normal" | "srt" | "vtt";
 
 async function download(text: string) {
   const filePath = await save({
@@ -19,14 +27,29 @@ async function download(text: string) {
 }
 
 export default function TextArea({
-  defaultText,
+  transcript,
 }: {
-  defaultText: string;
+  transcript: Transcript;
 }) {
   const [direction, setDirection] = useLocalStorage<
     "ltr" | "rtl"
   >("direction", "ltr");
-  const [text, setText] = useState(defaultText);
+  const [format, setFormat] = useLocalStorage<textFormat>(
+    "format",
+    "normal"
+  );
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    setText(
+      format === "vtt"
+        ? asVtt(transcript)
+        : format === "srt"
+        ? asSrt(transcript)
+        : asText(transcript)
+    );
+  }, [format]);
+
   return (
     <div className="w-full h-full">
       <div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row">
@@ -106,10 +129,22 @@ export default function TextArea({
             />
           </svg>
         </button>
+        <select
+          value={format}
+          onChange={(e) => {
+            setFormat(e.target.value as any);
+          }}
+          className="select select-bordered ml-auto">
+          <option value="normal">NORMAL</option>
+          <option value="srt">SRT</option>
+          <option value="vtt">VTT</option>
+        </select>
       </div>
       <textarea
+        autoCorrect="off"
+        spellCheck={false}
         onChange={(e) => setText(e.target.value)}
-        defaultValue={text}
+        value={text}
         dir={direction}
         className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
       />

@@ -17,7 +17,8 @@ function App() {
   const [path, setPath] = useState("");
   const [modelExists, setModelExists] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [text, setText] = useState("");
+  const [transcript, setTranscript] =
+    useState<transcript.Transcript>();
   const [lang, setLang] = useState("");
   const [progress, setProgress] = useState(0);
   const [downloadProgress, setDownloadProgress] =
@@ -40,9 +41,7 @@ function App() {
       const exists = await fs.exists(path);
       setModelExists(exists);
       if (!exists) {
-        console.log("listening for download progress");
         await listen("download_progress", (event) => {
-          console.log(event);
           // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
           // event.payload is the payload object
           const [current, total] = event.payload as [
@@ -51,7 +50,6 @@ function App() {
           ];
           const newDownloadProgress =
             Number(current / total) * 100;
-          console.log(newDownloadProgress);
           if (newDownloadProgress > downloadProgress) {
             // for some reason it jumps if not
             setDownloadProgress(newDownloadProgress);
@@ -82,12 +80,10 @@ function App() {
         "transcribe",
         { path, lang }
       );
-      console.log(transcript.asSrt(res));
       setLoading(false);
       setProgress(0);
       new Audio(successSound).play();
-      console.log("result => ", res);
-      setText(transcript.asSrt(res));
+      setTranscript(res);
       setPath("");
     } catch (e: any) {
       console.error("error: ", e);
@@ -179,9 +175,9 @@ function App() {
           </button>
         )}
       </div>
-      {text && (
+      {transcript && (
         <div className="flex flex-col mt-20 items-center w-[60%] max-w-[1000px] h-[70vh] max-h-[600px] m-auto">
-          <TextArea defaultText={text} />
+          <TextArea transcript={transcript} />
         </div>
       )}
     </div>
