@@ -1,12 +1,13 @@
-from pathlib import Path
-import subprocess
-import shutil
-import os
 import json
+import os
+import shutil
+import subprocess
+from pathlib import Path
 
 TARGET = Path(__file__).parent
 CONF = TARGET / 'tauri.conf.json'
 RESOURCES = [
+    # FFMPEG
     "C:\\msys64\\ucrt64\\bin\\avcodec-60.dll",
     "C:\\msys64\\ucrt64\\bin\\libbrotlidec.dll",
     "C:\\msys64\\ucrt64\\bin\\libffi-8.dll",
@@ -107,6 +108,9 @@ RESOURCES = [
     "C:\\msys64\\ucrt64\\bin\\libva_win32.dll",
     "C:\\msys64\\ucrt64\\bin\\libx265.dll",
     "C:\\msys64\\ucrt64\\bin\\zlib1.dll",
+    # OpenBLAS
+    "C:\\msys64\\ucrt64\\bin\\libopenblas.dll",
+    # Webview2
     "../../target/release/WebView2Loader.dll" # from build
   ]
 
@@ -130,6 +134,7 @@ for path in RESOURCES:
 # config environment
 env = os.environ.copy()
 env["PATH"] = f'C:\\Program Files\\Nodejs;{env["PATH"]}'
+env["OPENBLAS_PATH"]=os.getenv("MINGW_PREFIX")
 
 # config tauri.conf.json
 shutil.copy(CONF, CONF.with_suffix('.old.json'))
@@ -138,7 +143,7 @@ with open(CONF, 'r') as f:
     data = json.load(f)
     data['tauri']['bundle']['resources'] = [Path(i).name for i in RESOURCES]
 with open(CONF, 'w') as f:
-    json.dump(data, f)
+    json.dump(data, f, indent=4)
 
 # build
 try:
