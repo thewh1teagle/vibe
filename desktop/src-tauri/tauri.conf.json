@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "vibe",
-    "version": "0.0.1"
+    "version": "0.0.2"
   },
   "tauri": {
     "allowlist": {
@@ -22,17 +22,15 @@
       },
       "dialog": {
         "all": true,
-        "ask": true, 
-        "confirm": true, 
-        "message": true, 
-        "open": true, 
-        "save": true 
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
       },
       "fs": {
         "all": true,
-        "scope": [
-          "**"
-        ]
+        "scope": ["**"]
       },
       "protocol": {
         "asset": true,
@@ -62,8 +60,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "vibe",
-        "width": 800,
-        "height": 600,
+        "width": 1440,
+        "height": 900,
         "focus": true,
         "visible": true,
         "label": "main"
