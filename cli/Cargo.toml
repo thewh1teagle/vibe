@@ -13,6 +13,7 @@ vibe = {path = "../core", features = ["openblas"]}
 anyhow = "1.0.79"
 indicatif = "0.17.7"
 once_cell = "1.19.0"
+dirs-next = "2.0.0"
 
 [[bin]]
 name = "cli"

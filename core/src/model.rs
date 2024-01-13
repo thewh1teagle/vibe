@@ -94,7 +94,7 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
         utterances.push(Utternace { text, start, stop });
-        let num_tokens = state.full_n_tokens(s)?;
+        // let num_tokens = state.full_n_tokens(s)?;
         // for t in 0..num_tokens {
         //     let text = state.full_get_token_text(s, t)?;
         //     let token_data = state.full_get_token_data(s, t)?;
