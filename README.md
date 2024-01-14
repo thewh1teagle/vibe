@@ -20,7 +20,7 @@ Follow this instructions:
 
 2. Download it from [ggml-medium.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
 
-3. Place it in the folder `C:\Users\YourUsername\AppData\Roaming\github.com.thewh1teagle.vibe` With the exact name `ggml-medium.bin`
+3. Place it in the folder `C:\Users\User\AppData\Local\github.com.thewh1teagle.vibe` With the exact name `ggml-medium.bin`
 
 4. Start the program
 
