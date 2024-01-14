@@ -5,7 +5,8 @@ import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
-import successSound from "../assets/success.wav";
+import { useTranslation } from "react-i18next";
+import successSound from "../assets/success.mp3";
 import AudioInput from "../components/AudioInput";
 import LanguageInput from "../components/LanguageInput";
 import TextArea from "../components/TextArea";
@@ -13,10 +14,11 @@ import ThemeToggle from "../components/ThemeToggle";
 import * as transcript from "../transcript";
 
 function App() {
+  const { t } = useTranslation();
+
   const [path, setPath] = useState("");
   const [loading, setLoading] = useState(false);
-  const [transcript, setTranscript] =
-    useState<transcript.Transcript>();
+  const [transcript, setTranscript] = useState<transcript.Transcript>();
   const [lang, setLang] = useState("");
   const [progress, setProgress] = useState(0);
 
@@ -43,10 +45,7 @@ function App() {
   async function transcribe() {
     setLoading(true);
     try {
-      const res: transcript.Transcript = await invoke(
-        "transcribe",
-        { path, lang }
-      );
+      const res: transcript.Transcript = await invoke("transcribe", { path, lang });
       setLoading(false);
       setProgress(0);
       setTranscript(res);
@@ -73,24 +72,14 @@ function App() {
         <div className="absolute right-16 top-16">
           <ThemeToggle />
         </div>
-        <div className="text-3xl m-5 font-bold">
-          Transcribing...
-        </div>
+        <div className="text-3xl m-5 font-bold">Transcribing...</div>
         {progress > 0 && (
           <>
-            <progress
-              className="progress progress-primary w-56 my-2"
-              value={progress}
-              max="100"></progress>
-            <p className="text-neutral-content">
-              You'll receive a notification when it's done!
-              🎉
-            </p>
+            <progress className="progress progress-primary w-56 my-2" value={progress} max="100"></progress>
+            <p className="text-neutral-content">You'll receive a notification when it's done! 🎉</p>
           </>
         )}
-        {progress === 0 && (
-          <span className="loading loading-spinner loading-lg"></span>
-        )}
+        {progress === 0 && <span className="loading loading-spinner loading-lg"></span>}
       </div>
     );
   }
@@ -98,20 +87,14 @@ function App() {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col m-auto w-[300px] mt-10">
-        <h1 className="text-center text-4xl mb-10">
-          Vibe!
-        </h1>
+        <h1 className="text-center text-4xl mb-10">{t("app-title")}</h1>
         <div className="absolute right-16 top-16">
           <ThemeToggle />
         </div>
         <LanguageInput onChange={(lang) => setLang(lang)} />
-        <AudioInput
-          onChange={(newPath) => setPath(newPath)}
-        />
+        <AudioInput onChange={(newPath) => setPath(newPath)} />
         {path && (
-          <button
-            onClick={transcribe}
-            className="btn btn-primary">
+          <button onClick={transcribe} className="btn btn-primary">
             Transcribe
           </button>
         )}

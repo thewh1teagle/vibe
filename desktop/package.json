@@ -12,8 +12,12 @@
   "dependencies": {
     "@fontsource/roboto": "^5.0.8",
     "@tauri-apps/api": "^1.5.2",
+    "i18next": "^23.7.16",
+    "i18next-browser-languagedetector": "^7.2.0",
+    "i18next-resources-to-backend": "^1.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-i18next": "^14.0.0",
     "react-router-dom": "^6.21.2",
     "usehooks-ts": "^2.9.2"
   },
