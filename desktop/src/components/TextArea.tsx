@@ -1,13 +1,9 @@
 import { fs } from "@tauri-apps/api";
 import { save } from "@tauri-apps/api/dialog";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocalStorage } from "usehooks-ts";
-import {
-  Transcript,
-  asSrt,
-  asText,
-  asVtt,
-} from "../transcript";
+import { Transcript, asSrt, asText, asVtt } from "../transcript";
 import { cx } from "../utils";
 
 type textFormat = "normal" | "srt" | "vtt";
@@ -26,45 +22,21 @@ async function download(text: string) {
   }
 }
 
-export default function TextArea({
-  transcript,
-}: {
-  transcript: Transcript;
-}) {
-  const [direction, setDirection] = useLocalStorage<
-    "ltr" | "rtl"
-  >("direction", "ltr");
-  const [format, setFormat] = useLocalStorage<textFormat>(
-    "format",
-    "normal"
-  );
+export default function TextArea({ transcript }: { transcript: Transcript }) {
+  const { t, i18n } = useTranslation();
+  const [direction, setDirection] = useLocalStorage<"ltr" | "rtl">("direction", i18n.dir());
+  const [format, setFormat] = useLocalStorage<textFormat>("format", "normal");
   const [text, setText] = useState("");
 
   useEffect(() => {
-    setText(
-      format === "vtt"
-        ? asVtt(transcript)
-        : format === "srt"
-        ? asSrt(transcript)
-        : asText(transcript)
-    );
+    setText(format === "vtt" ? asVtt(transcript) : format === "srt" ? asSrt(transcript) : asText(transcript));
   }, [format]);
 
   return (
     <div className="w-full h-full">
       <div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row">
-        <button
-          className="btn btn-square btn-md"
-          onClick={() =>
-            navigator.clipboard.writeText(text)
-          }>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6">
+        <button className="btn btn-square btn-md" onClick={() => navigator.clipboard.writeText(text)}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -72,16 +44,8 @@ export default function TextArea({
             />
           </svg>
         </button>
-        <button
-          onClick={() => download(text)}
-          className="btn btn-square btn-md">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6">
+        <button onClick={() => download(text)} className="btn btn-square btn-md">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -89,44 +53,14 @@ export default function TextArea({
             />
           </svg>
         </button>
-        <button
-          onClick={() => setDirection("ltr")}
-          className={cx(
-            "btn btn-square btn-md",
-            direction == "ltr" && "bg-base-100"
-          )}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
-            />
+        <button onClick={() => setDirection("ltr")} className={cx("btn btn-square btn-md", direction == "ltr" && "bg-base-100")}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
           </svg>
         </button>
-        <button
-          onClick={() => setDirection("rtl")}
-          className={cx(
-            "btn btn-square btn-md",
-            direction == "rtl" && "bg-base-100"
-          )}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25"
-            />
+        <button onClick={() => setDirection("rtl")} className={cx("btn btn-square btn-md", direction == "rtl" && "bg-base-100")}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
           </svg>
         </button>
         <select
@@ -135,7 +69,7 @@ export default function TextArea({
             setFormat(e.target.value as any);
           }}
           className="select select-bordered ml-auto">
-          <option value="normal">NORMAL</option>
+          <option value="normal">{t("mode-text")}</option>
           <option value="srt">SRT</option>
           <option value="vtt">VTT</option>
         </select>

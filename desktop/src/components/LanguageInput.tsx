@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocalStorage } from "usehooks-ts";
 
 // https://www.codeconvert.ai/rust-to-typescript-converter
@@ -105,15 +106,9 @@ const Languages: { [key: string]: string } = {
   Sundanese: "su",
 };
 
-export default function LanguageInput({
-  onChange,
-}: {
-  onChange: (lang: string) => void;
-}) {
-  const [selected, setSelected] = useLocalStorage(
-    "language",
-    Languages["Auto"]
-  );
+export default function LanguageInput({ onChange }: { onChange: (lang: string) => void }) {
+  const { t } = useTranslation();
+  const [selected, setSelected] = useLocalStorage("language", Languages["Auto"]);
 
   const handleChange = (event: any) => {
     setSelected(event.target.value);
@@ -125,15 +120,10 @@ export default function LanguageInput({
   }, []);
 
   return (
-    <select
-      value={selected}
-      onChange={handleChange}
-      className="select select-bordered">
+    <select value={selected} onChange={handleChange} className="select select-bordered">
       {Object.keys(Languages).map((langKey, index) => (
-        <option
-          key={index}
-          value={Languages[langKey] as any}>
-          {langKey}
+        <option key={index} value={Languages[langKey] as any}>
+          {langKey === "Auto" ? t("lang-auto") : langKey}
         </option>
       ))}
     </select>

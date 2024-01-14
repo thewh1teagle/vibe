@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import successSound from "../assets/success.mp3";
 import AudioInput from "../components/AudioInput";
 import LanguageInput from "../components/LanguageInput";
@@ -15,7 +16,7 @@ import * as transcript from "../transcript";
 
 function App() {
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
   const [path, setPath] = useState("");
   const [loading, setLoading] = useState(false);
   const [transcript, setTranscript] = useState<transcript.Transcript>();
@@ -26,8 +27,9 @@ function App() {
     async function checkModelExists() {
       const path: string = await invoke("get_model_path");
       const exists = await fs.exists(path);
+      console.log(`path ${path} exists => `, exists);
       if (!exists) {
-        // navigate("/setup");
+        navigate("/setup");
       }
     }
     checkModelExists();
@@ -72,11 +74,11 @@ function App() {
         <div className="absolute right-16 top-16">
           <ThemeToggle />
         </div>
-        <div className="text-3xl m-5 font-bold">Transcribing...</div>
+        <div className="text-3xl m-5 font-bold">{t("transcribing")}</div>
         {progress > 0 && (
           <>
             <progress className="progress progress-primary w-56 my-2" value={progress} max="100"></progress>
-            <p className="text-neutral-content">You'll receive a notification when it's done! 🎉</p>
+            <p className="text-neutral-content">{t("you-will-receive-notification")}</p>
           </>
         )}
         {progress === 0 && <span className="loading loading-spinner loading-lg"></span>}
@@ -95,7 +97,7 @@ function App() {
         <AudioInput onChange={(newPath) => setPath(newPath)} />
         {path && (
           <button onClick={transcribe} className="btn btn-primary">
-            Transcribe
+            {t("transcribe")}
           </button>
         )}
       </div>

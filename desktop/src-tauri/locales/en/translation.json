@@ -1,3 +1,11 @@
 {
-  "app-title": "Vibe!"
+  "app-title": "Vibe!",
+  "select-audio-file": "Select Audio File",
+  "lang-auto": "Auto detect",
+  "mode-text": "Text",
+  "transcribing": "Transcribing...",
+  "transcribe": "Transcribe",
+  "you-will-receive-notification": "You'll receive a notification when it's done! 🎉",
+  "this-happens-once": "This happens only once! 🎉",
+  "downloading-model": "Downloading OpenAI Model..."
 }
