@@ -32,8 +32,9 @@ async fn on_download_progress(current: u64, total: u64) {
 }
 
 #[tauri::command]
-fn get_model_path(app: tauri::AppHandle) -> Result<String, String> {
+fn verify_model() -> Result<String, String> {
     let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
+    vibe::integrity::verify(model_path.clone(), vibe::config::HASH.into()).map_err(|e| e.to_string())?;
     Ok(model_path.to_str().unwrap().to_string())
 }
 
@@ -70,7 +71,7 @@ fn main() {
     env_logger::init();
     debug!("App started");
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![transcribe, get_model_path, download_model])
+        .invoke_handler(tauri::generate_handler![transcribe, verify_model, download_model])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

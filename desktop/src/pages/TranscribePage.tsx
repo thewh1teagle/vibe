@@ -1,5 +1,4 @@
 import "@fontsource/roboto";
-import { fs } from "@tauri-apps/api";
 import { message as dialogMessage } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
@@ -21,14 +20,14 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [transcript, setTranscript] = useState<transcript.Transcript>();
   const [lang, setLang] = useState("");
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState<number | undefined>();
 
   useEffect(() => {
     async function checkModelExists() {
-      const path: string = await invoke("get_model_path");
-      const exists = await fs.exists(path);
-      console.log(`path ${path} exists => `, exists);
-      if (!exists) {
+      try {
+        await invoke("verify_model");
+      } catch (e) {
+        console.log(e);
         navigate("/setup");
       }
     }
@@ -75,13 +74,12 @@ function App() {
           <ThemeToggle />
         </div>
         <div className="text-3xl m-5 font-bold">{t("transcribing")}</div>
-        {progress > 0 && (
+        {(progress !== undefined && (
           <>
             <progress className="progress progress-primary w-56 my-2" value={progress} max="100"></progress>
             <p className="text-neutral-content">{t("you-will-receive-notification")}</p>
           </>
-        )}
-        {progress === 0 && <span className="loading loading-spinner loading-lg"></span>}
+        )) || <span className="loading loading-spinner loading-lg"></span>}
       </div>
     );
   }

@@ -5,7 +5,8 @@ use std::path::PathBuf;
 pub const APP_ID: &str = "github.com.thewh1teagle.vibe";
 pub const URL: &str = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true";
 pub const FILENAME: &str = "ggml-medium.bin";
-pub const HASH: &str = ""; // TODO
+// NOT a regular hash!! see integrity.rs
+pub const HASH: &str = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
 pub fn get_model_path() -> Result<PathBuf> {
     let app_config = dirs_next::data_dir().context("Can't get data directory")?.join(APP_ID);

@@ -63,7 +63,7 @@ async fn main() -> Result<()> {
     *PROGRESS_INSTANCE.lock().unwrap() = Some(pb.clone());
     let args = Args::parse();
     let mut downloader = vibe::downloader::Downloader::new();
-    if vibe::config::get_model_path()?.exists() {
+    if !vibe::config::get_model_path()?.exists() {
         downloader
             .download(
                 vibe::config::URL,

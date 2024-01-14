@@ -4,3 +4,4 @@ pub mod downloader;
 pub mod language;
 pub mod model;
 pub mod transcript;
+pub mod integrity;
