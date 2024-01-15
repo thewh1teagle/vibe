@@ -9,6 +9,8 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
+        Please, if possible, just open settings in vibe, and click 'Report Bug'
+        This way I'll get all the relevant info required
   - type: textarea
     id: what-happened
     attributes:

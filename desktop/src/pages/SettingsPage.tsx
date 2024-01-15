@@ -14,16 +14,22 @@ async function getAppInfo() {
   const kVer = await os.version();
   const osType = await os.type();
   const osVer = await os.version();
+  const configPath = await path.appLocalDataDir();
+  const entries = await fs.readDir(configPath);
+  const models = entries
+    .filter((e) => e.name?.endsWith(".bin"))
+    .map((e) => e.name)
+    .join(", ");
+  const defaultModel = localStorage.getItem("model_path")?.split("/")?.pop() ?? "Not Found";
   return `
-
-
-
 App Version: \`${appVersion}\`
 Arch: \`${arch}\`
 Platform: \`${platform}\`
 Kernel Version: \`${kVer}\`
 OS: \`${osType}\`
 OS Version: \`${osVer}\`
+Models: \`${models}\`
+Default Mode: \`${defaultModel}\`
   `;
 }
 
