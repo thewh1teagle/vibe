@@ -99,7 +99,7 @@ export default function SettingsPage() {
           <span className="label-text">{t("general")}</span>
         </div>
         <div className="flex flex-col gap-1">
-          <button onClick={openModelPath} className="btn bg-base-300 text-base-content">
+          <button onClick={() => shell.open("https://github.com/thewh1teagle/vibe")} className="btn bg-base-300 text-base-content">
             {t("project-link")}
           </button>
         </div>
