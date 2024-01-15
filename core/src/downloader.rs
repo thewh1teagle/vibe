@@ -1,12 +1,12 @@
 use anyhow::{bail, Context, Ok, Result};
 
+use crate::integrity;
 use futures_util::{Future, StreamExt};
 use log::debug;
 use reqwest;
 use std::clone::Clone;
 use std::io::Write;
 use std::path::PathBuf;
-use crate::integrity;
 
 pub struct Downloader {
     client: reqwest::Client,
@@ -45,10 +45,14 @@ impl Downloader {
                 callback_offset = downloaded;
             }
             downloaded += chunk.len() as u64;
+
+            // for testing
+            // break;
         }
         // check hash
         if let Some(hash) = hash {
             let new_hash = integrity::fast_hash(path)?;
+            // for testing comment out
             if new_hash != hash {
                 bail!("Invalid hash!");
             }
