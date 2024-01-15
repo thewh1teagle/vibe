@@ -14,6 +14,7 @@ static ON_PROGRESS_CHANGE: once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + 
     once_cell::sync::Lazy::new(|| Mutex::new(None));
 
 pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> Result<Transcript> {
+    debug!("Transcribe called with {:?}", options);
     if !options.model.exists() {
         bail!("whisper file doesn't exist")
     }
@@ -51,6 +52,23 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     params.set_print_timestamps(false);
     params.set_suppress_blank(true);
     params.set_token_timestamps(true);
+
+    if let Some(temperature) = options.temperature {
+        debug!("setting temperature to {temperature}");
+        params.set_temperature(temperature);
+    }
+
+    // handle args
+    if let Some(init_prompt) = options.init_prompt.to_owned() {
+        debug!("setting init prompt to {init_prompt}");
+        params.set_initial_prompt(&init_prompt);
+    }
+
+    if let Some(n_threads) = options.n_threads {
+        debug!("setting n threads to {n_threads}");
+        params.set_n_threads(n_threads);
+    }
+
     if let Some(_) = ON_PROGRESS_CHANGE.lock().unwrap().as_ref() {
         params.set_progress_callback_safe(|progress| {
             debug!("progress callback {}", progress);
@@ -59,13 +77,6 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
             }
         });
     }
-    // params.set_initial_prompt("experience");
-    debug!("set progress bar...");
-
-    if let Some(n_threads) = options.n_threads {
-        params.set_n_threads(n_threads);
-    }
-    // params.set_print_special(verbose);
 
     debug!("set start time...");
     let st = std::time::Instant::now();
@@ -109,6 +120,9 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         //     });
         // }
     }
+
+    // cleanup
+    std::fs::remove_file(out_path)?;
 
     Ok(Transcript {
         utterances,
@@ -160,6 +174,8 @@ mod tests {
             lang: None,
             n_threads: None,
             verbose: false,
+            init_prompt: None,
+            temperature: None,
         };
         transcribe(args, None)?;
 

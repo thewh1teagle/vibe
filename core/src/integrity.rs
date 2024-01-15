@@ -1,7 +1,10 @@
-use std::{path::PathBuf, io::{Read, Seek}};
+use anyhow::{bail, Ok, Result};
+use log::{debug, error};
 use sha256::digest;
-use anyhow::{Result, bail, Ok};
-use log::{debug,error};
+use std::{
+    io::{Read, Seek},
+    path::PathBuf,
+};
 
 pub fn fast_hash(path: PathBuf) -> Result<String> {
     debug!("hashing file at {}", path.display());
@@ -12,11 +15,12 @@ pub fn fast_hash(path: PathBuf) -> Result<String> {
     let size = file.seek(std::io::SeekFrom::End(0))?;
     let mut buf = Vec::new();
     file.seek(std::io::SeekFrom::Start(0))?; // seek back
-    if size < 1_000_000 { // if less than 1MB just read the whole file
+    if size < 1_000_000 {
+        // if less than 1MB just read the whole file
         // hash it all
         debug!("file size smaller than max size, hashing whole file");
         file.read_to_end(&mut buf)?;
-    } else  {
+    } else {
         // too big file, take 1KB from start and end
         debug!("file size too big, hashing part of file");
         const CHUNK_SIZE: u64 = 1024;
@@ -38,12 +42,12 @@ pub fn fast_hash(path: PathBuf) -> Result<String> {
 
 pub fn verify(path: PathBuf, hash: String) -> Result<()> {
     let file_hash = fast_hash(path.clone())?;
-    
+
     if file_hash != hash {
         error!("❌ Invalid file hash arg: {hash} file: {file_hash}");
         bail!("Invalid file hash at {}", path.display());
     }
     debug!("✅ Correct file hash arg: {hash} file: {file_hash}");
-    
+
     Ok(())
 }

@@ -17,9 +17,10 @@
         "all": true
       },
       "shell": {
-        "all": false,
-        "open": true
+        "all": true,
+        "open": ".*"
       },
+
       "dialog": {
         "all": true,
         "ask": true,

@@ -4,7 +4,7 @@
 mod config;
 use env_logger;
 use log::{debug, error};
-use std::{path::PathBuf, sync::Mutex};
+use std::sync::Mutex;
 use tauri::Manager;
 use vibe::transcript::Transcript;
 
@@ -32,13 +32,6 @@ async fn on_download_progress(current: u64, total: u64) {
 }
 
 #[tauri::command]
-fn verify_model() -> Result<String, String> {
-    let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
-    vibe::integrity::verify(model_path.clone(), vibe::config::HASH.into()).map_err(|e| e.to_string())?;
-    Ok(model_path.to_str().unwrap().to_string())
-}
-
-#[tauri::command]
 async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
     *APP_ASYNC_INSTANCE.lock().await = Some(app.clone());
     let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
@@ -52,17 +45,9 @@ async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn transcribe(app: tauri::AppHandle, path: &str, lang: &str) -> Result<Transcript, String> {
+async fn transcribe(app: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript, String> {
     // Store the app instance in the global static variable
     *APP_INSTANCE.lock().unwrap() = Some(app.clone());
-    let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
-    let options = vibe::config::ModelArgs {
-        lang: Some(lang.to_owned()),
-        model: model_path,
-        path: PathBuf::from(path),
-        n_threads: None,
-        verbose: false,
-    };
     let transcript = vibe::model::transcribe(&options, Some(on_transcribe_progress)).map_err(|e| e.to_string())?;
     Ok(transcript)
 }
@@ -71,7 +56,7 @@ fn main() {
     env_logger::init();
     debug!("App started");
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![transcribe, verify_model, download_model])
+        .invoke_handler(tauri::generate_handler![transcribe, download_model])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

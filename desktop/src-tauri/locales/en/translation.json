@@ -7,5 +7,22 @@
   "transcribe": "Transcribe",
   "you-will-receive-notification": "You'll receive a notification when it's done! 🎉",
   "this-happens-once": "This happens only once! 🎉",
-  "downloading-model": "Downloading OpenAI Model..."
+  "downloading-model": "Downloading OpenAI Model...",
+
+  "advanced-options": "Advanced Options",
+  "change-file": "Change File",
+  "prompt": "Prompt",
+  "threads": "Threads",
+  "temperature": "Temperature",
+  "settings": "Settings",
+  "leftover": "left",
+  "characters": "characters",
+  "error": "Error",
+  "language": "Language",
+  "open-models-path": "Open models folder",
+  "download-models-link": "Download models",
+  "project-link": "About Vibe",
+  "model": "model",
+  "customise": "customise",
+  "general": "general"
 }

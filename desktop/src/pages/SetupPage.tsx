@@ -22,20 +22,17 @@ function App() {
 
         if (newDownloadProgress > downloadProgressRef.current) {
           // for some reason it jumps if not
-          console.log("new Download progress => ", newDownloadProgress);
-          console.log("download progress => ", downloadProgress);
           setDownloadProgress(newDownloadProgress);
           downloadProgressRef.current = newDownloadProgress;
         }
       });
       try {
         await invoke("download_model");
-        console.log("done download!");
         navigate("/");
       } catch (e: any) {
         console.error(e);
         await dialogMessage(e?.toString(), {
-          title: "Error",
+          title: t("error"),
           type: "error",
         });
       }

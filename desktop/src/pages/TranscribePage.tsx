@@ -1,14 +1,17 @@
 import "@fontsource/roboto";
+import { fs, path } from "@tauri-apps/api";
 import { message as dialogMessage } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useLocalStorage } from "usehooks-ts";
 import successSound from "../assets/success.mp3";
 import AudioInput from "../components/AudioInput";
 import LanguageInput from "../components/LanguageInput";
+import Params, { LocalModelArgs } from "../components/Params";
 import TextArea from "../components/TextArea";
 import ThemeToggle from "../components/ThemeToggle";
 import * as transcript from "../transcript";
@@ -16,18 +19,47 @@ import * as transcript from "../transcript";
 function App() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [path, setPath] = useState("");
   const [loading, setLoading] = useState(false);
   const [transcript, setTranscript] = useState<transcript.Transcript>();
-  const [lang, setLang] = useState("");
+  const [lang, setLang] = useLocalStorage("lang", "en");
   const [progress, setProgress] = useState<number | undefined>();
+  const [audioPath, setAudioPath] = useState<string>();
+  const [modelPath, setModelPath] = useState<string>();
+  const audioRef = useRef<HTMLAudioElement>();
+  const [args, setArgs] = useLocalStorage<LocalModelArgs>("model_args", {
+    init_prompt: "",
+    verbose: false,
+    lang,
+    n_threads: 4,
+    temperature: 0,
+  });
+  console.log("using path ", modelPath);
+
+  useEffect(() => {
+    if (modelPath) {
+      localStorage.setItem("model_path", JSON.stringify(modelPath));
+    }
+  }, [modelPath]);
 
   useEffect(() => {
     async function checkModelExists() {
       try {
-        await invoke("verify_model");
+        const configPath = await path.appLocalDataDir();
+        const entries = await fs.readDir(configPath);
+        const filtered = entries.filter((e) => e.name?.endsWith(".bin"));
+        if (filtered.length === 0) {
+          navigate("/setup");
+        } else {
+          // get default one from local storage or first
+          const storedPath = localStorage.getItem("model_path");
+          if (storedPath) {
+            setModelPath(JSON.parse(storedPath));
+          } else {
+            setModelPath(filtered[0].path);
+          }
+        }
       } catch (e) {
-        console.log(e);
+        console.error(e);
         navigate("/setup");
       }
     }
@@ -46,19 +78,17 @@ function App() {
   async function transcribe() {
     setLoading(true);
     try {
-      const res: transcript.Transcript = await invoke("transcribe", { path, lang });
+      const res: transcript.Transcript = await invoke("transcribe", { options: { ...args, model: modelPath, path: audioPath, lang } });
       setLoading(false);
       setProgress(0);
       setTranscript(res);
-      setPath("");
     } catch (e: any) {
       console.error("error: ", e);
       await dialogMessage(e?.toString(), {
-        title: "Error",
+        title: t("error"),
         type: "error",
       });
       setLoading(false);
-      setPath("");
     } finally {
       // Focus back the window and play sound
       appWindow.unminimize();
@@ -69,7 +99,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
+      <div className="w-56 m-auto h-[100vh] flex flex-col justify-center items-center">
         <div className="absolute right-16 top-16">
           <ThemeToggle />
         </div>
@@ -80,27 +110,50 @@ function App() {
             <p className="text-neutral-content">{t("you-will-receive-notification")}</p>
           </>
         )) || <span className="loading loading-spinner loading-lg"></span>}
+        <div className="mt-5 w-full">
+          <AudioInput audioRef={audioRef} readonly={loading} path={audioPath ?? ""} setPath={setAudioPath} />
+        </div>
       </div>
     );
   }
-
   return (
     <div className="flex flex-col">
       <div className="flex flex-col m-auto w-[300px] mt-10">
-        <h1 className="text-center text-4xl mb-10">{t("app-title")}</h1>
+        <div className="relative text-center">
+          <h1 className="text-center text-4xl mb-10">{t("app-title")}</h1>
+          <div className="dropdown dropdown-hover absolute left-0 top-0" dir="ltr">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+              />
+            </svg>
+
+            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+              <li onClick={() => navigate("/settings")}>
+                <a>{t("settings")}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
         <div className="absolute right-16 top-16">
           <ThemeToggle />
         </div>
         <LanguageInput onChange={(lang) => setLang(lang)} />
-        <AudioInput onChange={(newPath) => setPath(newPath)} />
-        {path && (
-          <button onClick={transcribe} className="btn btn-primary">
-            {t("transcribe")}
-          </button>
+        <AudioInput audioRef={audioRef} path={audioPath} setPath={setAudioPath} />
+        {audioPath && (
+          <>
+            <button onClick={transcribe} className="btn btn-primary">
+              {t("transcribe")}
+            </button>
+            <Params args={args} setArgs={setArgs} />
+          </>
         )}
       </div>
       {transcript && (
-        <div className="flex flex-col mt-20 items-center w-[60%] max-w-[1000px] h-[70vh] max-h-[600px] m-auto">
+        <div className="flex flex-col mt-20 items-center w-[60%] max-w-[1000px] h-[45vh] m-auto">
           <TextArea transcript={transcript} />
         </div>
       )}
