@@ -8,6 +8,16 @@ Transcribe audio in any language
 
 Download `vibe.exe` from [releases](https://github.com/thewh1teagle/vibe/releases)
 
+# Features
+- Transcribe almost every language
+- Works offline, no data sent out
+- Easy to use
+- Model parametrs for advanced users
+- Optimized for `CPU`
+- Support `SRT`, `VTT` formats
+- Transcribe audio / video
+
+
 # Offline Install
 
 In case you can't download the model if you don't have internet connection
