@@ -16,6 +16,14 @@
       "window": {
         "all": true
       },
+      "app": {
+        "all": false,
+        "hide": true,
+        "show": true
+      },
+      "os": {
+        "all": true
+      },
       "shell": {
         "all": true,
         "open": ".*"

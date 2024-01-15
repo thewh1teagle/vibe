@@ -1,4 +1,5 @@
-import { fs, path, shell } from "@tauri-apps/api";
+import { fs, os, path, shell } from "@tauri-apps/api";
+import { getName, getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -6,12 +7,33 @@ import { useLocalStorage } from "usehooks-ts";
 import { languages } from "../i18n";
 import { cx } from "../utils";
 
+async function getAppInfo() {
+  const appVersion = await getVersion();
+  const arch = await os.arch();
+  const platform = await os.platform();
+  const kVer = await os.version();
+  const osType = await os.type();
+  const osVer = await os.version();
+  return `
+
+
+
+App Version: \`${appVersion}\`
+Arch: \`${arch}\`
+Platform: \`${platform}\`
+Kernel Version: \`${kVer}\`
+OS: \`${osType}\`
+OS Version: \`${osVer}\`
+  `;
+}
+
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useLocalStorage("language", i18n.language);
   const [modelPath, setModelPath] = useLocalStorage("model_path", "");
   const [models, setModels] = useState<fs.FileEntry[]>([]);
   const navigate = useNavigate();
+  const [appVersion, setAppVersion] = useState("");
 
   useEffect(() => {
     i18n.changeLanguage(language);
@@ -25,6 +47,15 @@ export default function SettingsPage() {
       setModels(found);
     }
     loadModels();
+  }, []);
+
+  useEffect(() => {
+    async function loadMeta() {
+      const name = await getName();
+      const ver = await getVersion();
+      setAppVersion(`${name} ${ver}`);
+    }
+    loadMeta();
   }, []);
 
   async function openModelPath() {
@@ -67,10 +98,10 @@ export default function SettingsPage() {
         </select>
       </label>
 
-      <label className="form-control w-full">
-        <div className="label">
-          <span className="label-text">{t("model")}</span>
-        </div>
+      <div className="label mt-10">
+        <span className="label-text">{t("customise")}</span>
+      </div>
+      <div className="flex flex-col gap-1">
         <select onChange={(e) => setModelPath(e.target.value)} value={modelPath} className="select select-bordered">
           {models.map((model, index) => (
             <option key={index} value={model.path}>
@@ -78,32 +109,32 @@ export default function SettingsPage() {
             </option>
           ))}
         </select>
-      </label>
+        <button onClick={openModelPath} className="btn bg-base-300 text-base-content">
+          {t("open-models-path")}
+        </button>
+        <button onClick={openModelsUrl} className="btn bg-base-300 text-base-content">
+          {t("download-models-link")}
+        </button>
+      </div>
 
-      <label className="form-control w-full mt-8">
-        <div className="label">
-          <span className="label-text">{t("customise")}</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <button onClick={openModelPath} className="btn bg-base-300 text-base-content">
-            {t("open-models-path")}
-          </button>
-          <button onClick={openModelsUrl} className="btn bg-base-300 text-base-content">
-            {t("download-models-link")}
-          </button>
-        </div>
-      </label>
+      <div className="label mt-10">
+        <span className="label-text">{t("general")}</span>
+      </div>
 
-      <label className="form-control w-full mt-8">
-        <div className="label">
-          <span className="label-text">{t("general")}</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <button onClick={() => shell.open("https://github.com/thewh1teagle/vibe")} className="btn bg-base-300 text-base-content">
-            {t("project-link")}
-          </button>
-        </div>
-      </label>
+      <div className="flex flex-col gap-1">
+        <button onClick={() => shell.open("https://github.com/thewh1teagle/vibe")} className="btn bg-base-300 text-base-content">
+          {t("project-link")}
+        </button>
+        <button
+          onClick={async () => {
+            const info = await getAppInfo();
+            shell.open(`https://github.com/thewh1teagle/vibe/issues/new?title=[Bug]:&body=Hello%21%0AI%20experience%20...%0A%0A%0A${encodeURIComponent(info)}`);
+          }}
+          className="btn bg-base-300 text-base-content">
+          {t("report-issue")}
+        </button>
+        <p className="text-center font-light mt-2">{appVersion}</p>
+      </div>
     </div>
   );
 }
