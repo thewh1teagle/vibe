@@ -22,14 +22,14 @@ async function getAppInfo() {
     .join(", ");
   const defaultModel = localStorage.getItem("model_path")?.split("/")?.pop() ?? "Not Found";
   return `
-App Version: \`${appVersion}\`
-Arch: \`${arch}\`
-Platform: \`${platform}\`
-Kernel Version: \`${kVer}\`
-OS: \`${osType}\`
-OS Version: \`${osVer}\`
-Models: \`${models}\`
-Default Mode: \`${defaultModel}\`
+App Version: ${appVersion}
+Arch: ${arch}
+Platform: ${platform}
+Kernel Version: ${kVer}
+OS: ${osType}
+OS Version: ${osVer}
+Models: ${models}
+Default Mode: ${defaultModel}
   `;
 }
 
@@ -134,7 +134,12 @@ export default function SettingsPage() {
         <button
           onClick={async () => {
             const info = await getAppInfo();
-            shell.open(`https://github.com/thewh1teagle/vibe/issues/new?title=[Bug]:&body=Hello%21%0AI%20experience%20...%0A%0A%0A${encodeURIComponent(info)}`);
+
+            shell.open(
+              `https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=Bug:&logs=${encodeURIComponent(
+                info
+              )}`
+            );
           }}
           className="btn bg-base-300 text-base-content">
           {t("report-issue")}

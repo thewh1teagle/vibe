@@ -46,14 +46,5 @@ body:
       label: Relevant log output
       description: |
         Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-        If you use python enable logging by 
-        ```python
-        import logging
-        logging.basicConfig(level=logging.DEBUG)
-        ```
-        If you use rust try enabling by setting environment variable 
-        ```shell
-        RUST_LOG=trace
-        ```
 
       render: shell
