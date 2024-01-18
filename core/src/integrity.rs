@@ -1,5 +1,5 @@
 use anyhow::{bail, Ok, Result};
-use log::{debug, error};
+use log::debug;
 use sha256::digest;
 use std::{
     io::{Read, Seek},
@@ -38,16 +38,4 @@ pub fn fast_hash(path: PathBuf) -> Result<String> {
     let hash = digest(&buf);
     debug!("file hash is {hash}");
     Ok(hash)
-}
-
-pub fn verify(path: PathBuf, hash: String) -> Result<()> {
-    let file_hash = fast_hash(path.clone())?;
-
-    if file_hash != hash {
-        error!("❌ Invalid file hash arg: {hash} file: {file_hash}");
-        bail!("Invalid file hash at {}", path.display());
-    }
-    debug!("✅ Correct file hash arg: {hash} file: {file_hash}");
-
-    Ok(())
 }

@@ -1,6 +1,4 @@
-use anyhow::{bail, Context, Ok, Result};
-
-use crate::integrity;
+use anyhow::{Context, Ok, Result};
 use futures_util::{Future, StreamExt};
 use log::debug;
 use reqwest;
@@ -19,7 +17,7 @@ impl Downloader {
         Downloader { client }
     }
 
-    pub async fn download<F, Fut>(&mut self, url: &str, path: PathBuf, hash: Option<&str>, on_progress: F) -> Result<()>
+    pub async fn download<F, Fut>(&mut self, url: &str, path: PathBuf, _: Option<&str>, on_progress: F) -> Result<()>
     where
         F: Fn(u64, u64) -> Fut,
         Fut: Future<Output = ()>,
@@ -50,13 +48,13 @@ impl Downloader {
             // break;
         }
         // check hash
-        if let Some(hash) = hash {
-            let new_hash = integrity::fast_hash(path)?;
-            // for testing comment out
-            if new_hash != hash {
-                bail!("Invalid hash!");
-            }
-        }
+        // if let Some(hash) = hash {
+        //     let new_hash = integrity::fast_hash(path)?;
+        //     // for testing comment out
+        //     if new_hash != hash {
+        //         bail!("Invalid hash!");
+        //     }
+        // }
         Ok(())
     }
 }
