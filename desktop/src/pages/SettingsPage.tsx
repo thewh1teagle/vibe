@@ -1,37 +1,12 @@
-import { fs, os, path, shell } from "@tauri-apps/api";
+import { fs, invoke, path, shell } from "@tauri-apps/api";
 import { getName, getVersion } from "@tauri-apps/api/app";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 import { languages } from "../i18n";
-import { cx } from "../utils";
-
-async function getAppInfo() {
-  const appVersion = await getVersion();
-  const arch = await os.arch();
-  const platform = await os.platform();
-  const kVer = await os.version();
-  const osType = await os.type();
-  const osVer = await os.version();
-  const configPath = await path.appLocalDataDir();
-  const entries = await fs.readDir(configPath);
-  const models = entries
-    .filter((e) => e.name?.endsWith(".bin"))
-    .map((e) => e.name)
-    .join(", ");
-  const defaultModel = localStorage.getItem("model_path")?.split("/")?.pop() ?? "Not Found";
-  return `
-App Version: ${appVersion}
-Arch: ${arch}
-Platform: ${platform}
-Kernel Version: ${kVer}
-OS: ${osType}
-OS Version: ${osVer}
-Models: ${models}
-Default Mode: ${defaultModel}
-  `;
-}
+import { ErrorModalContext } from "../providers/ErrorModalProvider";
+import { cx, getAppInfo, getIssueUrl } from "../utils";
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
@@ -40,10 +15,21 @@ export default function SettingsPage() {
   const [models, setModels] = useState<fs.FileEntry[]>([]);
   const navigate = useNavigate();
   const [appVersion, setAppVersion] = useState("");
+  const { setState: setModalState } = useContext(ErrorModalContext);
 
   useEffect(() => {
     i18n.changeLanguage(language);
   }, [language]);
+
+  useEffect(() => {
+    async function init() {
+      if (!modelPath) {
+        const defaultModelPath = (await invoke("get_default_model_path")) as string;
+        setModelPath(defaultModelPath);
+      }
+    }
+    init();
+  }, []);
 
   useEffect(() => {
     async function loadModels() {
@@ -131,21 +117,12 @@ export default function SettingsPage() {
         <button onClick={() => shell.open("https://github.com/thewh1teagle/vibe")} className="btn bg-base-300 text-base-content">
           {t("project-link")}
         </button>
-        <button
-          onClick={async () => {
-            const info = await getAppInfo();
-
-            shell.open(
-              `https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=Bug:&logs=${encodeURIComponent(
-                info
-              )}`
-            );
-          }}
-          className="btn bg-base-300 text-base-content">
+        <button onClick={async () => shell.open(await getIssueUrl(await getAppInfo()))} className="btn bg-base-300 text-base-content">
           {t("report-issue")}
         </button>
         <p className="text-center font-light mt-2">{appVersion}</p>
       </div>
+      <button onClick={() => setModalState?.({ open: true, log: "hello" })}>click</button>
     </div>
   );
 }

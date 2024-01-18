@@ -24,5 +24,9 @@
   "model": "מודל",
   "customise": "התאמה אישית",
   "general": "כללי",
-  "report-issue": "דיווח על תקלה"
+  "report-issue": "דיווח על תקלה",
+  "error-title": "שגיאה",
+  "modal-error-body": "קרתה שגיאה לא צפויה",
+  "modal-close": "סגירה",
+  "reset-app": "ביצוע איפוס"
 }

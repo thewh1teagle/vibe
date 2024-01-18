@@ -1,16 +1,17 @@
 import { invoke } from "@tauri-apps/api";
-import { message as dialogMessage } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
+import { ErrorModalContext } from "../providers/ErrorModalProvider";
 
 function App() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [downloadProgress, setDownloadProgress] = useState(0);
   const downloadProgressRef = useRef(0);
+  const { setState: setErrorModal } = useContext(ErrorModalContext);
 
   useEffect(() => {
     async function downloadModel() {
@@ -31,10 +32,7 @@ function App() {
         navigate("/");
       } catch (e: any) {
         console.error(e);
-        await dialogMessage(e?.toString(), {
-          title: t("error"),
-          type: "error",
-        });
+        setErrorModal?.({ open: true, log: e?.toString() });
       }
     }
     downloadModel();

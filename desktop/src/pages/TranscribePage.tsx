@@ -1,10 +1,9 @@
 import "@fontsource/roboto";
 import { fs, path } from "@tauri-apps/api";
-import { message as dialogMessage } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
@@ -14,6 +13,7 @@ import LanguageInput from "../components/LanguageInput";
 import Params, { LocalModelArgs } from "../components/Params";
 import TextArea from "../components/TextArea";
 import ThemeToggle from "../components/ThemeToggle";
+import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import * as transcript from "../transcript";
 
 function App() {
@@ -26,6 +26,7 @@ function App() {
   const [audioPath, setAudioPath] = useState<string>();
   const [modelPath, setModelPath] = useState<string>();
   const audioRef = useRef<HTMLAudioElement>();
+  const { setState: setErrorModal } = useContext(ErrorModalContext);
   const [args, setArgs] = useLocalStorage<LocalModelArgs>("model_args", {
     init_prompt: "",
     verbose: false,
@@ -84,10 +85,7 @@ function App() {
       setTranscript(res);
     } catch (e: any) {
       console.error("error: ", e);
-      await dialogMessage(e?.toString(), {
-        title: t("error"),
-        type: "error",
-      });
+      setErrorModal?.({ log: e.toString(), open: true });
       setLoading(false);
     } finally {
       // Focus back the window and play sound

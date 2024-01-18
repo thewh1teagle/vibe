@@ -24,5 +24,9 @@
   "model": "model",
   "customise": "customise",
   "general": "general",
-  "report-issue": "Report Issue"
+  "report-issue": "Report Issue",
+  "error-title": "Error",
+  "modal-error-body": "A bug happend!",
+  "modal-close": "Close",
+  "reset-app": "Reset Vibe"
 }

@@ -45,6 +45,13 @@ async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn get_default_model_path(app: tauri::AppHandle) -> Result<String, String> {
+    let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
+    let model_path = model_path.to_str().ok_or("cant convert model path to string")?;
+    Ok(model_path.to_string())
+}
+
+#[tauri::command]
 async fn transcribe(app: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript, String> {
     // Store the app instance in the global static variable
     *APP_INSTANCE.lock().unwrap() = Some(app.clone());
@@ -56,7 +63,7 @@ fn main() {
     env_logger::init();
     debug!("App started");
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![transcribe, download_model])
+        .invoke_handler(tauri::generate_handler![transcribe, download_model, get_default_model_path])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
