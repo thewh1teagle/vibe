@@ -34,7 +34,6 @@ function App() {
     n_threads: 4,
     temperature: 0,
   });
-  console.log("using path ", modelPath);
 
   useEffect(() => {
     if (modelPath) {

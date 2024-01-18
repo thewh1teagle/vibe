@@ -52,7 +52,6 @@ export default function SettingsPage() {
 
   async function openModelPath() {
     const configPath = await path.appLocalDataDir();
-    console.log("open folder => ", configPath);
     shell.open(configPath);
   }
 
