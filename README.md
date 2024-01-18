@@ -40,6 +40,16 @@ Follow this instructions:
 
 And if the antivirus still block the model file, you can always exclude it from the antivirus.
 
+# Contribute
+PRs are welcomed!
+In addition, you're welcome to add translations.
+
+# Add translation
+1. Copy `en.json` from `locales` folder
+2. Create new file eg `ru.json`
+3. Change every value to the new language and keep the keys as is
+4. create PR / issue in github
+
 # Build
 
 see [BUILDING.md](BUILDING.md)
