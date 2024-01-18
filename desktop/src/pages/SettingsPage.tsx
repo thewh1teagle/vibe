@@ -114,6 +114,9 @@ export default function SettingsPage() {
         <button onClick={() => shell.open("https://github.com/thewh1teagle/vibe")} className="btn bg-base-300 text-base-content">
           {t("project-link")}
         </button>
+        <button onClick={async () => shell.open("https://github.com/thewh1teagle/vibe/releases/latest")} className="btn bg-base-300 text-base-content">
+          {t("update-version")}
+        </button>
         <button onClick={async () => shell.open(await getIssueUrl(await getAppInfo()))} className="btn bg-base-300 text-base-content">
           {t("report-issue")}
         </button>

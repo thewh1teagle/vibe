@@ -28,5 +28,6 @@
   "error-title": "Error",
   "modal-error-body": "A bug happend!",
   "modal-close": "Close",
-  "reset-app": "Reset Vibe"
+  "reset-app": "Reset Vibe",
+  "update-version": "Update Vibe"
 }

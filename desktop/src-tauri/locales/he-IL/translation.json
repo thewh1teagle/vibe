@@ -28,5 +28,6 @@
   "error-title": "שגיאה",
   "modal-error-body": "קרתה שגיאה לא צפויה",
   "modal-close": "סגירה",
-  "reset-app": "ביצוע איפוס"
+  "reset-app": "ביצוע איפוס",
+  "update-version": "עדכן לגרסה חדשה"
 }
