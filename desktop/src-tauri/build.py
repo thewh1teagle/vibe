@@ -111,7 +111,8 @@ RESOURCES = [f'C:\\msys64\\ucrt64\\bin\\{name}' for name in (
     # OpenBLAS
     "libopenblas.dll",
     "libgfortran-5.dll",
-    "libquadmath-0.dll"
+    "libquadmath-0.dll",
+    "vulkan-1.dll"
 )]
 # Webview2
 RESOURCES.append("../../target/release/WebView2Loader.dll")
