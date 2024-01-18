@@ -1,11 +1,10 @@
 import { fs, invoke, path, shell } from "@tauri-apps/api";
 import { getName, getVersion } from "@tauri-apps/api/app";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 import { languages } from "../i18n";
-import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import { cx, getAppInfo, getIssueUrl } from "../utils";
 
 export default function SettingsPage() {
@@ -15,7 +14,6 @@ export default function SettingsPage() {
   const [models, setModels] = useState<fs.FileEntry[]>([]);
   const navigate = useNavigate();
   const [appVersion, setAppVersion] = useState("");
-  const { setState: setModalState } = useContext(ErrorModalContext);
 
   useEffect(() => {
     i18n.changeLanguage(language);
