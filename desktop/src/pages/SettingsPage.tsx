@@ -121,7 +121,6 @@ export default function SettingsPage() {
         </button>
         <p className="text-center font-light mt-2">{appVersion}</p>
       </div>
-      <button onClick={() => setModalState?.({ open: true, log: "hello" })}>click</button>
     </div>
   );
 }

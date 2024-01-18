@@ -45,7 +45,7 @@ async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn get_default_model_path(app: tauri::AppHandle) -> Result<String, String> {
+async fn get_default_model_path() -> Result<String, String> {
     let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
     let model_path = model_path.to_str().ok_or("cant convert model path to string")?;
     Ok(model_path.to_string())
