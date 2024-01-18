@@ -1,6 +1,7 @@
 {
   "rust-analyzer.checkOnSave": false,
   "rust-analyzer.restartServerOnConfigChange": false,
+  "cargo.automaticCheck": false,
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
