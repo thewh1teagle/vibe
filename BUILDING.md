@@ -44,7 +44,7 @@ cargo tauri build
 1. Install packages
 ```console
 sudo apt-get update
-sudo apt-get install -y libblas-dev liblapack-dev
+sudo apt-get install -y libblas-dev liblapack-dev libavutil-dev
 ```
 2. Install [rust](https://www.rust-lang.org/tools/install)
 3. Install `tauri-cli`
