@@ -1,5 +1,7 @@
 # Building
 
+## Windows
+
 install msys2 and open ucrt64 terminal
 
 ```console
@@ -17,12 +19,25 @@ pacman --needed -S $MINGW_PACKAGE_PREFIX-openblas
 OPENBLAS_PATH=$MINGW_PREFIX PATH="/c/Program Files/nodejs:$PATH" cargo tauri build
 ```
 
-## Desktop
-
 for building to desktop you must use msys2 environment along with NodeJS installed outside of the environemnt.
 
 ```
 RUST_LOG=trace PATH="/c/Program Files/nodejs:$PATH" cargo tauri build # use dev for develop
+```
+
+## MacOS
+1. Install brew packages
+```console
+brew install lapack ffmpeg openblas git node@18
+```
+2. Install [rust](https://www.rust-lang.org/tools/install)
+3. Install `tauri-cli`
+```console
+cargo install tauri-cli
+```
+4. Inside `desktop` folder build the app
+```
+cargo tauri build
 ```
 
 ## Test
