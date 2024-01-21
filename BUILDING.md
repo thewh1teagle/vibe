@@ -36,7 +36,7 @@ brew install lapack ffmpeg openblas git node@18
 cargo install tauri-cli
 ```
 4. Inside `desktop` folder build the app
-```
+```console
 cargo tauri build
 ```
 
