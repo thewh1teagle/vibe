@@ -10,7 +10,11 @@ Transcribe audio in every language
 
 # Install
 
-Download `vibe.exe` from [releases](https://github.com/thewh1teagle/vibe/releases)
+Download `vibe` from [releases](https://github.com/thewh1teagle/vibe/releases)
+
+# Supportd platforms
+`MacOS`
+`Windows`
 
 # Features
 - Transcribe almost every language
