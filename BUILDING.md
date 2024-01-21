@@ -40,6 +40,22 @@ cargo install tauri-cli
 cargo tauri build
 ```
 
+## Linux
+1. Install packages
+```console
+sudo apt-get update
+sudo apt-get install -y libblas-dev liblapack-dev
+```
+2. Install [rust](https://www.rust-lang.org/tools/install)
+3. Install `tauri-cli`
+```console
+cargo install tauri-cli
+```
+4. Inside `desktop` folder build the app
+```console
+cargo tauri build
+```
+
 ## Test
 
 ```
