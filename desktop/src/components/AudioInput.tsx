@@ -60,10 +60,13 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
   }, []);
 
   async function select() {
+    console.log('selecting audio...')
+    console.log('pause audio...')
     audioRef.current?.pause();
     setPlaying(false);
     const videoExtensions = ["mp4", "mkv", "avi", "mov", "wmv", "webm"];
     const audioExtensions = ["mp3", "wav", "aac", "flac", "oga", "ogg", "opic"];
+    console.log('fs.open...')
     const selected = await open({
       multiple: false,
       filters: [
@@ -75,7 +78,9 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
     });
     if (selected) {
       setPath(selected as string);
+      console.log('audio.pause...')
       audioRef.current?.pause();
+      console.log('new Audio...')
       const newAudio = new Audio(convertFileSrc(selected as string));
       newAudio.addEventListener("loadedmetadata", onLoadMetadata);
       audioRef.current = newAudio;
@@ -98,6 +103,9 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
   }
 
   function play() {
+    console.log('going to play video...')
+    console.log('Stringify audioRef.current => ', JSON.stringify(audioRef.current))
+    console.log('audioRef.current => ', audioRef.current)
     audioRef.current?.play();
     setPlaying(true);
     audioRef.current?.addEventListener("timeupdate", onTimeUpdate);
