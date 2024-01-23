@@ -13,7 +13,7 @@ Transcribe audio in every language
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
-`Linux`: install either `.deb` or use `appImage` from [releases](https://github.com/thewh1teagle/vibe/releases)
+`Linux`: install either `.deb` (recommend) or use `appImage` from [releases](https://github.com/thewh1teagle/vibe/releases)
 
 # Supportd platforms
 `MacOS`
