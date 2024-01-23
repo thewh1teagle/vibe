@@ -21,7 +21,7 @@ Download `vibe` from [releases](https://github.com/thewh1teagle/vibe/releases)
 - Works offline, no data sent out
 - Easy to use
 - Model parametrs for advanced users
-- Optimized for `CPU` (`Windows` / `Linux`)
+- Optimized for `CPU` (`Windows`)
 - Optmized for `GPU` (`MacOS`)
 - Support `SRT`, `VTT` formats
 - Transcribe audio / video
