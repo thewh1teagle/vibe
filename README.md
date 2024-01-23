@@ -9,7 +9,7 @@ Transcribe audio in every language
 <img src="https://github.com/thewh1teagle/vibe/assets/61390950/ece19b81-26c6-4c13-81de-33175bb898d9" width=600>
 
 # Downlaods
-`MacOS`: install `.pkg` file from [releases](https://github.com/thewh1teagle/vibe/releases)
+`MacOS`: install `.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
