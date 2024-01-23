@@ -13,7 +13,7 @@ Transcribe audio in every language
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
-`Linux`: install either `.deb` (recommend) or use `appImage` from [releases](https://github.com/thewh1teagle/vibe/releases)
+`Linux`: install either `.deb` (recommend) or use `appImage` from [releases](https://github.com/thewh1teagle/vibe/releases) and follow
 
 # Supportd platforms 🖥️
 `MacOS`
@@ -31,13 +31,13 @@ Transcribe audio in every language
 - Transcribe audio / video
 
 
-# Offline Install 📶
-
-In case you can't download the model if you don't have internet connection
-
-Or your anti virus block it for some reason
-
-Follow this instructions:
+# Install notes
+## Ubuntu
+Please install the following packages
+```console
+sudo apt-get install libgcc-s1 libc6 zlib1g libselinux1 libpcre3 libbz2-1.0 liblzma5 libcap2 libexpat1 libgpg-error0 libdbus-1-3 libcom-err2 libc6 libncursesw6 libtinfo6 libpulse0 libc6 libkeyutils1 libc6
+```
+## Offline installation
 
 1. Stop the program
 
@@ -48,6 +48,7 @@ Follow this instructions:
 4. Start the program
 
 And if the antivirus still block the model file, you can always exclude it from the antivirus.
+
 
 # Contribute 🤝
 PRs are welcomed!
