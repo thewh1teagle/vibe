@@ -8,19 +8,19 @@ Transcribe audio in every language
 
 <img src="https://github.com/thewh1teagle/vibe/assets/61390950/ece19b81-26c6-4c13-81de-33175bb898d9" width=600>
 
-# Downlaods
+# Downlaods ⬇️
 `MacOS`: install `.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
 `Linux`: install either `.deb` (recommend) or use `appImage` from [releases](https://github.com/thewh1teagle/vibe/releases)
 
-# Supportd platforms
+# Supportd platforms 🖥️
 `MacOS`
 `Windows`
 `Linux`
 
-# Features
+# Features 🌟
 - Transcribe almost every language
 - Works offline, no data sent out
 - Easy to use
@@ -31,7 +31,7 @@ Transcribe audio in every language
 - Transcribe audio / video
 
 
-# Offline Install
+# Offline Install 📶
 
 In case you can't download the model if you don't have internet connection
 
@@ -49,16 +49,16 @@ Follow this instructions:
 
 And if the antivirus still block the model file, you can always exclude it from the antivirus.
 
-# Contribute
+# Contribute 🤝
 PRs are welcomed!
 In addition, you're welcome to add translations.
 
-# Add translation
+# Add translation 🌐
 1. Copy `en.json` from `locales` folder
 2. Create new file eg `ru.json`
 3. Change every value to the new language and keep the keys as is
 4. create PR / issue in github
 
-# Build
+# Build 🛠️
 
 see [BUILDING.md](BUILDING.md)
