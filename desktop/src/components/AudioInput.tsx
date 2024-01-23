@@ -60,8 +60,6 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
   }, []);
 
   async function select() {
-
-
     audioRef.current?.pause();
     setPlaying(false);
     const videoExtensions = ["mp4", "mkv", "avi", "mov", "wmv", "webm"];
@@ -103,9 +101,6 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
   }
 
   function play() {
-
-
-
     audioRef.current?.play();
     setPlaying(true);
     audioRef.current?.addEventListener("timeupdate", onTimeUpdate);

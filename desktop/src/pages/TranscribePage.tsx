@@ -44,7 +44,6 @@ function App() {
   useEffect(() => {
     async function checkModelExists() {
       try {
-
         const configPath = await path.appLocalDataDir();
 
         const entries = await fs.readDir(configPath);
