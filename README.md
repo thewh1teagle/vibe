@@ -40,8 +40,10 @@ sudo apt-get install libgcc-s1 libc6 zlib1g libselinux1 libpcre3 libbz2-1.0 libl
 And for install the `deb` file -> download it and execute
 ```console
 dpkg -i ./vibe*.deb
-
 ```
+Currenly, listening for the audio file isn't supported on `Linux`
+And using the `appImage` isn't recommended.
+
 ## Offline installation
 
 1. Stop the program
