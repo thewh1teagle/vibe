@@ -44,11 +44,11 @@ function App() {
   useEffect(() => {
     async function checkModelExists() {
       try {
-        console.log('reading config path')
+
         const configPath = await path.appLocalDataDir();
-        console.log('reading files in path')
+
         const entries = await fs.readDir(configPath);
-        console.log('Done')
+
         const filtered = entries.filter((e) => e.name?.endsWith(".bin"));
         if (filtered.length === 0) {
           navigate("/setup");

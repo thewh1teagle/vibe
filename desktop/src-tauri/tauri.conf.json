@@ -37,11 +37,7 @@
         "save": true
       },
       "fs": {
-        "readFile": true,
-        "writeFile": true,
-        "readDir": true,
-        "createDir": true,
-        "exists": true,
+        "all": true,
         "scope": {
           "allow": [
             "**"
