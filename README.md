@@ -18,6 +18,7 @@ Transcribe audio in every language
 # Supportd platforms
 `MacOS`
 `Windows`
+`Linux`
 
 # Features
 - Transcribe almost every language
