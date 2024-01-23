@@ -45,7 +45,9 @@ function App() {
     async function checkModelExists() {
       try {
         const configPath = await path.appLocalDataDir();
+
         const entries = await fs.readDir(configPath);
+
         const filtered = entries.filter((e) => e.name?.endsWith(".bin"));
         if (filtered.length === 0) {
           navigate("/setup");

@@ -64,6 +64,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
     setPlaying(false);
     const videoExtensions = ["mp4", "mkv", "avi", "mov", "wmv", "webm"];
     const audioExtensions = ["mp3", "wav", "aac", "flac", "oga", "ogg", "opic"];
+
     const selected = await open({
       multiple: false,
       filters: [
@@ -75,7 +76,9 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
     });
     if (selected) {
       setPath(selected as string);
+
       audioRef.current?.pause();
+
       const newAudio = new Audio(convertFileSrc(selected as string));
       newAudio.addEventListener("loadedmetadata", onLoadMetadata);
       audioRef.current = newAudio;
