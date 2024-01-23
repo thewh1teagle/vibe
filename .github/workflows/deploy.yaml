@@ -50,8 +50,6 @@ jobs:
 
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
-        with:
-          architecture: 'x86_64'
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,3 +60,4 @@ jobs:
           releaseDraft: true
           prerelease: false
           projectPath: ${{env.working-directory}}
+          architecture: "x86_64"
