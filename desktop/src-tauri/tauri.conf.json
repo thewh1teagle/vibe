@@ -79,7 +79,7 @@
       ]
     },
     "security": {
-      "csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-inline' 'self' img-src:; script-src http: https: 'unsafe-inline';"
+      "csp": null
     },
     "windows": [
       {
