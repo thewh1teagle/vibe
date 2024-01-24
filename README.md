@@ -30,7 +30,6 @@ Transcribe audio in every language
 - Support `SRT`, `VTT` formats
 - Transcribe audio / video
 
-
 # Install notes
 ## Ubuntu
 Please install the following packages
@@ -73,3 +72,6 @@ You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/
 # Build 🛠️
 
 see [BUILDING.md](BUILDING.md)
+
+# Why I made Vibe 🤔
+Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-transcription-872ab6d9dbb0)
