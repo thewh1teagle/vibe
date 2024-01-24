@@ -34,7 +34,7 @@ Transcribe audio in every language
 ## Ubuntu
 Please install the following packages
 ```console
-sudo apt-get install libgcc-s1 libc6 zlib1g libselinux1 libpcre3 libbz2-1.0 liblzma5 libcap2 libexpat1 libgpg-error0 libdbus-1-3 libcom-err2 libc6 libncursesw6 libtinfo6 libpulse0 libc6 libkeyutils1 libc6
+sudo apt-get install ffmpeg libgcc-s1 libc6 zlib1g libselinux1 libpcre3 libbz2-1.0 liblzma5 libcap2 libexpat1 libgpg-error0 libdbus-1-3 libcom-err2 libc6 libncursesw6 libtinfo6 libpulse0 libc6 libkeyutils1 libc6
 ```
 And for install the `deb` file -> download it and execute
 ```console
