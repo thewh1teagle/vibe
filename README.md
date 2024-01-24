@@ -61,6 +61,9 @@ And if the antivirus still block the model file, you can always exclude it from 
 PRs are welcomed!
 In addition, you're welcome to add translations.
 
+# Roadmap 🛣️
+You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/projects/5/views/1)
+
 # Add translation 🌐
 1. Copy `en.json` from `locales` folder
 2. Create new file eg `ru.json`
