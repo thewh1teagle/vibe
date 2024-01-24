@@ -73,5 +73,5 @@ You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/
 
 see [BUILDING.md](BUILDING.md)
 
-# Why I made Vibe 🤔
+# I want to know more!
 Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-transcription-872ab6d9dbb0)
