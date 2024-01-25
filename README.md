@@ -38,6 +38,8 @@ Windows: Version `8` greater.
 Hardware:
 No special requirement. resource usage can be customized through advanced settings in main window.
 
+Currenly, `MacOS` computers get the best performance since there's GPU optimizations.
+
 ## Ubuntu
 Please install the following packages
 ```console
