@@ -69,6 +69,9 @@ And if the antivirus still block the model file, you can always exclude it from 
 PRs are welcomed!
 In addition, you're welcome to add translations.
 
+# Community
+[Discord](https://discord.gg/2VWf5jB5)
+
 # Roadmap 🛣️
 You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/projects/5/views/1)
 
