@@ -30,7 +30,14 @@ Transcribe audio in every language
 - Support `SRT`, `VTT` formats
 - Transcribe audio / video
 
+
 # Install notes
+## System requirements
+Windows: Version `8` greater.
+
+Hardware:
+No special requirement. resource usage can be customized through advanced settings in main window.
+
 ## Ubuntu
 Please install the following packages
 ```console
