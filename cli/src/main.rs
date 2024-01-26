@@ -14,7 +14,6 @@ static PROGRESS_INSTANCE_ASYNC: once_cell::sync::Lazy<tokio::sync::Mutex<Option<
 #[command(author, version, about, long_about = None)]
 pub struct Args {
     /// Path to file
-    #[arg(short, long)]
     pub path: String,
 
     /// Path to model
@@ -82,6 +81,8 @@ async fn main() -> Result<()> {
         path: PathBuf::from(args.path),
         n_threads: args.n_threads,
         verbose: args.verbose,
+        init_prompt: None,
+        temperature: None,
     };
     let transcript = vibe::model::transcribe(&args, Some(on_transcribe_progress))?;
     println!("{}", transcript.as_srt());

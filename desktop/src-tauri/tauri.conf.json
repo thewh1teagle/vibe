@@ -64,7 +64,7 @@
         "nsis",
         "appimage",
         "deb",
-        "dmg"
+        "app"
       ],
       "identifier": "github.com.thewh1teagle.vibe",
       "icon": [
