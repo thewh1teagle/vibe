@@ -124,16 +124,14 @@ WIN_RESOURCES = [
 WIN_RESOURCES.append("../../target/release/WebView2Loader.dll")
 
 MAC_RESOURCES = [
-    "libavutil.dylib",
-    "libavformat.dylib",
-    "libavfilter.dylib",
-    "libavdevice.dylib",
-    "libswscale.dylib",
-    "libswresample.dylib",
-    "libavcodec.dylib"
+    "libavutil.58.dylib",
+    "libavformat.60.dylib",
+    "libavfilter.9.dylib",
+    "libavdevice.60.dylib",
+    "libswscale.7.dylib",
+    "libswresample.4.dylib",
+    "libavcodec.60.dylib"
 ]
-
-
 
 # run after build
 def clean():
