@@ -50,9 +50,11 @@ cargo tauri build
 
 1. Install packages
 
+[prerequisites/#setting-up-linux](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+
 ```console
 sudo apt-get update
-sudo apt-get install -y libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev clang
+sudo apt-get install -y clang build-essential curl wget file libwebkit2gtk-4.0-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev
 ```
 
 2. Install [rust](https://www.rust-lang.org/tools/install)
