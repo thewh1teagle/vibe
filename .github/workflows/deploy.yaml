@@ -83,5 +83,5 @@ jobs:
           releaseBody: "See the assets to download and install this version."
           releaseDraft: true
           prerelease: false
-          projectPath: ${{env.working-directory}}./desktop/src-tauri
+          projectPath: ${{env.working-directory}}
           architecture: "x86_64"
