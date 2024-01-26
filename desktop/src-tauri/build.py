@@ -7,9 +7,13 @@ import sys
 from ctypes.util import find_library
 
 
+
 SKIP_BUILD = os.getenv('SKIP_BUILD') == "1"
 SKIP_CLEANUP = os.getenv('SKIP_CLEANUP') == "1"
-FFMPEG_FRAMEWORK_SRC = '/opt/homebrew/Cellar/ffmpeg/6.1.1_2/lib'
+if sys.platform == 'darwin':
+    FFMPEG_HOMEBREW_PATH = Path('/opt/homebrew/Cellar/ffmpeg')
+    FFMPEG_FRAMEWORK_SRC = next(FFMPEG_HOMEBREW_PATH.glob('*')) / 'lib'
+    print('Found ffmpeg framework in ', FFMPEG_FRAMEWORK_SRC)
 
 
 TARGET = Path(__file__).parent

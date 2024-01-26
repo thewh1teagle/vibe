@@ -9,3 +9,4 @@
 *.dylib
 target/
 *.old.json
+ffmpeg.framework/
