@@ -52,7 +52,7 @@ cargo tauri build
 
 ```console
 sudo apt-get update
-sudo apt-get install -y libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev clang
+sudo apt-get install -y libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev clang
 ```
 
 2. Install [rust](https://www.rust-lang.org/tools/install)
