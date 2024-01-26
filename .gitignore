@@ -6,5 +6,6 @@
 *.vtt
 *.dll
 *.exe
+*.dylib
 target/
 *.old.json

@@ -3,10 +3,14 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+import sys
+
+SKIP_BUILD = os.getenv('SKIP_BUILD') == "1"
+SKIP_CLEANUP = os.getenv('SKIP_CLEANUP') == "1"
 
 TARGET = Path(__file__).parent
 CONF = TARGET / 'tauri.conf.json'
-RESOURCES = [f'C:\\msys64\\ucrt64\\bin\\{name}' for name in (
+WIN_RESOURCES = [f'C:\\msys64\\ucrt64\\bin\\{name}' for name in (
     # FFMPEG
     "avcodec-60.dll",
     "libbrotlidec.dll",
@@ -115,7 +119,19 @@ RESOURCES = [f'C:\\msys64\\ucrt64\\bin\\{name}' for name in (
     "vulkan-1.dll"
 )]
 # Webview2
-RESOURCES.append("../../target/release/WebView2Loader.dll")
+WIN_RESOURCES.append("../../target/release/WebView2Loader.dll")
+
+MAC_RESOURCES = [
+    "/opt/homebrew/lib/libavutil.58.dylib",
+    "/opt/homebrew/lib/libavformat.60.dylib",
+    "/opt/homebrew/lib/libavfilter.9.dylib",
+    "/opt/homebrew/lib/libavdevice.60.dylib",
+    "/opt/homebrew/lib/libswscale.7.dylib",
+    "/opt/homebrew/lib/libswresample.4.dylib",
+    "/opt/homebrew/lib/libavcodec.60.dylib"
+]
+
+
 
 # run after build
 def clean():
@@ -129,20 +145,22 @@ def clean():
 
 
 # copy DLLs
+RESOURCES = WIN_RESOURCES if sys.platform == 'win32' else MAC_RESOURCES
 for path in RESOURCES:
     path = Path(path)
     new_path = TARGET / path.name
-    shutil.copy(path, new_path)
+    shutil.copy(path, new_path, follow_symlinks=True)
 
 # config environment
-env = os.environ.copy()
-env["PATH"] = f'C:\\Program Files\\Nodejs;{env["PATH"]}'
-env["OPENBLAS_PATH"]=os.getenv("MINGW_PREFIX")
+if sys.platform == 'win32':
+    env = os.environ.copy()
+    env["PATH"] = f'C:\\Program Files\\Nodejs;{env["PATH"]}'
+    env["OPENBLAS_PATH"]=os.getenv("MINGW_PREFIX")
 
 # config tauri.conf.json
 shutil.copy(CONF, CONF.with_suffix('.old.json'))
 with open(CONF, 'r') as f:
-    webview_dll = TARGET / 'target/release/WebView2Loader.dll'
+    # webview_dll = TARGET / 'target/release/WebView2Loader.dll'
     data = json.load(f)
     data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
 with open(CONF, 'w') as f:
@@ -150,8 +168,12 @@ with open(CONF, 'w') as f:
 
 # build
 try:
-    result = subprocess.run('cargo tauri build', shell=True, check=True, env=env)
+    if not SKIP_BUILD and sys.platform == 'win32':
+        result = subprocess.run('cargo tauri build', shell=True, check=True, env=env)
+    elif not SKIP_BUILD:
+        result = subprocess.run('cargo tauri build', shell=True, check=True)
 finally:
-    clean()
+    if not SKIP_CLEANUP:
+        clean()
 
 

@@ -42,7 +42,8 @@ jobs:
       - name: Install homebrew dependencies
         if: matrix.platform == 'macos-latest'
         run: |
-          brew install lapack ffmpeg openblas git
+          brew install lapack ffmpeg openblas git python@3.10
+          SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
 
       # Setup Rust
 
@@ -78,9 +79,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
-          releaseName: "mobslide v__VERSION__" # tauri-action replaces \_\_VERSION\_\_ with the app version.
+          releaseName: "vibe v__VERSION__" # tauri-action replaces \_\_VERSION\_\_ with the app version.
           releaseBody: "See the assets to download and install this version."
           releaseDraft: true
           prerelease: false
-          projectPath: ${{env.working-directory}}
+          projectPath: ${{env.working-directory}}./desktop/src-tauri
           architecture: "x86_64"
