@@ -54,7 +54,7 @@ cargo tauri build
 
 ```console
 sudo apt-get update
-sudo apt-get install -y clang build-essential curl wget file libopenblas-base libwebkit2gtk-4.0-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev
+sudo apt-get install -y clang build-essential curl wget file libopenblas-base libopenblas-dev libwebkit2gtk-4.0-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev
 ```
 
 2. Install [rust](https://www.rust-lang.org/tools/install)
