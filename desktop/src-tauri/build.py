@@ -4,13 +4,15 @@ import shutil
 import subprocess
 from pathlib import Path
 import sys
+from ctypes.util import find_library
+
 
 SKIP_BUILD = os.getenv('SKIP_BUILD') == "1"
 SKIP_CLEANUP = os.getenv('SKIP_CLEANUP') == "1"
 
 TARGET = Path(__file__).parent
 CONF = TARGET / 'tauri.conf.json'
-WIN_RESOURCES = [f'C:\\msys64\\ucrt64\\bin\\{name}' for name in (
+WIN_RESOURCES = [
     # FFMPEG
     "avcodec-60.dll",
     "libbrotlidec.dll",
@@ -117,18 +119,18 @@ WIN_RESOURCES = [f'C:\\msys64\\ucrt64\\bin\\{name}' for name in (
     "libgfortran-5.dll",
     "libquadmath-0.dll",
     "vulkan-1.dll"
-)]
+]
 # Webview2
 WIN_RESOURCES.append("../../target/release/WebView2Loader.dll")
 
 MAC_RESOURCES = [
-    "/opt/homebrew/lib/libavutil.58.dylib",
-    "/opt/homebrew/lib/libavformat.60.dylib",
-    "/opt/homebrew/lib/libavfilter.9.dylib",
-    "/opt/homebrew/lib/libavdevice.60.dylib",
-    "/opt/homebrew/lib/libswscale.7.dylib",
-    "/opt/homebrew/lib/libswresample.4.dylib",
-    "/opt/homebrew/lib/libavcodec.60.dylib"
+    "libavutil.dylib",
+    "libavformat.dylib",
+    "libavfilter.dylib",
+    "libavdevice.dylib",
+    "libswscale.dylib",
+    "libswresample.dylib",
+    "libavcodec.dylib"
 ]
 
 
@@ -147,6 +149,8 @@ def clean():
 # copy DLLs
 RESOURCES = WIN_RESOURCES if sys.platform == 'win32' else MAC_RESOURCES
 for path in RESOURCES:
+    if '/' not in path:
+        path = find_library(path)
     path = Path(path)
     new_path = TARGET / path.name
     shutil.copy(path, new_path, follow_symlinks=True)
