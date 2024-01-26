@@ -30,11 +30,20 @@ Transcribe audio in every language
 - Support `SRT`, `VTT` formats
 - Transcribe audio / video
 
+
 # Install notes
+## System requirements
+Windows: Version `8` greater.
+
+Hardware:
+No special requirement. resource usage can be customized through advanced settings in main window.
+
+Currenly, `MacOS` computers get the best performance since there's GPU optimizations.
+
 ## Ubuntu
 Please install the following packages
 ```console
-sudo apt-get install libgcc-s1 libc6 zlib1g libselinux1 libpcre3 libbz2-1.0 liblzma5 libcap2 libexpat1 libgpg-error0 libdbus-1-3 libcom-err2 libc6 libncursesw6 libtinfo6 libpulse0 libc6 libkeyutils1 libc6
+sudo apt-get install ffmpeg libgcc-s1 libc6 zlib1g libselinux1 libpcre3 libbz2-1.0 liblzma5 libcap2 libexpat1 libgpg-error0 libdbus-1-3 libcom-err2 libc6 libncursesw6 libtinfo6 libpulse0 libc6 libkeyutils1 libc6
 ```
 And for install the `deb` file -> download it and execute
 ```console
@@ -59,6 +68,9 @@ And if the antivirus still block the model file, you can always exclude it from 
 # Contribute 🤝
 PRs are welcomed!
 In addition, you're welcome to add translations.
+
+# Community
+[Discord](https://discord.gg/2VWf5jB5)
 
 # Roadmap 🛣️
 You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/projects/5/views/1)
