@@ -26,32 +26,44 @@ RUST_LOG=trace PATH="/c/Program Files/nodejs:$PATH" cargo tauri build # use dev 
 ```
 
 ## MacOS
+
 1. Install brew packages
+
 ```console
 brew install lapack ffmpeg openblas git node@18
 ```
+
 2. Install [rust](https://www.rust-lang.org/tools/install)
 3. Install `tauri-cli`
+
 ```console
 cargo install tauri-cli
 ```
+
 4. Inside `desktop` folder build the app
+
 ```console
 cargo tauri build
 ```
 
 ## Linux
+
 1. Install packages
+
 ```console
 sudo apt-get update
-sudo apt-get install -y libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev clang
+sudo apt-get install -y libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev clang
 ```
+
 2. Install [rust](https://www.rust-lang.org/tools/install)
 3. Install `tauri-cli`
+
 ```console
 cargo install tauri-cli
 ```
+
 4. Inside `desktop` folder build the app
+
 ```console
 cargo tauri build
 ```
