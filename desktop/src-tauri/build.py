@@ -164,7 +164,11 @@ shutil.copy(CONF, CONF.with_suffix('.old.json'))
 with open(CONF, 'r') as f:
     # webview_dll = TARGET / 'target/release/WebView2Loader.dll'
     data = json.load(f)
-    data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
+    if sys.platform == 'win32':
+        data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
+    elif sys.platform == 'darwin':
+        data['tauri']['bundle']["macOS"] = {}
+        data['tauri']['bundle']["macOS"]['frameworks'] = [Path(i).name for i in RESOURCES]
 with open(CONF, 'w') as f:
     json.dump(data, f, indent=4)
 
