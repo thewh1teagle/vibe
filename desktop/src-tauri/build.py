@@ -9,8 +9,11 @@ from ctypes.util import find_library
 
 SKIP_BUILD = os.getenv('SKIP_BUILD') == "1"
 SKIP_CLEANUP = os.getenv('SKIP_CLEANUP') == "1"
+FFMPEG_FRAMEWORK_SRC = '/opt/homebrew/Cellar/ffmpeg/6.1.1_2/lib'
+
 
 TARGET = Path(__file__).parent
+FFMPEG_FRAMEWORK_TARGET = TARGET / 'ffmpeg.framework'
 CONF = TARGET / 'tauri.conf.json'
 WIN_RESOURCES = [
     # FFMPEG
@@ -141,17 +144,21 @@ def clean():
         new_path.unlink()
 
     CONF.unlink()
+    shutil.rmtree(FFMPEG_FRAMEWORK_TARGET)
     shutil.copy(CONF.with_suffix('.old.json'), CONF)    
 
 
 # copy DLLs
-RESOURCES = WIN_RESOURCES if sys.platform == 'win32' else MAC_RESOURCES
+RESOURCES = WIN_RESOURCES if sys.platform == 'win32' else [] # MAC_RESOURCES
 for path in RESOURCES:
     if '/' not in path:
         path = find_library(path)
     path = Path(path)
     new_path = TARGET / path.name
     shutil.copy(path, new_path, follow_symlinks=True)
+
+if sys.platform == 'darwin':
+    shutil.copytree(FFMPEG_FRAMEWORK_SRC, FFMPEG_FRAMEWORK_TARGET,symlinks=True)
 
 # config environment
 if sys.platform == 'win32':
@@ -168,7 +175,7 @@ with open(CONF, 'r') as f:
         data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
     elif sys.platform == 'darwin':
         data['tauri']['bundle']["macOS"] = {}
-        data['tauri']['bundle']["macOS"]['frameworks'] = [Path(i).name for i in RESOURCES]
+        data['tauri']['bundle']["macOS"]['frameworks'] = ["ffmpeg.framework"]
 with open(CONF, 'w') as f:
     json.dump(data, f, indent=4)
 
