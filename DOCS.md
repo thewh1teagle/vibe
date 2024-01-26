@@ -5,5 +5,5 @@
 Execute
 
 ```console
-ruscribe -h
+vibe -h
 ```

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME=ruscribe
+NAME=vibe
 VERSION="0.0.1"
 TARGET="$NAME-$VERSION"
 
