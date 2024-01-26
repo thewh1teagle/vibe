@@ -21,12 +21,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Ubuntu specific
+
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
         # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev
+
+      # MacOS specific
+      - name: Cache Homebrew Bundler 
+        if: matrix.platform == 'macos-latest'
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ${{ runner.os }}-vibe-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ runner.os }}-vibe-
+
+      - name: Install homebrew dependencies
+        if: matrix.platform == 'macos-latest'
+        run: |
+          brew install lapack ffmpeg openblas git
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
