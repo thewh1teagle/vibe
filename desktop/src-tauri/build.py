@@ -11,9 +11,11 @@ from ctypes.util import find_library
 SKIP_BUILD = os.getenv('SKIP_BUILD') == "1"
 SKIP_CLEANUP = os.getenv('SKIP_CLEANUP') == "1"
 if sys.platform == 'darwin':
-    FFMPEG_HOMEBREW_PATH = Path('/opt/homebrew/Cellar/ffmpeg')
-    FFMPEG_FRAMEWORK_SRC = next(FFMPEG_HOMEBREW_PATH.glob('*')) / 'lib'
-    print('Found ffmpeg framework in ', FFMPEG_FRAMEWORK_SRC)
+    some_dylib = 'libavutil.dylib'
+    dylib_path = find_library(some_dylib)
+    dylib_path = Path(dylib_path).resolve() # resolve symlink
+    FFMPEG_FRAMEWORK_LIBS = dylib_path.parent
+    print('Found ffmpeg framework in ', FFMPEG_FRAMEWORK_LIBS)
 
 
 TARGET = Path(__file__).parent
@@ -162,7 +164,7 @@ for path in RESOURCES:
     shutil.copy(path, new_path, follow_symlinks=True)
 
 if sys.platform == 'darwin':
-    shutil.copytree(FFMPEG_FRAMEWORK_SRC, FFMPEG_FRAMEWORK_TARGET,symlinks=True)
+    shutil.copytree(FFMPEG_FRAMEWORK_LIBS, FFMPEG_FRAMEWORK_TARGET,symlinks=True)
 
 # config environment
 if sys.platform == 'win32':
