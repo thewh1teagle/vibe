@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest]
+        platform: [flyci-macos-large-latest-m1]
     runs-on: ${{ matrix.platform }}
     env:
       working-directory: ./desktop
