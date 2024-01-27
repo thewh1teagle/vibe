@@ -6,14 +6,23 @@ import { useLocalStorage } from "usehooks-ts";
 import { Transcript, asSrt, asText, asVtt } from "../transcript";
 import { cx } from "../utils";
 
-type textFormat = "normal" | "srt" | "vtt";
+type TextFormat = "normal" | "srt" | "vtt";
+type FormatExtensions = {
+  [name in TextFormat]: string;
+};
+const formatExtensions: FormatExtensions = {
+  normal: "",
+  srt: ".srt",
+  vtt: ".vtt",
+};
 
-async function download(text: string) {
+async function download(text: string, format: TextFormat) {
+  const ext = formatExtensions[format];
   const filePath = await save({
     filters: [
       {
-        name: "Text",
-        extensions: ["txt"],
+        name: "",
+        extensions: [ext],
       },
     ],
   });
@@ -25,7 +34,7 @@ async function download(text: string) {
 export default function TextArea({ transcript }: { transcript: Transcript }) {
   const { t, i18n } = useTranslation();
   const [direction, setDirection] = useLocalStorage<"ltr" | "rtl">("direction", i18n.dir());
-  const [format, setFormat] = useLocalStorage<textFormat>("format", "normal");
+  const [format, setFormat] = useLocalStorage<TextFormat>("format", "normal");
   const [text, setText] = useState("");
 
   useEffect(() => {
@@ -44,7 +53,7 @@ export default function TextArea({ transcript }: { transcript: Transcript }) {
             />
           </svg>
         </button>
-        <button onClick={() => download(text)} className="btn btn-square btn-md">
+        <button onClick={() => download(text, format)} className="btn btn-square btn-md">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
             <path
               strokeLinecap="round"
