@@ -33,6 +33,7 @@ fn main() {
 
         add_link("framework=CoreAudio");
         add_link("framework=Metal");
+        add_link("framework=Foundation");
         add_link("bz2");
         add_link("z");
         add_link("xml2");
