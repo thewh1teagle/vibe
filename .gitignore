@@ -10,3 +10,5 @@
 target/
 *.old.json
 ffmpeg.framework/
+ffmpeg*-default/
+*.xz
