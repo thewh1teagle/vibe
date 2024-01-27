@@ -42,8 +42,13 @@ jobs:
       - name: Install homebrew dependencies
         if: matrix.platform == 'macos-latest'
         run: |
-          brew install lapack ffmpeg openblas git python@3.10
-          SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
+          brew install openblas git python@3.10 lz4 xml2 zlib bzip2 wget
+          # SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
+
+      - name: Get FFMPEG for mac
+        if: matrix.platform == 'macos-latest'
+        run: |
+          ./desktop/src-tauri/setup.mac.sh
 
       # Setup Rust
 

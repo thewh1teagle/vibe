@@ -28,7 +28,7 @@ vibe = {path = "../../core", features = ["openblas"] }
 vibe = {path = "../../core", features = ["openblas"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-vibe = {path = "../../core", features = ["coreml"] }
+vibe = {path = "../../core", features = ["coreml", "static"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

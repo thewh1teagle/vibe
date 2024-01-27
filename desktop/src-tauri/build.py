@@ -7,32 +7,19 @@ import sys
 from ctypes.util import find_library
 import re
 import glob
+import requests
+import re
 
-def get_libs(executable):
-    pattern = re.compile('\t(.+.dylib) (\(.+\))')
-    proc = subprocess.run(f'/usr/bin/otool -L {executable}', stdout=subprocess.PIPE, shell=True, check=True)
-    stdout = proc.stdout.decode('utf-8')
-    matches = pattern.findall(stdout)
-    libs = []
-    for match in matches:
-        sym_path, _ = match
-        if not 'brew' in sym_path:
-            continue
-        path = Path(sym_path).resolve() # get real path...
-        ## for some reason it's still the symbolic to /opt/homebrew/Cellar/ffmpeg/<ver>/lib/*
-        # /opt/homebrew/Cellar/ffmpeg/6.1.1_2/lib/
-        path = Path(glob.glob('/opt/homebrew/Cellar/ffmpeg/*/lib')[0]) / path.name
-        libs.append((sym_path, path.__str__()))
-    return libs
+# https://sourceforge.net/projects/avbuild/files/macOS/
 
 SKIP_BUILD = os.getenv('SKIP_BUILD') == "1"
 SKIP_CLEANUP = os.getenv('SKIP_CLEANUP') == "1"
-if sys.platform == 'darwin':
-    some_dylib = 'libavutil.dylib'
-    dylib_path = find_library(some_dylib)
-    dylib_path = Path(dylib_path).resolve() # resolve symlink
-    FFMPEG_FRAMEWORK_LIBS = dylib_path.parent
-    print('Found ffmpeg framework in ', FFMPEG_FRAMEWORK_LIBS)
+# if sys.platform == 'darwin':
+#     some_dylib = 'libavutil.dylib'
+#     dylib_path = find_library(some_dylib)
+#     dylib_path = Path(dylib_path).resolve() # resolve symlink
+#     FFMPEG_FRAMEWORK_LIBS = dylib_path.parent
+#     print('Found ffmpeg framework in ', FFMPEG_FRAMEWORK_LIBS)
 
 
 SRC_TAURI = Path(__file__).parent
@@ -176,15 +163,45 @@ if sys.platform == 'win32':
     env["PATH"] = f'C:\\Program Files\\Nodejs;{env["PATH"]}'
     env["OPENBLAS_PATH"]=os.getenv("MINGW_PREFIX")
 
-# config tauri.conf.json
-shutil.copy(CONF, CONF.with_suffix('.old.json'))
-with open(CONF, 'r') as f:
-    # webview_dll = TARGET / 'target/release/WebView2Loader.dll'
-    data = json.load(f)
-    if sys.platform == 'win32':
-        data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
-with open(CONF, 'w') as f:
-    json.dump(data, f, indent=4)
+# def download_ffmpeg():
+#     name = 'ffmpeg-6.1-macOS-default.tar.xz'
+#     url = f'https://master.dl.sourceforge.net/project/avbuild/macOS/{name}?viasf=1'
+#     response = requests.get(url, stream=True)
+#     response.raise_for_status()
+#     f = open(name, 'wb')
+#     for chunk in response.iter_content(chunk_size=8192):
+#         f.write(chunk)
+#     f.close()
+#     # uncompress
+#     name = Path(name)
+    
+#     import lzma
+
+#     compressed = lzma.open(name)
+#     f = open(name.with_suffix(''))
+#     while True:
+#         chunk = compressed.read(8192)
+#         if not chunk:
+#             break
+#         f.write(chunk)
+#     f.close()
+
+
+    
+
+def patch_config():
+    # config tauri.conf.json
+    shutil.copy(CONF, CONF.with_suffix('.old.json'))
+    with open(CONF, 'r') as f:
+        # webview_dll = TARGET / 'target/release/WebView2Loader.dll'
+        data = json.load(f)
+        if sys.platform == 'win32':
+            data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
+        elif sys.platform == 'darwin':
+            data['build']['beforeBundleCommand'] = f"codesign -s - {SRC_TAURI / '../../target/release/vibe'}"
+    with open(CONF, 'w') as f:
+        print('Patching config', data, CONF)
+        json.dump(data, f, indent=4)
 
 def post_build():
     print("Post build...")
@@ -207,22 +224,7 @@ def post_build():
     FFMPEG_FRAMEWORKS_PATH = DMG_CONTENTS / 'Frameworks/ffmpeg.framework'
     FFMPEG_FRAMEWORKS_PATH.mkdir(exist_ok=True, parents=True)
 
-    libs = get_libs(DMG_EXECUTABLE)
-    for (lib_name, lib_path) in libs:
-        if 'homebrew' in lib_path:
-            lib_path = Path(lib_path)
-            lib_target = FFMPEG_FRAMEWORKS_PATH / Path(lib_path).name
-            name = lib_target.name.split('.')[0]
-
-
-            for path in glob.glob(lib_path.with_name(lib_path.name.split('.')[0]).__str__() + '*'):
-                path = Path(path)
-                shutil.copy(path, FFMPEG_FRAMEWORKS_PATH / path.name, follow_symlinks=False)
-
-            # shutil.copy(lib_path, lib_target, follow_symlinks=True)
-            cmd = f'install_name_tool -change {lib_name} @executable_path/../{FFMPEG_FRAMEWORKS_PATH.parent.name}/{FFMPEG_FRAMEWORKS_PATH.name}/{lib_target.name} {DMG_EXECUTABLE}'
-            print(f'Execute {cmd}')
-            subprocess.run(cmd, shell=True, check=True)
+    # Sign the binary
 
     # Create new dmg file
     FINAL_DMG = 'final.dmg'
@@ -233,13 +235,15 @@ def post_build():
 
 # build
 try:
+    patch_config()
     if not SKIP_BUILD and sys.platform == 'win32':
         result = subprocess.run('cargo tauri build', shell=True, check=True, env=env)
     elif not SKIP_BUILD:
         result = subprocess.run('cargo tauri build', shell=True, check=True)
-    post_build()
+    # post_build()
 finally:
     if not SKIP_CLEANUP:
-        clean()
+        pass
+        # clean()
 
 
