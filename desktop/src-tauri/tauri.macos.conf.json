@@ -1,5 +1,5 @@
 {
     "build": {
-        "beforeBundleCommand": "codesign -s - ../target/release/vibe"
+        "beforeBundleCommand": "echo"
     }
 }
