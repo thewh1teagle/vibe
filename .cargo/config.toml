@@ -1,0 +1,2 @@
+[env]
+FFMPEG_DIR = { value = "desktop/src-tauri/ffmpeg-6.1-macOS-default", relative = true }

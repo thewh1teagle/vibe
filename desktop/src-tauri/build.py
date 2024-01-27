@@ -5,22 +5,26 @@ import subprocess
 from pathlib import Path
 import sys
 from ctypes.util import find_library
+import re
+import glob
+import requests
+import re
 
-
+# https://sourceforge.net/projects/avbuild/files/macOS/
 
 SKIP_BUILD = os.getenv('SKIP_BUILD') == "1"
 SKIP_CLEANUP = os.getenv('SKIP_CLEANUP') == "1"
-if sys.platform == 'darwin':
-    some_dylib = 'libavutil.dylib'
-    dylib_path = find_library(some_dylib)
-    dylib_path = Path(dylib_path).resolve() # resolve symlink
-    FFMPEG_FRAMEWORK_LIBS = dylib_path.parent
-    print('Found ffmpeg framework in ', FFMPEG_FRAMEWORK_LIBS)
+# if sys.platform == 'darwin':
+#     some_dylib = 'libavutil.dylib'
+#     dylib_path = find_library(some_dylib)
+#     dylib_path = Path(dylib_path).resolve() # resolve symlink
+#     FFMPEG_FRAMEWORK_LIBS = dylib_path.parent
+#     print('Found ffmpeg framework in ', FFMPEG_FRAMEWORK_LIBS)
 
 
-TARGET = Path(__file__).parent
-FFMPEG_FRAMEWORK_TARGET = TARGET / 'ffmpeg.framework'
-CONF = TARGET / 'tauri.conf.json'
+SRC_TAURI = Path(__file__).parent
+FFMPEG_FRAMEWORK_TARGET = SRC_TAURI / 'ffmpeg.framework'
+CONF = SRC_TAURI / 'tauri.conf.json'
 WIN_RESOURCES = [
     # FFMPEG
     "avcodec-60.dll",
@@ -132,25 +136,15 @@ WIN_RESOURCES = [
 # Webview2
 WIN_RESOURCES.append("../../target/release/WebView2Loader.dll")
 
-MAC_RESOURCES = [
-    "libavutil.58.dylib",
-    "libavformat.60.dylib",
-    "libavfilter.9.dylib",
-    "libavdevice.60.dylib",
-    "libswscale.7.dylib",
-    "libswresample.4.dylib",
-    "libavcodec.60.dylib"
-]
-
 # run after build
 def clean():
     for path in RESOURCES:
         path = Path(path)
-        new_path = TARGET / path.name
+        new_path = SRC_TAURI / path.name
         new_path.unlink()
 
     CONF.unlink()
-    shutil.rmtree(FFMPEG_FRAMEWORK_TARGET)
+    # shutil.rmtree(FFMPEG_FRAMEWORK_TARGET)
     shutil.copy(CONF.with_suffix('.old.json'), CONF)    
 
 
@@ -160,11 +154,8 @@ for path in RESOURCES:
     if '/' not in path:
         path = find_library(path)
     path = Path(path)
-    new_path = TARGET / path.name
+    new_path = SRC_TAURI / path.name
     shutil.copy(path, new_path, follow_symlinks=True)
-
-if sys.platform == 'darwin':
-    shutil.copytree(FFMPEG_FRAMEWORK_LIBS, FFMPEG_FRAMEWORK_TARGET,symlinks=True)
 
 # config environment
 if sys.platform == 'win32':
@@ -172,27 +163,87 @@ if sys.platform == 'win32':
     env["PATH"] = f'C:\\Program Files\\Nodejs;{env["PATH"]}'
     env["OPENBLAS_PATH"]=os.getenv("MINGW_PREFIX")
 
-# config tauri.conf.json
-shutil.copy(CONF, CONF.with_suffix('.old.json'))
-with open(CONF, 'r') as f:
-    # webview_dll = TARGET / 'target/release/WebView2Loader.dll'
-    data = json.load(f)
-    if sys.platform == 'win32':
-        data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
-    elif sys.platform == 'darwin':
-        data['tauri']['bundle']["macOS"] = {}
-        data['tauri']['bundle']["macOS"]['frameworks'] = ["ffmpeg.framework"]
-with open(CONF, 'w') as f:
-    json.dump(data, f, indent=4)
+# def download_ffmpeg():
+#     name = 'ffmpeg-6.1-macOS-default.tar.xz'
+#     url = f'https://master.dl.sourceforge.net/project/avbuild/macOS/{name}?viasf=1'
+#     response = requests.get(url, stream=True)
+#     response.raise_for_status()
+#     f = open(name, 'wb')
+#     for chunk in response.iter_content(chunk_size=8192):
+#         f.write(chunk)
+#     f.close()
+#     # uncompress
+#     name = Path(name)
+    
+#     import lzma
+
+#     compressed = lzma.open(name)
+#     f = open(name.with_suffix(''))
+#     while True:
+#         chunk = compressed.read(8192)
+#         if not chunk:
+#             break
+#         f.write(chunk)
+#     f.close()
+
+
+    
+
+def patch_config():
+    # config tauri.conf.json
+    shutil.copy(CONF, CONF.with_suffix('.old.json'))
+    with open(CONF, 'r') as f:
+        # webview_dll = TARGET / 'target/release/WebView2Loader.dll'
+        data = json.load(f)
+        if sys.platform == 'win32':
+            data['tauri']['bundle']['resources'] = data['tauri']['bundle'].get("resources", []) + [Path(i).name for i in RESOURCES]
+        elif sys.platform == 'darwin':
+            data['build']['beforeBundleCommand'] = f"codesign -s - {SRC_TAURI / '../../target/release/vibe'}"
+    with open(CONF, 'w') as f:
+        print('Patching config', data, CONF)
+        json.dump(data, f, indent=4)
+
+def post_build():
+    print("Post build...")
+    if sys.platform != 'darwin':
+        return
+    DMG_PARENT = SRC_TAURI / '../../target/release/bundle/dmg'
+    DMG_MOUNT_POINT = Path('/Volumes/vibe1')
+    DMG_PATH = DMG_PARENT.glob('*.dmg').__next__().absolute()
+    # Mount
+    subprocess.run(f'hdiutil attach -shadow -nobrowse -mountpoint {DMG_MOUNT_POINT} {DMG_PATH}', shell=True, check=True)
+    # Copy
+    LOCAL_DMG = SRC_TAURI / 'vibe'
+    shutil.copytree(DMG_MOUNT_POINT, LOCAL_DMG, symlinks=True) # dont copy sylinks content
+    # Unmount
+    subprocess.run(f'hdiutil detach {DMG_MOUNT_POINT}', shell=True, check=True)
+    
+    # Get dylibs
+    DMG_CONTENTS = LOCAL_DMG / 'vibe.app/Contents'
+    DMG_EXECUTABLE = DMG_CONTENTS / 'MacOS/vibe'
+    FFMPEG_FRAMEWORKS_PATH = DMG_CONTENTS / 'Frameworks/ffmpeg.framework'
+    FFMPEG_FRAMEWORKS_PATH.mkdir(exist_ok=True, parents=True)
+
+    # Sign the binary
+
+    # Create new dmg file
+    FINAL_DMG = 'final.dmg'
+    subprocess.run(f'hdiutil create -format UDZO -srcfolder {LOCAL_DMG} {FINAL_DMG}', shell=True, check=True)
+    # Rename new dmg file
+
+
 
 # build
 try:
+    patch_config()
     if not SKIP_BUILD and sys.platform == 'win32':
         result = subprocess.run('cargo tauri build', shell=True, check=True, env=env)
     elif not SKIP_BUILD:
         result = subprocess.run('cargo tauri build', shell=True, check=True)
+    # post_build()
 finally:
     if not SKIP_CLEANUP:
-        clean()
+        pass
+        # clean()
 
 
