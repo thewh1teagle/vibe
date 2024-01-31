@@ -1,11 +1,8 @@
-from utils import (
-    success, error, run, get_binary_path, release_info, prepare_ffmpeg
-)
-from github_release import (
-    gh_release_create, gh_asset_upload, gh_asset_delete
-)
 from config import *
+from github_release import gh_asset_delete, gh_asset_upload, gh_release_create
 from macos import sign_with_test_key
+from utils import error, get_binary_path, prepare_ffmpeg, release_info, run, success
+
 
 def pre_build():
     success(f'Platform {CFG_OS}')
@@ -23,8 +20,12 @@ def build():
         success(f"Patch NodeJS path to {CFG_WINDOWS_NODE_PATH}")
         env["PATH"] = f'{CFG_WINDOWS_NODE_PATH};{env["PATH"]}'
         env["OPENBLAS_PATH" ]= os.getenv("MINGW_PREFIX")
+        STATIC_FFMPG_LIBS = CFG_FFMPEG_PATH / 'lib/x64/pkgconfig'
+        # if STATIC_FFMPG_LIBS.exists():
+        #     success(f"Exists {STATIC_FFMPG_LIBS}")
+        # env["RUSTFLAGS"] = f"-L{STATIC_FFMPG_LIBS}"
 
-    run('cargo tauri build', env=env)
+    run('cargo build --release', env=env)
     success("Build")
 
 def post_build():

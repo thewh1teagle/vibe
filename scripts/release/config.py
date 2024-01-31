@@ -1,7 +1,6 @@
-import platform
-from github_release import gh_release_create
-from pathlib import Path
 import os
+import platform
+from pathlib import Path
 
 CFG_ROOT = Path(__file__).parent / '../../'
 CFG_ROOT = CFG_ROOT.resolve().absolute()

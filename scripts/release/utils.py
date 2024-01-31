@@ -1,8 +1,10 @@
+import glob
 import subprocess
 from pathlib import Path
 from typing import List, Union
-import glob
+
 from config import *
+
 
 def success(message: str):
     print(f'✅ {message}')
@@ -37,7 +39,7 @@ def get_binary_path() -> Path:
     return binary
 
 def prepare_ffmpeg():
-    if not (CFG_FFMPEG_PATH).exists():
+    if not CFG_FFMPEG_PATH.exists():
         run(f'wget -nc --show-progress {CFG_FFMPEG_URL} -O {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
-    run(f'tar xf {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
+        run(f'tar xf {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
     success("Setup ffmpeg")
