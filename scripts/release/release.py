@@ -29,8 +29,8 @@ def upload():
     success("Upload")
 
 if __name__ == '__main__':
-    # pre_build()
-    # build()
+    pre_build()
+    build()
     post_build()
     name, version, arch, ext = release_info()
     success(f"Found {name} version {version} for {arch}")
