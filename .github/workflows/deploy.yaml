@@ -31,7 +31,7 @@ jobs:
 
       # MacOS specific
       - name: Cache Homebrew Bundler 
-        if: matrix.platform == 'macos-13'
+        if: matrix.platform == 'macos-14'
         id: cache
         uses: actions/cache@v3
         with:
@@ -40,13 +40,13 @@ jobs:
           restore-keys: ${{ runner.os }}-vibe-
 
       - name: Install homebrew dependencies
-        if: matrix.platform == 'macos-13'
+        if: matrix.platform == 'macos-14'
         run: |
           brew install openblas git lz4 libxml2 zlib bzip2 wget
           # SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
 
       - name: Get FFMPEG for mac
-        if: matrix.platform == 'macos-13'
+        if: matrix.platform == 'macos-14'
         run: |
           ./desktop/src-tauri/setup.mac.sh
 
