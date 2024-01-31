@@ -25,3 +25,4 @@ CFG_FFMPEG_URL = {
     "Darwin": f"https://master.dl.sourceforge.net/project/avbuild/macOS/{CFG_FFMPEG_NAME}.tar.xz?viasf=1"
 }[CFG_OS]
 CFG_WINDOWS_NODE_PATH = "C:\\Program Files\\nodejs"
+CFG_BUNDLE_PATH = CFG_ROOT / 'target/release/bundle/'

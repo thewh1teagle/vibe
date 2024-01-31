@@ -32,7 +32,7 @@ def release_info():
     return name, version, arch, ext
 
 def get_binary_path() -> Path:
-    binary = glob.glob(CFG_BIN_PATTERN, root_dir=CFG_ROOT / 'target/release/bundle/')[0]
+    binary = glob.glob(CFG_BUNDLE_PATH / CFG_BIN_PATTERN)[0]
     binary = CFG_ROOT / 'target/release/bundle' / binary
     return binary
 
