@@ -79,13 +79,20 @@ jobs:
       - name: Install tauri-cli
         run: cargo install tauri-cli
 
-      # Final build and upload
-      - name: Build the app
+      - name: Set up Python for build
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8  # You can set the version you need
+
+      - name: Install dependencies for build
         run: |
-          cd desktop/src-tauri
-          cargo tauri build
+          cd scripts/release/
+          pip install -r requirements.txt
 
-
+      - name: Build and upload
+        run: python scripts/release/release.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # # Final build and upload
       # - name: Build the app
