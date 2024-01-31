@@ -26,6 +26,14 @@ def post_build():
         sign_with_test_key()
 
 def upload():
+    _name, version, _arch, _ext = release_info()
+    binary = get_binary_path()
+    gh_release_create(
+        'thewh1teagle/vibe', 
+        tag_name=f'v{version}', 
+        name=f'Vibe {version}', 
+        asset_pattern=str(binary.absolute())
+    )
     success("Upload")
 
 if __name__ == '__main__':
