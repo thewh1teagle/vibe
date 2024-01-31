@@ -67,12 +67,13 @@ jobs:
       - name: Install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: npm install # Change this to npm, yarn or pnpm.
-        working-directory: ${{env.working-directory}}
+        working-directory: ./desktop
+
 
       - name: Install tauri-cli
         run: cargo install tauri-cli
 
-      - name: Install dependencies for build
+      - name: Install build dependencies
         run: |
           cd scripts/release/
           pip3 install -r requirements.txt
