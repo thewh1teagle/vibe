@@ -52,6 +52,7 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./desktop/src-tauri -> target"
+          cache-all-crates: true
 
       # Setup NodeJS
 
