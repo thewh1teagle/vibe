@@ -12,3 +12,4 @@ target/
 ffmpeg.framework/
 ffmpeg*-default/
 *.xz
+.DS_Store

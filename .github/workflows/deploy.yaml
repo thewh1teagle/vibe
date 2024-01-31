@@ -76,17 +76,26 @@ jobs:
         run: npm install # Change this to npm, yarn or pnpm.
         working-directory: ${{env.working-directory}}
 
+
       # Final build and upload
       - name: Build the app
-        uses: tauri-apps/tauri-action@v0
+        run: |
+          cd desktop/src-tauri
+          cargo tauri build
 
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
-          releaseName: "vibe v__VERSION__" # tauri-action replaces \_\_VERSION\_\_ with the app version.
-          releaseBody: "See the assets to download and install this version."
-          releaseDraft: true
-          prerelease: false
-          projectPath: ${{env.working-directory}}
-          architecture: "x86_64"
+
+
+      # # Final build and upload
+      # - name: Build the app
+      #   uses: tauri-apps/tauri-action@v0
+
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
+      #     releaseName: "vibe v__VERSION__" # tauri-action replaces \_\_VERSION\_\_ with the app version.
+      #     releaseBody: "See the assets to download and install this version."
+      #     releaseDraft: true
+      #     prerelease: false
+      #     projectPath: ${{env.working-directory}}
+      #     architecture: "x86_64"
