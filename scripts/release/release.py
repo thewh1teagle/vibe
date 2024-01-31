@@ -20,7 +20,10 @@ def build():
     env = os.environ.copy()
     env["FFMPEG_DIR"] = str(CFG_FFMPEG_PATH)
     if CFG_OS == "Windows":
+        success(f"Patch NodeJS path to {CFG_WINDOWS_NODE_PATH}")
         env["PATH"] = f'{CFG_WINDOWS_NODE_PATH};{env["PATH"]}'
+        env["OPENBLAS_PATH" ]= os.getenv("MINGW_PREFIX")
+
     run('cargo tauri build', env=env)
     success("Build")
 
