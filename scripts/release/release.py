@@ -18,7 +18,7 @@ def pre_build():
 
 def build():
     env = os.environ.copy()
-    env["FFMPEG_DIR"] = CFG_FFMPEG_PATH
+    env["FFMPEG_DIR"] = str(CFG_FFMPEG_PATH)
     run('cargo tauri build', env=env)
     success("Build")
 
