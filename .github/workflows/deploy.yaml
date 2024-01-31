@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-13]
+        platform: [macos-14]
     runs-on: ${{ matrix.platform }}
     env:
       working-directory: ./desktop
