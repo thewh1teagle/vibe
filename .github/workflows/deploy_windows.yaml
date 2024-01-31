@@ -1,4 +1,4 @@
-name: Release
+name: Release Windows
 on:
   push:
     tags:
