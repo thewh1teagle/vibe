@@ -82,7 +82,7 @@ jobs:
       - name: Build and upload
         run: python3 scripts/release/release.py
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       # # Final build and upload
       # - name: Build the app
