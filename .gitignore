@@ -1,7 +1,6 @@
 *.wav
 *.opus
 !src/audio/test_audio.wav
-*.txt
 *.srt
 *.vtt
 *.dll
