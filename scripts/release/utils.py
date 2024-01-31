@@ -37,8 +37,7 @@ def get_binary_path() -> Path:
     return binary
 
 def prepare_ffmpeg():
-    url=f"https://master.dl.sourceforge.net/project/avbuild/macOS/{CFG_FFMPEG_NAME}.tar.xz?viasf=1"
     if not (CFG_FFMPEG_PATH).exists():
-        run(f'wget -nc --show-progress {url} -O {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
+        run(f'wget -nc --show-progress {CFG_FFMPEG_URL} -O {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
     run(f'tar xf {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
     success("Setup ffmpeg")
