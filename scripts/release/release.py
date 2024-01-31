@@ -1,7 +1,11 @@
-from utils import success, error, run, get_binary_path, release_info
-from github_release import gh_release_create, gh_asset_upload, gh_asset_delete
+from utils import (
+    success, error, run, get_binary_path, release_info, prepare_ffmpeg
+)
+from github_release import (
+    gh_release_create, gh_asset_upload, gh_asset_delete
+)
 from config import *
-from macos import prepare_darwin_ffmpeg, sign_with_test_key
+from macos import sign_with_test_key
 
 def pre_build():
     success(f'Platform {CFG_OS}')
@@ -10,11 +14,12 @@ def pre_build():
     else:
         error("No Github token")
         exit(1)
-    if CFG_OS == 'Darwin':
-        prepare_darwin_ffmpeg()
+    prepare_ffmpeg()
 
 def build():
-    run('cargo tauri build')
+    env = os.environ.copy()
+    env["FFMPEG_DIR"] = CFG_FFMPEG_PATH
+    run('cargo tauri build', env=env)
     success("Build")
 
 def post_build():

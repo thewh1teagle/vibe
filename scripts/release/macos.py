@@ -1,14 +1,6 @@
 from utils import success, error, run, get_binary_path
 from config import *
 
-def prepare_darwin_ffmpeg():
-    name="ffmpeg-6.1-macOS-default"
-    url=f"https://master.dl.sourceforge.net/project/avbuild/macOS/{name}.tar.xz?viasf=1"
-    if not (SRC_TAURI / name).exists():
-        run(f'wget -q -nc --show-progress {url} -O {name}.tar.xz', cwd=SRC_TAURI)
-    run(f'tar xf {name}.tar.xz', cwd=SRC_TAURI)
-    success("Setup ffmpeg")
-
 def sign_with_test_key():
     binary = get_binary_path()
     print('binary is ', binary.absolute())
