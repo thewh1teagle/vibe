@@ -14,8 +14,6 @@ jobs:
       matrix:
         platform: [macos-14]
     runs-on: ${{ matrix.platform }}
-    env:
-      working-directory: ./desktop
 
     steps:
       # Clone the repo
