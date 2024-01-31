@@ -38,4 +38,8 @@ fn main() {
         add_link("z");
         add_link("xml2");
     }
+    if cfg!(target_os = "windows") {
+        let ffmpeg_dir = std::env::var("FFMPEG_DIR").unwrap();
+        add_dylib(PathBuf::from(ffmpeg_dir).join("lib/x64").to_str().unwrap());
+    }
 }
