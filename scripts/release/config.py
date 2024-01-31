@@ -23,5 +23,5 @@ CFG_FFMPEG_URL = {
     "Linux": f"https://master.dl.sourceforge.net/project/avbuild/linux/{CFG_FFMPEG_NAME}.tar.xz?viasf=1",
     "Windows": f"https://master.dl.sourceforge.net/project/avbuild/windows-desktop/{CFG_FFMPEG_NAME}.tar.xz?viasf=1",
     "Darwin": f"https://master.dl.sourceforge.net/project/avbuild/macOS/{CFG_FFMPEG_NAME}.tar.xz?viasf=1"
-
 }[CFG_OS]
+CFG_WINDOWS_NODE_PATH = "C:\\Program Files\\nodejs"
