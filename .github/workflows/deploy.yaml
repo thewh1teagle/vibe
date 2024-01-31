@@ -76,6 +76,8 @@ jobs:
         run: npm install # Change this to npm, yarn or pnpm.
         working-directory: ${{env.working-directory}}
 
+      - name: Install tauri-cli
+        run: cargo install tauri-cli
 
       # Final build and upload
       - name: Build the app
