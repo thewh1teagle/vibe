@@ -34,10 +34,10 @@ def upload():
         name=f'Vibe {version}', 
     )
     # delete previous if exists
-    gh_asset_delete(repo_name, tag_name, binary.name)
+    gh_asset_delete(repo_name, tag_name, pattern=str(binary.name))
     success("Delete Previous Asset")
     # upload
-    gh_asset_upload(repo_name, tag_name, str(binary.absolute()))
+    gh_asset_upload(repo_name, tag_name, pattern=str(binary.absolute()))
     success("Upload Asset")
 
 if __name__ == '__main__':
