@@ -1,6 +1,6 @@
 import subprocess
 from pathlib import Path
-from typing import List
+from typing import List, Union
 import glob
 from config import *
 
@@ -10,7 +10,7 @@ def success(message: str):
 def error(message: str):
     print(f'❌ {message}')
 
-def run(cmd: str | List[str], cwd: str | Path = None, capture = False, shell = True, check = True):
+def run(cmd: Union[str, List[str]], cwd: Union[str, Path] = None, capture = False, shell = True, check = True):
     # convert to list
     cmd = [cmd] if isinstance(cmd, str) else cmd
     for c in cmd:
