@@ -40,6 +40,7 @@ fn main() {
     }
     if cfg!(target_os = "windows") {
         let ffmpeg_dir = std::env::var("FFMPEG_DIR").unwrap();
-        add_dylib(PathBuf::from(ffmpeg_dir).join("lib/x64").to_str().unwrap());
+        add_dylib(PathBuf::from(ffmpeg_dir.to_owned()).join("lib/x64").to_str().unwrap());
+        add_dylib(PathBuf::from(ffmpeg_dir).join("lib/x64/pkgconfig").to_str().unwrap());
     }
 }
