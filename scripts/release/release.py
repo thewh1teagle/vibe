@@ -1,8 +1,5 @@
 from utils import success, error, run, get_binary_path, release_info
-import glob
-import platform
-from github_release import gh_release_create
-from pathlib import Path
+from github_release import gh_release_create, gh_asset_upload, gh_asset_delete
 from config import *
 from macos import prepare_darwin_ffmpeg, sign_with_test_key
 
@@ -28,13 +25,20 @@ def post_build():
 def upload():
     _name, version, _arch, _ext = release_info()
     binary = get_binary_path()
+    repo_name = 'thewh1teagle/vibe'
+    tag_name = f'v{version}'
+
     gh_release_create(
         'thewh1teagle/vibe', 
         tag_name=f'v{version}', 
         name=f'Vibe {version}', 
-        asset_pattern=str(binary.absolute())
     )
-    success("Upload")
+    # delete previous if exists
+    gh_asset_delete(repo_name, tag_name, binary.name)
+    success("Delete Previous Asset")
+    # upload
+    gh_asset_upload(repo_name, tag_name, str(binary.absolute()))
+    success("Upload Asset")
 
 if __name__ == '__main__':
     pre_build()
