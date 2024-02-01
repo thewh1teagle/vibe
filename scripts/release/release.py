@@ -1,3 +1,4 @@
+import windows
 from config import *
 from github_release import gh_asset_delete, gh_asset_upload, gh_release_create
 from macos import sign_with_test_key
@@ -19,19 +20,20 @@ def build():
     if CFG_OS == "Windows":
         success(f"Patch NodeJS path to {CFG_WINDOWS_NODE_PATH}")
         env["PATH"] = f'{CFG_WINDOWS_NODE_PATH};{env["PATH"]}'
-        env["OPENBLAS_PATH" ]= os.getenv("MINGW_PREFIX")
-        STATIC_FFMPG_LIBS = CFG_FFMPEG_PATH / 'lib/x64/pkgconfig'
-        # if STATIC_FFMPG_LIBS.exists():
-        #     success(f"Exists {STATIC_FFMPG_LIBS}")
-        # env["RUSTFLAGS"] = f"-L{STATIC_FFMPG_LIBS}"
+        env["OPENBLAS_PATH"] = os.getenv("MINGW_PREFIX")
+        run('cargo build --release', env=env)
+        windows.prepare_dlls()
+        
 
-    run('cargo build --release', env=env)
+    run('cargo tauri build', env=env)
     success("Build")
 
 def post_build():
     success(f"Found binary at {get_binary_path()}")
     if CFG_OS == 'Darwin':
         sign_with_test_key()
+    elif CFG_OS == "Windows":
+        windows.clean_dlls()
 
 def upload():
     _name, version, _arch, _ext = release_info()

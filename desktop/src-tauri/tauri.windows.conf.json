@@ -1,0 +1,24 @@
+{
+  "tauri": {
+    "bundle": {
+      "resources": [
+        "libstdc++-6.dll",
+        "libgomp-1.dll",
+        "libgcc_s_seh-1.dll",
+        "avcodec-60.dll",
+        "avfilter-9.dll",
+        "avutil-58.dll",
+        "ffmpeg-6.dll",
+        "swresample-4.dll",
+        "avdevice-60.dll",
+        "avformat-60.dll",
+        "swscale-7.dll",
+        "libopenblas.dll",
+        "libgfortran-5.dll",
+        "libquadmath-0.dll",
+        "vulkan-1.dll",
+        "WebView2Loader.dll"
+      ]
+    }
+  }
+}

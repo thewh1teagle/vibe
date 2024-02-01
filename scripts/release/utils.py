@@ -42,4 +42,5 @@ def prepare_ffmpeg():
     if not CFG_FFMPEG_PATH.exists():
         run(f'wget -nc --show-progress {CFG_FFMPEG_URL} -O {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
         run(f'tar xf {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
+    run("cp -rf lib/x64/* lib/", cwd=CFG_FFMPEG_PATH)
     success("Setup ffmpeg")
