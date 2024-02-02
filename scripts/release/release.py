@@ -22,7 +22,7 @@ def build():
         env["PATH"] = f'{CFG_WINDOWS_NODE_PATH};{env["PATH"]}'
         openblas_path = os.getenv("MINGW_PREFIX")
         # fix include path for msys2
-        env["C_INCLUDE_PATH"] = f'${openblas_path}/include/openblas;{env["C_INCLUDE_PATH"]}'
+        env["C_INCLUDE_PATH"] = f'${openblas_path}/include/openblas;{env.get("C_INCLUDE_PATH", "")}'
         run('cargo tauri build', env=env)
     run('cargo tauri build', env=env)
     success("Build")
