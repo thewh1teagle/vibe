@@ -14,9 +14,20 @@ cargo build --release
 
 With OpenBlas
 
-```
-pacman --needed -S $MINGW_PACKAGE_PREFIX-openblas
-OPENBLAS_PATH=$MINGW_PREFIX PATH="/c/Program Files/nodejs:$PATH" cargo tauri build
+```console
+pacman -S --needed git $MINGW_PACKAGE_PREFIX-{rust,ffmpeg,clang,openblas,toolchain}
+git clone https://github.com/thewh1teagle/vibe
+cd vibe/desktop
+rustup override set stable-x86_64-pc-windows-gnu
+
+
+export PATH="/c/Program Files/nodejs:$PATH"
+npm i -g @tauri-apps/cli
+npm i
+# here inject beforeBundleCommand to find dll and create tauri.windows.config.json
+export C_INCLUDE_PATH=${OPENBLAS_PATH}/include/openblas
+npx tauri build
+# here upload it (from target/release/bundle/nsis/)
 ```
 
 for building to desktop you must use msys2 environment along with NodeJS installed outside of the environemnt.
