@@ -40,22 +40,8 @@ fn main() {
     }
 
     if cfg!(target_os = "windows") {
-        // let ffmpeg_dir = std::env::var("FFMPEG_DIR").unwrap(); // mingw prefix
-        // // add_dylib(PathBuf::from(ffmpeg_dir.to_owned()).join("lib/x64").to_str().unwrap());
-        // // add_dylib(PathBuf::from(ffmpeg_dir).join("lib/x64/pkgconfig").to_str().unwrap());
-        // println!("cargo:warning={}", PathBuf::from(ffmpeg_dir.to_owned()).to_str().unwrap());
-        // println!("cargo:warning={}", PathBuf::from(ffmpeg_dir.to_owned()).join("/lib/x64").to_str().unwrap());
-
-
-        // let mingw_prefix = std::env::var("MINGW_PREFIX").unwrap();
-        // println!("cargo:rustc-flags=-L{}", PathBuf::from(mingw_prefix.to_owned()).join("lib").to_str().unwrap());
-        // println!("cargo:rustc-flags=-L{}", PathBuf::from(ffmpeg_dir.to_owned()).join("lib\\x64").to_str().unwrap());
-        // println!("cargo:rustc-flags=-L{}", PathBuf::from(ffmpeg_dir.to_owned()).join("lib\\x64\\pkgconfig").to_str().unwrap());
-        // add_link("bz2");
-        // add_link("z");
-        // add_link("xml2");
-        // add_link("xmlls");
-        // add_link("va_win32");
-        // add_link("va");
+        let openblas_path = std::env::var("OPENBLAS_PATH").unwrap();
+        println!("cargo:rustc-link-search=native={}", PathBuf::from(openblas_path.clone()).to_str().unwrap());
     }
+    tauri_build::build()
 }

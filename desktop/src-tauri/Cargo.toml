@@ -35,7 +35,7 @@ log = "0.4.20"
 vibe = { path = "../../core", features = ["openblas"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-vibe = { path = "../../core", features = ["openblas"] }
+vibe = { path = "../../core", features = ["static", "openblas"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 vibe = { path = "../../core", features = ["coreml", "static"] }

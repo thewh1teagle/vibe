@@ -2,6 +2,13 @@
 
 ## Windows
 
+dependencies:
+NodeJS
+Cargo
+Clang (LLVM)
+npm @tauri-app/cli
+python
+
 install msys2 and open ucrt64 terminal
 
 ```console

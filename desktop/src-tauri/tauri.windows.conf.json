@@ -1,5 +1,14 @@
 {
   "build": {
-      "beforeBundleCommand": "echo hello from windows"
+    "beforeBundleCommand": "echo hello from windows"
+  },
+  "tauri": {
+    "bundle": {
+      "resources": {
+        "ffmpeg\\bin\\x64\\*.dll": "./",
+        "openblas\\bin\\*.dll": "./",
+        "locales": "locales"
+      }
+    }
   }
 }

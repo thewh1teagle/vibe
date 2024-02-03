@@ -13,3 +13,6 @@ ffmpeg*-default/
 *.xz
 .DS_Store
 *.pyc
+ffmpeg/
+openblas/
+*.7z
