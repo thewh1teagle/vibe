@@ -27,22 +27,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang ffmpeg build-essential curl wget file libopenblas-base libopenblas-dev libwebkit2gtk-4.0-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev libswscale-dev
 
-      # MacOS specific
-      - name: Cache Homebrew Bundler 
-        if: matrix.platform == 'macos-14'
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
-          key: ${{ runner.os }}-vibe-${{ steps.set-up-homebrew.outputs.gems-hash }}
-          restore-keys: ${{ runner.os }}-vibe-
-
-      - name: Install homebrew dependencies
-        if: matrix.platform == 'macos-14'
-        run: |
-          brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
-          # SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
-
       # Setup Rust
 
       - name: Rust setup
@@ -69,32 +53,13 @@ jobs:
         run: npm install # Change this to npm, yarn or pnpm.
         working-directory: ./desktop
 
-
       - name: Install tauri-cli
         run: cargo install tauri-cli
 
       - name: Install build dependencies
-        run: |
-          cd scripts/release/
-          ls
-          pip3 install -r requirements.txt
+        run: pip3 install -r scripts/release/requirements.txt
 
       - name: Build and upload
         run: python3 scripts/release/release.py
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      # # Final build and upload
-      # - name: Build the app
-      #   uses: tauri-apps/tauri-action@v0
-
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tagName: ${{ github.ref_name }} # This only works if your workflow triggers on new tags.
-      #     releaseName: "vibe v__VERSION__" # tauri-action replaces \_\_VERSION\_\_ with the app version.
-      #     releaseBody: "See the assets to download and install this version."
-      #     releaseDraft: true
-      #     prerelease: false
-      #     projectPath: ${{env.working-directory}}
-      #     architecture: "x86_64"
