@@ -99,3 +99,7 @@ cargo test -- --nocapture
 ffmpeg -i in.opus -ar 16000 out.wav
 cargo run -- --path out.wav --output out.txt --n-threads 5
 ```
+
+## OTA
+
+Over the air updates available from [gist.github.com/eb96..9f22](https://gist.github.com/thewh1teagle/eb96494f626dd46fcabdb07ef37b9f22) using [tauri/updater](https://tauri.app/v1/guides/distribution/updater/)
