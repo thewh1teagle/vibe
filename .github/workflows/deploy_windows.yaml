@@ -67,6 +67,6 @@ jobs:
           pip3 install -r scripts\release\requirements.txt
 
       - name: Build and upload
-        run: python3 scripts\release\release.py
+        run: python3 -X utf8 scripts\release\release.py
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
