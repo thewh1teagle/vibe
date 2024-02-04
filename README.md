@@ -32,6 +32,7 @@ Transcribe audio in every language
 - Optmized for `GPU` (`MacOS`)
 - Support `SRT`, `VTT` formats
 - Transcribe audio / video
+- Automatic updates
 
 # Install notes
 
