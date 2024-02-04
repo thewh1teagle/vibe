@@ -63,4 +63,4 @@ def prepare_ffmpeg():
         shutil.move(CFG_WINDOWS_OPENBLAS_PATH / 'include/', CFG_WINDOWS_OPENBLAS_PATH / 'lib/')
         shutil.move(CFG_WINDOWS_OPENBLAS_PATH / 'lib/libopenblas.lib', CFG_WINDOWS_OPENBLAS_PATH / 'lib/openblas.lib')
 
-    success("Setup ffmpeg!")
+    success("Setup ffmpeg")
