@@ -55,7 +55,7 @@ def prepare_ffmpeg():
         else:
             run(f'wget -nc --show-progress {CFG_FFMPEG_URL} -O {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
             run(f'tar xf {CFG_FFMPEG_NAME}.tar.xz', cwd=CFG_FFMPEG_PATH.parent)
-            run("cp -rf lib/x64/* lib/", cwd=CFG_FFMPEG_PATH)
+            run("cp -rf lib/* lib/", cwd=CFG_FFMPEG_PATH)
     # Prepare openblas
     if CFG_OS == "Windows" and not CFG_WINDOWS_OPENBLAS_PATH.exists():
         run(f'powershell -Command "Invoke-WebRequest -Uri \'{CFG_WINDOWS_OPENBLAS_URL}\' -OutFile \'{CFG_WINDOWS_OPENBLAS_NAME}.zip\'"', cwd=CFG_SRC_TAURI)
