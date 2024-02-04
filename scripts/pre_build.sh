@@ -13,6 +13,9 @@
 # 1. Prepare FFMPEG (into src-tauri/ffmpeg)
 # 2. Add ENV
 
+# For testing as CI
+# CI=true GITHUB_ENV=.GITHUB_ENV scripts/pre_build.sh
+
 # Prepare paths
 cd "$(dirname "${BASH_SOURCE[0]}")/../desktop/src-tauri" || exit
 
@@ -35,7 +38,7 @@ else
 fi
 
 # Check if running in action
-if [ "$GITHUB_ACTIONS" == "true" ]; then
+if [ "$GITHUB_ACTIONS" == "true" ] || [ "$CI" == "true" ]; then
     echo "CI detected"
     CI=true
 else
@@ -82,9 +85,9 @@ if [ $CI == false ]; then
 else
     echo "Adding environment variables..."
     # FFMPEG
-    echo "FFMPEG_DIR=$FFMPEG_REALNAME" >> $GITHUB_ENV
+    echo "FFMPEG_DIR=\"$(pwd)/$FFMPEG_REALNAME\"" >> $GITHUB_ENV
     # OpenBLAS
     if [ "$OS" == "windows" ]; then
-        echo "OPENBLAS_PATH=$OPENBLAS_REALNAME" >> $GITHUB_ENV
+        echo "OPENBLAS_PATH=\"$(pwd)/$OPENBLAS_REALNAME\"" >> $GITHUB_ENV
     fi
 fi
