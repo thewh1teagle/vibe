@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use std::process::Command;
 
 fn add_dylib(path: &str) {
     println!("cargo:rustc-env=LDFLAGS=-L{}", path);
