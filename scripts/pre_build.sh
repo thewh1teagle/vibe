@@ -26,7 +26,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../desktop/src-tauri" || exit
 # Detect OS
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     OS="linux"
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
+elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS="macos"
 else
     OS="windows"
@@ -39,7 +39,7 @@ FFMPEG_REALNAME="ffmpeg"
 OPENBLAS_REALNAME="openblas"
 
 # Drawin config
-if [ "$OS" == "darwin" ]; then
+if [ "$OS" == "macos" ]; then
     FFMPEG_NAME="ffmpeg-6.1-macOS-default"
     FFMPEG_URL="https://master.dl.sourceforge.net/project/avbuild/macOS/$FFMPEG_NAME.tar.xz?viasf=1"
 fi
