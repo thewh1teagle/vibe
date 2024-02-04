@@ -33,8 +33,7 @@ jobs:
       - name: Install homebrew dependencies
         if: matrix.platform == 'macos-latest'
         run: |
-          brew install llvm openblas git lz4 libxml2 zlib bzip2 wget python@3.8
-          # SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
+          brew install llvm openblas git lz4 libxml2 zlib bzip2 wget
 
       # Setup Rust
 
@@ -56,20 +55,22 @@ jobs:
           cache: "npm" # Set this to npm, yarn or pnpm.
           cache-dependency-path: desktop/package-lock.json
 
-      # Setup NodeJS dependencies
+      
+      - name: Setup FFMPEG and OpenBlas
+        run: ./scripts/pre_build.sh
 
+      # Setup NodeJS dependencies
       - name: Install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: npm install # Change this to npm, yarn or pnpm.
         working-directory: ./desktop
 
-      - name: Install tauri-cli
-        run: npm install -g @tauri-apps/cli
-
-      - name: Install build dependencies
-        run: pip3 install -r scripts/release/requirements.txt
-
-      - name: Build and upload
-        run: python3 scripts/release/release.py
+      - uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+          releaseName: 'v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: true
+          prerelease: false

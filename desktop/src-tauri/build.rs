@@ -16,14 +16,15 @@ fn add_link(name: &str) {
 
 fn main() {
     let target = env::var("TARGET").unwrap();
-
+    let ffmpeg_dir = env::var("FFMPEG_DIR");
+    if let Ok(ffmpeg_dir) = ffmpeg_dir {
+        let ffmpeg_dir = PathBuf::from(ffmpeg_dir);
+        if !ffmpeg_dir.exists() {
+            panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
+        }
+    }
     // Link against Audio Toolbox framework on macOS
     if cfg!(target_os = "macos") {
-        let ffmpeg_path = PathBuf::from("ffmpeg-6.1-macOS-default");
-        if !ffmpeg_path.exists() {
-            panic!("Cant find ffmpeg at {}", ffmpeg_path.canonicalize().unwrap().display());
-        }
-
         // Specify the library and include paths based on your environment
         println!("cargo:rerun-if-env-changed=LDFLAGS");
         println!("cargo:rerun-if-env-changed=CPPFLAGS");
