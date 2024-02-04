@@ -8,7 +8,9 @@ Transcribe audio in every language
 
 # Downloads ⬇️
 
-`MacOS`: install `.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
+`MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
+
+`MacOS Intel`: install `x64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
