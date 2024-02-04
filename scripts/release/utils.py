@@ -45,7 +45,8 @@ def prepare_ffmpeg():
     env['PATH'] = f'C:\Program Files\\7-Zip;{env["PATH"]}'
     if not CFG_FINAL_FFMPEG_PATH.exists():
         if CFG_OS == "Windows":
-            run(f'powershell -Command "Invoke-WebRequest -Uri \'{CFG_FFMPEG_URL}\' -OutFile \'{CFG_FFMPEG_PATH}.7z\'"')
+            if not Path(CFG_FFMPEG_PATH).joinpath('.7z').exists():
+                run(f'powershell -Command "Invoke-WebRequest -Uri \'{CFG_FFMPEG_URL}\' -OutFile \'{CFG_FFMPEG_PATH}.7z\'"')
             run(f'7z x {CFG_FFMPEG_PATH}.7z', cwd=CFG_SRC_TAURI, env=env)
             run(f"move {CFG_FFMPEG_PATH} {CFG_FINAL_FFMPEG_PATH}")
             files = glob.glob(str(CFG_FINAL_FFMPEG_PATH / 'lib/x64/*.lib'))
@@ -62,5 +63,4 @@ def prepare_ffmpeg():
         run(f"del {CFG_WINDOWS_OPENBLAS_NAME}.zip", cwd=CFG_SRC_TAURI)
         shutil.move(CFG_WINDOWS_OPENBLAS_PATH / 'include/', CFG_WINDOWS_OPENBLAS_PATH / 'lib/')
         shutil.move(CFG_WINDOWS_OPENBLAS_PATH / 'lib/libopenblas.lib', CFG_WINDOWS_OPENBLAS_PATH / 'lib/openblas.lib')
-
     success("Setup ffmpeg")

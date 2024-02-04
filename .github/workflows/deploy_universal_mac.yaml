@@ -55,22 +55,21 @@ jobs:
           cache: "npm" # Set this to npm, yarn or pnpm.
           cache-dependency-path: desktop/package-lock.json
 
-      
-      - name: Setup FFMPEG and OpenBlas
-        run: ./scripts/pre_build.sh
-
       # Setup NodeJS dependencies
       - name: Install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: npm install # Change this to npm, yarn or pnpm.
         working-directory: ./desktop
 
+      - name: Setup FFMPEG and OpenBlas
+        run: ./scripts/pre_build.sh
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
+          releaseName: "v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false

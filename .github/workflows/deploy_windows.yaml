@@ -52,21 +52,17 @@ jobs:
         run: npm install # Change this to npm, yarn or pnpm.
         working-directory: ./desktop
 
-      # Setup tauri-cli
+      - name: Setup FFMPEG and OpenBlas
+        run: C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
 
-      - name: Install tauri-cli
-        run: npm install -g @tauri-apps/cli
-
-      # Setup python
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Install build script dependencies
-        run: |
-          pip3 install -r scripts\release\requirements.txt
-
-      - name: Build and upload
-        run: python3 -X utf8 scripts\release\release.py
+      # Build and upload
+      - name: Build and Upload
+      - uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+          releaseName: "v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
