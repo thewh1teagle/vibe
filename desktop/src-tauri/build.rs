@@ -13,6 +13,8 @@ fn add_link(name: &str) {
 }
 
 fn main() {
+    let target = env::var("TARGET").unwrap();
+
     // Link against Audio Toolbox framework on macOS
     if cfg!(target_os = "macos") {
         let ffmpeg_path = PathBuf::from("ffmpeg-6.1-macOS-default");
@@ -41,7 +43,41 @@ fn main() {
 
     if cfg!(target_os = "windows") {
         let openblas_path = std::env::var("OPENBLAS_PATH").unwrap();
-        println!("cargo:rustc-link-search=native={}", PathBuf::from(openblas_path.clone()).to_str().unwrap());
+        println!(
+            "cargo:rustc-link-search=native={}",
+            PathBuf::from(openblas_path.clone()).to_str().unwrap()
+        );
     }
+
+    if target.contains("apple") {
+        // On (older) OSX we need to link against the clang runtime,
+        // which is hidden in some non-default path.
+        //
+        // More details at https://github.com/alexcrichton/curl-rust/issues/279.
+        if let Some(path) = macos_link_search_path() {
+            println!("cargo:rustc-link-lib=clang_rt.osx");
+            println!("cargo:rustc-link-search={}", path);
+        }
+    }
+
     tauri_build::build()
+}
+
+fn macos_link_search_path() -> Option<String> {
+    let output = Command::new("clang").arg("--print-search-dirs").output().ok()?;
+    if !output.status.success() {
+        println!("failed to run 'clang --print-search-dirs', continuing without a link search path");
+        return None;
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        if line.contains("libraries: =") {
+            let path = line.split('=').skip(1).next()?;
+            return Some(format!("{}/lib/darwin", path));
+        }
+    }
+
+    println!("failed to determine link search path, continuing without it");
+    None
 }
