@@ -1,4 +1,4 @@
-name: Release MacOS
+name: Release MacOS Universal
 on:
   push:
     tags:
