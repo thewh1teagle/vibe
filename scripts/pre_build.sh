@@ -18,7 +18,7 @@
 # 2. Add ENV
 
 # For testing as CI
-# CI=true GITHUB_ENV=.GITHUB_ENV scripts/pre_build.sh
+# EMULATE_CI=true scripts/pre_build.sh
 
 # Prepare paths
 cd "$(dirname "${BASH_SOURCE[0]}")/../desktop/src-tauri" || exit
@@ -52,7 +52,8 @@ if [ "$OS" == "windows" ]; then
 fi
 
 # Check if emulate CI
-if [ "$CI" == "true" ]; then
+if [ "$EMULATE_CI" == "true" ]; then
+    echo "Emulate CI..."
     GITHUB_ACTIONS=true
     GITHUB_ENV=".GITHUB_ENV"
 fi
@@ -128,9 +129,11 @@ fi
 if [ $CI == true ]; then
     echo "Adding environment variables..."
     # FFMPEG
-    echo "FFMPEG_DIR=$FFMPEG_PATH" >> $GITHUB_ENV
+    echo "Adding FFMPEG_DIR=$FFMPEG_PATH"
+    echo "FFMPEG_DIR=$FFMPEG_PATH" >> "$GITHUB_ENV"
     # OpenBLAS
     if [ "$OS" == "windows" ]; then
-        echo "OPENBLAS_PATH=$OPENBLAS_PATH" >> $GITHUB_ENV
+        echo "Adding OPENBLAS_PATH=$OPENBLAS_PATH"
+        echo "OPENBLAS_PATH=$OPENBLAS_PATH" >> "$GITHUB_ENV"
     fi
 fi
