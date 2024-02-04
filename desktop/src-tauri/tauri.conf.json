@@ -74,7 +74,8 @@
       "targets": [
         "nsis",
         "deb",
-        "dmg"
+        "dmg",
+        "updater"
       ],
       "identifier": "github.com.thewh1teagle.vibe",
       "icon": [
