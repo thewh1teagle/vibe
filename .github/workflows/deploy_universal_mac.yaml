@@ -1,0 +1,75 @@
+name: Release MacOS
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      # Clone the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # MacOS specific
+      - name: Cache Homebrew Bundler
+        if: matrix.platform == 'macos-14'
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ${{ runner.os }}-vibe-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ runner.os }}-vibe-
+
+      - name: Install homebrew dependencies
+        if: matrix.platform == 'macos-14'
+        run: |
+          brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
+          # SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
+
+      # Setup Rust
+
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./desktop/src-tauri -> target"
+          cache-all-crates: true
+
+      # Setup NodeJS
+
+      - name: Sync node version and setup cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "npm" # Set this to npm, yarn or pnpm.
+          cache-dependency-path: desktop/package-lock.json
+
+      # Setup NodeJS dependencies
+
+      - name: Install frontend dependencies
+        # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
+        run: npm install # Change this to npm, yarn or pnpm.
+        working-directory: ./desktop
+
+      - name: Install tauri-cli
+        run: npm install -g @tauri-apps/cli
+
+      - name: Install build dependencies
+        run: pip3 install -r scripts/release/requirements.txt
+
+      - name: Build and upload
+        run: python3 scripts/release/release.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
