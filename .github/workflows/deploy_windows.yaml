@@ -57,7 +57,7 @@ jobs:
 
       # Build and upload
       - name: Build and Upload
-      - uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
