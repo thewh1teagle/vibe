@@ -29,5 +29,15 @@
   "modal-error-body": "A bug happend!",
   "modal-close": "Close",
   "reset-app": "Reset Vibe",
-  "update-version": "Update Vibe"
+  "update-version": "Update Vibe",
+  "ask-for-update-body": "Do you want to update vibe into version {{version}}?",
+  "ask-for-update-title": "Confirm update",
+  "cancel-update": "Later",
+  "confirm-update": "Update Now",
+  "updating-modal-title": "Updating...",
+  "updating-modal-body": "Updating Vibe to version {{version}}",
+  "ask-for-relaunch-title": "Update finished",
+  "ask-for-relaunch-body": "Do you want to relaunch now?",
+  "cancel-relaunch": "Later",
+  "confirm-relaunch": "Relaunch Now"
 }

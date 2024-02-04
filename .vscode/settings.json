@@ -14,8 +14,8 @@
   "prettier.ignorePath": ".gitignore",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.organizeImports": "explicit",
-    "source.fixAll": "explicit"
+    // "source.organizeImports": "explicit",
+    // "source.fixAll": "explicit"
   },
   "prettier.configPath": ".prettierrc.json",
   "files.eol": "\n"

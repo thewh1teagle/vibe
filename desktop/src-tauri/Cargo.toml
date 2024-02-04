@@ -13,7 +13,7 @@ edition = "2021"
 tauri-build = { version = "1.5", features = [] }
 
 [dependencies]
-tauri = { version = "1.5", features = [
+tauri = { version = "1.5", features = [ "process-relaunch", "updater",
     "fs-all",
     "os-all",
     "app-show",

@@ -6,7 +6,7 @@ export default function PlayIcon(props: React.SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="w-6 h-6 cursor-pointer stroke-base-content"
+      className="w-6 h-6 cursor-pointer strokeBaseContent"
       {...props}>
       <path
         strokeLinecap="round"

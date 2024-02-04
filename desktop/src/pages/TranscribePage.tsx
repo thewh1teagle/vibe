@@ -15,8 +15,16 @@ import TextArea from "../components/TextArea";
 import ThemeToggle from "../components/ThemeToggle";
 import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import * as transcript from "../transcript";
+import { UpdateManifest, installUpdate } from "@tauri-apps/api/updater";
+import Updater from "../components/Updater";
+import { relaunch } from "@tauri-apps/api/process";
+import { ask } from "@tauri-apps/api/dialog";
 
 function App() {
+  const [availableUpdate, setAvailableUpdate] = useState(false);
+  const [manifest, setManifest] = useState<UpdateManifest>();
+  const [updating, setUpdating] = useState(false);
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -96,6 +104,37 @@ function App() {
     }
   }
 
+  async function updateApp() {
+    const shouldUpdate = await ask(t("ask-for-update-body", { version: manifest?.version }), {
+      title: t("ask-for-update-title"),
+      type: "info",
+      cancelLabel: t("cancel-update"),
+      okLabel: t("confirm-update"),
+    });
+
+    if (shouldUpdate) {
+      setUpdating(true);
+      console.log(`Installing update ${manifest?.version}, ${manifest?.date}, ${manifest?.body}`);
+      try {
+        await installUpdate();
+        setUpdating(false);
+        const shouldRelaunch = await ask(t("ask-for-relaunch-body"), {
+          title: t("ask-for-relaunch-title"),
+          type: "info",
+          cancelLabel: t("cancel-relaunch"),
+          okLabel: t("confirm-relaunch"),
+        });
+        if (shouldRelaunch) {
+          await relaunch();
+        }
+      } catch (e) {
+        console.log(e);
+        setUpdating(false);
+        setErrorModal?.({ open: true, log: String(e) });
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div className="w-56 m-auto h-[100vh] flex flex-col justify-center items-center">
@@ -117,23 +156,42 @@ function App() {
   }
   return (
     <div className="flex flex-col">
+      <Updater setAvailable={setAvailableUpdate} updating={updating} manifest={manifest} setManifest={setManifest} />
       <div className="flex flex-col m-auto w-[300px] mt-10">
         <div className="relative text-center">
           <h1 className="text-center text-4xl mb-10">{t("app-title")}</h1>
           <div className="dropdown dropdown-hover absolute left-0 top-0" dir="ltr">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
-              />
-            </svg>
+            <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-6 h-6 cursor-pointer">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
+                />
+              </svg>
+              {availableUpdate && (
+                <svg className="w-2 h-2 absolute -top-0.5 left-3" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="7" cy="7" r="7" fill="#518CFF" />
+                </svg>
+              )}
+            </div>
 
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+            <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
               <li onClick={() => navigate("/settings")}>
                 <a>{t("settings")}</a>
               </li>
-            </ul>
+              {availableUpdate && (
+                <li onClick={() => updateApp()}>
+                  <a className="bg-primary">{t("update-version")}</a>
+                </li>
+              )}
+            </div>
           </div>
         </div>
 

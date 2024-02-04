@@ -29,5 +29,15 @@
   "modal-error-body": "קרתה שגיאה לא צפויה",
   "modal-close": "סגירה",
   "reset-app": "ביצוע איפוס",
-  "update-version": "עדכן לגרסה חדשה"
+  "update-version": "עדכן לגרסה חדשה",
+  "ask-for-update-body": "האם ברצונך לבצע עדכון לגרסה {{version}}?",
+  "ask-for-update-title": "ביצוע עדכון",
+  "cancel-update": "מאוחר יותר",
+  "confirm-update": "עדכן עכשיו",
+  "updating-modal-title": "מעדכן...",
+  "updating-modal-body": "מעדכן את vibe לגרסה {{version}}",
+  "ask-for-relaunch-title": "העדכון הסתיים",
+  "ask-for-relaunch-body": "האם ברצונך להפעיל מחדש את התוכנה?",
+  "cancel-relaunch": "מאוחר יותר",
+  "confirm-relaunch": "הפעל מחדש עכשיו"
 }

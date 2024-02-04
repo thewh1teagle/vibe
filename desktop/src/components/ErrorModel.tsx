@@ -41,7 +41,7 @@ export default function ErrorModal() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="w-6 h-6 z-10 right-4 bottom-4 absolute stroke-base-content opacity-50 cursor-pointer">
+            className="w-6 h-6 z-10 right-4 bottom-4 absolute strokeBase-content opacity-50 cursor-pointer">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -50,7 +50,7 @@ export default function ErrorModal() {
           </svg>
         </div>
         <div className="flex justify-center gap-3 mt-3">
-          <button onClick={resetApp} className="btn btn-primary ">
+          <button onClick={resetApp} className="btn btn-primary cursor-pointer">
             {t("reset-app")}
           </button>
           <button onClick={reportIssue} className="btn btn-outline">
@@ -59,7 +59,7 @@ export default function ErrorModal() {
         </div>
         <div className="modal-action">
           <form method="dialog">
-            <button onClick={() => setState?.({ log: "", open: false })} className="btn">
+            <button onClick={() => setState?.({ log: "", open: false })} className="btn cursor-pointer">
               {t("modal-close")}
             </button>
           </form>
