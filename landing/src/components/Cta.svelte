@@ -30,7 +30,7 @@
 	function getOs() {
 		const platform = navigator.platform?.toLowerCase();
 		if (platform?.includes('win')) {
-			return 'macos';
+			return 'windows';
 		}
 		if (platform?.includes('linux')) {
 			return 'linux';
