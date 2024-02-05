@@ -1,47 +1,32 @@
 <script lang="ts">
-	import type { Metadata } from './metadata';
-
-	export let metadata: Metadata = {
-		title: '',
-		description: '',
-		image: '',
-		imageAlt: '',
-		url: ''
-	};
 </script>
 
 <svelte:head>
-	{#if metadata.title}
-		<title>{metadata.title}</title>
-		<meta name="title" content={metadata.title} />
-		<meta property="og:title" content={metadata.title} />
-		<meta property="twitter:title" content={metadata.title} />
-	{/if}
-
-	{#if metadata.description}
-		<meta name="description" content="Page Description" />
-		<meta property="og:description" content="Page Description" />
-		<meta property="twitter:description" content="Page Description" />
-	{/if}
-
-	{#if metadata.image}
-		<meta property="og:image" content={metadata.thumbnail} />
-		<meta property="twitter:image" content={metadata.twitterImage} />
-	{/if}
-
-	{#if metadata.imageAlt}
-		<meta property="og:image:alt" content={metadata.imageAlt} />
-		<meta property="twitter:image:alt" content={metadata.imageAlt} />
-	{/if}
-
-	{#if metadata.url}
-		<meta property="og:url" content={metadata.url} />
-		<meta property="twitter:url" content={metadata.url} />
-	{/if}
-
-	{#if metadata.type}
-		<meta property="og:type" content={metadata.type} />
-	{/if}
-
-	<meta property="twitter:card" content={metadata.twitterCard || 'summary_large_image'} />
+	<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Vibe.</title><meta name="description" content="Transcribe on your own!" /><link
+		rel="author"
+		href="https://github.com/thewh1teagle"
+	/><meta name="author" content="Github.com/thewh1teagle Inc." /><link
+		rel="manifest"
+		href="/manifest.webmanifest"
+	/><meta name="keywords" content="video,audio,transcribe,ai" /><meta
+		name="theme-color"
+		media="not screen"
+		content="#E751ED"
+	/><meta name="robots" content="index, follow" /><meta
+		property="og:image:type"
+		content="image/png"
+	/><meta property="og:image:width" content="1200" /><meta
+		property="og:image:height"
+		content="627"
+	/><meta property="og:image" content="https://thewh1teagle.github.io/vibe/og.png" /><meta
+		name="twitter:card"
+		content="summary_large_image"
+	/><meta name="twitter:image:type" content="image/png" /><meta
+		name="twitter:image:width"
+		content="1200"
+	/><meta name="twitter:image:height" content="627" /><meta
+		name="twitter:image"
+		content="https://thewh1teagle.github.io/vibe/og.png"
+	/>
 </svelte:head>
