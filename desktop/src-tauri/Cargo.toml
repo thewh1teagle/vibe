@@ -33,6 +33,7 @@ log = "0.4.20"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 vibe = { path = "../../core", features = ["openblas"] }
+openssl = { version = "0.10.63", features = ["vendored"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 vibe = { path = "../../core", features = ["static", "openblas"] }
