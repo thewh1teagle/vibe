@@ -8,9 +8,6 @@
   "terminal.integrated.env.windows": {
     "PATH": "${env:PATH}:/c/Program Files/nodejs"
   },
-  "rust-analyzer.server.extraEnv": {
-    "CARGO_TARGET_DIR": "target/rust-analyzer"
-  },
   "prettier.ignorePath": ".gitignore",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
