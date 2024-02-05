@@ -1,9 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+#[cfg(any(windows, target_os = "macos"))]
+use window_shadows::set_shadow;
+
 mod config;
 use env_logger;
-use log::{debug, error};
+use log;
 use std::sync::Mutex;
 use tauri::Manager;
 use vibe::transcript::Transcript;
@@ -14,11 +17,11 @@ static APP_ASYNC_INSTANCE: once_cell::sync::Lazy<tokio::sync::Mutex<Option<tauri
 
 fn on_transcribe_progress(progress: i32) {
     if let Some(app) = APP_INSTANCE.lock().unwrap().as_ref() {
-        debug!("desktop progress is {}", progress);
+        log::debug!("desktop progress is {}", progress);
         let window: tauri::Window = app.get_window("main").unwrap();
         window.emit("transcribe_progress", progress).unwrap();
     } else {
-        error!("App instance not available");
+        log::error!("App instance not available");
     }
 }
 
@@ -27,7 +30,7 @@ async fn on_download_progress(current: u64, total: u64) {
         let window: tauri::Window = app.get_window("main").unwrap();
         window.emit("download_progress", (current, total)).unwrap();
     } else {
-        error!("App instance not available");
+        log::error!("App instance not available");
     }
 }
 
@@ -36,7 +39,7 @@ async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
     *APP_ASYNC_INSTANCE.lock().await = Some(app.clone());
     let model_path = vibe::config::get_model_path().map_err(|e| e.to_string())?;
     let mut downloader = vibe::downloader::Downloader::new();
-    debug!("Download model invoked! with path {}", model_path.display());
+    log::debug!("Download model invoked! with path {}", model_path.display());
     downloader
         .download(config::URL, model_path.to_owned(), Some(config::HASH), on_download_progress)
         .await
@@ -61,9 +64,17 @@ async fn transcribe(app: tauri::AppHandle, options: vibe::config::ModelArgs) -> 
 
 fn main() {
     env_logger::init();
-    debug!("App started");
+    log::debug!("App started");
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .setup(|app| {
+            #[cfg(any(windows, target_os = "macos"))]
+            if let Some(window) = app.get_window("main") {
+                log::debug!("setting window shadow");
+                set_shadow(&window, true).unwrap();
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![transcribe, download_model, get_default_model_path])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
