@@ -63,6 +63,7 @@ fn main() {
     env_logger::init();
     debug!("App started");
     tauri::Builder::default()
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .invoke_handler(tauri::generate_handler![transcribe, download_model, get_default_model_path])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
