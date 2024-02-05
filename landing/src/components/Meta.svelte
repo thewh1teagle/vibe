@@ -3,7 +3,7 @@
 
 <svelte:head>
 	<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Vibe.</title><meta name="description" content="Transcribe on your own!" /><link
+	<title>Vibe</title><meta name="description" content="Transcribe on your own!" /><link
 		rel="author"
 		href="https://github.com/thewh1teagle"
 	/><meta name="keywords" content="video,audio,transcribe,ai" /><meta
