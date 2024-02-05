@@ -87,7 +87,10 @@
       ],
       "resources": [
         "locales/**/**"
-      ]
+      ],
+      "macOS": {
+        "signingIdentity": "-"
+      }
     },
     "security": {
       "csp": null
