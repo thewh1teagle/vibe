@@ -44,6 +44,7 @@
 
 	function onMacLogoClick() {
 		ctaClicked = true;
+		asset = macSiliconAsset;
 	}
 
 	onMount(() => {
