@@ -26,4 +26,5 @@
 		name="twitter:image"
 		content="https://thewh1teagle.github.io/vibe/og.png"
 	/>
+	<link rel="preload" as="image" href="preview.png" />
 </svelte:head>
