@@ -105,3 +105,7 @@ Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-
 # Credits
 
 Thanks for [projects/avbuild](https://sourceforge.net/projects/avbuild/) for pre built `ffmpeg`
+
+Thanks for [github.com/whisper.cpp](https://github.com/ggerganov/whisper.cpp) for outstanding interface for the AI model.
+
+Thanks for [OpenAI](https://openai.com/) for their amazing [Whisper model](https://openai.com/research/whisper)
