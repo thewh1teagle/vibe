@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"svelte-device-info": "^1.0.4",
 		"svelte-persisted-store": "^0.9.0"
 	}
 }

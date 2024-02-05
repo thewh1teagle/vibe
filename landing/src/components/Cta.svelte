@@ -5,6 +5,7 @@
 	import WindowsIcon from './WindowsIcon.svelte';
 	import MacIcon from './MacIcon.svelte';
 	import GithubIcon from './GithubIcon.svelte';
+	let isMobile: undefined | boolean = false;
 
 	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos'); // default to macos
 	let ctaClicked = false;
@@ -47,23 +48,27 @@
 		asset = macSiliconAsset;
 	}
 
-	onMount(() => {
+	onMount(async () => {
+		const Device: Device = (await import('svelte-device-info')) as any;
+		isMobile = Device?.isMobile;
 		const currentOs = getOs();
 		asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === currentOs); // default to macos
 	});
 </script>
 
 <div class="flex gap-3 flex-col lg:flex-row">
-	<button on:click={ctaClick} class="btn btn-primary">
-		{#if asset?.platform.toLowerCase() === 'linux'}
-			<LinuxIcon />
-		{:else if asset?.platform.toLowerCase() === 'windows'}
-			<WindowsIcon />
-		{:else}
-			<MacIcon />
-		{/if}
-		Download For {asset?.platform}
-	</button>
+	{#if !isMobile}
+		<button on:click={ctaClick} class="btn btn-primary">
+			{#if asset?.platform.toLowerCase() === 'linux'}
+				<LinuxIcon />
+			{:else if asset?.platform.toLowerCase() === 'windows'}
+				<WindowsIcon />
+			{:else}
+				<MacIcon />
+			{/if}
+			Download For {asset?.platform}
+		</button>
+	{/if}
 	<a class="btn" href="https://github.com/thewh1teagle/vibe" target="_blank">
 		<GithubIcon />
 		Star On Github
