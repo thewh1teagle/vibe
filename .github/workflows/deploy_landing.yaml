@@ -37,7 +37,7 @@ jobs:
         working-directory: landing
 
       - name: Update downloads manifest
-        run: ./scripts/update_manifest.sh
+        run: node ./scripts/landing_releases.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
