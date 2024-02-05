@@ -7,14 +7,7 @@ Transcribe audio in every language
 <img src="https://github.com/thewh1teagle/vibe/assets/61390950/ece19b81-26c6-4c13-81de-33175bb898d9" width=600>
 
 # Downloads ⬇️
-
-`MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
-
-`MacOS Intel`: install `x64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
-
-`Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
-
-`Linux`: install `.deb` (recommend) from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
+Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github.io/vibe</a>
 
 # Supported platforms 🖥️
 
@@ -44,6 +37,17 @@ Hardware:
 No special requirement. resource usage can be customized through advanced settings in main window.
 
 Currenly, `MacOS` computers get the best performance since there's GPU optimizations.
+
+## Manual Install 🛠️
+
+`MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
+
+`MacOS Intel`: install `x64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
+
+`Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
+
+`Linux`: install `.deb` (recommend) from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
+
 
 ## Ubuntu
 
