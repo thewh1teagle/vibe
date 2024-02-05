@@ -50,9 +50,9 @@
 
 <div class="flex gap-3 flex-col lg:flex-row">
 	<button on:click={ctaClick} class="btn btn-primary">
-		{#if asset?.platform === 'linux'}
+		{#if asset?.platform.toLowerCase() === 'linux'}
 			<LinuxIcon />
-		{:else if asset?.platform === 'windows'}
+		{:else if asset?.platform.toLowerCase() === 'windows'}
 			<WindowsIcon />
 		{:else}
 			<MacIcon />
