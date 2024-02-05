@@ -2,8 +2,6 @@ name: Deploy Landing to GitHub Pages
 
 on:
   push:
-    tags:
-      - "v*"
     paths:
       - 'landing/**'
   workflow_dispatch:
