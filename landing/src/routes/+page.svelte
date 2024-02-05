@@ -14,7 +14,27 @@
 	<Cta />
 </div>
 <div class="m-auto mt-16 w-[95%] lg:w-[1000px] h-auto">
-	<img class="rounded-2xl object-cover w-full h-auto" alt="preview" src="preview.png" />
+	<img
+		class="preview-hover-image rounded-2xl object-cover w-full h-auto"
+		alt="preview"
+		src="preview.png"
+	/>
 </div>
 
 <Meta />
+
+<style lang="postcss">
+	.preview-hover-image {
+		transition:
+			transform 0.55s ease-in-out,
+			translateY 0.53s ease-in-out;
+	}
+
+	.preview-hover-image:hover {
+		transform: scale(1.03) translateY(-4px);
+	}
+
+	.preview-hover-image:not(:hover) {
+		transform: scale(1) translateY(0);
+	}
+</style>
