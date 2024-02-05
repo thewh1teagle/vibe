@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Cta from '../components/Cta.svelte';
-	import Preview from '$lib/assets/preview.png';
 </script>
 
 <h1 class="text-3xl lg:text-6xl text-center capitalize">Transcribe. on Your Own.</h1>
@@ -14,5 +13,5 @@
 	<Cta />
 </div>
 <div class="m-auto mt-16 w-[95%] lg:w-[1000px] h-auto">
-	<img class="rounded-2xl object-cover w-full h-auto" alt="preview" src={Preview} />
+	<img class="rounded-2xl object-cover w-full h-auto" alt="preview" src="preview.png" />
 </div>
