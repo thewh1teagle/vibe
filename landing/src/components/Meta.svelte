@@ -6,9 +6,6 @@
 	<title>Vibe.</title><meta name="description" content="Transcribe on your own!" /><link
 		rel="author"
 		href="https://github.com/thewh1teagle"
-	/><meta name="author" content="Github.com/thewh1teagle Inc." /><link
-		rel="manifest"
-		href="/manifest.webmanifest"
 	/><meta name="keywords" content="video,audio,transcribe,ai" /><meta
 		name="theme-color"
 		media="not screen"
