@@ -14,7 +14,7 @@ Transcribe audio in every language
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
-`Linux`: install `.deb` (recommend) from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes
+`Linux`: install `.deb` (recommend) from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
 
 # Supported platforms 🖥️
 
