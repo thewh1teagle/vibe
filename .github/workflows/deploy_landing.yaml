@@ -6,10 +6,6 @@ on:
       - "v*"
   workflow_dispatch:
 
-defaults:
- run:
-  working-directory: ./landing
-
 # Allow this job to clone the repo and create a page deployment
 permissions:
   contents: read
@@ -34,6 +30,7 @@ jobs:
         with:
           node-version: 18
           cache: npm
+          working-directory: landing
 
       - name: Install dependencies
         run: npm install
@@ -42,6 +39,7 @@ jobs:
         uses: actions/configure-pages@v3
         with:
           static_site_generator: sveltekit
+          working-directory: landing
 
       - name: Build
         run: npm run build
@@ -51,6 +49,7 @@ jobs:
         with:
           # this should match the `pages` option in your adapter-static options
           path: "build/"
+          working-directory: landing
 
   deploy:
     needs: build
