@@ -38,7 +38,6 @@ jobs:
 
       - name: Update downloads manifest
         run: ./scripts/update_manifest.sh
-        working-directory: landing
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
