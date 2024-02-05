@@ -5,7 +5,7 @@
 
 <h1 class="text-3xl lg:text-6xl text-center capitalize">Transcribe. on Your Own.</h1>
 <p
-	class="mt-5 m-auto text-center max-w-[60%] lg:max-w-[600px] text-md leading-8 text-content opacity-50"
+	class="mt-5 m-auto text-center max-w-[78%] lg:max-w-[600px] text-md leading-8 text-content opacity-50"
 >
 	Experience seamless language transcription with Vibe - your all-in-one solution for effortless
 	audio and video transcription.
