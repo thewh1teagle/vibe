@@ -42,6 +42,10 @@
 		return 'macos';
 	}
 
+	function onMacLogoClick() {
+		ctaClicked = true;
+	}
+
 	onMount(() => {
 		const currentOs = getOs();
 		asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === currentOs); // default to macos
@@ -78,7 +82,7 @@
 
 <!-- platforms -->
 <div class="flex gap-3 mt-4">
-	<button on:click={ctaClick}><MacIcon /></button>
+	<button on:click={onMacLogoClick}><MacIcon /></button>
 
 	<a aria-label="Windows" rel="noopener" href={windowsAsset?.url} class=""><WindowsIcon /></a>
 
