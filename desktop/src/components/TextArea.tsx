@@ -11,7 +11,7 @@ type FormatExtensions = {
   [name in TextFormat]: string;
 };
 const formatExtensions: FormatExtensions = {
-  normal: "",
+  normal: ".txt",
   srt: ".srt",
   vtt: ".vtt",
 };
