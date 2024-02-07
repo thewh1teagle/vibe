@@ -3,8 +3,6 @@ name = "cli"
 version = "0.0.6"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 clap = { version = "4.4.14", features = ["derive"] }
 tokio = { version = "1.35.1", features = ["tokio-macros", "macros", "rt", "rt-multi-thread"] }
@@ -12,16 +10,16 @@ env_logger = "0.10.1"
 anyhow = "1.0.79"
 indicatif = "0.17.7"
 once_cell = "1.19.0"
-dirs-next = "2.0.0"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-vibe = {path = "../core", features = ["openblas"] }
+vibe = { path = "../core", features = ["openblas"] }
+openssl = { version = "0.10.63", features = ["vendored"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-vibe = {path = "../core", features = ["openblas"] }
+vibe = { path = "../core", features = ["static", "openblas"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-vibe = {path = "../core", features = ["coreml"] }
+vibe = { path = "../core", features = ["coreml", "static"] }
 
 [[bin]]
 name = "cli"

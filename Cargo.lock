@@ -479,10 +479,10 @@ version = "0.0.6"
 dependencies = [
  "anyhow",
  "clap",
- "dirs-next",
  "env_logger",
  "indicatif",
  "once_cell",
+ "openssl",
  "tokio",
  "vibe",
 ]
