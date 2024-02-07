@@ -8,6 +8,7 @@ import SettingsPage from "./pages/SettingsPage";
 import SetupPage from "./pages/SetupPage";
 import TranscribePage from "./pages/TranscribePage";
 import { ErrorModalProvider } from "./providers/ErrorModalProvider";
+import { UpdaterProvider } from "./providers/UpdaterProvider";
 
 export default function App() {
   const { i18n } = useTranslation();
@@ -15,12 +16,14 @@ export default function App() {
 
   return (
     <ErrorModalProvider>
-      <ErrorModal />
-      <Routes>
-        <Route path="/setup" element={<SetupPage />} />
-        <Route path="/" element={<TranscribePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-      </Routes>
+      <UpdaterProvider>
+        <ErrorModal />
+        <Routes>
+          <Route path="/setup" element={<SetupPage />} />
+          <Route path="/" element={<TranscribePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Routes>
+      </UpdaterProvider>
     </ErrorModalProvider>
   );
 }

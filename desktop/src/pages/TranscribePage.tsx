@@ -15,16 +15,10 @@ import TextArea from "../components/TextArea";
 import ThemeToggle from "../components/ThemeToggle";
 import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import * as transcript from "../transcript";
-import { UpdateManifest, installUpdate } from "@tauri-apps/api/updater";
-import Updater from "../components/Updater";
-import { relaunch } from "@tauri-apps/api/process";
-import { ask } from "@tauri-apps/api/dialog";
+import UpdateProgress from "../components/UpdateProgress";
+import { UpdaterContext } from "../providers/UpdaterProvider";
 
 function App() {
-  const [availableUpdate, setAvailableUpdate] = useState(false);
-  const [manifest, setManifest] = useState<UpdateManifest>();
-  const [updating, setUpdating] = useState(false);
-
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -34,6 +28,7 @@ function App() {
   const [audioPath, setAudioPath] = useState<string>();
   const [modelPath, setModelPath] = useState<string>();
   const audioRef = useRef<HTMLAudioElement>();
+  const { updateApp, availableUpdate } = useContext(UpdaterContext);
   const { setState: setErrorModal } = useContext(ErrorModalContext);
   const [args, setArgs] = useLocalStorage<LocalModelArgs>("model_args", {
     init_prompt: "",
@@ -104,37 +99,6 @@ function App() {
     }
   }
 
-  async function updateApp() {
-    const shouldUpdate = await ask(t("ask-for-update-body", { version: manifest?.version }), {
-      title: t("ask-for-update-title"),
-      type: "info",
-      cancelLabel: t("cancel-update"),
-      okLabel: t("confirm-update"),
-    });
-
-    if (shouldUpdate) {
-      setUpdating(true);
-      console.log(`Installing update ${manifest?.version}, ${manifest?.date}, ${manifest?.body}`);
-      try {
-        await installUpdate();
-        setUpdating(false);
-        const shouldRelaunch = await ask(t("ask-for-relaunch-body"), {
-          title: t("ask-for-relaunch-title"),
-          type: "info",
-          cancelLabel: t("cancel-relaunch"),
-          okLabel: t("confirm-relaunch"),
-        });
-        if (shouldRelaunch) {
-          await relaunch();
-        }
-      } catch (e) {
-        console.log(e);
-        setUpdating(false);
-        setErrorModal?.({ open: true, log: String(e) });
-      }
-    }
-  }
-
   if (loading) {
     return (
       <div className="w-56 m-auto h-[100vh] flex flex-col justify-center items-center">
@@ -156,7 +120,7 @@ function App() {
   }
   return (
     <div className="flex flex-col">
-      <Updater setAvailable={setAvailableUpdate} updating={updating} manifest={manifest} setManifest={setManifest} />
+      <UpdateProgress />
       <div className="flex flex-col m-auto w-[300px] mt-10">
         <div className="relative text-center">
           <h1 className="text-center text-4xl mb-10">{t("app-title")}</h1>
