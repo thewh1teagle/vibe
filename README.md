@@ -110,7 +110,7 @@ Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-
 
 Thanks for [tauri.app](https://tauri.app/) for making the best apps framework I ever seen
 
-Thanks for [projects/avbuild](https://sourceforge.net/projects/avbuild/) for pre built `ffmpeg`
+Thanks for [wang-bin/avbuild](https://github.com/wang-bin/avbuild) for pre built `ffmpeg`
 
 Thanks for [github.com/whisper.cpp](https://github.com/ggerganov/whisper.cpp) for outstanding interface for the AI model.
 
