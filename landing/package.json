@@ -36,6 +36,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"i18next-browser-languagedetector": "^7.2.0",
+		"i18next-http-backend": "^2.5.0",
+		"svelte-i18next": "^2.2.2",
 		"svelte-persisted-store": "^0.9.0"
 	}
 }
