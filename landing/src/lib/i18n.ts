@@ -19,7 +19,7 @@ i18next
         supportedLngs: ['en', 'he'],
         ns: 'translation',
         backend: {
-            loadPath: '/locales/{{lng}}.json'
+            loadPath: 'locales/{{lng}}.json'
         }
     });
 
