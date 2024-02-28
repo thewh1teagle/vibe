@@ -13,9 +13,7 @@
   "tauri": {
     "updater": {
       "active": true,
-      "endpoints": [
-        "https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
-      ],
+      "endpoints": ["https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"],
       "dialog": false,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK"
     },
@@ -50,18 +48,14 @@
       "fs": {
         "all": true,
         "scope": {
-          "allow": [
-            "**"
-          ],
+          "allow": ["**"],
           "requireLiteralLeadingDot": false
         }
       },
       "protocol": {
         "asset": true,
         "assetScope": {
-          "allow": [
-            "**"
-          ],
+          "allow": ["**"],
           "requireLiteralLeadingDot": false
         }
       },
@@ -71,23 +65,10 @@
     },
     "bundle": {
       "active": true,
-      "targets": [
-        "nsis",
-        "deb",
-        "dmg",
-        "updater"
-      ],
+      "targets": ["nsis", "deb", "dmg", "updater"],
       "identifier": "github.com.thewh1teagle.vibe",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": [
-        "locales/**/**"
-      ],
+      "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+      "resources": ["locales/**/**"],
       "macOS": {
         "signingIdentity": "-"
       }
@@ -104,7 +85,7 @@
         "height": 900,
         "focus": true,
         "center": true,
-        "visible": true,
+        "visible": false,
         "label": "main"
       }
     ]
