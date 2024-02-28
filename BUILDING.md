@@ -2,90 +2,45 @@
 
 ## Windows
 
-dependencies:
-NodeJS
-Cargo
-Clang (LLVM)
+### Prerequisites
+
+[NodeJS](https://nodejs.org/en/download/current) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html)
+
+Tauri CLI
+
+```console
 npm @tauri-app/cli
-python
+```
 
-install msys2 and open ucrt64 terminal
+**Windows**: [Msys2](https://www.msys2.org/)
+
+**MacOS** brew packages
 
 ```console
-pacman --needed -S $MINGW_PACKAGE_PREFIX-{ffmpeg,clang,rust} git
-git clone https://github.com/thewh1teagle/vibe
-cd vibe
-rustup override set stable-x86_64-pc-windows-gnu # if not already
-cargo build --release
+brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
 ```
 
-With OpenBlas
+**Linux** packages
 
-```console
-pacman -S --needed git $MINGW_PACKAGE_PREFIX-{rust,ffmpeg,clang,openblas,toolchain}
-git clone https://github.com/thewh1teagle/vibe
-cd vibe/desktop
-rustup override set stable-x86_64-pc-windows-gnu
-
-
-export PATH="/c/Program Files/nodejs:$PATH"
-npm i -g @tauri-apps/cli
-npm i
-# here inject beforeBundleCommand to find dll and create tauri.windows.config.json
-export C_INCLUDE_PATH=${OPENBLAS_PATH}/include/openblas
-npx tauri build
-# here upload it (from target/release/bundle/nsis/)
-```
-
-for building to desktop you must use msys2 environment along with NodeJS installed outside of the environemnt.
-
-```
-RUST_LOG=trace PATH="/c/Program Files/nodejs:$PATH" cargo tauri build # use dev for develop
-```
-
-## MacOS
-
-1. Install brew packages
-
-```console
-brew install lapack ffmpeg openblas git node@18
-```
-
-2. Install [rust](https://www.rust-lang.org/tools/install)
-3. Install `tauri-cli`
-
-```console
-cargo install tauri-cli
-```
-
-4. Inside `desktop` folder build the app
-
-```console
-cargo tauri build
-```
-
-## Linux
-
-1. Install packages
-
-[prerequisites/#setting-up-linux](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
+Based on [tauri/prerequisites/#setting-up-linux](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
 
 ```console
 sudo apt-get update
 sudo apt-get install -y clang build-essential curl wget file libopenblas-base libopenblas-dev libwebkit2gtk-4.0-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev
 ```
 
-2. Install [rust](https://www.rust-lang.org/tools/install)
-3. Install `tauri-cli`
+## Build
+
+Linux / MacOS
 
 ```console
-cargo install tauri-cli
+scripts/pre_build.sh
 ```
 
-4. Inside `desktop` folder build the app
+Windows
 
 ```console
-cargo tauri build
+C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
 ```
 
 ## Test
@@ -99,7 +54,3 @@ cargo test -- --nocapture
 ffmpeg -i in.opus -ar 16000 out.wav
 cargo run -- --path out.wav --output out.txt --n-threads 5
 ```
-
-## OTA
-
-Over the air updates available from [gist.github.com/eb96..9f22](https://gist.github.com/thewh1teagle/eb96494f626dd46fcabdb07ef37b9f22) using [tauri/updater](https://tauri.app/v1/guides/distribution/updater/)
