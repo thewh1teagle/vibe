@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 import { languages } from "../i18n";
 import { cx, getAppInfo, getIssueUrl } from "../utils";
+import * as config from "../config";
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
@@ -54,7 +55,7 @@ export default function SettingsPage() {
   }
 
   async function openModelsUrl() {
-    shell.open("https://huggingface.co/ggerganov/whisper.cpp");
+    shell.open(config.modelsURL);
   }
 
   return (
@@ -111,10 +112,10 @@ export default function SettingsPage() {
       </div>
 
       <div className="flex flex-col gap-1">
-        <button onClick={() => shell.open("https://github.com/thewh1teagle/vibe")} className="btn bg-base-300 text-base-content">
+        <button onClick={() => shell.open(config.aboutURL)} className="btn bg-base-300 text-base-content">
           {t("project-link")}
         </button>
-        <button onClick={async () => shell.open("https://github.com/thewh1teagle/vibe/releases/latest")} className="btn bg-base-300 text-base-content">
+        <button onClick={async () => shell.open(config.updateVersionURL)} className="btn bg-base-300 text-base-content">
           {t("update-version")}
         </button>
         <button onClick={async () => shell.open(await getIssueUrl(await getAppInfo()))} className="btn bg-base-300 text-base-content">
