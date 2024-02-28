@@ -4,12 +4,13 @@
 
 ### Prerequisites
 
-[NodeJS](https://nodejs.org/en/download/current) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html)
+[NodeJS](https://nodejs.org/en/download/current) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [7z](https://www.7-zip.org/download.html)
 
-Tauri CLI
+Node dependencies (from `desktop` directory)
 
 ```console
-npm @tauri-app/cli
+npm install
+npm install -D
 ```
 
 **Windows**: [Msys2](https://www.msys2.org/)

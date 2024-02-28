@@ -26,7 +26,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../desktop/src-tauri" || exit
 # Detect OS
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     OS="linux"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
     OS="macos"
 else
     OS="windows"
@@ -49,6 +49,9 @@ if [ "$OS" == "windows" ]; then
     FFMPEG_URL="https://master.dl.sourceforge.net/project/avbuild/windows-desktop/$FFMPEG_NAME.7z?viasf=1"
     OPENBLAS_NAME="OpenBLAS-0.3.26-x64"
     OPENBLAS_URL="https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.26/$OPENBLAS_NAME.zip"
+    
+    # Used for local development
+    export PATH="$PATH:C:\Program Files\7-Zip"
 fi
 
 # Check if emulate CI
