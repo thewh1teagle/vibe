@@ -1,5 +1,5 @@
-import { fs } from "@tauri-apps/api";
-import { save } from "@tauri-apps/plugin-dialog";
+import * as fs from "@tauri-apps/plugin-fs"
+import * as dialog from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocalStorage } from "usehooks-ts";
@@ -17,8 +17,8 @@ const formatExtensions: FormatExtensions = {
 };
 
 async function download(text: string, format: TextFormat) {
-  const ext = formatExtensions[format];
-  const filePath = await save({
+  const ext = formatExtensions[format].slice(1);
+  const filePath = await dialog.save({
     filters: [
       {
         name: "",

@@ -1,4 +1,4 @@
-import { readTextFile } from "@tauri-apps/plugin-fs";
+import * as fs from "@tauri-apps/plugin-fs";
 import { resolveResource } from "@tauri-apps/api/path";
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -16,7 +16,7 @@ i18n
   .use(
     resourcesToBackend(async (language: string, namespace: string) => {
       const file_path = await resolveResource(`./locales/${language}/${namespace}.json`);
-      return JSON.parse(await readTextFile(file_path));
+      return JSON.parse(await fs.readTextFile(file_path));
     })
   )
 

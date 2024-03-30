@@ -1,11 +1,11 @@
-import fs from "@tauri-apps/plugin-fs";
+import * as fs from "@tauri-apps/plugin-fs";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import { cx, getAppInfo, getIssueUrl } from "../utils";
 import { invoke } from "@tauri-apps/api/core";
-import shell from "@tauri-apps/plugin-shell";
+import * as shell from "@tauri-apps/plugin-shell";
 
 export default function ErrorModal() {
     const { t } = useTranslation();
@@ -25,7 +25,15 @@ export default function ErrorModal() {
         navigate(0);
     }
     async function reportIssue() {
-        const info = await getAppInfo();
+
+        let info = ""
+        try {
+            info = await getAppInfo();
+        } catch (e) {
+            console.error(e)
+            info = `Couldn't get info: ${e}`
+        }
+        
         const url = await getIssueUrl(state?.log + "\n" + info);
         shell.open(url);
     }

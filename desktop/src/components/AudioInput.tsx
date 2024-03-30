@@ -1,4 +1,4 @@
-import { open } from "@tauri-apps/plugin-dialog";
+import * as dialog from "@tauri-apps/plugin-dialog";
 import formatDuration from "format-duration";
 import { MutableRefObject, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -65,7 +65,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
         const videoExtensions = ["mp4", "mkv", "avi", "mov", "wmv", "webm"];
         const audioExtensions = ["mp3", "wav", "aac", "flac", "oga", "ogg", "opic"];
 
-        const selected = await open({
+        const selected = await dialog.open({
             multiple: false,
             filters: [
                 {

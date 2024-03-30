@@ -1,5 +1,6 @@
 import "@fontsource/roboto";
-import { fs, invoke, path } from "@tauri-apps/api";
+import {  path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs"
 import { listen } from "@tauri-apps/api/event";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +16,8 @@ import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import * as transcript from "../transcript";
 import UpdateProgress from "../components/UpdateProgress";
 import { UpdaterContext } from "../providers/UpdaterProvider";
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrent } from "@tauri-apps/api/webviewWindow";
+import { invoke } from "@tauri-apps/api/core";
 
 function App() {
     const { t } = useTranslation();
@@ -59,7 +61,7 @@ function App() {
                     if (storedPath) {
                         setModelPath(JSON.parse(storedPath));
                     } else {
-                        setModelPath(filtered[0].path);
+                        setModelPath(filtered[0].name);
                     }
                 }
             } catch (e) {
@@ -92,8 +94,8 @@ function App() {
             setLoading(false);
         } finally {
             // Focus back the window and play sound
-            appWindow.unminimize();
-            appWindow.setFocus();
+            getCurrent().unminimize();
+            getCurrent().setFocus();
             new Audio(successSound).play();
         }
     }

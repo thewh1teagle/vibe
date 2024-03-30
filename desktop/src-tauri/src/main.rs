@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod config;
+mod errors;
 use env_logger;
 use log;
 use std::sync::Mutex;
@@ -34,19 +35,19 @@ async fn on_download_progress(current: u64, total: u64) {
 #[tauri::command]
 async fn download_model(app: tauri::AppHandle) -> Result<(), String> {
     *APP_ASYNC_INSTANCE.lock().await = Some(app.clone());
-    let model_path = vibe::config::get_model_path().map_err(|e| format!("{e:?}"))?;
+    let model_path = vibe::config::get_model_path().map_err(|e| pretty_error!(e))?;
     let mut downloader = vibe::downloader::Downloader::new();
     log::debug!("Download model invoked! with path {}", model_path.display());
     downloader
         .download(config::URL, model_path.to_owned(), Some(config::HASH), on_download_progress)
         .await
-        .map_err(|e| format!("{e:?}"))?;
+        .map_err(|e| pretty_error!(e))?;
     Ok(())
 }
 
 #[tauri::command]
 async fn get_default_model_path() -> Result<String, String> {
-    let model_path = vibe::config::get_model_path().map_err(|e| format!("{e:?}"))?;
+    let model_path = vibe::config::get_model_path().map_err(|e| pretty_error!(e))?;
     let model_path = model_path.to_str().ok_or("cant convert model path to string")?;
     Ok(model_path.to_string())
 }
@@ -55,7 +56,7 @@ async fn get_default_model_path() -> Result<String, String> {
 async fn transcribe(app: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript, String> {
     // Store the app instance in the global static variable
     *APP_INSTANCE.lock().unwrap() = Some(app.clone());
-    let transcript = vibe::model::transcribe(&options, Some(on_transcribe_progress)).map_err(|e| format!("{e:?}"))?;
+    let transcript = vibe::model::transcribe(&options, Some(on_transcribe_progress)).map_err(|e| pretty_error!(e))?;
     Ok(transcript)
 }
 
@@ -64,6 +65,13 @@ fn main() {
     log::debug!("App started");
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_app::init())
+        .plugin(tauri_plugin_updater::Builder::default().build())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![transcribe, download_model, get_default_model_path])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

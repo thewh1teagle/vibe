@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Update, check as checkUpdate } from "@tauri-apps/plugin-updater";
 import { useTranslation } from "react-i18next";
-import { ask } from "@tauri-apps/plugin-dialog";
-import { relaunch } from "@tauri-apps/plugin-process";
+import * as dialog from "@tauri-apps/plugin-dialog";
+import * as process from "@tauri-apps/plugin-process";
 import { ErrorModalContext } from "./ErrorModalProvider";
 
 // Define the context type
@@ -50,7 +50,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     async function updateApp() {
-        const shouldUpdate = await ask(t("ask-for-update-body", { version: update?.version }), {
+        const shouldUpdate = await dialog.ask(t("ask-for-update-body", { version: update?.version }), {
             title: t("ask-for-update-title"),
             kind: "info",
             cancelLabel: t("cancel-update"),
@@ -63,7 +63,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
             try {
                 await update?.downloadAndInstall();
                 setUpdating(false);
-                const shouldRelaunch = await ask(t("ask-for-relaunch-body"), {
+                const shouldRelaunch = await dialog.ask(t("ask-for-relaunch-body"), {
                     title: t("ask-for-relaunch-title"),
                     kind: "info",
                     cancelLabel: t("cancel-relaunch"),
@@ -71,7 +71,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
                 });
                 if (shouldRelaunch) {
                     console.info("relaunch....");
-                    await relaunch();
+                    await process.relaunch();
                 }
             } catch (e) {
                 console.log(e);
