@@ -1,87 +1,89 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { UpdateManifest, checkUpdate, installUpdate } from "@tauri-apps/api/updater";
+import { Update, check as checkUpdate } from "@tauri-apps/plugin-updater";
 import { useTranslation } from "react-i18next";
-import { ask } from "@tauri-apps/api/dialog";
-import { relaunch } from "@tauri-apps/api/process";
+import { ask } from "@tauri-apps/plugin-dialog";
+import { relaunch } from "@tauri-apps/plugin-process";
 import { ErrorModalContext } from "./ErrorModalProvider";
 
 // Define the context type
 type UpdaterContextType = {
-  availableUpdate: boolean;
-  setAvailableUpdate: React.Dispatch<React.SetStateAction<boolean>>;
-  updating: boolean;
-  setUpdating: React.Dispatch<React.SetStateAction<boolean>>;
-  manifest?: UpdateManifest;
-  setManifest: React.Dispatch<React.SetStateAction<UpdateManifest | undefined>>;
-  updateApp: () => Promise<void>;
+    availableUpdate: boolean;
+    setAvailableUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+    updating: boolean;
+    setUpdating: React.Dispatch<React.SetStateAction<boolean>>;
+    manifest?: Update;
+    setManifest: React.Dispatch<React.SetStateAction<Update | undefined>>;
+    updateApp: () => Promise<void>;
 };
 
 // Create the context
 export const UpdaterContext = createContext<UpdaterContextType>({
-  availableUpdate: false,
-  setAvailableUpdate: () => {},
-  updating: false,
-  setUpdating: () => {},
-  setManifest: () => {},
-  updateApp: async () => {},
+    availableUpdate: false,
+    setAvailableUpdate: () => {},
+    updating: false,
+    setUpdating: () => {},
+    setManifest: () => {},
+    updateApp: async () => {},
 });
 
 export function UpdaterProvider({ children }: { children: React.ReactNode }) {
-  const [availableUpdate, setAvailableUpdate] = useState(false);
-  const [manifest, setManifest] = useState<UpdateManifest | undefined>();
-  const [updating, setUpdating] = useState(false);
-  const { setState: setErrorModal } = useContext(ErrorModalContext);
-  const { t } = useTranslation();
+    const [availableUpdate, setAvailableUpdate] = useState(false);
+    const [update, setUpdate] = useState<Update | undefined>();
+    const [updating, setUpdating] = useState(false);
+    const { setState: setErrorModal } = useContext(ErrorModalContext);
+    const { t } = useTranslation();
 
-  useEffect(() => {
-    // Check for new updates
-    async function checkForUpdates() {
-      try {
-        const { shouldUpdate, manifest: newManifest } = await checkUpdate();
-        setAvailableUpdate(shouldUpdate);
-        setManifest(newManifest);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    checkForUpdates();
-  }, []);
-
-  async function updateApp() {
-    const shouldUpdate = await ask(t("ask-for-update-body", { version: manifest?.version }), {
-      title: t("ask-for-update-title"),
-      type: "info",
-      cancelLabel: t("cancel-update"),
-      okLabel: t("confirm-update"),
-    });
-
-    if (shouldUpdate) {
-      setUpdating(true);
-      console.info(`Installing update ${manifest?.version}, ${manifest?.date}, ${manifest?.body}`);
-      try {
-        await installUpdate();
-        setUpdating(false);
-        const shouldRelaunch = await ask(t("ask-for-relaunch-body"), {
-          title: t("ask-for-relaunch-title"),
-          type: "info",
-          cancelLabel: t("cancel-relaunch"),
-          okLabel: t("confirm-relaunch"),
-        });
-        if (shouldRelaunch) {
-          console.info("relaunch....");
-          await relaunch();
+    useEffect(() => {
+        // Check for new updates
+        async function checkForUpdates() {
+            try {
+                const newUpdate = await checkUpdate();
+                if (newUpdate) {
+                    setAvailableUpdate(newUpdate?.available);
+                    setUpdate(newUpdate);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
-      } catch (e) {
-        console.log(e);
-        setUpdating(false);
-        setErrorModal?.({ open: true, log: String(e) });
-      }
-    }
-  }
+        checkForUpdates();
+    }, []);
 
-  return (
-    <UpdaterContext.Provider value={{ availableUpdate, setAvailableUpdate, manifest, setManifest, updating, setUpdating, updateApp }}>
-      {children}
-    </UpdaterContext.Provider>
-  );
+    async function updateApp() {
+        const shouldUpdate = await ask(t("ask-for-update-body", { version: update?.version }), {
+            title: t("ask-for-update-title"),
+            kind: "info",
+            cancelLabel: t("cancel-update"),
+            okLabel: t("confirm-update"),
+        });
+
+        if (shouldUpdate) {
+            setUpdating(true);
+            console.info(`Installing update ${update?.version}, ${update?.date}, ${update?.body}`);
+            try {
+                await update?.downloadAndInstall();
+                setUpdating(false);
+                const shouldRelaunch = await ask(t("ask-for-relaunch-body"), {
+                    title: t("ask-for-relaunch-title"),
+                    kind: "info",
+                    cancelLabel: t("cancel-relaunch"),
+                    okLabel: t("confirm-relaunch"),
+                });
+                if (shouldRelaunch) {
+                    console.info("relaunch....");
+                    await relaunch();
+                }
+            } catch (e) {
+                console.log(e);
+                setUpdating(false);
+                setErrorModal?.({ open: true, log: String(e) });
+            }
+        }
+    }
+
+    return (
+        <UpdaterContext.Provider value={{ availableUpdate, setAvailableUpdate, manifest: update, setManifest: setUpdate, updating, setUpdating, updateApp }}>
+            {children}
+        </UpdaterContext.Provider>
+    );
 }

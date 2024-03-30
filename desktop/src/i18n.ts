@@ -1,4 +1,4 @@
-import { readTextFile } from "@tauri-apps/api/fs";
+import { readTextFile } from "@tauri-apps/plugin-fs";
 import { resolveResource } from "@tauri-apps/api/path";
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";

@@ -1,5 +1,5 @@
 import { fs, invoke, path, shell } from "@tauri-apps/api";
-import { getName, getVersion } from "@tauri-apps/api/app";
+import { getName, getVersion } from "@tauri-apps/plugin-app";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

@@ -124,6 +124,9 @@ if [ $CI == false ]; then
         echo "set LIBCLANG_PATH=C:\Program Files\LLVM\bin"
     else
         echo "export FFMPEG_DIR=\"$FFMPEG_PATH\""
+        if [ $OS == "macos" ]; then
+            echo "export DYLD_LIBRARY_PATH=\"$FFMPEG_PATH/lib:\$DYLD_LIBRARY_PATH\""
+        fi
     fi
     echo "npx tauri build"
 fi

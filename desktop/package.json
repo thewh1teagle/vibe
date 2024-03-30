@@ -11,7 +11,14 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^5.0.8",
-    "@tauri-apps/api": "^1.5.2",
+    "@tauri-apps/api": "^2.0.0-alpha.1",
+    "@tauri-apps/plugin-app": "^2.0.0-alpha.1",
+    "@tauri-apps/plugin-dialog": "^2.0.0-beta.2",
+    "@tauri-apps/plugin-fs": "^2.0.0-beta.2",
+    "@tauri-apps/plugin-os": "^2.0.0-beta.2",
+    "@tauri-apps/plugin-process": "^2.0.0-beta.2",
+    "@tauri-apps/plugin-shell": "^2.0.0-beta.2",
+    "@tauri-apps/plugin-updater": "^2.0.0-beta.2",
     "format-duration": "^3.0.2",
     "i18next": "^23.7.16",
     "i18next-browser-languagedetector": "^7.2.0",
@@ -23,7 +30,7 @@
     "usehooks-ts": "^2.9.2"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.5.9",
+    "@tauri-apps/cli": "^2.0.0-beta.11",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.2.1",
