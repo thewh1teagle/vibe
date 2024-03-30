@@ -1,6 +1,6 @@
 {
   "printWidth": 160,
-  "tabWidth": 2,
+  "tabWidth": 4,
   "useTabs": false,
   "bracketSameLine": true,
   "endOfLine": "lf",
