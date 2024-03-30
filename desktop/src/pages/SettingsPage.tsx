@@ -1,5 +1,7 @@
-import { fs, invoke, path, shell } from "@tauri-apps/api";
-import { getName, getVersion } from "@tauri-apps/api/app";
+import { path } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs"
+import * as shell from "@tauri-apps/plugin-shell"
+import * as pluginApp from "@tauri-apps/plugin-app";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -7,12 +9,13 @@ import { useLocalStorage } from "usehooks-ts";
 import { languages } from "../i18n";
 import { cx, getAppInfo, getIssueUrl } from "../utils";
 import * as config from "../config";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useLocalStorage("language", i18n.language);
   const [modelPath, setModelPath] = useLocalStorage("model_path", "");
-  const [models, setModels] = useState<fs.FileEntry[]>([]);
+  const [models, setModels] = useState<fs.DirEntry[]>([]);
   const navigate = useNavigate();
   const [appVersion, setAppVersion] = useState("");
 
@@ -42,9 +45,14 @@ export default function SettingsPage() {
 
   useEffect(() => {
     async function loadMeta() {
-      const name = await getName();
-      const ver = await getVersion();
-      setAppVersion(`${name} ${ver}`);
+      try {
+        const name = await pluginApp.getName();
+        const ver = await pluginApp.getVersion();
+        setAppVersion(`${name} ${ver}`);
+      } catch (e) {
+        console.error(e)
+      }
+      
     }
     loadMeta();
   }, []);
@@ -94,7 +102,7 @@ export default function SettingsPage() {
       <div className="flex flex-col gap-1">
         <select onChange={(e) => setModelPath(e.target.value)} value={modelPath} className="select select-bordered">
           {models.map((model, index) => (
-            <option key={index} value={model.path}>
+            <option key={index} value={model.name}>
               {model.name}
             </option>
           ))}
@@ -118,7 +126,16 @@ export default function SettingsPage() {
         <button onClick={async () => shell.open(config.updateVersionURL)} className="btn bg-base-300 text-base-content">
           {t("update-version")}
         </button>
-        <button onClick={async () => shell.open(await getIssueUrl(await getAppInfo()))} className="btn bg-base-300 text-base-content">
+        <button onClick={async () => {
+          try {
+            const info = await getAppInfo()
+            shell.open(await getIssueUrl(info))
+          } catch (e) {
+            console.error(e)
+            shell.open(await getIssueUrl(`Couldn't get info ${e}`))
+          }
+          
+        }} className="btn bg-base-300 text-base-content">
           {t("report-issue")}
         </button>
         <p className="text-center font-light mt-2">{appVersion}</p>

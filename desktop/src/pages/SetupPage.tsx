@@ -1,10 +1,10 @@
-import { invoke } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import { ErrorModalContext } from "../providers/ErrorModalProvider";
+import { invoke } from "@tauri-apps/api/core";
 
 function App() {
   const { t } = useTranslation();
