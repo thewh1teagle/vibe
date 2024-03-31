@@ -16,3 +16,4 @@ ffmpeg*-default/
 ffmpeg/
 openblas/
 *.7z
+.env
