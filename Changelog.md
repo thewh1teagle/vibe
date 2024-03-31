@@ -4,6 +4,7 @@
 -   Fix macOS build + action
     -   remove static linking
     -   embed frameworks in bundle
+    -   Update action env variables for signing (breaking changes in tauri)
 
 ## 2024-30-03
 
