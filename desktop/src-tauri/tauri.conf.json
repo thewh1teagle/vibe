@@ -7,12 +7,22 @@
     },
     "bundle": {
         "active": true,
-        "targets": ["nsis", "deb", "dmg", "updater"],
-        "macOS": {
-            "signingIdentity": "-"
-        },
-        "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
-        "resources": ["locales/**/**"]
+        "targets": [
+            "nsis",
+            "deb",
+            "dmg",
+            "updater"
+        ],
+        "icon": [
+            "icons/32x32.png",
+            "icons/128x128.png",
+            "icons/128x128@2x.png",
+            "icons/icon.icns",
+            "icons/icon.ico"
+        ],
+        "resources": [
+            "locales/**/**"
+        ]
     },
     "productName": "vibe",
     "version": "0.0.6",
@@ -20,7 +30,9 @@
     "plugins": {
         "updater": {
             "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
-            "endpoints": ["https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"]
+            "endpoints": [
+                "https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
+            ]
         }
     },
     "app": {
@@ -42,7 +54,9 @@
         "security": {
             "assetProtocol": {
                 "scope": {
-                    "allow": ["**"],
+                    "allow": [
+                        "**"
+                    ],
                     "deny": [],
                     "requireLiteralLeadingDot": false
                 },

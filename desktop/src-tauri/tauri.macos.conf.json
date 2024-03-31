@@ -1,5 +1,22 @@
 {
     "build": {
         "beforeBundleCommand": "echo"
+    },
+    "bundle": {
+        "macOS": {
+            "frameworks": [
+                "ffmpeg/lib/libavcodec.60.dylib",
+                "ffmpeg/lib/libavdevice.60.dylib",
+                "ffmpeg/lib/libavfilter.9.dylib",
+                "ffmpeg/lib/libavformat.60.dylib",
+                "ffmpeg/lib/libavutil.58.dylib",
+                "ffmpeg/lib/libffmpeg.6.dylib",
+                "ffmpeg/lib/libswresample.4.dylib",
+                "ffmpeg/lib/libswscale.7.dylib"
+            ]
+        },
+        "resources": {
+            "locales": "locales"
+        }
     }
 }

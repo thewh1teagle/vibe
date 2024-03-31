@@ -33,7 +33,7 @@ jobs:
       - name: Install homebrew dependencies
         if: matrix.platform == 'macos-14'
         run: |
-          brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
+          # brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
           # SKIP_CLEANUP=1 SKIP_BUILD=1 python3 ./desktop/src-tauri/build.py
 
       # Setup Rust

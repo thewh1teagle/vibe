@@ -1,6 +1,9 @@
 ## 2024-31-03
 
 -   Remove deprecated app-plugin dependency and used `@tauri-apps/api/app` instead
+-   Fix macOS build + action
+    -   remove static linking
+    -   embed frameworks in bundle
 
 ## 2024-30-03
 
