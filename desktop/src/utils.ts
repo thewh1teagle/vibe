@@ -1,7 +1,23 @@
-import { path } from "@tauri-apps/api";
+import * as api from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import * as os from "@tauri-apps/plugin-os";
 import * as app from "@tauri-apps/api/app";
+import * as path from "@tauri-apps/api/path";
+
+export interface Path {
+    name: string;
+    path: string;
+}
+
+export async function ls(where: string) {
+    const entries = await fs.readDir(where);
+    const paths: Path[] = [];
+    for (const entry of entries) {
+        const abs = await path.join(where, entry.name);
+        paths.push({ name: entry.name, path: abs });
+    }
+    return paths;
+}
 
 export function cx(...cns: (boolean | string | undefined)[]): string {
     return cns.filter(Boolean).join(" ");
@@ -14,8 +30,8 @@ export async function getAppInfo() {
     const kVer = await os.version();
     const osType = await os.type();
     const osVer = await os.version();
-    const configPath = await path.appLocalDataDir();
-    const entries = await fs.readDir(configPath);
+    const configPath = await api.path.appLocalDataDir();
+    const entries = await ls(configPath);
     const models = entries
         .filter((e) => e.name?.endsWith(".bin"))
         .map((e) => e.name)

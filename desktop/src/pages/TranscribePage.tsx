@@ -1,6 +1,5 @@
 import "@fontsource/roboto";
-import {  path } from "@tauri-apps/api";
-import * as fs from "@tauri-apps/plugin-fs"
+import { path } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -16,8 +15,9 @@ import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import * as transcript from "../transcript";
 import UpdateProgress from "../components/UpdateProgress";
 import { UpdaterContext } from "../providers/UpdaterProvider";
-import { getCurrent } from "@tauri-apps/api/webviewWindow";
+import * as webview from "@tauri-apps/api/webviewWindow";
 import { invoke } from "@tauri-apps/api/core";
+import { ls } from "../utils";
 
 function App() {
     const { t } = useTranslation();
@@ -36,7 +36,7 @@ function App() {
         verbose: false,
         lang,
         n_threads: 4,
-        temperature: 0,
+        temperature: 0.4,
     });
 
     useEffect(() => {
@@ -50,7 +50,7 @@ function App() {
             try {
                 const configPath = await path.appLocalDataDir();
 
-                const entries = await fs.readDir(configPath);
+                const entries = await ls(configPath);
 
                 const filtered = entries.filter((e) => e.name?.endsWith(".bin"));
                 if (filtered.length === 0) {
@@ -61,7 +61,8 @@ function App() {
                     if (storedPath) {
                         setModelPath(JSON.parse(storedPath));
                     } else {
-                        setModelPath(filtered[0].name);
+                        const absPath = await path.join(configPath, filtered[0].name);
+                        setModelPath(absPath);
                     }
                 }
             } catch (e) {
@@ -94,8 +95,8 @@ function App() {
             setLoading(false);
         } finally {
             // Focus back the window and play sound
-            getCurrent().unminimize();
-            getCurrent().setFocus();
+            webview.getCurrent().unminimize();
+            webview.getCurrent().setFocus();
             new Audio(successSound).play();
         }
     }

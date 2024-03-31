@@ -1,5 +1,4 @@
 import { path } from "@tauri-apps/api";
-import * as fs from "@tauri-apps/plugin-fs";
 import * as shell from "@tauri-apps/plugin-shell";
 import * as app from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
@@ -7,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 import { languages } from "../i18n";
-import { cx, getAppInfo, getIssueUrl } from "../utils";
+import { Path, cx, getAppInfo, getIssueUrl, ls } from "../utils";
 import * as config from "../config";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -15,7 +14,7 @@ export default function SettingsPage() {
     const { t, i18n } = useTranslation();
     const [language, setLanguage] = useLocalStorage("language", i18n.language);
     const [modelPath, setModelPath] = useLocalStorage("model_path", "");
-    const [models, setModels] = useState<fs.DirEntry[]>([]);
+    const [models, setModels] = useState<Path[]>([]);
     const navigate = useNavigate();
     const [appVersion, setAppVersion] = useState("");
 
@@ -36,7 +35,7 @@ export default function SettingsPage() {
     useEffect(() => {
         async function loadModels() {
             const configPath = await path.appLocalDataDir();
-            const entries = await fs.readDir(configPath);
+            const entries = await ls(configPath);
             const found = entries.filter((e) => e.name?.endsWith(".bin"));
             setModels(found);
         }

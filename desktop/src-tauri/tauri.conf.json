@@ -1,71 +1,54 @@
 {
-  "build": {
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420"
-  },
-  "bundle": {
-    "active": true,
-    "targets": [
-      "nsis",
-      "deb",
-      "dmg",
-      "updater"
-    ],
-    "macOS": {
-      "signingIdentity": "-"
+    "build": {
+        "beforeDevCommand": "npm run dev",
+        "beforeBuildCommand": "npm run build",
+        "frontendDist": "../dist",
+        "devUrl": "http://localhost:1420"
     },
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
-    "resources": [
-      "locales/**/**"
-    ]
-  },
-  "productName": "vibe",
-  "version": "0.0.6",
-  "identifier": "github.com.thewh1teagle.vibe",
-  "plugins": {
-    "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
-      "endpoints": [
-        "https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
-      ]
-    }
-  },
-  "app": {
-    "windows": [
-      {
-        "fullscreen": false,
-        "resizable": true,
-        "title": "vibe",
-        "width": 1440,
-        "height": 900,
-        "focus": true,
-        "center": true,
-        "visible": false,
-        "shadow": true,
-        "label": "main"
-      }
-    ],
-    "withGlobalTauri": true,
-    "security": {
-      "assetProtocol": {
-        "scope": {
-          "allow": [
-            "**"
-          ],
-          "deny": [],
-          "requireLiteralLeadingDot": false
+    "bundle": {
+        "active": true,
+        "targets": ["nsis", "deb", "dmg", "updater"],
+        "macOS": {
+            "signingIdentity": "-"
         },
-        "enable": true
-      },
-      "csp": null
+        "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+        "resources": ["locales/**/**"]
+    },
+    "productName": "vibe",
+    "version": "0.0.6",
+    "identifier": "github.com.thewh1teagle.vibe",
+    "plugins": {
+        "updater": {
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
+            "endpoints": ["https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"]
+        }
+    },
+    "app": {
+        "windows": [
+            {
+                "fullscreen": false,
+                "resizable": true,
+                "title": "vibe",
+                "width": 1440,
+                "height": 900,
+                "focus": true,
+                "center": true,
+                "visible": false,
+                "shadow": true,
+                "label": "main"
+            }
+        ],
+        "withGlobalTauri": true,
+        "security": {
+            "assetProtocol": {
+                "scope": {
+                    "allow": ["**"],
+                    "deny": [],
+                    "requireLiteralLeadingDot": false
+                },
+                "enable": true
+            },
+            "csp": null
+        }
     }
-  }
 }
