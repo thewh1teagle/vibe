@@ -32,10 +32,10 @@ jobs:
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: "./desktop/src-tauri -> target"
+      # - name: Rust cache
+      #   uses: swatinem/rust-cache@v2
+      #   with:
+      #     workspaces: "./desktop/src-tauri -> target"
 
       # Setup NodeJS
 
