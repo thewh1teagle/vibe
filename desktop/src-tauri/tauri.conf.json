@@ -1,4 +1,5 @@
 {
+    "$schema": "./gen/schemas/desktop-schema.json",
     "build": {
         "beforeDevCommand": "npm run dev",
         "beforeBuildCommand": "npm run build",
