@@ -4418,15 +4418,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tauri-plugin-app"
-version = "2.0.0-alpha.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b55e543dfb0e446657c7ceaccf2f3d7ced42b6cc70b44b227b1981886f00dccd"
-dependencies = [
- "tauri",
-]
-
-[[package]]
 name = "tauri-plugin-dialog"
 version = "2.0.0-beta.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5199,7 +5190,6 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
- "tauri-plugin-app",
  "tauri-plugin-dialog",
  "tauri-plugin-fs",
  "tauri-plugin-os",

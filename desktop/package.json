@@ -1,44 +1,43 @@
 {
-  "name": "vibe",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri"
-  },
-  "dependencies": {
-    "@fontsource/roboto": "^5.0.8",
-    "@tauri-apps/api": "^2.0.0-beta.0",
-    "@tauri-apps/plugin-app": "^2.0.0-alpha.1",
-    "@tauri-apps/plugin-dialog": "^2.0.0-beta.2",
-    "@tauri-apps/plugin-fs": "^2.0.0-beta.2",
-    "@tauri-apps/plugin-os": "^2.0.0-beta.2",
-    "@tauri-apps/plugin-process": "^2.0.0-beta.2",
-    "@tauri-apps/plugin-shell": "^2.0.0-beta.2",
-    "@tauri-apps/plugin-updater": "^2.0.0-beta.2",
-    "format-duration": "^3.0.2",
-    "i18next": "^23.7.16",
-    "i18next-browser-languagedetector": "^7.2.0",
-    "i18next-resources-to-backend": "^1.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-i18next": "^14.0.0",
-    "react-router-dom": "^6.21.2",
-    "usehooks-ts": "^2.9.2"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^2.0.0-beta.11",
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.16",
-    "daisyui": "^4.5.0",
-    "postcss": "^8.4.33",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5.0.2",
-    "vite": "^5.0.0"
-  }
+    "name": "vibe",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "tauri": "tauri"
+    },
+    "dependencies": {
+        "@fontsource/roboto": "^5.0.8",
+        "@tauri-apps/api": "^2.0.0-beta.2",
+        "@tauri-apps/plugin-dialog": "^2.0.0-beta.2",
+        "@tauri-apps/plugin-fs": "^2.0.0-beta.2",
+        "@tauri-apps/plugin-os": "^2.0.0-beta.2",
+        "@tauri-apps/plugin-process": "^2.0.0-beta.2",
+        "@tauri-apps/plugin-shell": "^2.0.0-beta.2",
+        "@tauri-apps/plugin-updater": "^2.0.0-beta.2",
+        "format-duration": "^3.0.2",
+        "i18next": "^23.7.16",
+        "i18next-browser-languagedetector": "^7.2.0",
+        "i18next-resources-to-backend": "^1.2.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-i18next": "^14.0.0",
+        "react-router-dom": "^6.21.2",
+        "usehooks-ts": "^2.9.2"
+    },
+    "devDependencies": {
+        "@tauri-apps/cli": "^2.0.0-beta.11",
+        "@types/react": "^18.2.15",
+        "@types/react-dom": "^18.2.7",
+        "@vitejs/plugin-react": "^4.2.1",
+        "autoprefixer": "^10.4.16",
+        "daisyui": "^4.5.0",
+        "postcss": "^8.4.33",
+        "tailwindcss": "^3.4.1",
+        "typescript": "^5.0.2",
+        "vite": "^5.0.0"
+    }
 }

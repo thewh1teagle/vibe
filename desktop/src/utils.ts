@@ -1,14 +1,14 @@
 import { path } from "@tauri-apps/api";
 import * as fs from "@tauri-apps/plugin-fs";
 import * as os from "@tauri-apps/plugin-os";
-import * as pluginApp from "@tauri-apps/plugin-app";
+import * as app from "@tauri-apps/api/app";
 
 export function cx(...cns: (boolean | string | undefined)[]): string {
     return cns.filter(Boolean).join(" ");
 }
 
 export async function getAppInfo() {
-    const appVersion = await pluginApp.getVersion();
+    const appVersion = await app.getVersion();
     const arch = await os.arch();
     const platform = await os.platform();
     const kVer = await os.version();

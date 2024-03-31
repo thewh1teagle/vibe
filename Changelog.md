@@ -1,3 +1,7 @@
+## 2024-31-03
+
+-   Remove deprecated app-plugin dependency and used `@tauri-apps/api/app` instead
+
 ## 2024-30-03
 
 -   Update to tauri v2
