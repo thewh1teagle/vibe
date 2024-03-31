@@ -5,30 +5,14 @@
     "bundle": {
         "macOS": {
             "frameworks": [
-                "ffmpeg/lib/libavcodec.60.31.102.dylib",
                 "ffmpeg/lib/libavcodec.60.dylib",
-                "ffmpeg/lib/libavcodec.dylib",
-                "ffmpeg/lib/libavdevice.60.3.100.dylib",
                 "ffmpeg/lib/libavdevice.60.dylib",
-                "ffmpeg/lib/libavdevice.dylib",
-                "ffmpeg/lib/libavfilter.9.12.100.dylib",
                 "ffmpeg/lib/libavfilter.9.dylib",
-                "ffmpeg/lib/libavfilter.dylib",
-                "ffmpeg/lib/libavformat.60.16.100.dylib",
                 "ffmpeg/lib/libavformat.60.dylib",
-                "ffmpeg/lib/libavformat.dylib",
-                "ffmpeg/lib/libavutil.58.29.100.dylib",
                 "ffmpeg/lib/libavutil.58.dylib",
-                "ffmpeg/lib/libavutil.dylib",
-                "ffmpeg/lib/libffmpeg.6.1.1.dylib",
                 "ffmpeg/lib/libffmpeg.6.dylib",
-                "ffmpeg/lib/libffmpeg.dylib",
-                "ffmpeg/lib/libswresample.4.12.100.dylib",
                 "ffmpeg/lib/libswresample.4.dylib",
-                "ffmpeg/lib/libswresample.dylib",
-                "ffmpeg/lib/libswscale.7.5.100.dylib",
-                "ffmpeg/lib/libswscale.7.dylib",
-                "ffmpeg/lib/libswscale.dylib"
+                "ffmpeg/lib/libswscale.7.dylib"
             ]
         },
         "resources": {
