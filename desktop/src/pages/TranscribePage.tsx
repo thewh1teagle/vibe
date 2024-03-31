@@ -40,6 +40,11 @@ function App() {
     });
 
     useEffect(() => {
+        // make this window visible at start for any case
+        webview.getCurrent().show();
+    }, []);
+
+    useEffect(() => {
         if (modelPath) {
             localStorage.setItem("model_path", JSON.stringify(modelPath));
         }
