@@ -1,54 +1,77 @@
-const path = require('path')
-const fs = require('fs')
+const path = require("path");
+const fs = require("fs").promises;
 
-const releasesPath = path.resolve(__dirname, '../landing/src/lib/latest_release.json')
-const owner = 'thewh1teagle';
-const repo = 'vibe';
+const RELEASES_PATH = path.resolve(__dirname, "../landing/src/lib/latest_release.json");
+const OWNER = "thewh1teagle";
+const REPO = "vibe";
 
 function getAssetInfo(name) {
-  if (name.includes('.deb')) {
-    return { platform: 'Linux', arch: name.includes('aarch64') ? 'darwin-aarch64' : 'linux-x86_64' };
-  } else if (name.includes(".exe")) {
-    return { platform: 'Windows', arch: name.includes('x64-setup') ? 'windows-x86_64' : 'unknown' };
-  } else if (name.includes(".dmg")) {
-    return { platform: 'MacOS', arch: name.includes('aarch64') ? 'darwin-aarch64' : 'darwin-x86_64' };
-  } 
-  return { platform: 'unknown', arch: 'unknown' };
+    const platformMap = {
+        ".deb": {
+            platform: "Linux",
+            arch: name.includes("aarch64") ? "darwin-aarch64" : "linux-x86_64",
+        },
+        ".exe": {
+            platform: "Windows",
+            arch: name.includes("x64-setup") ? "windows-x86_64" : "unknown",
+        },
+        ".dmg": {
+            platform: "MacOS",
+            arch: name.includes("aarch64") ? "darwin-aarch64" : "darwin-x86_64",
+        },
+    };
+
+    const extension = Object.keys(platformMap).find((ext) => name.includes(ext)) || "unknown";
+    return platformMap[extension];
+}
+
+function filterValidAssets(assets) {
+    const validExtensions = /\.(sig|json|zip|tar\.gz)$/;
+    return assets.filter((asset) => !validExtensions.test(asset.name));
+}
+
+function mapAssets(assets) {
+    return assets.map((asset) => {
+        const info = getAssetInfo(asset.name);
+        return {
+            url: asset.browser_download_url,
+            name: asset.name,
+            ...info,
+        };
+    });
+}
+
+async function writeToFile(data) {
+    await fs.writeFile(RELEASES_PATH, JSON.stringify(data, null, 4));
+}
+
+async function fetchLatestRelease() {
+    const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`);
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch latest release. Status: ${response.status}`);
+    }
+
+    return await response.json();
 }
 
 async function main() {
-  try {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch latest release. Status: ${response.status}`);
+    try {
+        const latestRelease = await fetchLatestRelease();
+        const tagName = latestRelease.tag_name;
+        const validAssets = filterValidAssets(latestRelease.assets);
+        const mappedAssets = mapAssets(validAssets);
+
+        const releasesData = {
+            assets: mappedAssets,
+            version: tagName,
+        };
+
+        await writeToFile(releasesData);
+        console.log(`Updated releases at ${RELEASES_PATH} with \n${JSON.stringify(releasesData, null, 4)}`);
+    } catch (error) {
+        console.error("Error fetching or processing latest release:", error.message);
     }
-
-    const latestRelease = await response.json();
-    const tagName = latestRelease.tag_name
-    const assets = latestRelease.assets.filter(asset => {
-      return !/\.(sig|json|zip|tar\.gz)$/.test(asset.name);
-
-    }).map(asset => {
-      const info = getAssetInfo(asset.name)
-      return {
-        url: asset.browser_download_url,
-        name: asset.name,
-        ...info
-      }
-    })
-
-    const releasesJson = JSON.stringify({
-      assets,
-      version: tagName
-    }, null, 4)
-    
-    fs.writeFileSync(releasesPath, releasesJson)
-    console.log(`Updated releases at ${releasesPath} with \n${releasesJson}`)
-
-  } catch (error) {
-    console.error('Error fetching latest release:', error.message);
-  }
 }
 
 main();
