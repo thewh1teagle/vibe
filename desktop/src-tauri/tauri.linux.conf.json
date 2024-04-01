@@ -4,10 +4,10 @@
         "linux": {
             "deb": {
                 "depends": [
-                    "ffmpeg"
+                    "ffmpeg",
+                    "libopenblas-dev"
                 ]
             }
         }
     }
-    
 }
