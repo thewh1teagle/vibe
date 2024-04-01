@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04]
+        platform: [ubuntu-22.04]
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -22,10 +22,10 @@ jobs:
 
       # Ubuntu specific
       - name: Install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang ffmpeg build-essential curl wget file libopenblas-base libopenblas-dev libwebkit2gtk-4.0-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev libswscale-dev libglib2.0-dev
+          sudo apt-get install -y clang ffmpeg build-essential curl wget file libopenblas-base libopenblas-dev libwebkit2gtk-4.1-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libblas-dev liblapack-dev libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev libgtk-3-dev libsoup2.4-dev libswscale-dev libglib2.0-dev
 
       # Setup Rust
 
