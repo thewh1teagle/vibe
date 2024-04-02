@@ -53,6 +53,7 @@ export RUST_LOG=trace
 cargo test -- --nocapture
 ```
 
+## With Sample
 ```console
 ffmpeg -i in.opus -ar 16000 out.wav
 cargo run -- --path out.wav --output out.txt --n-threads 5
