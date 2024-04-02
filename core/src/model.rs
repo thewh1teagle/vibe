@@ -34,7 +34,8 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         .to_path_buf();
     audio::normalize(options.path.clone(), out_path.clone(), "0".to_owned())?;
     let original_samples = audio::parse_wav_file(&out_path)?;
-    let samples = whisper_rs::convert_integer_to_float_audio(&original_samples);
+    let mut samples = vec![0.0f32; original_samples.len()];
+    whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)?;
 
     debug!("open model...");
     let ctx = WhisperContext::new_with_params(&options.model.to_str().unwrap(), WhisperContextParameters::default())
