@@ -100,7 +100,7 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-1">
                 <select onChange={(e) => setModelPath(e.target.value)} value={modelPath} className="select select-bordered">
                     {models.map((model, index) => (
-                        <option key={index} value={model.name}>
+                        <option key={index} value={model.path}>
                             {model.name}
                         </option>
                     ))}
