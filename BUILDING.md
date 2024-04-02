@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-[NodeJS](https://nodejs.org/en/download/current) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [7z](https://www.7-zip.org/download.html)
+[NodeJS](https://nodejs.org/en/download/current) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [7z](https://www.7-zip.org/download.html) | [Cmake](https://cmake.org/download/)
 
 Node dependencies (from `desktop` directory)
 
