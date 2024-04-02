@@ -27,9 +27,9 @@ Based on [tauri/prerequisites/#setting-up-linux](https://tauri.app/v1/guides/get
 
 ```console
 sudo apt-get update
-sudo apt-get install -y ffmpeg libopenblas-dev \ # runtime
-    pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake \ # tauri
-    libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
+sudo apt-get install -y ffmpeg libopenblas-dev # runtime
+sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake libssl-dev # tauri
+sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
 ```
 
 ## Build

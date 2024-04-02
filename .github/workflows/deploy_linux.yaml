@@ -32,10 +32,10 @@ jobs:
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
 
-      # - name: Rust cache
-      #   uses: swatinem/rust-cache@v2
-      #   with:
-      #     workspaces: "./desktop/src-tauri -> target"
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./desktop/src-tauri -> target"
 
       # Setup NodeJS
 
@@ -52,6 +52,11 @@ jobs:
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: npm install # Change this to npm, yarn or pnpm.
         working-directory: ./desktop
+
+
+      # Setup OpenBlas and FFMPEG
+      - name: Setup FFMPEG and OpenBlas
+        run: ./scripts/pre_build.sh
 
       # Build and upload
       - name: Build and Upload

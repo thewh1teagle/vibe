@@ -54,6 +54,12 @@ if [ "$OS" == "windows" ]; then
     export PATH="$PATH:C:\Program Files\7-Zip"
 fi
 
+# Drawin config
+if [ "$OS" == "linux" ]; then
+    FFMPEG_NAME="ffmpeg-6.1-linux-clang-default"
+    FFMPEG_URL="https://master.dl.sourceforge.net/project/avbuild/linux/$FFMPEG_NAME.tar.xz?viasf=1"
+fi
+
 # Check if emulate CI
 if [ "$EMULATE_CI" == "true" ]; then
     echo "Emulate CI..."
@@ -70,7 +76,7 @@ else
 fi
 
 # Prepare FFMPEG for MacOS
-if [[ "$OS" == "macos" ]]; then
+if [[ "$OS" == "macos" || "$OS" == "linux" ]]; then
     if [ ! -d $FFMPEG_REALNAME ]; then
         wget -nc --show-progress $FFMPEG_URL -O $FFMPEG_NAME.tar.xz
         tar xf $FFMPEG_NAME.tar.xz
@@ -105,6 +111,14 @@ if [ "$OS" == "windows" ]; then
     fi
 fi
 
+# Prepare packages for Linux
+if [ "$OS" == "linux" ]; then
+    sudo apt-get update
+    sudo apt-get install -y ffmpeg libopenblas-dev # runtime
+    sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake # tauri
+    sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
+fi
+
 # Set aboluste paths for OpenBlas and FFMPEG
 FFMPEG_PATH="$(pwd)/$FFMPEG_REALNAME"
 OPENBLAS_PATH="$(pwd)/$OPENBLAS_REALNAME/lib" # whisper.cpp takes from here
@@ -124,10 +138,10 @@ if [ $CI == false ]; then
         echo "set LIBCLANG_PATH=C:\Program Files\LLVM\bin"
         echo "set PATH=%PATH%;C:\Program Files\CMake\bin"
     else
-        echo "export FFMPEG_DIR=\"$FFMPEG_PATH\""
         if [ $OS == "macos" ]; then
             echo "export DYLD_LIBRARY_PATH=\"$FFMPEG_PATH/lib:\$DYLD_LIBRARY_PATH\""
         fi
+        echo "export FFMPEG_DIR=\"$FFMPEG_PATH\""
     fi
     echo "npx tauri build"
 fi
