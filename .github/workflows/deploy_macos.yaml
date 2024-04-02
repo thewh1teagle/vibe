@@ -67,6 +67,9 @@ jobs:
       - name: Setup FFMPEG and OpenBlas
         run: ./scripts/pre_build.sh
 
+      - name: Install custom tauri cli
+        run: cargo install tauri-cli --git https://github.com/thewh1teagle/tauri --branch temp-macos-signing-without-runtime-config --debug
+
       # Build and upload
       - name: Build and Upload
         uses: tauri-apps/tauri-action@v0
@@ -81,3 +84,4 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
+          tauriScript: cargo tauri # temporarily use custom one
