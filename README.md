@@ -46,7 +46,7 @@ Currenly, `MacOS` computers get the best performance since there's GPU optimizat
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
-`Linux`: install `.deb` (recommend) from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
+`Linux`: install `.deb` from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
 
 
 ## Ubuntu
