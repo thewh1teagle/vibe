@@ -3,6 +3,10 @@ name = "vibe"
 version = "0.0.6"
 edition = "2021"
 
+[[bin]]
+name = "main"
+path = "bin/main.rs"
+
 [lib]
 name = "vibe"
 path = "src/lib.rs"
@@ -16,8 +20,13 @@ log = "0.4.20"
 reqwest = { version = "0.11.23", features = ["stream"] }
 sha256 = "1.5.0"
 tempfile = "3.9.0"
-tokio = { version = "1.35.1", features = ["tokio-macros", "macros", "rt", "rt-multi-thread"] }
-whisper-rs = {git = "https://github.com/thewh1teagle/whisper-rs", branch = "fix/msys2-build"}
+tokio = { version = "1.35.1", features = [
+    "tokio-macros",
+    "macros",
+    "rt",
+    "rt-multi-thread",
+] }
+whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs", branch = "fix/msys2-build" }
 clap = { version = "4.4.13", features = ["derive"] }
 env_logger = "0.10.1"
 serde = { version = "1.0.195", features = ["derive"] }

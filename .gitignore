@@ -17,3 +17,4 @@ ffmpeg/
 openblas/
 *.7z
 .env
+!samples/*
