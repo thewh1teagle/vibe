@@ -10,12 +10,34 @@
     {
       "identifier": "fs:scope",
       "allow": [
-        {"path": "**", "requireLiteralLeadingDot": false},
-        {"path": "$HOME/**", "requireLiteralLeadingDot": false},
-        {"path": "$APPCONFIG/**", "requireLiteralLeadingDot": false},
-        {"path": "$APPDATA/**", "requireLiteralLeadingDot": false},
-        {"path": "$CONFIG/**", "requireLiteralLeadingDot": false},
-        {"path": "$DATA/**", "requireLiteralLeadingDot": false}
+        {
+          "path": "**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$HOME/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$APPCONFIG/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$APPDATA/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$APPLOCALDATA/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$CONFIG/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$DATA/**",
+          "requireLiteralLeadingDot": false
+        }
       ]
     },
     "path:default",
