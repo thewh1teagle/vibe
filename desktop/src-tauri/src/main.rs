@@ -56,7 +56,9 @@ async fn get_default_model_path() -> Result<String, String> {
 async fn transcribe(app: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript, String> {
     // Store the app instance in the global static variable
     *APP_INSTANCE.lock().unwrap() = Some(app.clone());
-    let transcript = vibe::model::transcribe(&options, Some(on_transcribe_progress)).map_err(|e| pretty_error!(e))?;
+    let transcript = vibe::model::transcribe(&options, Some(on_transcribe_progress))
+        .map_err(|e| pretty_error!(e))
+        .map_err(|e| format!("{:?}\noptions: {:?}", e, options))?;
     Ok(transcript)
 }
 
