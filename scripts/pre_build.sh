@@ -122,6 +122,7 @@ if [ $CI == false ]; then
         echo "set FFMPEG_DIR=$FFMPEG_PATH"
         echo "set OPENBLAS_PATH=$OPENBLAS_PATH"
         echo "set LIBCLANG_PATH=C:\Program Files\LLVM\bin"
+        echo "set PATH=%PATH%;C:\Program Files\CMake\bin"
     else
         echo "export FFMPEG_DIR=\"$FFMPEG_PATH\""
         if [ $OS == "macos" ]; then
