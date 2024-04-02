@@ -1,7 +1,4 @@
 {
-    "build": {
-        "beforeBundleCommand": "../scripts/before_bundle.sh"
-    },
     "bundle": {
         "macOS": {
             "frameworks": [
@@ -13,7 +10,8 @@
                 "ffmpeg/lib/libffmpeg.6.dylib",
                 "ffmpeg/lib/libswresample.4.dylib",
                 "ffmpeg/lib/libswscale.7.dylib"
-            ]
+            ],
+            "signingIdentity": "-"
         },
         "resources": {
             "locales": "locales"
