@@ -37,7 +37,7 @@ sudo apt-get install -y ffmpeg libopenblas-dev \ # runtime
 Linux / MacOS
 
 ```console
-scripts/pre_build.sh
+./scripts/pre_build.sh
 ```
 
 Windows
