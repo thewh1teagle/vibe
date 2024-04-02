@@ -21,7 +21,7 @@ npm install -D
 brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
 ```
 
-**Linux** packages
+**Linux**:
 
 Based on [tauri/prerequisites/#setting-up-linux](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
 
