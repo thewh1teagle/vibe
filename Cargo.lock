@@ -5484,8 +5484,8 @@ dependencies = [
 
 [[package]]
 name = "whisper-rs"
-version = "0.10.1"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=fix/msys2-build#a04d16166ac60d7d0d6c4a7d1dba7113813dd24b"
+version = "0.11.0"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=master#a60a5b574fed77441af00ab2ac68d74d03998c12"
 dependencies = [
  "whisper-rs-sys",
 ]
@@ -5493,7 +5493,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs-sys"
 version = "0.8.1"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=fix/msys2-build#a04d16166ac60d7d0d6c4a7d1dba7113813dd24b"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=master#a60a5b574fed77441af00ab2ac68d74d03998c12"
 dependencies = [
  "bindgen 0.69.4",
  "cfg-if",
