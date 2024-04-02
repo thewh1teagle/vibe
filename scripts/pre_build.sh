@@ -144,8 +144,10 @@ fi
 if [ $CI == true ]; then
     echo "Adding environment variables..."
     # FFMPEG
-    echo "Adding FFMPEG_DIR=$FFMPEG_PATH"
-    echo "FFMPEG_DIR=$FFMPEG_PATH" >> "$GITHUB_ENV"
+    if [ "$OS" == "macos" ]; then
+        echo "Adding FFMPEG_DIR=$FFMPEG_PATH"
+        echo "FFMPEG_DIR=$FFMPEG_PATH" >> "$GITHUB_ENV"
+    fi
     # OpenBLAS
     if [ "$OS" == "windows" ]; then
         echo "Adding OPENBLAS_PATH=$OPENBLAS_PATH"
