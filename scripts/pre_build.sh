@@ -54,12 +54,6 @@ if [ "$OS" == "windows" ]; then
     export PATH="$PATH:C:\Program Files\7-Zip"
 fi
 
-# Drawin config
-if [ "$OS" == "linux" ]; then
-    FFMPEG_NAME="ffmpeg-6.1-linux-clang-default"
-    FFMPEG_URL="https://master.dl.sourceforge.net/project/avbuild/linux/$FFMPEG_NAME.tar.xz?viasf=1"
-fi
-
 # Check if emulate CI
 if [ "$EMULATE_CI" == "true" ]; then
     echo "Emulate CI..."
@@ -76,7 +70,7 @@ else
 fi
 
 # Prepare FFMPEG for MacOS
-if [[ "$OS" == "macos" || "$OS" == "linux" ]]; then
+if [[ "$OS" == "macos" ]]; then
     if [ ! -d $FFMPEG_REALNAME ]; then
         wget -nc --show-progress $FFMPEG_URL -O $FFMPEG_NAME.tar.xz
         tar xf $FFMPEG_NAME.tar.xz
