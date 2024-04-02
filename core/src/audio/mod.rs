@@ -6,45 +6,45 @@ use std::path::PathBuf;
 mod encoder;
 
 pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
-    ffmpeg_next::init().unwrap();
+    ffmpeg_next::init()?;
 
     let filter = "anull";
     let seek = seek.parse::<i64>().ok();
 
     debug!("input is {} and output is {}", input.display(), output.display());
-    let mut ictx = ffmpeg_next::format::input(&input).unwrap();
-    let mut octx = ffmpeg_next::format::output(&output).unwrap();
-    let mut transcoder = encoder::transcoder(&mut ictx, &mut octx, &output, &filter).unwrap();
+    let mut ictx = ffmpeg_next::format::input(&input)?;
+    let mut octx = ffmpeg_next::format::output(&output)?;
+    let mut transcoder = encoder::transcoder(&mut ictx, &mut octx, &output, &filter)?;
 
     if let Some(position) = seek {
         // If the position was given in seconds, rescale it to ffmpegs base timebase.
         let position = position.rescale((1, 1), ffmpeg_next::rescale::TIME_BASE);
         // If this seek was embedded in the transcoding loop, a call of `flush()`
         // for every opened buffer after the successful seek would be advisable.
-        ictx.seek(position, ..position).unwrap();
+        ictx.seek(position, ..position)?;
     }
 
     octx.set_metadata(ictx.metadata().to_owned());
-    octx.write_header().unwrap();
+    octx.write_header()?;
 
     for (stream, mut packet) in ictx.packets() {
         if stream.index() == transcoder.stream {
             packet.rescale_ts(stream.time_base(), transcoder.in_time_base);
-            transcoder.send_packet_to_decoder(&packet);
-            transcoder.receive_and_process_decoded_frames(&mut octx);
+            transcoder.send_packet_to_decoder(&packet)?;
+            transcoder.receive_and_process_decoded_frames(&mut octx)?;
         }
     }
 
-    transcoder.send_eof_to_decoder();
-    transcoder.receive_and_process_decoded_frames(&mut octx);
+    transcoder.send_eof_to_decoder()?;
+    transcoder.receive_and_process_decoded_frames(&mut octx)?;
 
-    transcoder.flush_filter();
-    transcoder.get_and_process_filtered_frames(&mut octx);
+    transcoder.flush_filter()?;
+    transcoder.get_and_process_filtered_frames(&mut octx)?;
 
-    transcoder.send_eof_to_encoder();
-    transcoder.receive_and_process_encoded_packets(&mut octx);
+    transcoder.send_eof_to_encoder()?;
+    transcoder.receive_and_process_encoded_packets(&mut octx)?;
 
-    octx.write_trailer().unwrap();
+    octx.write_trailer()?;
     Ok(())
 }
 

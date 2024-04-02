@@ -2,18 +2,6 @@ use std::env;
 use std::path::PathBuf;
 use std::process::Command;
 
-fn add_dylib(path: &str) {
-    println!("cargo:rustc-env=LDFLAGS=-L{}", path);
-}
-
-fn add_include(path: &str) {
-    println!("cargo:rustc-env=CPPFLAGS=-I{}", path);
-}
-
-fn add_link(name: &str) {
-    println!("cargo:rustc-link-lib={}", name);
-}
-
 fn main() {
     let target = env::var("TARGET").unwrap();
     let ffmpeg_dir = env::var("FFMPEG_DIR");
@@ -22,26 +10,6 @@ fn main() {
         if !ffmpeg_dir.exists() {
             panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
         }
-    }
-    // Link against Audio Toolbox framework on macOS
-    if cfg!(target_os = "macos") {
-        // Specify the library and include paths based on your environment
-        println!("cargo:rerun-if-env-changed=LDFLAGS");
-        println!("cargo:rerun-if-env-changed=CPPFLAGS");
-
-        // Specify the library and include paths based on your environment
-        add_dylib("/opt/homebrew/opt/bzip2/lib");
-        add_include("/opt/homebrew/opt/bzip2/include");
-
-        add_dylib("/opt/homebrew/opt/lz4/lib");
-        add_include("/opt/homebrew/opt/lz4/include");
-
-        add_link("framework=CoreAudio");
-        add_link("framework=Metal");
-        add_link("framework=Foundation");
-        add_link("bz2");
-        add_link("z");
-        add_link("xml2");
     }
 
     if cfg!(target_os = "windows") {

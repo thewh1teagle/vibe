@@ -38,8 +38,11 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)?;
 
     debug!("open model...");
-    let ctx = WhisperContext::new_with_params(&options.model.to_str().unwrap(), WhisperContextParameters::default())
-        .context("failed to open model")?;
+    let ctx = WhisperContext::new_with_params(
+        &options.model.to_str().context("can't convert model option to str")?,
+        WhisperContextParameters::default(),
+    )
+    .context("failed to open model")?;
     let mut state = ctx.create_state().context("failed to create key")?;
 
     let mut params = FullParams::new(SamplingStrategy::default());
@@ -91,14 +94,7 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         bail!("no segements found!")
     }
     debug!("found {} segments", num_segments);
-    // let mut words = Vec::new();
     let mut utterances = Vec::new();
-    // let mut file = OpenOptions::new()
-    //     .create(true)
-    //     .write(true)
-    //     .append(true) // Change to .truncate(true) for overwrite instead of append
-    //     .open(options.output.clone())
-    //     .context("failed to open file");
     debug!("looping segments...");
     for s in 0..num_segments {
         let text = state.full_get_segment_text(s).context("failed to get segment")?;
@@ -106,20 +102,6 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
         utterances.push(Utternace { text, start, stop });
-        // let num_tokens = state.full_n_tokens(s)?;
-        // for t in 0..num_tokens {
-        //     let text = state.full_get_token_text(s, t)?;
-        //     let token_data = state.full_get_token_data(s, t)?;
-        //     if text.starts_with("[_") {
-        //         continue;
-        //     }
-
-        //     words.push(Utternace {
-        //         text,
-        //         start: token_data.t0,
-        //         stop: token_data.t1,
-        //     });
-        // }
     }
 
     // cleanup
@@ -128,7 +110,6 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     Ok(Transcript {
         utterances,
         processing_time: Instant::now().duration_since(st),
-        // word_utterances: Some(words),
     })
 }
 
@@ -170,7 +151,11 @@ mod tests {
         debug!("check output at {}", output_file_path.display());
         wait_for_enter()?;
         let args = &config::ModelArgs {
-            path: input_file_path.to_str().unwrap().to_owned().into(),
+            path: input_file_path
+                .to_str()
+                .context("cant convert path to str")?
+                .to_owned()
+                .into(),
             model: config::get_model_path()?,
             lang: None,
             n_threads: None,

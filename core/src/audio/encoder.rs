@@ -19,11 +19,11 @@ pub fn filter(spec: &str, decoder: &codec::decoder::Audio, encoder: &codec::enco
         channel_layout.bits()
     );
 
-    filter.add(&filter::find("abuffer").unwrap(), "in", &args)?;
-    filter.add(&filter::find("abuffersink").unwrap(), "out", "")?;
+    filter.add(&filter::find("abuffer").context("abuffer is none")?, "in", &args)?;
+    filter.add(&filter::find("abuffersink").context("abuffersink is none")?, "out", "")?;
 
     {
-        let mut out = filter.get("out").unwrap();
+        let mut out = filter.get("out").context("out is none")?;
 
         out.set_sample_format(encoder.format());
         out.set_channel_layout(encoder.channel_layout());
@@ -40,7 +40,11 @@ pub fn filter(spec: &str, decoder: &codec::decoder::Audio, encoder: &codec::enco
             .capabilities()
             .contains(ffmpeg_next::codec::capabilities::Capabilities::VARIABLE_FRAME_SIZE)
         {
-            filter.get("out").unwrap().sink().set_frame_size(encoder.frame_size());
+            filter
+                .get("out")
+                .context("out is none")?
+                .sink()
+                .set_frame_size(encoder.frame_size());
         }
     }
 
@@ -90,7 +94,13 @@ pub fn transcoder<P: AsRef<Path>>(
     encoder.set_rate(16000); // 16khz
     encoder.set_channel_layout(ffmpeg_next::channel_layout::ChannelLayout::MONO); // mono
     encoder.set_channels(1); // mono
-    encoder.set_format(codec.formats().context("unknown supported formats")?.next().unwrap());
+    encoder.set_format(
+        codec
+            .formats()
+            .context("unknown supported formats")?
+            .next()
+            .context("cant find any format")?,
+    );
     encoder.set_bit_rate(decoder.bit_rate());
     encoder.set_max_bit_rate(decoder.max_bit_rate());
 
@@ -116,54 +126,70 @@ pub fn transcoder<P: AsRef<Path>>(
 }
 
 impl Transcoder {
-    pub fn send_frame_to_encoder(&mut self, frame: &ffmpeg_next::Frame) {
-        self.encoder.send_frame(frame).unwrap();
+    pub fn send_frame_to_encoder(&mut self, frame: &ffmpeg_next::Frame) -> Result<()> {
+        self.encoder.send_frame(frame)?;
+        Ok(())
     }
 
-    pub fn send_eof_to_encoder(&mut self) {
-        self.encoder.send_eof().unwrap();
+    pub fn send_eof_to_encoder(&mut self) -> Result<()> {
+        self.encoder.send_eof()?;
+        Ok(())
     }
 
-    pub fn receive_and_process_encoded_packets(&mut self, octx: &mut format::context::Output) {
+    pub fn receive_and_process_encoded_packets(&mut self, octx: &mut format::context::Output) -> Result<()> {
         let mut encoded = ffmpeg_next::Packet::empty();
         while self.encoder.receive_packet(&mut encoded).is_ok() {
             encoded.set_stream(0);
             encoded.rescale_ts(self.in_time_base, self.out_time_base);
-            encoded.write_interleaved(octx).unwrap();
+            encoded.write_interleaved(octx)?;
         }
+        Ok(())
     }
 
-    pub fn add_frame_to_filter(&mut self, frame: &ffmpeg_next::Frame) {
-        self.filter.get("in").unwrap().source().add(frame).unwrap();
+    pub fn add_frame_to_filter(&mut self, frame: &ffmpeg_next::Frame) -> Result<()> {
+        self.filter.get("in").context("in is none")?.source().add(frame)?;
+        Ok(())
     }
 
-    pub fn flush_filter(&mut self) {
-        self.filter.get("in").unwrap().source().flush().unwrap();
+    pub fn flush_filter(&mut self) -> Result<()> {
+        self.filter.get("in").context("in is none")?.source().flush()?;
+        Ok(())
     }
 
-    pub fn get_and_process_filtered_frames(&mut self, octx: &mut format::context::Output) {
+    pub fn get_and_process_filtered_frames(&mut self, octx: &mut format::context::Output) -> Result<()> {
         let mut filtered = frame::Audio::empty();
-        while self.filter.get("out").unwrap().sink().frame(&mut filtered).is_ok() {
-            self.send_frame_to_encoder(&filtered);
-            self.receive_and_process_encoded_packets(octx);
+        while self
+            .filter
+            .get("out")
+            .context("out is none")?
+            .sink()
+            .frame(&mut filtered)
+            .is_ok()
+        {
+            self.send_frame_to_encoder(&filtered)?;
+            self.receive_and_process_encoded_packets(octx)?;
         }
+        Ok(())
     }
 
-    pub fn send_packet_to_decoder(&mut self, packet: &ffmpeg_next::Packet) {
-        self.decoder.send_packet(packet).unwrap();
+    pub fn send_packet_to_decoder(&mut self, packet: &ffmpeg_next::Packet) -> Result<()> {
+        self.decoder.send_packet(packet)?;
+        Ok(())
     }
 
-    pub fn send_eof_to_decoder(&mut self) {
-        self.decoder.send_eof().unwrap();
+    pub fn send_eof_to_decoder(&mut self) -> Result<()> {
+        self.decoder.send_eof()?;
+        Ok(())
     }
 
-    pub fn receive_and_process_decoded_frames(&mut self, octx: &mut format::context::Output) {
+    pub fn receive_and_process_decoded_frames(&mut self, octx: &mut format::context::Output) -> Result<()> {
         let mut decoded = frame::Audio::empty();
         while self.decoder.receive_frame(&mut decoded).is_ok() {
             let timestamp = decoded.timestamp();
             decoded.set_pts(timestamp);
-            self.add_frame_to_filter(&decoded);
-            self.get_and_process_filtered_frames(octx);
+            self.add_frame_to_filter(&decoded)?;
+            self.get_and_process_filtered_frames(octx)?;
         }
+        Ok(())
     }
 }
