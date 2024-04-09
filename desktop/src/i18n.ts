@@ -8,6 +8,7 @@ import { initReactI18next } from "react-i18next/initReactI18next";
 export const languages: { [key: string]: string } = {
     "he-IL": "Hebrew",
     en: "English",
+    "pt-BR": "Portuguese",
 };
 
 i18n.use(LanguageDetector)
