@@ -14,6 +14,7 @@ type UpdaterContextType = {
     manifest?: Update;
     setManifest: React.Dispatch<React.SetStateAction<Update | undefined>>;
     updateApp: () => Promise<void>;
+    progress: number | null;
 };
 
 // Create the context
@@ -24,14 +25,24 @@ export const UpdaterContext = createContext<UpdaterContextType>({
     setUpdating: () => {},
     setManifest: () => {},
     updateApp: async () => {},
+    progress: null,
 });
 
 export function UpdaterProvider({ children }: { children: React.ReactNode }) {
     const [availableUpdate, setAvailableUpdate] = useState(false);
     const [update, setUpdate] = useState<Update | undefined>();
     const [updating, setUpdating] = useState(false);
+    const [totalSize, setTotal] = useState<number | null>(null);
+    const [partSize, setPartSize] = useState<number | null>(null);
     const { setState: setErrorModal } = useContext(ErrorModalContext);
     const { t } = useTranslation();
+    const [progress, setProgress] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (partSize && totalSize) {
+            setProgress((partSize / totalSize) * 100);
+        }
+    }, [partSize]);
 
     useEffect(() => {
         // Check for new updates
@@ -59,10 +70,25 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 
         if (shouldUpdate) {
             setUpdating(true);
+            setProgress(0);
             console.info(`Installing update ${update?.version}, ${update?.date}, ${update?.body}`);
             try {
-                await update?.downloadAndInstall();
+                await update?.downloadAndInstall((downloadEvent) => {
+                    switch (downloadEvent.event) {
+                        case "Started": {
+                            setTotal(downloadEvent.data.contentLength!);
+                            break;
+                        }
+                        case "Progress": {
+                            setPartSize((prev) => (prev ?? 0) + downloadEvent.data.chunkLength);
+                            break;
+                        }
+                    }
+                });
                 setUpdating(false);
+                setTotal(null);
+                setPartSize(null);
+                setProgress(null);
                 const shouldRelaunch = await dialog.ask(t("ask-for-relaunch-body"), {
                     title: t("ask-for-relaunch-title"),
                     kind: "info",
@@ -82,7 +108,8 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <UpdaterContext.Provider value={{ availableUpdate, setAvailableUpdate, manifest: update, setManifest: setUpdate, updating, setUpdating, updateApp }}>
+        <UpdaterContext.Provider
+            value={{ availableUpdate, setAvailableUpdate, manifest: update, setManifest: setUpdate, updating, setUpdating, updateApp, progress }}>
             {children}
         </UpdaterContext.Provider>
     );
