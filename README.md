@@ -76,6 +76,13 @@ And if the antivirus still block the model file, you can always exclude it from 
 PRs are welcomed!
 In addition, you're welcome to add translations.
 
+We would like to express our sincere gratitude to all the contributors.
+
+<a href="https://github.com/thewh1teagle/vibe/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=thewh1teagle/vibe" />
+</a>
+
+
 # Community
 
 [Discord](https://discord.gg/2VWf5jB5)
