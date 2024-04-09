@@ -7,6 +7,7 @@ Transcribe audio in every language
 <img src="https://github.com/thewh1teagle/vibe/assets/61390950/ece19b81-26c6-4c13-81de-33175bb898d9" width=600>
 
 # Downloads ⬇️
+
 Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github.io/vibe</a>
 
 # Supported platforms 🖥️
@@ -17,15 +18,15 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 
 # Features 🌟
 
-- Transcribe almost every language
-- Works offline, no data sent out
-- Easy to use
-- Model parametrs for advanced users
-- Optimized for `CPU` (`Windows` / `Linux`)
-- Optmized for `GPU` (`MacOS`)
-- Support `SRT`, `VTT` formats
-- Transcribe audio / video
-- Automatic updates
+-   Transcribe almost every language
+-   Works offline, no data sent out
+-   Easy to use
+-   Model parametrs for advanced users
+-   Optimized for `CPU` (`Windows` / `Linux`)
+-   Optmized for `GPU` (`MacOS`)
+-   Support `SRT`, `VTT` formats
+-   Transcribe audio / video
+-   Automatic updates
 
 # Install notes
 
@@ -47,7 +48,6 @@ Currenly, `MacOS` computers get the best performance since there's GPU optimizat
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
 `Linux`: install `.deb` from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
-
 
 ## Ubuntu
 
@@ -82,10 +82,9 @@ We would like to express our sincere gratitude to all the contributors.
   <img src="https://contrib.rocks/image?repo=thewh1teagle/vibe" />
 </a>
 
-
 # Community
 
-[Discord](https://discord.gg/2VWf5jB5)
+[Discord](https://discord.gg/73s4WqSDPg)
 
 # Roadmap 🛣️
 
