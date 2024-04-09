@@ -97,7 +97,7 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     let mut utterances = Vec::new();
     debug!("looping segments...");
     for s in 0..num_segments {
-        let text = state.full_get_segment_text(s).context("failed to get segment")?;
+        let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
