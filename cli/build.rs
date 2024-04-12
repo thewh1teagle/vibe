@@ -1,6 +1,23 @@
+use glob::glob;
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
+
+fn get_cargo_target_dir() -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
+    let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR")?);
+    let profile = std::env::var("PROFILE")?;
+    let mut target_dir = None;
+    let mut sub_path = out_dir.as_path();
+    while let Some(parent) = sub_path.parent() {
+        if parent.ends_with(&profile) {
+            target_dir = Some(parent);
+            break;
+        }
+        sub_path = parent;
+    }
+    let target_dir = target_dir.ok_or("not found")?;
+    Ok(target_dir.to_path_buf())
+}
 
 fn main() {
     let target = env::var("TARGET").unwrap();
@@ -10,6 +27,26 @@ fn main() {
         if !ffmpeg_dir.exists() {
             panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
         }
+        if cfg!(target_os = "macos") {
+            let target_dir = get_cargo_target_dir().unwrap();
+            
+            for entry in glob::glob(&format!("{}/*.dylib", ffmpeg_dir.join("lib").to_str().unwrap())).unwrap() {
+                match entry {
+                    Ok(src) => {
+                        let dst = Path::new(&target_dir).join(Path::new(src.file_name().unwrap()));
+                        std::fs::copy(src, dst).unwrap();
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+    // Link against Audio Toolbox framework on macOS
+    if cfg!(target_os = "macos") {
+        // #[cfg(debug_assertions)]
+        // {
+        //     println!("cargo:rustc-link-arg=-Wl,-rpath,@executable_path"); // used in dev mode
+        // }
     }
 
     if cfg!(target_os = "windows") {

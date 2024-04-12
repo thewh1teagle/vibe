@@ -706,6 +706,7 @@ dependencies = [
  "anyhow",
  "clap",
  "env_logger",
+ "glob",
  "indicatif",
  "once_cell",
  "openssl",
