@@ -26,7 +26,9 @@ tokio = { version = "1.35.1", features = [
     "rt",
     "rt-multi-thread",
 ] }
-whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs", branch = "feat/get-segment-text-lossy" }
+whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs", branch = "feat/get-segment-text-lossy", features = [
+    "whisper-cpp-log",
+] }
 clap = { version = "4.4.13", features = ["derive"] }
 env_logger = "0.10.1"
 serde = { version = "1.0.195", features = ["derive"] }

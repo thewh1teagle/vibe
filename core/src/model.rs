@@ -33,6 +33,7 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     audio::normalize(options.path.clone(), out_path.clone(), "0".to_owned())?;
     let original_samples = audio::parse_wav_file(&out_path)?;
     let mut samples = vec![0.0f32; original_samples.len()];
+    whisper_rs::install_whisper_log_trampoline();
     whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)?;
 
     debug!("open model...");

@@ -5513,6 +5513,7 @@ name = "whisper-rs"
 version = "0.11.0"
 source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/get-segment-text-lossy#ee932caf3d47d85995a587d0dd3cbd5cf932e930"
 dependencies = [
+ "log",
  "whisper-rs-sys",
 ]
 
