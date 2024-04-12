@@ -1,14 +1,12 @@
-use std::sync::Mutex;
-use std::time::Instant;
-
-use anyhow::{bail, Context, Ok, Result};
-use log::debug;
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
-
 use crate::audio;
 use crate::config::ModelArgs;
 use crate::transcript::{Transcript, Utternace};
+use anyhow::{bail, Context, Ok, Result};
+use log::debug;
 use once_cell;
+use std::sync::Mutex;
+use std::time::Instant;
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
 static ON_PROGRESS_CHANGE: once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>> =
     once_cell::sync::Lazy::new(|| Mutex::new(None));

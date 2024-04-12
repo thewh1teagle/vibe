@@ -17,7 +17,7 @@ impl Downloader {
         Downloader { client }
     }
 
-    pub async fn download<F, Fut>(&mut self, url: &str, path: PathBuf, _: Option<&str>, on_progress: F) -> Result<()>
+    pub async fn download<F, Fut>(&mut self, url: &str, path: PathBuf, on_progress: F) -> Result<()>
     where
         F: Fn(u64, u64) -> Fut,
         Fut: Future<Output = ()>,
@@ -43,18 +43,7 @@ impl Downloader {
                 callback_offset = downloaded;
             }
             downloaded += chunk.len() as u64;
-
-            // for testing
-            // break;
         }
-        // check hash
-        // if let Some(hash) = hash {
-        //     let new_hash = integrity::fast_hash(path)?;
-        //     // for testing comment out
-        //     if new_hash != hash {
-        //         bail!("Invalid hash!");
-        //     }
-        // }
         Ok(())
     }
 }
@@ -75,7 +64,7 @@ mod tests {
         init();
         let mut d = downloader::Downloader::new();
         let filepath = config::get_model_path()?;
-        d.download(config::URL, filepath, Some(config::HASH), on_download_progress)
+        d.download(config::URL, filepath, on_download_progress)
             .await
             .context("Cant download")?;
         Ok(())

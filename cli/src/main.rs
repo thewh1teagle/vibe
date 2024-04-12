@@ -64,12 +64,7 @@ async fn main() -> Result<()> {
     let mut downloader = vibe::downloader::Downloader::new();
     if !vibe::config::get_model_path()?.exists() {
         downloader
-            .download(
-                vibe::config::URL,
-                vibe::config::get_model_path()?,
-                Some(""),
-                on_download_progress,
-            )
+            .download(vibe::config::URL, vibe::config::get_model_path()?, on_download_progress)
             .await?;
         pb.finish_with_message("Download complete");
     }

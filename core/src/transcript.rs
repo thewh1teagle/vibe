@@ -46,18 +46,16 @@ impl Transcript {
     }
 
     pub fn as_vtt(&self) -> String {
-        self.utterances
-            .iter()
-            .fold(String::new(), |transcript, fragment| {
-                transcript
-                    + format!(
-                        "{} --> {}\n{}\n",
-                        format_timestamp(fragment.start, false, "."),
-                        format_timestamp(fragment.stop, false, "."),
-                        fragment.text.trim().replace("-->", "->")
-                    )
-                    .as_str()
-            })
+        self.utterances.iter().fold(String::new(), |transcript, fragment| {
+            transcript
+                + format!(
+                    "{} --> {}\n{}\n",
+                    format_timestamp(fragment.start, false, "."),
+                    format_timestamp(fragment.stop, false, "."),
+                    fragment.text.trim().replace("-->", "->")
+                )
+                .as_str()
+        })
     }
 
     pub fn as_srt(&self) -> String {
