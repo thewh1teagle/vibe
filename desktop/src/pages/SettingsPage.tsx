@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
-import { languages } from "../i18n";
-import { Path, cx, getAppInfo, getIssueUrl, ls } from "../utils";
-import * as config from "../config";
+import { languages } from "../lib/i18n";
+import { Path, cx, getAppInfo, getIssueUrl, ls } from "../lib/utils";
+import * as config from "../lib/config";
 import { invoke } from "@tauri-apps/api/core";
 
 export default function SettingsPage() {

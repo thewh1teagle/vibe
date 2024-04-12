@@ -2,10 +2,10 @@ import * as dialog from "@tauri-apps/plugin-dialog";
 import formatDuration from "format-duration";
 import { MutableRefObject, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from "../i18n";
+import i18n from "../lib/i18n";
 import PauseIcon from "../icons/Pause";
 import PlayIcon from "../icons/Play";
-import { cx } from "../utils";
+import { cx } from "../lib/utils";
 import { convertFileSrc } from "@tauri-apps/api/core";
 
 interface AudioInputProps {

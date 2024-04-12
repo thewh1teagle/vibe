@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ErrorModalContext } from "../providers/ErrorModalProvider";
-import { cx, getAppInfo, getIssueUrl } from "../utils";
+import { cx, getAppInfo, getIssueUrl } from "../lib/utils";
 import { invoke } from "@tauri-apps/api/core";
 import * as shell from "@tauri-apps/plugin-shell";
 
@@ -25,15 +25,14 @@ export default function ErrorModal() {
         navigate(0);
     }
     async function reportIssue() {
-
-        let info = ""
+        let info = "";
         try {
             info = await getAppInfo();
         } catch (e) {
-            console.error(e)
-            info = `Couldn't get info: ${e}`
+            console.error(e);
+            info = `Couldn't get info: ${e}`;
         }
-        
+
         const url = await getIssueUrl(state?.log + "\n" + info);
         shell.open(url);
     }

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { cx } from "../utils";
+import { cx } from "../lib/utils";
 import { useTranslation } from "react-i18next";
 import { UpdaterContext } from "../providers/UpdaterProvider";
 

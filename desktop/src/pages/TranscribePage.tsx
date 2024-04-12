@@ -12,12 +12,12 @@ import Params, { LocalModelArgs } from "../components/Params";
 import TextArea from "../components/TextArea";
 import ThemeToggle from "../components/ThemeToggle";
 import { ErrorModalContext } from "../providers/ErrorModalProvider";
-import * as transcript from "../transcript";
+import * as transcript from "../lib/transcript";
 import UpdateProgress from "../components/UpdateProgress";
 import { UpdaterContext } from "../providers/UpdaterProvider";
 import * as webview from "@tauri-apps/api/webviewWindow";
 import { invoke } from "@tauri-apps/api/core";
-import { ls } from "../utils";
+import { ls } from "../lib/utils";
 
 function App() {
     const { t } = useTranslation();
