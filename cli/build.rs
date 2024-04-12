@@ -1,4 +1,3 @@
-use glob::glob;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -29,7 +28,7 @@ fn main() {
         }
         if cfg!(target_os = "macos") {
             let target_dir = get_cargo_target_dir().unwrap();
-            
+
             for entry in glob::glob(&format!("{}/*.dylib", ffmpeg_dir.join("lib").to_str().unwrap())).unwrap() {
                 match entry {
                     Ok(src) => {
