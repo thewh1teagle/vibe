@@ -4,11 +4,12 @@ import { Route, Routes } from "react-router-dom";
 import "./globals.css";
 import ErrorModal from "./components/ErrorModel";
 import "./lib/i18n";
-import SettingsPage from "./pages/SettingsPage";
-import SetupPage from "./pages/SetupPage";
-import TranscribePage from "./pages/TranscribePage";
+import SettingsPage from "./pages/settings/SettingsPage";
+import SetupPage from "./pages/setup/SetupPage";
+import TranscribePage from "./pages/transcribe/TranscribePage";
 import { ErrorModalProvider } from "./providers/ErrorModalProvider";
 import { UpdaterProvider } from "./providers/UpdaterProvider";
+import UpdateProgress from "./components/UpdateProgress";
 
 export default function App() {
     const { i18n } = useTranslation();
@@ -18,6 +19,7 @@ export default function App() {
         <ErrorModalProvider>
             <UpdaterProvider>
                 <ErrorModal />
+                <UpdateProgress />
                 <Routes>
                     <Route path="/setup" element={<SetupPage />} />
                     <Route path="/" element={<TranscribePage />} />

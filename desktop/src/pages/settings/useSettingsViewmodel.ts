@@ -1,0 +1,81 @@
+import { path } from "@tauri-apps/api";
+import * as shell from "@tauri-apps/plugin-shell";
+import * as app from "@tauri-apps/api/app";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLocalStorage } from "usehooks-ts";
+import { Path, getAppInfo, getIssueUrl, ls } from "../../lib/utils";
+import * as config from "../../lib/config";
+import { invoke } from "@tauri-apps/api/core";
+
+async function openModelPath() {
+    const configPath = await path.appLocalDataDir();
+    shell.open(configPath);
+}
+
+async function openModelsUrl() {
+    shell.open(config.modelsURL);
+}
+
+async function reportIssue() {
+    try {
+        const info = await getAppInfo();
+        shell.open(await getIssueUrl(info));
+    } catch (e) {
+        console.error(e);
+        shell.open(await getIssueUrl(`Couldn't get info ${e}`));
+    }
+}
+
+export function useSettingsViewmodel() {
+    const { i18n } = useTranslation();
+    const [language, setLanguage] = useLocalStorage("language", i18n.language);
+    const [modelPath, setModelPath] = useLocalStorage("model_path", "");
+    const [models, setModels] = useState<Path[]>([]);
+    const [appVersion, setAppVersion] = useState("");
+
+    async function loadMeta() {
+        try {
+            const name = await app.getName();
+            const ver = await app.getVersion();
+            setAppVersion(`${name} ${ver}`);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function loadModels() {
+        const configPath = await path.appLocalDataDir();
+        const entries = await ls(configPath);
+        const found = entries.filter((e) => e.name?.endsWith(".bin"));
+        setModels(found);
+    }
+
+    async function getDefaultModel() {
+        if (!modelPath) {
+            const defaultModelPath = (await invoke("get_default_model_path")) as string;
+            setModelPath(defaultModelPath);
+        }
+    }
+
+    useEffect(() => {
+        i18n.changeLanguage(language);
+    }, [language]);
+
+    useEffect(() => {
+        loadMeta();
+        loadModels();
+        getDefaultModel();
+    }, []);
+
+    return {
+        setLanguage,
+        setModelPath,
+        openModelPath,
+        openModelsUrl,
+        modelPath,
+        models,
+        appVersion,
+        reportIssue,
+    };
+}
