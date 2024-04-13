@@ -45,6 +45,7 @@ fn main() {
             temperature: Some(0.4),
         },
         None,
+        None,
     )
     .unwrap();
     println!("{:?}", transcript)

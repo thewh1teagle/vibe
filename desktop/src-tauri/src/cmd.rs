@@ -1,7 +1,7 @@
 use crate::{config, pretty_error, APP_ASYNC_STATIC, APP_STATIC};
 use log;
 use tauri::Manager;
-use vibe::transcript::Transcript;
+use vibe::{model::SegmentCallbackData, transcript::Transcript};
 
 fn on_transcribe_progress(progress: i32) {
     if let Some(app) = &*APP_STATIC.lock().unwrap() {
@@ -42,9 +42,22 @@ pub async fn get_default_model_path() -> Result<String, String> {
 }
 
 #[tauri::command]
-pub async fn transcribe(options: vibe::config::ModelArgs) -> Result<Transcript, String> {
-    let transcript = vibe::model::transcribe(&options, Some(on_transcribe_progress))
-        .map_err(|e| pretty_error!(e))
-        .map_err(|e| format!("{:?}\noptions: {:?}", e, options))?;
+pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript, String> {
+    let new_segment_callback = move |data: SegmentCallbackData| {
+        app_handle
+            .emit_to(
+                "main",
+                "new_segment",
+                serde_json::json!({"start": data.start_timestamp, "end": data.end_timestamp, "text": data.text}),
+            )
+            .unwrap();
+    };
+    let transcript = vibe::model::transcribe(
+        &options,
+        Some(Box::new(on_transcribe_progress)),
+        Some(Box::new(new_segment_callback)),
+    )
+    .map_err(|e| pretty_error!(e))
+    .map_err(|e| format!("{:?}\noptions: {:?}", e, options))?;
     Ok(transcript)
 }

@@ -36,6 +36,9 @@ export function useTranscribeViewModel() {
         await listen("transcribe_progress", (event) => {
             setProgress(event.payload as number);
         });
+        await listen("new_segment", (event) => {
+            console.log("new_segment => ", event.payload);
+        });
     }
 
     async function checkModelExists() {
