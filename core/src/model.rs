@@ -88,21 +88,21 @@ pub fn transcribe(
         bail!("no segements found!")
     }
     debug!("found {} segments", num_segments);
-    let mut utterances = Vec::new();
+    let mut segments = Vec::new();
     debug!("looping segments...");
     for s in 0..num_segments {
         let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
-        utterances.push(Utternace { text, start, stop });
+        segments.push(Utternace { text, start, stop });
     }
 
     // cleanup
     std::fs::remove_file(out_path)?;
 
     Ok(Transcript {
-        utterances,
+        segments,
         processing_time: Instant::now().duration_since(st),
     })
 }
