@@ -40,5 +40,6 @@
   "ask-for-relaunch-body": "האם ברצונך להפעיל מחדש את התוכנה?",
   "cancel-relaunch": "מאוחר יותר",
   "confirm-relaunch": "הפעל מחדש עכשיו",
-  "transcript-will-displayed-shortly": "התמלול יחל להופיע בעוד מספר רגעים..."
+  "transcript-will-displayed-shortly": "התמלול יחל להופיע בעוד מספר רגעים...",
+  "stop": "עצירה"
 }

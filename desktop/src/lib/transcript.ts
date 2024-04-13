@@ -39,9 +39,8 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
     )}`;
 }
 
-export function asSrt(transcript: Transcript) {
-    const wordSegments = transcript.segments || transcript?.word_segments;
-    return wordSegments.reduce((transcript, fragment, i) => {
+export function asSrt(segments: Segment[]) {
+    return segments.reduce((transcript, fragment, i) => {
         return (
             transcript +
             `\n${i + 1}\n` +
@@ -51,9 +50,8 @@ export function asSrt(transcript: Transcript) {
     }, "");
 }
 
-export function asVtt(transcript: Transcript) {
-    const wordSegments = transcript.segments || transcript.word_segments;
-    return wordSegments.reduce((transcript, fragment) => {
+export function asVtt(segments: Segment[]) {
+    return segments.reduce((transcript, fragment) => {
         return (
             transcript +
             `${formatTimestamp(fragment.start, false, ".")} --> ${formatTimestamp(fragment.stop, false, ".")}\n` +
@@ -62,8 +60,8 @@ export function asVtt(transcript: Transcript) {
     }, "");
 }
 
-export function asText(transcript: Transcript) {
-    return transcript.segments.reduce((transcript, fragment) => {
+export function asText(segments: Segment[]) {
+    return segments.reduce((transcript, fragment) => {
         return transcript + `${fragment.text.trim()}\n`;
     }, "");
 }

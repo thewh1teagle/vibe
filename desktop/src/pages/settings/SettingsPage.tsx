@@ -32,10 +32,10 @@ export default function SettingsPage() {
                 <div className="label">
                     <span className="label-text">{t("language")}</span>
                 </div>
-                <select onChange={(e) => vm.setLanguage(e.target.value)} value={i18n.language} className="select select-bordered">
+                <select onChange={(e) => vm.setLanguage(e.target.value)} value={t(i18n.language)} className="select select-bordered">
                     {Object.keys(languages).map((code, index) => (
                         <option key={index} value={code}>
-                            {languages[code]}
+                            {t(languages[code])}
                         </option>
                     ))}
                 </select>

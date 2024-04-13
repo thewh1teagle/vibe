@@ -40,14 +40,16 @@ function App() {
                         <p>
                             {t("transcribing")} {vm.progress ? `${vm.progress}%` : "0%"}
                         </p>
-                        <button className="btn btn-primary btn-ghost btn-sm text-red-500">Stop</button>
+                        <button onClick={vm.onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
+                            {t("stop")}
+                        </button>
                         {/* <p className="text-neutral-content">{t("you-will-receive-notification")}</p> */}
                     </div>
                 </div>
             )}
-            {(vm.transcript || vm.loading) && (
+            {(vm.segments || vm.loading) && (
                 <div className="flex flex-col mt-5 items-center w-[60%] max-w-[1000px] h-[45vh] m-auto">
-                    <TextArea placeholder={t("transcript-will-displayed-shortly")} transcript={vm.transcript} readonly={vm.loading} />
+                    <TextArea placeholder={t("transcript-will-displayed-shortly")} segments={vm.segments} readonly={vm.loading} />
                 </div>
             )}
         </div>

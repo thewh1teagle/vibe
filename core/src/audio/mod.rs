@@ -84,13 +84,6 @@ mod tests {
         let _ = env_logger::builder().is_test(true).try_init();
     }
 
-    fn wait_for_enter() -> Result<()> {
-        println!("PRESS ENTER");
-        let mut buffer = String::new();
-        std::io::stdin().read_line(&mut buffer)?;
-        Ok(())
-    }
-
     #[test]
     fn test_audio_conversion() -> Result<()> {
         init();
@@ -103,10 +96,8 @@ mod tests {
         // Copy a sample input file to the temporary directory.
         debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
-        wait_for_enter()?;
         audio::normalize(input_file_path, output_file_path.clone(), "0".to_owned())?;
         debug!("check output at {}", output_file_path.display());
-        wait_for_enter()?;
 
         Ok(())
     }

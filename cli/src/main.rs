@@ -88,6 +88,11 @@ async fn main() -> Result<()> {
         init_prompt: None,
         temperature: None,
     };
-    vibe::model::transcribe(&args, Some(Box::new(on_transcribe_progress)), Some(Box::new(on_new_segment)))?;
+    vibe::model::transcribe(
+        &args,
+        Some(Box::new(on_transcribe_progress)),
+        Some(Box::new(on_new_segment)),
+        None,
+    )?;
     Ok(())
 }

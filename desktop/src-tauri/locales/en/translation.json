@@ -40,5 +40,7 @@
   "ask-for-relaunch-body": "Do you want to relaunch now?",
   "cancel-relaunch": "Later",
   "confirm-relaunch": "Relaunch Now",
-  "transcript-will-displayed-shortly": "Transcript will be displayed here shortly..."
+  "transcript-will-displayed-shortly": "Transcript will be displayed here shortly...",
+  "stop": "Stop",
+  "Hebrew": "עברית"
 }

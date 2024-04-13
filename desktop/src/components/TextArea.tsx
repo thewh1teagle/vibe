@@ -3,7 +3,7 @@ import * as dialog from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocalStorage } from "usehooks-ts";
-import { Transcript, asSrt, asText, asVtt } from "../lib/transcript";
+import { Segment, asSrt, asText, asVtt } from "../lib/transcript";
 import { cx } from "../lib/utils";
 
 type TextFormat = "normal" | "srt" | "vtt";
@@ -31,19 +31,19 @@ async function download(text: string, format: TextFormat) {
     }
 }
 
-export default function TextArea({ transcript, readonly, placeholder }: { transcript: Transcript | null; readonly: boolean; placeholder?: string }) {
+export default function TextArea({ segments, readonly, placeholder }: { segments: Segment[] | null; readonly: boolean; placeholder?: string }) {
     const { t, i18n } = useTranslation();
     const [direction, setDirection] = useLocalStorage<"ltr" | "rtl">("direction", i18n.dir());
     const [format, setFormat] = useLocalStorage<TextFormat>("format", "normal");
     const [text, setText] = useState("");
 
     useEffect(() => {
-        if (transcript) {
-            setText(format === "vtt" ? asVtt(transcript) : format === "srt" ? asSrt(transcript) : asText(transcript));
+        if (segments) {
+            setText(format === "vtt" ? asVtt(segments) : format === "srt" ? asSrt(segments) : asText(segments));
         } else {
             setText("");
         }
-    }, [format, transcript]);
+    }, [format, segments]);
 
     return (
         <div className="w-full h-full">

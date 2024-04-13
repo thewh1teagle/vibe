@@ -20,7 +20,7 @@ export default function LanguageInput({ onChange }: { onChange: (lang: string) =
         <select value={selected} onChange={handleChange} className="select select-bordered">
             {Object.keys(Languages).map((langKey, index) => (
                 <option key={index} value={(Languages as any)[langKey]}>
-                    {langKey === "Auto" ? t("lang-auto") : langKey}
+                    {langKey === "Auto" ? t("lang-auto") : t(langKey)}
                 </option>
             ))}
         </select>

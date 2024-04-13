@@ -11,6 +11,7 @@ pub fn transcribe(
     options: &ModelArgs,
     progress_callback: Option<Box<dyn Fn(i32)>>,
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
+    abort_callback: Option<Box<dyn Fn() -> bool>>,
 ) -> Result<Transcript> {
     debug!("Transcribe called with {:?}", options);
     if !options.model.exists() {
@@ -45,6 +46,7 @@ pub fn transcribe(
     if options.lang.is_some() {
         params.set_language(options.lang.as_deref());
     }
+
     params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
@@ -70,6 +72,10 @@ pub fn transcribe(
 
     if let Some(new_segment_callback) = new_segment_callback {
         params.set_segment_callback_safe(new_segment_callback);
+    }
+
+    if let Some(abort_callback) = abort_callback {
+        params.set_abort_callback_safe(abort_callback);
     }
 
     if let Some(progress_callback) = progress_callback {
@@ -121,13 +127,6 @@ mod tests {
         let _ = env_logger::builder().is_test(true).try_init();
     }
 
-    fn wait_for_enter() -> Result<()> {
-        println!("PRESS ENTER");
-        let mut buffer = String::new();
-        std::io::stdin().read_line(&mut buffer)?;
-        Ok(())
-    }
-
     #[test]
     fn test_audio_conversion() -> Result<()> {
         init();
@@ -140,10 +139,8 @@ mod tests {
         // Copy a sample input file to the temporary directory.
         debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
-        wait_for_enter()?;
         audio::normalize(input_file_path.clone(), output_file_path.clone(), "".to_owned())?;
         debug!("check output at {}", output_file_path.display());
-        wait_for_enter()?;
         let args = &config::ModelArgs {
             path: input_file_path
                 .to_str()
@@ -157,7 +154,7 @@ mod tests {
             init_prompt: None,
             temperature: None,
         };
-        transcribe(args, None, None)?;
+        transcribe(args, None, None, None)?;
 
         Ok(())
     }
