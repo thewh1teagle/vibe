@@ -71,7 +71,7 @@ pub fn transcribe(
     }
 
     if let Some(new_segment_callback) = new_segment_callback {
-        params.set_segment_callback_safe(new_segment_callback);
+        params.set_segment_callback_safe_lossy(new_segment_callback);
     }
 
     if let Some(abort_callback) = abort_callback {
