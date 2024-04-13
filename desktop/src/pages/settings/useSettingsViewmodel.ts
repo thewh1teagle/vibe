@@ -29,7 +29,7 @@ async function reportIssue() {
 
 export function useSettingsViewmodel() {
     const { i18n } = useTranslation();
-    const [language, setLanguage] = useLocalStorage("language", i18n.language);
+    const [language, setLanguage] = useLocalStorage("display_language", i18n.language);
     const [modelPath, setModelPath] = useLocalStorage("model_path", "");
     const [models, setModels] = useState<Path[]>([]);
     const [appVersion, setAppVersion] = useState("");

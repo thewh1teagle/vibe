@@ -5,7 +5,7 @@ import Languages from "../assets/whisper-languages.json";
 
 export default function LanguageInput({ onChange }: { onChange: (lang: string) => void }) {
     const { t } = useTranslation();
-    const [selected, setSelected] = useLocalStorage("language", Languages["Auto"]);
+    const [selected, setSelected] = useLocalStorage("transcribe_language", Languages["Auto"]);
 
     const handleChange = (event: any) => {
         setSelected(event.target.value);
