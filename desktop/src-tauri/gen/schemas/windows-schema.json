@@ -184,7 +184,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-app-write-recursive -> This allows full recusrive write access to the complete `$APP` folder, files and subdirectories.",
+                      "description": "fs:allow-app-write-recursive -> This allows full recursive write access to the complete `$APP` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-app-write-recursive"
@@ -226,7 +226,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-appcache-write-recursive -> This allows full recusrive write access to the complete `$APPCACHE` folder, files and subdirectories.",
+                      "description": "fs:allow-appcache-write-recursive -> This allows full recursive write access to the complete `$APPCACHE` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-appcache-write-recursive"
@@ -268,7 +268,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-appconfig-write-recursive -> This allows full recusrive write access to the complete `$APPCONFIG` folder, files and subdirectories.",
+                      "description": "fs:allow-appconfig-write-recursive -> This allows full recursive write access to the complete `$APPCONFIG` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-appconfig-write-recursive"
@@ -310,7 +310,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-appdata-write-recursive -> This allows full recusrive write access to the complete `$APPDATA` folder, files and subdirectories.",
+                      "description": "fs:allow-appdata-write-recursive -> This allows full recursive write access to the complete `$APPDATA` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-appdata-write-recursive"
@@ -352,7 +352,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-applocaldata-write-recursive -> This allows full recusrive write access to the complete `$APPLOCALDATA` folder, files and subdirectories.",
+                      "description": "fs:allow-applocaldata-write-recursive -> This allows full recursive write access to the complete `$APPLOCALDATA` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-applocaldata-write-recursive"
@@ -394,7 +394,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-applog-write-recursive -> This allows full recusrive write access to the complete `$APPLOG` folder, files and subdirectories.",
+                      "description": "fs:allow-applog-write-recursive -> This allows full recursive write access to the complete `$APPLOG` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-applog-write-recursive"
@@ -436,7 +436,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-audio-write-recursive -> This allows full recusrive write access to the complete `$AUDIO` folder, files and subdirectories.",
+                      "description": "fs:allow-audio-write-recursive -> This allows full recursive write access to the complete `$AUDIO` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-audio-write-recursive"
@@ -478,7 +478,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-cache-write-recursive -> This allows full recusrive write access to the complete `$CACHE` folder, files and subdirectories.",
+                      "description": "fs:allow-cache-write-recursive -> This allows full recursive write access to the complete `$CACHE` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-cache-write-recursive"
@@ -520,7 +520,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-config-write-recursive -> This allows full recusrive write access to the complete `$CONFIG` folder, files and subdirectories.",
+                      "description": "fs:allow-config-write-recursive -> This allows full recursive write access to the complete `$CONFIG` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-config-write-recursive"
@@ -562,7 +562,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-data-write-recursive -> This allows full recusrive write access to the complete `$DATA` folder, files and subdirectories.",
+                      "description": "fs:allow-data-write-recursive -> This allows full recursive write access to the complete `$DATA` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-data-write-recursive"
@@ -604,7 +604,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-desktop-write-recursive -> This allows full recusrive write access to the complete `$DESKTOP` folder, files and subdirectories.",
+                      "description": "fs:allow-desktop-write-recursive -> This allows full recursive write access to the complete `$DESKTOP` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-desktop-write-recursive"
@@ -646,7 +646,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-document-write-recursive -> This allows full recusrive write access to the complete `$DOCUMENT` folder, files and subdirectories.",
+                      "description": "fs:allow-document-write-recursive -> This allows full recursive write access to the complete `$DOCUMENT` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-document-write-recursive"
@@ -688,7 +688,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-download-write-recursive -> This allows full recusrive write access to the complete `$DOWNLOAD` folder, files and subdirectories.",
+                      "description": "fs:allow-download-write-recursive -> This allows full recursive write access to the complete `$DOWNLOAD` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-download-write-recursive"
@@ -730,7 +730,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-exe-write-recursive -> This allows full recusrive write access to the complete `$EXE` folder, files and subdirectories.",
+                      "description": "fs:allow-exe-write-recursive -> This allows full recursive write access to the complete `$EXE` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-exe-write-recursive"
@@ -772,7 +772,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-font-write-recursive -> This allows full recusrive write access to the complete `$FONT` folder, files and subdirectories.",
+                      "description": "fs:allow-font-write-recursive -> This allows full recursive write access to the complete `$FONT` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-font-write-recursive"
@@ -814,7 +814,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-home-write-recursive -> This allows full recusrive write access to the complete `$HOME` folder, files and subdirectories.",
+                      "description": "fs:allow-home-write-recursive -> This allows full recursive write access to the complete `$HOME` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-home-write-recursive"
@@ -856,7 +856,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-localdata-write-recursive -> This allows full recusrive write access to the complete `$LOCALDATA` folder, files and subdirectories.",
+                      "description": "fs:allow-localdata-write-recursive -> This allows full recursive write access to the complete `$LOCALDATA` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-localdata-write-recursive"
@@ -898,7 +898,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-log-write-recursive -> This allows full recusrive write access to the complete `$LOG` folder, files and subdirectories.",
+                      "description": "fs:allow-log-write-recursive -> This allows full recursive write access to the complete `$LOG` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-log-write-recursive"
@@ -940,7 +940,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-picture-write-recursive -> This allows full recusrive write access to the complete `$PICTURE` folder, files and subdirectories.",
+                      "description": "fs:allow-picture-write-recursive -> This allows full recursive write access to the complete `$PICTURE` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-picture-write-recursive"
@@ -982,7 +982,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-public-write-recursive -> This allows full recusrive write access to the complete `$PUBLIC` folder, files and subdirectories.",
+                      "description": "fs:allow-public-write-recursive -> This allows full recursive write access to the complete `$PUBLIC` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-public-write-recursive"
@@ -1024,7 +1024,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-resource-write-recursive -> This allows full recusrive write access to the complete `$RESOURCE` folder, files and subdirectories.",
+                      "description": "fs:allow-resource-write-recursive -> This allows full recursive write access to the complete `$RESOURCE` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-resource-write-recursive"
@@ -1066,7 +1066,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-runtime-write-recursive -> This allows full recusrive write access to the complete `$RUNTIME` folder, files and subdirectories.",
+                      "description": "fs:allow-runtime-write-recursive -> This allows full recursive write access to the complete `$RUNTIME` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-runtime-write-recursive"
@@ -1108,7 +1108,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-temp-write-recursive -> This allows full recusrive write access to the complete `$TEMP` folder, files and subdirectories.",
+                      "description": "fs:allow-temp-write-recursive -> This allows full recursive write access to the complete `$TEMP` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-temp-write-recursive"
@@ -1150,7 +1150,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-template-write-recursive -> This allows full recusrive write access to the complete `$TEMPLATE` folder, files and subdirectories.",
+                      "description": "fs:allow-template-write-recursive -> This allows full recursive write access to the complete `$TEMPLATE` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-template-write-recursive"
@@ -1192,7 +1192,7 @@
                       ]
                     },
                     {
-                      "description": "fs:allow-video-write-recursive -> This allows full recusrive write access to the complete `$VIDEO` folder, files and subdirectories.",
+                      "description": "fs:allow-video-write-recursive -> This allows full recursive write access to the complete `$VIDEO` folder, files and subdirectories.",
                       "type": "string",
                       "enum": [
                         "fs:allow-video-write-recursive"
@@ -2133,30 +2133,50 @@
                 },
                 "allow": {
                   "items": {
-                    "title": "Entry",
-                    "type": "object",
-                    "required": [
-                      "path"
-                    ],
-                    "properties": {
-                      "path": {
+                    "title": "FsScopeEntry",
+                    "description": "FS scope entry.",
+                    "anyOf": [
+                      {
+                        "description": "FS scope path.",
                         "type": "string"
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "path"
+                        ],
+                        "properties": {
+                          "path": {
+                            "description": "FS scope path.",
+                            "type": "string"
+                          }
+                        }
                       }
-                    }
+                    ]
                   }
                 },
                 "deny": {
                   "items": {
-                    "title": "Entry",
-                    "type": "object",
-                    "required": [
-                      "path"
-                    ],
-                    "properties": {
-                      "path": {
+                    "title": "FsScopeEntry",
+                    "description": "FS scope entry.",
+                    "anyOf": [
+                      {
+                        "description": "FS scope path.",
                         "type": "string"
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "path"
+                        ],
+                        "properties": {
+                          "path": {
+                            "description": "FS scope path.",
+                            "type": "string"
+                          }
+                        }
                       }
-                    }
+                    ]
                   }
                 }
               }
@@ -2563,7 +2583,7 @@
           ]
         },
         {
-          "description": "fs:allow-app-write-recursive -> This allows full recusrive write access to the complete `$APP` folder, files and subdirectories.",
+          "description": "fs:allow-app-write-recursive -> This allows full recursive write access to the complete `$APP` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-app-write-recursive"
@@ -2605,7 +2625,7 @@
           ]
         },
         {
-          "description": "fs:allow-appcache-write-recursive -> This allows full recusrive write access to the complete `$APPCACHE` folder, files and subdirectories.",
+          "description": "fs:allow-appcache-write-recursive -> This allows full recursive write access to the complete `$APPCACHE` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-appcache-write-recursive"
@@ -2647,7 +2667,7 @@
           ]
         },
         {
-          "description": "fs:allow-appconfig-write-recursive -> This allows full recusrive write access to the complete `$APPCONFIG` folder, files and subdirectories.",
+          "description": "fs:allow-appconfig-write-recursive -> This allows full recursive write access to the complete `$APPCONFIG` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-appconfig-write-recursive"
@@ -2689,7 +2709,7 @@
           ]
         },
         {
-          "description": "fs:allow-appdata-write-recursive -> This allows full recusrive write access to the complete `$APPDATA` folder, files and subdirectories.",
+          "description": "fs:allow-appdata-write-recursive -> This allows full recursive write access to the complete `$APPDATA` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-appdata-write-recursive"
@@ -2731,7 +2751,7 @@
           ]
         },
         {
-          "description": "fs:allow-applocaldata-write-recursive -> This allows full recusrive write access to the complete `$APPLOCALDATA` folder, files and subdirectories.",
+          "description": "fs:allow-applocaldata-write-recursive -> This allows full recursive write access to the complete `$APPLOCALDATA` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-applocaldata-write-recursive"
@@ -2773,7 +2793,7 @@
           ]
         },
         {
-          "description": "fs:allow-applog-write-recursive -> This allows full recusrive write access to the complete `$APPLOG` folder, files and subdirectories.",
+          "description": "fs:allow-applog-write-recursive -> This allows full recursive write access to the complete `$APPLOG` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-applog-write-recursive"
@@ -2815,7 +2835,7 @@
           ]
         },
         {
-          "description": "fs:allow-audio-write-recursive -> This allows full recusrive write access to the complete `$AUDIO` folder, files and subdirectories.",
+          "description": "fs:allow-audio-write-recursive -> This allows full recursive write access to the complete `$AUDIO` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-audio-write-recursive"
@@ -2857,7 +2877,7 @@
           ]
         },
         {
-          "description": "fs:allow-cache-write-recursive -> This allows full recusrive write access to the complete `$CACHE` folder, files and subdirectories.",
+          "description": "fs:allow-cache-write-recursive -> This allows full recursive write access to the complete `$CACHE` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-cache-write-recursive"
@@ -2899,7 +2919,7 @@
           ]
         },
         {
-          "description": "fs:allow-config-write-recursive -> This allows full recusrive write access to the complete `$CONFIG` folder, files and subdirectories.",
+          "description": "fs:allow-config-write-recursive -> This allows full recursive write access to the complete `$CONFIG` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-config-write-recursive"
@@ -2941,7 +2961,7 @@
           ]
         },
         {
-          "description": "fs:allow-data-write-recursive -> This allows full recusrive write access to the complete `$DATA` folder, files and subdirectories.",
+          "description": "fs:allow-data-write-recursive -> This allows full recursive write access to the complete `$DATA` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-data-write-recursive"
@@ -2983,7 +3003,7 @@
           ]
         },
         {
-          "description": "fs:allow-desktop-write-recursive -> This allows full recusrive write access to the complete `$DESKTOP` folder, files and subdirectories.",
+          "description": "fs:allow-desktop-write-recursive -> This allows full recursive write access to the complete `$DESKTOP` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-desktop-write-recursive"
@@ -3025,7 +3045,7 @@
           ]
         },
         {
-          "description": "fs:allow-document-write-recursive -> This allows full recusrive write access to the complete `$DOCUMENT` folder, files and subdirectories.",
+          "description": "fs:allow-document-write-recursive -> This allows full recursive write access to the complete `$DOCUMENT` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-document-write-recursive"
@@ -3067,7 +3087,7 @@
           ]
         },
         {
-          "description": "fs:allow-download-write-recursive -> This allows full recusrive write access to the complete `$DOWNLOAD` folder, files and subdirectories.",
+          "description": "fs:allow-download-write-recursive -> This allows full recursive write access to the complete `$DOWNLOAD` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-download-write-recursive"
@@ -3109,7 +3129,7 @@
           ]
         },
         {
-          "description": "fs:allow-exe-write-recursive -> This allows full recusrive write access to the complete `$EXE` folder, files and subdirectories.",
+          "description": "fs:allow-exe-write-recursive -> This allows full recursive write access to the complete `$EXE` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-exe-write-recursive"
@@ -3151,7 +3171,7 @@
           ]
         },
         {
-          "description": "fs:allow-font-write-recursive -> This allows full recusrive write access to the complete `$FONT` folder, files and subdirectories.",
+          "description": "fs:allow-font-write-recursive -> This allows full recursive write access to the complete `$FONT` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-font-write-recursive"
@@ -3193,7 +3213,7 @@
           ]
         },
         {
-          "description": "fs:allow-home-write-recursive -> This allows full recusrive write access to the complete `$HOME` folder, files and subdirectories.",
+          "description": "fs:allow-home-write-recursive -> This allows full recursive write access to the complete `$HOME` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-home-write-recursive"
@@ -3235,7 +3255,7 @@
           ]
         },
         {
-          "description": "fs:allow-localdata-write-recursive -> This allows full recusrive write access to the complete `$LOCALDATA` folder, files and subdirectories.",
+          "description": "fs:allow-localdata-write-recursive -> This allows full recursive write access to the complete `$LOCALDATA` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-localdata-write-recursive"
@@ -3277,7 +3297,7 @@
           ]
         },
         {
-          "description": "fs:allow-log-write-recursive -> This allows full recusrive write access to the complete `$LOG` folder, files and subdirectories.",
+          "description": "fs:allow-log-write-recursive -> This allows full recursive write access to the complete `$LOG` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-log-write-recursive"
@@ -3319,7 +3339,7 @@
           ]
         },
         {
-          "description": "fs:allow-picture-write-recursive -> This allows full recusrive write access to the complete `$PICTURE` folder, files and subdirectories.",
+          "description": "fs:allow-picture-write-recursive -> This allows full recursive write access to the complete `$PICTURE` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-picture-write-recursive"
@@ -3361,7 +3381,7 @@
           ]
         },
         {
-          "description": "fs:allow-public-write-recursive -> This allows full recusrive write access to the complete `$PUBLIC` folder, files and subdirectories.",
+          "description": "fs:allow-public-write-recursive -> This allows full recursive write access to the complete `$PUBLIC` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-public-write-recursive"
@@ -3403,7 +3423,7 @@
           ]
         },
         {
-          "description": "fs:allow-resource-write-recursive -> This allows full recusrive write access to the complete `$RESOURCE` folder, files and subdirectories.",
+          "description": "fs:allow-resource-write-recursive -> This allows full recursive write access to the complete `$RESOURCE` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-resource-write-recursive"
@@ -3445,7 +3465,7 @@
           ]
         },
         {
-          "description": "fs:allow-runtime-write-recursive -> This allows full recusrive write access to the complete `$RUNTIME` folder, files and subdirectories.",
+          "description": "fs:allow-runtime-write-recursive -> This allows full recursive write access to the complete `$RUNTIME` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-runtime-write-recursive"
@@ -3487,7 +3507,7 @@
           ]
         },
         {
-          "description": "fs:allow-temp-write-recursive -> This allows full recusrive write access to the complete `$TEMP` folder, files and subdirectories.",
+          "description": "fs:allow-temp-write-recursive -> This allows full recursive write access to the complete `$TEMP` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-temp-write-recursive"
@@ -3529,7 +3549,7 @@
           ]
         },
         {
-          "description": "fs:allow-template-write-recursive -> This allows full recusrive write access to the complete `$TEMPLATE` folder, files and subdirectories.",
+          "description": "fs:allow-template-write-recursive -> This allows full recursive write access to the complete `$TEMPLATE` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-template-write-recursive"
@@ -3571,7 +3591,7 @@
           ]
         },
         {
-          "description": "fs:allow-video-write-recursive -> This allows full recusrive write access to the complete `$VIDEO` folder, files and subdirectories.",
+          "description": "fs:allow-video-write-recursive -> This allows full recursive write access to the complete `$VIDEO` folder, files and subdirectories.",
           "type": "string",
           "enum": [
             "fs:allow-video-write-recursive"
