@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 export function useTranscribeViewModel() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [transcript, setTranscript] = useState<transcript.Transcript>();
+    const [transcript, setTranscript] = useState<transcript.Transcript | null>(null);
     const [lang, setLang] = useLocalStorage("lang", "en");
     const [progress, setProgress] = useState<number | undefined>();
     const [audioPath, setAudioPath] = useState<string>();
@@ -31,13 +31,16 @@ export function useTranscribeViewModel() {
         n_threads: 4,
         temperature: 0.4,
     });
+    console.log("transcript => ", transcript);
 
     async function handleEvents() {
         await listen("transcribe_progress", (event) => {
             setProgress(event.payload as number);
         });
         await listen("new_segment", (event) => {
-            console.log("new_segment => ", event.payload);
+            const payload = event.payload as any;
+            const segment: transcript.Segment = { start: payload.start, stop: payload.end, text: payload.text };
+            setTranscript({ segments: [...(transcript?.segments ?? []), segment] });
         });
     }
 
@@ -80,11 +83,12 @@ export function useTranscribeViewModel() {
     }, [modelPath]);
 
     async function transcribe() {
+        setTranscript(null);
         setLoading(true);
         try {
             const res: transcript.Transcript = await invoke("transcribe", { options: { ...args, model: modelPath, path: audioPath, lang } });
             setLoading(false);
-            setProgress(0);
+            setProgress(undefined);
             setTranscript(res);
         } catch (e: any) {
             console.error("error: ", e);

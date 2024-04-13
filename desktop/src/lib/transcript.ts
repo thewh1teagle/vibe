@@ -4,21 +4,15 @@ export interface Duration {
 }
 
 export interface Transcript {
-    processing_time: Duration;
+    processing_time?: Duration;
     segments: Segment[];
-    word_segment?: Segment[];
+    word_segments?: Segment[];
 }
 
 export interface Segment {
     start: number;
     stop: number;
     text: string;
-}
-
-export interface Transcript {
-    processing_time: Duration;
-    segments: Segment[];
-    // word_segments?: Utternace[];
 }
 
 export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, decimalMarker: string): string {
@@ -46,7 +40,7 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 }
 
 export function asSrt(transcript: Transcript) {
-    const wordSegments = transcript.segments || transcript.word_segment;
+    const wordSegments = transcript.segments || transcript?.word_segments;
     return wordSegments.reduce((transcript, fragment, i) => {
         return (
             transcript +
@@ -58,7 +52,7 @@ export function asSrt(transcript: Transcript) {
 }
 
 export function asVtt(transcript: Transcript) {
-    const wordSegments = transcript.segments || transcript.word_segment;
+    const wordSegments = transcript.segments || transcript.word_segments;
     return wordSegments.reduce((transcript, fragment) => {
         return (
             transcript +

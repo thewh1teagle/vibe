@@ -31,15 +31,19 @@ async function download(text: string, format: TextFormat) {
     }
 }
 
-export default function TextArea({ transcript }: { transcript: Transcript }) {
+export default function TextArea({ transcript, readonly, placeholder }: { transcript: Transcript | null; readonly: boolean; placeholder?: string }) {
     const { t, i18n } = useTranslation();
     const [direction, setDirection] = useLocalStorage<"ltr" | "rtl">("direction", i18n.dir());
     const [format, setFormat] = useLocalStorage<TextFormat>("format", "normal");
     const [text, setText] = useState("");
 
     useEffect(() => {
-        setText(format === "vtt" ? asVtt(transcript) : format === "srt" ? asSrt(transcript) : asText(transcript));
-    }, [format]);
+        if (transcript) {
+            setText(format === "vtt" ? asVtt(transcript) : format === "srt" ? asSrt(transcript) : asText(transcript));
+        } else {
+            setText("");
+        }
+    }, [format, transcript]);
 
     return (
         <div className="w-full h-full">
@@ -87,6 +91,8 @@ export default function TextArea({ transcript }: { transcript: Transcript }) {
                 </select>
             </div>
             <textarea
+                placeholder={placeholder}
+                readOnly={readonly}
                 autoCorrect="off"
                 spellCheck={false}
                 onChange={(e) => setText(e.target.value)}
