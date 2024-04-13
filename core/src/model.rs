@@ -3,15 +3,16 @@ use crate::config::ModelArgs;
 use crate::transcript::{Transcript, Utternace};
 use anyhow::{bail, Context, Ok, Result};
 use log::debug;
-use once_cell;
-use std::sync::Mutex;
 use std::time::Instant;
+pub use whisper_rs::SegmentCallbackData;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
-static ON_PROGRESS_CHANGE: once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>> =
-    once_cell::sync::Lazy::new(|| Mutex::new(None));
-
-pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> Result<Transcript> {
+pub fn transcribe(
+    options: &ModelArgs,
+    progress_callback: Option<Box<dyn Fn(i32)>>,
+    new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
+    abort_callback: Option<Box<dyn Fn() -> bool>>,
+) -> Result<Transcript> {
     debug!("Transcribe called with {:?}", options);
     if !options.model.exists() {
         bail!("whisper file doesn't exist")
@@ -19,10 +20,6 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
 
     if !options.path.clone().exists() {
         bail!("audio file doesn't exist")
-    }
-    if let Some(callback) = on_progress_change {
-        let mut guard = ON_PROGRESS_CHANGE.lock().unwrap();
-        *guard = Some(Box::new(callback));
     }
 
     let out_path = tempfile::Builder::new()
@@ -49,6 +46,7 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
     if options.lang.is_some() {
         params.set_language(options.lang.as_deref());
     }
+
     params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
@@ -72,13 +70,16 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         params.set_n_threads(n_threads);
     }
 
-    if let Some(_) = ON_PROGRESS_CHANGE.lock().unwrap().as_ref() {
-        params.set_progress_callback_safe(|progress| {
-            debug!("progress callback {}", progress);
-            if let Some(callback) = ON_PROGRESS_CHANGE.lock().unwrap().as_ref() {
-                callback(progress);
-            }
-        });
+    if let Some(new_segment_callback) = new_segment_callback {
+        params.set_segment_callback_safe(new_segment_callback);
+    }
+
+    if let Some(abort_callback) = abort_callback {
+        params.set_abort_callback_safe(abort_callback);
+    }
+
+    if let Some(progress_callback) = progress_callback {
+        params.set_progress_callback_safe(progress_callback);
     }
 
     debug!("set start time...");
@@ -93,21 +94,21 @@ pub fn transcribe(options: &ModelArgs, on_progress_change: Option<fn(i32)>) -> R
         bail!("no segements found!")
     }
     debug!("found {} segments", num_segments);
-    let mut utterances = Vec::new();
+    let mut segments = Vec::new();
     debug!("looping segments...");
     for s in 0..num_segments {
         let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
-        utterances.push(Utternace { text, start, stop });
+        segments.push(Utternace { text, start, stop });
     }
 
     // cleanup
     std::fs::remove_file(out_path)?;
 
     Ok(Transcript {
-        utterances,
+        segments,
         processing_time: Instant::now().duration_since(st),
     })
 }
@@ -126,13 +127,6 @@ mod tests {
         let _ = env_logger::builder().is_test(true).try_init();
     }
 
-    fn wait_for_enter() -> Result<()> {
-        println!("PRESS ENTER");
-        let mut buffer = String::new();
-        std::io::stdin().read_line(&mut buffer)?;
-        Ok(())
-    }
-
     #[test]
     fn test_audio_conversion() -> Result<()> {
         init();
@@ -145,10 +139,8 @@ mod tests {
         // Copy a sample input file to the temporary directory.
         debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
-        wait_for_enter()?;
         audio::normalize(input_file_path.clone(), output_file_path.clone(), "".to_owned())?;
         debug!("check output at {}", output_file_path.display());
-        wait_for_enter()?;
         let args = &config::ModelArgs {
             path: input_file_path
                 .to_str()
@@ -162,7 +154,7 @@ mod tests {
             init_prompt: None,
             temperature: None,
         };
-        transcribe(args, None)?;
+        transcribe(args, None, None, None)?;
 
         Ok(())
     }

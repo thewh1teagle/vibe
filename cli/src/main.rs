@@ -4,7 +4,7 @@ use env_logger;
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
 use std::{fmt::Write, path::PathBuf, sync::Mutex};
-use vibe;
+use vibe::{self, model::SegmentCallbackData, transcript::Utternace};
 
 static PROGRESS_INSTANCE: once_cell::sync::Lazy<Mutex<Option<ProgressBar>>> = once_cell::sync::Lazy::new(|| Mutex::new(None));
 static PROGRESS_INSTANCE_ASYNC: once_cell::sync::Lazy<tokio::sync::Mutex<Option<ProgressBar>>> =
@@ -45,6 +45,15 @@ fn on_transcribe_progress(progress: i32) {
     }
 }
 
+fn on_new_segment(data: SegmentCallbackData) {
+    let utternace: Utternace = Utternace {
+        start: data.start_timestamp,
+        stop: data.end_timestamp,
+        text: data.text,
+    };
+    println!("{}", utternace.as_text());
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::init();
@@ -79,7 +88,11 @@ async fn main() -> Result<()> {
         init_prompt: None,
         temperature: None,
     };
-    let transcript = vibe::model::transcribe(&args, Some(on_transcribe_progress))?;
-    println!("{}", transcript.as_srt());
+    vibe::model::transcribe(
+        &args,
+        Some(Box::new(on_transcribe_progress)),
+        Some(Box::new(on_new_segment)),
+        None,
+    )?;
     Ok(())
 }

@@ -26,7 +26,8 @@ tokio = { version = "1.35.1", features = [
     "rt",
     "rt-multi-thread",
 ] }
-whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs", branch = "feat/get-segment-text-lossy", features = [
+# whisper-rs = { path = "../../whisper-rs", features = ["whisper-cpp-log"] }
+whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs", branch = "dev", features = [
     "whisper-cpp-log",
 ] }
 clap = { version = "4.4.13", features = ["derive"] }

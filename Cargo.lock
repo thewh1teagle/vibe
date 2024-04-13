@@ -5511,7 +5511,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs"
 version = "0.11.0"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/get-segment-text-lossy#ee932caf3d47d85995a587d0dd3cbd5cf932e930"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=dev#214cb36cc9804b741875e49ca092577d673e1b76"
 dependencies = [
  "log",
  "whisper-rs-sys",
@@ -5520,7 +5520,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs-sys"
 version = "0.8.1"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/get-segment-text-lossy#ee932caf3d47d85995a587d0dd3cbd5cf932e930"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=dev#214cb36cc9804b741875e49ca092577d673e1b76"
 dependencies = [
  "bindgen 0.69.4",
  "cfg-if",

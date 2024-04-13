@@ -1,5 +1,5 @@
 import "@fontsource/roboto";
-import { path } from "@tauri-apps/api";
+import { event, path } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
@@ -16,7 +16,9 @@ import { useNavigate } from "react-router-dom";
 export function useTranscribeViewModel() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [transcript, setTranscript] = useState<transcript.Transcript>();
+    const abortRef = useRef<boolean>(false);
+    const [segments, setSegments] = useState<transcript.Segment[] | null>(null);
+
     const [lang, setLang] = useLocalStorage("lang", "en");
     const [progress, setProgress] = useState<number | undefined>();
     const [audioPath, setAudioPath] = useState<string>();
@@ -34,8 +36,21 @@ export function useTranscribeViewModel() {
 
     async function handleEvents() {
         await listen("transcribe_progress", (event) => {
-            setProgress(event.payload as number);
+            const value = event.payload as number;
+            if (value >= 0 && value <= 100) {
+                setProgress(value);
+            }
         });
+        await listen("new_segment", (event) => {
+            const payload = event.payload as any;
+            const segment: transcript.Segment = { start: payload.start, stop: payload.end, text: payload.text };
+            setSegments((prev) => (prev ? [...prev, segment] : [segment]));
+        });
+    }
+
+    async function onAbort() {
+        abortRef.current = true;
+        event.emit("abort_transcribe");
     }
 
     async function checkModelExists() {
@@ -77,21 +92,27 @@ export function useTranscribeViewModel() {
     }, [modelPath]);
 
     async function transcribe() {
+        setSegments(null);
         setLoading(true);
         try {
             const res: transcript.Transcript = await invoke("transcribe", { options: { ...args, model: modelPath, path: audioPath, lang } });
-            setLoading(false);
-            setProgress(0);
-            setTranscript(res);
+            setSegments(res.segments);
         } catch (e: any) {
-            console.error("error: ", e);
-            setErrorModal?.({ log: e.toString(), open: true });
-            setLoading(false);
+            if (!abortRef.current) {
+                debugger;
+                console.error("error: ", e);
+                setErrorModal?.({ log: e.toString(), open: true });
+                setLoading(false);
+            }
         } finally {
+            setLoading(false);
+            setProgress(undefined);
             // Focus back the window and play sound
             webview.getCurrent().unminimize();
             webview.getCurrent().setFocus();
-            new Audio(successSound).play();
+            if (!abortRef.current) {
+                new Audio(successSound).play();
+            }
         }
     }
 
@@ -103,10 +124,11 @@ export function useTranscribeViewModel() {
         setAudioPath,
         availableUpdate,
         updateApp,
-        transcript,
+        segments,
         args,
         setArgs,
         transcribe,
         setLang,
+        onAbort,
     };
 }
