@@ -55,16 +55,21 @@
 </script>
 
 <div class="flex gap-3 flex-col lg:flex-row">
-	<button on:click={ctaClick} class="btn btn-primary hidden md:flex">
-		{#if asset?.platform.toLowerCase() === 'linux'}
-			<LinuxIcon />
-		{:else if asset?.platform.toLowerCase() === 'windows'}
-			<WindowsIcon />
-		{:else}
+	{#if asset?.platform.toLowerCase() === 'macos'}
+		<button on:click={ctaClick} class="btn btn-primary hidden md:flex">
 			<MacIcon />
-		{/if}
-		{$i18n.t('download-for')}{asset?.platform}
-	</button>
+			{$i18n.t('download-for')}{asset?.platform}
+		</button>
+	{:else}
+		<a href={asset?.url} class="btn btn-primary hidden md:flex">
+			{#if asset?.platform.toLowerCase() === 'linux'}
+				<LinuxIcon />
+			{:else if asset?.platform.toLowerCase() === 'windows'}
+				<WindowsIcon />
+			{/if}
+			{$i18n.t('download-for')}{asset?.platform}
+		</a>
+	{/if}
 	<a class="btn" href="https://github.com/thewh1teagle/vibe" target="_blank">
 		<GithubIcon />
 		{$i18n.t('star-on-github')}
