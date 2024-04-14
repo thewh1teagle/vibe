@@ -1,29 +1,29 @@
 {
     "assets": [
         {
-            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.6/vibe_0.0.6_aarch64.dmg",
-            "name": "vibe_0.0.6_aarch64.dmg",
+            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.9/vibe_0.0.9_aarch64.dmg",
+            "name": "vibe_0.0.9_aarch64.dmg",
             "platform": "MacOS",
             "arch": "darwin-aarch64"
         },
         {
-            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.6/vibe_0.0.6_amd64.deb",
-            "name": "vibe_0.0.6_amd64.deb",
+            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.9/vibe_0.0.9_amd64.deb",
+            "name": "vibe_0.0.9_amd64.deb",
             "platform": "Linux",
             "arch": "linux-x86_64"
         },
         {
-            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.6/vibe_0.0.6_x64-setup.exe",
-            "name": "vibe_0.0.6_x64-setup.exe",
+            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.9/vibe_0.0.9_x64-setup.exe",
+            "name": "vibe_0.0.9_x64-setup.exe",
             "platform": "Windows",
             "arch": "windows-x86_64"
         },
         {
-            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.6/vibe_0.0.6_x64.dmg",
-            "name": "vibe_0.0.6_x64.dmg",
+            "url": "https://github.com/thewh1teagle/vibe/releases/download/v0.0.9/vibe_0.0.9_x64.dmg",
+            "name": "vibe_0.0.9_x64.dmg",
             "platform": "MacOS",
             "arch": "darwin-x86_64"
         }
     ],
-    "version": "v0.0.6"
+    "version": "v0.0.9"
 }
