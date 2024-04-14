@@ -1,7 +1,4 @@
 {
-  "build": {
-    "beforeBundleCommand": "echo hello from windows"
-  },
   "bundle": {
     "resources": {
       "ffmpeg\\bin\\x64\\*.dll": "./",
