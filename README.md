@@ -25,6 +25,8 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 -   Optimized for `CPU` (`Windows` / `Linux`)
 -   Optmized for `GPU` (`MacOS`)
 -   Support `SRT`, `VTT` formats
+-   ~Transcribe system audio~ 🕒 Coming soon!
+-   ~Transcribe from microfone~ 🕒 Coming soon!
 -   Transcribe audio / video
 -   Automatic updates
 -   Realtime preview
