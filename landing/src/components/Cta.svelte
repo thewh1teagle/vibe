@@ -6,6 +6,7 @@
 	import MacIcon from './MacIcon.svelte';
 	import GithubIcon from './GithubIcon.svelte';
 	import { i18n } from '$lib/i18n';
+	import Chip from '../icons/Chip.svelte';
 
 	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos'); // default to macos
 	let ctaClicked = false;
@@ -82,12 +83,14 @@
 <!-- macos architectures -->
 {#if asset?.platform.toLocaleLowerCase() == 'macos' && ctaClicked}
 	<div class="flex gap-2 mt-3">
-		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url} target="_blank"
-			>{$i18n.t('intel')}</a
-		>
-		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url} target="_blank"
-			>{$i18n.t('apple-silicon')}</a
-		>
+		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url} target="_blank">
+			<Chip />
+			{$i18n.t('intel')}
+		</a>
+		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url} target="_blank">
+			<Chip />
+			{$i18n.t('apple-silicon')}
+		</a>
 	</div>
 {/if}
 
