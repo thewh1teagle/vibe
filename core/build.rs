@@ -80,13 +80,6 @@ fn main() {
             }
         }
     }
-    // Link against Audio Toolbox framework on macOS
-    if cfg!(target_os = "macos") {
-        // #[cfg(debug_assertions)]
-        // {
-        //     println!("cargo:rustc-link-arg=-Wl,-rpath,@executable_path"); // used in dev mode
-        // }
-    }
 
     if cfg!(target_os = "windows") {
         let openblas_path = std::env::var("OPENBLAS_PATH").unwrap();
