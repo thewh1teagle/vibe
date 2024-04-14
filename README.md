@@ -47,7 +47,7 @@ Currenly, `MacOS` computers get the best performance since there's GPU optimizat
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
-`Linux`: install `.deb` from [releases](https://github.com/thewh1teagle/vibe/releases) and follow install notes (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
+`Linux`: install `.deb` from [releases](https://github.com/thewh1teagle/vibe/releases) (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap)
 
 ## Ubuntu
 
@@ -59,17 +59,17 @@ dpkg -i ./vibe*.deb
 
 Currenly, listening for the audio file isn't supported on `Linux`
 
-## Offline installation
+## Offline Setup
 
 1. Stop the program
 
-2. Download it from [ggml-medium.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
+2. Download model from [ggml-medium.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
 
-3. Place it in the folder `C:\Users\User\AppData\Local\github.com.thewh1teagle.vibe` With the exact name `ggml-medium.bin`
+3. Open models folder through vibe settings, and place it there
 
-4. Start the program
+4. Restart the app, open settings and choose your new model
 
-And if the antivirus still block the model file, you can always exclude it from the antivirus.
+And if the antivirus block the model file, you can always exclude it from the scan directories.
 
 # Contribute 🤝
 
