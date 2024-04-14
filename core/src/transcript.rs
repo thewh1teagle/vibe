@@ -27,18 +27,18 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Transcript {
     pub processing_time: Duration,
-    pub segments: Vec<Utternace>,
+    pub segments: Vec<Segment>,
     // pub word_segments: Option<Vec<Utternace>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Utternace {
+pub struct Segment {
     pub start: i64,
     pub stop: i64,
     pub text: String,
 }
 
-impl Utternace {
+impl Segment {
     pub fn as_text(&self) -> String {
         self.text.to_owned()
     }

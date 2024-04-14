@@ -4,7 +4,7 @@ use env_logger;
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
 use std::{fmt::Write, path::PathBuf, sync::Mutex};
-use vibe::{self, model::SegmentCallbackData, transcript::Utternace};
+use vibe::{self, model::SegmentCallbackData, transcript::Segment};
 
 static PROGRESS_INSTANCE: once_cell::sync::Lazy<Mutex<Option<ProgressBar>>> = once_cell::sync::Lazy::new(|| Mutex::new(None));
 static PROGRESS_INSTANCE_ASYNC: once_cell::sync::Lazy<tokio::sync::Mutex<Option<ProgressBar>>> =
@@ -46,12 +46,16 @@ fn on_transcribe_progress(progress: i32) {
 }
 
 fn on_new_segment(data: SegmentCallbackData) {
-    let utternace: Utternace = Utternace {
+    let utternace: Segment = Segment {
         start: data.start_timestamp,
         stop: data.end_timestamp,
         text: data.text,
     };
     println!("{}", utternace.as_text());
+}
+
+fn on_abort_callback() -> bool {
+    false
 }
 
 #[tokio::main]
@@ -92,7 +96,7 @@ async fn main() -> Result<()> {
         &args,
         Some(Box::new(on_transcribe_progress)),
         Some(Box::new(on_new_segment)),
-        None,
+        Some(Box::new(on_abort_callback)),
     )?;
     Ok(())
 }

@@ -1,6 +1,6 @@
 use crate::audio;
 use crate::config::ModelArgs;
-use crate::transcript::{Transcript, Utternace};
+use crate::transcript::{Segment, Transcript};
 use anyhow::{bail, Context, Ok, Result};
 use log::debug;
 use std::time::Instant;
@@ -101,7 +101,7 @@ pub fn transcribe(
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
 
-        segments.push(Utternace { text, start, stop });
+        segments.push(Segment { text, start, stop });
     }
 
     // cleanup
