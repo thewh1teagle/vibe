@@ -27,6 +27,7 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 -   Support `SRT`, `VTT` formats
 -   Transcribe audio / video
 -   Automatic updates
+-   Realtime preview
 
 # Install notes
 
