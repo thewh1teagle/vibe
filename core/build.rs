@@ -18,6 +18,25 @@ fn get_cargo_target_dir() -> Result<std::path::PathBuf, Box<dyn std::error::Erro
     Ok(target_dir.to_path_buf())
 }
 
+fn macos_link_search_path() -> Option<String> {
+    let output = Command::new("clang").arg("--print-search-dirs").output().ok()?;
+    if !output.status.success() {
+        println!("failed to run 'clang --print-search-dirs', continuing without a link search path");
+        return None;
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        if line.contains("libraries: =") {
+            let path = line.split('=').skip(1).next()?;
+            return Some(format!("{}/lib/darwin", path));
+        }
+    }
+
+    println!("failed to determine link search path, continuing without it");
+    None
+}
+
 fn main() {
     let target = env::var("TARGET").unwrap();
     let ffmpeg_dir = env::var("FFMPEG_DIR");
@@ -36,6 +55,27 @@ fn main() {
                         std::fs::copy(src, dst).unwrap();
                     }
                     _ => {}
+                }
+            }
+        }
+
+        if cfg!(target_os = "windows") {
+            let target_dir = get_cargo_target_dir().unwrap();
+            let openblas_dir = env::var("OPENBLAS_PATH").unwrap();
+            let openblas_dir = PathBuf::from(openblas_dir);
+            let patterns = [
+                format!("{}\\*.dll", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
+                format!("{}\\*.dll", openblas_dir.join("..\\bin").to_str().unwrap()),
+            ];
+            for pattern in patterns {
+                for entry in glob::glob(&pattern).unwrap() {
+                    match entry {
+                        Ok(src) => {
+                            let dst = Path::new(&target_dir).join(Path::new(src.file_name().unwrap()));
+                            std::fs::copy(src, dst).unwrap();
+                        }
+                        _ => {}
+                    }
                 }
             }
         }
@@ -66,23 +106,4 @@ fn main() {
             println!("cargo:rustc-link-search={}", path);
         }
     }
-}
-
-fn macos_link_search_path() -> Option<String> {
-    let output = Command::new("clang").arg("--print-search-dirs").output().ok()?;
-    if !output.status.success() {
-        println!("failed to run 'clang --print-search-dirs', continuing without a link search path");
-        return None;
-    }
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    for line in stdout.lines() {
-        if line.contains("libraries: =") {
-            let path = line.split('=').skip(1).next()?;
-            return Some(format!("{}/lib/darwin", path));
-        }
-    }
-
-    println!("failed to determine link search path, continuing without it");
-    None
 }
