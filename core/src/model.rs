@@ -3,13 +3,17 @@ use crate::config::ModelArgs;
 use crate::transcript::{Segment, Transcript};
 use anyhow::{bail, Context, Ok, Result};
 use log::debug;
+use std::sync::Mutex;
 use std::time::Instant;
 pub use whisper_rs::SegmentCallbackData;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
+static PROGRESS_CALLBACK: once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>> =
+    once_cell::sync::Lazy::new(|| Mutex::new(None));
+
 pub fn transcribe(
     options: &ModelArgs,
-    progress_callback: Option<Box<dyn Fn(i32)>>,
+    progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
 ) -> Result<Transcript> {
@@ -20,6 +24,11 @@ pub fn transcribe(
 
     if !options.path.clone().exists() {
         bail!("audio file doesn't exist")
+    }
+
+    if let Some(callback) = progress_callback {
+        let mut guard = PROGRESS_CALLBACK.lock().unwrap();
+        *guard = Some(Box::new(callback));
     }
 
     let out_path = tempfile::Builder::new()
@@ -78,8 +87,14 @@ pub fn transcribe(
         params.set_abort_callback_safe(abort_callback);
     }
 
-    if let Some(progress_callback) = progress_callback {
-        params.set_progress_callback_safe(progress_callback);
+    if let Some(_) = PROGRESS_CALLBACK.lock().unwrap().as_ref() {
+        params.set_progress_callback_safe(|progress| {
+            // using move here lead to crash
+            debug!("progress callback {}", progress);
+            if let Some(progress_callback) = PROGRESS_CALLBACK.lock().unwrap().as_ref() {
+                progress_callback(progress);
+            }
+        });
     }
 
     debug!("set start time...");
