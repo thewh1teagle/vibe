@@ -3,6 +3,7 @@ import * as fs from "@tauri-apps/plugin-fs";
 import * as os from "@tauri-apps/plugin-os";
 import * as app from "@tauri-apps/api/app";
 import * as path from "@tauri-apps/api/path";
+import { invoke } from "@tauri-apps/api/core";
 
 export interface Path {
     name: string;
@@ -25,6 +26,7 @@ export function cx(...cns: (boolean | string | undefined)[]): string {
 
 export async function getAppInfo() {
     const appVersion = await app.getVersion();
+    const commitHash = await invoke("get_commit_hash");
     const arch = await os.arch();
     const platform = await os.platform();
     const kVer = await os.version();
@@ -37,16 +39,15 @@ export async function getAppInfo() {
         .map((e) => e.name)
         .join(", ");
     const defaultModel = localStorage.getItem("model_path")?.split("/")?.pop() ?? "Not Found";
-    return `
-App Version: ${appVersion}
+    return `App Version: ${appVersion}
+Commit Hash: ${commitHash}
 Arch: ${arch}
 Platform: ${platform}
 Kernel Version: ${kVer}
 OS: ${osType}
 OS Version: ${osVer}
 Models: ${models}
-Default Mode: ${defaultModel}
-  `;
+Default Model: ${defaultModel}`;
 }
 
 export async function getIssueUrl(logs: string) {

@@ -8,6 +8,11 @@ use tauri::Manager;
 use vibe::{model::SegmentCallbackData, transcript::Transcript};
 
 #[tauri::command]
+pub fn get_commit_hash() -> String {
+    env!("COMMIT_HASH").to_string()
+}
+
+#[tauri::command]
 pub async fn download_model(app_handle: tauri::AppHandle) -> Result<(), String> {
     let model_path = vibe::config::get_model_path().map_err(|e| pretty_error!(e))?;
     let mut downloader = vibe::downloader::Downloader::new();
