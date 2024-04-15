@@ -41,7 +41,7 @@ function App() {
                             {t("transcribing")} {vm.progress ? `${vm.progress}%` : "0%"}
                         </p>
                         <button onClick={vm.onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
-                            {t("stop")}
+                            {t("cancel")}
                         </button>
                         {/* <p className="text-neutral-content">{t("you-will-receive-notification")}</p> */}
                     </div>
