@@ -132,9 +132,6 @@ if [ $CI == false ]; then
         echo "set LIBCLANG_PATH=C:\Program Files\LLVM\bin"
         echo "set PATH=%PATH%;C:\Program Files\CMake\bin"
     else
-        if [ $OS == "macos" ]; then
-            echo "export DYLD_LIBRARY_PATH=\"$FFMPEG_PATH/lib:\$DYLD_LIBRARY_PATH\""
-        fi
         echo "export FFMPEG_DIR=\"$FFMPEG_PATH\""
     fi
     echo "npx tauri build"
