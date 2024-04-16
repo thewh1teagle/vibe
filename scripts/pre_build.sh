@@ -115,8 +115,11 @@ fi
 if [ "$OS" == "windows" ]; then
     if [ ! -d $CLBlast_REALNAME ]; then
         wget -nc --show-progress $CLBlast_URL -O $CLBlast_NAME.zip
-        7z x $CLBlast_NAME.zip -o$CLBlast_REALNAME
+        7z x $CLBlast_NAME.zip # 7z inside 
+        7z x $CLBlast_NAME.7z # folder inside
+        mv $CLBlast_NAME $CLBlast_REALNAME
         rm $CLBlast_NAME.zip
+        rm $CLBlast_NAME.7z
     fi
 fi
 
