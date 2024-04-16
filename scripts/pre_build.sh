@@ -6,6 +6,7 @@
 # With
 # C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
 # And fix paths with echo $(cygpath -w "$any_bad_path")
+# if you use opencl feature, you need to install opencl with vcpkg
 
 
 # Windows:
@@ -37,6 +38,7 @@ echo "Detect OS $OS"
 # Common config
 FFMPEG_REALNAME="ffmpeg"
 OPENBLAS_REALNAME="openblas"
+CLBlast_REALNAME="clblast"
 
 # Drawin config
 if [ "$OS" == "macos" ]; then
@@ -45,11 +47,15 @@ if [ "$OS" == "macos" ]; then
 fi
 # Windows config
 if [ "$OS" == "windows" ]; then
+    # FFMPEG
     FFMPEG_NAME="ffmpeg-6.1-windows-desktop-vs2022ltl-default"
     FFMPEG_URL="https://master.dl.sourceforge.net/project/avbuild/windows-desktop/$FFMPEG_NAME.7z?viasf=1"
+    # OpenBlas
     OPENBLAS_NAME="OpenBLAS-0.3.26-x64"
     OPENBLAS_URL="https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.26/$OPENBLAS_NAME.zip"
-    
+    # CLBlast (x1.5 Faster)
+    CLBlast_NAME="CLBlast-1.6.2-windows-x64"
+    CLBlast_URL="https://github.com/CNugteren/CLBlast/releases/download/1.6.2/$CLBlast_NAME.zip"
     # Used for local development
     export PATH="$PATH:C:\Program Files\7-Zip"
 fi
@@ -105,6 +111,15 @@ if [ "$OS" == "windows" ]; then
     fi
 fi
 
+# Prepare CLBlast for Windows
+if [ "$OS" == "windows" ]; then
+    if [ ! -d $CLBlast_REALNAME ]; then
+        wget -nc --show-progress $CLBlast_URL -O $CLBlast_NAME.zip
+        7z x $CLBlast_NAME.zip -o$CLBlast_REALNAME
+        rm $CLBlast_NAME.zip
+    fi
+fi
+
 # Prepare packages for Linux
 if [ "$OS" == "linux" ]; then
     sudo apt-get update
@@ -116,21 +131,26 @@ fi
 # Set aboluste paths for OpenBlas and FFMPEG
 FFMPEG_PATH="$(pwd)/$FFMPEG_REALNAME"
 OPENBLAS_PATH="$(pwd)/$OPENBLAS_REALNAME/lib" # whisper.cpp takes from here
+CLBlast_PATH="$(pwd)/$CLBlast_REALNAME/lib/cmake/CLBlast" # whisper.cpp takes from here
+LIBCLANG_PATH="C:\Program Files\LLVM\bin"
+CMAKE_PATH="C:\Program Files\CMake\bin"
 
 # Fix windowspaths
 if [ $OS == "windows" ]; then
     FFMPEG_PATH=$(cygpath -w "$FFMPEG_PATH")
     OPENBLAS_PATH=$(cygpath -w "$OPENBLAS_PATH")
+    CLBlast_PATH=$(cygpath -w "$CLBlast_PATH")
 fi
 
 # If not CI then just show the commands to build
 if [ $CI == false ]; then
     echo "For build, execute:"
     if [ $OS == "windows" ]; then
-        echo "set FFMPEG_DIR=$FFMPEG_PATH"
-        echo "set OPENBLAS_PATH=$OPENBLAS_PATH"
-        echo "set LIBCLANG_PATH=C:\Program Files\LLVM\bin"
-        echo "set PATH=%PATH%;C:\Program Files\CMake\bin"
+        echo "\$env:FFMPEG_DIR = \"$FFMPEG_PATH\""
+        echo "\$env:OPENBLAS_PATH = \"$OPENBLAS_PATH\""
+        echo "\$env:CLBlast_DIR = \"$CLBlast_PATH\""
+        echo "\$env:LIBCLANG_PATH = \"$LIBCLANG_PATH\""
+        echo "\$env:PATH += \"$CMAKE_PATH\""
     else
         echo "export FFMPEG_DIR=\"$FFMPEG_PATH\""
     fi
@@ -149,5 +169,6 @@ if [ $CI == true ]; then
     if [ "$OS" == "windows" ]; then
         echo "Adding OPENBLAS_PATH=$OPENBLAS_PATH"
         echo "OPENBLAS_PATH=$OPENBLAS_PATH" >> "$GITHUB_ENV"
+        echo "CLBlast_DIR=$CLBlast_PATH" >> "$GITHUB_ENV"
     fi
 fi

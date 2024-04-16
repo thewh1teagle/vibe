@@ -18,3 +18,4 @@ openblas/
 *.7z
 .env
 !samples/*
+clblast/

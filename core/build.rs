@@ -39,9 +39,25 @@ fn macos_link_search_path() -> Option<String> {
 
 fn main() {
     let target = env::var("TARGET").unwrap();
-    let ffmpeg_dir = env::var("FFMPEG_DIR");
-    if let Ok(ffmpeg_dir) = ffmpeg_dir {
-        let ffmpeg_dir = PathBuf::from(ffmpeg_dir);
+    // ffmpeg
+    let ffmpeg_dir = env::var("FFMPEG_DIR").unwrap_or_default();
+    let ffmpeg_dir = PathBuf::from(ffmpeg_dir);
+    // clblast
+    let clblast_dir = env::var("CLBlast_DIR").unwrap_or_default();
+    let clblast_dir = PathBuf::from(clblast_dir);
+
+    // openblas
+    let openblas_dir = env::var("OPENBLAS_PATH").unwrap_or_default();
+    let openblas_dir = PathBuf::from(openblas_dir);
+
+
+    if cfg!(feature = "opencl") {
+        println!("cargo:rustc-link-search={}", clblast_dir.join("..\\..\\").display()); // clblast\lib\clblast.lib
+        println!("cargo:rustc-link-search={}", "C:\\vcpkg\\packages\\opencl_x64-windows\\lib"); // C:\vcpkg\packages\opencl_x64-windows\lib\OpenCL.lib
+    }
+
+    if ffmpeg_dir.exists() {
+        
         if !ffmpeg_dir.exists() {
             panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
         }
@@ -61,11 +77,10 @@ fn main() {
 
         if cfg!(target_os = "windows") {
             let target_dir = get_cargo_target_dir().unwrap();
-            let openblas_dir = env::var("OPENBLAS_PATH").unwrap();
-            let openblas_dir = PathBuf::from(openblas_dir);
             let patterns = [
                 format!("{}\\*.dll", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
                 format!("{}\\*.dll", openblas_dir.join("..\\bin").to_str().unwrap()),
+                format!("{}\\*.dll", clblast_dir.join("..\\..\\..\\bin").to_str().unwrap()),
             ];
             for pattern in patterns {
                 for entry in glob::glob(&pattern).unwrap() {

@@ -3,6 +3,7 @@
     "resources": {
       "ffmpeg\\bin\\x64\\*.dll": "./",
       "openblas\\bin\\*.dll": "./",
+      "clblast\\bin\\*.dll": "./",
       "locales": "locales"
     }
   }

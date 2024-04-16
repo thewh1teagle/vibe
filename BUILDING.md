@@ -13,7 +13,13 @@ npm install
 npm install -D
 ```
 
-**Windows**: [Msys2](https://www.msys2.org/)
+**Windows**: [Msys2](https://www.msys2.org/) | [vcpkg](https://vcpkg.io/en/)
+
+**Windows** vcpkg packages
+
+```console
+C:\vcpkg\vcpkg.exe install opencl
+```
 
 **MacOS** brew packages
 

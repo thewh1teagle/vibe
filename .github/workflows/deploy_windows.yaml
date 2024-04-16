@@ -45,6 +45,10 @@ jobs:
           cache: "npm" # Set this to npm, yarn or pnpm.
           cache-dependency-path: desktop/package-lock.json
 
+      # Install OpenCL
+      - name: Install OpenCL
+        run: vcpkg.exe install opencl
+
       # Setup NodeJS dependencies
 
       - name: Install frontend dependencies

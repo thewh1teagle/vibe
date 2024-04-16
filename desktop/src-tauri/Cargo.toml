@@ -34,7 +34,7 @@ vibe = { path = "../../core", features = ["openblas"] }
 openssl = { version = "0.10.63", features = ["vendored"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-vibe = { path = "../../core", features = ["static", "openblas"] }
+vibe = { path = "../../core", features = ["opencl"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 vibe = { path = "../../core", features = ["coreml"] }
