@@ -57,7 +57,7 @@ Currenly, `MacOS` computers get the best performance since there's GPU optimizat
 Download `deb` file and execute
 
 ```console
-dpkg -i ./vibe*.deb
+sudo apt install ./vibe*.deb
 ```
 
 Currenly, listening for the audio file isn't supported on `Linux`
