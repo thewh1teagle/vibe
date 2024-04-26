@@ -1,4 +1,4 @@
-name: Deploy Landing to GitHub Pages
+name: Deploy Landing
 
 on:
   push:
