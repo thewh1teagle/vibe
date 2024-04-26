@@ -50,6 +50,7 @@ jobs:
           node-version: lts/*
       - name: install node deps
         run: npm install
+        working-directory: ./desktop
       - name: build react
         run: npm run build
         working-directory: ./desktop
