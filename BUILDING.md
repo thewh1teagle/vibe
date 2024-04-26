@@ -66,3 +66,9 @@ cargo run -- --path out.wav --output out.txt --n-threads 5
 cargo fmt
 cargo clippy
 ```
+
+# Create new release
+
+```console
+git tag -a v<version> -m "v<version>" && git push --tags
+```
