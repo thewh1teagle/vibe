@@ -60,6 +60,10 @@ jobs:
         run: ./scripts/pre_build.sh
         if: matrix.platform == 'ubuntu-22.04' || matrix.platform == 'macos-latest'
 
+      # Install tauri cli with patch on macOS aarch64
+      - name: Install custom tauri cli
+        run: cargo install tauri-cli --git https://github.com/thewh1teagle/tauri --branch temp-macos-signing-without-runtime-config --debug
+        if: matrix.args == '--target aarch64-apple-darwin'
 
       - uses: tauri-apps/tauri-action@v0
         env:
@@ -74,3 +78,4 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
           projectPath: './desktop'
+          tauriScript: ${{ matrix.args == '--target aarch64-apple-darwin' && 'cargo tauri' || 'npx tauri' }}
