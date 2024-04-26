@@ -48,7 +48,7 @@ function App() {
                 </div>
             )}
             {(vm.segments || vm.loading) && (
-                <div className="flex flex-col mt-5 items-center w-[60%] max-w-[1000px] h-[45vh] m-auto">
+                <div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[45vh] m-auto">
                     <TextArea placeholder={t("transcript-will-displayed-shortly")} segments={vm.segments} readonly={vm.loading} />
                 </div>
             )}
