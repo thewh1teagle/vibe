@@ -65,7 +65,8 @@ jobs:
         run: cargo install tauri-cli --git https://github.com/thewh1teagle/tauri --branch temp-macos-signing-without-runtime-config --debug
         if: matrix.args == '--target aarch64-apple-darwin'
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build for aarch64
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -78,4 +79,22 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
           projectPath: './desktop'
-          tauriScript: ${{ matrix.args == '--target aarch64-apple-darwin' && 'cargo tauri' || 'npx tauri' }}
+          tauriScript: cargo tauri
+        if: matrix.args == '--target aarch64-apple-darwin'
+
+
+      - name: Build
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
+          releaseName: "v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
+          projectPath: './desktop'
+        if: matrix.args != '--target aarch64-apple-darwin'
