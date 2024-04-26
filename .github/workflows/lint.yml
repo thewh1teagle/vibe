@@ -6,8 +6,10 @@ on:
   #     - main
   pull_request:
     paths:
-      - '.github/workflows/lint-cli.yml'
-      - 'src-tauri/**'
+      - '.github/workflows/lint.yml'
+      - 'desktop/src-tauri/**'
+      - 'cli/src/**'
+      - 'core/src/**'
   workflow_dispatch:
 
 env:
@@ -31,7 +33,7 @@ jobs:
           components: rustfmt
 
       - name: Run cargo fmt
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
+        run: cargo fmt --manifest-path Cargo.toml --all -- --check
 
   clippy:
     runs-on: macos-latest
@@ -55,4 +57,4 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: run Clippy
-        run: cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
+        run: cargo clippy --manifest-path Cargo.toml --all-targets --all-features -- -D warnings
