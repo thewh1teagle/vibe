@@ -1,6 +1,6 @@
-use anyhow::Result;
 use clap::{ArgAction, Parser};
 use env_logger;
+use eyre::Result;
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
 use std::{fmt::Write, path::PathBuf, sync::Mutex};

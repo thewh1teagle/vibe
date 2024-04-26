@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use eyre::{bail, Context, Result};
 use ffmpeg_next::Rescale;
 use hound::{SampleFormat, WavReader};
 use log::debug;
@@ -73,7 +73,7 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Result;
+    use eyre::Result;
     use log::debug;
     use std::fs;
     use tempfile::tempdir;

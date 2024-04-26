@@ -1,4 +1,5 @@
-use crate::{config, pretty_error};
+use crate::config;
+use eyre::{Context, OptionExt, Result};
 use log;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -13,8 +14,8 @@ pub fn get_commit_hash() -> String {
 }
 
 #[tauri::command]
-pub async fn download_model(app_handle: tauri::AppHandle) -> Result<(), String> {
-    let model_path = vibe::config::get_model_path().map_err(|e| pretty_error!(e))?;
+pub async fn download_model(app_handle: tauri::AppHandle) -> Result<()> {
+    let model_path = vibe::config::get_model_path()?;
     let mut downloader = vibe::downloader::Downloader::new();
     log::debug!("Download model invoked! with path {}", model_path.display());
 
@@ -25,20 +26,19 @@ pub async fn download_model(app_handle: tauri::AppHandle) -> Result<(), String> 
     };
     downloader
         .download(config::URL, model_path.to_owned(), download_progress_callback)
-        .await
-        .map_err(|e| pretty_error!(e))?;
+        .await?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn get_default_model_path() -> Result<String, String> {
-    let model_path = vibe::config::get_model_path().map_err(|e| pretty_error!(e))?;
-    let model_path = model_path.to_str().ok_or("cant convert model path to string")?;
+pub async fn get_default_model_path() -> Result<String> {
+    let model_path = vibe::config::get_model_path()?;
+    let model_path = model_path.to_str().ok_or_eyre("cant convert model path to string")?;
     Ok(model_path.to_string())
 }
 
 #[tauri::command]
-pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript, String> {
+pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript> {
     let app_handle_c = app_handle.clone();
 
     let new_segment_callback = move |data: SegmentCallbackData| {
@@ -73,7 +73,6 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Mod
         Some(Box::new(new_segment_callback)),
         Some(Box::new(abort_callback)),
     )
-    .map_err(|e| pretty_error!(e))
-    .map_err(|e| format!("{:?}\noptions: {:?}", e, options))?;
+    .with_context(|| format!("options: {:?}", options))?;
     Ok(transcript)
 }

@@ -50,14 +50,13 @@ fn main() {
     let openblas_dir = env::var("OPENBLAS_PATH").unwrap_or_default();
     let openblas_dir = PathBuf::from(openblas_dir);
 
-
     if cfg!(feature = "opencl") {
         println!("cargo:rustc-link-search={}", clblast_dir.join("..\\..\\").display()); // clblast\lib\clblast.lib
-        println!("cargo:rustc-link-search={}", "C:\\vcpkg\\packages\\opencl_x64-windows\\lib"); // C:\vcpkg\packages\opencl_x64-windows\lib\OpenCL.lib
+        println!("cargo:rustc-link-search={}", "C:\\vcpkg\\packages\\opencl_x64-windows\\lib");
+        // C:\vcpkg\packages\opencl_x64-windows\lib\OpenCL.lib
     }
 
     if ffmpeg_dir.exists() {
-        
         if !ffmpeg_dir.exists() {
             panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
         }
