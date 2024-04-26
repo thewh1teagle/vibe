@@ -1,6 +1,5 @@
 use crate::config;
 use eyre::{Context, OptionExt, Result};
-use log;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,

@@ -8,8 +8,8 @@ use std::time::Instant;
 pub use whisper_rs::SegmentCallbackData;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
-static PROGRESS_CALLBACK: once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>> =
-    once_cell::sync::Lazy::new(|| Mutex::new(None));
+type ProgressCallbackType = once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>>;
+static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| Mutex::new(None));
 
 pub fn transcribe(
     options: &ModelArgs,
@@ -44,7 +44,7 @@ pub fn transcribe(
 
     debug!("open model...");
     let ctx = WhisperContext::new_with_params(
-        &options.model.to_str().ok_or_eyre("can't convert model option to str")?,
+        options.model.to_str().ok_or_eyre("can't convert model option to str")?,
         WhisperContextParameters::default(),
     )
     .context("failed to open model")?;
@@ -87,7 +87,7 @@ pub fn transcribe(
         params.set_abort_callback_safe(abort_callback);
     }
 
-    if let Some(_) = PROGRESS_CALLBACK.lock().unwrap().as_ref() {
+    if PROGRESS_CALLBACK.lock().unwrap().as_ref().is_some() {
         params.set_progress_callback_safe(|progress| {
             // using move here lead to crash
             debug!("progress callback {}", progress);

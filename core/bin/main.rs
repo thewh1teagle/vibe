@@ -1,6 +1,4 @@
 use std::{path::PathBuf, str::FromStr};
-
-use env_logger;
 use vibe::{self, config::ModelArgs};
 
 fn get_model_path() -> String {
@@ -11,23 +9,22 @@ fn get_model_path() -> String {
     };
 
     // Define model paths for different operating systems
-    let model_path = if cfg!(target_os = "macos") {
+
+    if cfg!(target_os = "macos") {
         format!(
             "/Users/{}/Library/Application Support/github.com.thewh1teagle.vibe/ggml-medium.bin",
             user
         )
     } else if cfg!(target_os = "linux") {
-        format!("/home/{}/.local/share/github.com.thewh1teagle.vibe/ggml-medium.bin", user)
+        return format!("/home/{}/.local/share/github.com.thewh1teagle.vibe/ggml-medium.bin", user);
     } else if cfg!(target_os = "windows") {
-        format!(
+        return format!(
             "{}/github.com.thewh1teagle.vibe/ggml-medium.bin",
             std::env::var("LOCALAPPDATA").unwrap_or_default()
-        )
+        );
     } else {
-        String::from("Unsupported OS")
-    };
-
-    model_path
+        return String::from("Unsupported OS");
+    }
 }
 
 fn main() {

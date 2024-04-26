@@ -28,7 +28,7 @@ impl Downloader {
             .ok_or_eyre(format!("Failed to get content length from '{}'", url))?;
         let mut file = std::fs::File::create(path.clone()).context(format!("Failed to create file {}", path.display()))?;
         let mut downloaded: u64 = 0;
-        let callback_limit = 1 * 1024 * 1024; // 1MB limit
+        let callback_limit = 1024 * 1024; // 1MB limit
         let mut callback_offset = 0;
         let mut stream = res.bytes_stream();
         while let Some(item) = stream.next().await {
@@ -45,6 +45,12 @@ impl Downloader {
             downloaded += chunk.len() as u64;
         }
         Ok(())
+    }
+}
+
+impl Default for Downloader {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
