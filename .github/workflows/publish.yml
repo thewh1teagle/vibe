@@ -6,8 +6,6 @@ on:
       - "v*"
   workflow_dispatch:
 
-# This workflow will trigger on each push to the `release` branch to create or update a GitHub release, build your app, and upload the artifacts to the release.
-
 jobs:
   publish-tauri:
     permissions:
@@ -54,12 +52,12 @@ jobs:
 
       # Run pre build on macOS / Linux      
       - name: Run pre_build.sh on ${{ matrix.platform }}
-        run: ./scripts/pre_build.sh
-        if: matrix.platform == 'ubuntu-22.04' || matrix.platform == 'macos-latest'
-
-      # Run pre build on Windows with msys2
-      - name: Run pre_build.sh on ${{ matrix.platform }}
         run: C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
+        if: matrix.platform == 'windows-latest'
+
+      # Run pre build on Linux / MacOS
+      - name: Run pre_build.sh on ${{ matrix.platform }}
+        run: ./scripts/pre_build.sh
         if: matrix.platform == 'ubuntu-22.04' || matrix.platform == 'macos-latest'
 
 
