@@ -21,12 +21,6 @@ npm install -D
 C:\vcpkg\vcpkg.exe install opencl
 ```
 
-**MacOS** brew packages
-
-```console
-brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
-```
-
 **Linux**:
 
 Based on [tauri/prerequisites/#setting-up-linux](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
@@ -59,8 +53,16 @@ export RUST_LOG=trace
 cargo test -- --nocapture
 ```
 
-## With Sample
+## Test With Sample
+
 ```console
 ffmpeg -i in.opus -ar 16000 out.wav
 cargo run -- --path out.wav --output out.txt --n-threads 5
+```
+
+# Lint
+
+```console
+cargo fmt
+cargo clippy
 ```
