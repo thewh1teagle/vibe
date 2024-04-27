@@ -29,7 +29,7 @@
         "usehooks-ts": "^3.1.0"
     },
     "devDependencies": {
-        "@tauri-apps/cli": "^2.0.0-beta.11",
+        "@tauri-apps/cli": "^2.0.0-beta.13",
         "@types/react": "^18.2.77",
         "@types/react-dom": "^18.2.25",
         "@vitejs/plugin-react": "^4.2.1",
