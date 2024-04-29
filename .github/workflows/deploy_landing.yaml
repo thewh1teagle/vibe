@@ -4,6 +4,10 @@ on:
   push:
     paths:
       - 'landing/**'
+  workflow_run:
+    workflows: [ "Release" ]
+    types:
+      - completed
   workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
