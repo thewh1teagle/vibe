@@ -96,9 +96,9 @@ You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/
 # Add translation 🌐
 
 1. Copy `en.json` from `locales` folder
-2. Create new file eg `ru.json`
+2. Create new file eg `ru.json` (use [bcp47 language code](https://gist.github.com/thewh1teagle/c8877e5c4c5e2780754ddd065ae2592e))
 3. Change every value to the new language and keep the keys as is
-4. create PR / issue in github
+4. create PR / issue in Github
 
 # Build 🛠️
 
