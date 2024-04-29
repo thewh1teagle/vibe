@@ -69,6 +69,17 @@ cargo clippy
 
 # Create new release
 
+1. Increment verison in `tauri.conf.json` and commit
+2. Create new git tag and push
+
 ```console
 git tag -a v<version> -m "v<version>" && git push --tags
 ```
+
+It will create releases for `Windows`, `Linux`, and `macOS`
+
+Along with `latest.json` file (used for auto updater).
+
+When `Release` action finish, it will run `Deploy landing` action
+
+and update downloads links in landing page.
