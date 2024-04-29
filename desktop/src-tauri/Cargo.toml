@@ -26,9 +26,7 @@ tauri-plugin-dialog = "2.0.0-beta.3"
 tauri-plugin-process = "2.0.0-beta.3"
 tauri-plugin-os = "2.0.0-beta.3"
 tauri-plugin-shell = "2.0.0-beta.3"
-eyre = { git = "https://github.com/thewh1teagle/eyre", branch = "feat/report-serialize", features = [
-    "serialize",
-] }
+eyre = { workspace = true }
 
 
 [target.'cfg(target_os = "linux")'.dependencies]

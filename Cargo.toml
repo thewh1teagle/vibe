@@ -1,3 +1,8 @@
 [workspace]
 members = ["core", "desktop/src-tauri", "cli"]
 resolver = "2"
+
+[workspace.dependencies]
+eyre = { git = "https://github.com/thewh1teagle/eyre", branch = "feat/report-serialize-backtrace", features = [
+    "serialize",
+] }

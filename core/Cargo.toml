@@ -12,7 +12,7 @@ name = "vibe"
 path = "src/lib.rs"
 
 [dependencies]
-eyre = { git = "https://github.com/thewh1teagle/eyre", branch = "feat/report-serialize" }
+eyre = { workspace = true }
 ffmpeg-next = "6.1.1"
 futures-util = "0.3.30"
 hound = "3.5.1"

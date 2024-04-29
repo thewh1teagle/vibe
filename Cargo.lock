@@ -1245,7 +1245,7 @@ dependencies = [
 [[package]]
 name = "eyre"
 version = "1.0.0"
-source = "git+https://github.com/thewh1teagle/eyre?branch=feat/report-serialize#4966a9f3e729197e11de0fd919383b7f03e1b76d"
+source = "git+https://github.com/thewh1teagle/eyre?branch=feat/report-serialize-backtrace#8a0b71c8de62efcab7408fff8e6dc29ba7e5b59a"
 dependencies = [
  "indenter",
  "once_cell",
