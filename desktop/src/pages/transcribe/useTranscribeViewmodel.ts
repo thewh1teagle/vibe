@@ -12,6 +12,7 @@ import * as webview from "@tauri-apps/api/webviewWindow";
 import { invoke } from "@tauri-apps/api/core";
 import { ls } from "../../lib/utils";
 import { useNavigate } from "react-router-dom";
+import * as fs from "@tauri-apps/plugin-fs";
 
 export function useTranscribeViewModel() {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ export function useTranscribeViewModel() {
     const [lang, setLang] = useLocalStorage("lang", "en");
     const [progress, setProgress] = useState<number | undefined>();
     const [audioPath, setAudioPath] = useState<string>();
-    const [modelPath, setModelPath] = useState<string>();
+    const [modelPath, setModelPath] = useLocalStorage<string | null>("model_path", null);
     const audioRef = useRef<HTMLAudioElement>();
     const { updateApp, availableUpdate } = useContext(UpdaterContext);
     const { setState: setErrorModal } = useContext(ErrorModalContext);
@@ -61,13 +62,11 @@ export function useTranscribeViewModel() {
 
             const filtered = entries.filter((e) => e.name?.endsWith(".bin"));
             if (filtered.length === 0) {
+                // if not models found download new one
                 navigate("/setup");
             } else {
-                // get default one from local storage or first
-                const storedPath = localStorage.getItem("model_path");
-                if (storedPath) {
-                    setModelPath(JSON.parse(storedPath));
-                } else {
+                if (!modelPath || !(await fs.exists(modelPath))) {
+                    // if model path not found set another one as default
                     const absPath = await path.join(configPath, filtered[0].name);
                     setModelPath(absPath);
                 }

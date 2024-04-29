@@ -3,12 +3,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ErrorModalContext } from "../../providers/ErrorModalProvider";
 import { invoke } from "@tauri-apps/api/core";
+import { useLocalStorage } from "usehooks-ts";
 
 export function useSetupViewModel() {
     const [downloadProgress, setDownloadProgress] = useState(0);
     const downloadProgressRef = useRef(0);
     const { setState: setErrorModal } = useContext(ErrorModalContext);
     const navigate = useNavigate();
+    const [_modelPath, setModelPath] = useLocalStorage<null | string>("model_path", null);
 
     async function downloadModel() {
         listen("download_progress", (event) => {
@@ -24,7 +26,8 @@ export function useSetupViewModel() {
             }
         });
         try {
-            await invoke("download_model");
+            const path = await invoke("download_model");
+            setModelPath(path as string);
             navigate("/");
         } catch (e: any) {
             console.error(e);

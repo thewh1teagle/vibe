@@ -16,7 +16,7 @@ pub fn get_commit_hash() -> String {
 }
 
 #[tauri::command]
-pub async fn download_model(app_handle: tauri::AppHandle) -> Result<()> {
+pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
     let model_path = vibe::config::get_model_path()?;
     let mut downloader = vibe::downloader::Downloader::new();
     log::debug!("Download model invoked! with path {}", model_path.display());
@@ -44,7 +44,7 @@ pub async fn download_model(app_handle: tauri::AppHandle) -> Result<()> {
             status: Some(ProgressBarStatus::None),
         })
         .unwrap();
-    Ok(())
+    Ok(model_path.to_str().context("to_str")?.to_string())
 }
 
 #[tauri::command]

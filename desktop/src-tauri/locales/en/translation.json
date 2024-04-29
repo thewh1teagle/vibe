@@ -42,5 +42,6 @@
   "confirm-relaunch": "Relaunch Now",
   "transcript-will-displayed-shortly": "Transcript will be displayed here shortly...",
   "cancel": "Cancel",
-  "Hebrew": "עברית"
+  "Hebrew": "עברית",
+  "select-model": "Select Model"
 }

@@ -45,13 +45,15 @@ export default function SettingsPage() {
                 <span className="label-text">{t("customize")}</span>
             </div>
             <div className="flex flex-col gap-1">
-                <select onChange={(e) => vm.setModelPath(e.target.value)} value={vm.modelPath} className="select select-bordered">
+                <select onChange={(e) => vm.setModelPath(e.target.value)} value={vm.modelPath} className="select select-bordered flex-1">
+                    <option value="">{t("select-model")}</option>
                     {vm.models.map((model, index) => (
                         <option key={index} value={model.path}>
                             {model.name}
                         </option>
                     ))}
                 </select>
+
                 <button onClick={vm.openModelPath} className="btn bg-base-300 text-base-content">
                     {t("open-models-path")}
                 </button>
