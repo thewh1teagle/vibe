@@ -42,5 +42,8 @@
     "confirm-relaunch": "הפעל מחדש עכשיו",
     "transcript-will-displayed-shortly": "התמלול יחל להופיע בעוד מספר רגעים...",
     "cancel": "ביטול",
-    "select-model": "בחר מודל"
+    "select-model": "בחר מודל",
+    "play-sound-on-finish": "הפעל צליל בסיום",
+    "focus-window-on-finish": "פתח את חלון התמלול בסיום",
+    "select-language": "בחר שפה"
 }

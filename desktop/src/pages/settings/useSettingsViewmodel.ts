@@ -33,6 +33,8 @@ export function useSettingsViewmodel() {
     const [modelPath, setModelPath] = useLocalStorage<null | string>("model_path", null);
     const [models, setModels] = useState<Path[]>([]);
     const [appVersion, setAppVersion] = useState("");
+    const [soundOnFinish, setSoundOnFinish] = useLocalStorage("sound_on_finish", true);
+    const [focusOnFinish, setFocusOnFinish] = useLocalStorage("focus_on_finish", true);
 
     async function loadMeta() {
         try {
@@ -78,5 +80,9 @@ export function useSettingsViewmodel() {
         appVersion,
         reportIssue,
         loadModels,
+        soundOnFinish,
+        setSoundOnFinish,
+        focusOnFinish,
+        setFocusOnFinish,
     };
 }

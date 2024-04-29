@@ -43,5 +43,8 @@
     "transcript-will-displayed-shortly": "Transcript will be displayed here shortly...",
     "cancel": "Cancel",
     "Hebrew": "עברית",
-    "select-model": "Select Model"
+    "select-model": "Select Model",
+    "play-sound-on-finish": "Play sound on finish",
+    "focus-window-on-finish": "Focus window on finish",
+    "select-language": "Select Language"
 }

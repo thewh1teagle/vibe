@@ -34,6 +34,8 @@ export function useTranscribeViewModel() {
         n_threads: 4,
         temperature: 0.4,
     });
+    const [soundOnFinish, _setSoundOnFinish] = useLocalStorage("sound_on_finish", true);
+    const [focusOnFinish, _setFocusOnFinish] = useLocalStorage("focus_on_finish", true);
 
     async function handleEvents() {
         await listen("transcribe_progress", (event) => {
@@ -105,11 +107,15 @@ export function useTranscribeViewModel() {
         } finally {
             setLoading(false);
             setProgress(undefined);
-            // Focus back the window and play sound
-            webview.getCurrent().unminimize();
-            webview.getCurrent().setFocus();
             if (!abortRef.current) {
-                new Audio(successSound).play();
+                // Focus back the window and play sound
+                if (soundOnFinish) {
+                    new Audio(successSound).play();
+                }
+                if (focusOnFinish) {
+                    webview.getCurrent().unminimize();
+                    webview.getCurrent().setFocus();
+                }
             }
         }
     }
