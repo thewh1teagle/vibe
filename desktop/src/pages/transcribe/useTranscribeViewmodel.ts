@@ -99,7 +99,6 @@ export function useTranscribeViewModel() {
             setSegments(res.segments);
         } catch (e: any) {
             if (!abortRef.current) {
-                debugger;
                 console.error("error: ", e);
                 setErrorModal?.({ log: e.toString(), open: true });
                 setLoading(false);
