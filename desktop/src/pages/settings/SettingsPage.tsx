@@ -33,6 +33,7 @@ export default function SettingsPage() {
                     <span className="label-text">{t("language")}</span>
                 </div>
                 <select onChange={(e) => vm.setLanguage(e.target.value)} value={t(i18n.language)} className="select select-bordered">
+                    <option>{t("select-language")}</option>
                     {Object.keys(languages).map((code, index) => (
                         <option key={index} value={code}>
                             {t(languages[code])}
@@ -40,18 +41,30 @@ export default function SettingsPage() {
                     ))}
                 </select>
             </label>
+            <div className="form-control mt-5">
+                <label className="label cursor-pointer">
+                    <span className="label-text">{t("play-sound-on-finish")}</span>
+                    <input type="checkbox" className="toggle" onChange={(e) => vm.setSoundOnFinish(e.target.checked)} checked={vm.soundOnFinish} />
+                </label>
+                <label className="label cursor-pointer">
+                    <span className="label-text">{t("focus-window-on-finish")}</span>
+                    <input type="checkbox" className="toggle" onChange={(e) => vm.setFocusOnFinish(e.target.checked)} checked={vm.focusOnFinish} />
+                </label>
+            </div>
 
             <div className="label mt-10">
                 <span className="label-text">{t("customize")}</span>
             </div>
             <div className="flex flex-col gap-1">
-                <select onChange={(e) => vm.setModelPath(e.target.value)} value={vm.modelPath} className="select select-bordered">
+                <select onChange={(e) => vm.setModelPath(e.target.value)} value={vm.modelPath} className="select select-bordered flex-1">
+                    <option>{t("select-model")}</option>
                     {vm.models.map((model, index) => (
                         <option key={index} value={model.path}>
                             {model.name}
                         </option>
                     ))}
                 </select>
+
                 <button onClick={vm.openModelPath} className="btn bg-base-300 text-base-content">
                     {t("open-models-path")}
                 </button>
@@ -67,9 +80,6 @@ export default function SettingsPage() {
             <div className="flex flex-col gap-1">
                 <button onClick={() => shell.open(config.aboutURL)} className="btn bg-base-300 text-base-content">
                     {t("project-link")}
-                </button>
-                <button onClick={async () => shell.open(config.updateVersionURL)} className="btn bg-base-300 text-base-content">
-                    {t("update-version")}
                 </button>
                 <button onClick={vm.reportIssue} className="btn bg-base-300 text-base-content">
                     {t("report-issue")}

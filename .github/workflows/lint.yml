@@ -1,0 +1,61 @@
+name: Lint
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  pull_request:
+    paths:
+      - '.github/workflows/lint.yml'
+      - 'desktop/src-tauri/**'
+      - 'cli/src/**'
+      - 'core/src/**'
+  workflow_dispatch:
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_PROFILE_DEV_DEBUG: 0 # This would add unnecessary bloat to the target folder, decreasing cache efficiency.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install Rust stable and rustfmt
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Run cargo fmt
+        run: cargo fmt --manifest-path Cargo.toml --all -- --check
+
+  clippy:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: install Rust stable and clippy
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: install node deps
+        run: npm install
+        working-directory: ./desktop
+      - name: build react
+        run: npm run build
+        working-directory: ./desktop
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: run Clippy
+        run: cargo clippy --manifest-path Cargo.toml --all-targets --all-features -- -D warnings

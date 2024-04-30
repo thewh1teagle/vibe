@@ -12,6 +12,7 @@ import * as webview from "@tauri-apps/api/webviewWindow";
 import { invoke } from "@tauri-apps/api/core";
 import { ls } from "../../lib/utils";
 import { useNavigate } from "react-router-dom";
+import * as fs from "@tauri-apps/plugin-fs";
 
 export function useTranscribeViewModel() {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ export function useTranscribeViewModel() {
     const [lang, setLang] = useLocalStorage("lang", "en");
     const [progress, setProgress] = useState<number | undefined>();
     const [audioPath, setAudioPath] = useState<string>();
-    const [modelPath, setModelPath] = useState<string>();
+    const [modelPath, setModelPath] = useLocalStorage<string | null>("model_path", null);
     const audioRef = useRef<HTMLAudioElement>();
     const { updateApp, availableUpdate } = useContext(UpdaterContext);
     const { setState: setErrorModal } = useContext(ErrorModalContext);
@@ -33,6 +34,8 @@ export function useTranscribeViewModel() {
         n_threads: 4,
         temperature: 0.4,
     });
+    const [soundOnFinish, _setSoundOnFinish] = useLocalStorage("sound_on_finish", true);
+    const [focusOnFinish, _setFocusOnFinish] = useLocalStorage("focus_on_finish", true);
 
     async function handleEvents() {
         await listen("transcribe_progress", (event) => {
@@ -61,13 +64,11 @@ export function useTranscribeViewModel() {
 
             const filtered = entries.filter((e) => e.name?.endsWith(".bin"));
             if (filtered.length === 0) {
+                // if not models found download new one
                 navigate("/setup");
             } else {
-                // get default one from local storage or first
-                const storedPath = localStorage.getItem("model_path");
-                if (storedPath) {
-                    setModelPath(JSON.parse(storedPath));
-                } else {
+                if (!modelPath || !(await fs.exists(modelPath))) {
+                    // if model path not found set another one as default
                     const absPath = await path.join(configPath, filtered[0].name);
                     setModelPath(absPath);
                 }
@@ -99,7 +100,6 @@ export function useTranscribeViewModel() {
             setSegments(res.segments);
         } catch (e: any) {
             if (!abortRef.current) {
-                debugger;
                 console.error("error: ", e);
                 setErrorModal?.({ log: e.toString(), open: true });
                 setLoading(false);
@@ -107,11 +107,15 @@ export function useTranscribeViewModel() {
         } finally {
             setLoading(false);
             setProgress(undefined);
-            // Focus back the window and play sound
-            webview.getCurrent().unminimize();
-            webview.getCurrent().setFocus();
             if (!abortRef.current) {
-                new Audio(successSound).play();
+                // Focus back the window and play sound
+                if (soundOnFinish) {
+                    new Audio(successSound).play();
+                }
+                if (focusOnFinish) {
+                    webview.getCurrent().unminimize();
+                    webview.getCurrent().setFocus();
+                }
             }
         }
     }

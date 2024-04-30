@@ -1,9 +1,13 @@
-name: Deploy Landing to GitHub Pages
+name: Deploy Landing
 
 on:
   push:
     paths:
       - 'landing/**'
+  workflow_run:
+    workflows: [ "Release" ]
+    types:
+      - completed
   workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment

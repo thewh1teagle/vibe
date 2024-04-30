@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use eyre::{OptionExt, Result};
 use ffmpeg_next::{codec, filter, format, frame, media};
 use log::debug;
 use std::path::Path;
@@ -19,11 +19,11 @@ pub fn filter(spec: &str, decoder: &codec::decoder::Audio, encoder: &codec::enco
         channel_layout.bits()
     );
 
-    filter.add(&filter::find("abuffer").context("abuffer is none")?, "in", &args)?;
-    filter.add(&filter::find("abuffersink").context("abuffersink is none")?, "out", "")?;
+    filter.add(&filter::find("abuffer").ok_or_eyre("abuffer is none")?, "in", &args)?;
+    filter.add(&filter::find("abuffersink").ok_or_eyre("abuffersink is none")?, "out", "")?;
 
     {
-        let mut out = filter.get("out").context("out is none")?;
+        let mut out = filter.get("out").ok_or_eyre("out is none")?;
 
         out.set_sample_format(encoder.format());
         out.set_channel_layout(encoder.channel_layout());
@@ -42,7 +42,7 @@ pub fn filter(spec: &str, decoder: &codec::decoder::Audio, encoder: &codec::enco
         {
             filter
                 .get("out")
-                .context("out is none")?
+                .ok_or_eyre("out is none")?
                 .sink()
                 .set_frame_size(encoder.frame_size());
         }
@@ -69,11 +69,11 @@ pub fn transcoder<P: AsRef<Path>>(
     let input = ictx
         .streams()
         .best(media::Type::Audio)
-        .context("could not find best audio stream")?;
+        .ok_or_eyre("could not find best audio stream")?;
     let context = ffmpeg_next::codec::context::Context::from_parameters(input.parameters())?;
     let mut decoder = context.decoder().audio()?;
     let codec = ffmpeg_next::encoder::find(octx.format().codec(path, media::Type::Audio))
-        .context("failed to find encoder")?
+        .ok_or_eyre("failed to find encoder")?
         .audio()?;
     let global = octx
         .format()
@@ -97,9 +97,9 @@ pub fn transcoder<P: AsRef<Path>>(
     encoder.set_format(
         codec
             .formats()
-            .context("unknown supported formats")?
+            .ok_or_eyre("unknown supported formats")?
             .next()
-            .context("cant find any format")?,
+            .ok_or_eyre("cant find any format")?,
     );
     encoder.set_bit_rate(decoder.bit_rate());
     encoder.set_max_bit_rate(decoder.max_bit_rate());
@@ -147,12 +147,12 @@ impl Transcoder {
     }
 
     pub fn add_frame_to_filter(&mut self, frame: &ffmpeg_next::Frame) -> Result<()> {
-        self.filter.get("in").context("in is none")?.source().add(frame)?;
+        self.filter.get("in").ok_or_eyre("in is none")?.source().add(frame)?;
         Ok(())
     }
 
     pub fn flush_filter(&mut self) -> Result<()> {
-        self.filter.get("in").context("in is none")?.source().flush()?;
+        self.filter.get("in").ok_or_eyre("in is none")?.source().flush()?;
         Ok(())
     }
 
@@ -161,7 +161,7 @@ impl Transcoder {
         while self
             .filter
             .get("out")
-            .context("out is none")?
+            .ok_or_eyre("out is none")?
             .sink()
             .frame(&mut filtered)
             .is_ok()

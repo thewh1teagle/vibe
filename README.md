@@ -44,9 +44,9 @@ Currenly, `MacOS` computers get the best performance since there's GPU optimizat
 
 ## Manual Install 🛠️
 
-`MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
+`MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from Applications once**
 
-`MacOS Intel`: install `x64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from launchpad once**
+`MacOS Intel`: install `x64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from Applications once**
 
 `Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
 
@@ -96,9 +96,9 @@ You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/
 # Add translation 🌐
 
 1. Copy `en.json` from `locales` folder
-2. Create new file eg `ru.json`
+2. Create new file eg `ru.json` (use [bcp47 language code](https://gist.github.com/thewh1teagle/c8877e5c4c5e2780754ddd065ae2592e))
 3. Change every value to the new language and keep the keys as is
-4. create PR / issue in github
+4. create PR / issue in Github
 
 # Build 🛠️
 

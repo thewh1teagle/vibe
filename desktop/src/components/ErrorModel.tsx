@@ -4,24 +4,26 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { ErrorModalContext } from "../providers/ErrorModalProvider";
 import { cx, getAppInfo, getIssueUrl } from "../lib/utils";
-import { invoke } from "@tauri-apps/api/core";
 import * as shell from "@tauri-apps/plugin-shell";
+import { useLocalStorage } from "usehooks-ts";
 
 export default function ErrorModal() {
     const { t } = useTranslation();
     const { state, setState } = useContext(ErrorModalContext);
     const navigate = useNavigate();
+    const [modelPath, _setModelPath] = useLocalStorage<string | null>("model_path", null);
 
     async function resetApp() {
         try {
-            const modelPath = await invoke("get_default_model_path");
-
-            await fs.remove(modelPath as string);
+            if (modelPath) {
+                await fs.remove(modelPath);
+            }
             localStorage.clear();
             setState?.({ open: false, log: "" });
         } catch (e) {
             console.error(e);
         }
+        // Reload page
         navigate(0);
     }
     async function reportIssue() {

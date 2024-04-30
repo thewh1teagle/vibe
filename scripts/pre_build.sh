@@ -22,6 +22,7 @@
 # EMULATE_CI=true scripts/pre_build.sh
 
 # Prepare paths
+ORIGINAL_CWD=$(pwd)
 cd "$(dirname "${BASH_SOURCE[0]}")/../desktop/src-tauri" || exit
 
 # Detect OS
@@ -148,6 +149,10 @@ fi
 # If not CI then just show the commands to build
 if [ $CI == false ]; then
     echo "For build, execute:"
+    if [ ! -d "$ORIGINAL_CWD/src-tauri" ]; then
+        echo "cd desktop"
+    fi
+    echo "npm install"
     if [ $OS == "windows" ]; then
         echo "\$env:FFMPEG_DIR = \"$FFMPEG_PATH\""
         echo "\$env:OPENBLAS_PATH = \"$OPENBLAS_PATH\""

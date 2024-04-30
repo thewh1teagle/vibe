@@ -1,6 +1,5 @@
-use anyhow::Result;
 use clap::{ArgAction, Parser};
-use env_logger;
+use eyre::Result;
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
 use std::{fmt::Write, path::PathBuf, sync::Mutex};
@@ -35,7 +34,7 @@ pub struct Args {
 
 async fn on_download_progress(current: u64, total: u64) {
     if let Some(pb) = PROGRESS_INSTANCE_ASYNC.lock().await.as_ref() {
-        pb.set_position(current / total * 100 as u64);
+        pb.set_position(current / total * 100_u64);
     }
 }
 
@@ -84,7 +83,7 @@ async fn main() -> Result<()> {
     pb.reset_eta();
 
     let args = vibe::config::ModelArgs {
-        lang: args.lang.and_then(|a| Some(a.as_str().to_string())),
+        lang: args.lang.map(|a| a.as_str().to_string()),
         model: vibe::config::get_model_path()?,
         path: PathBuf::from(args.path),
         n_threads: args.n_threads,

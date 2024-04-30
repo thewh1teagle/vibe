@@ -21,12 +21,6 @@ npm install -D
 C:\vcpkg\vcpkg.exe install opencl
 ```
 
-**MacOS** brew packages
-
-```console
-brew install openblas git lz4 libxml2 zlib bzip2 wget python@3.8
-```
-
 **Linux**:
 
 Based on [tauri/prerequisites/#setting-up-linux](https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux)
@@ -52,6 +46,15 @@ Windows
 C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
 ```
 
+## Gotchas
+
+On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
+
+```console
+sudo cp -rf /usr/include/x86_64-linux-gnu/libsw* /usr/include/ 
+sudo cp -rf /usr/include/x86_64-linux-gnu/libav* /usr/include/
+```
+
 ## Test
 
 ```
@@ -59,8 +62,33 @@ export RUST_LOG=trace
 cargo test -- --nocapture
 ```
 
-## With Sample
+## Test With Sample
+
 ```console
 ffmpeg -i in.opus -ar 16000 out.wav
 cargo run -- --path out.wav --output out.txt --n-threads 5
 ```
+
+# Lint
+
+```console
+cargo fmt
+cargo clippy
+```
+
+# Create new release
+
+1. Increment verison in `tauri.conf.json` and commit
+2. Create new git tag and push
+
+```console
+git tag -a v<version> -m "v<version>" && git push --tags
+```
+
+It will create releases for `Windows`, `Linux`, and `macOS`
+
+Along with `latest.json` file (used for auto updater).
+
+When `Release` action finish, it will run `Deploy landing` action
+
+and update downloads links in landing page.

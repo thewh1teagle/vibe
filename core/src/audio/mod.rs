@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use eyre::{bail, Context, Result};
 use ffmpeg_next::Rescale;
 use hound::{SampleFormat, WavReader};
 use log::debug;
@@ -14,7 +14,7 @@ pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
     debug!("input is {} and output is {}", input.display(), output.display());
     let mut ictx = ffmpeg_next::format::input(&input)?;
     let mut octx = ffmpeg_next::format::output(&output)?;
-    let mut transcoder = encoder::transcoder(&mut ictx, &mut octx, &output, &filter)?;
+    let mut transcoder = encoder::transcoder(&mut ictx, &mut octx, &output, filter)?;
 
     if let Some(position) = seek {
         // If the position was given in seconds, rescale it to ffmpegs base timebase.
@@ -67,13 +67,12 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
         bail!("expected 16 bits per sample");
     }
 
-    let result: Result<Vec<i16>> = reader.into_samples::<i16>().map(|x| x.context("sample")).collect();
-    Ok(result?)
+    reader.into_samples::<i16>().map(|x| x.context("sample")).collect()
 }
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Result;
+    use eyre::Result;
     use log::debug;
     use std::fs;
     use tempfile::tempdir;

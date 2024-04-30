@@ -14,8 +14,8 @@ export const languages: { [key: string]: string } = {
 i18n.use(LanguageDetector)
     .use(initReactI18next)
     .use(
-        resourcesToBackend(async (language: string, namespace: string) => {
-            const file_path = await resolveResource(`./locales/${language}/${namespace}.json`);
+        resourcesToBackend(async (language: string, _namespace: string) => {
+            const file_path = await resolveResource(`./locales/${language}.json`);
             return JSON.parse(await fs.readTextFile(file_path));
         })
     )

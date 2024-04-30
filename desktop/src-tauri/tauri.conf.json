@@ -22,11 +22,11 @@
             "icons/icon.ico"
         ],
         "resources": [
-            "locales/**/**"
+            "locales/*"
         ]
     },
     "productName": "vibe",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "identifier": "github.com.thewh1teagle.vibe",
     "plugins": {
         "updater": {
@@ -42,10 +42,8 @@
                 "fullscreen": false,
                 "resizable": true,
                 "title": "vibe",
-                "width": 1440,
-                "height": 900,
                 "focus": true,
-                "center": true,
+                "maximized": true,
                 "visible": false,
                 "shadow": true,
                 "label": "main"

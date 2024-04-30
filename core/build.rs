@@ -28,7 +28,7 @@ fn macos_link_search_path() -> Option<String> {
     let stdout = String::from_utf8_lossy(&output.stdout);
     for line in stdout.lines() {
         if line.contains("libraries: =") {
-            let path = line.split('=').skip(1).next()?;
+            let path = line.split('=').nth(1)?;
             return Some(format!("{}/lib/darwin", path));
         }
     }
@@ -50,28 +50,25 @@ fn main() {
     let openblas_dir = env::var("OPENBLAS_PATH").unwrap_or_default();
     let openblas_dir = PathBuf::from(openblas_dir);
 
-
     if cfg!(feature = "opencl") {
         println!("cargo:rustc-link-search={}", clblast_dir.join("..\\..\\").display()); // clblast\lib\clblast.lib
-        println!("cargo:rustc-link-search={}", "C:\\vcpkg\\packages\\opencl_x64-windows\\lib"); // C:\vcpkg\packages\opencl_x64-windows\lib\OpenCL.lib
+        println!("cargo:rustc-link-search=C:\\vcpkg\\packages\\opencl_x64-windows\\lib");
+        // C:\vcpkg\packages\opencl_x64-windows\lib\OpenCL.lib
     }
 
     if ffmpeg_dir.exists() {
-        
         if !ffmpeg_dir.exists() {
             panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
         }
         if cfg!(target_os = "macos") {
             let target_dir = get_cargo_target_dir().unwrap();
 
-            for entry in glob::glob(&format!("{}/*.dylib", ffmpeg_dir.join("lib").to_str().unwrap())).unwrap() {
-                match entry {
-                    Ok(src) => {
-                        let dst = Path::new(&target_dir).join(Path::new(src.file_name().unwrap()));
-                        std::fs::copy(src, dst).unwrap();
-                    }
-                    _ => {}
-                }
+            for entry in glob::glob(&format!("{}/*.dylib", ffmpeg_dir.join("lib").to_str().unwrap()))
+                .unwrap()
+                .flatten()
+            {
+                let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
+                std::fs::copy(entry, dst).unwrap();
             }
         }
 
@@ -83,14 +80,9 @@ fn main() {
                 format!("{}\\*.dll", clblast_dir.join("..\\..\\..\\bin").to_str().unwrap()),
             ];
             for pattern in patterns {
-                for entry in glob::glob(&pattern).unwrap() {
-                    match entry {
-                        Ok(src) => {
-                            let dst = Path::new(&target_dir).join(Path::new(src.file_name().unwrap()));
-                            std::fs::copy(src, dst).unwrap();
-                        }
-                        _ => {}
-                    }
+                for entry in glob::glob(&pattern).unwrap().flatten() {
+                    let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
+                    std::fs::copy(entry, dst).unwrap();
                 }
             }
         }

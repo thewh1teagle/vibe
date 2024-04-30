@@ -1,4 +1,4 @@
-use anyhow::{Context, Ok, Result};
+use eyre::{Context, Ok, OptionExt, Result};
 use futures_util::{Future, StreamExt};
 use log::debug;
 use reqwest;
@@ -25,10 +25,10 @@ impl Downloader {
         let res = self.client.get(url).send().await?;
         let total_size = res
             .content_length()
-            .context(format!("Failed to get content length from '{}'", url))?;
+            .ok_or_eyre(format!("Failed to get content length from '{}'", url))?;
         let mut file = std::fs::File::create(path.clone()).context(format!("Failed to create file {}", path.display()))?;
         let mut downloaded: u64 = 0;
-        let callback_limit = 1 * 1024 * 1024; // 1MB limit
+        let callback_limit = 1024 * 1024; // 1MB limit
         let mut callback_offset = 0;
         let mut stream = res.bytes_stream();
         while let Some(item) = stream.next().await {
@@ -48,10 +48,16 @@ impl Downloader {
     }
 }
 
+impl Default for Downloader {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{config, downloader};
-    use anyhow::{Context, Result};
+    use eyre::{Context, Result};
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();

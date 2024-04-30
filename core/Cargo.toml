@@ -12,7 +12,8 @@ name = "vibe"
 path = "src/lib.rs"
 
 [dependencies]
-anyhow = "1.0.79"
+eyre = { workspace = true }
+serde_json = { workspace = true }
 ffmpeg-next = "6.1.1"
 futures-util = "0.3.30"
 hound = "3.5.1"

@@ -3,7 +3,6 @@
 
 mod cmd;
 mod config;
-mod errors;
 
 fn main() {
     env_logger::init();

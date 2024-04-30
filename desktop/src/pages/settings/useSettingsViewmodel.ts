@@ -30,9 +30,11 @@ async function reportIssue() {
 export function useSettingsViewmodel() {
     const { i18n } = useTranslation();
     const [language, setLanguage] = useLocalStorage("display_language", i18n.language);
-    const [modelPath, setModelPath] = useLocalStorage("model_path", "");
+    const [modelPath, setModelPath] = useLocalStorage<null | string>("model_path", null);
     const [models, setModels] = useState<Path[]>([]);
     const [appVersion, setAppVersion] = useState("");
+    const [soundOnFinish, setSoundOnFinish] = useLocalStorage("sound_on_finish", true);
+    const [focusOnFinish, setFocusOnFinish] = useLocalStorage("focus_on_finish", true);
 
     async function loadMeta() {
         try {
@@ -53,8 +55,8 @@ export function useSettingsViewmodel() {
 
     async function getDefaultModel() {
         if (!modelPath) {
-            const defaultModelPath = (await invoke("get_default_model_path")) as string;
-            setModelPath(defaultModelPath);
+            const defaultModelPath = await invoke("get_default_model_path");
+            setModelPath(defaultModelPath as string);
         }
     }
 
@@ -73,9 +75,14 @@ export function useSettingsViewmodel() {
         setModelPath,
         openModelPath,
         openModelsUrl,
-        modelPath,
+        modelPath: modelPath ?? "",
         models,
         appVersion,
         reportIssue,
+        loadModels,
+        soundOnFinish,
+        setSoundOnFinish,
+        focusOnFinish,
+        setFocusOnFinish,
     };
 }
