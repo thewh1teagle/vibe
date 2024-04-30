@@ -46,6 +46,15 @@ Windows
 C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
 ```
 
+## Gotchas
+
+On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
+
+```console
+sudo cp -rf /usr/include/x86_64-linux-gnu/libsw* /usr/include/ 
+sudo cp -rf /usr/include/x86_64-linux-gnu/libav* /usr/include/
+```
+
 ## Test
 
 ```
