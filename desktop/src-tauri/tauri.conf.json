@@ -42,10 +42,8 @@
                 "fullscreen": false,
                 "resizable": true,
                 "title": "vibe",
-                "width": 1440,
-                "height": 900,
                 "focus": true,
-                "center": true,
+                "maximized": true,
                 "visible": false,
                 "shadow": true,
                 "label": "main"
