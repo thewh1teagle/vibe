@@ -22,7 +22,7 @@
             "icons/icon.ico"
         ],
         "resources": [
-            "locales/**"
+            "locales/*"
         ]
     },
     "productName": "vibe",
