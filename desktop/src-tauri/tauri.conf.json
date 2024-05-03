@@ -26,7 +26,7 @@
         ]
     },
     "productName": "vibe",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "identifier": "github.com.thewh1teagle.vibe",
     "plugins": {
         "updater": {
