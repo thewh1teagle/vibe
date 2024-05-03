@@ -39,14 +39,17 @@
     "app": {
         "windows": [
             {
-                "fullscreen": false,
-                "resizable": true,
                 "title": "vibe",
+                "label": "main",
+                "width": 800,
+                "height": 600,
+                "center": true,
+                "resizable": true,
                 "focus": true,
-                "maximized": true,
-                "visible": false,
                 "shadow": true,
-                "label": "main"
+                "fullscreen": false,
+                "maximized": false,
+                "visible": false
             }
         ],
         "withGlobalTauri": true,

@@ -4,11 +4,18 @@
 mod cmd;
 mod config;
 
+use tauri_plugin_window_state::StateFlags;
+
 fn main() {
     env_logger::init();
     log::debug!("App started");
     tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                // Controlled through JS API
+                .with_state_flags(!StateFlags::all())
+                .build(),
+        )
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())

@@ -80,8 +80,6 @@ export function useTranscribeViewModel() {
     }
 
     useEffect(() => {
-        // make this window visible at start for any case
-        webview.getCurrent().show();
         checkModelExists();
         handleEvents();
     }, []);
