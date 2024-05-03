@@ -65,7 +65,7 @@ fi
 if [ "$EMULATE_CI" == "true" ]; then
     echo "Emulate CI..."
     GITHUB_ACTIONS=true
-    GITHUB_ENV=".GITHUB_ENV"
+    GITHUB_ENV=".github.env"
 fi
 
 # Check if running in action
