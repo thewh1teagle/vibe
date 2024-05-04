@@ -45,11 +45,6 @@ jobs:
         run: npm install
         working-directory: ./desktop
 
-      # Install OpenCL for Windows
-      - name: Install OpenCL
-        run: vcpkg.exe install opencl
-        if: matrix.platform == 'windows-latest'
-
       # Run pre build on macOS / Linux      
       - name: Run pre_build.sh on ${{ matrix.platform }}
         run: C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"

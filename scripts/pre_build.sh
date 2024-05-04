@@ -12,6 +12,7 @@
 # Windows:
 # 1. Prepare FFMPEG (into src-tauri/ffmpeg)
 # 2. Prepare OpenBlas (into src-tauri/openblas)
+# 3. Prepare OpenCL (using vcpkg)
 # 3. Add ENV
 
 # MacOS:
@@ -123,6 +124,9 @@ if [ "$OS" == "windows" ]; then
         rm $CLBlast_NAME.7z
     fi
 fi
+
+# Prepare OpenCL for Windows
+vcpkg install opencl
 
 # Prepare packages for Linux
 if [ "$OS" == "linux" ]; then
