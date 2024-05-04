@@ -1,5 +1,5 @@
-const path = require("path");
-const fs = require("fs").promises;
+import path from "path";
+import fs from "fs/promises";
 
 const RELEASES_PATH = path.resolve(__dirname, "../landing/src/lib/latest_release.json");
 const OWNER = "thewh1teagle";
@@ -55,23 +55,21 @@ async function fetchLatestRelease() {
     return await response.json();
 }
 
-async function main() {
-    try {
-        const latestRelease = await fetchLatestRelease();
-        const tagName = latestRelease.tag_name;
-        const validAssets = filterValidAssets(latestRelease.assets);
-        const mappedAssets = mapAssets(validAssets);
+try {
+    const latestRelease = await fetchLatestRelease();
+    const tagName = latestRelease.tag_name;
+    const validAssets = filterValidAssets(latestRelease.assets);
+    const mappedAssets = mapAssets(validAssets);
 
-        const releasesData = {
-            assets: mappedAssets,
-            version: tagName,
-        };
+    const releasesData = {
+        assets: mappedAssets,
+        version: tagName,
+    };
 
-        await writeToFile(releasesData);
-        console.log(`Updated releases at ${RELEASES_PATH} with \n${JSON.stringify(releasesData, null, 4)}`);
-    } catch (error) {
-        console.error("Error fetching or processing latest release:", error.message);
-    }
+    await writeToFile(releasesData);
+    console.log(`Updated releases at ${RELEASES_PATH} with \n${JSON.stringify(releasesData, null, 4)}`);
+} catch (error) {
+    console.error("Error fetching or processing latest release:", error.message);
 }
 
-main();
+
