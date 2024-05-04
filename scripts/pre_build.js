@@ -109,7 +109,7 @@ if (platform == 'windows') {
 if (platform == 'macos') {
     // Setup FFMPEG
     if (!(await fs.exists(config.ffmpegRealname))) {
-        await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.macos.ffmpegUrl} -O ${config.macos.ffmpegName}.tar.xz`
+        await $`wget -nc --show-progress ${config.macos.ffmpegUrl} -O ${config.macos.ffmpegName}.tar.xz`
         await $`tar xf ${config.macos.ffmpegName}.tar.xz`
         await $`mv ${config.macos.ffmpegName} ${config.ffmpegRealname}`
         await $`rm ${config.macos.ffmpegName}.tar.xz`
