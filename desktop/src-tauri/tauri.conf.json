@@ -26,7 +26,7 @@
         ]
     },
     "productName": "vibe",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "identifier": "github.com.thewh1teagle.vibe",
     "plugins": {
         "updater": {
@@ -39,14 +39,19 @@
     "app": {
         "windows": [
             {
-                "fullscreen": false,
-                "resizable": true,
                 "title": "vibe",
+                "label": "main",
+                "width": 800,
+                "height": 600,
+                "minWidth": 800,
+                "minHeight": 600,
+                "center": true,
+                "resizable": true,
                 "focus": true,
-                "maximized": true,
-                "visible": false,
                 "shadow": true,
-                "label": "main"
+                "fullscreen": false,
+                "maximized": false,
+                "visible": false
             }
         ],
         "withGlobalTauri": true,
