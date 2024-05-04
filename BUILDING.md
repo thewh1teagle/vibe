@@ -44,7 +44,7 @@ sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevic
 Linux / MacOS
 
 ```console
-bun run scripts/pre_build.sh
+bun scripts/pre_build.sh
 ```
 
 ## Gotchas

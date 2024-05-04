@@ -65,7 +65,9 @@ const exports = {
 if (platform == 'linux') {
     // Install APT packages
     await $`sudo apt-get update`
-    await $`sudo apt-get install -y ${config.linux.aptPackages.join(' ')}`
+    for (const name of config.linux.aptPackages) {
+        await $`sudo apt-get install -y ${name}`
+    }
 }
 
 /* ########## Windows ########## */
