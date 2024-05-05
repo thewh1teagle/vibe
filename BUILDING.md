@@ -4,21 +4,28 @@
 
 ### Prerequisites
 
-[NodeJS](https://nodejs.org/en/download/current) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [7z](https://www.7-zip.org/download.html) | [Cmake](https://cmake.org/download/)
+[Bun](https://bun.sh/) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [Cmake](https://cmake.org/download/)
 
-Node dependencies (from `desktop` directory)
+`NodeJS` dependencies (from `desktop` directory)
 
 ```console
-npm install
-npm install -D
+bun install
 ```
 
-**Windows**: [Msys2](https://www.msys2.org/) | [vcpkg](https://vcpkg.io/en/)
+**Windows**: 
 
-**Windows** vcpkg packages
+Tools: [vcpkg](https://vcpkg.io/en/) | [7-zip](https://www.7-zip.org/download.html)
+
+`vcpkg` packages
 
 ```console
 C:\vcpkg\vcpkg.exe install opencl
+```
+
+`Winget` packages
+
+```console
+winget install -e --id JernejSimoncic.Wget
 ```
 
 **Linux**:
@@ -37,13 +44,7 @@ sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevic
 Linux / MacOS
 
 ```console
-./scripts/pre_build.sh
-```
-
-Windows
-
-```console
-C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
+bun scripts/pre_build.sh
 ```
 
 ## Gotchas

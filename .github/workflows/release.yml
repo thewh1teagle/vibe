@@ -27,33 +27,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
+      - name: setup Bun
+        uses: oven-sh/setup-bun@v1
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
 
-      - name: install Rust stable
+      - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: install frontend dependencies
-        run: npm install
+      - name: Install frontend dependencies
+        run: bun install
         working-directory: ./desktop
 
-      # Run pre build on macOS / Linux      
-      - name: Run pre_build.sh on ${{ matrix.platform }}
-        run: C:\msys64\msys2_shell.cmd -defterm -use-full-path -no-start -ucrt64 -here -c "scripts/pre_build.sh"
-        if: matrix.platform == 'windows-latest'
-
-      # Run pre build on Linux / MacOS
-      - name: Run pre_build.sh on ${{ matrix.platform }}
-        run: ./scripts/pre_build.sh
-        if: matrix.platform == 'ubuntu-22.04' || matrix.platform == 'macos-latest'
+      # Run pre build
+      - name: Run pre_build.js on ${{ matrix.platform }}
+        run: bun scripts/pre_build.js
 
       # Install tauri cli with patch on macOS aarch64
       - name: Install custom tauri cli
@@ -92,4 +84,5 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
           projectPath: './desktop'
+          tauriScript: bunx tauri
         if: matrix.args != '--target aarch64-apple-darwin'

@@ -20,3 +20,5 @@ openblas/
 !samples/*
 clblast/
 schemas/
+node_modules/
+*.lockb

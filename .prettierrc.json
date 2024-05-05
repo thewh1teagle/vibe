@@ -4,5 +4,6 @@
   "useTabs": false,
   "bracketSameLine": true,
   "endOfLine": "lf",
-  "singleQuote": false
+  "singleQuote": true,
+  "semi": false
 }
