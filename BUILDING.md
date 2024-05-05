@@ -12,7 +12,7 @@
 bun install
 ```
 
-**Windows**: 
+**Windows**:
 
 Tools: [vcpkg](https://vcpkg.io/en/) | [7-zip](https://www.7-zip.org/download.html)
 
@@ -41,8 +41,6 @@ sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevic
 
 ## Build
 
-Linux / MacOS
-
 ```console
 bun scripts/pre_build.sh
 ```
@@ -52,7 +50,7 @@ bun scripts/pre_build.sh
 On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
 
 ```console
-sudo cp -rf /usr/include/x86_64-linux-gnu/libsw* /usr/include/ 
+sudo cp -rf /usr/include/x86_64-linux-gnu/libsw* /usr/include/
 sudo cp -rf /usr/include/x86_64-linux-gnu/libav* /usr/include/
 ```
 
@@ -61,13 +59,6 @@ sudo cp -rf /usr/include/x86_64-linux-gnu/libav* /usr/include/
 ```
 export RUST_LOG=trace
 cargo test -- --nocapture
-```
-
-## Test With Sample
-
-```console
-ffmpeg -i in.opus -ar 16000 out.wav
-cargo run -- --path out.wav --output out.txt --n-threads 5
 ```
 
 # Lint
