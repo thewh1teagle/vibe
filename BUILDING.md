@@ -42,7 +42,7 @@ sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevic
 ## Build
 
 ```console
-bun scripts/pre_build.sh
+bun scripts/pre_build.js
 ```
 
 ## Gotchas
