@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opencollective.com/tauri)
 [![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.com/channels/1200136309369491508/1200136839831506944)
 
-<img src="https://github.com/thewh1teagle/vibe/assets/61390950/5992e90b-f602-4155-bfe2-ccec3ae4268a" width=80>
+<img width=80 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
 
 Transcribe audio in every language
 
