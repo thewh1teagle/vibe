@@ -1,20 +1,12 @@
 # Building
 
-## Windows
-
 ### Prerequisites
 
 [Bun](https://bun.sh/) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [Cmake](https://cmake.org/download/)
 
-`NodeJS` dependencies (from `desktop` directory)
-
-```console
-bun install
-```
-
 **Windows**:
 
-Tools: [vcpkg](https://vcpkg.io/en/) | [7-zip](https://www.7-zip.org/download.html)
+Tools: [vcpkg](https://vcpkg.io/en/)
 
 `vcpkg` packages
 
@@ -26,6 +18,7 @@ C:\vcpkg\vcpkg.exe install opencl
 
 ```console
 winget install -e --id JernejSimoncic.Wget
+winget install -e --id 7zip.7zip
 ```
 
 **Linux**:
@@ -39,8 +32,15 @@ sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev l
 sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
 ```
 
+
 ## Build
 
+Install dependencies from `desktop` folder
+```console
+bun install
+```
+
+Execute pre build scripts and follow the instructions it provide
 ```console
 bun scripts/pre_build.js
 ```
