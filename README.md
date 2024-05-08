@@ -3,11 +3,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opencollective.com/tauri)
 [![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.com/channels/1200136309369491508/1200136839831506944)
 
-<img width=80 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
-
 Transcribe audio in every language
 
-<img src="https://github.com/thewh1teagle/vibe/assets/61390950/ece19b81-26c6-4c13-81de-33175bb898d9" width=600>
+<img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
 
 # Downloads ⬇️
 
