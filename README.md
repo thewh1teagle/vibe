@@ -1,5 +1,8 @@
 # Vibe
 
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opencollective.com/tauri)
+[![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.com/channels/1200136309369491508/1200136839831506944)
+
 <img src="https://github.com/thewh1teagle/vibe/assets/61390950/5992e90b-f602-4155-bfe2-ccec3ae4268a" width=80>
 
 Transcribe audio in every language
@@ -87,7 +90,7 @@ We would like to express our sincere gratitude to all the contributors.
 
 # Community
 
-[Discord](https://discord.gg/73s4WqSDPg)
+[![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.com/channels/1200136309369491508/1200136839831506944)
 
 # Roadmap 🛣️
 
