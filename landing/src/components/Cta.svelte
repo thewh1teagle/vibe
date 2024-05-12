@@ -57,7 +57,7 @@
 
 <div class="flex gap-3 flex-col lg:flex-row">
 	{#if asset?.platform.toLowerCase() === 'macos'}
-		<button on:click={ctaClick} class="btn btn-primary hidden md:flex">
+		<button on:mousedown={ctaClick} class="btn btn-primary hidden md:flex">
 			<MacIcon />
 			{$i18n.t('download-for')}{asset?.platform}
 		</button>
@@ -83,11 +83,11 @@
 <!-- macos architectures -->
 {#if asset?.platform.toLocaleLowerCase() == 'macos' && ctaClicked}
 	<div class="flex gap-2 mt-3">
-		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url} target="_blank">
+		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url}>
 			<Chip />
 			{$i18n.t('intel')}
 		</a>
-		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url} target="_blank">
+		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url}>
 			<Chip />
 			{$i18n.t('apple-silicon')}
 		</a>
@@ -96,7 +96,7 @@
 
 <!-- platforms -->
 <div class="flex gap-3 mt-4">
-	<button on:click={onMacLogoClick}><MacIcon /></button>
+	<button on:mousedown={onMacLogoClick}><MacIcon /></button>
 
 	<a aria-label="Windows" rel="noopener" href={windowsAsset?.url} class=""><WindowsIcon /></a>
 
