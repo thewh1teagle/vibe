@@ -115,7 +115,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
     if (!path) {
         return (
             <div className="flex items-center w-full justify-center">
-                <button onClick={select} className="btn btn-primary w-full">
+                <button onMouseDown={select} className="btn btn-primary w-full">
                     {t("select-audio-file")}
                 </button>
             </div>
@@ -128,7 +128,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
                 <p className="overflow-hidden">{path?.split("\\").pop()}</p>
                 <div className="flex flex-col mt-3 w-[90%] m-auto ">
                     <progress
-                        onClick={onChangeDuration}
+                        onMouseDown={onChangeDuration}
                         className="progress w-full h-[5px] bg-base-100 hover:h-[12px] transition-height duration-100 ease-in-out progress-primary rounded-3xl"
                         value={progress}
                         max="100"></progress>
@@ -139,16 +139,16 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
                 </div>
                 <label className={cx("swap text-1xl absolute bottom-1 left-1/2 -translate-x-1/2", playing && "swap-active")}>
                     <div className="swap-off">
-                        <PlayIcon onClick={() => (playing ? pause() : play())} />
+                        <PlayIcon onMouseDown={() => (playing ? pause() : play())} />
                     </div>
                     <div className="swap-on">
-                        <PauseIcon onClick={() => (playing ? pause() : play())} />
+                        <PauseIcon onMouseDown={() => (playing ? pause() : play())} />
                     </div>
                 </label>
             </div>
 
             {!readonly && (
-                <div onClick={select} className={cx("text-xs text-base-content font-medium cursor-pointer mb-3 mt-1")}>
+                <div onMouseDown={select} className={cx("text-xs text-base-content font-medium cursor-pointer mb-3 mt-1")}>
                     {t("change-file")}
                 </div>
             )}

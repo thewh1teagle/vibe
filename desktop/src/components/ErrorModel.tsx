@@ -47,7 +47,7 @@ export default function ErrorModal() {
                 <div className="relative">
                     <textarea readOnly className="w-full rounded-lg p-3 max-h-20 textarea textarea-bordered" dir="ltr" value={state?.log} />
                     <svg
-                        onClick={() => navigator.clipboard.writeText(state?.log ?? "")}
+                        onMouseDown={() => navigator.clipboard.writeText(state?.log ?? "")}
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -65,7 +65,7 @@ export default function ErrorModal() {
                     <button onClick={resetApp} className="btn btn-primary cursor-pointer">
                         {t("reset-app")}
                     </button>
-                    <button onClick={reportIssue} className="btn btn-outline">
+                    <button onMouseDown={reportIssue} className="btn btn-outline">
                         {t("report-issue")}
                     </button>
                 </div>

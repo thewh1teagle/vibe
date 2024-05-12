@@ -48,7 +48,7 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
     return (
         <div className="w-full h-full">
             <div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row">
-                <button className="btn btn-square btn-md" onClick={() => navigator.clipboard.writeText(text)}>
+                <button className="btn btn-square btn-md" onMouseDown={() => navigator.clipboard.writeText(text)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                         <path
                             strokeLinecap="round"
@@ -57,7 +57,7 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
                         />
                     </svg>
                 </button>
-                <button onClick={() => download(text, format)} className="btn btn-square btn-md">
+                <button onMouseDown={() => download(text, format)} className="btn btn-square btn-md">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                         <path
                             strokeLinecap="round"
@@ -67,12 +67,12 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
                     </svg>
                 </button>
                 <div dir="rtl">
-                    <button onClick={() => setDirection("rtl")} className={cx("btn btn-square btn-md", direction == "rtl" && "bg-base-100")}>
+                    <button onMouseDown={() => setDirection("rtl")} className={cx("btn btn-square btn-md", direction == "rtl" && "bg-base-100")}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
                         </svg>
                     </button>
-                    <button onClick={() => setDirection("ltr")} className={cx("btn btn-square btn-md", direction == "ltr" && "bg-base-100")}>
+                    <button onMouseDown={() => setDirection("ltr")} className={cx("btn btn-square btn-md", direction == "ltr" && "bg-base-100")}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                         </svg>

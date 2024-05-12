@@ -20,7 +20,7 @@ export default function Params({ args, setArgs }: ParamsProps) {
     const { t } = useTranslation();
     return (
         <div className={cx("collapse", open && "collapse-open")}>
-            <div onClick={() => setOpen(!open)} className={cx("mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer")}>
+            <div onMouseDown={() => setOpen(!open)} className={cx("mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer")}>
                 {open ? (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />

@@ -25,7 +25,7 @@ function App() {
                 <AudioInput audioRef={vm.audioRef} path={vm.audioPath} setPath={vm.setAudioPath} />
                 {vm.audioPath && !vm.loading && (
                     <>
-                        <button onClick={vm.transcribe} className="btn btn-primary">
+                        <button onMouseDown={vm.transcribe} className="btn btn-primary">
                             {t("transcribe")}
                         </button>
                         <Params args={vm.args} setArgs={vm.setArgs} />

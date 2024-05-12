@@ -14,7 +14,7 @@ export default function SettingsPage() {
     return (
         <div className="flex flex-col m-auto w-[300px] mt-10">
             <div className="relative mt-10">
-                <button onClick={() => navigate(-1)} className={cx("btn btn-square btn-ghost absolute start-0")}>
+                <button onMouseDown={() => navigate(-1)} className={cx("btn btn-square btn-ghost absolute start-0")}>
                     {i18n.dir() === "ltr" ? (
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -65,10 +65,10 @@ export default function SettingsPage() {
                     ))}
                 </select>
 
-                <button onClick={vm.openModelPath} className="btn bg-base-300 text-base-content">
+                <button onMouseDown={vm.openModelPath} className="btn bg-base-300 text-base-content">
                     {t("open-models-path")}
                 </button>
-                <button onClick={vm.openModelsUrl} className="btn bg-base-300 text-base-content">
+                <button onMouseDown={vm.openModelsUrl} className="btn bg-base-300 text-base-content">
                     {t("download-models-link")}
                 </button>
             </div>
@@ -78,10 +78,10 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex flex-col gap-1">
-                <button onClick={() => shell.open(config.aboutURL)} className="btn bg-base-300 text-base-content">
+                <button onMouseDown={() => shell.open(config.aboutURL)} className="btn bg-base-300 text-base-content">
                     {t("project-link")}
                 </button>
-                <button onClick={vm.reportIssue} className="btn bg-base-300 text-base-content">
+                <button onMouseDown={vm.reportIssue} className="btn bg-base-300 text-base-content">
                     {t("report-issue")}
                 </button>
                 <p className="text-center font-light mt-2">{vm.appVersion}</p>

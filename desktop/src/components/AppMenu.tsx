@@ -25,7 +25,7 @@ export default function AppMenu({ availableUpdate, updateApp }: AppMenuProps) {
                     setOpen(false);
                 }
             }}
-            onClick={() => setOpen(!open)}
+            onMouseDown={() => setOpen(!open)}
             className={cx("dropdown absolute left-0 top-0", open && "dropdown-open")}
             dir="ltr">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer">
@@ -42,11 +42,11 @@ export default function AppMenu({ availableUpdate, updateApp }: AppMenuProps) {
             )}
 
             <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
-                <li onClick={() => navigate("/settings")}>
+                <li onMouseDown={() => navigate("/settings")}>
                     <a>{t("settings")}</a>
                 </li>
                 {availableUpdate && (
-                    <li onClick={() => updateApp()}>
+                    <li onMouseDown={() => updateApp()}>
                         <a className="bg-primary">{t("update-version")}</a>
                     </li>
                 )}
