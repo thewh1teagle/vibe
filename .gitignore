@@ -21,4 +21,3 @@ openblas/
 clblast/
 schemas/
 node_modules/
-*.lockb
