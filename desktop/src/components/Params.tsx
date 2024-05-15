@@ -57,7 +57,7 @@ export default function Params({ args, setArgs }: ParamsProps) {
                 <label className="form-control w-full">
                     <div className="label">
                         <span className="label-text flex items-center gap-1">
-                            <Info text={t('info-temperature')} />
+                            <Info text={t('info-prompt')} />
                             {t('prompt')} ({t('leftover')} {1024 - (args?.init_prompt?.length ?? 0)} {t('characters')})
                         </span>
                     </div>
