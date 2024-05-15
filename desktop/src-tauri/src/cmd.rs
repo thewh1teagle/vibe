@@ -13,7 +13,7 @@ use vibe::{model::SegmentCallbackData, transcript::Transcript};
 #[tauri::command]
 #[cfg(any(windows, target_os = "linux"))]
 pub fn get_deeplinks(app_handle: tauri::AppHandle) -> Vec<String> {
-    let opened_urls = app_handle.state::<setup::OpenedUrls>();
+    let opened_urls = app_handle.state::<crate::setup::OpenedUrls>();
     let opened_urls = opened_urls.0.lock().unwrap();
     let mut urls = Vec::new();
 
