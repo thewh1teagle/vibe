@@ -30,6 +30,7 @@ log = "0.4.20"
 serde = { version = "^1.0.198", features = ["derive"] }
 serde_json = { workspace = true }
 eyre = { workspace = true }
+url = "2.5.0"
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
