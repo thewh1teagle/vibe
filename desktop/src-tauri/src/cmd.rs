@@ -10,6 +10,31 @@ use tauri::{
 };
 use vibe::{model::SegmentCallbackData, transcript::Transcript};
 
+fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Result<()> {
+    let window = app_handle.get_webview_window("main").context("get window")?;
+    if let Some(progress) = progress {
+        log::debug!("set_progress_bar {}", progress);
+        window.emit("transcribe_progress", progress).unwrap();
+        if progress > 1.0 {
+            window.set_progress_bar(ProgressBarState {
+                progress: Some(progress as u64),
+                status: if cfg!(target_os = "windows") {
+                    // It works in Windows without it, and setting it causes it to jump every time.
+                    None
+                } else {
+                    Some(ProgressBarStatus::Indeterminate)
+                },
+            })?;
+        }
+    } else {
+        window.set_progress_bar(ProgressBarState {
+            progress: Some(0),
+            status: Some(ProgressBarStatus::None),
+        })?;
+    }
+    Ok(())
+}
+
 #[tauri::command]
 #[cfg(any(windows, target_os = "linux"))]
 pub fn get_deeplinks(app_handle: tauri::AppHandle) -> Vec<String> {
@@ -39,27 +64,17 @@ pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
 
     let app_handle_c = app_handle.clone();
     let download_progress_callback = move |current: u64, total: u64| {
-        let window: tauri::WebviewWindow = app_handle_c.get_webview_window("main").unwrap();
-        let percentage = current / total * 100;
-        window
-            .set_progress_bar(ProgressBarState {
-                progress: Some(percentage),
-                status: Some(ProgressBarStatus::Indeterminate),
-            })
-            .unwrap();
+        let window: tauri::WebviewWindow = app_handle.get_webview_window("main").unwrap();
+        let percentage = (current as f64 / total as f64) * 100.0;
+        log::debug!("percentage: {}", percentage);
+        set_progress_bar(&app_handle.clone(), Some(percentage)).unwrap();
         window.emit("download_progress", (current, total)).unwrap();
         async {}
     };
     downloader
         .download(config::URL, model_path.to_owned(), download_progress_callback)
         .await?;
-    let window = app_handle.get_webview_window("main").unwrap();
-    window
-        .set_progress_bar(ProgressBarState {
-            progress: None,
-            status: Some(ProgressBarStatus::None),
-        })
-        .unwrap();
+    set_progress_bar(&app_handle_c, None).unwrap();
     Ok(model_path.to_str().context("to_str")?.to_string())
 }
 
@@ -90,13 +105,7 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Mod
     // allow abort transcription
     let app_handle_c = app_handle.clone();
     app_handle.listen("abort_transcribe", move |_| {
-        let window = app_handle_c.get_webview_window("main").context("get window").unwrap();
-        window
-            .set_progress_bar(ProgressBarState {
-                progress: None,
-                status: Some(ProgressBarStatus::None),
-            })
-            .unwrap();
+        set_progress_bar(&app_handle_c, None).unwrap();
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
@@ -105,14 +114,7 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Mod
     let app_handle_c = app_handle.clone();
     let progress_callback = move |progress: i32| {
         // log::debug!("desktop progress is {}", progress);
-        let window = app_handle_c.get_webview_window("main").unwrap();
-        window
-            .set_progress_bar(ProgressBarState {
-                progress: Some(progress.try_into().unwrap()),
-                status: Some(ProgressBarStatus::Indeterminate),
-            })
-            .unwrap();
-        window.emit("transcribe_progress", progress).unwrap();
+        set_progress_bar(&app_handle, Some(progress.into())).unwrap();
     };
 
     let transcript = vibe::model::transcribe(
@@ -122,10 +124,6 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Mod
         Some(Box::new(abort_callback)),
     )
     .with_context(|| format!("options: {:?}", options))?;
-    let window = app_handle.get_webview_window("main").context("get window")?;
-    window.set_progress_bar(ProgressBarState {
-        progress: None,
-        status: Some(ProgressBarStatus::None),
-    })?;
+    set_progress_bar(&app_handle_c, None).unwrap();
     Ok(transcript)
 }
