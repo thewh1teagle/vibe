@@ -1,6 +1,5 @@
 use eyre::{Context, Ok, OptionExt, Result};
 use futures_util::{Future, StreamExt};
-use log::debug;
 use reqwest;
 use std::clone::Clone;
 use std::io::Write;
@@ -37,7 +36,6 @@ impl Downloader {
                 .context(format!("Error while writing to file {}", path.display()))?;
             // Check if downloaded size is a multiple of 10MB
             if downloaded > callback_offset + callback_limit {
-                debug!("setting on progress with total {total_size} and new {downloaded}");
                 on_progress(downloaded, total_size).await;
 
                 callback_offset = downloaded;
