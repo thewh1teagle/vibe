@@ -49,7 +49,7 @@ async function fetchLatestRelease() {
     const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`)
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch latest release. Status: ${response.status} URL: ${response.url} Body: ${response.body}`)
+        throw new Error(`Failed to fetch latest release. Status: ${response.status} URL: ${response.url} Body: ${await response.text()}`)
     }
 
     return await response.json()

@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'landing/**'
+      - 'scripts/landing_releases.js'
   workflow_run:
     workflows: [ "Release" ]
     types:
