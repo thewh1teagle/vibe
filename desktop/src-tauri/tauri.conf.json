@@ -23,6 +23,32 @@
         ],
         "resources": [
             "locales/*"
+        ],
+        "fileAssociations": [
+            {
+                "description": "Video files",
+                "ext": [
+                    "mp4",
+                    "mkv",
+                    "avi",
+                    "mov",
+                    "wmv",
+                    "webm"
+                ]
+            },
+            {
+                "description": "Audio files",
+                "ext": [
+                    "mp3",
+                    "wav",
+                    "aac",
+                    "flac",
+                    "oga",
+                    "ogg",
+                    "opic",
+                    "opus"
+                ]
+            }
         ]
     },
     "productName": "vibe",

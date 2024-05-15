@@ -1,131 +1,130 @@
-import * as dialog from "@tauri-apps/plugin-dialog";
-import formatDuration from "format-duration";
-import { MutableRefObject, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import i18n from "../lib/i18n";
-import PauseIcon from "../icons/Pause";
-import PlayIcon from "../icons/Play";
-import { cx } from "../lib/utils";
-import { convertFileSrc } from "@tauri-apps/api/core";
+import * as dialog from '@tauri-apps/plugin-dialog'
+import formatDuration from 'format-duration'
+import { MutableRefObject, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import i18n from '../lib/i18n'
+import PauseIcon from '../icons/Pause'
+import PlayIcon from '../icons/Play'
+import { cx } from '../lib/utils'
+import { convertFileSrc } from '@tauri-apps/api/core'
+import * as config from '../lib/config'
 
 interface AudioInputProps {
-    path?: string;
-    setPath: React.Dispatch<React.SetStateAction<string | undefined>>;
-    readonly?: boolean;
-    audioRef: MutableRefObject<HTMLAudioElement | undefined>;
+    path?: string
+    setPath: React.Dispatch<React.SetStateAction<string | undefined>>
+    readonly?: boolean
+    audioRef: MutableRefObject<HTMLAudioElement | undefined>
 }
 
 export default function AudioInput({ path, setPath, readonly, audioRef }: AudioInputProps) {
-    const resourcePath = convertFileSrc(path as string);
-    const [playing, setPlaying] = useState(false);
-    const { t } = useTranslation();
-    const [progress, setProgres] = useState(0);
-    const [currentDuration, setCurrentDuration] = useState<number>(0);
-    const [totalDuration, setTotalDuration] = useState<number>(0);
+    const resourcePath = convertFileSrc(path as string)
+    const [playing, setPlaying] = useState(false)
+    const { t } = useTranslation()
+    const [progress, setProgres] = useState(0)
+    const [currentDuration, setCurrentDuration] = useState<number>(0)
+    const [totalDuration, setTotalDuration] = useState<number>(0)
 
     function onLoadMetadata() {
-        setTotalDuration(audioRef?.current?.duration ?? 0);
+        setTotalDuration(audioRef?.current?.duration ?? 0)
     }
 
     function onChangeDuration(e: React.MouseEvent<HTMLProgressElement>) {
         // Get the total width of the progress bar
-        const progressBarWidth = e.currentTarget.clientWidth;
+        const progressBarWidth = e.currentTarget.clientWidth
 
         // Calculate the clicked position as a percentage
-        const clickPositionPercentage = ((i18n.dir() === "rtl" ? progressBarWidth - e.nativeEvent.offsetX : e.nativeEvent.offsetX) / progressBarWidth) * 100;
+        const clickPositionPercentage = ((i18n.dir() === 'rtl' ? progressBarWidth - e.nativeEvent.offsetX : e.nativeEvent.offsetX) / progressBarWidth) * 100
 
         // Calculate the new time based on the total duration and clicked position
-        const newTime = (clickPositionPercentage / 100) * totalDuration;
+        const newTime = (clickPositionPercentage / 100) * totalDuration
 
         // Update the current time of the audio
         if (audioRef.current) {
-            audioRef.current.currentTime = newTime;
+            audioRef.current.currentTime = newTime
         }
 
         // Update your state if needed
-        setCurrentDuration(newTime);
+        setCurrentDuration(newTime)
     }
 
     useEffect(() => {
-        audioRef.current?.pause();
-        const newAudio = new Audio(resourcePath as string);
-        audioRef.current = newAudio;
-        newAudio.addEventListener("loadedmetadata", onLoadMetadata);
+        audioRef.current?.pause()
+        const newAudio = new Audio(resourcePath as string)
+        audioRef.current = newAudio
+        newAudio.addEventListener('loadedmetadata', onLoadMetadata)
 
         return () => {
-            audioRef.current?.pause();
-            audioRef?.current?.removeEventListener("ended", onEnd);
-            setPlaying(false);
-        };
-    }, []);
+            audioRef.current?.pause()
+            audioRef?.current?.removeEventListener('ended', onEnd)
+            setPlaying(false)
+        }
+    }, [path])
 
     async function select() {
-        audioRef.current?.pause();
-        setPlaying(false);
-        const videoExtensions = ["mp4", "mkv", "avi", "mov", "wmv", "webm"];
-        const audioExtensions = ["mp3", "wav", "aac", "flac", "oga", "ogg", "opic"];
+        audioRef.current?.pause()
+        setPlaying(false)
 
         const selected = await dialog.open({
             multiple: false,
             filters: [
                 {
-                    name: "Audio",
-                    extensions: [...audioExtensions, ...videoExtensions],
+                    name: 'Audio',
+                    extensions: [...config.audioExtensions, ...config.videoExtensions],
                 },
             ],
-        });
+        })
         if (selected) {
-            setPath(selected.path as string);
+            setPath(selected.path as string)
 
-            audioRef.current?.pause();
+            audioRef.current?.pause()
 
-            const newAudio = new Audio(convertFileSrc(selected.path as string));
-            newAudio.addEventListener("loadedmetadata", onLoadMetadata);
-            audioRef.current = newAudio;
+            const newAudio = new Audio(convertFileSrc(selected.path as string))
+            newAudio.addEventListener('loadedmetadata', onLoadMetadata)
+            audioRef.current = newAudio
         }
     }
 
     function onEnd() {
-        setPlaying(false);
-        audioRef.current?.pause();
+        setPlaying(false)
+        audioRef.current?.pause()
     }
 
     function onTimeUpdate(_: Event) {
-        const position = audioRef.current?.currentTime ?? 1;
-        const total = audioRef.current?.duration ?? 1;
-        const newProgress = (position / total) * 100;
-        setProgres(newProgress);
+        const position = audioRef.current?.currentTime ?? 1
+        const total = audioRef.current?.duration ?? 1
+        const newProgress = (position / total) * 100
+        setProgres(newProgress)
 
-        setCurrentDuration(position);
-        setTotalDuration(total);
+        setCurrentDuration(position)
+        setTotalDuration(total)
     }
 
     function play() {
-        audioRef.current?.play();
-        setPlaying(true);
-        audioRef.current?.addEventListener("timeupdate", onTimeUpdate);
-        audioRef.current?.addEventListener("ended", onEnd);
+        audioRef.current?.play()
+        setPlaying(true)
+        audioRef.current?.addEventListener('timeupdate', onTimeUpdate)
+        audioRef.current?.addEventListener('ended', onEnd)
     }
 
     function pause() {
-        setPlaying(false);
-        audioRef.current?.pause();
+        setPlaying(false)
+        audioRef.current?.pause()
     }
 
     if (!path) {
         return (
             <div className="flex items-center w-full justify-center">
                 <button onMouseDown={select} className="btn btn-primary w-full">
-                    {t("select-audio-file")}
+                    {t('select-audio-file')}
                 </button>
             </div>
-        );
+        )
     }
 
     return (
         <div className="flex flex-col w-full">
             <div className="flex-col cursor-pointer shadow-lg flex justify-between px-3 py-2 bg-base-200 relative rounded-lg  w-[100%] m-auto mt-3 select-none">
-                <p className="overflow-hidden">{path?.split("\\").pop()}</p>
+                <p className="overflow-hidden">{path?.split('\\').pop()}</p>
                 <div className="flex flex-col mt-3 w-[90%] m-auto ">
                     <progress
                         onMouseDown={onChangeDuration}
@@ -137,7 +136,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
                         <div>{formatDuration(totalDuration === 0 ? 0 : totalDuration * 1000)}</div>
                     </div>
                 </div>
-                <label className={cx("swap text-1xl absolute bottom-1 left-1/2 -translate-x-1/2", playing && "swap-active")}>
+                <label className={cx('swap text-1xl absolute bottom-1 left-1/2 -translate-x-1/2', playing && 'swap-active')}>
                     <div className="swap-off">
                         <PlayIcon onMouseDown={() => (playing ? pause() : play())} />
                     </div>
@@ -148,10 +147,10 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
             </div>
 
             {!readonly && (
-                <div onMouseDown={select} className={cx("text-xs text-base-content font-medium cursor-pointer mb-3 mt-1")}>
-                    {t("change-file")}
+                <div onMouseDown={select} className={cx('text-xs text-base-content font-medium cursor-pointer mb-3 mt-1')}>
+                    {t('change-file')}
                 </div>
             )}
         </div>
-    );
+    )
 }

@@ -3,6 +3,7 @@
 
 mod cmd;
 mod config;
+mod setup;
 
 use tauri_plugin_window_state::StateFlags;
 
@@ -10,12 +11,14 @@ fn main() {
     env_logger::init();
     log::debug!("App started");
     tauri::Builder::default()
+        .setup(|app| setup::setup(app))
         .plugin(
             tauri_plugin_window_state::Builder::default()
                 // Controlled through JS API
                 .with_state_flags(!StateFlags::all())
                 .build(),
         )
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())
