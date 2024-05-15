@@ -8,7 +8,7 @@ fn get_log_path(app: &AppHandle) -> PathBuf {
     let mut log_path = config_path.join(format!("{}.txt", config::LOG_FILENAME_PREFIX));
     let mut count = 0;
     while log_path.exists() {
-        log_path = config_path.join(format!("{}{}.txt", config::LOG_FILENAME_PREFIX, count));
+        log_path = config_path.join(format!("{}_{}.txt", config::LOG_FILENAME_PREFIX, count));
         count += 1;
     }
     log_path

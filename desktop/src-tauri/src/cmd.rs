@@ -1,4 +1,4 @@
-use crate::config;
+use crate::{config, setup::OpenedUrls};
 use eyre::{Context, ContextCompat, OptionExt, Result};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -9,6 +9,22 @@ use tauri::{
     Manager,
 };
 use vibe::{model::SegmentCallbackData, transcript::Transcript};
+
+#[tauri::command]
+#[cfg(any(windows, target_os = "linux"))]
+pub fn get_deeplinks(app_handle: tauri::AppHandle) -> Vec<String> {
+    let opened_urls = app_handle.state::<OpenedUrls>();
+    let opened_urls = opened_urls.0.lock().unwrap();
+    let mut urls = Vec::new();
+
+    if let Some(opened_urls) = &*opened_urls {
+        for url in opened_urls {
+            urls.push(url.to_string());
+        }
+    }
+
+    urls
+}
 
 #[tauri::command]
 pub fn get_commit_hash() -> String {

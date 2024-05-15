@@ -1,6 +1,14 @@
-use tauri::App;
+use std::{env, sync::Mutex};
+use tauri::{App, Manager};
 
-pub fn setup(_app: &App) -> Result<(), Box<dyn std::error::Error>> {
+use crate::crash_log;
+
+pub struct OpenedUrls(pub Mutex<Option<Vec<url::Url>>>);
+
+pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
+    crash_log::set_crash_hook(app.app_handle());
+
+    app.manage(OpenedUrls(Default::default()));
     #[cfg(any(windows, target_os = "linux"))]
     {
         // NOTICE: `args` may include URL protocol (`your-app-protocol://`) or arguments (`--`) if app supports them.

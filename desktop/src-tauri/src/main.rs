@@ -3,6 +3,7 @@
 
 mod cmd;
 mod config;
+mod crash_log;
 mod setup;
 
 use tauri_plugin_window_state::StateFlags;
@@ -29,7 +30,8 @@ fn main() {
             cmd::transcribe,
             cmd::download_model,
             cmd::get_default_model_path,
-            cmd::get_commit_hash
+            cmd::get_commit_hash,
+            cmd::get_deeplinks
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

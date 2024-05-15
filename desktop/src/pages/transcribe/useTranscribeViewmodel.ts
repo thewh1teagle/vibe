@@ -14,6 +14,7 @@ import { ls } from '../../lib/utils'
 import { useNavigate } from 'react-router-dom'
 import * as fs from '@tauri-apps/plugin-fs'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
+import * as os from '@tauri-apps/plugin-os'
 
 export function useTranscribeViewModel() {
     const navigate = useNavigate()
@@ -81,17 +82,26 @@ export function useTranscribeViewModel() {
     }
 
     async function handleDeepLinks() {
-        await onOpenUrl((urls) => {
-            for (let url of urls) {
-                if (url.startsWith('file://')) {
-                    url = decodeURIComponent(url)
-                    url = url.replace('file://', '')
-                    // take only the first one
-                    setAudioPath(url)
-                    break
+        const platform = await os.platform()
+        if (platform === 'macos') {
+            await onOpenUrl((urls) => {
+                for (let url of urls) {
+                    if (url.startsWith('file://')) {
+                        url = decodeURIComponent(url)
+                        url = url.replace('file://', '')
+                        // take only the first one
+                        setAudioPath(url)
+                        break
+                    }
                 }
+            })
+        }
+        else if (platform == 'windows' || platform == 'linux') {
+            const urls: string[] = await invoke('get_deeplinks')
+            for (const url of urls) {
+                setAudioPath(url)
             }
-        })
+        }
     }
 
     useEffect(() => {
