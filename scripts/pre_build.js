@@ -55,7 +55,7 @@ const config = {
 // Export for Github actions
 const exports = {
     ffmpeg: path.join(cwd, config.ffmpegRealname),
-    openBlas: path.join(cwd, config.openblasRealname, 'lib'),
+    openBlas: path.join(cwd, config.openblasRealname),
     clblast: path.join(cwd, config.clblastRealname, 'lib/cmake/CLBlast'),
     libClang: 'C:\\Program Files\\LLVM\\bin',
     cmake: 'C:\\Program Files\\CMake\\bin',
