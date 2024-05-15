@@ -46,5 +46,8 @@
     "play-sound-on-finish": "Reproduzir som ao terminar",
     "focus-window-on-finish": "Focar janela ao terminar",
     "select-language": "Selecione o idioma",
-    "open-logs-folder": "Open Logs Folder"
+    "open-logs-folder": "Open Logs Folder",
+    "info-prompt": "Make transcripts better by writing expected words.",
+    "info-threads": "Increase CPU for faster decoding; balance speed with resource usage. Recommended: 4",
+    "info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result."
 }
