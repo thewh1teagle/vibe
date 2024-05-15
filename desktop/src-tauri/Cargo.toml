@@ -3,7 +3,7 @@ name = "vibe-desktop"
 version = "0.0.6"
 description = "Vibe"
 authors = ["@thewh1teagle"]
-license = ""
+license = "MIT"
 repository = "https://github.com/thewh1teagle/vibe"
 edition = "2021"
 
