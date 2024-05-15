@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { cx, formatLongString } from '../lib/utils'
 import { basename } from '@tauri-apps/api/path'
 import * as os from '@tauri-apps/plugin-os'
+import * as webview from '@tauri-apps/api/webview'
 
 interface Position {
     x: number
@@ -53,6 +54,9 @@ export default function DropModal() {
                     setPath(await basename(paths?.[0]))
                 }
                 setOpen(true)
+                // Focus window
+                const currentWindow = webview.getCurrent().window
+                currentWindow.setFocus()
             })
         )
 
