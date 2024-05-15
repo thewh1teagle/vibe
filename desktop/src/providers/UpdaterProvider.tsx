@@ -20,11 +20,11 @@ type UpdaterContextType = {
 // Create the context
 export const UpdaterContext = createContext<UpdaterContextType>({
     availableUpdate: false,
-    setAvailableUpdate: () => {},
+    setAvailableUpdate: () => { },
     updating: false,
-    setUpdating: () => {},
-    setManifest: () => {},
-    updateApp: async () => {},
+    setUpdating: () => { },
+    setManifest: () => { },
+    updateApp: async () => { },
     progress: null,
 });
 
@@ -100,7 +100,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
                     await process.relaunch();
                 }
             } catch (e) {
-                console.log(e);
+                console.error(e);
                 setUpdating(false);
                 setErrorModal?.({ open: true, log: String(e) });
             }

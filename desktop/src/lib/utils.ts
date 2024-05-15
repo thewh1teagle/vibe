@@ -24,6 +24,14 @@ export function cx(...cns: (boolean | string | undefined)[]): string {
     return cns.filter(Boolean).join(" ");
 }
 
+export function formatLongString(str: string, n: number) {
+    if (str.length > n) {
+        return str.substring(0, n) + '...';
+    } else {
+        return str;
+    }
+}
+
 export async function getAppInfo() {
     const appVersion = await app.getVersion();
     const commitHash = await invoke("get_commit_hash");

@@ -81,6 +81,17 @@ export function useTranscribeViewModel() {
         }
     }
 
+    async function handleDrop() {
+        event.listen('tauri://drop', (event) => {
+            const payload: any = event.payload
+            const paths = payload?.paths as string[] ?? []
+            if (paths?.length > 0) {
+                // take first path
+                setAudioPath(paths?.[0])
+            }
+        })
+    }
+
     async function handleDeepLinks() {
         const platform = await os.platform()
         if (platform === 'macos') {
@@ -105,6 +116,7 @@ export function useTranscribeViewModel() {
     }
 
     useEffect(() => {
+        handleDrop()
         handleDeepLinks()
         checkModelExists()
         handleEvents()

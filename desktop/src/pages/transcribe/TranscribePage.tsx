@@ -6,6 +6,7 @@ import TextArea from "../../components/TextArea";
 import ThemeToggle from "../../components/ThemeToggle";
 import { useTranscribeViewModel } from "./useTranscribeViewmodel";
 import AppMenu from "../../components/AppMenu";
+import DropModal from "../../components/DropModal";
 
 function App() {
     const { t } = useTranslation();
@@ -13,6 +14,7 @@ function App() {
 
     return (
         <div className="flex flex-col">
+            <DropModal />
             <div className="flex flex-col m-auto w-[300px] mt-10">
                 <div className="relative text-center">
                     <h1 className="text-center text-4xl mb-10">{t("app-title")}</h1>
