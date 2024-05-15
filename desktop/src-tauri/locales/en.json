@@ -46,5 +46,6 @@
     "select-model": "Select Model",
     "play-sound-on-finish": "Play sound on finish",
     "focus-window-on-finish": "Focus window on finish",
-    "select-language": "Select Language"
+    "select-language": "Select Language",
+    "open-logs-folder": "Open Logs Folder"
 }

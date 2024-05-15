@@ -84,6 +84,9 @@ export default function SettingsPage() {
                 <button onMouseDown={vm.reportIssue} className="btn bg-base-300 text-base-content">
                     {t("report-issue")}
                 </button>
+                <button onMouseDown={vm.openLogsFolder} className="btn bg-base-300 text-base-content">
+                    {t("open-logs-folder")}
+                </button>
                 <p className="text-center font-light mt-2">{vm.appVersion}</p>
             </div>
         </div>

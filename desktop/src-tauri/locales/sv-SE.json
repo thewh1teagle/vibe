@@ -46,5 +46,6 @@
   "select-model": "Välj modell",
   "play-sound-on-finish": "Spela ljud när transkibering är klar",
   "focus-window-on-finish": "Fokusera Vibe när transkibering är klar",
-  "select-language": "Välj språk"
+  "select-language": "Välj språk",
+  "open-logs-folder": "Open Logs Folder"
 }

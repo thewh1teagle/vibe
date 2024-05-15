@@ -45,5 +45,6 @@
     "select-model": "בחר מודל",
     "play-sound-on-finish": "הפעל צליל בסיום",
     "focus-window-on-finish": "פתח את חלון התמלול בסיום",
-    "select-language": "בחר שפה"
+    "select-language": "בחר שפה",
+    "open-logs-folder": "פתח את תקיית הלוגים"
 }

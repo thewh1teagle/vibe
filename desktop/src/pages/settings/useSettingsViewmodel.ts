@@ -9,8 +9,8 @@ import * as config from "../../lib/config";
 import { invoke } from "@tauri-apps/api/core";
 
 async function openModelPath() {
-    const configPath = await path.appLocalDataDir();
-    shell.open(configPath);
+    const dst = await path.appLocalDataDir();
+    shell.open(dst);
 }
 
 async function openModelsUrl() {
@@ -25,6 +25,11 @@ async function reportIssue() {
         console.error(e);
         shell.open(await getIssueUrl(`Couldn't get info ${e}`));
     }
+}
+
+async function openLogsFolder() {
+    const dst = await path.appConfigDir();
+    shell.open(dst);
 }
 
 export function useSettingsViewmodel() {
@@ -75,6 +80,7 @@ export function useSettingsViewmodel() {
         setModelPath,
         openModelPath,
         openModelsUrl,
+        openLogsFolder,
         modelPath: modelPath ?? "",
         models,
         appVersion,

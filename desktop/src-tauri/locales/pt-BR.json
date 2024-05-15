@@ -45,5 +45,6 @@
     "select-model": "selecione o modelo",
     "play-sound-on-finish": "Reproduzir som ao terminar",
     "focus-window-on-finish": "Focar janela ao terminar",
-    "select-language": "Selecione o idioma"
+    "select-language": "Selecione o idioma",
+    "open-logs-folder": "Open Logs Folder"
 }
