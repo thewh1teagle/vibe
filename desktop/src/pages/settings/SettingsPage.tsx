@@ -1,20 +1,23 @@
 import * as shell from '@tauri-apps/plugin-shell'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import { languages } from '../../lib/i18n'
 import { cx } from '../../lib/utils'
 import * as config from '../../lib/config'
 import { useSettingsViewmodel } from './useSettingsViewmodel'
+import { Dispatch, SetStateAction } from 'react'
 
-export default function SettingsPage() {
-    const navigate = useNavigate()
+interface SettingsPageProps {
+    setVisible: Dispatch<SetStateAction<boolean>>
+}
+
+export default function SettingsPage({ setVisible }: SettingsPageProps) {
     const { t, i18n } = useTranslation()
     const vm = useSettingsViewmodel()
 
     return (
-        <div className="flex flex-col m-auto w-[300px] mt-10 pb-4">
+        <div className="flex flex-col m-auto w-[300px] mt-10 pb-4 dark:font-normal">
             <div className="relative mt-5">
-                <button onMouseDown={() => navigate(-1)} className={cx('btn btn-square btn-ghost absolute start-0')}>
+                <button onMouseDown={() => setVisible(false)} className={cx('btn btn-square btn-ghost absolute start-0')}>
                     {i18n.dir() === 'ltr' ? (
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -25,7 +28,7 @@ export default function SettingsPage() {
                         </svg>
                     )}
                 </button>
-                <div className="text-4xl text-center">{t('settings')}</div>
+                <div className="text-4xl text-center font-medium">{t('settings')}</div>
             </div>
 
             <label className="form-control w-full mt-10">

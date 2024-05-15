@@ -4,13 +4,13 @@ import { Route, Routes } from "react-router-dom";
 import "./globals.css";
 import ErrorModal from "./components/ErrorModel";
 import "./lib/i18n";
-import SettingsPage from "./pages/settings/SettingsPage";
 import SetupPage from "./pages/setup/SetupPage";
 import TranscribePage from "./pages/transcribe/TranscribePage";
 import { ErrorModalProvider } from "./providers/ErrorModalProvider";
 import { UpdaterProvider } from "./providers/UpdaterProvider";
 import UpdateProgress from "./components/UpdateProgress";
 import { useWindowsState } from "./hooks/useWindowsState";
+import ThemeToggle from "./components/ThemeToggle";
 
 export default function App() {
     const { i18n } = useTranslation();
@@ -21,12 +21,14 @@ export default function App() {
     return (
         <ErrorModalProvider>
             <UpdaterProvider>
+                <div className="absolute right-16 top-16">
+                    <ThemeToggle />
+                </div>
                 <ErrorModal />
                 <UpdateProgress />
                 <Routes>
                     <Route path="/setup" element={<SetupPage />} />
                     <Route path="/" element={<TranscribePage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
                 </Routes>
             </UpdaterProvider>
         </ErrorModalProvider>

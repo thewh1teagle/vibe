@@ -3,10 +3,11 @@ import AudioInput from "../../components/AudioInput";
 import LanguageInput from "../../components/LanguageInput";
 import Params from "../../components/Params";
 import TextArea from "../../components/TextArea";
-import ThemeToggle from "../../components/ThemeToggle";
 import { useTranscribeViewModel } from "./useTranscribeViewmodel";
 import AppMenu from "../../components/AppMenu";
 import DropModal from "../../components/DropModal";
+import SettingsPage from "../settings/SettingsPage";
+import { cx } from "../../lib/utils";
 
 function App() {
     const { t } = useTranslation();
@@ -14,14 +15,17 @@ function App() {
 
     return (
         <div className="flex flex-col">
+            {vm.settingsVisible && (
+                <div className={cx("modal modal-open backdrop-blur-3xl  overflow-y-auto dark:!bg-transparent")}>
+                    <SettingsPage setVisible={vm.setSettingsVisible} />
+                </div>
+            )}
+
             <DropModal />
             <div className="flex flex-col m-auto w-[300px] mt-10">
                 <div className="relative text-center">
                     <h1 className="text-center text-4xl mb-10">{t("app-title")}</h1>
-                    <AppMenu availableUpdate={vm.availableUpdate} updateApp={vm.updateApp} />
-                </div>
-                <div className="absolute right-16 top-16">
-                    <ThemeToggle />
+                    <AppMenu onClickSettings={() => vm.setSettingsVisible(true)} availableUpdate={vm.availableUpdate} updateApp={vm.updateApp} />
                 </div>
                 <LanguageInput onChange={(lang) => vm.setLang(lang)} />
                 <AudioInput audioRef={vm.audioRef} path={vm.audioPath} setPath={vm.setAudioPath} />

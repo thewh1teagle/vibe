@@ -10,13 +10,14 @@ import * as transcript from '../../lib/transcript'
 import { UpdaterContext } from '../../providers/UpdaterProvider'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import { invoke } from '@tauri-apps/api/core'
-import { ls } from '../../lib/utils'
+import { ls, validPath } from '../../lib/utils'
 import { useNavigate } from 'react-router-dom'
 import * as fs from '@tauri-apps/plugin-fs'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as os from '@tauri-apps/plugin-os'
 
 export function useTranscribeViewModel() {
+    const [settingsVisible, setSettingsVisible] = useState(false)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const abortRef = useRef<boolean>(false)
@@ -84,10 +85,10 @@ export function useTranscribeViewModel() {
     async function handleDrop() {
         event.listen('tauri://drop', (event) => {
             const payload: any = event.payload
-            const paths = payload?.paths as string[] ?? []
-            if (paths?.length > 0) {
+            const newPath = payload?.paths?.[0] as string
+            if (newPath && validPath(newPath)) {
                 // take first path
-                setAudioPath(paths?.[0])
+                setAudioPath(newPath)
             }
         })
     }
@@ -157,6 +158,8 @@ export function useTranscribeViewModel() {
     }
 
     return {
+        settingsVisible,
+        setSettingsVisible,
         loading,
         progress,
         audioRef,

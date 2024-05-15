@@ -4,7 +4,7 @@ import * as os from "@tauri-apps/plugin-os";
 import * as app from "@tauri-apps/api/app";
 import * as path from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/core";
-
+import * as config from './config'
 export interface Path {
     name: string;
     path: string;
@@ -30,6 +30,16 @@ export function formatLongString(str: string, n: number) {
     } else {
         return str;
     }
+}
+
+export function validPath(path: string) {
+    if (config.videoExtensions.some(ext => path.endsWith(ext))) {
+        return true
+    }
+    if (config.audioExtensions.some(ext => path.endsWith(ext))) {
+        return true
+    }
+    return false
 }
 
 export async function getAppInfo() {

@@ -1,6 +1,6 @@
 import * as event from '@tauri-apps/api/event'
 import { useEffect, useRef, useState } from 'react'
-import { cx, formatLongString } from '../lib/utils'
+import { cx, formatLongString, validPath } from '../lib/utils'
 import { basename } from '@tauri-apps/api/path'
 import * as os from '@tauri-apps/plugin-os'
 import * as webview from '@tauri-apps/api/webview'
@@ -51,12 +51,16 @@ export default function DropModal() {
             await event.listen('tauri://drag', async (event) => {
                 const paths = ((event.payload as any)?.paths as string[]) ?? []
                 if (paths) {
-                    setPath(await basename(paths?.[0]))
+                    const newPath = await basename(paths?.[0])
+                    if (validPath(newPath)) {
+                        setPath(newPath)
+                        setOpen(true)
+                        // Focus window
+                        const currentWindow = webview.getCurrent().window
+                        currentWindow.setFocus()
+                    }
                 }
-                setOpen(true)
-                // Focus window
-                const currentWindow = webview.getCurrent().window
-                currentWindow.setFocus()
+
             })
         )
 

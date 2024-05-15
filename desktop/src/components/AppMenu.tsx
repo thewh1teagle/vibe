@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { cx } from "../lib/utils";
 
 interface AppMenuProps {
     availableUpdate: boolean;
     updateApp: () => void;
+    onClickSettings: () => void
 }
 
-export default function AppMenu({ availableUpdate, updateApp }: AppMenuProps) {
-    const navigate = useNavigate();
+export default function AppMenu({ availableUpdate, updateApp, onClickSettings }: AppMenuProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
 
@@ -42,7 +41,7 @@ export default function AppMenu({ availableUpdate, updateApp }: AppMenuProps) {
             )}
 
             <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
-                <li onMouseDown={() => navigate("/settings")}>
+                <li onMouseDown={() => onClickSettings()}>
                     <a>{t("settings")}</a>
                 </li>
                 {availableUpdate && (
