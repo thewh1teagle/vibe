@@ -15,7 +15,7 @@ function App() {
             {vm.downloadProgress > 0 && (
                 <>
                     <progress className="progress progress-primary w-56 my-2" value={vm.downloadProgress} max="100"></progress>
-                    <p className="text-neutral-content">{t("this-happens-once")}</p>
+                    <p>{t("this-happens-once")}</p>
                 </>
             )}
             {vm.downloadProgress === 0 && <span className="loading loading-spinner loading-lg"></span>}

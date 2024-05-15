@@ -16,7 +16,7 @@ function App() {
     return (
         <div className="flex flex-col">
             {vm.settingsVisible && (
-                <div className={cx("modal modal-open backdrop-blur-3xl  overflow-y-auto dark:!bg-transparent")}>
+                <div className={cx("modal modal-open backdrop-blur-3xl !bg-base-100 dark:!bg-transparent overflow-y-auto")}>
                     <SettingsPage setVisible={vm.setSettingsVisible} />
                 </div>
             )}
@@ -49,7 +49,7 @@ function App() {
                         <button onClick={vm.onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
                             {t("cancel")}
                         </button>
-                        {/* <p className="text-neutral-content">{t("you-will-receive-notification")}</p> */}
+                        {/* <p>{t("you-will-receive-notification")}</p> */}
                     </div>
                 </div>
             )}
