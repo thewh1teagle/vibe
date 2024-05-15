@@ -28,7 +28,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
                         </svg>
                     )}
                 </button>
-                <div className="text-4xl text-center font-medium">{t('settings')}</div>
+                <div className="text-4xl text-center">{t('settings')}</div>
             </div>
 
             <label className="form-control w-full mt-10">
