@@ -31,6 +31,6 @@ pub fn set_crash_hook(app: &AppHandle) {
         }
         eprintln!("{}", message);
         // do whatever with the message
-        std::fs::write(log_path.as_path(), message).unwrap();
+        std::fs::write(log_path.as_path(), format!("{}\nCOMMIT: {}", message, env!("COMMIT_HASH"))).unwrap();
     }));
 }
