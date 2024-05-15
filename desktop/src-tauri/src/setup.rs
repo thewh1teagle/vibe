@@ -1,4 +1,4 @@
-use std::{env, sync::Mutex};
+use std::sync::Mutex;
 use tauri::{App, Manager};
 
 use crate::crash_log;
@@ -13,7 +13,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     {
         // NOTICE: `args` may include URL protocol (`your-app-protocol://`) or arguments (`--`) if app supports them.
         let mut urls = Vec::new();
-        for arg in env::args().skip(1) {
+        for arg in std::env::args().skip(1) {
             if let Ok(url) = url::Url::parse(&arg) {
                 urls.push(url);
             }
