@@ -22,6 +22,7 @@ export function useTranscribeViewModel() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const abortRef = useRef<boolean>(false)
+    const [isAborting, setIsAborting] = useState(false)
     const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
     const [isManualInstall, _] = useLocalStorage('isManualInstall', false)
 
@@ -59,6 +60,7 @@ export function useTranscribeViewModel() {
     }
 
     async function onAbort() {
+        setIsAborting(true)
         abortRef.current = true
         event.emit('abort_transcribe')
     }
@@ -83,6 +85,8 @@ export function useTranscribeViewModel() {
         } catch (e) {
             console.error(e)
             navigate('/setup')
+        } finally {
+            setIsAborting(false)
         }
     }
 
@@ -161,6 +165,7 @@ export function useTranscribeViewModel() {
     }
 
     return {
+        isAborting,
         settingsVisible,
         setSettingsVisible,
         loading,

@@ -43,12 +43,18 @@ function App() {
                 <div className="w-full flex flex-col items-center">
                     <div className="flex flex-row items-center text-center gap-3 bg-base-200 p-4 rounded-2xl">
                         <span className="loading loading-spinner text-primary"></span>
-                        <p>
-                            {t('transcribing')} {vm.progress ? `${Math.round(vm.progress)}%` : '0%'}
-                        </p>
-                        <button onClick={vm.onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
-                            {t('cancel')}
-                        </button>
+                        {vm.isAborting ? <p>{t('aborting')}...</p> : (
+                            <p>
+                                {t('transcribing')} {vm.progress ? `${Math.round(vm.progress)}%` : '0%'}
+                            </p>
+                        )}
+                        {!vm.isAborting && (
+                            <button onClick={vm.onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
+                                {t('cancel')}
+
+                            </button>
+                        )}
+
                         {/* <p>{t("you-will-receive-notification")}</p> */}
                     </div>
                 </div>
