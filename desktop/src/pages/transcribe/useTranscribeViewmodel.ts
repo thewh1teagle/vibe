@@ -85,8 +85,6 @@ export function useTranscribeViewModel() {
         } catch (e) {
             console.error(e)
             navigate('/setup')
-        } finally {
-            setIsAborting(false)
         }
     }
 
@@ -150,6 +148,7 @@ export function useTranscribeViewModel() {
             }
         } finally {
             setLoading(false)
+            setIsAborting(false)
             setProgress(undefined)
             if (!abortRef.current) {
                 // Focus back the window and play sound
