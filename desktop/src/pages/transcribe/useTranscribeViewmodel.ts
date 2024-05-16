@@ -23,7 +23,7 @@ export function useTranscribeViewModel() {
     const [loading, setLoading] = useState(false)
     const abortRef = useRef<boolean>(false)
     const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
-    const [isManualInstall, setManualInstall] = useLocalStorage('isManualInstall', false)
+    const [isManualInstall, _] = useLocalStorage('isManualInstall', false)
 
     const [lang, setLang] = useLocalStorage('lang', 'en')
     const [progress, setProgress] = useState<number | undefined>()
@@ -32,6 +32,10 @@ export function useTranscribeViewModel() {
     const audioRef = useRef<HTMLAudioElement>()
     const { updateApp, availableUpdate } = useContext(UpdaterContext)
     const { setState: setErrorModal } = useContext(ErrorModalContext)
+    const [soundOnFinish, _setSoundOnFinish] = useLocalStorage('sound_on_finish', true)
+    const [focusOnFinish, _setFocusOnFinish] = useLocalStorage('focus_on_finish', true)
+
+    // Model args
     const [args, setArgs] = useLocalStorage<LocalModelArgs>('model_args', {
         init_prompt: '',
         verbose: false,
@@ -39,8 +43,6 @@ export function useTranscribeViewModel() {
         n_threads: 4,
         temperature: 0.4,
     })
-    const [soundOnFinish, _setSoundOnFinish] = useLocalStorage('sound_on_finish', true)
-    const [focusOnFinish, _setFocusOnFinish] = useLocalStorage('focus_on_finish', true)
 
     async function handleEvents() {
         await listen('transcribe_progress', (event) => {
@@ -64,16 +66,13 @@ export function useTranscribeViewModel() {
     async function checkModelExists() {
         try {
             const configPath = await path.appLocalDataDir()
-
             const entries = await ls(configPath)
-
             const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
             if (filtered.length === 0) {
-                // if not models found download new one
+                // Download new model if no models and it's not manual installation
                 if (!isManualInstall) {
                     navigate('/setup')
                 }
-
             } else {
                 if (!modelPath || !(await fs.exists(modelPath))) {
                     // if model path not found set another one as default

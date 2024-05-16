@@ -14,7 +14,7 @@ export function useSetupViewModel() {
     const navigate = useNavigate()
     const [_modelPath, setModelPath] = useLocalStorage<null | string>('model_path', null)
 
-    async function downloadModel() {
+    function handleProgressEvenets() {
         listen('download_progress', (event) => {
             // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
             // event.payload is the payload object
@@ -27,6 +27,10 @@ export function useSetupViewModel() {
                 downloadProgressRef.current = newDownloadProgress
             }
         })
+    }
+
+    async function downloadModel() {
+        handleProgressEvenets()
         try {
             const path = await invoke('download_model')
             setModelPath(path as string)
@@ -37,22 +41,26 @@ export function useSetupViewModel() {
         }
     }
 
-    async function tryDownload() {
-        const isOnlineRes = await invoke('is_online')
-        setIsOnline(isOnlineRes as boolean)
-        if (isOnlineRes) {
+    async function downloadIfOnline() {
+        const isOnlineResponse = await invoke('is_online') as boolean
+        // If online download model
+        if (isOnlineResponse) {
             downloadModel()
         }
+        // Update UI
+        setIsOnline(isOnlineResponse)
     }
 
+
     async function cancel() {
+        // Cancel and go to settings
         setManualInstall(true)
         emit('abort_download')
         navigate('/#settings')
     }
 
     useEffect(() => {
-        tryDownload()
+        downloadIfOnline()
     }, [])
 
     return {
@@ -60,7 +68,7 @@ export function useSetupViewModel() {
         cancel,
         setErrorModal,
         downloadProgress,
-        tryDownload,
+        downloadIfOnline,
         setDownloadProgress,
         downloadProgressRef,
         isOnline

@@ -103,12 +103,11 @@ pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
         move |current: u64, total: u64| {
             let app_handle = app_handle.clone();
 
+            // Update progress in background
             tauri::async_runtime::spawn(async move {
                 let window = app_handle.get_webview_window("main").unwrap();
                 let percentage = (current as f64 / total as f64) * 100.0;
-
                 log::debug!("percentage: {}", percentage);
-
                 if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
                     log::error!("Failed to set progress bar: {}", e);
                 }
@@ -116,7 +115,6 @@ pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
                     log::error!("Failed to emit download progress: {}", e);
                 }
             });
-
             // Return the abort signal immediately
             abort_atomic.load(Ordering::Relaxed)
         }

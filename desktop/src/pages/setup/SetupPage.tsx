@@ -30,7 +30,7 @@ function App() {
                         </h1>
                         <p className='mt-3 text-center'>{t('info-manual-download')}</p>
                         <div className="flex flex-col justify-center mt-5 gap-2">
-                            <button className='btn btn-primary flex-1' onClick={vm.tryDownload}>{t('try-again')}</button>
+                            <button className='btn btn-primary flex-1' onClick={vm.downloadIfOnline}>{t('try-again')}</button>
                             <button className='btn btn-sm' onClick={vm.cancel}>{t('i-prefer-manual-setup')}</button>
 
                         </div>
