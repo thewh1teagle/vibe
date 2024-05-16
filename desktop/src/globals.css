@@ -6,4 +6,11 @@
     html {
         font-family: 'Proxima Nova', system-ui, sans-serif;
     }
+
+
+}
+
+[dir="rtl"] select {
+    padding-right: 10px;
+    padding-left: 42px;
 }
