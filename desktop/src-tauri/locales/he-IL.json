@@ -49,5 +49,6 @@
     "open-logs-folder": "פתח את תקיית הלוגים",
     "info-prompt": "שיפור התמלול על ידי כתיבת מילים שצפויות להיות בקובץ",
     "info-threads": "כמות משאבים שהתמלול יצרוך מהמעבד בזמן התמלול, במחשבים חזקים אפשר לבחור יותר. מומלץ להתחיל ב4 ועד למקסימום של 10.",
-    "info-temperature": "ערכים גבוהים מביאים למילים ייחודיות יותר; ערכים נמוכים נותנים דגש למילים נפוצות יותר. מוגדר ל0.4 בברירת מחדל."
+    "info-temperature": "ערכים גבוהים מביאים למילים ייחודיות יותר; ערכים נמוכים נותנים דגש למילים נפוצות יותר. מוגדר ל0.4 בברירת מחדל.",
+    "customize-info": "הורידו קובץ מודלים (ggml או gguf) עם סיומת .bin, העבירו לתיקיית המודלים ובחרו את הקובץ כאן מהתפריט הנפתח. אין צורך להפעיל מחדש! 🌟"
 }

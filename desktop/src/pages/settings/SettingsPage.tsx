@@ -5,6 +5,7 @@ import { cx } from '../../lib/utils'
 import * as config from '../../lib/config'
 import { useSettingsViewmodel } from './useSettingsViewmodel'
 import { Dispatch, SetStateAction } from 'react'
+import { InfoTooltip } from '../../components/InfoTooltip'
 
 interface SettingsPageProps {
     setVisible: Dispatch<SetStateAction<boolean>>
@@ -56,10 +57,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
             </div>
 
             <div className="label mt-10">
-                <span className="label-text">{t('customize')}</span>
+                <span className="label-text flex items-center gap-1"><InfoTooltip text={t('customize-info')} />{t('customize')}</span>
             </div>
             <div className="flex flex-col gap-1">
-                <select onChange={(e) => vm.setModelPath(e.target.value)} value={vm.modelPath} className="select select-bordered flex-1">
+                <select onFocus={vm.loadModels} onChange={(e) => vm.setModelPath(e.target.value)} value={vm.modelPath} className="select select-bordered flex-1">
                     <option>{t('select-model')}</option>
                     {vm.models.map((model, index) => (
                         <option key={index} value={model.path}>
@@ -67,7 +68,6 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
                         </option>
                     ))}
                 </select>
-
                 <button onMouseDown={vm.openModelPath} className="btn bg-base-300 text-base-content">
                     {t('open-models-path')}
                 </button>

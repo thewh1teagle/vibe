@@ -50,5 +50,6 @@
     "open-logs-folder": "Open Logs Folder",
     "info-prompt": "Make transcripts better by writing expected words.",
     "info-threads": "Increase CPU for faster decoding; balance speed with resource usage. Recommended: 4",
-    "info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result."
+    "info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result.",
+    "customize-info": "Download any supported model in ggml or gguf format (with the file extension ending in '.bin'). Transfer it to the models directory, then select from the dropdown. No need to restart 🌟"
 }
