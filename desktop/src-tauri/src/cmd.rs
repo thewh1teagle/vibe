@@ -1,14 +1,36 @@
 use crate::config;
 use eyre::{Context, ContextCompat, OptionExt, Result};
+use std::net::{SocketAddr, TcpStream};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
+use std::time::Duration;
 use tauri::{
     window::{ProgressBarState, ProgressBarStatus},
     Manager,
 };
 use vibe::{model::SegmentCallbackData, transcript::Transcript};
+
+/// Return true if there's internet connection
+/// timeout in ms
+#[tauri::command]
+pub fn is_online(timeout: Option<u64>) -> bool {
+    let timeout = timeout.unwrap_or(2000); // Default 2 seconds timeout
+    let addr = "8.8.8.8:53"; // Google DNS
+    let timeout_duration = Duration::from_millis(timeout);
+
+    match addr.parse::<SocketAddr>() {
+        Ok(socket_addr) => match TcpStream::connect_timeout(&socket_addr, timeout_duration) {
+            Ok(_) => true,
+            Err(_) => false,
+        },
+        Err(err) => {
+            log::error!("{:?}", err);
+            return false;
+        }
+    }
+}
 
 fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Result<()> {
     let window = app_handle.get_webview_window("main").context("get window")?;
@@ -62,15 +84,44 @@ pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
     let mut downloader = vibe::downloader::Downloader::new();
     log::debug!("Download model invoked! with path {}", model_path.display());
 
+    let abort_atomic = Arc::new(AtomicBool::new(false));
+    let abort_atomic_c = abort_atomic.clone();
+
     let app_handle_c = app_handle.clone();
-    let download_progress_callback = move |current: u64, total: u64| {
-        let window: tauri::WebviewWindow = app_handle.get_webview_window("main").unwrap();
-        let percentage = (current as f64 / total as f64) * 100.0;
-        log::debug!("percentage: {}", percentage);
-        set_progress_bar(&app_handle.clone(), Some(percentage)).unwrap();
-        window.emit("download_progress", (current, total)).unwrap();
-        async {}
+
+    // allow abort transcription
+    let app_handle_d = app_handle_c.clone();
+    app_handle.listen("abort_download", move |_| {
+        set_progress_bar(&app_handle_d, None).unwrap();
+        abort_atomic_c.store(true, Ordering::Relaxed);
+    });
+
+    let download_progress_callback = {
+        let app_handle = app_handle.clone();
+        let abort_atomic = abort_atomic.clone();
+
+        move |current: u64, total: u64| {
+            let app_handle = app_handle.clone();
+
+            tauri::async_runtime::spawn(async move {
+                let window = app_handle.get_webview_window("main").unwrap();
+                let percentage = (current as f64 / total as f64) * 100.0;
+
+                log::debug!("percentage: {}", percentage);
+
+                if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
+                    log::error!("Failed to set progress bar: {}", e);
+                }
+                if let Err(e) = window.emit("download_progress", (current, total)) {
+                    log::error!("Failed to emit download progress: {}", e);
+                }
+            });
+
+            // Return the abort signal immediately
+            abort_atomic.load(Ordering::Relaxed)
+        }
     };
+
     downloader
         .download(config::URL, model_path.to_owned(), download_progress_callback)
         .await?;

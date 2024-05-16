@@ -11,17 +11,19 @@ import { UpdaterContext } from '../../providers/UpdaterProvider'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import { invoke } from '@tauri-apps/api/core'
 import { ls, validPath } from '../../lib/utils'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import * as fs from '@tauri-apps/plugin-fs'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as os from '@tauri-apps/plugin-os'
 
 export function useTranscribeViewModel() {
-    const [settingsVisible, setSettingsVisible] = useState(false)
+    const location = useLocation()
+    const [settingsVisible, setSettingsVisible] = useState(location.hash === '#settings')
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const abortRef = useRef<boolean>(false)
     const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
+    const [isManualInstall, setManualInstall] = useLocalStorage('isManualInstall', false)
 
     const [lang, setLang] = useLocalStorage('lang', 'en')
     const [progress, setProgress] = useState<number | undefined>()
@@ -68,7 +70,10 @@ export function useTranscribeViewModel() {
             const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
             if (filtered.length === 0) {
                 // if not models found download new one
-                navigate('/setup')
+                if (!isManualInstall) {
+                    navigate('/setup')
+                }
+
             } else {
                 if (!modelPath || !(await fs.exists(modelPath))) {
                     // if model path not found set another one as default

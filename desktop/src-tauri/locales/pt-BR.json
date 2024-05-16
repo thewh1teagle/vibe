@@ -50,5 +50,10 @@
     "info-prompt": "Make transcripts better by writing expected words.",
     "info-threads": "Increase CPU for faster decoding; balance speed with resource usage. Recommended: 4",
     "info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result.",
-    "customize-info": "Download any supported model in ggml or gguf format (with the file extension ending in '.bin'). Transfer it to the models directory, then select from the dropdown. No need to restart 🌟"
+    "customize-info": "Download any supported model in ggml or gguf format (with the file extension ending in '.bin'). Transfer it to the models directory, then select from the dropdown. No need to restart 🌟",
+    "info-cancel-download": "You can cancel and download model manually later.",
+    "info-manual-download": "Internet connection is required to downlod the AI modal",
+    "i-prefer-manual-setup": "I prefer download manually",
+    "no-connection": "No Connection",
+    "try-again": "Try Again"
 }

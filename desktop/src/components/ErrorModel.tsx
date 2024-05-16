@@ -16,7 +16,12 @@ export default function ErrorModal() {
     async function resetApp() {
         try {
             if (modelPath) {
-                await fs.remove(modelPath)
+                try {
+                    await fs.remove(modelPath)
+                } catch (e) {
+                    console.error(e)
+                }
+
             }
             localStorage.clear()
             setState?.({ open: false, log: '' })

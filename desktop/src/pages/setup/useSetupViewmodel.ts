@@ -1,4 +1,4 @@
-import { listen } from '@tauri-apps/api/event'
+import { listen, emit } from '@tauri-apps/api/event'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '../../providers/ErrorModalProvider'
@@ -7,6 +7,8 @@ import { useLocalStorage } from 'usehooks-ts'
 
 export function useSetupViewModel() {
     const [downloadProgress, setDownloadProgress] = useState(0)
+    const [isOnline, setIsOnline] = useState<boolean | null>(false)
+    const [_, setManualInstall] = useLocalStorage('isManualInstall', false)
     const downloadProgressRef = useRef(0)
     const { setState: setErrorModal } = useContext(ErrorModalContext)
     const navigate = useNavigate()
@@ -35,14 +37,32 @@ export function useSetupViewModel() {
         }
     }
 
+    async function tryDownload() {
+        const isOnlineRes = await invoke('is_online')
+        setIsOnline(isOnlineRes as boolean)
+        if (isOnlineRes) {
+            downloadModel()
+        }
+    }
+
+    async function cancel() {
+        setManualInstall(true)
+        emit('abort_download')
+        navigate('/#settings')
+    }
+
     useEffect(() => {
-        downloadModel()
+        tryDownload()
     }, [])
 
     return {
+        navigate,
+        cancel,
         setErrorModal,
         downloadProgress,
+        tryDownload,
         setDownloadProgress,
         downloadProgressRef,
+        isOnline
     }
 }

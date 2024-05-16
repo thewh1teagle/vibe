@@ -16,10 +16,9 @@ impl Downloader {
         Downloader { client }
     }
 
-    pub async fn download<F, Fut>(&mut self, url: &str, path: PathBuf, on_progress: F) -> Result<()>
+    pub async fn download<F>(&mut self, url: &str, path: PathBuf, on_progress: F) -> Result<()>
     where
-        F: Fn(u64, u64) -> Fut,
-        Fut: Future<Output = ()>,
+        F: Fn(u64, u64) -> bool,
     {
         let res = self.client.get(url).send().await?;
         let total_size = res
@@ -27,7 +26,7 @@ impl Downloader {
             .ok_or_eyre(format!("Failed to get content length from '{}'", url))?;
         let mut file = std::fs::File::create(path.clone()).context(format!("Failed to create file {}", path.display()))?;
         let mut downloaded: u64 = 0;
-        let callback_limit = 1024 * 1024; // 1MB limit
+        let callback_limit = 1024 * 1024 * 2; // 1MB limit
         let mut callback_offset = 0;
         let mut stream = res.bytes_stream();
         while let Some(item) = stream.next().await {
@@ -36,7 +35,10 @@ impl Downloader {
                 .context(format!("Error while writing to file {}", path.display()))?;
             // Check if downloaded size is a multiple of 10MB
             if downloaded > callback_offset + callback_limit {
-                on_progress(downloaded, total_size).await;
+                let is_abort_set = on_progress(downloaded, total_size);
+                if is_abort_set {
+                    break;
+                }
 
                 callback_offset = downloaded;
             }

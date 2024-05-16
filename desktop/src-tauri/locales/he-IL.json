@@ -50,5 +50,10 @@
     "info-prompt": "שיפור התמלול על ידי כתיבת מילים שצפויות להיות בקובץ",
     "info-threads": "כמות משאבים שהתמלול יצרוך מהמעבד בזמן התמלול, במחשבים חזקים אפשר לבחור יותר. מומלץ להתחיל ב4 ועד למקסימום של 10.",
     "info-temperature": "ערכים גבוהים מביאים למילים ייחודיות יותר; ערכים נמוכים נותנים דגש למילים נפוצות יותר. מוגדר ל0.4 בברירת מחדל.",
-    "customize-info": "הורידו קובץ מודלים (ggml או gguf) עם סיומת .bin, העבירו לתיקיית המודלים ובחרו את הקובץ כאן מהתפריט הנפתח. אין צורך להפעיל מחדש! 🌟"
+    "customize-info": "הורידו קובץ מודלים (ggml או gguf) עם סיומת .bin, העבירו לתיקיית המודלים ובחרו את הקובץ כאן מהתפריט הנפתח. אין צורך להפעיל מחדש! 🌟",
+    "info-cancel-download": "ניתן לעצור את ההורדה ולהגדיר את המודל ידנית.",
+    "info-manual-download": "כדי להשתמש ב-Vibe, תחילה עליך להתחבר לאינטרנט כדי שהתוכנה תוכל להוריד את המודל שמבצע את התמלול.",
+    "i-prefer-manual-setup": "אני מעדיף להוריד ידנית",
+    "no-connection": "אין חיבור",
+    "try-again": "נסה שוב"
 }

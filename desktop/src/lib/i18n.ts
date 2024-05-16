@@ -22,7 +22,7 @@ i18n.use(LanguageDetector)
     )
 
     .init({
-        debug: true,
+        debug: false,
         fallbackLng: 'en',
         interpolation: {
             escapeValue: false, // not needed for react as it escapes by default
