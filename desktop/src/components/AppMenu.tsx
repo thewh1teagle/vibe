@@ -40,7 +40,7 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
                 </svg>
             )}
 
-            <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
+            <div tabIndex={0} className="dropdown-content -translate-x-0.5 -translate-y-1.5 z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
                 <li onMouseDown={() => onClickSettings()}>
                     <a>{t('settings')}</a>
                 </li>
