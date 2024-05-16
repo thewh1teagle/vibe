@@ -107,8 +107,7 @@ export function useTranscribeViewModel() {
                     }
                 }
             })
-        }
-        else if (platform == 'windows' || platform == 'linux') {
+        } else if (platform == 'windows' || platform == 'linux') {
             const urls: string[] = await invoke('get_deeplinks')
             for (const url of urls) {
                 setAudioPath(url)

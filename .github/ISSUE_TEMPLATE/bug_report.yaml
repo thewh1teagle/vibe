@@ -1,50 +1,50 @@
 name: Bug Report
 description: File a bug report
-title: "[Bug]: "
-labels: ["bug"]
+title: '[Bug]: '
+labels: ['bug']
 assignees:
-  - octocat
+    - octocat
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
-        Please, if possible, just open settings in vibe, and click 'Report Bug'
-        This way I'll get all the relevant info required
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
-    validations:
-      required: true
-  - type: textarea
-    id: steps-to-reproduce
-    attributes:
-      label: Steps to reproduce
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: |
-        1. step one...
-        2. step two...
-    validations:
-      required: true
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What OS are you seeing the problem on?
-      multiple: true
-      options:
-        - Window
-        - Linux
-        - MacOS
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant log output
-      description: |
-        Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for taking the time to fill out this bug report!
+              Please, if possible, just open settings in vibe, and click 'Report Bug'
+              This way I'll get all the relevant info required
+    - type: textarea
+      id: what-happened
+      attributes:
+          label: What happened?
+          description: Also tell us, what did you expect to happen?
+          placeholder: Tell us what you see!
+          value: 'A bug happened!'
+      validations:
+          required: true
+    - type: textarea
+      id: steps-to-reproduce
+      attributes:
+          label: Steps to reproduce
+          description: Also tell us, what did you expect to happen?
+          placeholder: Tell us what you see!
+          value: |
+              1. step one...
+              2. step two...
+      validations:
+          required: true
+    - type: dropdown
+      id: browsers
+      attributes:
+          label: What OS are you seeing the problem on?
+          multiple: true
+          options:
+              - Window
+              - Linux
+              - MacOS
+    - type: textarea
+      id: logs
+      attributes:
+          label: Relevant log output
+          description: |
+              Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
 
-      render: shell
+          render: shell

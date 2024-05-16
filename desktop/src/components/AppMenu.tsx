@@ -1,31 +1,31 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { cx } from "../lib/utils";
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { cx } from '../lib/utils'
 
 interface AppMenuProps {
-    availableUpdate: boolean;
-    updateApp: () => void;
+    availableUpdate: boolean
+    updateApp: () => void
     onClickSettings: () => void
 }
 
 export default function AppMenu({ availableUpdate, updateApp, onClickSettings }: AppMenuProps) {
-    const { t } = useTranslation();
-    const [open, setOpen] = useState(false);
+    const { t } = useTranslation()
+    const [open, setOpen] = useState(false)
 
     return (
         <div
             onMouseEnter={() => {
                 if (!open) {
-                    setOpen(true);
+                    setOpen(true)
                 }
             }}
             onMouseLeave={() => {
                 if (open) {
-                    setOpen(false);
+                    setOpen(false)
                 }
             }}
             onMouseDown={() => setOpen(!open)}
-            className={cx("dropdown absolute left-0 top-0", open && "dropdown-open")}
+            className={cx('dropdown absolute left-0 top-0', open && 'dropdown-open')}
             dir="ltr">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer">
                 <path
@@ -42,14 +42,14 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 
             <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
                 <li onMouseDown={() => onClickSettings()}>
-                    <a>{t("settings")}</a>
+                    <a>{t('settings')}</a>
                 </li>
                 {availableUpdate && (
                     <li onMouseDown={() => updateApp()}>
-                        <a className="bg-primary">{t("update-version")}</a>
+                        <a className="bg-primary">{t('update-version')}</a>
                     </li>
                 )}
             </div>
         </div>
-    );
+    )
 }

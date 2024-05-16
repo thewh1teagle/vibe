@@ -1,49 +1,49 @@
-import * as fs from "@tauri-apps/plugin-fs";
-import * as dialog from "@tauri-apps/plugin-dialog";
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useLocalStorage } from "usehooks-ts";
-import { Segment, asSrt, asText, asVtt } from "../lib/transcript";
-import { cx } from "../lib/utils";
+import * as fs from '@tauri-apps/plugin-fs'
+import * as dialog from '@tauri-apps/plugin-dialog'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocalStorage } from 'usehooks-ts'
+import { Segment, asSrt, asText, asVtt } from '../lib/transcript'
+import { cx } from '../lib/utils'
 
-type TextFormat = "normal" | "srt" | "vtt";
+type TextFormat = 'normal' | 'srt' | 'vtt'
 type FormatExtensions = {
-    [name in TextFormat]: string;
-};
+    [name in TextFormat]: string
+}
 const formatExtensions: FormatExtensions = {
-    normal: ".txt",
-    srt: ".srt",
-    vtt: ".vtt",
-};
+    normal: '.txt',
+    srt: '.srt',
+    vtt: '.vtt',
+}
 
 async function download(text: string, format: TextFormat) {
-    const ext = formatExtensions[format].slice(1);
+    const ext = formatExtensions[format].slice(1)
     const filePath = await dialog.save({
         filters: [
             {
-                name: "",
+                name: '',
                 extensions: [ext],
             },
         ],
-    });
+    })
     if (filePath) {
-        fs.writeTextFile(filePath, text);
+        fs.writeTextFile(filePath, text)
     }
 }
 
 export default function TextArea({ segments, readonly, placeholder }: { segments: Segment[] | null; readonly: boolean; placeholder?: string }) {
-    const { t, i18n } = useTranslation();
-    const [direction, setDirection] = useLocalStorage<"ltr" | "rtl">("direction", i18n.dir());
-    const [format, setFormat] = useLocalStorage<TextFormat>("format", "normal");
-    const [text, setText] = useState("");
+    const { t, i18n } = useTranslation()
+    const [direction, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
+    const [format, setFormat] = useLocalStorage<TextFormat>('format', 'normal')
+    const [text, setText] = useState('')
 
     useEffect(() => {
         if (segments) {
-            setText(format === "vtt" ? asVtt(segments) : format === "srt" ? asSrt(segments) : asText(segments));
+            setText(format === 'vtt' ? asVtt(segments) : format === 'srt' ? asSrt(segments) : asText(segments))
         } else {
-            setText("");
+            setText('')
         }
-    }, [format, segments]);
+    }, [format, segments])
 
     return (
         <div className="w-full h-full">
@@ -67,12 +67,12 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
                     </svg>
                 </button>
                 <div dir="rtl">
-                    <button onMouseDown={() => setDirection("rtl")} className={cx("btn btn-square btn-md", direction == "rtl" && "bg-base-100")}>
+                    <button onMouseDown={() => setDirection('rtl')} className={cx('btn btn-square btn-md', direction == 'rtl' && 'bg-base-100')}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
                         </svg>
                     </button>
-                    <button onMouseDown={() => setDirection("ltr")} className={cx("btn btn-square btn-md", direction == "ltr" && "bg-base-100")}>
+                    <button onMouseDown={() => setDirection('ltr')} className={cx('btn btn-square btn-md', direction == 'ltr' && 'bg-base-100')}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                         </svg>
@@ -82,10 +82,10 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
                 <select
                     value={format}
                     onChange={(e) => {
-                        setFormat(e.target.value as any);
+                        setFormat(e.target.value as any)
                     }}
                     className="select select-bordered ml-auto">
-                    <option value="normal">{t("mode-text")}</option>
+                    <option value="normal">{t('mode-text')}</option>
                     <option value="srt">SRT</option>
                     <option value="vtt">VTT</option>
                 </select>
@@ -101,5 +101,5 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
                 className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
             />
         </div>
-    );
+    )
 }

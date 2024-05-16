@@ -60,7 +60,6 @@ export default function DropModal() {
                         currentWindow.setFocus()
                     }
                 }
-
             })
         )
 

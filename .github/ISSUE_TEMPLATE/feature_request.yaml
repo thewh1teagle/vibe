@@ -1,21 +1,21 @@
 name: Feature request
 description: Suggest an idea for this project
-title: "[Feature Request]: "
-labels: ["feature request"]
+title: '[Feature Request]: '
+labels: ['feature request']
 assignees:
-  - thewh1teagle
+    - thewh1teagle
 body:
-  - type: markdown
-    attributes:
-      value: |
-        💚💜 Thank you for interest. ❤️💛
-        *Please prioritize checking existing issues first.  
-        I will repay with higher-quality code.*
-  - type: textarea
-    id: describe-the-feature
-    attributes:
-      label: Describe the feature
-      description: Also tell us why you think it useful
-      placeholder: Description...
-    validations:
-      required: true
+    - type: markdown
+      attributes:
+          value: |
+              💚💜 Thank you for interest. ❤️💛
+              *Please prioritize checking existing issues first.  
+              I will repay with higher-quality code.*
+    - type: textarea
+      id: describe-the-feature
+      attributes:
+          label: Describe the feature
+          description: Also tell us why you think it useful
+          placeholder: Description...
+      validations:
+          required: true

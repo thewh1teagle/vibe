@@ -1,71 +1,70 @@
 name: Deploy Landing
 
 on:
-  push:
-    paths:
-      - 'landing/**'
-      - 'scripts/landing_releases.js'
-  workflow_run:
-    workflows: [ "Release" ]
-    types:
-      - completed
-  workflow_dispatch:
+    push:
+        paths:
+            - 'landing/**'
+            - 'scripts/landing_releases.js'
+    workflow_run:
+        workflows: ['Release']
+        types:
+            - completed
+    workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    group: 'pages'
+    cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    build:
+        runs-on: macos-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-      - name: setup Bun
-        uses: oven-sh/setup-bun@v1
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
 
-      - name: Install dependencies
-        run: bun install
-        working-directory: landing
+            - name: Install dependencies
+              run: bun install
+              working-directory: landing
 
-      - name: Update downloads manifest
-        run: bun run scripts/landing_releases.js
+            - name: Update downloads manifest
+              run: bun run scripts/landing_releases.js
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-        with:
-          static_site_generator: sveltekit
-          working-directory: landing
+            - name: Setup Pages
+              uses: actions/configure-pages@v3
+              with:
+                  static_site_generator: sveltekit
+                  working-directory: landing
 
-      - name: Build
-        run: bun run build
-        working-directory: landing
-        
+            - name: Build
+              run: bun run build
+              working-directory: landing
 
-      - name: Upload Artifacts
-        uses: actions/upload-pages-artifact@v1
-        with:
-          # this should match the `pages` option in your adapter-static options
-          path: "landing/build/"
+            - name: Upload Artifacts
+              uses: actions/upload-pages-artifact@v1
+              with:
+                  # this should match the `pages` option in your adapter-static options
+                  path: 'landing/build/'
 
-  deploy:
-    needs: build
-    runs-on: macos-latest
+    deploy:
+        needs: build
+        runs-on: macos-latest
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
 
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v1
+        steps:
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@v1

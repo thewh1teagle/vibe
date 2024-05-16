@@ -32,15 +32,16 @@ sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev l
 sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
 ```
 
-
 ## Build
 
 Install dependencies from `desktop` folder
+
 ```console
 bun install
 ```
 
 Execute pre build scripts and follow the instructions it provide
+
 ```console
 bun scripts/pre_build.js
 ```

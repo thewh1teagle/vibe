@@ -1,14 +1,14 @@
 {
-  "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
-  },
-  "rust-analyzer.checkOnSave": true,
-  "rust-analyzer.check.command": "clippy",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    // "source.organizeImports": "explicit",
-    // "source.fixAll": "explicit"
-  },
-  "prettier.configPath": ".prettierrc.json",
-  "files.eol": "\n"
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    },
+    "rust-analyzer.checkOnSave": true,
+    "rust-analyzer.check.command": "clippy",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        // "source.organizeImports": "explicit",
+        // "source.fixAll": "explicit"
+    },
+    "prettier.configPath": ".prettierrc.json",
+    "files.eol": "\n"
 }
