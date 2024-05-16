@@ -66,19 +66,20 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
                         />
                     </svg>
                 </button>
-                <div onMouseDown={() => setDirection(direction === 'rtl' ? 'ltr' : 'rtl')} className={cx('h-full p-2 rounded-lg cursor-pointer', direction == 'rtl' && 'bg-base-100')}>
+                <div
+                    onMouseDown={() => setDirection(direction === 'rtl' ? 'ltr' : 'rtl')}
+                    className={cx('h-full p-2 rounded-lg cursor-pointer', direction == 'rtl' && 'bg-base-100')}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
                     </svg>
                 </div>
-
 
                 <select
                     value={format}
                     onChange={(e) => {
                         setFormat(e.target.value as any)
                     }}
-                    className="select select-bordered ml-auto">
+                    className="select select-bordered ms-auto me-1.5">
                     <option value="normal">{t('mode-text')}</option>
                     <option value="srt">SRT</option>
                     <option value="vtt">VTT</option>
