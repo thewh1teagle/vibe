@@ -16,6 +16,8 @@ body:
                 `/Users/{username}/Library/Application Support/github.com.thewh1teagle.vibe/`
               Windows:
                 `%appdata%\github.com.thewh1teagle.vibe`
+              Linux:
+                `$HOME/.config`
     - type: textarea
       id: what-happened
       attributes:

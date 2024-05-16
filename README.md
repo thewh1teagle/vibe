@@ -75,14 +75,6 @@ Currenly, listening for the audio file isn't supported on `Linux`
 
 And if the antivirus block the model file, you can always exclude it from the scan directories.
 
-# Logs
-
-In case that the app crashing without errors, the logs are saved into app config path.
-
-In `Windows` it's located in `%appdata%\github.com.thewh1teagle.vibe`
-
-In `macOS` it's located in `/Users/{username}/Library/Application Support/github.com.thewh1teagle.vibe/`
-
 # Contribute 🤝
 
 PRs are welcomed!
