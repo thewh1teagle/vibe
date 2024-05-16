@@ -65,7 +65,7 @@ Currenly, listening for the audio file isn't supported on `Linux`
 
 ## Offline Setup
 
-Installing offline with Vibe is easy. Open the app, cancel the download, and follow the instructions in the settings.
+Offline installation with Vibe is easy: open the app, cancel the download, and navigate to the `Customize` section within settings.
 
 
 # Contribute 🤝
