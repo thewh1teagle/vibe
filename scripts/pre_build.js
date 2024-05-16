@@ -3,6 +3,7 @@ import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
 
+const isDevMode = process.argv.includes('--dev')
 const originalCWD = process.cwd()
 // Change CWD to src-tauri
 process.chdir(path.join(__dirname, '../desktop/src-tauri'))
@@ -154,4 +155,8 @@ if (process.env.GITHUB_ENV) {
         console.log('Adding ENV', clblast)
         await fs.appendFile(process.env.GITHUB_ENV, clblast)
     }
+}
+
+if (isDevMode) {
+    await $`bunx tauri dev`
 }
