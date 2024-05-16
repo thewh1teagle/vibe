@@ -88,7 +88,7 @@ export default function DropModal() {
 
     return (
         <div>
-            {open && platform !== 'macos' && <Document path={path} position={position} />}
+            {open && platform === 'windows' && <Document path={path} position={position} />}
             <div className={cx('modal backdrop-blur-sm bg-base-100', open && 'modal-open')}></div>
         </div>
     )
