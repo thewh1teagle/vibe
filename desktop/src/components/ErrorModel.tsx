@@ -1,17 +1,12 @@
-import * as fs from '@tauri-apps/plugin-fs'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '../providers/ErrorModalProvider'
 import { cx, getAppInfo, getIssueUrl, resetApp } from '../lib/utils'
 import * as shell from '@tauri-apps/plugin-shell'
-import { useLocalStorage } from 'usehooks-ts'
 
 export default function ErrorModal() {
     const { t } = useTranslation()
     const { state, setState } = useContext(ErrorModalContext)
-    const navigate = useNavigate()
-    const [modelPath, _setModelPath] = useLocalStorage<string | null>('model_path', null)
 
     async function clearLogAndReset() {
         setState?.({ open: false, log: '' })
