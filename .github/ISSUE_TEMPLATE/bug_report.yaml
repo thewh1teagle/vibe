@@ -13,11 +13,11 @@ body:
               This way I'll get all the relevant info required
               If you can't open the app due to crash, try to check any logs in 
               macOS:
-                `/Users/{username}/Library/Application Support/github.com.thewh1teagle.vibe/`
+                `$HOME/Library/Application Support/github.com.thewh1teagle.vibe`
               Windows:
                 `%appdata%\github.com.thewh1teagle.vibe`
               Linux:
-                `$HOME/.config`
+                `~/.config`
     - type: textarea
       id: what-happened
       attributes:
