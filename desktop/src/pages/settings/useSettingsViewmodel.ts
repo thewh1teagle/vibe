@@ -35,6 +35,7 @@ async function openLogsFolder() {
 
 export function useSettingsViewmodel() {
     const { i18n } = useTranslation()
+    const [_, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
     const [language, setLanguage] = useLocalStorage('display_language', i18n.language)
     const [modelPath, setModelPath] = useLocalStorage<null | string>('model_path', null)
     const [models, setModels] = useState<Path[]>([])
@@ -75,8 +76,13 @@ export function useSettingsViewmodel() {
         }
     }
 
+    async function changeLanguage() {
+        await i18n.changeLanguage(language)
+        setDirection(i18n.dir())
+    }
+
     useEffect(() => {
-        i18n.changeLanguage(language)
+        changeLanguage()
     }, [language])
 
     useEffect(() => {
