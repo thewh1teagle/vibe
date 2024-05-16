@@ -158,5 +158,7 @@ if (process.env.GITHUB_ENV) {
 }
 
 if (isDevMode) {
+    process.chdir(path.join(cwd, '..'))
+    await $`bun install`
     await $`bunx tauri dev`
 }
