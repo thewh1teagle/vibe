@@ -1,5 +1,5 @@
 use eyre::{Context, Ok, OptionExt, Result};
-use futures_util::{Future, StreamExt};
+use futures_util::StreamExt;
 use reqwest;
 use std::clone::Clone;
 use std::io::Write;

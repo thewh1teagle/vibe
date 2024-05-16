@@ -4,9 +4,10 @@ import * as app from '@tauri-apps/api/app'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
-import { Path, getAppInfo, getIssueUrl, ls } from '../../lib/utils'
+import { Path, getAppInfo, getIssueUrl, ls, resetApp } from '../../lib/utils'
 import * as config from '../../lib/config'
 import { invoke } from '@tauri-apps/api/core'
+import { ask } from '@tauri-apps/plugin-dialog'
 
 async function openModelPath() {
     const dst = await path.appLocalDataDir()
@@ -40,6 +41,15 @@ export function useSettingsViewmodel() {
     const [appVersion, setAppVersion] = useState('')
     const [soundOnFinish, setSoundOnFinish] = useLocalStorage('sound_on_finish', true)
     const [focusOnFinish, setFocusOnFinish] = useLocalStorage('focus_on_finish', true)
+    const { t } = useTranslation()
+
+    async function askAndReset() {
+        const yes = await ask(t('reset-ask-dialog'), { kind: "info" })
+        if (yes) {
+            resetApp()
+        }
+
+    }
 
     async function loadMeta() {
         try {
@@ -76,6 +86,7 @@ export function useSettingsViewmodel() {
     }, [])
 
     return {
+        askAndReset,
         setLanguage,
         setModelPath,
         openModelPath,

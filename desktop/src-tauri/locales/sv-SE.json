@@ -56,5 +56,7 @@
   "info-manual-download": "Internet connection is required to downlod the AI modal",
   "i-prefer-manual-setup": "I prefer download manually",
   "no-connection": "No Connection",
-  "try-again": "Try Again"
+  "try-again": "Try Again",
+  "advanced": "Advanced",
+  "reset-ask-dialog": "Are you sure you want to reset vibe? app data will be cleared including models files."
 }

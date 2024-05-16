@@ -3,7 +3,7 @@ import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '../providers/ErrorModalProvider'
-import { cx, getAppInfo, getIssueUrl } from '../lib/utils'
+import { cx, getAppInfo, getIssueUrl, resetApp } from '../lib/utils'
 import * as shell from '@tauri-apps/plugin-shell'
 import { useLocalStorage } from 'usehooks-ts'
 
@@ -13,23 +13,9 @@ export default function ErrorModal() {
     const navigate = useNavigate()
     const [modelPath, _setModelPath] = useLocalStorage<string | null>('model_path', null)
 
-    async function resetApp() {
-        try {
-            if (modelPath) {
-                try {
-                    await fs.remove(modelPath)
-                } catch (e) {
-                    console.error(e)
-                }
-
-            }
-            localStorage.clear()
-            setState?.({ open: false, log: '' })
-        } catch (e) {
-            console.error(e)
-        }
-        // Reload page
-        navigate(0)
+    async function clearLogAndReset() {
+        setState?.({ open: false, log: '' })
+        resetApp()
     }
     async function reportIssue() {
         let info = ''
@@ -67,7 +53,7 @@ export default function ErrorModal() {
                     </svg>
                 </div>
                 <div className="flex justify-center gap-3 mt-3">
-                    <button onClick={resetApp} className="btn btn-primary cursor-pointer">
+                    <button onClick={clearLogAndReset} className="btn btn-primary cursor-pointer">
                         {t('reset-app')}
                     </button>
                     <button onMouseDown={reportIssue} className="btn btn-outline">

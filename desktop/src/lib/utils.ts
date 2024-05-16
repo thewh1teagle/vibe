@@ -42,6 +42,26 @@ export function validPath(path: string) {
     return false
 }
 
+export async function resetApp() {
+    const modelPath = localStorage.getItem('model_path')
+    try {
+        if (modelPath) {
+            try {
+                await fs.remove(modelPath)
+            } catch (e) {
+                console.error(e)
+            }
+
+        }
+
+    } catch (e) {
+        console.error(e)
+    } finally {
+        localStorage.clear()
+        location.href = '/setup'
+    }
+}
+
 export async function getAppInfo() {
     const appVersion = await app.getVersion()
     const commitHash = await invoke('get_commit_hash')

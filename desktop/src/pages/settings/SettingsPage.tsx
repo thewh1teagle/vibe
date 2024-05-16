@@ -87,8 +87,17 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
                 <button onMouseDown={vm.reportIssue} className="btn bg-base-300 text-base-content">
                     {t('report-issue')}
                 </button>
+            </div>
+
+            <div className="label mt-10">
+                <span className="label-text">{t('advanced')}</span>
+            </div>
+            <div className="flex flex-col gap-1">
                 <button onMouseDown={vm.openLogsFolder} className="btn bg-base-300 text-base-content">
                     {t('open-logs-folder')}
+                </button>
+                <button onClick={vm.askAndReset} className="btn">
+                    {t('reset-app')}
                 </button>
                 <p className="text-center font-light mt-2">{vm.appVersion}</p>
             </div>
