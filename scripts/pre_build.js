@@ -157,8 +157,14 @@ if (process.env.GITHUB_ENV) {
     }
 }
 
+// Dev mode
 if (isDevMode) {
     process.chdir(path.join(cwd, '..'))
+    process.env['FFMPEG_DIR'] = exports.ffmpeg
+    process.env['OPENBLAS_PATH'] = exports.openBlas
+    process.env['CLBlast_DIR'] = exports.clblast
+    process.env['LIBCLANG_PATH'] = exports.libClang
+    process.env["PATH"] = `${process.env['PATH']};${exports.cmake}`
     await $`bun install`
     await $`bunx tauri dev`
 }
