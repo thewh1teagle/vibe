@@ -65,15 +65,8 @@ Currenly, listening for the audio file isn't supported on `Linux`
 
 ## Offline Setup
 
-1. Stop the program
+Installing offline with Vibe is easy. Open the app, cancel the download, and follow the instructions in the settings.
 
-2. Download model from [ggml-medium.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-3. Open models folder through vibe settings, and place it there
-
-4. Restart the app, open settings and choose your new model
-
-And if the antivirus block the model file, you can always exclude it from the scan directories.
 
 # Contribute 🤝
 
