@@ -1,9 +1,9 @@
+import * as shell from '@tauri-apps/plugin-shell'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ErrorModalContext } from '~/providers/ErrorModalProvider'
-import { cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
-import * as shell from '@tauri-apps/plugin-shell'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
+import { cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
+import { ErrorModalContext } from '~/providers/ErrorModal'
 
 export default function ErrorModal() {
 	const { t } = useTranslation()

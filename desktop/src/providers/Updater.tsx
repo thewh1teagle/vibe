@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { Update, check as checkUpdate } from '@tauri-apps/plugin-updater'
-import { useTranslation } from 'react-i18next'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as process from '@tauri-apps/plugin-process'
-import { ErrorModalContext } from './ErrorModalProvider'
+import { Update, check as checkUpdate } from '@tauri-apps/plugin-updater'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { ErrorModalContext } from './ErrorModal'
 
 // Define the context type
 type UpdaterContextType = {

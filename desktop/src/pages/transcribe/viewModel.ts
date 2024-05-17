@@ -13,8 +13,8 @@ import successSound from '~/assets/success.mp3'
 import { LocalModelArgs } from '~/components/Params'
 import * as transcript from '~/lib/transcript'
 import { ls, validPath } from '~/lib/utils'
-import { ErrorModalContext } from '~/providers/ErrorModalProvider'
-import { UpdaterContext } from '~/providers/UpdaterProvider'
+import { ErrorModalContext } from '~/providers/ErrorModal'
+import { UpdaterContext } from '~/providers/Updater'
 
 export function viewModel() {
 	const location = useLocation()
