@@ -1,9 +1,9 @@
-import { listen, emit } from '@tauri-apps/api/event'
+import { invoke } from '@tauri-apps/api/core'
+import { emit, listen } from '@tauri-apps/api/event'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ErrorModalContext } from '~/providers/ErrorModalProvider'
-import { invoke } from '@tauri-apps/api/core'
 import { useLocalStorage } from 'usehooks-ts'
+import { ErrorModalContext } from '~/providers/ErrorModalProvider'
 
 export function viewModel() {
 	const [downloadProgress, setDownloadProgress] = useState(0)

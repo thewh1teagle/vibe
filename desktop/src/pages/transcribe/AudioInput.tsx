@@ -1,13 +1,13 @@
+import { convertFileSrc } from '@tauri-apps/api/core'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import formatDuration from 'format-duration'
 import { MutableRefObject, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18n from '~/lib/i18n'
 import { ReactComponent as PauseIcon } from '~/icons/pause.svg'
 import { ReactComponent as PlayIcon } from '~/icons/play.svg'
-import { cx } from '~/lib/utils'
-import { convertFileSrc } from '@tauri-apps/api/core'
 import * as config from '~/lib/config'
+import i18n from '~/lib/i18n'
+import { cx } from '~/lib/utils'
 
 interface AudioInputProps {
 	path?: string

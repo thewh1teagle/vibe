@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next'
-import AudioInput from '~/pages/transcribe/AudioInput'
+import DropModal from '~/components/DropModal'
 import LanguageInput from '~/components/LanguageInput'
 import Params from '~/components/Params'
 import TextArea from '~/components/TextArea'
-import { viewModel } from './viewModel'
-import AppMenu from './AppMenu'
-import DropModal from '~/components/DropModal'
-import SettingsPage from '~/pages/settings/Page'
 import { cx } from '~/lib/utils'
+import SettingsPage from '~/pages/settings/Page'
+import AudioInput from '~/pages/transcribe/AudioInput'
+import AppMenu from './AppMenu'
+import { viewModel } from './viewModel'
 
 function App() {
 	const { t } = useTranslation()

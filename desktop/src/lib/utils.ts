@@ -1,9 +1,9 @@
 import * as api from '@tauri-apps/api'
+import * as app from '@tauri-apps/api/app'
+import { invoke } from '@tauri-apps/api/core'
+import * as path from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
-import * as app from '@tauri-apps/api/app'
-import * as path from '@tauri-apps/api/path'
-import { invoke } from '@tauri-apps/api/core'
 import * as config from './config'
 export interface Path {
 	name: string

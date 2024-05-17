@@ -1,13 +1,13 @@
 import * as shell from '@tauri-apps/plugin-shell'
-import { useTranslation } from 'react-i18next'
-import { languages } from '~/lib/i18n'
-import { cx } from '~/lib/utils'
-import * as config from '~/lib/config'
-import { viewModel } from './viewModel'
 import { Dispatch, SetStateAction } from 'react'
+import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '~/components/InfoTooltip'
 import { ReactComponent as ChevronLeftIcon } from '~/icons/chevron-left.svg'
 import { ReactComponent as ChevronRightIcon } from '~/icons/chevron-right.svg'
+import * as config from '~/lib/config'
+import { languages } from '~/lib/i18n'
+import { cx } from '~/lib/utils'
+import { viewModel } from './viewModel'
 interface SettingsPageProps {
 	setVisible: Dispatch<SetStateAction<boolean>>
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { cx } from '~/lib/utils'
 import { ReactComponent as EllipsisIcon } from '~/icons/ellipsis.svg'
 import { ReactComponent as IndicatorIcon } from '~/icons/update-indicator.svg'
+import { cx } from '~/lib/utils'
 interface AppMenuProps {
 	availableUpdate: boolean
 	updateApp: () => void

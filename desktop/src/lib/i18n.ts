@@ -1,5 +1,5 @@
-import * as fs from '@tauri-apps/plugin-fs'
 import { resolveResource } from '@tauri-apps/api/path'
+import * as fs from '@tauri-apps/plugin-fs'
 import i18n from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import resourcesToBackend from 'i18next-resources-to-backend'

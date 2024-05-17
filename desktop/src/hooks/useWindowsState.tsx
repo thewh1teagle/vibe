@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
 import * as webview from '@tauri-apps/api/webview'
-import { saveWindowState, StateFlags, restoreStateCurrent } from '@tauri-apps/plugin-window-state'
 import { Window } from '@tauri-apps/api/window'
+import { StateFlags, restoreStateCurrent, saveWindowState } from '@tauri-apps/plugin-window-state'
+import { useEffect } from 'react'
 
 export function useWindowsState() {
 	async function setup() {

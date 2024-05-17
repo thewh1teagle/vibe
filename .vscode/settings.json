@@ -6,8 +6,7 @@
     "rust-analyzer.check.command": "clippy",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-        // "source.organizeImports": "explicit",
-        // "source.fixAll": "explicit"
+        "source.organizeImports": "always",
     },
     "prettier.configPath": ".prettierrc.json",
     "files.eol": "\n"

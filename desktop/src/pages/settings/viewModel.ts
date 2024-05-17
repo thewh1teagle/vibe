@@ -1,13 +1,13 @@
 import { path } from '@tauri-apps/api'
-import * as shell from '@tauri-apps/plugin-shell'
 import * as app from '@tauri-apps/api/app'
+import { invoke } from '@tauri-apps/api/core'
+import { ask } from '@tauri-apps/plugin-dialog'
+import * as shell from '@tauri-apps/plugin-shell'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
-import { Path, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
 import * as config from '~/lib/config'
-import { invoke } from '@tauri-apps/api/core'
-import { ask } from '@tauri-apps/plugin-dialog'
+import { Path, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()

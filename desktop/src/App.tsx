@@ -1,16 +1,16 @@
 import '@fontsource/roboto'
 import { useTranslation } from 'react-i18next'
 import { Route, Routes } from 'react-router-dom'
-import '~/globals.css'
 import ErrorModal from '~/components/ErrorModel'
+import ThemeToggle from '~/components/ThemeToggle'
+import UpdateProgress from '~/components/UpdaterProgress'
+import '~/globals.css'
+import { useWindowsState } from '~/hooks/useWindowsState'
 import '~/lib/i18n'
 import SetupPage from '~/pages/setup/Page'
 import TranscribePage from '~/pages/transcribe/Page'
 import { ErrorModalProvider } from './providers/ErrorModalProvider'
 import { UpdaterProvider } from './providers/UpdaterProvider'
-import UpdateProgress from '~/components/UpdaterProgress'
-import { useWindowsState } from '~/hooks/useWindowsState'
-import ThemeToggle from '~/components/ThemeToggle'
 
 export default function App() {
 	const { i18n } = useTranslation()
