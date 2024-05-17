@@ -18,8 +18,9 @@ pub struct Args {
     pub model: Option<String>,
 
     /// Language spoken in the audio. Attempts to auto-detect by default.
-    #[clap(short, long)]
-    pub lang: Option<vibe::language::Language>,
+    /// TODO: add possible values derived from whisper-languages.json
+    #[clap(short, long, default_value = "en")]
+    pub lang: String,
 
     /// Verbose output
     #[arg(long, action=ArgAction::SetTrue, default_value_t = false)]
@@ -82,7 +83,7 @@ async fn main() -> Result<()> {
     pb.reset_eta();
 
     let args = vibe::config::ModelArgs {
-        lang: args.lang.map(|a| a.as_str().to_string()),
+        lang: Some(args.lang),
         model: vibe::config::get_model_path()?,
         path: PathBuf::from(args.path),
         n_threads: args.n_threads,
