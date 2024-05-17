@@ -7,7 +7,7 @@ export default function LanguageInput({ onChange }: { onChange: (lang: string) =
 	const { t } = useTranslation()
 	const [selected, setSelected] = useLocalStorage('transcribe_language', Languages['Auto'])
 
-	const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
+	function onLanguageChange(event: ChangeEvent<HTMLSelectElement>) {
 		setSelected(event.target.value)
 		onChange(event.target.value)
 	}
@@ -17,7 +17,7 @@ export default function LanguageInput({ onChange }: { onChange: (lang: string) =
 	}, [])
 
 	return (
-		<select value={selected} onChange={handleChange} className="select select-bordered">
+		<select value={selected} onChange={onLanguageChange} className="select select-bordered">
 			{Object.keys(Languages).map((langKey, index) => (
 				<option key={index} value={Languages[langKey as keyof typeof Languages]}>
 					{langKey === 'Auto' ? t('lang-auto') : t(langKey)}

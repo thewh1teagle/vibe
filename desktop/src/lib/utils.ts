@@ -5,6 +5,7 @@ import * as path from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
 import * as config from './config'
+
 export interface Path {
 	name: string
 	path: string
@@ -75,15 +76,17 @@ export async function getAppInfo() {
 		.map((e) => e.name)
 		.join(', ')
 	const defaultModel = localStorage.getItem('model_path')?.split('/')?.pop() ?? 'Not Found'
-	return `App Version: ${appVersion}
-Commit Hash: ${commitHash}
-Arch: ${arch}
-Platform: ${platform}
-Kernel Version: ${kVer}
-OS: ${osType}
-OS Version: ${osVer}
-Models: ${models}
-Default Model: ${defaultModel}`
+	return [
+		`App Version: ${appVersion}`,
+		`Commit Hash: ${commitHash}`,
+		`Arch: ${arch}`,
+		`Platform: ${platform}`,
+		`Kernel Version: ${kVer}`,
+		`OS: ${osType}`,
+		`OS Version: ${osVer}`,
+		`Models: ${models}`,
+		`Default Model: ${defaultModel}`,
+	].join('\n')
 }
 
 export async function getIssueUrl(logs: string) {
