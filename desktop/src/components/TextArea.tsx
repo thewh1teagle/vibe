@@ -65,8 +65,8 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 
 				<select
 					value={format}
-					onChange={(e) => {
-						setFormat(e.target.value as any)
+					onChange={(event) => {
+						setFormat(event.target.value as unknown as TextFormat)
 					}}
 					className="select select-bordered ms-auto me-1.5">
 					<option value="normal">{t('mode-text')}</option>

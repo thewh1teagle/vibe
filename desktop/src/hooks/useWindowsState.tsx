@@ -20,7 +20,7 @@ export function useWindowsState() {
 		}, 100)
 
 		// Store window state
-		Window.getCurrent().onCloseRequested(async (_) => {
+		Window.getCurrent().onCloseRequested(async (_event) => {
 			await saveWindowState(StateFlags.ALL & ~StateFlags.VISIBLE)
 		})
 	}

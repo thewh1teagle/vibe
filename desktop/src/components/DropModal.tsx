@@ -31,16 +31,16 @@ export default function DropModal() {
 
 	async function handleDrops() {
 		listeners.current.push(
-			await event.listen('tauri://drop-over', (event: any) => {
-				const newPosition = { x: event.payload.position.x, y: event.payload.position.y as any }
-				setPosition(newPosition)
+			await event.listen<{ position: Position }>('tauri://drop-over', (event) => {
+				setPosition(event.payload.position)
 			})
 		)
 		listeners.current.push(
-			await event.listen('tauri://drag', async (event) => {
-				const paths = ((event.payload as any)?.paths as string[]) ?? []
-				if (paths) {
-					const newPath = await basename(paths?.[0])
+			await event.listen<{ paths?: string[] }>('tauri://drag', async (event) => {
+				// const paths = ((event.payload as any)?.paths as string[]) ?? []
+				const { paths } = event.payload
+				if (paths && paths.length > 0) {
+					const newPath = await basename(paths[0])
 					if (validPath(newPath)) {
 						setPath(newPath)
 						setOpen(true)
@@ -53,7 +53,7 @@ export default function DropModal() {
 		)
 
 		listeners.current.push(
-			await event.listen('tauri://drag-cancelled', (_) => {
+			await event.listen('tauri://drag-cancelled', (_event) => {
 				setOpen(false)
 			})
 		)

@@ -89,7 +89,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 		audioRef.current?.pause()
 	}
 
-	function onTimeUpdate(_: Event) {
+	function onTimeUpdate(_event: Event) {
 		const position = audioRef.current?.currentTime ?? 1
 		const total = audioRef.current?.duration ?? 1
 		const newProgress = (position / total) * 100

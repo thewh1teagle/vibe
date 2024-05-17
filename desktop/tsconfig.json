@@ -10,6 +10,7 @@
       "~/*": ["./src/*"] // tilda imports
     },
     "types": ["vite/client"], // allow import svg
+    
 
     /* Bundler mode */
     "moduleResolution": "bundler",

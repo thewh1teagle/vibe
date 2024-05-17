@@ -24,7 +24,7 @@ export function viewModel() {
 	const abortRef = useRef<boolean>(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
-	const [isManualInstall, _] = useLocalStorage('isManualInstall', false)
+	const [isManualInstall, _setIsManualInstall] = useLocalStorage('isManualInstall', false)
 
 	const [lang, setLang] = useLocalStorage('lang', 'en')
 	const [progress, setProgress] = useState<number | undefined>()
@@ -52,10 +52,9 @@ export function viewModel() {
 				setProgress(value)
 			}
 		})
-		await listen('new_segment', (event) => {
-			const payload = event.payload as any
-			const segment: transcript.Segment = { start: payload.start, stop: payload.end, text: payload.text }
-			setSegments((prev) => (prev ? [...prev, segment] : [segment]))
+		await listen<transcript.Segment>('new_segment', (event) => {
+			const { payload } = event
+			setSegments((prev) => (prev ? [...prev, payload] : [payload]))
 		})
 	}
 
@@ -89,9 +88,8 @@ export function viewModel() {
 	}
 
 	async function handleDrop() {
-		event.listen('tauri://drop', (event) => {
-			const payload: any = event.payload
-			const newPath = payload?.paths?.[0] as string
+		event.listen<{ paths: string[] }>('tauri://drop', (event) => {
+			const newPath = event.payload?.paths?.[0] as string
 			if (newPath && validPath(newPath)) {
 				// take first path
 				setAudioPath(newPath)
@@ -140,10 +138,10 @@ export function viewModel() {
 		try {
 			const res: transcript.Transcript = await invoke('transcribe', { options: { ...args, model: modelPath, path: audioPath, lang } })
 			setSegments(res.segments)
-		} catch (e: any) {
+		} catch (error) {
 			if (!abortRef.current) {
-				console.error('error: ', e)
-				setErrorModal?.({ log: e.toString(), open: true })
+				console.error('error: ', error)
+				setErrorModal?.({ log: String(error), open: true })
 				setLoading(false)
 			}
 		} finally {

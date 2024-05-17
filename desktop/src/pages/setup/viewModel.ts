@@ -8,7 +8,7 @@ import { useLocalStorage } from 'usehooks-ts'
 export function viewModel() {
 	const [downloadProgress, setDownloadProgress] = useState(0)
 	const [isOnline, setIsOnline] = useState<boolean | null>(false)
-	const [_, setManualInstall] = useLocalStorage('isManualInstall', false)
+	const [_manualInstall, setManualInstall] = useLocalStorage('isManualInstall', false)
 	const downloadProgressRef = useRef(0)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
@@ -35,9 +35,9 @@ export function viewModel() {
 			const path = await invoke('download_model')
 			setModelPath(path as string)
 			navigate('/')
-		} catch (e: any) {
-			console.error(e)
-			setErrorModal?.({ open: true, log: e?.toString() })
+		} catch (error) {
+			console.error(error)
+			setErrorModal?.({ open: true, log: String(error) })
 		}
 	}
 
