@@ -1,8 +1,6 @@
 <script lang="ts">
-	import Cta from '../components/Cta.svelte';
-	import Meta from '../components/Meta.svelte';
-	import { getContext } from 'svelte';
-	import { createI18nStore } from 'svelte-i18next';
+	import Cta from '~/components/Cta.svelte';
+	import Meta from '~/components/Meta.svelte';
 	import { i18n } from '$lib/i18n';
 </script>
 

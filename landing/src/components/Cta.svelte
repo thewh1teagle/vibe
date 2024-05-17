@@ -1,12 +1,12 @@
 <script lang="ts">
-	import latestRelease from '$lib/latest_release.json';
 	import { onMount } from 'svelte';
-	import LinuxIcon from './LinuxIcon.svelte';
-	import WindowsIcon from './WindowsIcon.svelte';
-	import MacIcon from './MacIcon.svelte';
-	import GithubIcon from './GithubIcon.svelte';
 	import { i18n } from '$lib/i18n';
-	import Chip from '~/icons/Chip.svelte';
+	import LinuxIcon from '~/icons/Linux.svelte';
+	import WindowsIcon from '~/icons/Windows.svelte';
+	import MacIcon from '~/icons/Mac.svelte';
+	import GithubIcon from '~/icons/Github.svelte';
+	import ChipIcon from '~/icons/Chip.svelte';
+	import latestRelease from '$lib/latest_release.json';
 
 	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos'); // default to macos
 	let ctaClicked = false;
@@ -33,7 +33,7 @@
 		}
 	}
 
-	function getOs() {
+	function getOS() {
 		const platform = navigator.platform?.toLowerCase();
 		if (platform?.includes('win')) {
 			return 'windows';
@@ -50,7 +50,7 @@
 	}
 
 	onMount(async () => {
-		const currentOs = getOs();
+		const currentOs = getOS();
 		asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === currentOs); // default to macos
 	});
 </script>
@@ -84,11 +84,11 @@
 {#if asset?.platform.toLocaleLowerCase() == 'macos' && ctaClicked}
 	<div class="flex gap-2 mt-3">
 		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url}>
-			<Chip />
+			<ChipIcon />
 			{$i18n.t('intel')}
 		</a>
 		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url}>
-			<Chip />
+			<ChipIcon />
 			{$i18n.t('apple-silicon')}
 		</a>
 	</div>
