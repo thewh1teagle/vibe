@@ -6,7 +6,8 @@ import * as config from '~/lib/config'
 import { useSettingsViewmodel } from './useSettingsViewmodel'
 import { Dispatch, SetStateAction } from 'react'
 import { InfoTooltip } from '~/components/InfoTooltip'
-
+import { ReactComponent as ChevronLeftIcon } from '~/icons/chevron-left.svg'
+import { ReactComponent as ChevronRightIcon } from '~/icons/chevron-right.svg'
 interface SettingsPageProps {
     setVisible: Dispatch<SetStateAction<boolean>>
 }
@@ -19,15 +20,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
         <div className="flex flex-col m-auto w-[300px] mt-10 pb-4 dark:font-normal">
             <div className="relative mt-5">
                 <button onMouseDown={() => setVisible(false)} className={cx('btn btn-square btn-ghost absolute start-0')}>
-                    {i18n.dir() === 'ltr' ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                        </svg>
-                    ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                        </svg>
-                    )}
+                    {i18n.dir() === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                 </button>
                 <div className="text-4xl text-center">{t('settings')}</div>
             </div>

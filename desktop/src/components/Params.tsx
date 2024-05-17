@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
-
+import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
+import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
 export interface LocalModelArgs {
     lang?: string
     verbose: boolean
@@ -22,15 +23,7 @@ export default function Params({ args, setArgs }: ParamsProps) {
     return (
         <div className={cx('collapse !overflow-visible', open && 'collapse-open')}>
             <div onMouseDown={() => setOpen(!open)} className={cx('mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer')}>
-                {open ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-                    </svg>
-                ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-4 h-4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
-                )}
+                {open ? <ChevronUp /> : <ChevronDown />}
                 {t('advanced-options')}
             </div>
             <div className="collapse-content w-full">
