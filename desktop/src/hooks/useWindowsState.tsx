@@ -4,27 +4,27 @@ import { saveWindowState, StateFlags, restoreStateCurrent } from '@tauri-apps/pl
 import { Window } from '@tauri-apps/api/window'
 
 export function useWindowsState() {
-    async function setup() {
-        // Visible only after first render called from React
-        // With extra timeout to ensure smoothness
-        setTimeout(async () => {
-            await restoreStateCurrent(StateFlags.ALL & ~StateFlags.VISIBLE)
-            const currentWindow = webview.getCurrent().window
-            if (!(await currentWindow.isVisible())) {
-                // ensure it always visible
-                await currentWindow.show()
-                if (!(await currentWindow.isFocused())) {
-                    await currentWindow.setFocus()
-                }
-            }
-        }, 100)
+	async function setup() {
+		// Visible only after first render called from React
+		// With extra timeout to ensure smoothness
+		setTimeout(async () => {
+			await restoreStateCurrent(StateFlags.ALL & ~StateFlags.VISIBLE)
+			const currentWindow = webview.getCurrent().window
+			if (!(await currentWindow.isVisible())) {
+				// ensure it always visible
+				await currentWindow.show()
+				if (!(await currentWindow.isFocused())) {
+					await currentWindow.setFocus()
+				}
+			}
+		}, 100)
 
-        // Store window state
-        Window.getCurrent().onCloseRequested(async (_) => {
-            await saveWindowState(StateFlags.ALL & ~StateFlags.VISIBLE)
-        })
-    }
-    useEffect(() => {
-        setup()
-    }, [])
+		// Store window state
+		Window.getCurrent().onCloseRequested(async (_) => {
+			await saveWindowState(StateFlags.ALL & ~StateFlags.VISIBLE)
+		})
+	}
+	useEffect(() => {
+		setup()
+	}, [])
 }

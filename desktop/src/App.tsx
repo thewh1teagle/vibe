@@ -13,24 +13,24 @@ import { useWindowsState } from '~/hooks/useWindowsState'
 import ThemeToggle from '~/components/ThemeToggle'
 
 export default function App() {
-    const { i18n } = useTranslation()
-    document.body.dir = i18n.dir()
+	const { i18n } = useTranslation()
+	document.body.dir = i18n.dir()
 
-    useWindowsState()
+	useWindowsState()
 
-    return (
-        <ErrorModalProvider>
-            <UpdaterProvider>
-                <div className="absolute right-16 top-16">
-                    <ThemeToggle />
-                </div>
-                <ErrorModal />
-                <UpdateProgress />
-                <Routes>
-                    <Route path="/setup" element={<SetupPage />} />
-                    <Route path="/" element={<TranscribePage />} />
-                </Routes>
-            </UpdaterProvider>
-        </ErrorModalProvider>
-    )
+	return (
+		<ErrorModalProvider>
+			<UpdaterProvider>
+				<div className="absolute right-16 top-16">
+					<ThemeToggle />
+				</div>
+				<ErrorModal />
+				<UpdateProgress />
+				<Routes>
+					<Route path="/setup" element={<SetupPage />} />
+					<Route path="/" element={<TranscribePage />} />
+				</Routes>
+			</UpdaterProvider>
+		</ErrorModalProvider>
+	)
 }
