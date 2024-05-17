@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { cx } from '../lib/utils'
+import { cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
 
 export interface LocalModelArgs {

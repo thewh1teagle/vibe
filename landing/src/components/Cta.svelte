@@ -6,7 +6,7 @@
 	import MacIcon from './MacIcon.svelte';
 	import GithubIcon from './GithubIcon.svelte';
 	import { i18n } from '$lib/i18n';
-	import Chip from '../icons/Chip.svelte';
+	import Chip from '~/icons/Chip.svelte';
 
 	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos'); // default to macos
 	let ctaClicked = false;

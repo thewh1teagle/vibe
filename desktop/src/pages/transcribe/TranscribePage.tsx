@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next'
-import AudioInput from '../../components/AudioInput'
-import LanguageInput from '../../components/LanguageInput'
-import Params from '../../components/Params'
-import TextArea from '../../components/TextArea'
+import AudioInput from '~/components/AudioInput'
+import LanguageInput from '~/components/LanguageInput'
+import Params from '~/components/Params'
+import TextArea from '~/components/TextArea'
 import { useTranscribeViewModel } from './useTranscribeViewmodel'
-import AppMenu from '../../components/AppMenu'
-import DropModal from '../../components/DropModal'
-import SettingsPage from '../settings/SettingsPage'
-import { cx } from '../../lib/utils'
+import AppMenu from '~/components/AppMenu'
+import DropModal from '~/components/DropModal'
+import SettingsPage from '~/pages/settings/SettingsPage'
+import { cx } from '~/lib/utils'
 
 function App() {
     const { t } = useTranslation()
@@ -43,7 +43,9 @@ function App() {
                 <div className="w-full flex flex-col items-center">
                     <div className="flex flex-row items-center text-center gap-3 bg-base-200 p-4 rounded-2xl">
                         <span className="loading loading-spinner text-primary"></span>
-                        {vm.isAborting ? <p>{t('aborting')}...</p> : (
+                        {vm.isAborting ? (
+                            <p>{t('aborting')}...</p>
+                        ) : (
                             <p>
                                 {t('transcribing')} {vm.progress ? `${Math.round(vm.progress)}%` : '0%'}
                             </p>
@@ -51,7 +53,6 @@ function App() {
                         {!vm.isAborting && (
                             <button onClick={vm.onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
                                 {t('cancel')}
-
                             </button>
                         )}
 

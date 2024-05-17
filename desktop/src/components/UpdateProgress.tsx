@@ -1,7 +1,7 @@
 import { useContext } from 'react'
-import { cx } from '../lib/utils'
+import { cx } from '~/lib/utils'
 import { useTranslation } from 'react-i18next'
-import { UpdaterContext } from '../providers/UpdaterProvider'
+import { UpdaterContext } from '~/providers/UpdaterProvider'
 
 export default function UpdateProgress() {
     const { manifest, progress, updating } = useContext(UpdaterContext)

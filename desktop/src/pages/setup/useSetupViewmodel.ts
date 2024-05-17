@@ -1,7 +1,7 @@
 import { listen, emit } from '@tauri-apps/api/event'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ErrorModalContext } from '../../providers/ErrorModalProvider'
+import { ErrorModalContext } from '~/providers/ErrorModalProvider'
 import { invoke } from '@tauri-apps/api/core'
 import { useLocalStorage } from 'usehooks-ts'
 
@@ -42,7 +42,7 @@ export function useSetupViewModel() {
     }
 
     async function downloadIfOnline() {
-        const isOnlineResponse = await invoke('is_online') as boolean
+        const isOnlineResponse = (await invoke('is_online')) as boolean
         // If online download model
         if (isOnlineResponse) {
             downloadModel()
@@ -50,7 +50,6 @@ export function useSetupViewModel() {
         // Update UI
         setIsOnline(isOnlineResponse)
     }
-
 
     async function cancel() {
         // Cancel and go to settings
@@ -71,6 +70,6 @@ export function useSetupViewModel() {
         downloadIfOnline,
         setDownloadProgress,
         downloadProgressRef,
-        isOnline
+        isOnline,
     }
 }

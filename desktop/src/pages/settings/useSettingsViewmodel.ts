@@ -4,8 +4,8 @@ import * as app from '@tauri-apps/api/app'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
-import { Path, getAppInfo, getIssueUrl, ls, resetApp } from '../../lib/utils'
-import * as config from '../../lib/config'
+import { Path, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
+import * as config from '~/lib/config'
 import { invoke } from '@tauri-apps/api/core'
 import { ask } from '@tauri-apps/plugin-dialog'
 
@@ -45,11 +45,10 @@ export function useSettingsViewmodel() {
     const { t } = useTranslation()
 
     async function askAndReset() {
-        const yes = await ask(t('reset-ask-dialog'), { kind: "info" })
+        const yes = await ask(t('reset-ask-dialog'), { kind: 'info' })
         if (yes) {
             resetApp()
         }
-
     }
 
     async function loadMeta() {

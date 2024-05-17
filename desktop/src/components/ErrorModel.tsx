@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ErrorModalContext } from '../providers/ErrorModalProvider'
-import { cx, getAppInfo, getIssueUrl, resetApp } from '../lib/utils'
+import { ErrorModalContext } from '~/providers/ErrorModalProvider'
+import { cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
 import * as shell from '@tauri-apps/plugin-shell'
 
 export default function ErrorModal() {

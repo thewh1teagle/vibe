@@ -1,4 +1,4 @@
-import InfoIcon from "../icons/Info";
+import InfoIcon from '~/icons/Info'
 
 export function InfoTooltip({ text }: { text: string }) {
     return (

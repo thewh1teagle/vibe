@@ -1,11 +1,11 @@
 import * as shell from '@tauri-apps/plugin-shell'
 import { useTranslation } from 'react-i18next'
-import { languages } from '../../lib/i18n'
-import { cx } from '../../lib/utils'
-import * as config from '../../lib/config'
+import { languages } from '~/lib/i18n'
+import { cx } from '~/lib/utils'
+import * as config from '~/lib/config'
 import { useSettingsViewmodel } from './useSettingsViewmodel'
 import { Dispatch, SetStateAction } from 'react'
-import { InfoTooltip } from '../../components/InfoTooltip'
+import { InfoTooltip } from '~/components/InfoTooltip'
 
 interface SettingsPageProps {
     setVisible: Dispatch<SetStateAction<boolean>>
@@ -57,10 +57,17 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
             </div>
 
             <div className="label mt-10">
-                <span className="label-text flex items-center gap-1"><InfoTooltip text={t('customize-info')} />{t('customize')}</span>
+                <span className="label-text flex items-center gap-1">
+                    <InfoTooltip text={t('customize-info')} />
+                    {t('customize')}
+                </span>
             </div>
             <div className="flex flex-col gap-1">
-                <select onFocus={vm.loadModels} onChange={(e) => vm.setModelPath(e.target.value)} value={vm.modelPath} className="select select-bordered flex-1">
+                <select
+                    onFocus={vm.loadModels}
+                    onChange={(e) => vm.setModelPath(e.target.value)}
+                    value={vm.modelPath}
+                    className="select select-bordered flex-1">
                     <option>{t('select-model')}</option>
                     {vm.models.map((model, index) => (
                         <option key={index} value={model.path}>

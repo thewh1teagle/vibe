@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { cx } from '../lib/utils'
+import { cx } from '~/lib/utils'
 
 interface AppMenuProps {
     availableUpdate: boolean

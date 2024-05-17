@@ -3,8 +3,8 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
-import { Segment, asSrt, asText, asVtt } from '../lib/transcript'
-import { cx } from '../lib/utils'
+import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
+import { cx } from '~/lib/utils'
 
 type TextFormat = 'normal' | 'srt' | 'vtt'
 type FormatExtensions = {
