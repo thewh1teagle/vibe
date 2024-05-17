@@ -45,12 +45,12 @@ fn on_transcribe_progress(progress: i32) {
 }
 
 fn on_new_segment(data: SegmentCallbackData) {
-    let utternace: Segment = Segment {
+    let segment: Segment = Segment {
         start: data.start_timestamp,
         stop: data.end_timestamp,
         text: data.text,
     };
-    println!("{}", utternace.as_text());
+    println!("{}", segment.as_text());
 }
 
 fn on_abort_callback() -> bool {
