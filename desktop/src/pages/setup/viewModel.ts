@@ -5,7 +5,7 @@ import { ErrorModalContext } from '~/providers/ErrorModalProvider'
 import { invoke } from '@tauri-apps/api/core'
 import { useLocalStorage } from 'usehooks-ts'
 
-export function useSetupViewModel() {
+export function viewModel() {
     const [downloadProgress, setDownloadProgress] = useState(0)
     const [isOnline, setIsOnline] = useState<boolean | null>(false)
     const [_, setManualInstall] = useLocalStorage('isManualInstall', false)

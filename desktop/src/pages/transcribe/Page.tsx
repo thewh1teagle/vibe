@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next'
-import AudioInput from '~/components/AudioInput'
+import AudioInput from '~/pages/transcribe/AudioInput'
 import LanguageInput from '~/components/LanguageInput'
 import Params from '~/components/Params'
 import TextArea from '~/components/TextArea'
-import { useTranscribeViewModel } from './useTranscribeViewmodel'
-import AppMenu from '~/components/AppMenu'
+import { viewModel } from './viewModel'
+import AppMenu from './AppMenu'
 import DropModal from '~/components/DropModal'
-import SettingsPage from '~/pages/settings/SettingsPage'
+import SettingsPage from '~/pages/settings/Page'
 import { cx } from '~/lib/utils'
 
 function App() {
     const { t } = useTranslation()
-    const vm = useTranscribeViewModel()
+    const vm = viewModel()
 
     return (
         <div className="flex flex-col pb-[80px]">

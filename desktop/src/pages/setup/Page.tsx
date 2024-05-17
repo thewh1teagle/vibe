@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from '~/components/ThemeToggle'
-import { useSetupViewModel } from './useSetupViewmodel'
+import { viewModel } from './viewModel'
 
 function App() {
     const { t } = useTranslation()
-    const vm = useSetupViewModel()
+    const vm = viewModel()
 
     return (
         <div className="w-[100vw] h-[100vh] flex flex-col justify-center items-center">

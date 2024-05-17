@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { languages } from '~/lib/i18n'
 import { cx } from '~/lib/utils'
 import * as config from '~/lib/config'
-import { useSettingsViewmodel } from './useSettingsViewmodel'
+import { viewModel } from './viewModel'
 import { Dispatch, SetStateAction } from 'react'
 import { InfoTooltip } from '~/components/InfoTooltip'
 import { ReactComponent as ChevronLeftIcon } from '~/icons/chevron-left.svg'
@@ -14,7 +14,7 @@ interface SettingsPageProps {
 
 export default function SettingsPage({ setVisible }: SettingsPageProps) {
     const { t, i18n } = useTranslation()
-    const vm = useSettingsViewmodel()
+    const vm = viewModel()
 
     return (
         <div className="flex flex-col m-auto w-[300px] mt-10 pb-4 dark:font-normal">

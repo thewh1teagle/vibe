@@ -16,7 +16,7 @@ import * as fs from '@tauri-apps/plugin-fs'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as os from '@tauri-apps/plugin-os'
 
-export function useTranscribeViewModel() {
+export function viewModel() {
     const location = useLocation()
     const [settingsVisible, setSettingsVisible] = useState(location.hash === '#settings')
     const navigate = useNavigate()

@@ -33,7 +33,7 @@ async function openLogsFolder() {
     shell.open(dst)
 }
 
-export function useSettingsViewmodel() {
+export function viewModel() {
     const { i18n } = useTranslation()
     const [_, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
     const [language, setLanguage] = useLocalStorage('display_language', i18n.language)
