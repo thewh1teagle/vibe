@@ -63,7 +63,9 @@ mod tests {
         let _ = env_logger::builder().is_test(true).try_init();
     }
 
-    async fn on_download_progress(_: u64, _: u64) {}
+    fn on_download_progress(_: u64, _: u64) -> bool {
+        false
+    }
 
     #[tokio::test]
     async fn test_download() -> Result<()> {

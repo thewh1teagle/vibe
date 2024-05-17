@@ -6,8 +6,6 @@ use std::{fmt::Write, path::PathBuf, sync::Mutex};
 use vibe::{self, model::SegmentCallbackData, transcript::Segment};
 
 static PROGRESS_INSTANCE: once_cell::sync::Lazy<Mutex<Option<ProgressBar>>> = once_cell::sync::Lazy::new(|| Mutex::new(None));
-static PROGRESS_INSTANCE_ASYNC: once_cell::sync::Lazy<tokio::sync::Mutex<Option<ProgressBar>>> =
-    once_cell::sync::Lazy::new(|| tokio::sync::Mutex::new(None));
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -32,10 +30,11 @@ pub struct Args {
     pub n_threads: Option<i32>,
 }
 
-async fn on_download_progress(current: u64, total: u64) {
-    if let Some(pb) = PROGRESS_INSTANCE_ASYNC.lock().await.as_ref() {
+fn on_download_progress(current: u64, total: u64) -> bool {
+    if let Some(pb) = PROGRESS_INSTANCE.lock().unwrap().as_ref() {
         pb.set_position(current / total * 100_u64);
     }
+    false
 }
 
 fn on_transcribe_progress(progress: i32) {
