@@ -99,6 +99,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 					console.info('relaunch....')
 					await process.relaunch()
 				}
+				setAvailableUpdate(false)
 			} catch (e) {
 				console.error(e)
 				setUpdating(false)
