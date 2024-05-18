@@ -29,7 +29,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				<div className="label">
 					<span className="label-text">{t('common.language')}</span>
 				</div>
-				<select onChange={(e) => vm.setLanguage(e.target.value)} value={t(i18n.language)} className="select select-bordered">
+				<select onChange={(e) => vm.prefsSetLanguage(e.target.value)} value={t(i18n.language)} className="select select-bordered">
 					<option>{t('common.select-language')}</option>
 					{Object.entries(supportedLanguages).map(([code, value], index) => (
 						<option key={index} value={code}>

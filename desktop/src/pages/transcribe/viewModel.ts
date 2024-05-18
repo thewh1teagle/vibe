@@ -12,7 +12,7 @@ import { useLocalStorage } from 'usehooks-ts'
 import successSound from '~/assets/success.mp3'
 import { LocalModelArgs } from '~/components/Params'
 import * as transcript from '~/lib/transcript'
-import { ls, validPath } from '~/lib/utils'
+import { NamedPath, ls, pathToNamedPath, validPath } from '~/lib/utils'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { UpdaterContext } from '~/providers/Updater'
 
@@ -26,11 +26,11 @@ export function viewModel() {
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [isManualInstall, _setIsManualInstall] = useLocalStorage('isManualInstall', false)
 
-	const [lang, setLang] = useLocalStorage('lang', 'en')
+	const [lang, setLang] = useLocalStorage('transcribe_lang_code', 'en')
 	const [progress, setProgress] = useState<number | undefined>()
-	const [audioPath, setAudioPath] = useState<string>()
+	const [audioPath, setAudioPath] = useState<NamedPath | null>(null)
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('model_path', null)
-	const audioRef = useRef<HTMLAudioElement>()
+	const audioRef = useRef<HTMLAudioElement>(null)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const [soundOnFinish, _setSoundOnFinish] = useLocalStorage('sound_on_finish', true)
@@ -88,11 +88,12 @@ export function viewModel() {
 	}
 
 	async function handleDrop() {
-		event.listen<{ paths: string[] }>('tauri://drop', (event) => {
-			const newPath = event.payload?.paths?.[0] as string
+		event.listen<{ paths: string[] }>('tauri://drop', async (event) => {
+			const newPathString = event.payload?.paths?.[0] as string
+			const newPath = await path.resolve(newPathString)
 			if (newPath && validPath(newPath)) {
 				// take first path
-				setAudioPath(newPath)
+				setAudioPath(await pathToNamedPath(newPath))
 			}
 		})
 	}
@@ -100,13 +101,13 @@ export function viewModel() {
 	async function handleDeepLinks() {
 		const platform = await os.platform()
 		if (platform === 'macos') {
-			await onOpenUrl((urls) => {
+			await onOpenUrl(async (urls) => {
 				for (let url of urls) {
 					if (url.startsWith('file://')) {
 						url = decodeURIComponent(url)
 						url = url.replace('file://', '')
 						// take only the first one
-						setAudioPath(url)
+						setAudioPath(await pathToNamedPath(url))
 						break
 					}
 				}
@@ -114,7 +115,7 @@ export function viewModel() {
 		} else if (platform == 'windows' || platform == 'linux') {
 			const urls: string[] = await invoke('get_deeplinks')
 			for (const url of urls) {
-				setAudioPath(url)
+				setAudioPath(await pathToNamedPath(url))
 			}
 		}
 	}
@@ -136,7 +137,7 @@ export function viewModel() {
 		setSegments(null)
 		setLoading(true)
 		try {
-			const res: transcript.Transcript = await invoke('transcribe', { options: { ...args, model: modelPath, path: audioPath, lang } })
+			const res: transcript.Transcript = await invoke('transcribe', { options: { ...args, model: modelPath, path: audioPath!.path, lang } })
 			setSegments(res.segments)
 		} catch (error) {
 			if (!abortRef.current) {

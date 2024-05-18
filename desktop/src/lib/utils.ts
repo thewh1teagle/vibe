@@ -6,14 +6,19 @@ import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
 import * as config from './config'
 
-export interface Path {
+export interface NamedPath {
 	name: string
 	path: string
 }
 
+export async function pathToNamedPath(pathString: string) {
+	const name = await path.basename(pathString)
+	return { name, path: pathString }
+}
+
 export async function ls(where: string) {
 	const entries = await fs.readDir(where)
-	const paths: Path[] = []
+	const paths: NamedPath[] = []
 	for (const entry of entries) {
 		const abs = await path.join(where, entry.name)
 		paths.push({ name: entry.name, path: abs })

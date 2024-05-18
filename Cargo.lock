@@ -5391,6 +5391,7 @@ version = "0.0.6"
 dependencies = [
  "env_logger",
  "eyre",
+ "fs_extra",
  "log",
  "once_cell",
  "openssl",

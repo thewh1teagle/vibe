@@ -8,11 +8,11 @@ import { ReactComponent as PauseIcon } from '~/icons/pause.svg'
 import { ReactComponent as PlayIcon } from '~/icons/play.svg'
 import * as config from '~/lib/config'
 import i18n from '~/lib/i18n'
-import { cx } from '~/lib/utils'
+import { NamedPath, cx, pathToNamedPath } from '~/lib/utils'
 
 interface AudioInputProps {
-	path?: dialog.FileResponse
-	setPath: React.Dispatch<React.SetStateAction<dialog.FileResponse | null>>
+	path?: NamedPath | null
+	setPath: React.Dispatch<React.SetStateAction<NamedPath | null>>
 	readonly?: boolean
 	audioRef: MutableRefObject<HTMLAudioElement | null>
 }
@@ -77,7 +77,8 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 			],
 		})
 		if (selected) {
-			setPath(selected)
+			const named = await pathToNamedPath(selected.path)
+			setPath(named)
 
 			audioRef.current?.pause()
 

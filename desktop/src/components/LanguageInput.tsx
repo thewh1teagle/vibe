@@ -1,11 +1,11 @@
 import { ChangeEvent, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
-import Languages from '~/assets/whisper-languages.json'
+import WhisperLanguages from '~/assets/whisper-languages.json'
 
 export default function LanguageInput({ onChange }: { onChange: (lang: string) => void }) {
 	const { t } = useTranslation()
-	const [selected, setSelected] = useLocalStorage('transcribe_language', Languages['auto'])
+	const [selected, setSelected] = useLocalStorage('transcribe_lang_code', 'auto')
 
 	function onLanguageChange(event: ChangeEvent<HTMLSelectElement>) {
 		setSelected(event.target.value)
@@ -17,16 +17,15 @@ export default function LanguageInput({ onChange }: { onChange: (lang: string) =
 	}, [])
 
 	// create entries with translated labels
-	const entries = Object.entries(Languages).map(([language, code]) => {
-		return { label: t(`language.${language}`), code }
+	const entries = Object.entries(WhisperLanguages).map(([name, code]) => {
+		return { label: t(`language.${name}`), name, code }
 	})
 	// sort alphabet
-	entries.sort(({ label: labelA }, { label: labelB }) => {
-		return labelA.localeCompare(labelB)
+	entries.sort((a, b) => {
+		return a.label.localeCompare(b.label)
 	})
-
 	return (
-		<select value={selected} onChange={onLanguageChange} className="select select-bordered">
+		<select value={WhisperLanguages[selected as keyof typeof WhisperLanguages]} onChange={onLanguageChange} className="select select-bordered">
 			{entries.map(({ label, code }) => (
 				<option key={code} value={code}>
 					{label}

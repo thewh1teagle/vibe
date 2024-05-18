@@ -7,7 +7,8 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
 import * as config from '~/lib/config'
-import { Path, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
+import { supportedLanguages } from '~/lib/i18n'
+import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()
@@ -36,10 +37,12 @@ async function openLogsFolder() {
 export function viewModel() {
 	const { i18n } = useTranslation()
 	const [_direction, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
-	const [language, setLanguage] = useLocalStorage('display_language', i18n.language)
+
 	const [modelPath, setModelPath] = useLocalStorage<null | string>('model_path', null)
-	const [models, setModels] = useState<Path[]>([])
+	const [models, setModels] = useState<NamedPath[]>([])
 	const [appVersion, setAppVersion] = useState('')
+	const [_, setTranscribeLang] = useLocalStorage('transcribe_lang_code', 'en')
+	const [prefsLanguage, prefsSetLanguage] = useLocalStorage('prefs_display_language', i18n.language)
 	const [prefsSoundOnFinish, setPrefsSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
 	const [prefsFocusOnFinish, setPrefsFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
 	const { t } = useTranslation()
@@ -76,13 +79,15 @@ export function viewModel() {
 	}
 
 	async function changeLanguage() {
-		await i18n.changeLanguage(language)
+		await i18n.changeLanguage(prefsLanguage)
 		setDirection(i18n.dir())
+		const name = supportedLanguages[prefsLanguage]
+		setTranscribeLang(name)
 	}
 
 	useEffect(() => {
 		changeLanguage()
-	}, [language])
+	}, [prefsLanguage])
 
 	useEffect(() => {
 		loadMeta()
@@ -91,8 +96,9 @@ export function viewModel() {
 	}, [])
 
 	return {
+		setTranscribeLang,
 		askAndReset,
-		setLanguage,
+		prefsSetLanguage,
 		setModelPath,
 		openModelPath,
 		openModelsUrl,

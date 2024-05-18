@@ -55,8 +55,6 @@ function App() {
 								{t('common.cancel')}
 							</button>
 						)}
-
-						{/* <p>{t("you-will-receive-notification")}</p> */}
 					</div>
 				</div>
 			)}
