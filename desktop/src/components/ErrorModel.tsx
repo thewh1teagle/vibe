@@ -33,7 +33,11 @@ export default function ErrorModal() {
 				<p className="py-4">{t('common.modal-error-body')}</p>
 				<div className="relative">
 					<textarea readOnly className="w-full rounded-lg p-3 max-h-20 textarea textarea-bordered" dir="ltr" value={state?.log} />
-					<CopyIcon onMouseDown={() => navigator.clipboard.writeText(state?.log ?? '')} />
+					<CopyIcon
+						className="w-6 h-6 z-10 right-4 bottom-4 absolute strokeBase-content
+    opacity-50 cursor-pointer"
+						onMouseDown={() => navigator.clipboard.writeText(state?.log ?? '')}
+					/>
 				</div>
 				<div className="flex justify-center gap-3 mt-3">
 					<button onClick={clearLogAndReset} className="btn btn-primary cursor-pointer">

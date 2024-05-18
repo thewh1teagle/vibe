@@ -29,7 +29,7 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 			className={cx('dropdown absolute left-0 top-0', open && 'dropdown-open')}
 			dir="ltr">
 			<EllipsisIcon />
-			{availableUpdate && <IndicatorIcon />}
+			{availableUpdate && <IndicatorIcon className="w-2 h-2 absolute -top-0.5 left-3" />}
 
 			<div tabIndex={0} className="dropdown-content -translate-x-0.5 -translate-y-1.5 z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
 				<li onMouseDown={() => onClickSettings()}>

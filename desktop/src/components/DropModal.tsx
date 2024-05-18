@@ -1,10 +1,10 @@
 import * as event from '@tauri-apps/api/event'
-import { useEffect, useRef, useState } from 'react'
-import { cx, formatLongString, validPath } from '~/lib/utils'
 import { basename } from '@tauri-apps/api/path'
-import * as os from '@tauri-apps/plugin-os'
 import * as webview from '@tauri-apps/api/webview'
+import * as os from '@tauri-apps/plugin-os'
+import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DocumentIcon } from '~/icons/document.svg'
+import { cx, formatLongString, validPath } from '~/lib/utils'
 
 interface Position {
 	x: number

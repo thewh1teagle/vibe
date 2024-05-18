@@ -23,7 +23,7 @@ export default function Params({ args, setArgs }: ParamsProps) {
 	return (
 		<div className={cx('collapse !overflow-visible', open && 'collapse-open')}>
 			<div onMouseDown={() => setOpen(!open)} className={cx('mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer')}>
-				{open ? <ChevronUp /> : <ChevronDown />}
+				{open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
 				{t('common.advanced-options')}
 			</div>
 			<div className="collapse-content w-full">
