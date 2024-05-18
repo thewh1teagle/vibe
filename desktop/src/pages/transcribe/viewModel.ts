@@ -61,7 +61,7 @@ export function viewModel() {
 	async function onAbort() {
 		setIsAborting(true)
 		abortRef.current = true
-		event.emit('common.abort_transcribe')
+		event.emit('abort_transcribe')
 	}
 
 	async function checkModelExists() {
@@ -93,7 +93,8 @@ export function viewModel() {
 			const newPath = await path.resolve(newPathString)
 			if (newPath && validPath(newPath)) {
 				// take first path
-				setAudioPath(await pathToNamedPath(newPath))
+				const namedPath = await pathToNamedPath(newPath)
+				setAudioPath(namedPath)
 			}
 		})
 	}

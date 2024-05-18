@@ -66,7 +66,6 @@ export default function Params({ args, setArgs }: ParamsProps) {
 						onChange={(e) => setArgs({ ...args, temperature: parseFloat(e.target.value) })}
 						className="input input-bordered"
 						type="number"
-						defaultValue={0}
 					/>
 				</label>
 			</div>

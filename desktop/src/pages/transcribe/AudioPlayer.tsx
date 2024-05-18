@@ -17,12 +17,10 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 	const [currentDuration, setCurrentDuration] = useState<number>(0)
 
 	const [totalDuration, setTotalDuration] = useState<number>(0)
-	console.log(totalDuration)
 
 	function onLoadMetadata() {
 		setCurrentDuration(0)
 		setProgres(0)
-		console.log('load metadata', audio.duration)
 		setTotalDuration(audio?.duration || 0)
 	}
 
@@ -88,7 +86,7 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 
 	return (
 		<div className="flex flex-col w-full">
-			<div className="flex-col shadow-lg flex justify-between px-3 py-2 bg-base-200 relative rounded-lg  w-[100%] m-auto mt-3 select-none">
+			<div className="flex-col shadow-lg flex justify-between px-3 py-2 bg-base-300 relative rounded-lg  w-[100%] m-auto mt-3 select-none">
 				<div>
 					<span className="overflow-hidden cursor-pointer" onClick={onLabelClick}>
 						{label}

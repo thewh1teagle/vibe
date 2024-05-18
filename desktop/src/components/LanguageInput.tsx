@@ -25,12 +25,17 @@ export default function LanguageInput({ onChange }: { onChange: (lang: string) =
 		return a.label.localeCompare(b.label)
 	})
 	return (
-		<select value={WhisperLanguages[selected as keyof typeof WhisperLanguages]} onChange={onLanguageChange} className="select select-bordered">
-			{entries.map(({ label, code }) => (
-				<option key={code} value={code}>
-					{label}
-				</option>
-			))}
-		</select>
+		<label className="form-control w-full">
+			<div className="label">
+				<span className="label-text">{t('common.language')}</span>
+			</div>
+			<select value={WhisperLanguages[selected as keyof typeof WhisperLanguages]} onChange={onLanguageChange} className="select select-bordered">
+				{entries.map(({ label, code }) => (
+					<option key={code} value={code}>
+						{label}
+					</option>
+				))}
+			</select>
+		</label>
 	)
 }

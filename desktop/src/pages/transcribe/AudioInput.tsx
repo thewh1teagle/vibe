@@ -1,7 +1,7 @@
 import { convertFileSrc } from '@tauri-apps/api/core'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as shell from '@tauri-apps/plugin-shell'
-import { MutableRefObject, useEffect } from 'react'
+import { MutableRefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as config from '~/lib/config'
 import { NamedPath, cx, pathToNamedPath } from '~/lib/utils'
@@ -17,14 +17,11 @@ interface AudioInputProps {
 export default function AudioInput({ path, setPath, readonly, audioRef }: AudioInputProps) {
 	const { t } = useTranslation()
 
-	useEffect(() => {
-		if (!path) {
-			return
-		}
+	if (path) {
 		audioRef.current?.pause()
 		const newAudio = new Audio(convertFileSrc(path.path as string))
 		audioRef.current = newAudio
-	}, [path])
+	}
 
 	async function select() {
 		audioRef.current?.pause()

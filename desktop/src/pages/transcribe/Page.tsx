@@ -19,11 +19,13 @@ function App() {
 			<DropModal />
 			<div className="flex flex-col m-auto w-[300px] mt-10">
 				<div className="relative text-center">
-					<h1 className="text-center text-4xl mb-10">{t('common.app-title')}</h1>
+					<h1 className="text-center text-4xl mb-2 text-base-content font-normal">{t('common.app-title')}</h1>
 					<AppMenu onClickSettings={() => vm.setSettingsVisible(true)} availableUpdate={vm.availableUpdate} updateApp={vm.updateApp} />
 				</div>
-				<LanguageInput onChange={(lang) => vm.setLang(lang)} />
-				<AudioInput audioRef={vm.audioRef} path={vm.audioPath} setPath={vm.setAudioPath} />
+				<div className="join join-vertical">
+					<LanguageInput onChange={(lang) => vm.setLang(lang)} />
+					<AudioInput audioRef={vm.audioRef} path={vm.audioPath} setPath={vm.setAudioPath} />
+				</div>
 				{vm.audioPath && !vm.loading && (
 					<>
 						<button onMouseDown={vm.transcribe} className="btn btn-primary">
