@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
+import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
 import { cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
-import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
-import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
 export interface LocalModelArgs {
 	lang?: string
 	verbose: boolean
@@ -24,14 +24,14 @@ export default function Params({ args, setArgs }: ParamsProps) {
 		<div className={cx('collapse !overflow-visible', open && 'collapse-open')}>
 			<div onMouseDown={() => setOpen(!open)} className={cx('mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer')}>
 				{open ? <ChevronUp /> : <ChevronDown />}
-				{t('advanced-options')}
+				{t('common.advanced-options')}
 			</div>
 			<div className="collapse-content w-full">
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text flex items-center gap-1">
-							<InfoTooltip text={t('info-prompt')} />
-							{t('prompt')} ({t('leftover')} {1024 - (args?.init_prompt?.length ?? 0)} {t('characters')})
+							<InfoTooltip text={t('common.info-prompt')} />
+							{t('common.prompt')} ({t('leftover')} {1024 - (args?.init_prompt?.length ?? 0)} {t('characters')})
 						</span>
 					</div>
 					<textarea
@@ -42,8 +42,8 @@ export default function Params({ args, setArgs }: ParamsProps) {
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text flex items-center gap-1">
-							<InfoTooltip text={t('info-threads')} />
-							{t('threads')}
+							<InfoTooltip text={t('common.info-threads')} />
+							{t('common.threads')}
 						</span>
 					</div>
 					<input
@@ -56,8 +56,8 @@ export default function Params({ args, setArgs }: ParamsProps) {
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text flex items-center gap-1">
-							<InfoTooltip text={t('info-temperature')} />
-							{t('temperature')}
+							<InfoTooltip text={t('common.info-temperature')} />
+							{t('common.temperature')}
 						</span>
 					</div>
 					<input

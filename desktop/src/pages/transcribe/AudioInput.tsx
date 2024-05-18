@@ -117,7 +117,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 		return (
 			<div className="flex items-center w-full justify-center">
 				<button onMouseDown={select} className="btn btn-primary w-full">
-					{t('select-audio-file')}
+					{t('common.select-audio-file')}
 				</button>
 			</div>
 		)
@@ -150,7 +150,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 
 			{!readonly && (
 				<div onMouseDown={select} className={cx('text-xs text-base-content font-medium cursor-pointer mb-3 mt-1')}>
-					{t('change-file')}
+					{t('common.change-file')}
 				</div>
 			)}
 		</div>

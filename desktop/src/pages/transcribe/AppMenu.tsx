@@ -33,11 +33,11 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 
 			<div tabIndex={0} className="dropdown-content -translate-x-0.5 -translate-y-1.5 z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
 				<li onMouseDown={() => onClickSettings()}>
-					<a>{t('settings')}</a>
+					<a>{t('common.settings')}</a>
 				</li>
 				{availableUpdate && (
 					<li onMouseDown={() => updateApp()}>
-						<a className="bg-primary">{t('update-version')}</a>
+						<a className="bg-primary">{t('common.update-version')}</a>
 					</li>
 				)}
 			</div>

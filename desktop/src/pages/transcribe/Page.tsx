@@ -24,7 +24,7 @@ function App() {
 			<DropModal />
 			<div className="flex flex-col m-auto w-[300px] mt-10">
 				<div className="relative text-center">
-					<h1 className="text-center text-4xl mb-10">{t('app-title')}</h1>
+					<h1 className="text-center text-4xl mb-10">{t('common.app-title')}</h1>
 					<AppMenu onClickSettings={() => vm.setSettingsVisible(true)} availableUpdate={vm.availableUpdate} updateApp={vm.updateApp} />
 				</div>
 				<LanguageInput onChange={(lang) => vm.setLang(lang)} />
@@ -32,7 +32,7 @@ function App() {
 				{vm.audioPath && !vm.loading && (
 					<>
 						<button onMouseDown={vm.transcribe} className="btn btn-primary">
-							{t('transcribe')}
+							{t('common.transcribe')}
 						</button>
 						<Params args={vm.args} setArgs={vm.setArgs} />
 					</>
@@ -44,15 +44,15 @@ function App() {
 					<div className="flex flex-row items-center text-center gap-3 bg-base-200 p-4 rounded-2xl">
 						<span className="loading loading-spinner text-primary"></span>
 						{vm.isAborting ? (
-							<p>{t('aborting')}...</p>
+							<p>{t('common.aborting')}...</p>
 						) : (
 							<p>
-								{t('transcribing')} {vm.progress ? `${Math.round(vm.progress)}%` : '0%'}
+								{t('common.transcribing')} {vm.progress ? `${Math.round(vm.progress)}%` : '0%'}
 							</p>
 						)}
 						{!vm.isAborting && (
 							<button onClick={vm.onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
-								{t('cancel')}
+								{t('common.cancel')}
 							</button>
 						)}
 
@@ -62,7 +62,7 @@ function App() {
 			)}
 			{(vm.segments || vm.loading) && (
 				<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
-					<TextArea placeholder={t('transcript-will-displayed-shortly')} segments={vm.segments} readonly={vm.loading} />
+					<TextArea placeholder={t('common.transcript-will-displayed-shortly')} segments={vm.segments} readonly={vm.loading} />
 				</div>
 			)}
 		</div>

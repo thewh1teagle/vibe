@@ -1,13 +1,13 @@
-import * as fs from '@tauri-apps/plugin-fs'
 import * as dialog from '@tauri-apps/plugin-dialog'
+import * as fs from '@tauri-apps/plugin-fs'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
-import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
-import { cx } from '~/lib/utils'
+import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
-import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
+import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
+import { cx } from '~/lib/utils'
 
 type TextFormat = 'normal' | 'srt' | 'vtt'
 type FormatExtensions = {
@@ -69,7 +69,7 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 						setFormat(event.target.value as unknown as TextFormat)
 					}}
 					className="select select-bordered ms-auto me-1.5">
-					<option value="normal">{t('mode-text')}</option>
+					<option value="normal">{t('common.mode-text')}</option>
 					<option value="srt">SRT</option>
 					<option value="vtt">VTT</option>
 				</select>

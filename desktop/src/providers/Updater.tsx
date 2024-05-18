@@ -62,10 +62,10 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 
 	async function updateApp() {
 		const shouldUpdate = await dialog.ask(t('ask-for-update-body', { version: update?.version }), {
-			title: t('ask-for-update-title'),
+			title: t('common.ask-for-update-title'),
 			kind: 'info',
-			cancelLabel: t('cancel-update'),
-			okLabel: t('confirm-update'),
+			cancelLabel: t('common.cancel-update'),
+			okLabel: t('common.confirm-update'),
 		})
 
 		if (shouldUpdate) {
@@ -89,11 +89,11 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 				setTotal(null)
 				setPartSize(null)
 				setProgress(null)
-				const shouldRelaunch = await dialog.ask(t('ask-for-relaunch-body'), {
-					title: t('ask-for-relaunch-title'),
+				const shouldRelaunch = await dialog.ask(t('common.ask-for-relaunch-body'), {
+					title: t('common.ask-for-relaunch-title'),
 					kind: 'info',
-					cancelLabel: t('cancel-relaunch'),
-					okLabel: t('confirm-relaunch'),
+					cancelLabel: t('common.cancel-relaunch'),
+					okLabel: t('common.confirm-relaunch'),
 				})
 				if (shouldRelaunch) {
 					console.info('relaunch....')

@@ -54,7 +54,7 @@ export function viewModel() {
 	async function cancelSetup() {
 		// Cancel and go to settings
 		setManualInstall(true)
-		emit('abort_download')
+		emit('common.abort_download')
 		navigate('/#settings')
 	}
 

@@ -6,18 +6,19 @@ import resourcesToBackend from 'i18next-resources-to-backend'
 import { initReactI18next } from 'react-i18next/initReactI18next'
 
 export const supportedLanguages: { [key: string]: string } = {
-	'he-IL': 'Hebrew',
-	en: 'English',
-	'pt-BR': 'Portuguese',
-	'sv-SE': 'Swedish',
+	'he-IL': 'hebrew',
+	en: 'english',
+	'pt-BR': 'portuguese',
+	'sv-SE': 'swedish',
 }
-const languageKeys = Object.keys(supportedLanguages)
+export const supportedLanguageKeys = Object.keys(supportedLanguages)
+export const supportedLanguageValues = Object.values(supportedLanguages)
 
 i18n.use(LanguageDetector)
 	.use(initReactI18next)
 	.use(
 		resourcesToBackend(async (language: string) => {
-			if (!languageKeys.includes(language)) {
+			if (!supportedLanguageKeys.includes(language)) {
 				return
 			}
 			const resourcePath = `./locales/${language}`

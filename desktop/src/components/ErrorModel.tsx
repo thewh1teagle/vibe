@@ -29,24 +29,24 @@ export default function ErrorModal() {
 	return (
 		<dialog id="modal-error" className={cx('modal', state?.open && 'modal-open')}>
 			<div className="modal-box">
-				<h3 className="font-bold text-lg">{t('error-title')}</h3>
-				<p className="py-4">{t('modal-error-body')}</p>
+				<h3 className="font-bold text-lg">{t('common.error-title')}</h3>
+				<p className="py-4">{t('common.modal-error-body')}</p>
 				<div className="relative">
 					<textarea readOnly className="w-full rounded-lg p-3 max-h-20 textarea textarea-bordered" dir="ltr" value={state?.log} />
 					<CopyIcon onMouseDown={() => navigator.clipboard.writeText(state?.log ?? '')} />
 				</div>
 				<div className="flex justify-center gap-3 mt-3">
 					<button onClick={clearLogAndReset} className="btn btn-primary cursor-pointer">
-						{t('reset-app')}
+						{t('common.reset-app')}
 					</button>
 					<button onMouseDown={reportIssue} className="btn btn-outline">
-						{t('report-issue')}
+						{t('common.report-issue')}
 					</button>
 				</div>
 				<div className="modal-action">
 					<form method="dialog">
 						<button onClick={() => setState?.({ log: '', open: false })} className="btn cursor-pointer">
-							{t('modal-close')}
+							{t('common.modal-close')}
 						</button>
 					</form>
 				</div>

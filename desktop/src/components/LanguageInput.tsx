@@ -5,7 +5,7 @@ import Languages from '~/assets/whisper-languages.json'
 
 export default function LanguageInput({ onChange }: { onChange: (lang: string) => void }) {
 	const { t } = useTranslation()
-	const [selected, setSelected] = useLocalStorage('transcribe_language', Languages['Auto'])
+	const [selected, setSelected] = useLocalStorage('transcribe_language', Languages['auto'])
 
 	function onLanguageChange(event: ChangeEvent<HTMLSelectElement>) {
 		setSelected(event.target.value)
@@ -16,11 +16,20 @@ export default function LanguageInput({ onChange }: { onChange: (lang: string) =
 		onChange(selected)
 	}, [])
 
+	// create entries with translated labels
+	const entries = Object.entries(Languages).map(([language, code]) => {
+		return { label: t(`language.${language}`), code }
+	})
+	// sort alphabet
+	entries.sort(({ label: labelA }, { label: labelB }) => {
+		return labelA.localeCompare(labelB)
+	})
+
 	return (
 		<select value={selected} onChange={onLanguageChange} className="select select-bordered">
-			{Object.keys(Languages).map((langKey, index) => (
-				<option key={index} value={Languages[langKey as keyof typeof Languages]}>
-					{langKey === 'Auto' ? t('lang-auto') : t(langKey)}
+			{entries.map(({ label, code }) => (
+				<option key={code} value={code}>
+					{label}
 				</option>
 			))}
 		</select>

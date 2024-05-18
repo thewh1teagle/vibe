@@ -61,7 +61,7 @@ export function viewModel() {
 	async function onAbort() {
 		setIsAborting(true)
 		abortRef.current = true
-		event.emit('abort_transcribe')
+		event.emit('common.abort_transcribe')
 	}
 
 	async function checkModelExists() {

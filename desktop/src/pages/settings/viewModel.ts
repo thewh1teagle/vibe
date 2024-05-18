@@ -45,7 +45,7 @@ export function viewModel() {
 	const { t } = useTranslation()
 
 	async function askAndReset() {
-		const yes = await ask(t('reset-ask-dialog'), { kind: 'info' })
+		const yes = await ask(t('common.reset-ask-dialog'), { kind: 'info' })
 		if (yes) {
 			resetApp()
 		}
