@@ -61,7 +61,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	async function updateApp() {
-		const shouldUpdate = await dialog.ask(t('ask-for-update-body', { version: update?.version }), {
+		const shouldUpdate = await dialog.ask(t('common.ask-for-update-body', { version: update?.version }), {
 			title: t('common.ask-for-update-title'),
 			kind: 'info',
 			cancelLabel: t('common.cancel-update'),
