@@ -1,7 +1,7 @@
 import '@fontsource/roboto'
 import { useTranslation } from 'react-i18next'
 import { Route, Routes } from 'react-router-dom'
-import ErrorModal from '~/components/ErrorModel'
+import ErrorModal from '~/components/ErrorModal'
 import ThemeToggle from '~/components/ThemeToggle'
 import UpdateProgress from '~/components/UpdaterProgress'
 import '~/globals.css'
