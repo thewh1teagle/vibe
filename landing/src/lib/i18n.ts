@@ -13,9 +13,9 @@ i18next
 			lookupQuerystring: 'lng',
 			lookupLocalStorage: 'locale',
 		},
-		fallbackLng: 'en',
+		fallbackLng: 'en-US',
 		// lng: 'en', // testing in dev mode
-		supportedLngs: ['en', 'he'],
+		supportedLngs: ['en-US', 'he-IL'],
 		ns: 'translation',
 		backend: {
 			loadPath: 'locales/{{lng}}.json',

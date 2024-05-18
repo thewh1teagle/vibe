@@ -4,7 +4,7 @@ on:
     push:
         paths:
             - 'landing/**'
-            - 'scripts/landing_releases.js'
+            - 'scripts/landing_links.js'
     workflow_run:
         workflows: ['Release']
         types:
@@ -38,7 +38,7 @@ jobs:
               working-directory: landing
 
             - name: Update downloads manifest
-              run: bun run scripts/landing_releases.js
+              run: bun run scripts/landing_links.js
 
             - name: Setup Pages
               uses: actions/configure-pages@v3
