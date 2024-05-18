@@ -58,7 +58,7 @@
             "icons/icon.ico"
         ],
         "resources": {
-            "locales": "locales"
+            "../locales": "locales"
         },
         "fileAssociations": [
             {

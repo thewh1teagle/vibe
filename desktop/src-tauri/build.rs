@@ -16,7 +16,7 @@ fn copy_locales() {
     let target_dir = out_dir.parent().unwrap().parent().unwrap().parent().unwrap();
 
     // Construct the source and target paths for the locales folder
-    let src_locales = src_tauri.join("locales");
+    let src_locales = src_tauri.join("../locales");
     let target_locales = target_dir.join("locales");
 
     // Specify copy options
