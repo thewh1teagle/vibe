@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalStorage } from 'usehooks-ts'
 import * as config from '~/lib/config'
+import { preferences } from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
 
@@ -42,9 +43,9 @@ export function viewModel() {
 	const [models, setModels] = useState<NamedPath[]>([])
 	const [appVersion, setAppVersion] = useState('')
 	const [_, setTranscribeLang] = useLocalStorage('transcribe_lang_code', 'en')
-	const [prefsLanguage, prefsSetLanguage] = useLocalStorage('prefs_display_language', i18n.language)
-	const [prefsSoundOnFinish, setPrefsSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
-	const [prefsFocusOnFinish, setPrefsFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
+	const [prefsLanguage, prefsSetLanguage] = useLocalStorage(preferences.displayLanguage.key, preferences.displayLanguage.default)
+	const [prefsSoundOnFinish, setPrefsSoundOnFinish] = useLocalStorage(preferences.soundOnFinish.key, preferences.soundOnFinish.default)
+	const [prefsFocusOnFinish, setPrefsFocusOnFinish] = useLocalStorage(preferences.focusOnFinish.key, preferences.focusOnFinish.default)
 	const { t } = useTranslation()
 
 	async function askAndReset() {

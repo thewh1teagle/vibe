@@ -9,6 +9,7 @@ import { useWindowsState } from '~/hooks/useWindowsState'
 import '~/lib/i18n'
 import SetupPage from '~/pages/setup/Page'
 import TranscribePage from '~/pages/transcribe/Page'
+import BatchPage from './pages/batch/Page'
 import { ErrorModalProvider } from './providers/ErrorModal'
 import { UpdaterProvider } from './providers/Updater'
 
@@ -29,6 +30,7 @@ export default function App() {
 				<Routes>
 					<Route path="/setup" element={<SetupPage />} />
 					<Route path="/" element={<TranscribePage />} />
+					<Route path="/batch" element={<BatchPage />} />
 				</Routes>
 			</UpdaterProvider>
 		</ErrorModalProvider>

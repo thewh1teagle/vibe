@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core'
 import * as path from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
+import * as shell from '@tauri-apps/plugin-shell'
 import * as config from './config'
 
 export interface NamedPath {
@@ -98,4 +99,11 @@ export async function getIssueUrl(logs: string) {
 	return `https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=Bug:&logs=${encodeURIComponent(
 		logs
 	)}`
+}
+
+export async function openPathParent(file: NamedPath) {
+	const folderPath = file.path.replace(file.name, '')
+	if (folderPath) {
+		shell.open(folderPath)
+	}
 }

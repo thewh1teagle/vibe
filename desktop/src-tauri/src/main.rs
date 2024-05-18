@@ -32,6 +32,7 @@ fn main() {
             cmd::get_default_model_path,
             cmd::get_commit_hash,
             cmd::is_online,
+            cmd::get_path_dst,
             #[cfg(any(windows, target_os = "linux"))]
             cmd::get_deeplinks
         ])
