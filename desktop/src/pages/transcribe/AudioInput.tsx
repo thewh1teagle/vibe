@@ -1,5 +1,6 @@
 import { convertFileSrc } from '@tauri-apps/api/core'
 import * as dialog from '@tauri-apps/plugin-dialog'
+import * as shell from '@tauri-apps/plugin-shell'
 import formatDuration from 'format-duration'
 import { MutableRefObject, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,10 +11,10 @@ import i18n from '~/lib/i18n'
 import { cx } from '~/lib/utils'
 
 interface AudioInputProps {
-	path?: string
-	setPath: React.Dispatch<React.SetStateAction<string | undefined>>
+	path?: dialog.FileResponse
+	setPath: React.Dispatch<React.SetStateAction<dialog.FileResponse | null>>
 	readonly?: boolean
-	audioRef: MutableRefObject<HTMLAudioElement | undefined>
+	audioRef: MutableRefObject<HTMLAudioElement | null>
 }
 
 export default function AudioInput({ path, setPath, readonly, audioRef }: AudioInputProps) {
@@ -51,7 +52,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 			return
 		}
 		audioRef.current?.pause()
-		const newAudio = new Audio(convertFileSrc(path as string))
+		const newAudio = new Audio(convertFileSrc(path.path as string))
 		audioRef.current = newAudio
 		newAudio.addEventListener('loadedmetadata', onLoadMetadata)
 
@@ -76,7 +77,7 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 			],
 		})
 		if (selected) {
-			setPath(selected.path as string)
+			setPath(selected)
 
 			audioRef.current?.pause()
 
@@ -113,6 +114,13 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 		audioRef.current?.pause()
 	}
 
+	function openFolder() {
+		const folderPath = path?.path.replace(path.name ?? '', '')
+		if (folderPath) {
+			shell.open(folderPath)
+		}
+	}
+
 	if (!path) {
 		return (
 			<div className="flex items-center w-full justify-center">
@@ -125,15 +133,20 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 
 	return (
 		<div className="flex flex-col w-full">
-			<div className="flex-col cursor-pointer shadow-lg flex justify-between px-3 py-2 bg-base-200 relative rounded-lg  w-[100%] m-auto mt-3 select-none">
-				<p className="overflow-hidden">{path?.split('\\').pop()}</p>
+			<div className="flex-col shadow-lg flex justify-between px-3 py-2 bg-base-200 relative rounded-lg  w-[100%] m-auto mt-3 select-none">
+				<div>
+					<span className="overflow-hidden cursor-pointer" onClick={openFolder}>
+						{path.name}
+					</span>
+				</div>
+
 				<div className="flex flex-col mt-3 w-[90%] m-auto ">
 					<progress
 						onMouseDown={onChangeDuration}
 						className="progress w-full h-[5px] bg-base-100 hover:h-[12px] transition-height duration-100 ease-in-out progress-primary rounded-3xl"
 						value={progress}
 						max="100"></progress>
-					<div className="w-full flex flex-row justify-between text-sm mt-1">
+					<div className="w-full flex flex-row justify-between text-sm mt-1 cursor-default">
 						<div>{formatDuration(currentDuration * 1000)}</div>
 						<div>{formatDuration(totalDuration === 0 ? 0 : totalDuration * 1000)}</div>
 					</div>
