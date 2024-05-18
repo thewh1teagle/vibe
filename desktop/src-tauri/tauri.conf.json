@@ -57,9 +57,9 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ],
-        "resources": [
-            "locales/*"
-        ],
+        "resources": {
+            "locales": "locales"
+        },
         "fileAssociations": [
             {
                 "description": "Video files",

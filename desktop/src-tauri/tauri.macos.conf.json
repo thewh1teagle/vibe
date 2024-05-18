@@ -12,9 +12,6 @@
                 "ffmpeg/lib/libswscale.7.dylib"
             ],
             "signingIdentity": "-"
-        },
-        "resources": {
-            "locales": "locales"
         }
     }
 }
