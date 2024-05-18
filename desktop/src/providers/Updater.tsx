@@ -1,6 +1,6 @@
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as process from '@tauri-apps/plugin-process'
-import { Update, check as checkUpdate } from '@tauri-apps/plugin-updater'
+import { DownloadEvent, Update, check as checkUpdate } from '@tauri-apps/plugin-updater'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ErrorModalContext } from './ErrorModal'
@@ -60,6 +60,45 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		checkForUpdates()
 	}, [])
 
+	async function askForRelaunch() {
+		const shouldRelaunch = await dialog.ask(t('common.ask-for-relaunch-body'), {
+			title: t('common.ask-for-relaunch-title'),
+			kind: 'info',
+			cancelLabel: t('common.cancel-relaunch'),
+			okLabel: t('common.confirm-relaunch'),
+		})
+		if (shouldRelaunch) {
+			console.info('relaunch....')
+			await process.relaunch()
+		}
+	}
+
+	function onDownloadEvent(downloadEvent: DownloadEvent) {
+		switch (downloadEvent.event) {
+			case 'Started': {
+				setTotal(downloadEvent.data.contentLength!)
+				break
+			}
+			case 'Progress': {
+				setPartSize((prev) => (prev ?? 0) + downloadEvent.data.chunkLength)
+				break
+			}
+		}
+	}
+
+	async function downloadAndInstall() {
+		setUpdating(true)
+		setProgress(0)
+		console.info(`Installing update ${update?.version}, ${update?.date}, ${update?.body}`)
+		await update?.downloadAndInstall(onDownloadEvent)
+		setUpdating(false)
+		setTotal(null)
+		setPartSize(null)
+		setProgress(null)
+		await askForRelaunch()
+		setAvailableUpdate(false)
+	}
+
 	async function updateApp() {
 		const shouldUpdate = await dialog.ask(t('common.ask-for-update-body', { version: update?.version }), {
 			title: t('common.ask-for-update-title'),
@@ -67,39 +106,9 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 			cancelLabel: t('common.cancel-update'),
 			okLabel: t('common.confirm-update'),
 		})
-
 		if (shouldUpdate) {
-			setUpdating(true)
-			setProgress(0)
-			console.info(`Installing update ${update?.version}, ${update?.date}, ${update?.body}`)
 			try {
-				await update?.downloadAndInstall((downloadEvent) => {
-					switch (downloadEvent.event) {
-						case 'Started': {
-							setTotal(downloadEvent.data.contentLength!)
-							break
-						}
-						case 'Progress': {
-							setPartSize((prev) => (prev ?? 0) + downloadEvent.data.chunkLength)
-							break
-						}
-					}
-				})
-				setUpdating(false)
-				setTotal(null)
-				setPartSize(null)
-				setProgress(null)
-				const shouldRelaunch = await dialog.ask(t('common.ask-for-relaunch-body'), {
-					title: t('common.ask-for-relaunch-title'),
-					kind: 'info',
-					cancelLabel: t('common.cancel-relaunch'),
-					okLabel: t('common.confirm-relaunch'),
-				})
-				if (shouldRelaunch) {
-					console.info('relaunch....')
-					await process.relaunch()
-				}
-				setAvailableUpdate(false)
+				downloadAndInstall()
 			} catch (e) {
 				console.error(e)
 				setUpdating(false)
