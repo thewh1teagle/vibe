@@ -27,7 +27,7 @@ export function viewModel() {
 	const [isManualInstall, _setIsManualInstall] = useLocalStorage('isManualInstall', false)
 
 	const [lang, setLang] = useLocalStorage('transcribe_lang_code', 'en')
-	const [progress, setProgress] = useState<number | undefined>()
+	const [progress, setProgress] = useState<number | null>(0)
 	const [audioPath, setAudioPath] = useState<NamedPath | null>(null)
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('model_path', null)
 	const audioRef = useRef<HTMLAudioElement>(null)
@@ -45,7 +45,7 @@ export function viewModel() {
 		temperature: 0.4,
 	})
 
-	async function handleEvents() {
+	async function handleNewSegment() {
 		await listen('transcribe_progress', (event) => {
 			const value = event.payload as number
 			if (value >= 0 && value <= 100) {
@@ -124,7 +124,7 @@ export function viewModel() {
 		handleDrop()
 		handleDeepLinks()
 		checkModelExists()
-		handleEvents()
+		handleNewSegment()
 	}, [])
 
 	useEffect(() => {
@@ -148,7 +148,7 @@ export function viewModel() {
 		} finally {
 			setLoading(false)
 			setIsAborting(false)
-			setProgress(undefined)
+			setProgress(null)
 			if (!abortRef.current) {
 				// Focus back the window and play sound
 				if (soundOnFinish) {
