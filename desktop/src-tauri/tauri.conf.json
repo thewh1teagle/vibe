@@ -1,5 +1,41 @@
 {
     "$schema": "./gen/schemas/desktop-schema.json",
+    "productName": "vibe",
+    "version": "1.0.5",
+    "identifier": "github.com.thewh1teagle.vibe",
+    "app": {
+        "windows": [
+            {
+                "title": "vibe",
+                "label": "main",
+                "width": 800,
+                "height": 700,
+                "minWidth": 800,
+                "minHeight": 600,
+                "center": true,
+                "resizable": true,
+                "focus": true,
+                "shadow": true,
+                "fullscreen": false,
+                "maximized": false,
+                "visible": false
+            }
+        ],
+        "withGlobalTauri": true,
+        "security": {
+            "assetProtocol": {
+                "scope": {
+                    "allow": [
+                        "**"
+                    ],
+                    "deny": [],
+                    "requireLiteralLeadingDot": false
+                },
+                "enable": true
+            },
+            "csp": null
+        }
+    },
     "build": {
         "beforeDevCommand": "bun run dev",
         "beforeBuildCommand": "bun run build",
@@ -51,48 +87,12 @@
             }
         ]
     },
-    "productName": "vibe",
-    "version": "1.0.5",
-    "identifier": "github.com.thewh1teagle.vibe",
     "plugins": {
         "updater": {
             "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
             "endpoints": [
                 "https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
             ]
-        }
-    },
-    "app": {
-        "windows": [
-            {
-                "title": "vibe",
-                "label": "main",
-                "width": 800,
-                "height": 700,
-                "minWidth": 800,
-                "minHeight": 600,
-                "center": true,
-                "resizable": true,
-                "focus": true,
-                "shadow": true,
-                "fullscreen": false,
-                "maximized": false,
-                "visible": false
-            }
-        ],
-        "withGlobalTauri": true,
-        "security": {
-            "assetProtocol": {
-                "scope": {
-                    "allow": [
-                        "**"
-                    ],
-                    "deny": [],
-                    "requireLiteralLeadingDot": false
-                },
-                "enable": true
-            },
-            "csp": null
         }
     }
 }
