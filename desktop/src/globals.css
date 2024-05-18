@@ -3,14 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-    html {
-        font-family: 'Proxima Nova', system-ui, sans-serif;
-    }
-
-
+	html {
+		font-family: 'Proxima Nova', system-ui, sans-serif;
+	}
 }
 
-[dir="rtl"] select {
-    padding-right: 10px;
-    padding-left: 42px;
+[dir='rtl'] select {
+	padding-right: 10px;
+	padding-left: 42px;
 }

@@ -6,8 +6,6 @@ use std::{fmt::Write, path::PathBuf, sync::Mutex};
 use vibe::{self, model::SegmentCallbackData, transcript::Segment};
 
 static PROGRESS_INSTANCE: once_cell::sync::Lazy<Mutex<Option<ProgressBar>>> = once_cell::sync::Lazy::new(|| Mutex::new(None));
-static PROGRESS_INSTANCE_ASYNC: once_cell::sync::Lazy<tokio::sync::Mutex<Option<ProgressBar>>> =
-    once_cell::sync::Lazy::new(|| tokio::sync::Mutex::new(None));
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -20,8 +18,9 @@ pub struct Args {
     pub model: Option<String>,
 
     /// Language spoken in the audio. Attempts to auto-detect by default.
-    #[clap(short, long)]
-    pub lang: Option<vibe::language::Language>,
+    /// TODO: add possible values derived from whisper-languages.json
+    #[clap(short, long, default_value = "en")]
+    pub lang: String,
 
     /// Verbose output
     #[arg(long, action=ArgAction::SetTrue, default_value_t = false)]
@@ -32,10 +31,11 @@ pub struct Args {
     pub n_threads: Option<i32>,
 }
 
-async fn on_download_progress(current: u64, total: u64) {
-    if let Some(pb) = PROGRESS_INSTANCE_ASYNC.lock().await.as_ref() {
+fn on_download_progress(current: u64, total: u64) -> bool {
+    if let Some(pb) = PROGRESS_INSTANCE.lock().unwrap().as_ref() {
         pb.set_position(current / total * 100_u64);
     }
+    false
 }
 
 fn on_transcribe_progress(progress: i32) {
@@ -45,12 +45,12 @@ fn on_transcribe_progress(progress: i32) {
 }
 
 fn on_new_segment(data: SegmentCallbackData) {
-    let utternace: Segment = Segment {
+    let segment: Segment = Segment {
         start: data.start_timestamp,
         stop: data.end_timestamp,
         text: data.text,
     };
-    println!("{}", utternace.as_text());
+    println!("{}", segment.as_text());
 }
 
 fn on_abort_callback() -> bool {
@@ -83,7 +83,7 @@ async fn main() -> Result<()> {
     pb.reset_eta();
 
     let args = vibe::config::ModelArgs {
-        lang: args.lang.map(|a| a.as_str().to_string()),
+        lang: Some(args.lang),
         model: vibe::config::get_model_path()?,
         path: PathBuf::from(args.path),
         n_threads: args.n_threads,

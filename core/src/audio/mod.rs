@@ -1,7 +1,6 @@
 use eyre::{bail, Context, Result};
 use ffmpeg_next::Rescale;
 use hound::{SampleFormat, WavReader};
-use log::debug;
 use std::path::PathBuf;
 mod encoder;
 
@@ -11,7 +10,7 @@ pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
     let filter = "anull";
     let seek = seek.parse::<i64>().ok();
 
-    debug!("input is {} and output is {}", input.display(), output.display());
+    log::debug!("input is {} and output is {}", input.display(), output.display());
     let mut ictx = ffmpeg_next::format::input(&input)?;
     let mut octx = ffmpeg_next::format::output(&output)?;
     let mut transcoder = encoder::transcoder(&mut ictx, &mut octx, &output, filter)?;
@@ -49,9 +48,9 @@ pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
 }
 
 pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
-    debug!("wav reader read from {:?}", path);
+    log::debug!("wav reader read from {:?}", path);
     let reader = WavReader::open(path).context("failed to read file")?;
-    debug!("parsing {}", path.display());
+    log::debug!("parsing {}", path.display());
 
     let channels = reader.spec().channels;
     if reader.spec().channels != 1 {
@@ -73,7 +72,6 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
 #[cfg(test)]
 mod tests {
     use eyre::Result;
-    use log::debug;
     use std::fs;
     use tempfile::tempdir;
 
@@ -86,17 +84,17 @@ mod tests {
     #[test]
     fn test_audio_conversion() -> Result<()> {
         init();
-        debug!("test");
+        log::debug!("test");
         // Create a temporary directory to store input and output files.
         let temp_dir = tempdir()?;
         let input_file_path = temp_dir.path().join("input.mp3");
         let output_file_path = temp_dir.path().join("output.wav");
 
         // Copy a sample input file to the temporary directory.
-        debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
+        log::debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
         audio::normalize(input_file_path, output_file_path.clone(), "0".to_owned())?;
-        debug!("check output at {}", output_file_path.display());
+        log::debug!("check output at {}", output_file_path.display());
 
         Ok(())
     }

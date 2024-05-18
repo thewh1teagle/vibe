@@ -21,13 +21,10 @@ pub fn is_online(timeout: Option<u64>) -> bool {
     let timeout_duration = Duration::from_millis(timeout);
 
     match addr.parse::<SocketAddr>() {
-        Ok(socket_addr) => match TcpStream::connect_timeout(&socket_addr, timeout_duration) {
-            Ok(_) => true,
-            Err(_) => false,
-        },
+        Ok(socket_addr) => TcpStream::connect_timeout(&socket_addr, timeout_duration).is_ok(),
         Err(err) => {
             log::error!("{:?}", err);
-            return false;
+            false
         }
     }
 }

@@ -1,67 +1,8 @@
 {
     "$schema": "./gen/schemas/desktop-schema.json",
-    "build": {
-        "beforeDevCommand": "bun run dev",
-        "beforeBuildCommand": "bun run build",
-        "frontendDist": "../dist",
-        "devUrl": "http://localhost:1420"
-    },
-    "bundle": {
-        "active": true,
-        "targets": [
-            "nsis",
-            "deb",
-            "dmg",
-            "updater"
-        ],
-        "icon": [
-            "icons/32x32.png",
-            "icons/128x128.png",
-            "icons/128x128@2x.png",
-            "icons/icon.icns",
-            "icons/icon.ico"
-        ],
-        "resources": [
-            "locales/*"
-        ],
-        "fileAssociations": [
-            {
-                "description": "Video files",
-                "ext": [
-                    "mp4",
-                    "mkv",
-                    "avi",
-                    "mov",
-                    "wmv",
-                    "webm"
-                ]
-            },
-            {
-                "description": "Audio files",
-                "ext": [
-                    "mp3",
-                    "wav",
-                    "aac",
-                    "flac",
-                    "oga",
-                    "ogg",
-                    "opic",
-                    "opus"
-                ]
-            }
-        ]
-    },
     "productName": "vibe",
     "version": "1.0.5",
     "identifier": "github.com.thewh1teagle.vibe",
-    "plugins": {
-        "updater": {
-            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
-            "endpoints": [
-                "https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
-            ]
-        }
-    },
     "app": {
         "windows": [
             {
@@ -93,6 +34,65 @@
                 "enable": true
             },
             "csp": null
+        }
+    },
+    "build": {
+        "beforeDevCommand": "bun run dev",
+        "beforeBuildCommand": "bun run build",
+        "frontendDist": "../dist",
+        "devUrl": "http://localhost:1420"
+    },
+    "bundle": {
+        "active": true,
+        "targets": [
+            "nsis",
+            "deb",
+            "dmg",
+            "updater"
+        ],
+        "icon": [
+            "icons/32x32.png",
+            "icons/128x128.png",
+            "icons/128x128@2x.png",
+            "icons/icon.icns",
+            "icons/icon.ico"
+        ],
+        "resources": {
+            "../locales": "locales"
+        },
+        "fileAssociations": [
+            {
+                "description": "Video files",
+                "ext": [
+                    "mp4",
+                    "mkv",
+                    "avi",
+                    "mov",
+                    "wmv",
+                    "webm"
+                ]
+            },
+            {
+                "description": "Audio files",
+                "ext": [
+                    "mp3",
+                    "wav",
+                    "aac",
+                    "flac",
+                    "oga",
+                    "ogg",
+                    "opic",
+                    "opus"
+                ]
+            }
+        ]
+    },
+    "plugins": {
+        "updater": {
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
+            "endpoints": [
+                "https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
+            ]
         }
     }
 }

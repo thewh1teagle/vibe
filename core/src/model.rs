@@ -2,7 +2,6 @@ use crate::audio;
 use crate::config::ModelArgs;
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, Context, Ok, OptionExt, Result};
-use log::debug;
 use std::sync::Mutex;
 use std::time::Instant;
 pub use whisper_rs::SegmentCallbackData;
@@ -17,7 +16,7 @@ pub fn transcribe(
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
 ) -> Result<Transcript> {
-    debug!("Transcribe called with {:?}", options);
+    log::debug!("Transcribe called with {:?}", options);
     if !options.model.exists() {
         bail!("whisper file doesn't exist")
     }
@@ -42,7 +41,7 @@ pub fn transcribe(
     whisper_rs::install_whisper_log_trampoline();
     whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)?;
 
-    debug!("open model...");
+    log::debug!("open model...");
     let ctx = WhisperContext::new_with_params(
         options.model.to_str().ok_or_eyre("can't convert model option to str")?,
         WhisperContextParameters::default(),
@@ -51,7 +50,7 @@ pub fn transcribe(
     let mut state = ctx.create_state().context("failed to create key")?;
 
     let mut params = FullParams::new(SamplingStrategy::default());
-    debug!("set language to {:?}", options.lang);
+    log::debug!("set language to {:?}", options.lang);
     if options.lang.is_some() {
         params.set_language(options.lang.as_deref());
     }
@@ -64,18 +63,18 @@ pub fn transcribe(
     params.set_token_timestamps(true);
 
     if let Some(temperature) = options.temperature {
-        debug!("setting temperature to {temperature}");
+        log::debug!("setting temperature to {temperature}");
         params.set_temperature(temperature);
     }
 
     // handle args
     if let Some(init_prompt) = options.init_prompt.to_owned() {
-        debug!("setting init prompt to {init_prompt}");
+        log::debug!("setting init prompt to {init_prompt}");
         params.set_initial_prompt(&init_prompt);
     }
 
     if let Some(n_threads) = options.n_threads {
-        debug!("setting n threads to {n_threads}");
+        log::debug!("setting n threads to {n_threads}");
         params.set_n_threads(n_threads);
     }
 
@@ -90,27 +89,27 @@ pub fn transcribe(
     if PROGRESS_CALLBACK.lock().unwrap().as_ref().is_some() {
         params.set_progress_callback_safe(|progress| {
             // using move here lead to crash
-            debug!("progress callback {}", progress);
+            log::debug!("progress callback {}", progress);
             if let Some(progress_callback) = PROGRESS_CALLBACK.lock().unwrap().as_ref() {
                 progress_callback(progress);
             }
         });
     }
 
-    debug!("set start time...");
+    log::debug!("set start time...");
     let st = std::time::Instant::now();
-    debug!("setting state full...");
+    log::debug!("setting state full...");
     state.full(params, &samples).context("failed to transcribe")?;
     let _et = std::time::Instant::now();
 
-    debug!("getting segments count...");
+    log::debug!("getting segments count...");
     let num_segments = state.full_n_segments().context("failed to get number of segments")?;
     if num_segments == 0 {
         bail!("no segements found!")
     }
-    debug!("found {} segments", num_segments);
+    log::debug!("found {} segments", num_segments);
     let mut segments = Vec::new();
-    debug!("looping segments...");
+    log::debug!("looping segments...");
     for s in 0..num_segments {
         let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
@@ -134,7 +133,6 @@ mod tests {
 
     use super::*;
     use eyre::Result;
-    use log::debug;
     use std::fs;
     use tempfile::tempdir;
 
@@ -145,17 +143,17 @@ mod tests {
     #[test]
     fn test_audio_conversion() -> Result<()> {
         init();
-        debug!("test");
+        log::debug!("test");
         // Create a temporary directory to store input and output files.
         let temp_dir = tempdir()?;
         let input_file_path = temp_dir.path().join("input.mp3");
         let output_file_path = temp_dir.path().join("output.wav");
 
         // Copy a sample input file to the temporary directory.
-        debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
+        log::debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
         audio::normalize(input_file_path.clone(), output_file_path.clone(), "".to_owned())?;
-        debug!("check output at {}", output_file_path.display());
+        log::debug!("check output at {}", output_file_path.display());
         let args = &config::ModelArgs {
             path: input_file_path
                 .to_str()

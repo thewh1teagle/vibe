@@ -1,36 +1,36 @@
-import "@fontsource/roboto";
-import { useTranslation } from "react-i18next";
-import { Route, Routes } from "react-router-dom";
-import "./globals.css";
-import ErrorModal from "./components/ErrorModel";
-import "./lib/i18n";
-import SetupPage from "./pages/setup/SetupPage";
-import TranscribePage from "./pages/transcribe/TranscribePage";
-import { ErrorModalProvider } from "./providers/ErrorModalProvider";
-import { UpdaterProvider } from "./providers/UpdaterProvider";
-import UpdateProgress from "./components/UpdateProgress";
-import { useWindowsState } from "./hooks/useWindowsState";
-import ThemeToggle from "./components/ThemeToggle";
+import '@fontsource/roboto'
+import { useTranslation } from 'react-i18next'
+import { Route, Routes } from 'react-router-dom'
+import ErrorModal from '~/components/ErrorModel'
+import ThemeToggle from '~/components/ThemeToggle'
+import UpdateProgress from '~/components/UpdaterProgress'
+import '~/globals.css'
+import { useWindowsState } from '~/hooks/useWindowsState'
+import '~/lib/i18n'
+import SetupPage from '~/pages/setup/Page'
+import TranscribePage from '~/pages/transcribe/Page'
+import { ErrorModalProvider } from './providers/ErrorModal'
+import { UpdaterProvider } from './providers/Updater'
 
 export default function App() {
-    const { i18n } = useTranslation();
-    document.body.dir = i18n.dir();
+	const { i18n } = useTranslation()
+	document.body.dir = i18n.dir()
 
-    useWindowsState()
+	useWindowsState()
 
-    return (
-        <ErrorModalProvider>
-            <UpdaterProvider>
-                <div className="absolute right-16 top-16">
-                    <ThemeToggle />
-                </div>
-                <ErrorModal />
-                <UpdateProgress />
-                <Routes>
-                    <Route path="/setup" element={<SetupPage />} />
-                    <Route path="/" element={<TranscribePage />} />
-                </Routes>
-            </UpdaterProvider>
-        </ErrorModalProvider>
-    );
+	return (
+		<ErrorModalProvider>
+			<UpdaterProvider>
+				<div className="absolute right-16 top-16">
+					<ThemeToggle />
+				</div>
+				<ErrorModal />
+				<UpdateProgress />
+				<Routes>
+					<Route path="/setup" element={<SetupPage />} />
+					<Route path="/" element={<TranscribePage />} />
+				</Routes>
+			</UpdaterProvider>
+		</ErrorModalProvider>
+	)
 }

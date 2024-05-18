@@ -4,8 +4,7 @@
       "ffmpeg\\bin\\x64\\*.dll": "./",
       "openblas\\bin\\*.dll": "./",
       "clblast\\bin\\*.dll": "./",
-      "C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll": "./",
-      "locales": "locales"
+      "C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll": "./"
     }
   }
 }

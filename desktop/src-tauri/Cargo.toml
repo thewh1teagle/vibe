@@ -8,7 +8,9 @@ repository = "https://github.com/thewh1teagle/vibe"
 edition = "2021"
 
 [build-dependencies]
+fs_extra = "1.3.0"
 tauri-build = { version = "=2.0.0-beta.15", features = [] }
+
 [dependencies]
 tauri = { version = "=2.0.0-beta.19", features = [
     "protocol-asset",
