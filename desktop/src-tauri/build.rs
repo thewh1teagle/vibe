@@ -19,13 +19,6 @@ fn copy_locales() {
     let src_locales = src_tauri.join("locales");
     let target_locales = target_dir.join("locales");
 
-    // Print out the target directory for debugging
-    println!(
-        "cargo:warning=copy from {} to {}",
-        src_locales.display(),
-        target_locales.display()
-    );
-
     // Specify copy options
     let mut options = CopyOptions::new();
     options.overwrite = true; // Allow overwriting existing files/directories
