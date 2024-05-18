@@ -19,15 +19,11 @@
     // i18n
     "i18n-ally.enabledParsers": ["ts", "json"],
     "i18n-ally.sortKeys": true,
-    "i18n-ally.namespace": false,
+    "i18n-ally.namespace": true,
     "i18n-ally.sourceLanguage": "en",
-    "i18n-ally.pathMatcher": "{locale}.json",
     "i18n-ally.enabledFrameworks": ["react", "svelte"],
     "i18n-ally.keystyle": "flat",
-    "i18n-ally.translate.engines": [
-        "google",
-    ],
-    "i18n-ally.localesPaths": [
-        "desktop/src-tauri/locales",
-    ]
+    "i18n-ally.translate.engines": ["google",],
+    "i18n-ally.localesPaths": ["desktop/src-tauri/locales"],
+    "i18n-ally.pathMatcher": "{locale}/{namespace}.json",
 }
