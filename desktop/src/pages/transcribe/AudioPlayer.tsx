@@ -39,6 +39,12 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 			audio.currentTime = newTime
 		}
 
+		// Update progress
+		const position = audio.currentTime ?? 1
+		const total = audio.duration ?? 1
+		const newProgress = (position / total) * 100
+		setProgres(newProgress)
+
 		// Update your state if needed
 		setCurrentDuration(newTime)
 	}
