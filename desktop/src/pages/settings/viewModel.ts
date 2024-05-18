@@ -40,8 +40,8 @@ export function viewModel() {
 	const [modelPath, setModelPath] = useLocalStorage<null | string>('model_path', null)
 	const [models, setModels] = useState<Path[]>([])
 	const [appVersion, setAppVersion] = useState('')
-	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('sound_on_finish', true)
-	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('focus_on_finish', true)
+	const [prefsSoundOnFinish, setPrefsSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
+	const [prefsFocusOnFinish, setPrefsFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
 	const { t } = useTranslation()
 
 	async function askAndReset() {
@@ -102,9 +102,9 @@ export function viewModel() {
 		appVersion,
 		reportIssue,
 		loadModels,
-		soundOnFinish,
-		setSoundOnFinish,
-		focusOnFinish,
-		setFocusOnFinish,
+		prefsSoundOnFinish,
+		setPrefsSoundOnFinish,
+		prefsFocusOnFinish,
+		setPrefsFocusOnFinish,
 	}
 }

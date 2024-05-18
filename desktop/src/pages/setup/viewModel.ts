@@ -51,7 +51,7 @@ export function viewModel() {
 		setIsOnline(isOnlineResponse)
 	}
 
-	async function cancel() {
+	async function cancelSetup() {
 		// Cancel and go to settings
 		setManualInstall(true)
 		emit('abort_download')
@@ -64,7 +64,7 @@ export function viewModel() {
 
 	return {
 		navigate,
-		cancel,
+		cancelSetup,
 		setErrorModal,
 		downloadProgress,
 		downloadIfOnline,

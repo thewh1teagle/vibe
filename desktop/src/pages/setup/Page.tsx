@@ -20,7 +20,7 @@ function App() {
 			)}
 			{(vm.downloadProgress === 0 || vm.isOnline === null) && <span className="loading loading-spinner loading-lg"></span>}
 			<div className="tooltip mt-6" data-tip={t('info-cancel-download')}>
-				<button className="btn btn-xs text-error text-xs" onClick={vm.cancel}>
+				<button className="btn btn-xs text-error text-xs" onClick={vm.cancelSetup}>
 					{t('cancel')}
 				</button>
 			</div>
@@ -33,7 +33,7 @@ function App() {
 							<button className="btn btn-primary flex-1" onClick={vm.downloadIfOnline}>
 								{t('try-again')}
 							</button>
-							<button className="btn btn-sm" onClick={vm.cancel}>
+							<button className="btn btn-sm" onClick={vm.cancelSetup}>
 								{t('i-prefer-manual-setup')}
 							</button>
 						</div>

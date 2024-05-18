@@ -5,9 +5,10 @@ import { InfoTooltip } from '~/components/InfoTooltip'
 import { ReactComponent as ChevronLeftIcon } from '~/icons/chevron-left.svg'
 import { ReactComponent as ChevronRightIcon } from '~/icons/chevron-right.svg'
 import * as config from '~/lib/config'
-import { languages } from '~/lib/i18n'
+import { supportedLanguages } from '~/lib/i18n'
 import { cx } from '~/lib/utils'
 import { viewModel } from './viewModel'
+
 interface SettingsPageProps {
 	setVisible: Dispatch<SetStateAction<boolean>>
 }
@@ -31,9 +32,9 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				</div>
 				<select onChange={(e) => vm.setLanguage(e.target.value)} value={t(i18n.language)} className="select select-bordered">
 					<option>{t('select-language')}</option>
-					{Object.keys(languages).map((code, index) => (
+					{Object.keys(supportedLanguages).map((code, index) => (
 						<option key={index} value={code}>
-							{t(languages[code])}
+							{code === i18n.language ? t('language-name') : supportedLanguages[code]}
 						</option>
 					))}
 				</select>
@@ -41,11 +42,11 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			<div className="form-control mt-5">
 				<label className="label cursor-pointer">
 					<span className="label-text">{t('play-sound-on-finish')}</span>
-					<input type="checkbox" className="toggle" onChange={(e) => vm.setSoundOnFinish(e.target.checked)} checked={vm.soundOnFinish} />
+					<input type="checkbox" className="toggle" onChange={(e) => vm.setPrefsSoundOnFinish(e.target.checked)} checked={vm.prefsSoundOnFinish} />
 				</label>
 				<label className="label cursor-pointer">
 					<span className="label-text">{t('focus-window-on-finish')}</span>
-					<input type="checkbox" className="toggle" onChange={(e) => vm.setFocusOnFinish(e.target.checked)} checked={vm.focusOnFinish} />
+					<input type="checkbox" className="toggle" onChange={(e) => vm.setPrefsFocusOnFinish(e.target.checked)} checked={vm.prefsFocusOnFinish} />
 				</label>
 			</div>
 

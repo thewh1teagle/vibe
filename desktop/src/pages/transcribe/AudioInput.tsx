@@ -17,7 +17,6 @@ interface AudioInputProps {
 }
 
 export default function AudioInput({ path, setPath, readonly, audioRef }: AudioInputProps) {
-	const resourcePath = convertFileSrc(path as string)
 	const [playing, setPlaying] = useState(false)
 	const { t } = useTranslation()
 	const [progress, setProgres] = useState(0)
@@ -48,8 +47,11 @@ export default function AudioInput({ path, setPath, readonly, audioRef }: AudioI
 	}
 
 	useEffect(() => {
+		if (!path) {
+			return
+		}
 		audioRef.current?.pause()
-		const newAudio = new Audio(resourcePath as string)
+		const newAudio = new Audio(convertFileSrc(path as string))
 		audioRef.current = newAudio
 		newAudio.addEventListener('loadedmetadata', onLoadMetadata)
 
