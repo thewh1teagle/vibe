@@ -1,7 +1,6 @@
 {
     "app-title": "Vibe!",
     "select-audio-file": "选择音频文件",
-    "lang-auto": "自动检测",
     "mode-text": "文本",
     "transcribing": "正在转录...",
     "transcribe": "开始转录",
@@ -42,7 +41,6 @@
     "confirm-relaunch": "立即重启",
     "transcript-will-displayed-shortly": "转录结果马上就会显示在这里...",
     "cancel": "取消",
-    "Hebrew": "希伯来语",
     "select-model": "选择模型",
     "play-sound-on-finish": "转录完成时播放提示音",
     "focus-window-on-finish": "转录完成时切换到此应用窗口",
