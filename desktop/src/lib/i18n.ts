@@ -7,7 +7,7 @@ import { initReactI18next } from 'react-i18next/initReactI18next'
 
 export const supportedLanguages: { [key: string]: string } = {
 	'he-IL': 'hebrew',
-	en: 'english',
+	'en-US': 'english',
 	'pt-BR': 'portuguese',
 	'sv-SE': 'swedish',
 	'zh-CN': 'chinese',
@@ -40,7 +40,7 @@ i18n.use(LanguageDetector)
 	)
 	.init({
 		debug: false,
-		fallbackLng: 'en',
+		fallbackLng: 'en-US',
 		interpolation: {
 			escapeValue: false, // not needed for react as it escapes by default
 		},
