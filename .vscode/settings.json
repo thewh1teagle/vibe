@@ -25,5 +25,5 @@
     "i18n-ally.keystyle": "flat",
     "i18n-ally.translate.engines": ["google",],
     "i18n-ally.localesPaths": ["desktop/locales"],
-    "i18n-ally.pathMatcher": "{locale}/{namespace}.json",
+    "i18n-ally.pathMatcher": "{locale}/{namespace}.json"
 }
