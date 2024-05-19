@@ -3,13 +3,14 @@ import * as app from '@tauri-apps/api/app'
 import { invoke } from '@tauri-apps/api/core'
 import { ask } from '@tauri-apps/plugin-dialog'
 import * as shell from '@tauri-apps/plugin-shell'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
 import { usePreferencesContext } from '~/providers/Preferences'
 import WhisperLanguages from '~/assets/whisper-languages.json'
+import { UnlistenFn, listen } from '@tauri-apps/api/event'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()
@@ -42,6 +43,7 @@ export function viewModel() {
 	const [appVersion, setAppVersion] = useState('')
 	const preferences = usePreferencesContext()
 	const { t } = useTranslation()
+	const listenersRef = useRef<UnlistenFn[]>([])
 
 	async function askAndReset() {
 		const yes = await ask(t('common.reset-ask-dialog'), { kind: 'info' })
@@ -82,7 +84,9 @@ export function viewModel() {
 			preferences.setTextAreaDirection(i18n.dir())
 		}
 	}
-
+	async function onWindowFocus() {
+		listenersRef.current.push(await listen('tauri://focus', loadModels))
+	}
 	useEffect(() => {
 		changeLanguage()
 	}, [preferences.displayLanguage])
@@ -91,6 +95,10 @@ export function viewModel() {
 		loadMeta()
 		loadModels()
 		getDefaultModel()
+		onWindowFocus()
+		return () => {
+			listenersRef.current.forEach((unlisten) => unlisten())
+		}
 	}, [])
 
 	return {
