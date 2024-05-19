@@ -29,6 +29,7 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 -   ~Transcribe system audio~ 🕒 Coming soon!
 -   ~Transcribe from microfone~ 🕒 Coming soon!
 -   Transcribe audio / video
+-   Batch transcribe multiple files!
 -   Automatic updates
 -   Realtime preview
 
