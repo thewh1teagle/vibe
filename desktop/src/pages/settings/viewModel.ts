@@ -69,7 +69,6 @@ export function viewModel() {
 	async function getDefaultModel() {
 		if (!preferences.modelPath) {
 			const defaultModelPath = await invoke('get_default_model_path')
-			console.log(defaultModelPath, preferences.setModelPath)
 			preferences!.setModelPath(defaultModelPath as string)
 		}
 	}

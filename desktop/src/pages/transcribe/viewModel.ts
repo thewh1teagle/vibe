@@ -128,7 +128,6 @@ export function viewModel() {
 				if (!preferences.modelPath || !(await fs.exists(preferences.modelPath))) {
 					// if model path not found set another one as default
 					const absPath = await path.join(configPath, filtered[0].name)
-					console.log('setting default abs', absPath)
 					preferences.setModelPath(absPath)
 				}
 			}
@@ -146,7 +145,6 @@ export function viewModel() {
 				newFiles.push({ name: file.name, path: file.path })
 			}
 			setFiles(newFiles)
-			console.log('navigate with', newFiles)
 			if (newFiles.length > 1) {
 				navigate('/batch', { state: { files: newFiles } })
 			}

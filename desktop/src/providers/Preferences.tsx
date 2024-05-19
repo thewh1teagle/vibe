@@ -33,7 +33,6 @@ export function usePreferencesContext() {
 // Preferences provider component
 export function PreferencesProvider({ children }: { children: ReactNode }) {
 	const [transcribeLanguage, setTranscribeLanguage] = useLocalStorage<string>('prefs_transcribe_language', 'en')
-	console.log('transcribeLanguage => ', transcribeLanguage)
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
