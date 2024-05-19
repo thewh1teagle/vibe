@@ -12,7 +12,6 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
-
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
 import { NamedPath, ls, pathToNamedPath } from '~/lib/utils'
