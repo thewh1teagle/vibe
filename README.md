@@ -21,17 +21,17 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 
 -   Transcribe almost every language
 -   Works offline, no data sent out
--   Easy to use
--   Model parametrs for advanced users
--   Optimized for `CPU` (`Windows` / `Linux`)
--   Optmized for `GPU` (`MacOS`, `Windows`)
--   Support `SRT`, `VTT` formats
--   ~Transcribe system audio~ 🕒 Coming soon!
--   ~Transcribe from microfone~ 🕒 Coming soon!
+-   User friendly design
 -   Transcribe audio / video
 -   Batch transcribe multiple files!
--   Automatic updates
+-   Support `SRT`, `VTT`, `TXT` formats
 -   Realtime preview
+-   Automatic updates
+-   Optimized for `CPU` on (`Windows` / `Linux`)
+-   Optmized for `GPU` (`macOS`, `Windows`)
+-   Model arguments for advanced users
+-   ~Transcribe system audio~ 🕒 Coming soon!
+-   ~Transcribe from microfone~ 🕒 Coming soon!
 
 # Install notes
 
