@@ -20,7 +20,6 @@ interface BatchPanelProps {
 export default function BatchPanel({ files, onStart, onCancel, progress, index, inProgress, isAborting }: BatchPanelProps) {
 	const { t } = useTranslation()
 	const [open, setOpen] = useState(true)
-	console.log('isAborting => ', isAborting)
 	return (
 		<div className={cx('collapse border border-base-300 bg-base-200', open && 'collapse-open')}>
 			<div className="collapse-title !cursor-default text-xl font-medium flex p-3 flex-row items-center">
@@ -49,7 +48,11 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 					<div
 						onClick={() => (inProgress ? onCancel() : onStart())}
 						className={cx('cursor-pointer p-2 rounded-full', inProgress && 'bg-error', !inProgress && 'bg-success')}>
-						{inProgress ? <CancelIcon className="h-5 w-5 stroke-error-content" /> : <PlayIcon className="h-5 w-5 stroke-success-content" />}
+						{inProgress ? (
+							<CancelIcon className="h-5 w-5 stroke-error-content" />
+						) : (
+							<PlayIcon className="h-5 w-5 stroke-success-content stroke-2" />
+						)}
 					</div>
 				</div>
 			</div>

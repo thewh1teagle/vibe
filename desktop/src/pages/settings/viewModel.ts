@@ -3,13 +3,14 @@ import * as app from '@tauri-apps/api/app'
 import { invoke } from '@tauri-apps/api/core'
 import { ask } from '@tauri-apps/plugin-dialog'
 import * as shell from '@tauri-apps/plugin-shell'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalStorage } from 'usehooks-ts'
 import * as config from '~/lib/config'
-import { preferences } from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
+import { usePreferencesContext } from '~/providers/Preferences'
+import WhisperLanguages from '~/assets/whisper-languages.json'
+import { UnlistenFn, listen } from '@tauri-apps/api/event'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()
@@ -37,16 +38,12 @@ async function openLogsFolder() {
 
 export function viewModel() {
 	const { i18n } = useTranslation()
-	const [_direction, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
 
-	const [modelPath, setModelPath] = useLocalStorage<null | string>('model_path', null)
 	const [models, setModels] = useState<NamedPath[]>([])
 	const [appVersion, setAppVersion] = useState('')
-	const [_, setTranscribeLang] = useLocalStorage('transcribe_lang_code', 'en')
-	const [prefsLanguage, prefsSetLanguage] = useLocalStorage(preferences.displayLanguage.key, preferences.displayLanguage.default)
-	const [prefsSoundOnFinish, setPrefsSoundOnFinish] = useLocalStorage(preferences.soundOnFinish.key, preferences.soundOnFinish.default)
-	const [prefsFocusOnFinish, setPrefsFocusOnFinish] = useLocalStorage(preferences.focusOnFinish.key, preferences.focusOnFinish.default)
+	const preferences = usePreferencesContext()
 	const { t } = useTranslation()
+	const listenersRef = useRef<UnlistenFn[]>([])
 
 	async function askAndReset() {
 		const yes = await ask(t('common.reset-ask-dialog'), { kind: 'info' })
@@ -73,45 +70,46 @@ export function viewModel() {
 	}
 
 	async function getDefaultModel() {
-		if (!modelPath) {
+		if (!preferences.modelPath) {
 			const defaultModelPath = await invoke('get_default_model_path')
-			setModelPath(defaultModelPath as string)
+			preferences!.setModelPath(defaultModelPath as string)
 		}
 	}
 
 	async function changeLanguage() {
-		await i18n.changeLanguage(prefsLanguage)
-		setDirection(i18n.dir())
-		const name = supportedLanguages[prefsLanguage]
-		setTranscribeLang(name)
+		await i18n.changeLanguage(preferences.displayLanguage)
+		const name = supportedLanguages[preferences.displayLanguage]
+		if (name) {
+			preferences.setModelOptions({ ...preferences.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
+			preferences.setTextAreaDirection(i18n.dir())
+		}
 	}
-
+	async function onWindowFocus() {
+		listenersRef.current.push(await listen('tauri://focus', loadModels))
+	}
 	useEffect(() => {
 		changeLanguage()
-	}, [prefsLanguage])
+	}, [preferences.displayLanguage])
 
 	useEffect(() => {
 		loadMeta()
 		loadModels()
 		getDefaultModel()
+		onWindowFocus()
+		return () => {
+			listenersRef.current.forEach((unlisten) => unlisten())
+		}
 	}, [])
 
 	return {
-		setTranscribeLang,
+		preferences,
 		askAndReset,
-		prefsSetLanguage,
-		setModelPath,
 		openModelPath,
 		openModelsUrl,
 		openLogsFolder,
-		modelPath: modelPath ?? '',
 		models,
 		appVersion,
 		reportIssue,
 		loadModels,
-		prefsSoundOnFinish,
-		setPrefsSoundOnFinish,
-		prefsFocusOnFinish,
-		setPrefsFocusOnFinish,
 	}
 }

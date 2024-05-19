@@ -17,7 +17,7 @@ function App() {
 		<Layout>
 			<div className="flex w-[300px] flex-col m-auto">
 				<div className="join join-vertical">
-					<LanguageInput lang={vm.lang} setLang={vm.setLang} />
+					<LanguageInput />
 					{!vm.files.length && <AudioInput onClick={vm.selectFiles} />}
 				</div>
 				{vm.audio && (
@@ -36,7 +36,7 @@ function App() {
 						<button onMouseDown={vm.transcribe} className="btn btn-primary mt-3">
 							{t('common.transcribe')}
 						</button>
-						<ModelOptions args={vm.args} setArgs={vm.setArgs} />
+						<ModelOptions options={vm.preferences.modelOptions} setOptions={vm.preferences.setModelOptions} />
 					</>
 				)}
 			</div>

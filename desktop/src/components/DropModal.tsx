@@ -69,9 +69,7 @@ export default function DropModal() {
 		handleDrops()
 		os.platform().then((p) => setPlatofrm(p))
 		return () => {
-			for (const unlisten of listeners.current) {
-				unlisten()
-			}
+			listeners.current.forEach((unlisten) => unlisten())
 		}
 	}, [])
 

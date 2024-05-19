@@ -10,21 +10,19 @@ import * as os from '@tauri-apps/plugin-os'
 import * as shell from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useLocalStorage } from 'usehooks-ts'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
-import { LocalModelArgs } from '~/components/Params'
-
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
 import { NamedPath, ls, pathToNamedPath } from '~/lib/utils'
 import { ErrorModalContext } from '~/providers/ErrorModal'
+import { ModelOptions, usePreferencesContext } from '~/providers/Preferences'
 import { UpdaterContext } from '~/providers/Updater'
 
 export interface BatchOptions {
 	files: NamedPath[]
 	format: TextFormat
-	modelOptions: LocalModelArgs
+	modelOptions: ModelOptions
 }
 
 export function viewModel() {
@@ -35,24 +33,13 @@ export function viewModel() {
 	const abortRef = useRef<boolean>(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
-	const [isManualInstall, _setIsManualInstall] = useLocalStorage('isManualInstall', false)
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
-	const [lang, setLang] = useLocalStorage('transcribe_lang_code', 'en')
 	const [progress, setProgress] = useState<number | null>(0)
 	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files ?? [])
-	const [modelPath, setModelPath] = useLocalStorage<string | null>(config.preferences.modealPath.key, config.preferences.modealPath.default)
+	const preferences = usePreferencesContext()
+
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
-	const [soundOnFinish, _setSoundOnFinish] = useLocalStorage('sound_on_finish', true)
-	const [focusOnFinish, _setFocusOnFinish] = useLocalStorage('focus_on_finish', true)
-	// Model args
-	const [args, setArgs] = useLocalStorage<LocalModelArgs>('model_args', {
-		init_prompt: '',
-		verbose: false,
-		lang,
-		n_threads: 4,
-		temperature: 0.4,
-	})
 
 	async function onFilesChanged() {
 		if (files.length === 1) {
@@ -122,14 +109,14 @@ export function viewModel() {
 			const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
 			if (filtered.length === 0) {
 				// Download new model if no models and it's not manual installation
-				if (!isManualInstall) {
+				if (!preferences.skippedSetup) {
 					navigate('/setup')
 				}
 			} else {
-				if (!modelPath || !(await fs.exists(modelPath))) {
+				if (!preferences.modelPath || !(await fs.exists(preferences.modelPath))) {
 					// if model path not found set another one as default
 					const absPath = await path.join(configPath, filtered[0].name)
-					setModelPath(absPath)
+					preferences.setModelPath(absPath)
 				}
 			}
 		} catch (e) {
@@ -146,7 +133,6 @@ export function viewModel() {
 				newFiles.push({ name: file.name, path: file.path })
 			}
 			setFiles(newFiles)
-			console.log('navigate with', newFiles)
 			if (newFiles.length > 1) {
 				navigate('/batch', { state: { files: newFiles } })
 			}
@@ -185,17 +171,16 @@ export function viewModel() {
 		handleNewSegment()
 	}, [])
 
-	useEffect(() => {
-		if (modelPath) {
-			localStorage.setItem('model_path', JSON.stringify(modelPath))
-		}
-	}, [modelPath])
-
 	async function transcribe() {
 		setSegments(null)
 		setLoading(true)
 		try {
-			const res: transcript.Transcript = await invoke('transcribe', { options: { ...args, model: modelPath, path: files[0].path, lang } })
+			const options = {
+				path: files[0].path,
+				model_path: preferences.modelPath,
+				...preferences.modelOptions,
+			}
+			const res: transcript.Transcript = await invoke('transcribe', { options })
 			setSegments(res.segments)
 		} catch (error) {
 			if (!abortRef.current) {
@@ -209,10 +194,10 @@ export function viewModel() {
 			setProgress(null)
 			if (!abortRef.current) {
 				// Focus back the window and play sound
-				if (soundOnFinish) {
+				if (preferences.soundOnFinish) {
 					new Audio(successSound).play()
 				}
-				if (focusOnFinish) {
+				if (preferences.focusOnFinish) {
 					webview.getCurrent().unminimize()
 					webview.getCurrent().setFocus()
 				}
@@ -221,6 +206,7 @@ export function viewModel() {
 	}
 
 	return {
+		preferences,
 		openFolder,
 		selectFiles,
 		isAborting,
@@ -235,11 +221,7 @@ export function viewModel() {
 		availableUpdate,
 		updateApp,
 		segments,
-		args,
-		setArgs,
 		transcribe,
-		lang,
-		setLang,
 		onAbort,
 	}
 }

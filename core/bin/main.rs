@@ -1,5 +1,5 @@
 use std::{path::PathBuf, str::FromStr};
-use vibe::{self, config::ModelArgs};
+use vibe::{self, config::TranscribeOptions};
 
 fn get_model_path() -> String {
     // Get the current user
@@ -32,9 +32,9 @@ fn main() {
     let model_path = get_model_path();
     println!("model path is {}", model_path);
     let transcript = vibe::model::transcribe(
-        &ModelArgs {
+        &TranscribeOptions {
             init_prompt: None,
-            model: PathBuf::from_str(&model_path).unwrap(),
+            model_path: PathBuf::from_str(&model_path).unwrap(),
             path: PathBuf::from_str("../samples/single_speaker.wav").unwrap(),
             lang: Some("en".into()),
             verbose: true,

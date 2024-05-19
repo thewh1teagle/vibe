@@ -2,13 +2,13 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalStorage } from 'usehooks-ts'
 import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
 import { cx } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
+import { usePreferencesContext } from '~/providers/Preferences'
 
 async function download(text: string, format: TextFormat) {
 	const ext = formatExtensions[format].slice(1)
@@ -26,18 +26,17 @@ async function download(text: string, format: TextFormat) {
 }
 
 export default function TextArea({ segments, readonly, placeholder }: { segments: Segment[] | null; readonly: boolean; placeholder?: string }) {
-	const { t, i18n } = useTranslation()
-	const [direction, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
-	const [format, setFormat] = useLocalStorage<TextFormat>('format', 'normal')
+	const { t } = useTranslation()
+	const preferences = usePreferencesContext()
 	const [text, setText] = useState('')
 
 	useEffect(() => {
 		if (segments) {
-			setText(format === 'vtt' ? asVtt(segments) : format === 'srt' ? asSrt(segments) : asText(segments))
+			setText(preferences.textFormat === 'vtt' ? asVtt(segments) : preferences.textFormat === 'srt' ? asSrt(segments) : asText(segments))
 		} else {
 			setText('')
 		}
-	}, [format, segments])
+	}, [preferences.textFormat, segments])
 
 	return (
 		<div className="w-full h-full">
@@ -45,19 +44,19 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 				<button className="btn btn-square btn-md" onMouseDown={() => navigator.clipboard.writeText(text)}>
 					<CopyIcon className="h-6 w-6" />
 				</button>
-				<button onMouseDown={() => download(text, format)} className="btn btn-square btn-md">
+				<button onMouseDown={() => download(text, preferences.textFormat)} className="btn btn-square btn-md">
 					<DownloadIcon className="h-6 w-6" />
 				</button>
 				<div
-					onMouseDown={() => setDirection(direction === 'rtl' ? 'ltr' : 'rtl')}
-					className={cx('h-full p-2 rounded-lg cursor-pointer', direction == 'rtl' && 'bg-base-100')}>
+					onMouseDown={() => preferences.setTextAreaDirection(preferences.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
+					className={cx('h-full p-2 rounded-lg cursor-pointer', preferences.textAreaDirection == 'rtl' && 'bg-base-100')}>
 					<AlignRightIcon className="w-6 h-6" />
 				</div>
 
 				<select
-					value={format}
+					value={preferences.textFormat}
 					onChange={(event) => {
-						setFormat(event.target.value as unknown as TextFormat)
+						preferences.setTextFormat(event.target.value as unknown as TextFormat)
 					}}
 					className="select select-bordered ms-auto me-1">
 					<option value="normal">{t('common.mode-text')}</option>
@@ -72,7 +71,7 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 				spellCheck={false}
 				onChange={(e) => setText(e.target.value)}
 				value={text}
-				dir={direction}
+				dir={preferences.textAreaDirection}
 				className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
 			/>
 		</div>
