@@ -10,22 +10,20 @@ import * as os from '@tauri-apps/plugin-os'
 import * as shell from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useLocalStorage } from 'usehooks-ts'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
-import { LocalModelArgs } from '~/components/Params'
 
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
 import { NamedPath, ls, pathToNamedPath } from '~/lib/utils'
 import { ErrorModalContext } from '~/providers/ErrorModal'
-import { usePreferencesContext } from '~/providers/Preferences'
+import { ModelOptions, usePreferencesContext } from '~/providers/Preferences'
 import { UpdaterContext } from '~/providers/Updater'
 
 export interface BatchOptions {
 	files: NamedPath[]
 	format: TextFormat
-	modelOptions: LocalModelArgs
+	modelOptions: ModelOptions
 }
 
 export function viewModel() {
@@ -43,15 +41,6 @@ export function viewModel() {
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
-
-	// Model args
-	const [args, setArgs] = useLocalStorage<LocalModelArgs>('model_args', {
-		init_prompt: '',
-		verbose: false,
-		lang: preferences!.transcribeLanguage,
-		n_threads: 4,
-		temperature: 0.4,
-	})
 
 	async function onFilesChanged() {
 		if (files.length === 1) {
@@ -187,9 +176,14 @@ export function viewModel() {
 		setSegments(null)
 		setLoading(true)
 		try {
-			const res: transcript.Transcript = await invoke('transcribe', {
-				options: { ...args, model: preferences.modelPath, path: files[0].path, lang: preferences!.transcribeLanguage },
-			})
+			console.log('path => ', files[0].path)
+			const options = {
+				path: files[0].path,
+				model_path: preferences.modelPath,
+				...preferences.modelOptions,
+			}
+			console.log('options => ', options)
+			const res: transcript.Transcript = await invoke('transcribe', { options })
 			setSegments(res.segments)
 		} catch (error) {
 			if (!abortRef.current) {
@@ -230,8 +224,6 @@ export function viewModel() {
 		availableUpdate,
 		updateApp,
 		segments,
-		args,
-		setArgs,
 		transcribe,
 		onAbort,
 	}

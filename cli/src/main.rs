@@ -82,9 +82,9 @@ async fn main() -> Result<()> {
     }
     pb.reset_eta();
 
-    let args = vibe::config::ModelArgs {
+    let args = vibe::config::TranscribeOptions {
         lang: Some(args.lang),
-        model: vibe::config::get_model_path()?,
+        model_path: vibe::config::get_model_path()?,
         path: PathBuf::from(args.path),
         n_threads: args.n_threads,
         verbose: args.verbose,

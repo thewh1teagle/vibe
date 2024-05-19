@@ -48,7 +48,11 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 					<div
 						onClick={() => (inProgress ? onCancel() : onStart())}
 						className={cx('cursor-pointer p-2 rounded-full', inProgress && 'bg-error', !inProgress && 'bg-success')}>
-						{inProgress ? <CancelIcon className="h-5 w-5 stroke-error-content" /> : <PlayIcon className="h-5 w-5 stroke-success-content" />}
+						{inProgress ? (
+							<CancelIcon className="h-5 w-5 stroke-error-content" />
+						) : (
+							<PlayIcon className="h-5 w-5 stroke-success-content stroke-2" />
+						)}
 					</div>
 				</div>
 			</div>

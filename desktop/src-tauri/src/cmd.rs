@@ -133,7 +133,7 @@ pub async fn get_default_model_path() -> Result<String> {
 }
 
 #[tauri::command]
-pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::ModelArgs) -> Result<Transcript> {
+pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::TranscribeOptions) -> Result<Transcript> {
     let app_handle_c = app_handle.clone();
 
     let new_segment_callback = move |data: SegmentCallbackData| {

@@ -1,5 +1,5 @@
 use crate::audio;
-use crate::config::ModelArgs;
+use crate::config::TranscribeOptions;
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, Context, Ok, OptionExt, Result};
 use std::sync::Mutex;
@@ -11,13 +11,13 @@ type ProgressCallbackType = once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) +
 static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| Mutex::new(None));
 
 pub fn transcribe(
-    options: &ModelArgs,
+    options: &TranscribeOptions,
     progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
 ) -> Result<Transcript> {
     log::debug!("Transcribe called with {:?}", options);
-    if !options.model.exists() {
+    if !options.model_path.exists() {
         bail!("whisper file doesn't exist")
     }
 
@@ -43,7 +43,7 @@ pub fn transcribe(
 
     log::debug!("open model...");
     let ctx = WhisperContext::new_with_params(
-        options.model.to_str().ok_or_eyre("can't convert model option to str")?,
+        options.model_path.to_str().ok_or_eyre("can't convert model option to str")?,
         WhisperContextParameters::default(),
     )
     .context("failed to open model")?;
@@ -154,13 +154,13 @@ mod tests {
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
         audio::normalize(input_file_path.clone(), output_file_path.clone(), "".to_owned())?;
         log::debug!("check output at {}", output_file_path.display());
-        let args = &config::ModelArgs {
+        let args = &config::TranscribeOptions {
             path: input_file_path
                 .to_str()
                 .ok_or_eyre("cant convert path to str")?
                 .to_owned()
                 .into(),
-            model: config::get_model_path()?,
+            model_path: config::get_model_path()?,
             lang: None,
             n_threads: None,
             verbose: false,

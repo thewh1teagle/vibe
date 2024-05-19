@@ -20,9 +20,9 @@ pub fn get_model_path() -> Result<PathBuf> {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct ModelArgs {
+pub struct TranscribeOptions {
     pub path: PathBuf,
-    pub model: PathBuf,
+    pub model_path: PathBuf,
     pub lang: Option<String>,
     pub verbose: bool,
 
@@ -31,7 +31,7 @@ pub struct ModelArgs {
     pub temperature: Option<f32>,
 }
 
-impl fmt::Debug for ModelArgs {
+impl fmt::Debug for TranscribeOptions {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let json_string = serde_json::to_string_pretty(self).map_err(|_| fmt::Error)?;
         write!(f, "{}", json_string)

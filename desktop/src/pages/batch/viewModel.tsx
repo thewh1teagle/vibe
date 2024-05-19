@@ -1,9 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
-import { LocalModelArgs } from '~/components/Params'
 import { Segment, Transcript, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, pathToNamedPath } from '~/lib/utils'
 import * as webview from '@tauri-apps/api/webviewWindow'
@@ -29,15 +27,6 @@ export function viewModel() {
 	const preferences = usePreferencesContext()
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
-	// Model args
-	const [lang, setLang] = useLocalStorage('transcribe_lang_code', 'en')
-	const [args, setArgs] = useLocalStorage<LocalModelArgs>('model_args', {
-		init_prompt: '',
-		verbose: false,
-		lang,
-		n_threads: 4,
-		temperature: 0.4,
-	})
 
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {
@@ -138,6 +127,9 @@ export function viewModel() {
 	}
 
 	async function start() {
+		if (inProgress) {
+			return
+		}
 		setInProgress(true)
 		let localIndex = 0
 		try {
@@ -147,7 +139,13 @@ export function viewModel() {
 					break
 				}
 				setProgress(null)
-				const res: Transcript = await invoke('transcribe', { options: { ...args, model: preferences!.modelPath, path: file.path, lang } })
+				const options = {
+					path: file.path,
+					model_path: preferences.modelPath,
+					...preferences.modelOptions,
+				}
+				console.log('options => ', options)
+				const res: Transcript = await invoke('transcribe', { options })
 				const dst = await invoke<string>('get_path_dst', { src: file.path, suffix: formatExtensions[format] })
 				await writeTextFile(dst, getText(res.segments, format))
 				localIndex += 1
@@ -219,9 +217,6 @@ export function viewModel() {
 		files,
 		format,
 		setFormat,
-		lang,
-		setLang,
-		args,
-		setArgs,
+		preferences,
 	}
 }

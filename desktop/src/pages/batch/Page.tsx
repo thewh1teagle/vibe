@@ -10,13 +10,14 @@ import { cx } from '~/lib/utils'
 export default function BatchPage() {
 	const vm = viewModel()
 	const { t } = useTranslation()
+
 	return (
 		<Layout>
 			<div className="m-auto w-[80%] max-w-[300px]">
-				<LanguageInput lang={vm.lang} setLang={vm.setLang} />
+				<LanguageInput />
 
 				<FormatSelect setFormat={vm.setFormat} format={vm.format} />
-				<ModelOptions args={vm.args} setArgs={vm.setArgs} />
+				<ModelOptions options={vm.preferences.modelOptions} setOptions={vm.preferences.setModelOptions} />
 
 				<div className="mt-5">
 					<BatchPanel

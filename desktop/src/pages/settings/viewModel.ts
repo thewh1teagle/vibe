@@ -9,6 +9,7 @@ import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
 import { usePreferencesContext } from '~/providers/Preferences'
+import WhisperLanguages from '~/assets/whisper-languages.json'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()
@@ -74,10 +75,10 @@ export function viewModel() {
 	}
 
 	async function changeLanguage() {
-		await i18n.changeLanguage(preferences!.displayLanguage)
-		const name = supportedLanguages[preferences!.displayLanguage]
+		await i18n.changeLanguage(preferences.displayLanguage)
+		const name = supportedLanguages[preferences.displayLanguage]
 		if (name) {
-			preferences.setTranscribeLanguage(name)
+			preferences.setModelOptions({ ...preferences.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
 			preferences.setTextAreaDirection(i18n.dir())
 		}
 	}

@@ -2,7 +2,6 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalStorage } from 'usehooks-ts'
 import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
@@ -27,18 +26,17 @@ async function download(text: string, format: TextFormat) {
 }
 
 export default function TextArea({ segments, readonly, placeholder }: { segments: Segment[] | null; readonly: boolean; placeholder?: string }) {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const preferences = usePreferencesContext()
-	const [format, setFormat] = useLocalStorage<TextFormat>('format', 'normal')
 	const [text, setText] = useState('')
 
 	useEffect(() => {
 		if (segments) {
-			setText(format === 'vtt' ? asVtt(segments) : format === 'srt' ? asSrt(segments) : asText(segments))
+			setText(preferences.textFormat === 'vtt' ? asVtt(segments) : preferences.textFormat === 'srt' ? asSrt(segments) : asText(segments))
 		} else {
 			setText('')
 		}
-	}, [format, segments])
+	}, [preferences.textFormat, segments])
 
 	return (
 		<div className="w-full h-full">
@@ -46,7 +44,7 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 				<button className="btn btn-square btn-md" onMouseDown={() => navigator.clipboard.writeText(text)}>
 					<CopyIcon className="h-6 w-6" />
 				</button>
-				<button onMouseDown={() => download(text, format)} className="btn btn-square btn-md">
+				<button onMouseDown={() => download(text, preferences.textFormat)} className="btn btn-square btn-md">
 					<DownloadIcon className="h-6 w-6" />
 				</button>
 				<div
@@ -56,9 +54,9 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 				</div>
 
 				<select
-					value={format}
+					value={preferences.textFormat}
 					onChange={(event) => {
-						setFormat(event.target.value as unknown as TextFormat)
+						preferences.setTextFormat(event.target.value as unknown as TextFormat)
 					}}
 					className="select select-bordered ms-auto me-1">
 					<option value="normal">{t('common.mode-text')}</option>
