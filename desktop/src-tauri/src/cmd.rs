@@ -185,6 +185,13 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
         .unwrap_or(Ok(src_filename))?;
 
     let parent = src.parent().context("parent")?;
-    let dst_path = parent.join(format!("{}{}", src_name, suffix));
+    let mut dst_path = parent.join(format!("{}{}", src_name, suffix));
+
+    // Ensure we don't overwrite existing file
+    let mut counter = 0;
+    while dst_path.exists() {
+        dst_path = parent.join(format!("{} ({}){}", src_name, counter, suffix));
+        counter += 1;
+    }
     Ok(dst_path.to_str().context("tostr")?.into())
 }

@@ -19,7 +19,15 @@ export default function BatchPage() {
 				<ModelOptions args={vm.args} setArgs={vm.setArgs} />
 
 				<div className="mt-5">
-					<BatchPanel index={vm.index} inProgress={vm.inProgress} progress={vm.progress} onCancel={vm.cancel} onStart={vm.start} files={vm.files} />
+					<BatchPanel
+						index={vm.currentIndex}
+						inProgress={vm.inProgress}
+						progress={vm.progress}
+						onCancel={vm.cancel}
+						isAborting={vm.isAborting}
+						onStart={vm.start}
+						files={vm.files}
+					/>
 					{!vm.inProgress && (
 						<div onMouseDown={vm.selectFiles} className={cx('text-xs text-base-content font-medium cursor-pointer ms-2 mt-1.5')}>
 							{t('common.change-files')}

@@ -110,7 +110,6 @@ export function viewModel() {
 			setFiles(newFiles)
 
 			if (newFiles.length > 1) {
-				console.log('moving to batch')
 				navigate('/batch', { state: { files: newFiles } })
 			}
 		}
@@ -140,17 +139,15 @@ export function viewModel() {
 	}
 
 	async function handleDrop() {
-		event.listen<{ paths: string[] }>('tauri://drop', async (event) => {
+		listen<{ paths: string[] }>('tauri://drop', async (event) => {
 			const newFiles: NamedPath[] = []
 			for (const path of event.payload.paths) {
 				const file = await pathToNamedPath(path)
-				console.log('file => ', file)
 				newFiles.push({ name: file.name, path: file.path })
 			}
-			console.log('newFiles => ', newFiles)
 			setFiles(newFiles)
+			console.log('navigate with', newFiles)
 			if (newFiles.length > 1) {
-				console.log('moving to batch')
 				navigate('/batch', { state: { files: newFiles } })
 			}
 		})
@@ -158,6 +155,7 @@ export function viewModel() {
 
 	async function handleDeepLinks() {
 		const platform = await os.platform()
+		const newFiles = []
 		if (platform === 'macos') {
 			await onOpenUrl(async (urls) => {
 				for (let url of urls) {
@@ -165,19 +163,21 @@ export function viewModel() {
 						url = decodeURIComponent(url)
 						url = url.replace('file://', '')
 						// take only the first one
-						setFiles([...files, await pathToNamedPath(url)])
-						break
+						newFiles.push(await pathToNamedPath(url))
 					}
 				}
 			})
 		} else if (platform == 'windows' || platform == 'linux') {
 			const urls: string[] = await invoke('get_deeplinks')
 			for (const url of urls) {
-				setFiles([...files, await pathToNamedPath(url)])
+				newFiles.push(await pathToNamedPath(url))
 			}
 		}
+		setFiles([...files, ...newFiles])
+		if (newFiles.length > 1) {
+			navigate('/batch', { state: { files: newFiles } })
+		}
 	}
-
 	useEffect(() => {
 		handleDrop()
 		handleDeepLinks()
@@ -221,6 +221,7 @@ export function viewModel() {
 	}
 
 	return {
+		openFolder,
 		selectFiles,
 		isAborting,
 		settingsVisible,

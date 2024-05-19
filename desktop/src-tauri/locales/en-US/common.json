@@ -57,5 +57,6 @@
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
-	"files": "Files"
+	"files": "Files",
+	"transcribed": "Transcribed"
 }

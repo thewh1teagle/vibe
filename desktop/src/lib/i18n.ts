@@ -15,6 +15,11 @@ export const supportedLanguages: { [key: string]: string } = {
 export const supportedLanguageKeys = Object.keys(supportedLanguages)
 export const supportedLanguageValues = Object.values(supportedLanguages)
 
+export function getI18nLanguageName() {
+	const name = supportedLanguages[i18n.language as keyof typeof supportedLanguages]
+	return name
+}
+
 i18n.use(LanguageDetector)
 	.use(initReactI18next)
 	.use(

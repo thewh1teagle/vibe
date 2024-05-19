@@ -22,7 +22,8 @@ function App() {
 				</div>
 				{vm.audio && (
 					<div>
-						<AudioPlayer label={vm.files[0].name} onLabelClick={() => {}} audio={vm.audio} />
+						{vm.files.length ? <AudioPlayer label={vm?.files?.[0].name} onLabelClick={vm.openFolder} audio={vm.audio} /> : null}
+
 						{!vm.loading && (
 							<div onMouseDown={vm.selectFiles} className={cx('text-xs text-base-content font-medium cursor-pointer mb-3 mt-1')}>
 								{t('common.change-file')}
