@@ -5,7 +5,6 @@ import ErrorModal from '~/components/ErrorModal'
 import ThemeToggle from '~/components/ThemeToggle'
 import UpdateProgress from '~/components/UpdaterProgress'
 import '~/globals.css'
-import { useWindowsState } from '~/hooks/useWindowsState'
 import '~/lib/i18n'
 import SetupPage from '~/pages/setup/Page'
 import TranscribePage from '~/pages/transcribe/Page'
@@ -16,8 +15,6 @@ import { UpdaterProvider } from './providers/Updater'
 export default function App() {
 	const { i18n } = useTranslation()
 	document.body.dir = i18n.dir()
-
-	useWindowsState()
 
 	return (
 		<ErrorModalProvider>

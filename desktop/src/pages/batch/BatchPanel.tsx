@@ -44,12 +44,12 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 				</div>
 				<div className="ms-auto flex gap-3">
 					<div className="cursor-pointer p-2 bg-neutral rounded-full" onMouseDown={() => setOpen(!open)}>
-						{open ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+						{open ? <ChevronDown className="h-5 w-5 stroke-neutral-content" /> : <ChevronUp className="h-5 w-5 stroke-neutral-content" />}
 					</div>
 					<div
 						onClick={() => (inProgress ? onCancel() : onStart())}
 						className={cx('cursor-pointer p-2 rounded-full', inProgress && 'bg-error', !inProgress && 'bg-success')}>
-						{inProgress ? <CancelIcon className="h-5 w-5" /> : <PlayIcon className="h-5 w-5" />}
+						{inProgress ? <CancelIcon className="h-5 w-5 stroke-error-content" /> : <PlayIcon className="h-5 w-5 stroke-success-content" />}
 					</div>
 				</div>
 			</div>

@@ -15,8 +15,7 @@ fn main() {
         .setup(|app| setup::setup(app))
         .plugin(
             tauri_plugin_window_state::Builder::default()
-                // Controlled through JS API
-                .with_state_flags(!StateFlags::all())
+                .with_state_flags(!StateFlags::VISIBLE)
                 .build(),
         )
         .plugin(tauri_plugin_deep_link::init())
