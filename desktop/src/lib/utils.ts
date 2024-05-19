@@ -4,7 +4,6 @@ import { invoke } from '@tauri-apps/api/core'
 import * as path from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
-import * as shell from '@tauri-apps/plugin-shell'
 import * as config from './config'
 
 export interface NamedPath {
@@ -102,5 +101,5 @@ export async function getIssueUrl(logs: string) {
 }
 
 export async function openPath(file: NamedPath) {
-	await invoke('open_path', {path: file.path})
+	await invoke('open_path', { path: file.path })
 }
