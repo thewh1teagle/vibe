@@ -5394,6 +5394,7 @@ dependencies = [
  "fs_extra",
  "log",
  "once_cell",
+ "open",
  "openssl",
  "serde",
  "serde_json",

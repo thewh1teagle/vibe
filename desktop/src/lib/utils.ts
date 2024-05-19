@@ -101,9 +101,6 @@ export async function getIssueUrl(logs: string) {
 	)}`
 }
 
-export async function openPathParent(file: NamedPath) {
-	const folderPath = file.path.replace(file.name, '')
-	if (folderPath) {
-		shell.open(folderPath)
-	}
+export async function openPath(file: NamedPath) {
+	await invoke('open_path', {path: file.path})
 }

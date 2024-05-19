@@ -1,6 +1,7 @@
 import { NamedPath } from '~/lib/utils'
 import { ReactComponent as CheckIcon } from '~/icons/check.svg'
-import { openPathParent } from '~/lib/utils'
+import { openPath } from '~/lib/utils'
+
 interface BatchQueueProps {
 	files: NamedPath[]
 	progress: number | null
@@ -14,7 +15,7 @@ export default function BatchQueue({ files, activeIndex, progress }: BatchQueueP
 				<div key={file.path} className="flex flex-col gap-2">
 					<div className="flex justify-center items-center gap-3">
 						<div className="flex flex-col justify-between w-full gap-2">
-							<div className="cursor-pointer flex gap-1 justify-between link link-hover" onClick={() => openPathParent(file)}>
+							<div className="cursor-pointer flex gap-1 justify-between link link-hover" onClick={() => openPath(file)}>
 								{/* Finished */}
 								{file.name} {activeIndex > index && <CheckIcon className="h-5 w-5 stroke-success" />}
 							</div>

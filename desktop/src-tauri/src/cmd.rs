@@ -195,3 +195,16 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
     }
     Ok(dst_path.to_str().context("tostr")?.into())
 }
+
+#[tauri::command]
+/// Opens folder or open folder of a file
+pub async fn open_path(path: PathBuf) -> Result<()> {
+    if path.is_file() {
+        if let Some(parent) = path.parent() {
+            open::that(parent)?;
+        }
+    } else {
+        open::that(path)?;
+    }
+    Ok(())
+}
