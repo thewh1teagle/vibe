@@ -29,7 +29,7 @@ export default function BatchPage() {
 						onStart={vm.start}
 						files={vm.files}
 					/>
-					{!vm.inProgress && (
+					{!vm.inProgress && !vm.isAborting && (
 						<div onMouseDown={vm.selectFiles} className={cx('text-xs text-base-content font-medium cursor-pointer ms-2 mt-1.5')}>
 							{t('common.change-files')}
 						</div>
