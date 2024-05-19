@@ -1,6 +1,7 @@
 use crate::config;
 use eyre::{Context, ContextCompat, OptionExt, Result};
 use std::net::{SocketAddr, TcpStream};
+use std::path::PathBuf;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -172,4 +173,25 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Mod
     .with_context(|| format!("options: {:?}", options))?;
     set_progress_bar(&app_handle_c, None).unwrap();
     Ok(transcript)
+}
+
+#[tauri::command]
+pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
+    let src = PathBuf::from(src);
+    let src_filename = src.file_name().context("filename")?.to_str().context("stostr")?;
+    let src_name = src
+        .file_stem()
+        .map(|name| name.to_str().context("tosstr"))
+        .unwrap_or(Ok(src_filename))?;
+
+    let parent = src.parent().context("parent")?;
+    let mut dst_path = parent.join(format!("{}{}", src_name, suffix));
+
+    // Ensure we don't overwrite existing file
+    let mut counter = 0;
+    while dst_path.exists() {
+        dst_path = parent.join(format!("{} ({}){}", src_name, counter, suffix));
+        counter += 1;
+    }
+    Ok(dst_path.to_str().context("tostr")?.into())
 }

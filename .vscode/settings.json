@@ -2,7 +2,7 @@
     // General
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-        "source.organizeImports": "always",
+        "source.organizeImports": "never"
     },
     "files.eol": "\n",
     

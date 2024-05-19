@@ -45,11 +45,21 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			<div className="form-control mt-5">
 				<label className="label cursor-pointer">
 					<span className="label-text">{t('common.play-sound-on-finish')}</span>
-					<input type="checkbox" className="toggle" onChange={(e) => vm.setPrefsSoundOnFinish(e.target.checked)} checked={vm.prefsSoundOnFinish} />
+					<input
+						type="checkbox"
+						className="toggle toggle-primary"
+						onChange={(e) => vm.setPrefsSoundOnFinish(e.target.checked)}
+						checked={vm.prefsSoundOnFinish}
+					/>
 				</label>
 				<label className="label cursor-pointer">
 					<span className="label-text">{t('common.focus-window-on-finish')}</span>
-					<input type="checkbox" className="toggle" onChange={(e) => vm.setPrefsFocusOnFinish(e.target.checked)} checked={vm.prefsFocusOnFinish} />
+					<input
+						type="checkbox"
+						className="toggle toggle-primary"
+						onChange={(e) => vm.setPrefsFocusOnFinish(e.target.checked)}
+						checked={vm.prefsFocusOnFinish}
+					/>
 				</label>
 			</div>
 

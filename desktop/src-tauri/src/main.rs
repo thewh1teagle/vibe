@@ -15,8 +15,7 @@ fn main() {
         .setup(|app| setup::setup(app))
         .plugin(
             tauri_plugin_window_state::Builder::default()
-                // Controlled through JS API
-                .with_state_flags(!StateFlags::all())
+                .with_state_flags(!StateFlags::VISIBLE)
                 .build(),
         )
         .plugin(tauri_plugin_deep_link::init())
@@ -32,6 +31,7 @@ fn main() {
             cmd::get_default_model_path,
             cmd::get_commit_hash,
             cmd::is_online,
+            cmd::get_path_dst,
             #[cfg(any(windows, target_os = "linux"))]
             cmd::get_deeplinks
         ])

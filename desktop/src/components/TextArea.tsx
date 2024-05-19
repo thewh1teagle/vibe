@@ -8,16 +8,7 @@ import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
 import { cx } from '~/lib/utils'
-
-type TextFormat = 'normal' | 'srt' | 'vtt'
-type FormatExtensions = {
-	[name in TextFormat]: string
-}
-const formatExtensions: FormatExtensions = {
-	normal: '.txt',
-	srt: '.srt',
-	vtt: '.vtt',
-}
+import { TextFormat, formatExtensions } from './FormatSelect'
 
 async function download(text: string, format: TextFormat) {
 	const ext = formatExtensions[format].slice(1)
@@ -68,7 +59,7 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 					onChange={(event) => {
 						setFormat(event.target.value as unknown as TextFormat)
 					}}
-					className="select select-bordered ms-auto me-1.5">
+					className="select select-bordered ms-auto me-1">
 					<option value="normal">{t('common.mode-text')}</option>
 					<option value="srt">SRT</option>
 					<option value="vtt">VTT</option>

@@ -1,20 +1,31 @@
 import '@fontsource/roboto'
 import { event, path } from '@tauri-apps/api'
-import { invoke } from '@tauri-apps/api/core'
+import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
+import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
+import * as shell from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'usehooks-ts'
 import successSound from '~/assets/success.mp3'
+import { TextFormat } from '~/components/FormatSelect'
 import { LocalModelArgs } from '~/components/Params'
+
+import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
-import { NamedPath, ls, pathToNamedPath, validPath } from '~/lib/utils'
+import { NamedPath, ls, pathToNamedPath } from '~/lib/utils'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { UpdaterContext } from '~/providers/Updater'
+
+export interface BatchOptions {
+	files: NamedPath[]
+	format: TextFormat
+	modelOptions: LocalModelArgs
+}
 
 export function viewModel() {
 	const location = useLocation()
@@ -25,17 +36,15 @@ export function viewModel() {
 	const [isAborting, setIsAborting] = useState(false)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [isManualInstall, _setIsManualInstall] = useLocalStorage('isManualInstall', false)
-
+	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [lang, setLang] = useLocalStorage('transcribe_lang_code', 'en')
 	const [progress, setProgress] = useState<number | null>(0)
-	const [audioPath, setAudioPath] = useState<NamedPath | null>(null)
-	const [modelPath, setModelPath] = useLocalStorage<string | null>('model_path', null)
-	const audioRef = useRef<HTMLAudioElement>(null)
+	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files ?? [])
+	const [modelPath, setModelPath] = useLocalStorage<string | null>(config.preferences.modealPath.key, config.preferences.modealPath.default)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const [soundOnFinish, _setSoundOnFinish] = useLocalStorage('sound_on_finish', true)
 	const [focusOnFinish, _setFocusOnFinish] = useLocalStorage('focus_on_finish', true)
-
 	// Model args
 	const [args, setArgs] = useLocalStorage<LocalModelArgs>('model_args', {
 		init_prompt: '',
@@ -44,6 +53,25 @@ export function viewModel() {
 		n_threads: 4,
 		temperature: 0.4,
 	})
+
+	async function onFilesChanged() {
+		if (files.length === 1) {
+			setAudio(new Audio(convertFileSrc(files[0].path)))
+		}
+	}
+	useEffect(() => {
+		onFilesChanged()
+	}, [files])
+
+	function openFolder() {
+		const file = files?.[0]
+		if (file) {
+			const folderPath = file.path.replace(file.name, '')
+			if (folderPath) {
+				shell.open(folderPath)
+			}
+		}
+	}
 
 	async function handleNewSegment() {
 		await listen('transcribe_progress', (event) => {
@@ -62,6 +90,29 @@ export function viewModel() {
 		setIsAborting(true)
 		abortRef.current = true
 		event.emit('abort_transcribe')
+	}
+
+	async function selectFiles() {
+		const selected = await dialog.open({
+			multiple: true,
+			filters: [
+				{
+					name: 'Audio',
+					extensions: [...config.audioExtensions, ...config.videoExtensions],
+				},
+			],
+		})
+		if (selected) {
+			const newFiles: NamedPath[] = []
+			for (const file of selected) {
+				newFiles.push({ name: file.name ?? '', path: file.path })
+			}
+			setFiles(newFiles)
+
+			if (newFiles.length > 1) {
+				navigate('/batch', { state: { files: newFiles } })
+			}
+		}
 	}
 
 	async function checkModelExists() {
@@ -88,19 +139,23 @@ export function viewModel() {
 	}
 
 	async function handleDrop() {
-		event.listen<{ paths: string[] }>('tauri://drop', async (event) => {
-			const newPathString = event.payload?.paths?.[0] as string
-			const newPath = await path.resolve(newPathString)
-			if (newPath && validPath(newPath)) {
-				// take first path
-				const namedPath = await pathToNamedPath(newPath)
-				setAudioPath(namedPath)
+		listen<{ paths: string[] }>('tauri://drop', async (event) => {
+			const newFiles: NamedPath[] = []
+			for (const path of event.payload.paths) {
+				const file = await pathToNamedPath(path)
+				newFiles.push({ name: file.name, path: file.path })
+			}
+			setFiles(newFiles)
+			console.log('navigate with', newFiles)
+			if (newFiles.length > 1) {
+				navigate('/batch', { state: { files: newFiles } })
 			}
 		})
 	}
 
 	async function handleDeepLinks() {
 		const platform = await os.platform()
+		const newFiles = []
 		if (platform === 'macos') {
 			await onOpenUrl(async (urls) => {
 				for (let url of urls) {
@@ -108,19 +163,21 @@ export function viewModel() {
 						url = decodeURIComponent(url)
 						url = url.replace('file://', '')
 						// take only the first one
-						setAudioPath(await pathToNamedPath(url))
-						break
+						newFiles.push(await pathToNamedPath(url))
 					}
 				}
 			})
 		} else if (platform == 'windows' || platform == 'linux') {
 			const urls: string[] = await invoke('get_deeplinks')
 			for (const url of urls) {
-				setAudioPath(await pathToNamedPath(url))
+				newFiles.push(await pathToNamedPath(url))
 			}
 		}
+		setFiles([...files, ...newFiles])
+		if (newFiles.length > 1) {
+			navigate('/batch', { state: { files: newFiles } })
+		}
 	}
-
 	useEffect(() => {
 		handleDrop()
 		handleDeepLinks()
@@ -138,7 +195,7 @@ export function viewModel() {
 		setSegments(null)
 		setLoading(true)
 		try {
-			const res: transcript.Transcript = await invoke('transcribe', { options: { ...args, model: modelPath, path: audioPath!.path, lang } })
+			const res: transcript.Transcript = await invoke('transcribe', { options: { ...args, model: modelPath, path: files[0].path, lang } })
 			setSegments(res.segments)
 		} catch (error) {
 			if (!abortRef.current) {
@@ -164,20 +221,24 @@ export function viewModel() {
 	}
 
 	return {
+		openFolder,
+		selectFiles,
 		isAborting,
 		settingsVisible,
 		setSettingsVisible,
 		loading,
 		progress,
-		audioRef,
-		audioPath,
-		setAudioPath,
+		audio,
+		setAudio,
+		files,
+		setFiles,
 		availableUpdate,
 		updateApp,
 		segments,
 		args,
 		setArgs,
 		transcribe,
+		lang,
 		setLang,
 		onAbort,
 	}

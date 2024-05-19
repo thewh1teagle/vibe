@@ -4,6 +4,7 @@ import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
 import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
 import { cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
+
 export interface LocalModelArgs {
 	lang?: string
 	verbose: boolean
@@ -17,7 +18,7 @@ interface ParamsProps {
 	setArgs: React.Dispatch<React.SetStateAction<LocalModelArgs>>
 }
 
-export default function Params({ args, setArgs }: ParamsProps) {
+export default function ModelOptions({ args, setArgs }: ParamsProps) {
 	const [open, setOpen] = useState(false)
 	const { t } = useTranslation()
 	return (

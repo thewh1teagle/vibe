@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import DropModal from '~/components/DropModal'
 import LanguageInput from '~/components/LanguageInput'
-import Params from '~/components/Params'
-import SettingsModal from '~/components/SettingsModal'
+import Layout from '~/components/Layout'
+import ModelOptions from '~/components/Params'
 import TextArea from '~/components/TextArea'
+import { cx } from '~/lib/utils'
 import AudioInput from '~/pages/transcribe/AudioInput'
-import AppMenu from './AppMenu'
+import AudioPlayer from './AudioPlayer'
 import ProgressPanel from './ProgressPanel'
 import { viewModel } from './viewModel'
 
@@ -14,24 +14,29 @@ function App() {
 	const vm = viewModel()
 
 	return (
-		<div className="flex flex-col pb-[80px]">
-			{vm.settingsVisible && <SettingsModal visible={vm.settingsVisible} setVisible={vm.setSettingsVisible} />}
-			<DropModal />
-			<div className="flex flex-col m-auto w-[300px] mt-10">
-				<div className="relative text-center">
-					<h1 className="text-center text-4xl mb-2 text-base-content font-normal">{t('common.app-title')}</h1>
-					<AppMenu onClickSettings={() => vm.setSettingsVisible(true)} availableUpdate={vm.availableUpdate} updateApp={vm.updateApp} />
-				</div>
+		<Layout>
+			<div className="flex w-[300px] flex-col m-auto">
 				<div className="join join-vertical">
-					<LanguageInput onChange={(lang) => vm.setLang(lang)} />
-					<AudioInput audioRef={vm.audioRef} path={vm.audioPath} setPath={vm.setAudioPath} />
+					<LanguageInput lang={vm.lang} setLang={vm.setLang} />
+					{!vm.files.length && <AudioInput onClick={vm.selectFiles} />}
 				</div>
-				{vm.audioPath && !vm.loading && (
+				{vm.audio && (
+					<div>
+						{vm.files.length ? <AudioPlayer label={vm?.files?.[0].name} onLabelClick={vm.openFolder} audio={vm.audio} /> : null}
+
+						{!vm.loading && (
+							<div onMouseDown={vm.selectFiles} className={cx('text-xs text-base-content font-medium cursor-pointer mb-3 mt-1')}>
+								{t('common.change-file')}
+							</div>
+						)}
+					</div>
+				)}
+				{vm.audio && !vm.loading && (
 					<>
-						<button onMouseDown={vm.transcribe} className="btn btn-primary">
+						<button onMouseDown={vm.transcribe} className="btn btn-primary mt-3">
 							{t('common.transcribe')}
 						</button>
-						<Params args={vm.args} setArgs={vm.setArgs} />
+						<ModelOptions args={vm.args} setArgs={vm.setArgs} />
 					</>
 				)}
 			</div>
@@ -42,7 +47,7 @@ function App() {
 					<TextArea placeholder={t('common.transcript-will-displayed-shortly')} segments={vm.segments} readonly={vm.loading} />
 				</div>
 			)}
-		</div>
+		</Layout>
 	)
 }
 

@@ -11,6 +11,7 @@
 	"cancel-relaunch": "Later",
 	"cancel-update": "Later",
 	"change-file": "Change File",
+	"change-files": "Change Files",
 	"characters": "characters",
 	"confirm-relaunch": "Relaunch Now",
 	"confirm-update": "Update Now",
@@ -20,6 +21,7 @@
 	"downloading-model": "Downloading OpenAI Model...",
 	"error-title": "Error",
 	"focus-window-on-finish": "Focus window on finish",
+	"format": "Format",
 	"general": "General",
 	"i-prefer-manual-setup": "I prefer download manually",
 	"info-cancel-download": "You can cancel and download model manually later.",
@@ -54,5 +56,7 @@
 	"try-again": "Try Again",
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
-	"updating-modal-title": "Updating..."
+	"updating-modal-title": "Updating...",
+	"files": "Files",
+	"transcribed": "Transcribed"
 }
