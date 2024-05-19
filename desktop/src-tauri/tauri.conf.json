@@ -18,7 +18,7 @@
 				"shadow": true,
 				"fullscreen": false,
 				"maximized": false,
-				"visible": true
+				"visible": false
 			}
 		],
 		"withGlobalTauri": true,

@@ -4,6 +4,7 @@ import { UpdaterContext } from '~/providers/Updater'
 import AppMenu from './AppMenu'
 import DropModal from './DropModal'
 import SettingsModal from './SettingsModal'
+import ThemeToggle from './ThemeToggle'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
@@ -11,6 +12,9 @@ export default function Layout({ children }: { children: ReactNode }) {
 	const { t } = useTranslation()
 	return (
 		<div className="flex flex-col pb-[80px]">
+			<div className="absolute right-16 top-16">
+				<ThemeToggle />
+			</div>
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} />}
 			<DropModal />
 			<div className="flex flex-col m-auto w-full mt-10">

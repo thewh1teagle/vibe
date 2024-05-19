@@ -1,16 +1,20 @@
 import * as shell from '@tauri-apps/plugin-shell'
-import { useContext } from 'react'
+import { Dispatch, SetStateAction, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
-import { ErrorModalContext } from '~/providers/ErrorModal'
+import { ErrorModalState } from '~/providers/ErrorModal'
 
-export default function ErrorModal() {
+interface ErrorModalProps {
+	state: ErrorModalState
+	setState: Dispatch<SetStateAction<ErrorModalState>>
+}
+
+export default function ErrorModal({ state, setState }: ErrorModalProps) {
 	const { t } = useTranslation()
-	const { state, setState } = useContext(ErrorModalContext)
 
 	async function clearLogAndReset() {
-		setState?.({ open: false, log: '' })
+		setState({ open: false, log: '' })
 		resetApp()
 	}
 	async function reportIssue() {

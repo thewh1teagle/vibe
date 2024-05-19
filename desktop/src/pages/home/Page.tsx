@@ -4,14 +4,28 @@ import Layout from '~/components/Layout'
 import ModelOptions from '~/components/Params'
 import TextArea from '~/components/TextArea'
 import { cx } from '~/lib/utils'
-import AudioInput from '~/pages/transcribe/AudioInput'
+import AudioInput from '~/pages/home/AudioInput'
 import AudioPlayer from './AudioPlayer'
 import ProgressPanel from './ProgressPanel'
 import { viewModel } from './viewModel'
+import { useEffect } from 'react'
+import * as webviewWindow from '@tauri-apps/api/webviewWindow'
 
-function App() {
+export default function Home() {
 	const { t } = useTranslation()
 	const vm = viewModel()
+
+	async function showWindow() {
+		const currentWindow = await webviewWindow.getCurrent()
+		await currentWindow.show()
+		if (import.meta.env.PROD) {
+			await currentWindow.setFocus()
+		}
+	}
+
+	useEffect(() => {
+		showWindow()
+	}, [])
 
 	return (
 		<Layout>
@@ -50,5 +64,3 @@ function App() {
 		</Layout>
 	)
 }
-
-export default App
