@@ -1,5 +1,5 @@
 import * as shell from '@tauri-apps/plugin-shell'
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
