@@ -4,10 +4,6 @@ import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName } from '~/lib/i18n'
 import { usePreferencesContext } from '~/providers/Preferences'
 
-interface LanguageInputProps {
-	lang: string
-	setLang: (lang: string) => void
-}
 export default function LanguageInput() {
 	const { t } = useTranslation()
 	const preferences = usePreferencesContext()
@@ -38,8 +34,8 @@ export default function LanguageInput() {
 
 	// Group names
 	const groupNames = {
-		popular: 'Popular',
-		others: 'Others',
+		popular: t('popular'),
+		others: t('others'),
 	}
 
 	return (
