@@ -176,13 +176,11 @@ export function viewModel() {
 		setSegments(null)
 		setLoading(true)
 		try {
-			console.log('path => ', files[0].path)
 			const options = {
 				path: files[0].path,
 				model_path: preferences.modelPath,
 				...preferences.modelOptions,
 			}
-			console.log('options => ', options)
 			const res: transcript.Transcript = await invoke('transcribe', { options })
 			setSegments(res.segments)
 		} catch (error) {

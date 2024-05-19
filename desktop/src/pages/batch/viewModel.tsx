@@ -144,7 +144,6 @@ export function viewModel() {
 					model_path: preferences.modelPath,
 					...preferences.modelOptions,
 				}
-				console.log('options => ', options)
 				const res: Transcript = await invoke('transcribe', { options })
 				const dst = await invoke<string>('get_path_dst', { src: file.path, suffix: formatExtensions[format] })
 				await writeTextFile(dst, getText(res.segments, format))
