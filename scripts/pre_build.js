@@ -158,7 +158,7 @@ if (process.env.GITHUB_ENV) {
 
 // --dev or --build
 const action = process.argv?.[2]
-if (action.includes('--')) {
+if (action?.includes('--')) {
 	process.chdir(path.join(cwd, '..'))
 	process.env['FFMPEG_DIR'] = exports.ffmpeg
 	if (platform === 'windows') {
