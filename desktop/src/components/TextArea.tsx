@@ -9,6 +9,7 @@ import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
 import { cx } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
+import { usePreferencesContext } from '~/providers/Preferences'
 
 async function download(text: string, format: TextFormat) {
 	const ext = formatExtensions[format].slice(1)
@@ -27,7 +28,7 @@ async function download(text: string, format: TextFormat) {
 
 export default function TextArea({ segments, readonly, placeholder }: { segments: Segment[] | null; readonly: boolean; placeholder?: string }) {
 	const { t, i18n } = useTranslation()
-	const [direction, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
+	const preferences = usePreferencesContext()
 	const [format, setFormat] = useLocalStorage<TextFormat>('format', 'normal')
 	const [text, setText] = useState('')
 
@@ -49,8 +50,8 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 					<DownloadIcon className="h-6 w-6" />
 				</button>
 				<div
-					onMouseDown={() => setDirection(direction === 'rtl' ? 'ltr' : 'rtl')}
-					className={cx('h-full p-2 rounded-lg cursor-pointer', direction == 'rtl' && 'bg-base-100')}>
+					onMouseDown={() => preferences.setTextAreaDirection(preferences.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
+					className={cx('h-full p-2 rounded-lg cursor-pointer', preferences.textAreaDirection == 'rtl' && 'bg-base-100')}>
 					<AlignRightIcon className="w-6 h-6" />
 				</div>
 
@@ -72,7 +73,7 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 				spellCheck={false}
 				onChange={(e) => setText(e.target.value)}
 				value={text}
-				dir={direction}
+				dir={preferences.textAreaDirection}
 				className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
 			/>
 		</div>

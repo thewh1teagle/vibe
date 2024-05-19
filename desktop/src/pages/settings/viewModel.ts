@@ -5,11 +5,10 @@ import { ask } from '@tauri-apps/plugin-dialog'
 import * as shell from '@tauri-apps/plugin-shell'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalStorage } from 'usehooks-ts'
 import * as config from '~/lib/config'
-import { preferences } from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
+import { usePreferencesContext } from '~/providers/Preferences'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()
@@ -37,15 +36,10 @@ async function openLogsFolder() {
 
 export function viewModel() {
 	const { i18n } = useTranslation()
-	const [_direction, setDirection] = useLocalStorage<'ltr' | 'rtl'>('direction', i18n.dir())
 
-	const [modelPath, setModelPath] = useLocalStorage<null | string>('model_path', null)
 	const [models, setModels] = useState<NamedPath[]>([])
 	const [appVersion, setAppVersion] = useState('')
-	const [_, setTranscribeLang] = useLocalStorage('transcribe_lang_code', 'en')
-	const [prefsLanguage, prefsSetLanguage] = useLocalStorage(preferences.displayLanguage.key, preferences.displayLanguage.default)
-	const [prefsSoundOnFinish, setPrefsSoundOnFinish] = useLocalStorage(preferences.soundOnFinish.key, preferences.soundOnFinish.default)
-	const [prefsFocusOnFinish, setPrefsFocusOnFinish] = useLocalStorage(preferences.focusOnFinish.key, preferences.focusOnFinish.default)
+	const preferences = usePreferencesContext()
 	const { t } = useTranslation()
 
 	async function askAndReset() {
@@ -73,22 +67,25 @@ export function viewModel() {
 	}
 
 	async function getDefaultModel() {
-		if (!modelPath) {
+		if (!preferences.modelPath) {
 			const defaultModelPath = await invoke('get_default_model_path')
-			setModelPath(defaultModelPath as string)
+			console.log(defaultModelPath, preferences.setModelPath)
+			preferences!.setModelPath(defaultModelPath as string)
 		}
 	}
 
 	async function changeLanguage() {
-		await i18n.changeLanguage(prefsLanguage)
-		setDirection(i18n.dir())
-		const name = supportedLanguages[prefsLanguage]
-		setTranscribeLang(name)
+		await i18n.changeLanguage(preferences!.displayLanguage)
+		const name = supportedLanguages[preferences!.displayLanguage]
+		if (name) {
+			preferences.setTranscribeLanguage(name)
+			preferences.setTextAreaDirection(i18n.dir())
+		}
 	}
 
 	useEffect(() => {
 		changeLanguage()
-	}, [prefsLanguage])
+	}, [preferences.displayLanguage])
 
 	useEffect(() => {
 		loadMeta()
@@ -97,21 +94,14 @@ export function viewModel() {
 	}, [])
 
 	return {
-		setTranscribeLang,
+		preferences,
 		askAndReset,
-		prefsSetLanguage,
-		setModelPath,
 		openModelPath,
 		openModelsUrl,
 		openLogsFolder,
-		modelPath: modelPath ?? '',
 		models,
 		appVersion,
 		reportIssue,
 		loadModels,
-		prefsSoundOnFinish,
-		setPrefsSoundOnFinish,
-		prefsFocusOnFinish,
-		setPrefsFocusOnFinish,
 	}
 }

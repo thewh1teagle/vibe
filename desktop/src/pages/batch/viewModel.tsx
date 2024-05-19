@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { LocalModelArgs } from '~/components/Params'
-import { preferences } from '~/lib/config'
 import { Segment, Transcript, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, pathToNamedPath } from '~/lib/utils'
 import * as webview from '@tauri-apps/api/webviewWindow'
@@ -12,11 +11,11 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
 import successSound from '~/assets/success.mp3'
 import { ErrorModalContext } from '~/providers/ErrorModal'
-import { join } from '@tauri-apps/api/path'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as os from '@tauri-apps/plugin-os'
+import { usePreferencesContext } from '~/providers/Preferences'
 
 export function viewModel() {
 	const location = useLocation()
@@ -27,9 +26,7 @@ export function viewModel() {
 	const [inProgress, setInProgress] = useState(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const isAbortingRef = useRef<boolean>(false)
-	const [soundOnFinish, _setSoundOnFinish] = useLocalStorage(preferences.soundOnFinish.key, preferences.soundOnFinish.default)
-	const [focusOnFinish, _setFocusOnFinish] = useLocalStorage(preferences.focusOnFinish.key, preferences.focusOnFinish.default)
-	const [modelPath, setModelPath] = useLocalStorage<string | null>(preferences.modealPath.key, preferences.modealPath.default)
+	const preferences = usePreferencesContext()
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
 	// Model args
@@ -150,7 +147,7 @@ export function viewModel() {
 					break
 				}
 				setProgress(null)
-				const res: Transcript = await invoke('transcribe', { options: { ...args, model: modelPath, path: file.path, lang } })
+				const res: Transcript = await invoke('transcribe', { options: { ...args, model: preferences!.modelPath, path: file.path, lang } })
 				const dst = await invoke<string>('get_path_dst', { src: file.path, suffix: formatExtensions[format] })
 				await writeTextFile(dst, getText(res.segments, format))
 				localIndex += 1
@@ -172,10 +169,10 @@ export function viewModel() {
 				setIsAborting(false)
 				setProgress(null)
 				// Focus back the window and play sound
-				if (soundOnFinish) {
+				if (preferences!.soundOnFinish) {
 					new Audio(successSound).play()
 				}
-				if (focusOnFinish) {
+				if (preferences!.focusOnFinish) {
 					webview.getCurrent().unminimize()
 					webview.getCurrent().setFocus()
 				}

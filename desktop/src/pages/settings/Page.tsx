@@ -20,6 +20,7 @@ interface SettingsPageProps {
 export default function SettingsPage({ setVisible }: SettingsPageProps) {
 	const { t, i18n } = useTranslation()
 	const vm = viewModel()
+
 	return (
 		<div className="flex flex-col m-auto w-[300px] mt-10 pb-4 dark:font-normal">
 			<div className="relative mt-5">
@@ -33,7 +34,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				<div className="label">
 					<span className="label-text">{t('common.language')}</span>
 				</div>
-				<select onChange={(e) => vm.prefsSetLanguage(e.target.value)} value={t(i18n.language)} className="select select-bordered capitalize">
+				<select
+					onChange={(e) => vm.preferences.setDisplayLanguage(e.target.value)}
+					value={t(i18n.language)}
+					className="select select-bordered capitalize">
 					<option>{t('common.select-language')}</option>
 					{Object.entries(supportedLanguages).map(([code, name], index) => (
 						<option key={index} value={code}>
@@ -48,8 +52,8 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					<input
 						type="checkbox"
 						className="toggle toggle-primary"
-						onChange={(e) => vm.setPrefsSoundOnFinish(e.target.checked)}
-						checked={vm.prefsSoundOnFinish}
+						onChange={(e) => vm.preferences.setSoundOnFinish(e.target.checked)}
+						checked={vm.preferences.soundOnFinish}
 					/>
 				</label>
 				<label className="label cursor-pointer">
@@ -57,8 +61,8 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					<input
 						type="checkbox"
 						className="toggle toggle-primary"
-						onChange={(e) => vm.setPrefsFocusOnFinish(e.target.checked)}
-						checked={vm.prefsFocusOnFinish}
+						onChange={(e) => vm.preferences.setFocusOnFinish(e.target.checked)}
+						checked={vm.preferences.focusOnFinish}
 					/>
 				</label>
 			</div>
@@ -72,8 +76,8 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			<div className="flex flex-col gap-1">
 				<select
 					onFocus={vm.loadModels}
-					onChange={(e) => vm.setModelPath(e.target.value)}
-					value={vm.modelPath}
+					onChange={(e) => vm.preferences.setModelPath(e.target.value)}
+					value={vm.preferences.modelPath ?? undefined}
 					className="select select-bordered flex-1">
 					<option>{t('common.select-model')}</option>
 					{vm.models.map((model, index) => (

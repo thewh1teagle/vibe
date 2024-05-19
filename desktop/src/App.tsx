@@ -11,6 +11,7 @@ import TranscribePage from '~/pages/transcribe/Page'
 import BatchPage from './pages/batch/Page'
 import { ErrorModalProvider } from './providers/ErrorModal'
 import { UpdaterProvider } from './providers/Updater'
+import { PreferencesProvider } from './providers/Preferences'
 
 export default function App() {
 	const { i18n } = useTranslation()
@@ -24,11 +25,13 @@ export default function App() {
 				</div>
 				<ErrorModal />
 				<UpdateProgress />
-				<Routes>
-					<Route path="/setup" element={<SetupPage />} />
-					<Route path="/" element={<TranscribePage />} />
-					<Route path="/batch" element={<BatchPage />} />
-				</Routes>
+				<PreferencesProvider>
+					<Routes>
+						<Route path="/setup" element={<SetupPage />} />
+						<Route path="/" element={<TranscribePage />} />
+						<Route path="/batch" element={<BatchPage />} />
+					</Routes>
+				</PreferencesProvider>
 			</UpdaterProvider>
 		</ErrorModalProvider>
 	)

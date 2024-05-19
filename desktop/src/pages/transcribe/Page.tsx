@@ -17,7 +17,7 @@ function App() {
 		<Layout>
 			<div className="flex w-[300px] flex-col m-auto">
 				<div className="join join-vertical">
-					<LanguageInput lang={vm.lang} setLang={vm.setLang} />
+					<LanguageInput lang={vm.preferences!.transcribeLanguage} setLang={vm.preferences.setTranscribeLanguage} />
 					{!vm.files.length && <AudioInput onClick={vm.selectFiles} />}
 				</div>
 				{vm.audio && (
