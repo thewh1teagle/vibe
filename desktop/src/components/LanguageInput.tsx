@@ -34,8 +34,8 @@ export default function LanguageInput() {
 
 	// Group names
 	const groupNames = {
-		popular: t('popular'),
-		others: t('others'),
+		popular: t('common.popular'),
+		others: t('common.others'),
 	}
 
 	return (
