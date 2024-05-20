@@ -142,7 +142,7 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Tra
             .emit_to(
                 "main",
                 "new_segment",
-                serde_json::json!({"start": data.start_timestamp, "end": data.end_timestamp, "text": data.text}),
+                serde_json::json!({"start": data.start_timestamp, "stop": data.end_timestamp, "text": data.text}),
             )
             .unwrap();
     };
