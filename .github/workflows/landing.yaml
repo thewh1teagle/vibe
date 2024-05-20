@@ -3,7 +3,7 @@ name: Deploy Landing
 on:
     push:
         paths:
-            - 'landing/**'
+            - 'landing/'
             - 'scripts/landing_links.js'
     workflow_run:
         workflows: ['Release']
