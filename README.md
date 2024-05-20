@@ -29,6 +29,7 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 -   Automatic updates
 -   Optimized for `CPU` on (`Windows` / `Linux`)
 -   Optmized for `GPU` (`macOS`, `Windows`)
+-   Total Freedom: Customize Models Easily via Settings
 -   Model arguments for advanced users
 -   ~Transcribe system audio~ 🕒 Coming soon!
 -   ~Transcribe from microfone~ 🕒 Coming soon!
