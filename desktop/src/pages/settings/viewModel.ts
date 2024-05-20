@@ -44,6 +44,7 @@ export function viewModel() {
 	const preferences = usePreferencesContext()
 	const { t } = useTranslation()
 	const listenersRef = useRef<UnlistenFn[]>([])
+	const isMountedRef = useRef<boolean>(false)
 
 	async function askAndReset() {
 		const yes = await ask(t('common.reset-ask-dialog'), { kind: 'info' })
@@ -88,6 +89,10 @@ export function viewModel() {
 		listenersRef.current.push(await listen('tauri://focus', loadModels))
 	}
 	useEffect(() => {
+		if (!isMountedRef.current) {
+			isMountedRef.current = true
+			return
+		}
 		changeLanguage()
 	}, [preferences.displayLanguage])
 
