@@ -80,7 +80,7 @@ export async function getAppInfo() {
 		.filter((e) => e.name?.endsWith('.bin'))
 		.map((e) => e.name)
 		.join(', ')
-	const defaultModel = localStorage.getItem('model_path')?.split('/')?.pop() ?? 'Not Found'
+	const defaultModel = localStorage.getItem('prefs_model_path')?.split('/')?.pop() ?? 'Not Found'
 	return [
 		`App Version: ${appVersion}`,
 		`Commit Hash: ${commitHash}`,
