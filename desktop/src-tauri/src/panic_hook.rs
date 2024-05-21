@@ -14,7 +14,7 @@ fn get_log_path(app: &AppHandle) -> PathBuf {
     log_path
 }
 
-pub fn set_crash_hook(app: &AppHandle) {
+pub fn set_panic_hook(app: &AppHandle) {
     let log_path = get_log_path(app);
     let log_path = Arc::new(log_path);
 

@@ -3,8 +3,11 @@
 
 mod cmd;
 mod config;
-mod crash_log;
+mod panic_hook;
 mod setup;
+
+#[cfg(all(target_os = "windows", feature = "attach-console"))]
+mod attach_console;
 
 use tauri_plugin_window_state::StateFlags;
 
