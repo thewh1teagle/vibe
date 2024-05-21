@@ -7,7 +7,7 @@ mod panic_hook;
 mod setup;
 
 #[cfg(all(target_os = "windows", feature = "attach-console"))]
-mod attach_console;
+mod console;
 
 use tauri_plugin_window_state::StateFlags;
 
@@ -15,7 +15,7 @@ fn main() {
     // Attach console IF:
     // OS is Windows + RUST_LOG was set + attach-console feature was set + console is available.
     #[cfg(all(windows, feature = "attach-console"))]
-    attach_console::attach();
+    console::attach();
 
     env_logger::init();
     log::debug!("Vibe App Running");
