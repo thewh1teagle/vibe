@@ -12,8 +12,14 @@ mod attach_console;
 use tauri_plugin_window_state::StateFlags;
 
 fn main() {
+    // Attach console IF:
+    // OS is Windows + RUST_LOG was set + attach-console feature was set + console is available.
+    #[cfg(all(windows, feature = "attach-console"))]
+    attach_console::attach();
+
     env_logger::init();
-    log::debug!("App started");
+    log::debug!("Vibe App Running");
+
     tauri::Builder::default()
         .setup(|app| setup::setup(app))
         .plugin(
