@@ -14,6 +14,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(all(windows, feature = "attach-console"))]
     crate::attach_console::attach();
 
+    // Log some useful data
+    if let Ok(version) = tauri::webview_version() {
+        log::debug!("webview version: {}", version);
+    }
+
     app.manage(OpenedUrls(Default::default()));
     #[cfg(any(windows, target_os = "linux"))]
     {
