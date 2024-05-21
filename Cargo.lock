@@ -5411,6 +5411,7 @@ dependencies = [
  "tokio",
  "url",
  "vibe",
+ "windows 0.56.0",
 ]
 
 [[package]]
