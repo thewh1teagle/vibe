@@ -78,7 +78,15 @@ pub fn get_commit_hash() -> String {
 
 #[tauri::command]
 pub fn is_support_f16c() -> bool {
-    std::is_x86_feature_detected!("f16c")
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    {
+        std::is_x86_feature_detected!("f16c")
+    }
+
+    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+    {
+        false
+    }
 }
 
 #[tauri::command]
