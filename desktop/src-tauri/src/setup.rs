@@ -10,6 +10,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         log::debug!("webview version: {}", version);
     }
     log::debug!("{}", cmd::get_cpu_features());
+    log::debug!("COMMIT_HASH: {}", env!("COMMIT_HASH"));
 
     // Add deep links from argv as tauri::State
     deep_link::create_state(app);

@@ -89,12 +89,14 @@ pub fn get_cpu_features() -> String {
             AVX512: {}\n\
             AVX512-VBMI: {}\n\
             AVX512-VNNI: {}\n\
+            FMA: {}\n\
             F16C: {}",
             std::is_x86_feature_detected!("avx"),
             std::is_x86_feature_detected!("avx2"),
             std::is_x86_feature_detected!("avx512f"),
             std::is_x86_feature_detected!("avx512vbmi"),
             std::is_x86_feature_detected!("avx512vnni"),
+            std::is_x86_feature_detected!("fma"),
             std::is_x86_feature_detected!("f16c")
         )
     }
