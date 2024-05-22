@@ -77,15 +77,31 @@ pub fn get_commit_hash() -> String {
 }
 
 #[tauri::command]
-pub fn is_support_f16c() -> bool {
+pub fn get_cpu_features() -> String {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     {
-        std::is_x86_feature_detected!("f16c")
+        // TODO: remove the identation!
+        // Hard to write pretty multiline string literals without extra tabs
+        format!(
+            "CPU Features:\n\
+            AVX: {}\n\
+            AVX2: {}\n\
+            AVX512: {}\n\
+            AVX512-VBMI: {}\n\
+            AVX512-VNNI: {}\n\
+            F16C: {}",
+            std::is_x86_feature_detected!("avx"),
+            std::is_x86_feature_detected!("avx2"),
+            std::is_x86_feature_detected!("avx512f"),
+            std::is_x86_feature_detected!("avx512vbmi"),
+            std::is_x86_feature_detected!("avx512vnni"),
+            std::is_x86_feature_detected!("f16c")
+        )
     }
 
     #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     {
-        false
+        "CPU feature detection is not supported on this architecture.".to_string()
     }
 }
 
