@@ -14,7 +14,7 @@ b. Execute:
 
 ```console
 set RUST_BACKTRACE=1
-set RUST_LOG=trace
+set RUST_LOG=vibe=debug,whisper_rs=debug
 %localappdata%\vibe\vibe.exe
 ```
 
@@ -24,7 +24,7 @@ set RUST_LOG=trace
 <summary>macOS</summary>
 
 ```console
-RUST_LOG=vibe=trace RUST_BACKTRACE=1 /Applications/vibe.app/Contents/MacOS/vibe
+RUST_LOG=vibe=debug,whisper_rs=debug RUST_BACKTRACE=1 /Applications/vibe.app/Contents/MacOS/vibe
 ```
 
 </details>
