@@ -67,3 +67,35 @@ Windows: `%appdata%\github.com.thewh1teagle.vibe`
 Linux: `~/.config/github.com/thewh1teagle.vibe`
 
 </details>
+
+
+<details>
+<summary>Get OS information for posting in a bug</summary>
+
+## Windows
+
+1. Open `cmd.exe`
+2. Execute the following
+```console
+winget install neofetch
+neofetch
+```
+3. Copy and paste it in the issue
+
+## macOS
+
+```console
+brew install neofetch
+neofetch
+```
+
+## Linux
+
+```console
+sudo apt-get update
+sudo apt install -y neofetch
+neofetch
+```
+</details>
+
+
