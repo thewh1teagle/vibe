@@ -13,6 +13,9 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         log::debug!("webview version: {}", version);
     }
 
+    let is_support_f16c = std::is_x86_feature_detected!("f16c");
+    log::debug!("CPU supports f16c: {}", is_support_f16c);
+
     app.manage(OpenedUrls(Default::default()));
     #[cfg(any(windows, target_os = "linux"))]
     {

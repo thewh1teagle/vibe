@@ -42,6 +42,7 @@ fn main() {
             cmd::is_online,
             cmd::get_path_dst,
             cmd::open_path,
+            cmd::is_support_f16c,
             #[cfg(any(windows, target_os = "linux"))]
             cmd::get_deeplinks
         ])

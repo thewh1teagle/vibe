@@ -69,6 +69,7 @@ export async function resetApp() {
 export async function getAppInfo() {
 	const appVersion = await app.getVersion()
 	const commitHash = await invoke('get_commit_hash')
+	const isSupportF16c = await invoke('is_support_f16c')
 	const arch = await os.arch()
 	const platform = await os.platform()
 	const kVer = await os.version()
@@ -85,6 +86,7 @@ export async function getAppInfo() {
 		`App Version: ${appVersion}`,
 		`Commit Hash: ${commitHash}`,
 		`Arch: ${arch}`,
+		`CPU f16c support: ${isSupportF16c}`,
 		`Platform: ${platform}`,
 		`Kernel Version: ${kVer}`,
 		`OS: ${osType}`,

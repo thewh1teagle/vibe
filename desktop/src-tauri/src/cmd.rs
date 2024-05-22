@@ -77,6 +77,11 @@ pub fn get_commit_hash() -> String {
 }
 
 #[tauri::command]
+pub fn is_support_f16c() -> bool {
+    std::is_x86_feature_detected!("f16c")
+}
+
+#[tauri::command]
 pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
     let model_path = vibe::config::get_model_path()?;
     let mut downloader = vibe::downloader::Downloader::new();
