@@ -11,13 +11,8 @@ body:
               Thanks for taking the time to fill out this bug report!
               Please, if possible, just open settings in vibe, and click 'Report Bug'
               This way I'll get all the relevant info required
-              If you can't open the app due to crash, try to check any logs in 
-              macOS:
-                `$HOME/Library/Application Support/github.com.thewh1teagle.vibe`
-              Windows:
-                `%appdata%\github.com.thewh1teagle.vibe`
-              Linux:
-                `~/.config/github.com/thewh1teagle.vibe`
+              When you finished, if possible please check [Debug.md](https://github.com/thewh1teagle/vibe/blob/main/DEBUG.md) and add comments with more info.
+
     - type: textarea
       id: what-happened
       attributes:

@@ -104,6 +104,10 @@ see [BUILDING.md](BUILDING.md)
 
 Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-transcription-872ab6d9dbb0)
 
+# Issue report
+
+You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=%5BBug%5D%3A+) and it's recommend to check [DEBUG.md](DEBUG.md) first.
+
 # Credits
 
 Thanks for [tauri.app](https://tauri.app/) for making the best apps framework I ever seen

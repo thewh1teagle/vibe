@@ -134,6 +134,7 @@ export function viewModel() {
 		let localIndex = 0
 		try {
 			setCurrentIndex(localIndex)
+			const loopStartTime = performance.now()
 			for (const file of files) {
 				if (isAbortingRef.current) {
 					break
@@ -144,13 +145,22 @@ export function viewModel() {
 					model_path: preferences.modelPath,
 					...preferences.modelOptions,
 				}
+				const startTime = performance.now()
 				const res: Transcript = await invoke('transcribe', { options })
+
+				// Calculate time
+				let total = Math.round((performance.now() - startTime) / 1000)
+				console.info(`Transcribe ${file.name} took ${total} seconds.`)
+
+				// Write file
 				const dst = await invoke<string>('get_path_dst', { src: file.path, suffix: formatExtensions[format] })
 				await writeTextFile(dst, getText(res.segments, format))
 				localIndex += 1
 				await new Promise((resolve) => setTimeout(resolve, 100))
 				setCurrentIndex(localIndex)
 			}
+			let total = Math.round((performance.now() - loopStartTime) / 1000)
+			console.info(`Transcribed ${files.length} files in ${total}`)
 		} catch (error) {
 			if (!isAbortingRef.current) {
 				console.error('error: ', error)

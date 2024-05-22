@@ -58,7 +58,7 @@ fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Res
 #[tauri::command]
 #[cfg(any(windows, target_os = "linux"))]
 pub fn get_deeplinks(app_handle: tauri::AppHandle) -> Vec<String> {
-    let opened_urls = app_handle.state::<crate::setup::OpenedUrls>();
+    let opened_urls = app_handle.state::<crate::deep_link::OpenedUrls>();
     let opened_urls = opened_urls.0.lock().unwrap();
     let mut urls = Vec::new();
 
@@ -205,9 +205,7 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
 /// Opens folder or open folder of a file
 pub async fn open_path(path: PathBuf) -> Result<()> {
     if path.is_file() {
-        if let Some(parent) = path.parent() {
-            open::that(parent)?;
-        }
+        showfile::show_path_in_file_manager(path);
     } else {
         open::that(path)?;
     }

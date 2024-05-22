@@ -7,14 +7,13 @@ import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
-import * as shell from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
-import { NamedPath, ls, pathToNamedPath } from '~/lib/utils'
+import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { ModelOptions, usePreferencesContext } from '~/providers/Preferences'
 import { UpdaterContext } from '~/providers/Updater'
@@ -49,16 +48,6 @@ export function viewModel() {
 	useEffect(() => {
 		onFilesChanged()
 	}, [files])
-
-	function openFolder() {
-		const file = files?.[0]
-		if (file) {
-			const folderPath = file.path.replace(file.name, '')
-			if (folderPath) {
-				shell.open(folderPath)
-			}
-		}
-	}
 
 	async function handleNewSegment() {
 		await listen('transcribe_progress', (event) => {
@@ -180,7 +169,13 @@ export function viewModel() {
 				model_path: preferences.modelPath,
 				...preferences.modelOptions,
 			}
+			const startTime = performance.now()
 			const res: transcript.Transcript = await invoke('transcribe', { options })
+
+			// Calcualte time
+			const total = Math.round((performance.now() - startTime) / 1000)
+			console.info(`Transcribe took ${total} seconds.`)
+
 			setSegments(res.segments)
 		} catch (error) {
 			if (!abortRef.current) {
@@ -207,7 +202,7 @@ export function viewModel() {
 
 	return {
 		preferences,
-		openFolder,
+		openPath,
 		selectFiles,
 		isAborting,
 		settingsVisible,

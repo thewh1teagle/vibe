@@ -3,6 +3,7 @@
 
 mod cmd;
 mod config;
+mod deep_link;
 mod panic_hook;
 mod setup;
 
