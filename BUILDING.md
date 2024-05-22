@@ -55,6 +55,12 @@ sudo cp -rf /usr/include/x86_64-linux-gnu/libsw* /usr/include/
 sudo cp -rf /usr/include/x86_64-linux-gnu/libav* /usr/include/
 ```
 
+If the CPU failed to execute an instruction, then build with the following environment variable
+
+```console
+WHISPER_NO_F16C="ON"
+```
+
 ## Test
 
 ```
