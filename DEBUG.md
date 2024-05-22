@@ -55,3 +55,15 @@ After you finished, share you results by opening [new issue](https://github.com/
 In windows, open search menu and search for `Event Viewr`, choose `Windows Logs` -> `Application` and check if there's some error there
 
 </details>
+
+<details>
+<summary>Find debug log file</summary>
+If you can't open the app due to crash, try to check any logs in
+
+macOS: `$HOME/Library/Application Support/github.com.thewh1teagle.vibe`
+
+Windows: `%appdata%\github.com.thewh1teagle.vibe`
+
+Linux: `~/.config/github.com/thewh1teagle.vibe`
+
+</details>
