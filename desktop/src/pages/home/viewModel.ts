@@ -169,7 +169,13 @@ export function viewModel() {
 				model_path: preferences.modelPath,
 				...preferences.modelOptions,
 			}
+			const startTime = performance.now()
 			const res: transcript.Transcript = await invoke('transcribe', { options })
+
+			// Calcualte time
+			const total = Math.round((performance.now() - startTime) / 1000)
+			console.info(`Transcribe took ${total} seconds.`)
+
 			setSegments(res.segments)
 		} catch (error) {
 			if (!abortRef.current) {
