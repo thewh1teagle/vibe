@@ -100,6 +100,6 @@ export async function getIssueUrl(logs: string) {
 	)}`
 }
 
-export async function openPath(file: NamedPath) {
-	await invoke('open_path', { path: file.path })
+export async function openPath(path: NamedPath) {
+	await invoke('open_path', { path: path.path })
 }

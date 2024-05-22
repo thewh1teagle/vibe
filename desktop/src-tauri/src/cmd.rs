@@ -200,9 +200,7 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
 /// Opens folder or open folder of a file
 pub async fn open_path(path: PathBuf) -> Result<()> {
     if path.is_file() {
-        if let Some(parent) = path.parent() {
-            open::that(parent)?;
-        }
+        showfile::show_path_in_file_manager(path);
     } else {
         open::that(path)?;
     }

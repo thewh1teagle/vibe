@@ -36,7 +36,7 @@ export default function Home() {
 				</div>
 				{vm.audio && (
 					<div>
-						{vm.files.length ? <AudioPlayer label={vm?.files?.[0].name} onLabelClick={vm.openFolder} audio={vm.audio} /> : null}
+						{vm.files.length ? <AudioPlayer label={vm?.files?.[0].name} onLabelClick={() => vm.openPath(vm?.files?.[0])} audio={vm.audio} /> : null}
 
 						{!vm.loading && (
 							<div onMouseDown={vm.selectFiles} className={cx('text-xs text-base-content font-medium cursor-pointer mb-3 mt-1')}>
