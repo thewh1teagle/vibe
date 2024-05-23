@@ -89,11 +89,9 @@ fn main() {
     }
 
     if cfg!(target_os = "windows") {
-        let openblas_path = std::env::var("OPENBLAS_PATH").unwrap();
-        println!(
-            "cargo:rustc-link-search=native={}",
-            PathBuf::from(openblas_path.clone()).to_str().unwrap()
-        );
+        let openblas_path = std::env::var("OPENBLAS_PATH").unwrap().parse::<PathBuf>().unwrap();
+        let openblas_lib = openblas_path.join("lib");
+        println!("cargo:rustc-link-search=native={}", openblas_lib.to_str().unwrap());
     }
 
     if target.contains("apple") {
