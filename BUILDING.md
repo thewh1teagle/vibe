@@ -46,6 +46,22 @@ Execute pre build scripts and follow the instructions it provide
 bun scripts/pre_build.js
 ```
 
+## Build with `Nvidia` support
+
+See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=readme-ov-file#nvidia-gpu-support)
+
+1. Enable `cuda` feature in `Cargo.toml`
+
+2. Install [`cuda`](https://developer.nvidia.com/cuda-downloads)
+
+Build in `Powershell`
+
+```console
+$env:CUDA_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
+$env:CudaToolkitDir = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
+bun run scripts/pre_build.js --build
+```
+
 ## Gotchas
 
 On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
