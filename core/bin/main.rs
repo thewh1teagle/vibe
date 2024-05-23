@@ -35,7 +35,7 @@ fn main() {
         &TranscribeOptions {
             init_prompt: None,
             model_path: PathBuf::from_str(&model_path).unwrap(),
-            path: PathBuf::from_str("../samples/single_speaker.wav").unwrap(),
+            path: PathBuf::from_str("../samples/single.wav").unwrap(),
             lang: Some("en".into()),
             verbose: true,
             n_threads: Some(1),
