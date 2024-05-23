@@ -58,7 +58,13 @@ sudo cp -rf /usr/include/x86_64-linux-gnu/libav* /usr/include/
 If the CPU failed to execute an instruction, then build with the following environment variable
 
 ```console
-WHISPER_NO_F16C="ON"
+WHISPER_NO_AVX = "ON"
+WHISPER_NO_AVX2 = "ON"
+WHISPER_NO_AVX512 = "ON"
+WHISPER_NO_AVX512_VBMI = "ON"
+WHISPER_NO_AVX512_VNNI = "ON"
+WHISPER_NO_FMA = "ON"
+WHISPER_NO_F16C = "ON"
 ```
 
 ## Test
