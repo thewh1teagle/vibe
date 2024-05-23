@@ -14,7 +14,7 @@ import { UnlistenFn, listen } from '@tauri-apps/api/event'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()
-	shell.open(dst)
+	invoke("open_path", {path: dst})
 }
 
 async function openModelsUrl() {
@@ -33,7 +33,7 @@ async function reportIssue() {
 
 async function openLogsFolder() {
 	const dst = await path.appConfigDir()
-	shell.open(dst)
+	invoke("open_path", {path: dst})
 }
 
 export function viewModel() {
