@@ -21,6 +21,21 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				{t('common.advanced-options')}
 			</div>
 			<div className="collapse-content w-full">
+				<div className="form-control w-full mt-3">
+					<label className="label cursor-pointer">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={t('common.info-translate-to-english')} />
+							{t('common.translate-to-english')}
+						</span>
+
+						<input
+							type="checkbox"
+							className="toggle toggle-primary"
+							checked={options.translate}
+							onChange={(e) => setOptions({ ...options, translate: e.target.checked })}
+						/>
+					</label>
+				</div>
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text flex items-center gap-1">

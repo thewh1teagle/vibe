@@ -39,6 +39,7 @@ export interface ModelOptions {
 	n_threads?: number
 	init_prompt?: string
 	temperature?: number
+	translate?: boolean
 }
 
 // Preferences provider component

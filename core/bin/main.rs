@@ -40,6 +40,7 @@ fn main() {
             verbose: true,
             n_threads: Some(1),
             temperature: Some(0.4),
+            translate: None,
         },
         None,
         None,

@@ -29,6 +29,7 @@ pub struct TranscribeOptions {
     pub n_threads: Option<i32>,
     pub init_prompt: Option<String>,
     pub temperature: Option<f32>,
+    pub translate: Option<bool>,
 }
 
 impl fmt::Debug for TranscribeOptions {

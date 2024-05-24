@@ -51,6 +51,10 @@ pub fn transcribe(
 
     let mut params = FullParams::new(SamplingStrategy::default());
     log::debug!("set language to {:?}", options.lang);
+
+    if let Some(true) = options.translate {
+        params.set_translate(true);
+    }
     if options.lang.is_some() {
         params.set_language(options.lang.as_deref());
     }
@@ -166,6 +170,7 @@ mod tests {
             verbose: false,
             init_prompt: None,
             temperature: None,
+            translate: None,
         };
         transcribe(args, None, None, None)?;
 

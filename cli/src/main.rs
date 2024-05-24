@@ -90,6 +90,7 @@ async fn main() -> Result<()> {
         verbose: args.verbose,
         init_prompt: None,
         temperature: None,
+        translate: None,
     };
     vibe::model::transcribe(
         &args,
