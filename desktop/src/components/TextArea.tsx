@@ -10,6 +10,24 @@ import { cx } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferencesContext } from '~/providers/Preferences'
 
+function Copy({ text }: { text: string }) {
+	const { t } = useTranslation()
+	const [info, setInfo] = useState(t('common.copy'))
+
+	function onCopy() {
+		navigator.clipboard.writeText(text)
+		setInfo(t('common.copied'))
+		setTimeout(() => setInfo(t('common.copy')), 1000)
+	}
+	return (
+		<div className="tooltip tooltip-bottom" data-tip={info}>
+			<button className="btn btn-square btn-md" onMouseDown={onCopy}>
+				<CopyIcon className="h-6 w-6" />
+			</button>
+		</div>
+	)
+}
+
 async function download(text: string, format: TextFormat) {
 	const ext = formatExtensions[format].slice(1)
 	const filePath = await dialog.save({
@@ -41,28 +59,32 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 	return (
 		<div className="w-full h-full">
 			<div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row items-center">
-				<button className="btn btn-square btn-md" onMouseDown={() => navigator.clipboard.writeText(text)}>
-					<CopyIcon className="h-6 w-6" />
-				</button>
-				<button onMouseDown={() => download(text, preferences.textFormat)} className="btn btn-square btn-md">
-					<DownloadIcon className="h-6 w-6" />
-				</button>
-				<div
-					onMouseDown={() => preferences.setTextAreaDirection(preferences.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
-					className={cx('h-full p-2 rounded-lg cursor-pointer', preferences.textAreaDirection == 'rtl' && 'bg-base-100')}>
-					<AlignRightIcon className="w-6 h-6" />
+				<Copy text={text} />
+				<div className="tooltip tooltip-bottom" data-tip={t('common.save-transcript')}>
+					<button onMouseDown={() => download(text, preferences.textFormat)} className="btn btn-square btn-md">
+						<DownloadIcon className="h-6 w-6" />
+					</button>
+				</div>
+				<div className="tooltip tooltip-bottom" data-tip={t('common.right-alignment')}>
+					<div
+						onMouseDown={() => preferences.setTextAreaDirection(preferences.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
+						className={cx('h-full p-2 rounded-lg cursor-pointer', preferences.textAreaDirection == 'rtl' && 'bg-base-100')}>
+						<AlignRightIcon className="w-6 h-6" />
+					</div>
 				</div>
 
-				<select
-					value={preferences.textFormat}
-					onChange={(event) => {
-						preferences.setTextFormat(event.target.value as unknown as TextFormat)
-					}}
-					className="select select-bordered ms-auto me-1">
-					<option value="normal">{t('common.mode-text')}</option>
-					<option value="srt">SRT</option>
-					<option value="vtt">VTT</option>
-				</select>
+				<div className="tooltip tooltip-bottom ms-auto me-1" data-tip={t('common.format')}>
+					<select
+						value={preferences.textFormat}
+						onChange={(event) => {
+							preferences.setTextFormat(event.target.value as unknown as TextFormat)
+						}}
+						className="select select-bordered">
+						<option value="normal">{t('common.mode-text')}</option>
+						<option value="srt">SRT</option>
+						<option value="vtt">VTT</option>
+					</select>
+				</div>
 			</div>
 			<textarea
 				placeholder={placeholder}

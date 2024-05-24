@@ -15,6 +15,8 @@
 	"characters": "characters",
 	"confirm-relaunch": "Relaunch Now",
 	"confirm-update": "Update Now",
+	"copied": "Copied!",
+	"copy": "Copy",
 	"customize": "Customize",
 	"customize-info": "Download any supported model in ggml or gguf format (with the file extension ending in '.bin'). Transfer it to the models directory, then select from the dropdown. No need to restart 🌟",
 	"download-models-link": "Download Models",
@@ -47,6 +49,7 @@
 	"report-issue": "Report Issue",
 	"reset-app": "Reset Vibe",
 	"reset-ask-dialog": "Are you sure you want to reset vibe? app data will be cleared including models files.",
+	"save-transcript": "Save Transcript",
 	"select-audio-file": "Select Audio File",
 	"select-language": "Select Language",
 	"select-model": "Select Model",
@@ -62,5 +65,6 @@
 	"try-again": "Try Again",
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
-	"updating-modal-title": "Updating..."
+	"updating-modal-title": "Updating...",
+	"right-alignment": "Right alignment"
 }

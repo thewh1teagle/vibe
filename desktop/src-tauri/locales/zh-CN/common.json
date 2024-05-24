@@ -47,6 +47,8 @@
 	"report-issue": "反馈问题",
 	"reset-app": "重置 Vibe",
 	"reset-ask-dialog": "确定要重置 Vibe 吗?这会清除应用的所有数据和模型文件。",
+	"right-alignment": "右对齐",
+	"save-transcript": "保存成绩单",
 	"select-audio-file": "选择音频文件",
 	"select-language": "选择语言",
 	"select-model": "选择模型",
