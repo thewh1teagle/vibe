@@ -43,7 +43,7 @@ export function asSrt(segments: Segment[]) {
 	return segments.reduce((transcript, fragment, i) => {
 		return (
 			transcript +
-			`\n${i + 1}\n` +
+			`${i > 0 ? '\n' : ''}${i + 1}\n` +
 			`${formatTimestamp(fragment.start, true, ',')} --> ${formatTimestamp(fragment.stop, true, ',')}\n` +
 			`${fragment.text.trim().replace('-->', '->')}\n`
 		)
