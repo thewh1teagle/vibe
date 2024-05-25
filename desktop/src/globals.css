@@ -22,7 +22,11 @@
 		visibility: visible;
 	}
 
-	.printable {
+	.printable * {
+		visibility: visible;
+	}
+
+	.html {
 		position: absolute;
 		left: 0;
 		top: 0;

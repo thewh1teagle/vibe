@@ -1,13 +1,12 @@
-import { useEffect } from 'react'
-import { useLocalStorage } from 'usehooks-ts'
+import { Dispatch, SetStateAction, useEffect } from 'react'
 import { ReactComponent as SunIcon } from '~/icons/sun.svg'
 import { ReactComponent as MoonIcon } from '~/icons/moon.svg'
 
-const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-
-export default function ThemeToggle() {
-	const [theme, setTheme] = useLocalStorage('theme', systemIsDark ? 'dark' : 'light')
-
+interface ThemeToggleProps {
+	theme: 'dark' | 'light'
+	setTheme: Dispatch<SetStateAction<'light' | 'dark'>>
+}
+export default function ThemeToggle({ theme, setTheme }: ThemeToggleProps) {
 	useEffect(() => {
 		document.documentElement.setAttribute('data-theme', theme)
 	}, [theme])

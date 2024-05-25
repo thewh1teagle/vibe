@@ -140,7 +140,7 @@ export default function TextArea({
 				</div>
 			</div>
 			{preferences.textFormat === 'html' ? (
-				<HTMLView dir={preferences.textAreaDirection} segments={segments ?? []} file={file} />
+				<HTMLView preferences={preferences} segments={segments ?? []} file={file} />
 			) : (
 				<textarea
 					placeholder={placeholder}

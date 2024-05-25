@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import ThemeToggle from '~/components/ThemeToggle'
 import { viewModel } from './viewModel'
 
 function App() {
@@ -8,9 +7,6 @@ function App() {
 
 	return (
 		<div className="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
-			<div className="absolute right-16 top-16">
-				<ThemeToggle />
-			</div>
 			<div className="text-3xl m-5 font-bold">{t('common.downloading-model')}</div>
 			{vm.downloadProgress > 0 && (
 				<>

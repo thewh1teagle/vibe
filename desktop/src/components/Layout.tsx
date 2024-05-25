@@ -5,15 +5,17 @@ import AppMenu from './AppMenu'
 import DropModal from './DropModal'
 import SettingsModal from './SettingsModal'
 import ThemeToggle from './ThemeToggle'
+import { usePreferencesContext } from '~/providers/Preferences'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { t } = useTranslation()
+	const { setTheme, theme } = usePreferencesContext()
 	return (
 		<div className="flex flex-col pb-[80px]">
 			<div className="absolute right-16 top-16">
-				<ThemeToggle />
+				<ThemeToggle setTheme={setTheme} theme={theme} />
 			</div>
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} />}
 			<DropModal />

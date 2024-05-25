@@ -23,6 +23,8 @@ export interface Preferences {
 	setTextFormat: Dispatch<SetStateAction<TextFormat>>
 	modelOptions: ModelOptions
 	setModelOptions: Dispatch<SetStateAction<ModelOptions>>
+	theme: 'light' | 'dark'
+	setTheme: Dispatch<SetStateAction<'light' | 'dark'>>
 }
 
 // Create the context
@@ -42,6 +44,8 @@ export interface ModelOptions {
 	translate?: boolean
 }
 
+const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+
 // Preferences provider component
 export function PreferencesProvider({ children }: { children: ReactNode }) {
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
@@ -58,6 +62,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 		n_threads: 4,
 		temperature: 0.4,
 	})
+	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 
 	const preferences: Preferences = {
 		modelOptions,
@@ -76,6 +81,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 		setFocusOnFinish,
 		modelPath,
 		setModelPath,
+		theme,
+		setTheme,
 	}
 
 	return <PreferencesContext.Provider value={preferences}>{children}</PreferencesContext.Provider>
