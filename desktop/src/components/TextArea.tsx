@@ -6,10 +6,12 @@ import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
-import { NamedPath, cx } from '~/lib/utils'
+import { NamedPath, cx, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferencesContext } from '~/providers/Preferences'
 import HTMLView from './HtmlView'
+import toast from 'react-hot-toast'
+import { invoke } from '@tauri-apps/api/core'
 
 function Copy({ text }: { text: string }) {
 	const { t } = useTranslation()
@@ -27,24 +29,6 @@ function Copy({ text }: { text: string }) {
 			</button>
 		</div>
 	)
-}
-
-async function download(text: string, format: TextFormat) {
-	if (format === 'html') {
-		text = document.querySelector('.html')!.outerHTML
-	}
-	const ext = formatExtensions[format].slice(1)
-	const filePath = await dialog.save({
-		filters: [
-			{
-				name: '',
-				extensions: [ext],
-			},
-		],
-	})
-	if (filePath) {
-		fs.writeTextFile(filePath, text)
-	}
 }
 
 export default function TextArea({
@@ -70,12 +54,57 @@ export default function TextArea({
 		}
 	}, [preferences.textFormat, segments])
 
+	async function download(text: string, format: TextFormat, file: NamedPath) {
+		if (format === 'html') {
+			text = document.querySelector('.html')!.outerHTML
+		}
+		const ext = formatExtensions[format].slice(1)
+		const defaultPath = await invoke<string>('get_save_path', { srcPath: file.path, targetExt: ext })
+		const filePath = await dialog.save({
+			filters: [
+				{
+					name: ``,
+					extensions: [ext],
+				},
+			],
+			canCreateDirectories: true,
+			defaultPath: defaultPath,
+		})
+		if (filePath) {
+			fs.writeTextFile(filePath, text)
+
+			toast(
+				(mytoast) => (
+					<span>
+						{`${t('common.save-success')}`}
+						<button
+							onClick={() => {
+								toast.dismiss(mytoast.id)
+								openPath({ name: '', path: filePath ?? '' })
+							}}>
+							<div className="link link-primary ms-5">{defaultPath}</div>
+						</button>
+					</span>
+				),
+				{
+					duration: 5000,
+					position: 'bottom-center',
+					// icon: '✅',
+					iconTheme: {
+						primary: '#000',
+						secondary: '#fff',
+					},
+				}
+			)
+		}
+	}
+
 	return (
 		<div className="w-full h-full">
 			<div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row items-center">
 				<Copy text={text} />
 				<div className="tooltip tooltip-bottom" data-tip={t('common.save-transcript')}>
-					<button onMouseDown={() => download(text, preferences.textFormat)} className="btn btn-square btn-md">
+					<button onMouseDown={() => download(text, preferences.textFormat, file)} className="btn btn-square btn-md">
 						<DownloadIcon className="h-6 w-6" />
 					</button>
 				</div>

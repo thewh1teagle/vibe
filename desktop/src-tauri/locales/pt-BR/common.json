@@ -49,6 +49,7 @@
 	"reset-app": "Redefinir Vibe",
 	"reset-ask-dialog": "Are you sure you want to reset vibe? app data will be cleared including models files.",
 	"right-alignment": "Alinhamento à direita",
+	"save-success": "Salvo com sucesso!",
 	"save-transcript": "Salvar transcrição",
 	"select-audio-file": "Selecione o arquivo de áudio",
 	"select-language": "Selecione o idioma",

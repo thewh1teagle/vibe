@@ -44,6 +44,7 @@ fn main() {
             cmd::get_path_dst,
             cmd::open_path,
             cmd::get_cpu_features,
+            cmd::get_save_path,
             #[cfg(any(windows, target_os = "linux"))]
             cmd::get_deeplinks
         ])

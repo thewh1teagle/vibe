@@ -228,6 +228,27 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
 }
 
 #[tauri::command]
+pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<String, String> {
+    // Get the parent directory name
+    let name = src_path
+        .parent()
+        .and_then(|p| p.file_name())
+        .and_then(|n| n.to_str())
+        .unwrap_or_default();
+
+    // Change the extension
+    let mut new_path = PathBuf::new();
+    new_path.push(name);
+    new_path.set_extension(target_ext);
+
+    // Convert the new path to a string
+    new_path
+        .to_str()
+        .map(|s| s.to_string())
+        .ok_or_else(|| "Failed to convert path to string".to_string())
+}
+
+#[tauri::command]
 /// Opens folder or open folder of a file
 pub async fn open_path(path: PathBuf) -> Result<()> {
     if path.is_file() {

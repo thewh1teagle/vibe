@@ -13,6 +13,7 @@ import { PreferencesProvider } from './providers/Preferences'
 import { ErrorBoundary } from 'react-error-boundary'
 import { BoundaryFallback } from './components/BoundaryFallback'
 import ErrorModalWithContext from './components/ErrorModalWithContext'
+import { Toaster } from 'react-hot-toast'
 
 export default function App() {
 	const { i18n } = useTranslation()
@@ -24,8 +25,10 @@ export default function App() {
 			<ErrorModalProvider>
 				<UpdaterProvider>
 					<PreferencesProvider>
+						<Toaster />
 						<ErrorModalWithContext />
 						<UpdateProgress />
+
 						<Routes>
 							<Route path="/" element={<HomePage />} />
 							<Route path="/setup" element={<SetupPage />} />
