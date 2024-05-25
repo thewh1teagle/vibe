@@ -59,6 +59,10 @@ export default function TextArea({
 		if (format === 'html') {
 			text = document.querySelector('.html')!.outerHTML.replace(`contenteditable="true"`, `contenteditable="false"`)
 		}
+		if (format == 'pdf') {
+			window.print()
+			return
+		}
 		const ext = formatExtensions[format].slice(1)
 		const defaultPath = await invoke<string>('get_save_path', { srcPath: file.path, targetExt: ext })
 		const filePath = await dialog.save({
@@ -109,7 +113,7 @@ export default function TextArea({
 						<DownloadIcon className="h-6 w-6" />
 					</button>
 				</div>
-				{preferences.textFormat === 'html' && (
+				{['html', 'pdf'].includes(preferences.textFormat) && (
 					<div
 						onMouseDown={() => window.print()}
 						className={cx('h-full p-2 rounded-lg cursor-pointer', preferences.textAreaDirection == 'rtl' && 'bg-base-100')}>
@@ -134,12 +138,13 @@ export default function TextArea({
 						className="select select-bordered">
 						<option value="normal">{t('common.mode-text')}</option>
 						<option value="html">HTML</option>
+						<option value="pdf">PDF</option>
 						<option value="srt">SRT</option>
 						<option value="vtt">VTT</option>
 					</select>
 				</div>
 			</div>
-			{preferences.textFormat === 'html' ? (
+			{['html', 'pdf'].includes(preferences.textFormat) ? (
 				<HTMLView preferences={preferences} segments={segments ?? []} file={file} />
 			) : (
 				<textarea
