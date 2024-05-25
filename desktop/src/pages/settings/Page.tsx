@@ -8,6 +8,7 @@ import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as GithubIcon } from '~/icons/github.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as ResetIcon } from '~/icons/reset.svg'
+import { ReactComponent as DiscordIcon } from '~/icons/discord.svg'
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { cx } from '~/lib/utils'
@@ -108,6 +109,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				<button onMouseDown={vm.reportIssue} className="btn bg-base-300 text-base-content">
 					{t('common.report-issue')}
 					<GithubIcon className="w-4 h-4" />
+				</button>
+				<button onMouseDown={vm.reportIssue} className="btn bg-base-300 text-base-content">
+					{t('common.discord-community')}
+					<DiscordIcon className="w-4 h-4" />
 				</button>
 			</div>
 

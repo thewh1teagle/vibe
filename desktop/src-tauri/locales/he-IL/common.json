@@ -17,6 +17,7 @@
 	"confirm-update": "עדכן עכשיו",
 	"customize": "התאמה אישית",
 	"customize-info": "הורידו קובץ מודלים (ggml או gguf) עם סיומת .bin, העבירו לתיקיית המודלים ובחרו את הקובץ כאן מהתפריט הנפתח. אין צורך להפעיל מחדש! 🌟",
+	"discord-community": "קהילת דיסקורד",
 	"download-models-link": "הורדת מודלים",
 	"downloading-model": "מוריד מודל בינה מלאכותית",
 	"error-title": "שגיאה",
