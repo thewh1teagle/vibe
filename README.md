@@ -19,22 +19,23 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 
 # Features 🌟
 
--   Transcribe almost every language
--   Works offline, no data sent out
--   User friendly design
--   Transcribe audio / video
--   Batch transcribe multiple files!
--   Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF` formats
--   Realtime preview
--   Automatic updates
--   Automatic translation
--   Optimized for `CPU` on (`Windows` / `Linux`)
--   Optmized for `GPU` (`macOS`, `Windows`)
--   Optimized for `Nvidia` GPUs! (see https://github.com/thewh1teagle/vibe/issues/79#issuecomment-2126031947)
--   Total Freedom: Customize Models Easily via Settings
--   Model arguments for advanced users
--   ~Transcribe system audio~ 🕒 Coming soon!
--   ~Transcribe from microfone~ 🕒 Coming soon!
+- 🌍 Transcribe almost every language
+- 📴 Works offline, no data sent out
+- 🎨 User friendly design
+- 🎙️ Transcribe audio / video
+- 📂 Batch transcribe multiple files!
+- 📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF` formats
+- 👀 Realtime preview
+- 🖨️ Print transcript directly to any printer
+- 🔄 Automatic updates
+- 🌐 Automatic translation
+- 🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
+- 💻 Optimized for `GPU` (`macOS`, `Windows`)
+- 🎮 Optimized for `Nvidia` GPUs! (see https://github.com/thewh1teagle/vibe/issues/79#issuecomment-2126031947)
+- 🔧 Total Freedom: Customize Models Easily via Settings
+- ⚙️ Model arguments for advanced users
+- ⏳ ~Transcribe system audio~ 🕒 Coming soon!
+- 🎤 ~Transcribe from microphone~ 🕒 Coming soon!
 
 # Install notes
 
