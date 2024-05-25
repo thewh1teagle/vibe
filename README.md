@@ -24,7 +24,7 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 -   User friendly design
 -   Transcribe audio / video
 -   Batch transcribe multiple files!
--   Support `SRT`, `VTT`, `TXT` formats
+-   Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF` formats
 -   Realtime preview
 -   Automatic updates
 -   Optimized for `CPU` on (`Windows` / `Linux`)
