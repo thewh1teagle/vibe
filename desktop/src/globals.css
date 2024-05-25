@@ -12,3 +12,20 @@
 	padding-right: 10px;
 	padding-left: 42px;
 }
+
+@media print {
+	body * {
+		visibility: hidden;
+	}
+
+	.printable {
+		visibility: visible;
+	}
+
+	.printable {
+		position: absolute;
+		left: 0;
+		top: 0;
+		height: 100vh;
+	}
+}

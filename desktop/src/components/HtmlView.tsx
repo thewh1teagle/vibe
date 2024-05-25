@@ -24,8 +24,15 @@ interface HTMLViewProps {
 }
 export default function HTMLView({ segments, dir, file }: HTMLViewProps) {
 	return (
-		<div dir={dir} className="html" style={{ padding: '22px', minHeight: '90vh', fontFamily: 'Roboto, Arial', maxWidth: '1000px', margin: 'auto' }}>
+		<div
+			autoCorrect="off"
+			autoCapitalize="off"
+			contentEditable={true}
+			dir={dir}
+			className="html printable"
+			style={{ padding: '22px', minHeight: '90vh', fontFamily: 'Roboto, Arial', maxWidth: '1000px', margin: 'auto', outline: 'none' }}>
 			<h1
+				className="printable"
 				style={{
 					fontSize: '36px',
 					textAlign: 'center',

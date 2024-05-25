@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
+import { ReactComponent as PrintIcon } from '~/icons/print.svg'
 import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, cx, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
@@ -56,7 +57,7 @@ export default function TextArea({
 
 	async function download(text: string, format: TextFormat, file: NamedPath) {
 		if (format === 'html') {
-			text = document.querySelector('.html')!.outerHTML
+			text = document.querySelector('.html')!.outerHTML.replace(`contenteditable="true"`, `contenteditable="false"`)
 		}
 		const ext = formatExtensions[format].slice(1)
 		const defaultPath = await invoke<string>('get_save_path', { srcPath: file.path, targetExt: ext })
@@ -108,6 +109,14 @@ export default function TextArea({
 						<DownloadIcon className="h-6 w-6" />
 					</button>
 				</div>
+				{preferences.textFormat === 'html' && (
+					<div
+						onMouseDown={() => window.print()}
+						className={cx('h-full p-2 rounded-lg cursor-pointer', preferences.textAreaDirection == 'rtl' && 'bg-base-100')}>
+						<PrintIcon className="w-6 h-6" />
+					</div>
+				)}
+
 				<div className="tooltip tooltip-bottom" data-tip={t('common.right-alignment')}>
 					<div
 						onMouseDown={() => preferences.setTextAreaDirection(preferences.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
@@ -124,7 +133,7 @@ export default function TextArea({
 						}}
 						className="select select-bordered">
 						<option value="normal">{t('common.mode-text')}</option>
-						<option value="html">{t('common.print')}</option>
+						<option value="html">HTML</option>
 						<option value="srt">SRT</option>
 						<option value="vtt">VTT</option>
 					</select>
