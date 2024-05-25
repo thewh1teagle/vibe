@@ -44,11 +44,13 @@
 	"others": "Others",
 	"play-sound-on-finish": "Play sound on finish",
 	"popular": "Popular",
+	"print": "Print (html)",
 	"project-link": "About Vibe",
 	"prompt": "Prompt",
 	"report-issue": "Report Issue",
 	"reset-app": "Reset Vibe",
 	"reset-ask-dialog": "Are you sure you want to reset vibe? app data will be cleared including models files.",
+	"right-alignment": "Right alignment",
 	"save-transcript": "Save Transcript",
 	"select-audio-file": "Select Audio File",
 	"select-language": "Select Language",
@@ -65,6 +67,5 @@
 	"try-again": "Try Again",
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
-	"updating-modal-title": "Updating...",
-	"right-alignment": "Right alignment"
+	"updating-modal-title": "Updating..."
 }

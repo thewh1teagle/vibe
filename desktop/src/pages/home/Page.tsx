@@ -58,7 +58,7 @@ export default function Home() {
 			{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
 			{(vm.segments || vm.loading) && (
 				<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
-					<TextArea placeholder={t('common.transcript-will-displayed-shortly')} segments={vm.segments} readonly={vm.loading} />
+					<TextArea file={vm.files?.[0]} placeholder={t('common.transcript-will-displayed-shortly')} segments={vm.segments} readonly={vm.loading} />
 				</div>
 			)}
 		</Layout>

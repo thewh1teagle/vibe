@@ -6,7 +6,7 @@ import i18n from '~/lib/i18n'
 type Direction = 'ltr' | 'rtl'
 
 // Define the type of preferences
-interface Preferences {
+export interface Preferences {
 	displayLanguage: string
 	setDisplayLanguage: Dispatch<SetStateAction<string>>
 	soundOnFinish: boolean

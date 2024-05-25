@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export type TextFormat = 'normal' | 'srt' | 'vtt'
+export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html'
 export type FormatExtensions = {
 	[name in TextFormat]: string
 }
@@ -9,6 +9,7 @@ export const formatExtensions: FormatExtensions = {
 	normal: '.txt',
 	srt: '.srt',
 	vtt: '.vtt',
+	html: '.html',
 }
 
 interface FormatSelectProps {

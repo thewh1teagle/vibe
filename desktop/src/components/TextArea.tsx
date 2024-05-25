@@ -6,9 +6,10 @@ import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
-import { cx } from '~/lib/utils'
+import { NamedPath, cx } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferencesContext } from '~/providers/Preferences'
+import HTMLView from './HtmlView'
 
 function Copy({ text }: { text: string }) {
 	const { t } = useTranslation()
@@ -29,6 +30,9 @@ function Copy({ text }: { text: string }) {
 }
 
 async function download(text: string, format: TextFormat) {
+	if (format === 'html') {
+		text = document.querySelector('.html')!.outerHTML
+	}
 	const ext = formatExtensions[format].slice(1)
 	const filePath = await dialog.save({
 		filters: [
@@ -43,7 +47,17 @@ async function download(text: string, format: TextFormat) {
 	}
 }
 
-export default function TextArea({ segments, readonly, placeholder }: { segments: Segment[] | null; readonly: boolean; placeholder?: string }) {
+export default function TextArea({
+	segments,
+	readonly,
+	placeholder,
+	file,
+}: {
+	segments: Segment[] | null
+	readonly: boolean
+	placeholder?: string
+	file: NamedPath
+}) {
 	const { t } = useTranslation()
 	const preferences = usePreferencesContext()
 	const [text, setText] = useState('')
@@ -81,21 +95,26 @@ export default function TextArea({ segments, readonly, placeholder }: { segments
 						}}
 						className="select select-bordered">
 						<option value="normal">{t('common.mode-text')}</option>
+						<option value="html">{t('common.print')}</option>
 						<option value="srt">SRT</option>
 						<option value="vtt">VTT</option>
 					</select>
 				</div>
 			</div>
-			<textarea
-				placeholder={placeholder}
-				readOnly={readonly}
-				autoCorrect="off"
-				spellCheck={false}
-				onChange={(e) => setText(e.target.value)}
-				value={text}
-				dir={preferences.textAreaDirection}
-				className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
-			/>
+			{preferences.textFormat === 'html' ? (
+				<HTMLView dir={preferences.textAreaDirection} segments={segments ?? []} file={file} />
+			) : (
+				<textarea
+					placeholder={placeholder}
+					readOnly={readonly}
+					autoCorrect="off"
+					spellCheck={false}
+					onChange={(e) => setText(e.target.value)}
+					value={text}
+					dir={preferences.textAreaDirection}
+					className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
+				/>
+			)}
 		</div>
 	)
 }
