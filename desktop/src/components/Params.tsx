@@ -23,7 +23,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 			<div className="collapse-content w-full">
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
-						<span className="label-text flex items-center gap-1">
+						<span className="label-text flex items-center gap-1 cursor-default">
 							<InfoTooltip text={t('common.info-translate-to-english')} />
 							{t('common.translate-to-english')}
 						</span>
