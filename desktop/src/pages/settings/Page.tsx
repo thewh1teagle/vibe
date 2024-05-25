@@ -110,7 +110,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					{t('common.report-issue')}
 					<GithubIcon className="w-4 h-4" />
 				</button>
-				<button onMouseDown={vm.reportIssue} className="btn bg-base-300 text-base-content">
+				<button onMouseDown={() => shell.open(config.discordURL)} className="btn bg-base-300 text-base-content">
 					{t('common.discord-community')}
 					<DiscordIcon className="w-4 h-4" />
 				</button>
