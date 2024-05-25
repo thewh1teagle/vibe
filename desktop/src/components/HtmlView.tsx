@@ -1,6 +1,7 @@
 import { Segment } from '~/lib/transcript'
 import { NamedPath } from '~/lib/utils'
 import { Preferences } from '~/providers/Preferences'
+import '@formatjs/intl-durationformat/polyfill'
 
 export function formatTimestamp(start: number, stop: number): string {
 	if (start < 0 || stop < 0) {
