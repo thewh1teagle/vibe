@@ -36,7 +36,7 @@ export default function HTMLView({ segments, file, preferences }: HTMLViewProps)
 				{file.name}
 			</h1>
 			{segments.map((segment) => (
-				<div className="segment" style={{ fontSize: '18px', display: 'flex', flexDirection: 'column', paddingTop: '18px' }}>
+				<div key={segment.text} className="segment" style={{ fontSize: '18px', display: 'flex', flexDirection: 'column', paddingTop: '18px' }}>
 					<div style={{ marginBottom: '10px' }}>
 						<div
 							className="timestamp"
