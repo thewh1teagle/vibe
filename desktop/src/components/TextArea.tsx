@@ -114,8 +114,10 @@ export default function TextArea({
 					</button>
 				</div>
 				{['html', 'pdf'].includes(preferences.textFormat) && (
-					<div onMouseDown={() => window.print()} className={cx('h-full p-2 rounded-lg cursor-pointer')}>
-						<PrintIcon className="w-6 h-6" />
+					<div className="tooltip tooltip-bottom" data-tip={t('common.print-tooltip')}>
+						<div onMouseDown={() => window.print()} className={cx('h-full p-2 rounded-lg cursor-pointer')}>
+							<PrintIcon className="w-6 h-6" />
+						</div>
 					</div>
 				)}
 

@@ -70,5 +70,6 @@
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
-	"discord-community": "Discord Community"
+	"discord-community": "Discord Community",
+	"print-tooltip": "Print"
 }
