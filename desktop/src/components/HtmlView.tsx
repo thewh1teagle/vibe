@@ -1,29 +1,19 @@
-import { Segment } from '~/lib/transcript'
+import { Segment, formatTimestamp } from '~/lib/transcript'
 import { NamedPath } from '~/lib/utils'
 import { Preferences } from '~/providers/Preferences'
-import '@formatjs/intl-durationformat/polyfill'
-
-export function formatTimestamp(start: number, stop: number): string {
-	if (start < 0 || stop < 0) {
-		throw new Error('Non-negative timestamps expected')
-	}
-
-	const durationInSeconds = stop - start
-
-	const duration = {
-		hours: Math.floor(durationInSeconds / 3600),
-		minutes: Math.floor((durationInSeconds % 3600) / 60),
-		seconds: durationInSeconds % 60,
-	}
-
-	return new (Intl as any).DurationFormat('en', { style: 'digital' }).format(duration)
-}
 
 interface HTMLViewProps {
 	segments: Segment[]
 	file: NamedPath
 	preferences: Preferences
 }
+
+function formatDuration(start: number, stop: number) {
+	const startFmt = formatTimestamp(start, false, '', false)
+	const stopFmt = formatTimestamp(stop, false, '', false)
+	return `${startFmt} --> ${stopFmt}`
+}
+
 export default function HTMLView({ segments, file, preferences }: HTMLViewProps) {
 	return (
 		<div
@@ -51,7 +41,7 @@ export default function HTMLView({ segments, file, preferences }: HTMLViewProps)
 						<div
 							className="timestamp"
 							style={{ fontSize: '12px', paddingBottom: '6px', color: preferences.theme === 'dark' ? '#3B4045' : '#000000' }}>
-							{formatTimestamp(segment.start, segment.stop)}
+							{formatDuration(segment.start, segment.stop)}
 						</div>
 						{segment.text}
 					</div>

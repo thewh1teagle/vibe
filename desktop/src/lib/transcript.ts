@@ -15,7 +15,7 @@ export interface Segment {
 	text: string
 }
 
-export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, decimalMarker: string): string {
+export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, decimalMarker: string, includeMilliseconds: boolean = true): string {
 	if (seconds < 0) {
 		throw new Error('Non-negative timestamp expected')
 	}
@@ -33,10 +33,13 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 
 	const hoursMarker = alwaysIncludeHours || hours !== 0 ? `${hours}:` : ''
 
-	return `${hoursMarker}${String(minutes).padStart(2, '0')}:${String(formattedSeconds).padStart(2, '0')}${decimalMarker}${String(milliseconds).padStart(
-		3,
-		'0'
-	)}`
+	let result = `${hoursMarker}${String(minutes).padStart(2, '0')}:${String(formattedSeconds).padStart(2, '0')}`
+
+	if (includeMilliseconds) {
+		result += `${decimalMarker}${String(milliseconds).padStart(3, '0')}`
+	}
+
+	return result
 }
 
 export function asSrt(segments: Segment[]) {
