@@ -1,5 +1,6 @@
 use crate::config;
 use eyre::{Context, ContextCompat, OptionExt, Result};
+use serde_json::{json, Value};
 use std::net::{SocketAddr, TcpStream};
 use std::path::PathBuf;
 use std::sync::{
@@ -228,24 +229,19 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
 }
 
 #[tauri::command]
-pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<String, String> {
-    // Get the parent directory name
-    let name = src_path
-        .parent()
-        .and_then(|p| p.file_name())
-        .and_then(|n| n.to_str())
-        .unwrap_or_default();
+pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
+    // Get the file stem (filename without extension)
+    let stem = src_path.file_stem().and_then(|s| s.to_str()).unwrap_or_default();
 
-    // Change the extension
-    let mut new_path = PathBuf::new();
-    new_path.push(name);
+    // Create a new path with the same directory and the new extension
+    let mut new_path = src_path.clone();
+    new_path.set_file_name(stem);
     new_path.set_extension(target_ext);
-
+    let new_filename = new_path.file_name().map(|s| s.to_str()).unwrap_or(Some("Untitled"));
     // Convert the new path to a string
-    new_path
-        .to_str()
-        .map(|s| s.to_string())
-        .ok_or_else(|| "Failed to convert path to string".to_string())
+    let new_path = new_path.to_str().context("to_str")?;
+    let named_path = json!({"name": new_filename, "path": new_path});
+    Ok(named_path)
 }
 
 #[tauri::command]

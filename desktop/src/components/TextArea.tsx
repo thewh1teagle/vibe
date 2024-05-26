@@ -72,7 +72,7 @@ export default function TextArea({
 			return
 		}
 		const ext = formatExtensions[format].slice(1)
-		const defaultPath = await invoke<string>('get_save_path', { srcPath: file.path, targetExt: ext })
+		const defaultPath = await invoke<NamedPath>('get_save_path', { srcPath: file.path, targetExt: ext })
 		const filePath = await dialog.save({
 			filters: [
 				{
@@ -81,7 +81,7 @@ export default function TextArea({
 				},
 			],
 			canCreateDirectories: true,
-			defaultPath: defaultPath,
+			defaultPath: defaultPath.path,
 		})
 		if (filePath) {
 			fs.writeTextFile(filePath, text)
@@ -95,7 +95,7 @@ export default function TextArea({
 								toast.dismiss(mytoast.id)
 								openPath({ name: '', path: filePath ?? '' })
 							}}>
-							<div className="link link-primary ms-5">{defaultPath}</div>
+							<div className="link link-primary ms-5">{defaultPath.name}</div>
 						</button>
 					</span>
 				),
