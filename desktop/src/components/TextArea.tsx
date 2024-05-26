@@ -6,7 +6,7 @@ import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { ReactComponent as PrintIcon } from '~/icons/print.svg'
-import { Segment, asSrt, asText, asVtt } from '~/lib/transcript'
+import { Segment, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, cx, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferencesContext } from '~/providers/Preferences'
@@ -49,7 +49,15 @@ export default function TextArea({
 
 	useEffect(() => {
 		if (segments) {
-			setText(preferences.textFormat === 'vtt' ? asVtt(segments) : preferences.textFormat === 'srt' ? asSrt(segments) : asText(segments))
+			setText(
+				preferences.textFormat === 'vtt'
+					? asVtt(segments)
+					: preferences.textFormat === 'srt'
+					? asSrt(segments)
+					: preferences.textFormat === 'json'
+					? asJson(segments)
+					: asText(segments)
+			)
 		} else {
 			setText('')
 		}
@@ -141,6 +149,7 @@ export default function TextArea({
 						<option value="pdf">PDF</option>
 						<option value="srt">SRT</option>
 						<option value="vtt">VTT</option>
+						<option value="json">JSON</option>
 					</select>
 				</div>
 			</div>

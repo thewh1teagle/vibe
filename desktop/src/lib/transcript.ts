@@ -68,3 +68,7 @@ export function asText(segments: Segment[]) {
 		return transcript + `${fragment.text.trim()}\n`
 	}, '')
 }
+
+export function asJson(segments: Segment[]) {
+	return JSON.stringify(segments, null, 4)
+}
