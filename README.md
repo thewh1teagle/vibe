@@ -1,8 +1,7 @@
 # Vibe
 
-![GitHub Release](https://img.shields.io/github/v/release/thewh1teagle/vibe)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opencollective.com/tauri)
-[![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.gg/EcxWSstQN8)
+![Discord](https://img.shields.io/discord/1200136309369491508?style=plastic&logo=discord&logoSize=auto&label=Chat&link=https%3A%2F%2Fdiscord.gg%2FEcxWSstQN8)
 
 Transcribe audio in every language
 
@@ -86,7 +85,7 @@ We would like to express our sincere gratitude to all the contributors.
 
 # Community
 
-[![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.gg/EcxWSstQN8)
+![Discord](https://img.shields.io/discord/1200136309369491508?style=plastic&logo=discord&logoSize=auto&label=Chat&link=https%3A%2F%2Fdiscord.gg%2FEcxWSstQN8)
 
 # Roadmap 🛣️
 
