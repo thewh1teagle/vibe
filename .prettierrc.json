@@ -1,9 +1,9 @@
 {
-  "printWidth": 160,
-  "tabWidth": 4,
-  "useTabs": true,
-  "bracketSameLine": true,
-  "endOfLine": "lf",
-  "singleQuote": true,
-  "semi": false
+	"printWidth": 160,
+	"tabWidth": 4,
+	"useTabs": true,
+	"bracketSameLine": true,
+	"endOfLine": "lf",
+	"singleQuote": true,
+	"semi": false
 }
