@@ -48,6 +48,10 @@ No special requirement. resource usage can be customized through advanced settin
 
 Currenly, `MacOS` computers get the best performance since there's GPU optimizations.
 
+### Error of `msvc140.dll` not found
+Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+
+
 ## Manual Install 🛠️
 
 `MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from Applications once**
