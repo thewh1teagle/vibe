@@ -1,5 +1,6 @@
 # Vibe
 
+![GitHub Release](https://img.shields.io/github/v/release/thewh1teagle/vibe)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opencollective.com/tauri)
 [![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.gg/EcxWSstQN8)
 
