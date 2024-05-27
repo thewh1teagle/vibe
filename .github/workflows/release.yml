@@ -85,3 +85,7 @@ jobs:
                   projectPath: './desktop'
                   tauriScript: bunx tauri
               if: matrix.args != '--target aarch64-apple-darwin'
+            - name: Invoke landing workflow
+              uses: benc-uk/workflow-dispatch@v1
+              with:
+                  workflow: landing.yaml
