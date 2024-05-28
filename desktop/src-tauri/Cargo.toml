@@ -13,8 +13,8 @@ tauri-build = { version = "=2.0.0-beta.15", features = [] }
 
 [dependencies]
 tauri = { version = "=2.0.0-beta.19", features = [
-    "protocol-asset",
-    "devtools",
+	"protocol-asset",
+	"devtools",
 ] }
 tauri-plugin-window-state = "=2.0.0-beta.7"
 tauri-plugin-fs = "2.0.0-beta.7"
@@ -44,12 +44,12 @@ openssl = { version = "0.10.63", features = ["vendored"] }
 [target.'cfg(windows)'.dependencies]
 vibe = { path = "../../core", features = ["opencl", "openblas"] }
 windows = { version = "0.56.0", features = [
-    "Win32_System_Console",
-    "Win32_Foundation",
+	"Win32_System_Console",
+	"Win32_Foundation",
 ], optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-vibe = { path = "../../core", features = ["coreml"] }
+vibe = { path = "../../core", features = ["coreml", "metal"] }
 
 [features]
 default = ["custom-protocol", "attach-console"]
