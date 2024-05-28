@@ -5731,8 +5731,8 @@ dependencies = [
 
 [[package]]
 name = "whisper-rs"
-version = "0.11.0"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=dev#0bba6bdc8240fdd2f93a0d667f907e3d5fc54656"
+version = "0.12.0"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/whisper-1.6.2#279bdcd33cc4a0f1a393cf909e3bd2cb81c1e1ab"
 dependencies = [
  "log",
  "whisper-rs-sys",
@@ -5740,8 +5740,8 @@ dependencies = [
 
 [[package]]
 name = "whisper-rs-sys"
-version = "0.8.1"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=dev#0bba6bdc8240fdd2f93a0d667f907e3d5fc54656"
+version = "0.10.0"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/whisper-1.6.2#279bdcd33cc4a0f1a393cf909e3bd2cb81c1e1ab"
 dependencies = [
  "bindgen 0.69.4",
  "cfg-if",
