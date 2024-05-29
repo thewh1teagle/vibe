@@ -1,8 +1,8 @@
 <p align="center">
-  <a href="https://github.com/dubisdev/key-on-screen">
+  <a target="blank" href="https://github.com/thewh1teagle/vibe">
     <img
         width="96px"
-        alt="Key On Screen logo"
+        alt="Vibe logo"
         src="./design/logo.png"
     />
   </a>
