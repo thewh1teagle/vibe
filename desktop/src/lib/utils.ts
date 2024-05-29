@@ -69,7 +69,12 @@ export async function resetApp() {
 export async function getAppInfo() {
 	const appVersion = await app.getVersion()
 	const commitHash = await invoke('get_commit_hash')
-	const cpuFeatures = (await invoke('get_x86_features')) ?? 'CPU feature detection is not supported on this architecture.'
+	let x86Features = await invoke<string | null>('get_x86_features')
+	if (x86Features) {
+		x86Features = JSON.stringify(x86Features, null, 4)
+	} else {
+		x86Features = 'CPU feature detection is not supported on this architecture.'
+	}
 	const arch = await os.arch()
 	const platform = await os.platform()
 	const kVer = await os.version()
@@ -92,7 +97,7 @@ export async function getAppInfo() {
 		`OS Version: ${osVer}`,
 		`Models: ${models}`,
 		`Default Model: ${defaultModel}`,
-		`\n\n${cpuFeatures}`,
+		`\n\n${x86Features}`,
 	].join('\n')
 }
 
