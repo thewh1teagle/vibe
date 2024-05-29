@@ -76,9 +76,6 @@ If the CPU failed to execute an instruction, then build with the following envir
 ```console
 WHISPER_NO_AVX = "ON"
 WHISPER_NO_AVX2 = "ON"
-WHISPER_NO_AVX512 = "ON"
-WHISPER_NO_AVX512_VBMI = "ON"
-WHISPER_NO_AVX512_VNNI = "ON"
 WHISPER_NO_FMA = "ON"
 WHISPER_NO_F16C = "ON"
 ```
