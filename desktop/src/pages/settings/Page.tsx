@@ -6,6 +6,7 @@ import { ReactComponent as ChevronLeftIcon } from '~/icons/chevron-left.svg'
 import { ReactComponent as ChevronRightIcon } from '~/icons/chevron-right.svg'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as GithubIcon } from '~/icons/github.svg'
+import { ReactComponent as HeartIcon } from '~/icons/heart.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as ResetIcon } from '~/icons/reset.svg'
 import { ReactComponent as DiscordIcon } from '~/icons/discord.svg'
@@ -109,6 +110,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				<button onMouseDown={vm.reportIssue} className="btn bg-base-300 text-base-content">
 					{t('common.report-issue')}
 					<GithubIcon className="w-4 h-4" />
+				</button>
+				<button onMouseDown={() => shell.open(config.sponsorURL)} className="btn bg-base-300 text-base-content">
+					{t('common.support-the-project')}
+					<HeartIcon fill="#db61a2" className="w-4 h-4 stroke-2" />
 				</button>
 				<button onMouseDown={() => shell.open(config.discordURL)} className="btn bg-base-300 text-base-content">
 					{t('common.discord-community')}

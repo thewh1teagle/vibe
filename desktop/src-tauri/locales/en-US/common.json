@@ -19,6 +19,7 @@
 	"copy": "Copy",
 	"customize": "Customize",
 	"customize-info": "Download any supported model in ggml or gguf format (with the file extension ending in '.bin'). Transfer it to the models directory, then select from the dropdown. No need to restart 🌟",
+	"discord-community": "Discord Community",
 	"download-models-link": "Download Models",
 	"downloading-model": "Downloading OpenAI Model...",
 	"error-title": "Error",
@@ -46,6 +47,7 @@
 	"play-sound-on-finish": "Play sound on finish",
 	"popular": "Popular",
 	"print": "Print (html)",
+	"print-tooltip": "Print",
 	"project-link": "About Vibe",
 	"prompt": "Prompt",
 	"report-issue": "Report Issue",
@@ -58,6 +60,7 @@
 	"select-language": "Select Language",
 	"select-model": "Select Model",
 	"settings": "Settings",
+	"support-the-project": "Support Vibe",
 	"temperature": "Temperature",
 	"this-happens-once": "This happens only once! 🎉",
 	"threads": "Threads",
@@ -69,7 +72,5 @@
 	"try-again": "Try Again",
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
-	"updating-modal-title": "Updating...",
-	"discord-community": "Discord Community",
-	"print-tooltip": "Print"
+	"updating-modal-title": "Updating..."
 }
