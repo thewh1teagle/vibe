@@ -41,9 +41,9 @@
 -   📂 Batch transcribe multiple files!
 -   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON` formats
 -   👀 Realtime preview
+-   🌐 Translate to English from any language
 -   🖨️ Print transcript directly to any printer
 -   🔄 Automatic updates
--   🌐 Automatic translation
 -   🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
 -   💻 Optimized for `GPU` (`macOS`, `Windows`)
 -   🎮 Optimized for `Nvidia` GPUs! (see [INSTALL.md#nvidia](https://github.com/thewh1teagle/vibe/blob/main/INSTALL.md#nvidia))
