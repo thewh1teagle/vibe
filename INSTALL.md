@@ -22,7 +22,7 @@ Download from [vibe_1.0.9_x64-setup_nvidia_whisper_1.6.2.exe](https://github.com
 </details>
 
 <details>
-<summary>macOS with `coreml` for much faster transcribe (2-3x)</summary>
+<summary>macOS with `coreml` for faster transcribe (2-3x) 🌟</summary>
 
 1. Download [ggml-medium-encoder.mlmodelc.zip](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium-encoder.mlmodelc.zip?download=true)
 2. Unzip it (double click)
