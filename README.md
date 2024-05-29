@@ -9,7 +9,7 @@ Transcribe audio in every language
 
 # Downloads ⬇️
 
-Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github.io/vibe</a>
+Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">thewh1teagle.github.io/vibe</a>
 
 # Supported platforms 🖥️
 
