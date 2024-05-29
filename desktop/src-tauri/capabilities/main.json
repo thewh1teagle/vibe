@@ -71,6 +71,7 @@
 		"dialog:allow-open",
 		"dialog:allow-save",
 		"dialog:allow-ask",
+		"dialog:allow-message",
 		"process:allow-restart",
 		"app:default",
 		"app:allow-version",

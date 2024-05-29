@@ -69,7 +69,7 @@ export async function resetApp() {
 export async function getAppInfo() {
 	const appVersion = await app.getVersion()
 	const commitHash = await invoke('get_commit_hash')
-	const cpuFeatures = await invoke('get_cpu_features')
+	const cpuFeatures = (await invoke('get_x86_features')) ?? 'CPU feature detection is not supported on this architecture.'
 	const arch = await os.arch()
 	const platform = await os.platform()
 	const kVer = await os.version()

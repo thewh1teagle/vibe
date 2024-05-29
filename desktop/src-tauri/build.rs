@@ -29,9 +29,29 @@ fn copy_locales() {
     });
 }
 
+fn extract_whisper_env() {
+    println!(
+        "cargo:rustc-env=WHISPER_NO_AVX={}",
+        std::env::var("WHISPER_NO_AVX").unwrap_or_default().trim()
+    );
+    println!(
+        "cargo:rustc-env=WHISPER_NO_AVX2={}",
+        std::env::var("WHISPER_NO_AVX2").unwrap_or_default().trim()
+    );
+    println!(
+        "cargo:rustc-env=WHISPER_NO_FMA={}",
+        std::env::var("WHISPER_NO_FMA").unwrap_or_default().trim()
+    );
+    println!(
+        "cargo:rustc-env=WHISPER_NO_F16C={}",
+        std::env::var("WHISPER_NO_F16C").unwrap_or_default().trim()
+    );
+}
+
 fn main() {
     let hash = commit_hash();
     println!("cargo:rustc-env=COMMIT_HASH={}", hash);
     copy_locales();
+    extract_whisper_env();
     tauri_build::build();
 }

@@ -7,6 +7,7 @@ import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
+import { open } from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import successSound from '~/assets/success.mp3'
@@ -14,6 +15,7 @@ import { TextFormat } from '~/components/FormatSelect'
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
 import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
+import { getX86Features } from '~/lib/x86Features'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { ModelOptions, usePreferencesContext } from '~/providers/Preferences'
 import { UpdaterContext } from '~/providers/Updater'
@@ -153,11 +155,36 @@ export function viewModel() {
 			navigate('/batch', { state: { files: newFiles } })
 		}
 	}
-	useEffect(() => {
+
+	async function CheckCpuAndInit() {
+		const features = await getX86Features()
+		if (features) {
+			const unsupported = Object.entries(features || {})
+				.filter(([_, feature]) => feature.enabled && !feature.support)
+				.map(([name]) => name)
+			if (unsupported.length > 0) {
+				// Found unsupported features
+				await dialog.message(
+					`Your CPU is old and doesn't support some features (${unsupported.join(
+						','
+					)}). Please click OK and read the readme that will open for more information.`,
+					{
+						kind: 'error',
+					}
+				)
+				open(config.unsupportedCpuReadmeURL)
+				return // Don't run anything
+			}
+		}
+
 		handleDrop()
 		handleDeepLinks()
 		checkModelExists()
 		handleNewSegment()
+	}
+
+	useEffect(() => {
+		CheckCpuAndInit()
 	}, [])
 
 	async function transcribe() {

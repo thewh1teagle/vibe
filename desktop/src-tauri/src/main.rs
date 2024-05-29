@@ -7,6 +7,9 @@ mod deep_link;
 mod panic_hook;
 mod setup;
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+mod x86_features;
+
 #[cfg(all(target_os = "windows", feature = "attach-console"))]
 mod console;
 
@@ -43,7 +46,7 @@ fn main() {
             cmd::is_online,
             cmd::get_path_dst,
             cmd::open_path,
-            cmd::get_cpu_features,
+            cmd::get_x86_features,
             cmd::get_save_path,
             #[cfg(any(windows, target_os = "linux"))]
             cmd::get_deeplinks

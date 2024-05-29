@@ -78,33 +78,15 @@ pub fn get_commit_hash() -> String {
 }
 
 #[tauri::command]
-pub fn get_cpu_features() -> String {
+pub fn get_x86_features() -> Option<Value> {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     {
-        // TODO: remove the identation!
-        // Hard to write pretty multiline string literals without extra tabs
-        format!(
-            "CPU Features:\n\
-            AVX: {}\n\
-            AVX2: {}\n\
-            AVX512: {}\n\
-            AVX512-VBMI: {}\n\
-            AVX512-VNNI: {}\n\
-            FMA: {}\n\
-            F16C: {}",
-            std::is_x86_feature_detected!("avx"),
-            std::is_x86_feature_detected!("avx2"),
-            std::is_x86_feature_detected!("avx512f"),
-            std::is_x86_feature_detected!("avx512vbmi"),
-            std::is_x86_feature_detected!("avx512vnni"),
-            std::is_x86_feature_detected!("fma"),
-            std::is_x86_feature_detected!("f16c")
-        )
+        crate::x86_features::X86features::new()
     }
 
     #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     {
-        "CPU feature detection is not supported on this architecture.".to_string()
+        None
     }
 }
 
