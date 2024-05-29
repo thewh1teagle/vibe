@@ -19,23 +19,23 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">github
 
 # Features 🌟
 
-- 🌍 Transcribe almost every language
-- 📴 Works offline, no data sent out
-- 🎨 User friendly design
-- 🎙️ Transcribe audio / video
-- 📂 Batch transcribe multiple files!
-- 📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF` formats
-- 👀 Realtime preview
-- 🖨️ Print transcript directly to any printer
-- 🔄 Automatic updates
-- 🌐 Automatic translation
-- 🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
-- 💻 Optimized for `GPU` (`macOS`, `Windows`)
-- 🎮 Optimized for `Nvidia` GPUs! (see https://github.com/thewh1teagle/vibe/issues/79#issuecomment-2126031947)
-- 🔧 Total Freedom: Customize Models Easily via Settings
-- ⚙️ Model arguments for advanced users
-- ⏳ ~Transcribe system audio~ 🕒 Coming soon!
-- 🎤 ~Transcribe from microphone~ 🕒 Coming soon!
+-   🌍 Transcribe almost every language
+-   📴 Works offline, no data sent out
+-   🎨 User friendly design
+-   🎙️ Transcribe audio / video
+-   📂 Batch transcribe multiple files!
+-   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF` formats
+-   👀 Realtime preview
+-   🖨️ Print transcript directly to any printer
+-   🔄 Automatic updates
+-   🌐 Automatic translation
+-   🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
+-   💻 Optimized for `GPU` (`macOS`, `Windows`)
+-   🎮 Optimized for `Nvidia` GPUs! (see https://github.com/thewh1teagle/vibe/issues/79#issuecomment-2126031947)
+-   🔧 Total Freedom: Customize Models Easily via Settings
+-   ⚙️ Model arguments for advanced users
+-   ⏳ ~Transcribe system audio~ 🕒 Coming soon!
+-   🎤 ~Transcribe from microphone~ 🕒 Coming soon!
 
 # Install notes
 
@@ -49,8 +49,8 @@ No special requirement. resource usage can be customized through advanced settin
 Currenly, `MacOS` computers get the best performance since there's GPU optimizations.
 
 ### Error of `msvc140.dll` not found
-Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 
+Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 
 ## Manual Install 🛠️
 
@@ -79,6 +79,8 @@ Offline installation with Vibe is easy: open the app, cancel the download, and n
 ## Unsupported CPUs
 
 Some CPUs aren't support some features used by Whisper.
+
+Please try to use the following install: [vibe_1.0.7_x64-setup_no_avx_fma_f16c.exe](https://github.com/thewh1teagle/vibe/releases/download/v1.0.7/vibe_1.0.7_x64-setup_no_avx_fma_f16c.exe)
 
 # Contribute 🤝
 
