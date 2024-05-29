@@ -39,7 +39,7 @@
 -   🎨 User friendly design
 -   🎙️ Transcribe audio / video
 -   📂 Batch transcribe multiple files!
--   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF` formats
+-   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON` formats
 -   👀 Realtime preview
 -   🖨️ Print transcript directly to any printer
 -   🔄 Automatic updates
