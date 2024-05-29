@@ -31,7 +31,7 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">thewh1
 -   🌐 Automatic translation
 -   🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
 -   💻 Optimized for `GPU` (`macOS`, `Windows`)
--   🎮 Optimized for `Nvidia` GPUs! (see https://github.com/thewh1teagle/vibe/issues/79#issuecomment-2126031947)
+-   🎮 Optimized for `Nvidia` GPUs! (see [INSTALL.md#nvidia](https://github.com/thewh1teagle/vibe/blob/main/INSTALL.md#nvidia))
 -   🔧 Total Freedom: Customize Models Easily via Settings
 -   ⚙️ Model arguments for advanced users
 -   ⏳ ~Transcribe system audio~ 🕒 Coming soon!

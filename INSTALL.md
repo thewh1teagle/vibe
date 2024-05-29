@@ -53,6 +53,6 @@ Please try to use the following install: [vibe_1.0.7_x64-setup_no_avx_fma_f16c.e
 
 ## Nvidia
 
-Nvidia receive incredible performance - one hour in 1-5 minutes!
+Nvidia's performance is incredible — transcribe 1 hour in just 1-5 minutes!
 
 Download from [vibe_1.0.9_x64-setup_nvidia_whisper_1.6.2.exe](https://github.com/thewh1teagle/vibe/releases/download/v1.0.9/vibe_1.0.9_x64-setup_nvidia_whisper_1.6.2.exe)
