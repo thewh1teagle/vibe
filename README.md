@@ -76,6 +76,10 @@ Currenly, listening for the audio file isn't supported on `Linux`
 
 Offline installation with Vibe is easy: open the app, cancel the download, and navigate to the `Customize` section within settings.
 
+## Unsupported CPUs
+
+Some CPUs aren't support some features used by Whisper.
+
 # Contribute 🤝
 
 PRs are welcomed!
