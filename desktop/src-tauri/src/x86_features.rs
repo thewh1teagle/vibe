@@ -16,21 +16,23 @@ pub struct X86features {
 
 impl X86features {
     pub fn new() -> Self {
+        // features enabled by default
+        // Disabled only if WHISPER_NO_{flag} was set during compile
         Self {
             avx: X86feature {
-                enabled: env!("WHISPER_NO_AVX") == "ON",
+                enabled: env!("WHISPER_NO_AVX") != "ON",
                 support: is_x86_feature_detected!("avx"),
             },
             avx2: X86feature {
-                enabled: env!("WHISPER_NO_AVX2") == "ON",
+                enabled: env!("WHISPER_NO_AVX2") != "ON",
                 support: is_x86_feature_detected!("avx2"),
             },
             fma: X86feature {
-                enabled: env!("WHISPER_NO_FMA") == "ON",
+                enabled: env!("WHISPER_NO_FMA") != "ON",
                 support: is_x86_feature_detected!("fma"),
             },
             f16c: X86feature {
-                enabled: env!("WHISPER_NO_F16C") == "ON",
+                enabled: env!("WHISPER_NO_F16C") != "ON",
                 support: is_x86_feature_detected!("f16c"),
             },
         }
