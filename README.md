@@ -1,21 +1,34 @@
-# Vibe
+<p align="center">
+  <a href="https://github.com/dubisdev/key-on-screen">
+    <img
+        width="96px"
+        alt="Key On Screen logo"
+        src="./design/logo.png"
+    />
+  </a>
+</p>
 
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opencollective.com/tauri)
-[![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.gg/EcxWSstQN8)
+<h1 align="center">Vibe - Transcribe on your own!</h1>
 
-Transcribe audio in every language
+<p align="center">
+  <strong>⌨️ Transcribe audio / video offline using OpenAI Whisper</strong>
+  <br/>
+</p>
 
-<img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
+<p align="center">
+  <a href="https://thewh1teagle.github.io/vibe/">
+    🔗 Download Vibe
+  </a>
+    &nbsp; | &nbsp; Give it a Star ⭐ | &nbsp;
+    <a href="https://github.com/sponsors/thewh1teagle">Support the project 🤝</a>
+</p>
 
-# Downloads ⬇️
+<hr />
 
-Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">thewh1teagle.github.io/vibe</a>
-
-# Supported platforms 🖥️
-
-`MacOS`
-`Windows`
-`Linux`
+## Screenshots
+<p align="center">
+    <img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
+</p>
 
 # Features 🌟
 
@@ -36,6 +49,12 @@ Download at <a href="https://thewh1teagle.github.io/vibe" target="_blank">thewh1
 -   ⚙️ Model arguments for advanced users
 -   ⏳ ~Transcribe system audio~ 🕒 Coming soon!
 -   🎤 ~Transcribe from microphone~ 🕒 Coming soon!
+
+# Supported platforms 🖥️
+
+`MacOS`
+`Windows`
+`Linux`
 
 # Install notes
 
