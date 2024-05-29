@@ -81,7 +81,8 @@ pub fn get_commit_hash() -> String {
 pub fn get_x86_features() -> Option<Value> {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     {
-        crate::x86_features::X86features::new()
+        let features: Value = serde_json::to_value(crate::x86_features::X86features::new()).unwrap_or_default();
+        return Some(features);
     }
 
     #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]

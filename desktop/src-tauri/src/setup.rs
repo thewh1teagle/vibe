@@ -11,7 +11,12 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    log::debug!("CPU features:\n{}", crate::cmd::get_x86_features());
+    log::debug!(
+        "CPU Features\n{}",
+        crate::cmd::get_x86_features()
+            .map(|v| serde_json::to_string(&v).unwrap())
+            .unwrap_or_default()
+    );
 
     #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     log::debug!("CPU feature detection is not supported on this architecture.");
