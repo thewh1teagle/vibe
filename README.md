@@ -16,18 +16,20 @@
 </p>
 
 <p align="center">
-  <a href="https://thewh1teagle.github.io/vibe/">
+  <a target="_blank" href="https://thewh1teagle.github.io/vibe/">
     🔗 Download Vibe
   </a>
     &nbsp; | &nbsp; Give it a Star ⭐ | &nbsp;
-    <a href="https://github.com/sponsors/thewh1teagle">Support the project 🤝</a>
+    <a target="_blank" href="https://github.com/sponsors/thewh1teagle">Support the project 🤝</a>
 </p>
 
 <hr />
 
 ## Screenshots
 <p align="center">
-    <img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
+	<a target="_blank" href="https://thewh1teagle.github.io/vibe/">
+    	<img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
+	</a>
 </p>
 
 # Features 🌟
