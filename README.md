@@ -35,7 +35,7 @@
 # Features 🌟
 
 -   🌍 Transcribe almost every language
--   📴 Works offline, no data sent out
+-   🔒 Ultimate privacy: fully offline transcription, no data ever leaves your device
 -   🎨 User friendly design
 -   🎙️ Transcribe audio / video
 -   📂 Batch transcribe multiple files!
