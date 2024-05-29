@@ -54,7 +54,31 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 
 2. Install [`cuda`](https://developer.nvidia.com/cuda-downloads)
 
-Build in `Powershell`
+3. Add to `tauri.windows.conf.json`
+
+<details>
+
+<summary>tauri.windows.conf.json</summary>
+
+```json
+{
+	"bundle": {
+		"resources": {
+			"ffmpeg\\bin\\x64\\*.dll": "./",
+			"openblas\\bin\\*.dll": "./",
+			"clblast\\bin\\*.dll": "./",
+			"C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll": "./",
+			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cudart64_*": "./",
+			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublas64_*": "./",
+			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublasLt64_*": "./"
+		}
+	}
+}
+```
+
+</details>
+
+4. Build in `Powershell`
 
 ```console
 $env:CUDA_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
