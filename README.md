@@ -26,6 +26,7 @@
 <hr />
 
 ## Screenshots
+
 <p align="center">
 	<a target="_blank" href="https://thewh1teagle.github.io/vibe/">
     	<img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
@@ -51,6 +52,7 @@
 -   ⚙️ Model arguments for advanced users
 -   ⏳ ~Transcribe system audio~ 🕒 Coming soon!
 -   🎤 ~Transcribe from microphone~ 🕒 Coming soon!
+-   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
 
 # Supported platforms 🖥️
 
