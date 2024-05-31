@@ -49,6 +49,14 @@ struct Args {
     /// Initial prompt (default: None)
     #[arg(long)]
     init_prompt: Option<String>,
+
+    /// Path to write transcript
+    #[arg(long)]
+    write: Option<PathBuf>,
+
+    /// Format of the transcript (default: "srt") possible: (srt, vtt, text)
+    #[structopt(long, default_value = "srt")] // TODO: use possible values. confusing crate!
+    format: String,
 }
 
 fn prepare_model_path(path: &Path) -> PathBuf {
@@ -83,10 +91,42 @@ pub fn run(app: &App) {
         verbose: false,
     };
     options.model_path = prepare_model_path(&options.model_path);
-    log::info!("Transcribe... 🔄");
+
+    eprintln!("Transcribe... 🔄");
     let transcript = model::transcribe(&options, None, None, None).unwrap();
-    println!("{}", transcript.as_srt());
+
+    println!(
+        "{}",
+        match args.format.as_str() {
+            "srt" => transcript.as_srt(),
+            "vtt" => transcript.as_vtt(),
+            "text" => transcript.as_text(),
+            _ => {
+                eprintln!("Invalid format specified. Defaulting to SRT format.");
+                transcript.as_srt()
+            }
+        }
+    );
+
+    // Write transcript if write path is provided
+    if let Some(write_path) = args.write {
+        if let Err(err) = std::fs::write(
+            write_path,
+            match args.format.as_str() {
+                "srt" => transcript.as_srt(),
+                "vtt" => transcript.as_vtt(),
+                "text" => transcript.as_text(),
+                _ => {
+                    eprintln!("Invalid format specified. Defaulting to SRT format.");
+                    transcript.as_srt()
+                }
+            },
+        ) {
+            eprintln!("Error writing transcript to file: {}", err);
+        }
+    }
+
     app.cleanup_before_exit();
-    log::info!("Done ✅");
+    eprintln!("Done ✅");
     process::exit(0);
 }
