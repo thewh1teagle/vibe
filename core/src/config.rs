@@ -10,12 +10,17 @@ pub const FILENAME: &str = "ggml-medium.bin";
 // NOT a regular hash!! see integrity.rs
 pub const HASH: &str = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
-pub fn get_model_path() -> Result<PathBuf> {
-    let app_config = dirs_next::data_local_dir()
+pub fn get_models_folder() -> Result<PathBuf> {
+    let path = dirs_next::data_local_dir()
         .ok_or_eyre("Can't get data directory")?
         .join(APP_ID);
-    std::fs::create_dir_all(&app_config)?;
-    let filepath = app_config.join(FILENAME);
+    Ok(path)
+}
+
+pub fn get_model_path() -> Result<PathBuf> {
+    let models_folder = get_models_folder()?;
+    std::fs::create_dir_all(&models_folder)?;
+    let filepath = models_folder.join(FILENAME);
     Ok(filepath)
 }
 

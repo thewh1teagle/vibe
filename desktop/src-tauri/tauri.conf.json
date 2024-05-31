@@ -4,23 +4,7 @@
 	"version": "2.0.0",
 	"identifier": "github.com.thewh1teagle.vibe",
 	"app": {
-		"windows": [
-			{
-				"title": "vibe",
-				"label": "main",
-				"width": 800,
-				"height": 700,
-				"minWidth": 800,
-				"minHeight": 600,
-				"center": true,
-				"resizable": true,
-				"focus": true,
-				"shadow": true,
-				"fullscreen": false,
-				"maximized": false,
-				"visible": false
-			}
-		],
+		"windows": [],
 		"withGlobalTauri": true,
 		"security": {
 			"assetProtocol": {

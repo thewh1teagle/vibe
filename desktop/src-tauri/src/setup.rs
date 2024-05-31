@@ -1,4 +1,4 @@
-use crate::{deep_link, panic_hook};
+use crate::{cli, deep_link, panic_hook};
 use tauri::{App, Manager};
 
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
@@ -25,5 +25,21 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     // Add deep links from argv as tauri::State
     deep_link::create_state(app);
+
+    if cli::is_cli_detected() {
+        cli::run(app);
+    } else {
+        // Create main window
+        tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+            .inner_size(800.0, 700.0)
+            .min_inner_size(800.0, 700.0)
+            .center()
+            .resizable(true)
+            .focused(true)
+            .shadow(true)
+            .visible(true)
+            .build()
+            .expect("Can't create main window");
+    }
     Ok(())
 }
