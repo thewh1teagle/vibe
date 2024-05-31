@@ -5388,6 +5388,7 @@ name = "vibe-desktop"
 version = "0.0.6"
 dependencies = [
  "clap",
+ "cocoa",
  "env_logger",
  "eyre",
  "fs_extra",

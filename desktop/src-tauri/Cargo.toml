@@ -51,6 +51,7 @@ windows = { version = "0.56.0", features = [
 
 [target.'cfg(target_os = "macos")'.dependencies]
 vibe = { path = "../../core", features = ["coreml", "metal"] }
+cocoa = "0.25.0"
 
 [features]
 default = ["custom-protocol", "attach-console"]

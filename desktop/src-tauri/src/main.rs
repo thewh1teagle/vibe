@@ -8,6 +8,9 @@ mod deep_link;
 mod panic_hook;
 mod setup;
 
+#[cfg(target_os = "macos")]
+mod dock;
+
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod x86_features;
 
