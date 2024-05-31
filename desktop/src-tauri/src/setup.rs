@@ -37,7 +37,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .resizable(true)
             .focused(true)
             .shadow(true)
-            .visible(true)
+            .visible(false)
             .build()
             .expect("Can't create main window");
     }
