@@ -83,8 +83,10 @@ pub fn run(app: &App) {
         verbose: false,
     };
     options.model_path = prepare_model_path(&options.model_path);
+    log::info!("Transcribe... 🔄");
     let transcript = model::transcribe(&options, None, None, None).unwrap();
     println!("{}", transcript.as_srt());
     app.cleanup_before_exit();
+    log::info!("Done ✅");
     process::exit(0);
 }
