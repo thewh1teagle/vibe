@@ -5,8 +5,6 @@ use tauri::App;
 use vibe::config::{get_models_folder, TranscribeOptions};
 use vibe::model;
 
-use crate::dock::set_dock_visible;
-
 pub fn is_cli_detected() -> bool {
     // Get the command-line arguments as an iterator
     let args: Vec<String> = env::args().collect();
@@ -71,7 +69,7 @@ fn prepare_model_path(path: &Path) -> PathBuf {
 
 pub fn run(app: &App) {
     #[cfg(target_os = "macos")]
-    set_dock_visible(false);
+    crate::dock::set_dock_visible(false);
 
     let args = Args::parse();
     let mut options = TranscribeOptions {
