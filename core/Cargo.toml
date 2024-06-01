@@ -3,10 +3,6 @@ name = "vibe"
 version = "0.0.6"
 edition = "2021"
 
-[[bin]]
-name = "main"
-path = "bin/main.rs"
-
 [lib]
 name = "vibe"
 path = "src/lib.rs"
