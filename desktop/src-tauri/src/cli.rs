@@ -11,7 +11,7 @@ pub fn is_cli_detected() -> bool {
 
     // Check if any argument starts with "--"
     for arg in &args {
-        if arg.starts_with("--") {
+        if arg.starts_with("--") || arg == "-h" {
             return true;
         }
     }
