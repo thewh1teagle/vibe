@@ -1,5 +1,6 @@
 use clap::Parser;
 use std::path::{Path, PathBuf};
+use std::time::Instant;
 use std::{env, process};
 use tauri::App;
 use vibe::config::{get_models_folder, TranscribeOptions};
@@ -93,8 +94,9 @@ pub fn run(app: &App) {
     options.model_path = prepare_model_path(&options.model_path);
 
     eprintln!("Transcribe... 🔄");
+    let start = Instant::now(); // Measure start time
     let transcript = model::transcribe(&options, None, None, None).unwrap();
-
+    let elapsed = start.elapsed();
     println!(
         "{}",
         match args.format.as_str() {
@@ -127,6 +129,10 @@ pub fn run(app: &App) {
     }
 
     app.cleanup_before_exit();
+    eprintln!(
+        "Transcription completed in {:.1}s ⏱️",
+        elapsed.as_secs_f64() + elapsed.subsec_nanos() as f64 * 1e-9
+    );
     eprintln!("Done ✅");
     process::exit(0);
 }
