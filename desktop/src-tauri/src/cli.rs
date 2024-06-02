@@ -6,6 +6,20 @@ use tauri::App;
 use vibe::config::{get_models_folder, TranscribeOptions};
 use vibe::model;
 
+/// Attach to console if cli detected in Windows
+#[cfg(all(windows, feature = "attach-console"))]
+pub fn attach_console() {
+    use windows::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
+    if env::var("RUST_LOG").is_ok() || is_cli_detected() {
+        // we ignore the result here because
+        // if the app started from a command line, like cmd or powershell,
+        // it will attach sucessfully which is what we want
+        // but if we were started from something like explorer,
+        // it will fail to attach console which is also what we want.
+        let _ = unsafe { AttachConsole(ATTACH_PARENT_PROCESS) };
+    }
+}
+
 pub fn is_cli_detected() -> bool {
     // Get the command-line arguments as an iterator
     let args: Vec<String> = env::args().collect();
