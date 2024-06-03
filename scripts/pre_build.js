@@ -117,7 +117,7 @@ if (platform == 'macos') {
 }
 
 // Nvidia
-const buildForOldCPU = process.argv.includes('--old-cpu')
+const buildForOldCPU = process.argv.includes('--older-cpu')
 
 // Development hints
 if (!process.env.GITHUB_ENV) {
