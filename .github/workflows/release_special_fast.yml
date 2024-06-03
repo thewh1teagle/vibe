@@ -36,6 +36,13 @@ jobs:
                   echo "CUDA_VERSION=$cuda_version" >> $GITHUB_ENV
               shell: pwsh
 
+            - name: Cache CUDA
+              id: cache-cuda
+              uses: actions/cache@v4
+                with:
+                  path: C:\cuda
+                  key: ${{ runner.os }}-cuda
+
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
 
