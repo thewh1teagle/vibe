@@ -60,7 +60,8 @@ jobs:
                       $ext = $file.Extension
 
                       # New file name
-                      $new_name = "{0}_nvidia_{1}{2}" -f $name, older_cpu, $ext
+                      $suffix = "older_cpu"
+                      $new_name = "{0}_nvidia_{1}{2}" -f $name, $suffix, $ext
 
                       # Rename the file
                       Rename-Item -Path $file.FullName -NewName $new_name
