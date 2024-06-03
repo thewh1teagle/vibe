@@ -116,6 +116,9 @@ if (platform == 'macos') {
 	}
 }
 
+// Nvidia
+const buildForOldCPU = process.argv.includes('--old-cpu')
+
 // Development hints
 if (!process.env.GITHUB_ENV) {
 	console.log('\nCommands to build 🔨:')
@@ -131,6 +134,12 @@ if (!process.env.GITHUB_ENV) {
 		console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
 		console.log(`$env:PATH += "${exports.cmake}"`)
+		if (buildForOldCPU) {
+			console.log(`$env:WHISPER_NO_AVX = "ON"`)
+			console.log(`$env:WHISPER_NO_AVX2 = "ON"`)
+			console.log(`$env:WHISPER_NO_FMA = "ON"`)
+			console.log(`$env:WHISPER_NO_F16C = "ON"`)
+		}
 	}
 	if (platform == 'macos') {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
@@ -158,12 +167,43 @@ if (process.env.GITHUB_ENV) {
 		const clblast = `CLBlast_DIR=${exports.clblast}\n`
 		console.log('Adding ENV', clblast)
 		await fs.appendFile(process.env.GITHUB_ENV, clblast)
+
+		if (buildForOldCPU) {
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX2=ON`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_FMA=ON`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_F16C=ON`)
+		}
 	}
+}
+
+// Nvidia
+if (process.argv.includes('--nvidia')) {
+	const cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA'
+	let version = 'v12.5'
+	if (await fs.exists(cudaPath)) {
+		const folders = fs.readdir(cudaPath)
+		version = folders?.[0] || 'v12.5'
+	}
+
+	const windowsConfig = {
+		bundle: {
+			resources: {
+				'ffmpeg\\bin\\x64\\*.dll': './',
+				'openblas\\bin\\*.dll': './',
+				'C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll': './',
+				[`${cudaPath}\\${version}\\bin\\cudart64_*`]: './',
+				[`${cudaPath}\\${version}\\bin\\cublas64_*`]: './',
+				[`${cudaPath}\\v12.5\\bin\\cublasLt64_*`]: './',
+			},
+		},
+	}
+	await fs.writeFile('tauri.windows.conf.json', JSON.stringify(windowsConfig, null, 4))
 }
 
 // --dev or --build
 const action = process.argv?.[2]
-if (action?.includes('--')) {
+if (action?.includes('--build' || action.includes('--dev'))) {
 	process.chdir(path.join(cwd, '..'))
 	process.env['FFMPEG_DIR'] = exports.ffmpeg
 	if (platform === 'windows') {
@@ -176,5 +216,5 @@ if (action?.includes('--')) {
 		process.env['WHISPER_METAL_EMBED_LIBRARY'] = 'ON'
 	}
 	await $`bun install`
-	await $`bunx tauri ${action == '--dev' ? 'dev' : 'build'}`
+	await $`bunx tauri ${action.includes('--dev') ? 'dev' : 'build'}`
 }
