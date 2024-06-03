@@ -22,6 +22,7 @@ jobs:
               uses: microsoft/setup-msbuild@v2
 
             - name: Install CUDA Toolkit
+              id: cuda-toolkit
               uses: Jimver/cuda-toolkit@v0.2.15
               with:
                   cuda: '${{ matrix.cuda-toolkit }}'
