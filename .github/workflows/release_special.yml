@@ -26,6 +26,7 @@ jobs:
               uses: Jimver/cuda-toolkit@v0.2.15
               with:
                   cuda: '${{ matrix.cuda-toolkit }}'
+                  method: 'local'
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
