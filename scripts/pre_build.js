@@ -179,7 +179,10 @@ if (!process.env.GITHUB_ENV) {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
 		console.log(`export WHISPER_METAL_EMBED_LIBRARY=ON`)
 	}
-	if (process.env.GITHUB_ENV) {
+	if (process.argv.includes('--nvidia')) {
+		console.log(`$env:CUDA_PATH = "${exports.cudaPath}"`)
+	}
+	if (!process.env.GITHUB_ENV) {
 		console.log('bunx tauri build')
 	}
 }

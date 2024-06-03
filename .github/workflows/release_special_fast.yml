@@ -30,7 +30,7 @@ jobs:
               run: |
                   C:\msys64\usr\bin\wget.exe -O cuda_installer.exe '${{ matrix.cuda-toolkit.url }}'
                   7z x cuda_installer.exe -y -o"C:\cuda"
-                  $cuda_version = Get-ChildItem -Path "C:\cuda" -Directory | Select-Object -First 1 -ExpandProperty Name
+                  $cuda_version = '${{ matrix.cuda-toolkit.version }}'
                   Write-Output "CUDA Version: $cuda_version"
                   echo "CUDA_PATH=C:\cuda\$cuda_version" >> $env:GITHUB_ENV
                   echo "CUDA_VERSION=$cuda_version" >> $env:GITHUB_ENV
