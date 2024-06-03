@@ -184,6 +184,7 @@ if (process.argv.includes('--nvidia')) {
 	if (await fs.exists(cudaPath)) {
 		const folders = fs.readdir(cudaPath)
 		version = folders?.[0] || 'v12.5'
+		console.log('Detect nvidia version', version)
 	}
 
 	const windowsConfig = {
