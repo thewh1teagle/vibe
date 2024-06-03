@@ -148,6 +148,11 @@ if (process.argv.includes('--nvidia')) {
 		},
 	}
 	await fs.writeFile('tauri.windows.conf.json', JSON.stringify(windowsConfig, null, 4))
+
+	// modify features in cargo.toml
+	let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
+	content = content.replace('opencl', 'cuda')
+	await fs.writeFile('Cargo.toml', content)
 }
 
 // Development hints
