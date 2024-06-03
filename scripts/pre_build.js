@@ -183,11 +183,12 @@ if (process.argv.includes('--nvidia')) {
 	if (process.env['steps.cuda-toolkit.outputs.CUDA_PATH']) {
 		cudaPath = process.env['steps.cuda-toolkit.outputs.CUDA_PATH']
 	} else {
-		cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA'
-		let version = 'v12.5'
+		cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5'
 		if (await fs.exists(cudaPath)) {
 			const folders = await fs.readdir(cudaPath)
-			version = folders?.[0] || 'v12.5'
+			if (folders.length > 0) {
+				cudaPath.replace('v12.5', folders[0])
+			}
 		}
 	}
 	console.log('CUDA_PATH', cudaPath)
