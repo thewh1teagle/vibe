@@ -1,0 +1,55 @@
+name: Release for Nvidia GPUs
+
+on:
+    push:
+        tags:
+            - 'v*'
+    workflow_dispatch:
+
+jobs:
+    publish-tauri:
+        permissions:
+            contents: write
+        strategy:
+            matrix:
+                cuda-toolkit: [12.2.0, 11.8.0]
+
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Add msbuild to PATH
+                uses: microsoft/setup-msbuild@v2
+
+            - name: Install CUDA Toolkit
+                uses: Jimver/cuda-toolkit@v0.2.15
+                with:
+                    cuda: '${{ matrix.cuda-toolkit }}'
+
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install frontend dependencies
+              run: bun install
+              working-directory: ./desktop
+
+            # Run pre build
+            - name: Run pre_build.js
+              run: bun scripts/pre_build.js --nvidia
+
+            - name: Build
+              uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+              with:
+                  args: --target x86_64-pc-windows-msvc
+                  projectPath: './desktop'
+                  tauriScript: bunx tauri
