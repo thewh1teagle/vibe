@@ -1,4 +1,4 @@
-name: Release for Nvidia GPUs
+name: Release for nvidia GPUs
 
 on:
     push:
