@@ -14,14 +14,11 @@ mod dock;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod x86_features;
 
-#[cfg(all(target_os = "windows", feature = "attach-console"))]
-mod console;
-
 use tauri_plugin_window_state::StateFlags;
 
 fn main() {
     // Attach console in Windows:
-    #[cfg(all(windows, feature = "attach-console"))]
+    #[cfg(windows)]
     cli::attach_console();
 
     env_logger::init();

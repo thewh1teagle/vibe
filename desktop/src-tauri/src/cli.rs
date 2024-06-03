@@ -8,7 +8,7 @@ use vibe::config::{get_models_folder, TranscribeOptions};
 use vibe::model;
 
 /// Attach to console if cli detected in Windows
-#[cfg(all(windows, feature = "attach-console"))]
+#[cfg(windows)]
 pub fn attach_console() {
     use windows::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
     if env::var("RUST_LOG").is_ok() || is_cli_detected() {
