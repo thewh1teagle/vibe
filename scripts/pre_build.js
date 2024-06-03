@@ -179,13 +179,18 @@ if (process.env.GITHUB_ENV) {
 
 // Nvidia
 if (process.argv.includes('--nvidia')) {
-	const cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA'
-	let version = 'v12.5'
-	if (await fs.exists(cudaPath)) {
-		const folders = await fs.readdir(cudaPath)
-		version = folders?.[0] || 'v12.5'
-		console.log('Detect nvidia version', version)
+	let cudaPath
+	if (process.env['steps.cuda-toolkit.outputs.CUDA_PATH']) {
+		cudaPath = process.env['steps.cuda-toolkit.outputs.CUDA_PATH']
+	} else {
+		cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA'
+		let version = 'v12.5'
+		if (await fs.exists(cudaPath)) {
+			const folders = await fs.readdir(cudaPath)
+			version = folders?.[0] || 'v12.5'
+		}
 	}
+	console.log('CUDA_PATH', cudaPath)
 
 	const windowsConfig = {
 		bundle: {
@@ -193,9 +198,9 @@ if (process.argv.includes('--nvidia')) {
 				'ffmpeg\\bin\\x64\\*.dll': './',
 				'openblas\\bin\\*.dll': './',
 				'C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll': './',
-				[`${cudaPath}\\${version}\\bin\\cudart64_*`]: './',
-				[`${cudaPath}\\${version}\\bin\\cublas64_*`]: './',
-				[`${cudaPath}\\v12.5\\bin\\cublasLt64_*`]: './',
+				[`${cudaPath}\\bin\\cudart64_*`]: './',
+				[`${cudaPath}\\bin\\cublas64_*`]: './',
+				[`${cudaPath}\\bin\\cublasLt64_*`]: './',
 			},
 		},
 	}
