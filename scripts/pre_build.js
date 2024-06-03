@@ -92,7 +92,7 @@ if (platform == 'windows') {
 	}
 
 	// Setup CLBlast
-	if (!(await fs.exists(config.clblastRealname))) {
+	if (!(await fs.exists(config.clblastRealname)) && !process.argv.includes('--nvidia')) {
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.clblastUrl} -O ${config.windows.clblastName}.zip`
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.zip` // 7z file inside
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.7z` // Inner folder
