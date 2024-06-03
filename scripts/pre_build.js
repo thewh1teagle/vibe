@@ -182,7 +182,7 @@ if (process.argv.includes('--nvidia')) {
 	const cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA'
 	let version = 'v12.5'
 	if (await fs.exists(cudaPath)) {
-		const folders = fs.readdir(cudaPath)
+		const folders = await fs.readdir(cudaPath)
 		version = folders?.[0] || 'v12.5'
 		console.log('Detect nvidia version', version)
 	}
