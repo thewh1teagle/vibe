@@ -1,4 +1,4 @@
-name: Release for nvidia GPUs and non AVX2 CPUs
+name: Release for nvidia GPUs
 
 on:
     push:
