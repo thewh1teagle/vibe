@@ -7,7 +7,7 @@ import { usePreferencesContext } from '~/providers/Preferences'
 
 export function viewModel() {
 	const [downloadProgress, setDownloadProgress] = useState(0)
-	const [isOnline, setIsOnline] = useState<boolean | null>(false)
+	const [isOnline, setIsOnline] = useState<boolean | null>(null)
 	const downloadProgressRef = useRef(0)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
@@ -41,7 +41,7 @@ export function viewModel() {
 	}
 
 	async function downloadIfOnline() {
-		const isOnlineResponse = (await invoke('is_online')) as boolean
+		const isOnlineResponse = await invoke<boolean>('is_online')
 		// If online download model
 		if (isOnlineResponse) {
 			downloadModel()
