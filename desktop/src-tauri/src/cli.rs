@@ -47,8 +47,8 @@ struct Args {
     file: PathBuf,
 
     /// Language to transcribe
-    #[arg(short, long, default_value = "en", value_parser = get_possible_languages())]
-    language: Option<String>,
+    #[arg(short, long, default_value = "english", value_parser = get_possible_languages())]
+    language: String,
 
     /// Temperature (default: 0.4)
     #[arg(short, long, default_value = "0.4")]
@@ -103,15 +103,23 @@ fn prepare_model_path(path: &Path) -> PathBuf {
     path.to_path_buf()
 }
 
+fn language_name_to_whisper_lang(name: &str) -> String {
+    let languages_json = include_str!("../../src/assets/whisper-languages.json");
+    let languages: Value = serde_json::from_str(languages_json).unwrap();
+    languages[name].as_str().unwrap().to_string()
+}
+
+
 pub fn run(app: &App) {
     #[cfg(target_os = "macos")]
     crate::dock::set_dock_visible(false);
 
     let args = Args::parse();
+    let lang = language_name_to_whisper_lang(&args.language);
     let mut options = TranscribeOptions {
         path: args.file,
         model_path: args.model,
-        lang: args.language,
+        lang: Some(lang),
         init_prompt: args.init_prompt,
         n_threads: args.n_threads,
         temperature: args.temperature,

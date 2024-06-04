@@ -140,7 +140,6 @@ if (process.argv.includes('--nvidia')) {
 			resources: {
 				'ffmpeg\\bin\\x64\\*.dll': './',
 				'openblas\\bin\\*.dll': './',
-				'C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll': './',
 				[`${cudaPath}\\bin\\cudart64_*`]: './',
 				[`${cudaPath}\\bin\\cublas64_*`]: './',
 				[`${cudaPath}\\bin\\cublasLt64_*`]: './',
@@ -183,9 +182,6 @@ if (!process.env.GITHUB_ENV) {
 	if (platform == 'macos') {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
 		console.log(`export WHISPER_METAL_EMBED_LIBRARY=ON`)
-	}
-	if (process.argv.includes('--nvidia')) {
-		console.log(`$env:CUDA_PATH = "${exports.cudaPath}"`)
 	}
 	if (!process.env.GITHUB_ENV) {
 		console.log('bunx tauri build')

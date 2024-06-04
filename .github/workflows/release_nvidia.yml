@@ -12,7 +12,7 @@ jobs:
             contents: write
         strategy:
             matrix:
-                cuda-toolkit: [12.2.0, 11.8.0]
+                cuda-toolkit: [12.5.0, 11.8.0]
 
         runs-on: windows-latest
         steps:
@@ -21,19 +21,27 @@ jobs:
             - name: Add msbuild to PATH
               uses: microsoft/setup-msbuild@v2
 
-            - name: Install CUDA Toolkit
+            # - name: Cache cuda installer
+            #   id: cache-cuda-installer
+            #   uses: actions/cache@v4
+            #   with:
+            #       path: |
+            #           cuda.exe
+            #       key: ${{ runner.os }}-cuda-installer
+
+            - name: Setup CUDA Toolkit
               id: cuda-toolkit
-              uses: Jimver/cuda-toolkit@v0.2.15
-              with:
-                  cuda: '${{ matrix.cuda-toolkit }}'
-                  method: 'local'
-                  sub-packages: '["nvcc", "visual_studio_integration", "cudart", "cublas", "cublas_dev", "thrust"]'
+              shell: pwsh
+              run: scripts/setup_cuda.ps1
+              env:
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
 
-            - name: Rust cache
-              uses: swatinem/rust-cache@v2
+            # No idea why but otherwise after cache restore it will be missing some files...
+            # - name: Rust cache
+            #   uses: swatinem/rust-cache@v2
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
@@ -89,10 +97,8 @@ jobs:
               shell: pwsh
 
             - name: Upload installer
-              uses: svenstaro/upload-release-action@v2
-              with:
-                  repo_token: ${{ secrets.GITHUB_TOKEN }}
-                  file: target/release/bundle/nsis/*.exe
-                  tag: ${{ github.ref }}
-                  overwrite: true
-                  file_glob: true
+              run: |
+                  bun scripts/publish.js target/release/bundle/nsis/*.exe
+              shell: pwsh
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

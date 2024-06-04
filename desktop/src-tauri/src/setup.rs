@@ -10,7 +10,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         log::debug!("webview version: {}", version);
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
     log::debug!(
         "CPU Features\n{}",
         crate::cmd::get_x86_features()
@@ -18,7 +18,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .unwrap_or_default()
     );
 
-    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows")))]
     log::debug!("CPU feature detection is not supported on this architecture.");
 
     log::debug!("COMMIT_HASH: {}", env!("COMMIT_HASH"));
