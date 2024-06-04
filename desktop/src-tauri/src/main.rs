@@ -14,16 +14,12 @@ mod dock;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod x86_features;
 
-#[cfg(all(target_os = "windows", feature = "attach-console"))]
-mod console;
-
 use tauri_plugin_window_state::StateFlags;
 
 fn main() {
-    // Attach console IF:
-    // OS is Windows + RUST_LOG was set + attach-console feature was set + console is available.
-    #[cfg(all(windows, feature = "attach-console"))]
-    console::attach();
+    // Attach console in Windows:
+    #[cfg(windows)]
+    cli::attach_console();
 
     env_logger::init();
     log::debug!("Vibe App Running");
