@@ -27,6 +27,7 @@ jobs:
               with:
                   cuda: '${{ matrix.cuda-toolkit }}'
                   method: 'local'
+                  sub-packages: '["nvcc", "visual_studio_integration", "cudart", "cublas", "cublas_dev", "thrust"]'
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
