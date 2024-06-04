@@ -72,6 +72,7 @@ jobs:
 
                       # Rename the file
                       Rename-Item -Path $file.FullName -NewName $new_name
+                      Write-Output "Renamed '$($file.FullName)' to '$new_name'"
                   }
               shell: pwsh
 
@@ -79,7 +80,7 @@ jobs:
               uses: svenstaro/upload-release-action@v2
               with:
                   repo_token: ${{ secrets.GITHUB_TOKEN }}
-                  file: target\release\bundle\nsis\*.exe
+                  file: target/release/bundle/nsis/*.exe
                   tag: ${{ github.ref }}
                   overwrite: true
                   file_glob: true
