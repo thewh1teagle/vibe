@@ -21,14 +21,6 @@ jobs:
             - name: Add msbuild to PATH
               uses: microsoft/setup-msbuild@v2
 
-            - name: Cache Cuda toolkit
-              id: cache-cuda-toolkit
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\${{ matrix.cuda_toolkit }}
-                  key: ${{ runner.os }}-cuda-toolkit-${{ matrix.cuda_toolkit }}
-
             - name: Setup CUDA Toolkit
               id: cuda-toolkit
               shell: pwsh
