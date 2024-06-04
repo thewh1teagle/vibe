@@ -104,7 +104,7 @@ fn prepare_model_path(path: &Path) -> PathBuf {
 }
 
 fn language_name_to_whisper_lang(name: &str) -> String {
-    let languages = include_str!("../../src/assets/whisper-languages.json");
+    let languages_json = include_str!("../../src/assets/whisper-languages.json");
     let languages: Value = serde_json::from_str(languages_json).unwrap();
     languages[name].as_str().unwrap().to_string()
 }
