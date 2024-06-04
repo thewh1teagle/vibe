@@ -16,7 +16,7 @@ Write-Output "Selected CUDA version: $CUDA_VERSION_FULL"
 
 
 $src = "cuda"
-$dst = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v$($CUDA_MAJOR)_$($CUDA_MINOR)"
+$dst = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v$($CUDA_MAJOR).$($CUDA_MINOR)"
 
 $file = "cuda.exe"
 
