@@ -24,7 +24,7 @@ jobs:
             - name: Setup CUDA Toolkit
               id: cuda-toolkit
               shell: pwsh
-              run: scripts/setup_cuda.ps1
+              run: scripts/setup_cuda1.ps1
               env:
                   INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
 
