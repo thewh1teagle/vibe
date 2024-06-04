@@ -55,7 +55,6 @@ jobs:
                       desktop/src-tauri/openblas
                       desktop/src-tauri/clblast
                       desktop/src-tauri/ffmpeg
-                  key: ${{ runner.os }}-pre-build
 
             # Install tauri cli with patch on macOS aarch64
             - name: Install custom tauri cli

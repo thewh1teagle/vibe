@@ -53,7 +53,6 @@ jobs:
                   path: |
                       desktop/src-tauri/openblas
                       desktop/src-tauri/ffmpeg
-                  key: ${{ runner.os }}-pre-build
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
