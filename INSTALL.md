@@ -17,7 +17,7 @@ Currenly, `MacOS` computers get the best performance since there's GPU optimizat
 
 Nvidia's performance is incredible — transcribe 1 hour in just 1-5 minutes!
 
-Download from [vibe_2.0.0_x64-setup_nvidia.exe](https://github.com/thewh1teagle/vibe/releases/download/v2.0.0/vibe_2.0.0_x64-setup_nvidia.exe)
+Look for installers with `nvidia` in [vibe/releases/latest](https://github.com/thewh1teagle/vibe/releases/latest)
 
 </details>
 
