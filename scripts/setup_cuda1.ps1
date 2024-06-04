@@ -85,8 +85,14 @@ $msBuildExtensions = (Get-ChildItem  "$src\visual_studio_integration\CUDAVisualS
 
 # add to github env
 Write-Output "Setting environment variables for GitHub Actions..."
+
+Write-Output "CUDA_PATH=$dst"
+Write-Output "CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)=$dst"
+Write-Output "CUDA_PATH_VX_Y=CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)"
+Write-Output "CUDA_VERSION=$CUDA_VERSION_FULL"
+
 Write-Output "CUDA_PATH=$dst" >> $env:GITHUB_ENV
-Write-Output "CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)=$cudaPath" >> $env:GITHUB_ENV
+Write-Output "CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)=$dst" >> $env:GITHUB_ENV
 Write-Output "CUDA_PATH_VX_Y=CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)" >> $env:GITHUB_ENV
 Write-Output "CUDA_VERSION=$CUDA_VERSION_FULL" >> $env:GITHUB_ENV
 Write-Output "Setup completed."
