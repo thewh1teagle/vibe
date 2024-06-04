@@ -35,6 +35,16 @@ jobs:
             - name: Run pre_build.js
               run: bun scripts/pre_build.js --older-cpu
 
+            - name: Cache Pre Build
+              id: cache-pre-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      desktop/src-tauri/openblas
+                      desktop/src-tauri/clblast
+                      desktop/src-tauri/ffmpeg
+                  key: ${{ runner.os }}-pre-build
+
             - name: Build
               uses: tauri-apps/tauri-action@v0
               env:

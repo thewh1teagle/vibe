@@ -47,6 +47,16 @@ jobs:
             - name: Run pre_build.js on ${{ matrix.platform }}
               run: bun scripts/pre_build.js
 
+            - name: Cache Pre Build
+              id: cache-pre-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      desktop/src-tauri/openblas
+                      desktop/src-tauri/clblast
+                      desktop/src-tauri/ffmpeg
+                  key: ${{ runner.os }}-pre-build
+
             # Install tauri cli with patch on macOS aarch64
             - name: Install custom tauri cli
               run: cargo install tauri-cli --git https://github.com/thewh1teagle/tauri --branch temp-macos-signing-without-runtime-config --debug
