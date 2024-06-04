@@ -24,7 +24,7 @@
 	"downloading-model": "Téléchargement du modèle OpenAI en cours…",
 	"error-title": "Erreur",
 	"files": "Fichiers",
-	"focus-window-on-finish": "Mettre la fenêtre au premier plan à la fin de la transcription",
+	"focus-window-on-finish": "Mettre la fenêtre au premier plan",
 	"format": "Format",
 	"general": "Général",
 	"i-prefer-manual-setup": "Je préfère télécharger manuellement",
@@ -44,7 +44,7 @@
 	"no-connection": "Pas de connexion",
 	"open": "Ouvrir",
 	"others": "Autres",
-	"play-sound-on-finish": "Jouer un son à la fin",
+	"play-sound-on-finish": "Jouer un son",
 	"popular": "Populaire",
 	"print": "Imprimer (html)",
 	"print-tooltip": "Imprimer",
@@ -72,5 +72,6 @@
 	"try-again": "Réessayer",
 	"update-version": "Mettre à jour Vibe",
 	"updating-modal-body": "Mise à jour de Vibe vers la version {{version}}",
-	"updating-modal-title": "Mise à jour en cours…" 
+	"updating-modal-title": "Mise à jour en cours…",
+    "when-completing-transcription": "Quand la transcription est terminée" 
 }

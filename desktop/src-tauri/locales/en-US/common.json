@@ -72,5 +72,6 @@
 	"try-again": "Try Again",
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
-	"updating-modal-title": "Updating..."
+	"updating-modal-title": "Updating...",
+    "when-completing-transcription": "When completing transcription" 
 }
