@@ -120,8 +120,8 @@ if (platform == 'macos') {
 // Nvidia
 let cudaPath
 if (process.argv.includes('--nvidia')) {
-	if (process.env['steps.cuda-toolkit.outputs.CUDA_PATH']) {
-		cudaPath = process.env['steps.cuda-toolkit.outputs.CUDA_PATH']
+	if (process.env['CUDA_PATH']) {
+		cudaPath = process.env['CUDA_PATH']
 	} else {
 		cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5'
 		if (await fs.exists(cudaPath)) {
