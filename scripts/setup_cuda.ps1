@@ -1,4 +1,4 @@
-$version = "$env:INPUT_CUDA_VERSION" # 12.5 or 11.8
+$version = $env:INPUT_CUDA_VERSION # 12.5 or 11.8
 
 Write-Output "Selected CUDA version: $version"
 
