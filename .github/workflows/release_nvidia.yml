@@ -67,7 +67,8 @@ jobs:
 
             - name: Rename installer
               run: |
-                  $cuda_version = (Get-Item -Path "env:steps.cuda-toolkit.outputs.cuda").Value
+                  $cudaPath = (Get-Item env:CUDA_PATH).Value
+                  $cudaVersion = (Split-Path $cudaPath -Leaf)
                   # Get the list of exe files in the directory
                   $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
 
@@ -78,7 +79,7 @@ jobs:
                       $ext = $file.Extension
 
                       # New file name
-                      $suffix = $cuda_version
+                      $suffix = $cudaVersion
                       $new_name = "{0}_nvidia_{1}{2}" -f $name, $suffix, $ext
 
                       # Rename the file
