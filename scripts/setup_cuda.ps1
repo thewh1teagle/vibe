@@ -63,5 +63,5 @@ Start-Process -Wait -FilePath "$installerPath" -ArgumentList "-s $($CUDA_PACKAGE
 
 $cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v$($CUDA_MAJOR).$($CUDA_MINOR)"
 Write-Output "CUDA_PATH=$cudaPath" >> $env:GITHUB_ENV
-Write-Output "CUDA_VERSION=$CUDA_VERSION_FULL" >> $env:GITHUB_ENV
+Write-Output "CUDA_VERSION=$($CUDA_MAJOR).$($CUDA_MINOR)" >> $env:GITHUB_ENV
 Write-Output "Setup completed."
