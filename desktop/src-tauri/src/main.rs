@@ -11,7 +11,7 @@ mod setup;
 #[cfg(target_os = "macos")]
 mod dock;
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64", target_os = "windows"))]
 mod x86_features;
 
 use tauri_plugin_window_state::StateFlags;
