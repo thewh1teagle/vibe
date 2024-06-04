@@ -21,6 +21,14 @@ jobs:
             - name: Add msbuild to PATH
               uses: microsoft/setup-msbuild@v2
 
+            - name: Cache cuda installer
+              id: cache-cuda-installer
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      cuda.exe
+                  key: ${{ runner.os }}-cuda-installer
+
             - name: Setup CUDA Toolkit
               id: cuda-toolkit
               shell: pwsh
