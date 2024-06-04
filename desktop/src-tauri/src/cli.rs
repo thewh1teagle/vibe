@@ -62,6 +62,10 @@ struct Args {
     #[arg(long)]
     translate: Option<bool>,
 
+    /// Max tokens
+    #[arg(long)]
+    max_text_ctx: Option<i32>,
+
     /// Initial prompt (default: None)
     #[arg(short, long)]
     init_prompt: Option<String>,
@@ -124,6 +128,7 @@ pub fn run(app: &App) {
         temperature: args.temperature,
         translate: args.translate,
         verbose: false,
+        max_text_ctx: args.max_text_ctx,
     };
     options.model_path = prepare_model_path(&options.model_path);
 
