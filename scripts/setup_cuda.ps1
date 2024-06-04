@@ -56,12 +56,18 @@ Foreach ($package in $CUDA_PACKAGES_IN) {
     $CUDA_PACKAGES += " $($package)_$($CUDA_MAJOR).$($CUDA_MINOR)"
 
 }
-echo "$($CUDA_PACKAGES)"
 
+Write-Output "Installing cuda with command:"
 Write-Output "$installerPath -s $($CUDA_PACKAGES)"
 Start-Process -Wait -FilePath "$installerPath" -ArgumentList "-s $($CUDA_PACKAGES)"
 
 $cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v$($CUDA_MAJOR).$($CUDA_MINOR)"
+
+Write-Output "Adding Github env"
+Write-Output "CUDA_PATH=$cudaPath"
+Write-Output "CUDA_VERSION=$($CUDA_MAJOR).$($CUDA_MINOR)"
+
 Write-Output "CUDA_PATH=$cudaPath" >> $env:GITHUB_ENV
 Write-Output "CUDA_VERSION=$($CUDA_MAJOR).$($CUDA_MINOR)" >> $env:GITHUB_ENV
+
 Write-Output "Setup completed."
