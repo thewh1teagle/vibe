@@ -1,9 +1,4 @@
-# Inspired from https://github.com/NVlabs/tiny-cuda-nn/tree/master/dependencies/cuda-cmake-github-actions
-
-# Get the cuda version from the environment as env:cuda.
-# 12.5 or 11.8
-# $CUDA_VERSION_FULL = "12.5"
-$CUDA_VERSION_FULL = $env:INPUT_CUDA_VERSION
+$CUDA_VERSION_FULL = $env:INPUT_CUDA_VERSION # v12.5.0 or v11.8.0
 
 # Make sure CUDA_VERSION_FULL is set and valid, otherwise error.
 # Validate CUDA version, extracting components via regex
@@ -18,7 +13,13 @@ $CUDA_PATCH=$Matches.patch
 
 Write-Output "Selected CUDA version: $CUDA_VERSION_FULL"
 
-# Construct download URL
+
+
+$src = "cuda"
+$dst = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v$($CUDA_MAJOR).$($CUDA_MINOR)"
+
+$file = "cuda.exe"
+
 if ($CUDA_VERSION_FULL -eq "12.5.0") {
     $downloadUrl = "https://developer.download.nvidia.com/compute/cuda/12.5.0/local_installers/cuda_12.5.0_555.85_windows.exe"
 } elseif ($CUDA_VERSION_FULL -eq "11.8.0") {
@@ -29,47 +30,69 @@ if ($CUDA_VERSION_FULL -eq "12.5.0") {
 }
 
 # Download cuda
-$installerPath = "cuda.exe"
 Write-Output "Downloading CUDA from: $downloadUrl"
-if (-not (Test-Path -Path $installerPath)) {
+if (-not (Test-Path -Path $file)) {
     Write-Output "Downloading CUDA installer..."
     # If the file does not exist, download it
-    & "C:\msys64\usr\bin\wget" $downloadUrl -O $installerPath -q
+    & "C:\msys64\usr\bin\wget" $downloadUrl -O $file -q
 }
 
-$CUDA_PACKAGES_IN = @(
-    "nvcc";
-    "visual_studio_integration";
-    "cublas";
-    "cublas_dev";
-    "curand_dev";
-    "nvrtc_dev";
-    "cudart";
-)
-Foreach ($package in $CUDA_PACKAGES_IN) {
-    # Make sure the correct package name is used for nvcc.
-    if($package -eq "nvcc" -and [version]$CUDA_VERSION_FULL -lt [version]"9.1"){
-        $package="compiler"
-    } elseif($package -eq "compiler" -and [version]$CUDA_VERSION_FULL -ge [version]"9.1") {
-        $package="nvcc"
+# Extract cuda
+if (-not (Test-Path -Path $src -Type Container)) {
+    # Extract CUDA using 7-Zip
+    Write-Output "Extracting CUDA using 7-Zip..."
+    mkdir "$src"
+    & 'C:\Program Files\7-Zip\7z' x $file -o"$src"
+}
+
+# Create destination directory if it doesn't exist
+if (-Not (Test-Path -Path $dst)) {
+    Write-Output "Creating destination directory: $dst"
+    New-Item -Path $dst -ItemType Directory
+}
+
+# Get directories to process from the source path
+$directories = Get-ChildItem -Directory -Path $src
+$whitelist = @("CUDA_Toolkit_Release_Notes.txt", "DOCS", "EULA.txt", "LICENSE", "README", "version.json")
+
+foreach ($dir in $directories) {
+    # Get all subdirectories and files in the current directory
+    $items = Get-ChildItem -Path (Join-Path $src $dir.Name)
+
+    foreach ($item in $items) {
+        if ($item.PSIsContainer) {
+            # If the item is a directory, copy its contents
+            Write-Output "Copying contents of directory $($item.FullName) to $dst"
+            Copy-Item -Path "$($item.FullName)\*" -Destination $dst -Recurse -Force
+        } else {
+            if ($whitelist -contains $item.Name) {
+                Write-Output "Copying file $($item.FullName) to $dst"
+                Copy-Item -Path $item.FullName -Destination $dst -Force
+            }
+        }
     }
-    $CUDA_PACKAGES += " $($package)_$($CUDA_MAJOR).$($CUDA_MINOR)"
-
 }
 
-Write-Output "Installing cuda with command:"
-Write-Output "$installerPath -s $($CUDA_PACKAGES)"
-Start-Process -Wait -FilePath "$installerPath" -ArgumentList "-s $($CUDA_PACKAGES)"
+$msBuildExtensions = (Get-ChildItem  "$src\visual_studio_integration\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions").fullname
+(Get-ChildItem 'C:\Program Files\Microsoft Visual Studio\2022\*\MSBuild\Microsoft\VC\*\BuildCustomizations').FullName | ForEach-Object { 
+    $destination = $_
+    $msBuildExtensions | ForEach-Object {
+        $extension = $_
+        Copy-Item $extension -Destination $destination -Force
+        Write-Output "Copied $extension to $destination"
+    }
+}
 
-$cudaPath = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v$($CUDA_MAJOR).$($CUDA_MINOR)"
+# add to github env
+Write-Output "Setting environment variables for GitHub Actions..."
 
-Write-Output "Adding Github env"
-Write-Output "CUDA_PATH=$cudaPath"
-Write-Output "CUDA_VERSION=$($CUDA_MAJOR).$($CUDA_MINOR)"
+Write-Output "CUDA_PATH=$dst"
+Write-Output "CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)=$dst"
+Write-Output "CUDA_PATH_VX_Y=CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)"
+Write-Output "CUDA_VERSION=$CUDA_VERSION_FULL"
 
-Write-Output "CUDA_PATH=$cudaPath" >> $env:GITHUB_ENV
-Write-Output "CUDA_PATH_$($CUDA_MAJOR)_$($CUDA_MINOR)=$cudaPath" >> $env:GITHUB_ENV
+Write-Output "CUDA_PATH=$dst" >> $env:GITHUB_ENV
+Write-Output "CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)=$dst" >> $env:GITHUB_ENV
 Write-Output "CUDA_PATH_VX_Y=CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)" >> $env:GITHUB_ENV
-Write-Output "CUDA_VERSION=$($CUDA_MAJOR).$($CUDA_MINOR)" >> $env:GITHUB_ENV
-
+Write-Output "CUDA_VERSION=$CUDA_VERSION_FULL" >> $env:GITHUB_ENV
 Write-Output "Setup completed."
