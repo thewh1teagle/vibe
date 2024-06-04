@@ -43,9 +43,8 @@
 	"models-folder": "模型文件夹",
 	"no-connection": "无网络连接",
 	"others": "其他的",
-	"play-sound-on-finish": "转录完成时播放提示音",
+	"play-sound-on-finish": "播放声音",
 	"popular": "受欢迎的",
-	"print": "打印（html)",
 	"print-tooltip": "打印",
 	"project-link": "关于 Vibe",
 	"prompt": "提示词",
@@ -71,5 +70,6 @@
 	"try-again": "重试",
 	"update-version": "更新 Vibe",
 	"updating-modal-body": "正在将 Vibe 更新到 {{version}} 版本",
-	"updating-modal-title": "正在更新..."
+	"updating-modal-title": "正在更新...",
+	"when-completing-transcription": "完成转录时"
 }

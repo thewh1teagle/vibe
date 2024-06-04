@@ -48,6 +48,11 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					))}
 				</select>
 			</label>
+
+			<div className="label mt-10">
+				<span className="label-text opacity-60">{t('common.when-completing-transcription')}</span>
+			</div>
+
 			<div className="form-control mt-5">
 				<label className="label cursor-pointer">
 					<span className="label-text">{t('common.play-sound-on-finish')}</span>

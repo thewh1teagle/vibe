@@ -109,7 +109,6 @@ fn language_name_to_whisper_lang(name: &str) -> String {
     languages[name].as_str().unwrap().to_string()
 }
 
-
 pub fn run(app: &App) {
     #[cfg(target_os = "macos")]
     crate::dock::set_dock_visible(false);

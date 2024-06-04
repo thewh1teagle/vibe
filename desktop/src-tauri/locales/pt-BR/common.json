@@ -43,9 +43,8 @@
 	"models-folder": "Pasta Modelos",
 	"no-connection": "No Connection",
 	"others": "Outros",
-	"play-sound-on-finish": "Reproduzir som ao terminar",
+	"play-sound-on-finish": "Tocar música",
 	"popular": "Popular",
-	"print": "Impressão (html)",
 	"print-tooltip": "Imprimir",
 	"project-link": "Sobre o Vib",
 	"prompt": "Aviso",
@@ -71,5 +70,6 @@
 	"try-again": "Try Again",
 	"update-version": "Atualizar Vibe",
 	"updating-modal-body": "Atualizando o Vibe para a versão {{version}}",
-	"updating-modal-title": "Atualizando...."
+	"updating-modal-title": "Atualizando....",
+	"when-completing-transcription": "Ao completar a transcrição"
 }

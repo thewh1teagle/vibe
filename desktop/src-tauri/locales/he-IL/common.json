@@ -24,7 +24,7 @@
 	"downloading-model": "מוריד מודל בינה מלאכותית",
 	"error-title": "שגיאה",
 	"files": "קבצים",
-	"focus-window-on-finish": "פתח את חלון התמלול בסיום",
+	"focus-window-on-finish": "העבר חלון לחזית",
 	"format": "פורמט",
 	"general": "כללי",
 	"i-prefer-manual-setup": "אני מעדיף להוריד ידנית",
@@ -43,9 +43,8 @@
 	"models-folder": "תקיית המודלים",
 	"no-connection": "אין חיבור",
 	"others": "אחרים",
-	"play-sound-on-finish": "הפעל צליל בסיום",
+	"play-sound-on-finish": "הפעל צליל",
 	"popular": "פופולרי",
-	"print": "הדפסה (html)",
 	"print-tooltip": "הדפס",
 	"project-link": "אודות Vibe",
 	"prompt": "פרומפט",
@@ -71,5 +70,6 @@
 	"try-again": "נסה שוב",
 	"update-version": "עדכן לגרסה חדשה",
 	"updating-modal-body": "מעדכן את vibe לגרסה {{version}}",
-	"updating-modal-title": "מעדכן..."
+	"updating-modal-title": "מעדכן...",
+	"when-completing-transcription": "בעת השלמת התמלול"
 }
