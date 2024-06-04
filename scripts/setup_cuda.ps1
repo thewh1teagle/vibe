@@ -16,12 +16,12 @@ $CUDA_MAJOR=$Matches.major
 $CUDA_MINOR=$Matches.minor
 $CUDA_PATCH=$Matches.patch
 
-Write-Output "Selected CUDA version: $version"
+Write-Output "Selected CUDA version: $CUDA_VERSION_FULL"
 
 # Construct download URL
 if ($CUDA_VERSION_FULL -eq "12.5.0") {
     $downloadUrl = "https://developer.download.nvidia.com/compute/cuda/12.5.0/local_installers/cuda_12.5.0_555.85_windows.exe"
-} elseif ($version -eq "11.8.0") {
+} elseif ($CUDA_VERSION_FULL -eq "11.8.0") {
     $downloadUrl = "https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_522.06_windows.exe"
 } else {
     Write-Output "Unsupported CUDA version specified"
