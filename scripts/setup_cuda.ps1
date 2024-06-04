@@ -21,14 +21,15 @@ Write-Output "Downloading CUDA from: $downloadUrl"
 if (-not (Test-Path -Path $file)) {
     Write-Output "Downloading CUDA installer..."
     # If the file does not exist, download it
-    & "C:\msys64\usr\bin\wget" $downloadUrl -O $file
+    & "C:\msys64\usr\bin\wget" $downloadUrl -O $file -q
 }
 
 # Extract cuda
-if (-not (Test-Path -Path $src)) {
+if (-not (Test-Path -Path $src -Type Container)) {
     # Extract CUDA using 7-Zip
     Write-Output "Extracting CUDA using 7-Zip..."
-    & 'C:\Program Files\7-Zip\7z' x $cudaExe -o"$src"
+    mkdir "$src"
+    & 'C:\Program Files\7-Zip\7z' x $file -o"$src"
 }
 
 # Create destination directory if it doesn't exist
