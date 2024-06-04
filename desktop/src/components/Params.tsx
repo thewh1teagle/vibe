@@ -87,7 +87,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					<input
 						step={1}
 						value={options.max_text_ctx ?? 0}
-						onChange={(e) => setOptions({ ...options, max_text_ctx: parseFloat(e.target.value) })}
+						onChange={(e) => setOptions({ ...options, max_text_ctx: parseInt(e.target.value) })}
 						className="input input-bordered"
 						type="number"
 					/>
