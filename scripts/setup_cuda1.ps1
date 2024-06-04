@@ -1,15 +1,28 @@
-$version = $env:INPUT_CUDA_VERSION # v12.5 or v11.8
+$CUDA_VERSION_FULL = $env:INPUT_CUDA_VERSION # v12.5.0 or v11.8.0
 
-Write-Output "Selected CUDA version: $version"
+# Make sure CUDA_VERSION_FULL is set and valid, otherwise error.
+# Validate CUDA version, extracting components via regex
+$cuda_ver_matched = $CUDA_VERSION_FULL -match "^(?<major>[1-9][0-9]*)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+)$"
+if(-not $cuda_ver_matched){
+    Write-Output "Invalid CUDA version specified, <major>.<minor>.<patch> required. '$CUDA_VERSION_FULL'."
+    exit 1
+}
+$CUDA_MAJOR=$Matches.major
+$CUDA_MINOR=$Matches.minor
+$CUDA_PATCH=$Matches.patch
+
+Write-Output "Selected CUDA version: $CUDA_VERSION_FULL"
+
+
 
 $src = "cuda"
-$dst = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\$version"
+$dst = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\$($CUDA_MAJOR)_$($CUDA_MINOR)"
 
 $file = "cuda.exe"
 
-if ($version -eq "v12.5") {
+if ($CUDA_VERSION_FULL -eq "12.5.0") {
     $downloadUrl = "https://developer.download.nvidia.com/compute/cuda/12.5.0/local_installers/cuda_12.5.0_555.85_windows.exe"
-} elseif ($version -eq "v11.8") {
+} elseif ($CUDA_VERSION_FULL -eq "11.8.0") {
     $downloadUrl = "https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_522.06_windows.exe"
 } else {
     Write-Output "Unsupported CUDA version specified"
@@ -75,5 +88,5 @@ Write-Output "Setting environment variables for GitHub Actions..."
 Write-Output "CUDA_PATH=$dst" >> $env:GITHUB_ENV
 Write-Output "CUDA_PATH_v$($CUDA_MAJOR)_$($CUDA_MINOR)=$cudaPath" >> $env:GITHUB_ENV
 Write-Output "CUDA_PATH_VX_Y=CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)" >> $env:GITHUB_ENV
-Write-Output "CUDA_VERSION=$version" >> $env:GITHUB_ENV
+Write-Output "CUDA_VERSION=$CUDA_VERSION_FULL" >> $env:GITHUB_ENV
 Write-Output "Setup completed."
