@@ -58,7 +58,7 @@ jobs:
                   tauriScript: bunx tauri
 
             - name: Rename installer
-              run: >
+              run: |
                   $cuda_version = (Get-Item -Path "env:steps.cuda-toolkit.outputs.cuda").Value
                   # Get the list of exe files in the directory
                   $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
@@ -76,6 +76,7 @@ jobs:
                       # Rename the file
                       Rename-Item -Path $file.FullName -NewName $new_name
                   }
+              shell: pwsh
 
             - name: Upload installer
               uses: actions/upload-artifact@v4
