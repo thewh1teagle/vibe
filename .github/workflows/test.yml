@@ -14,8 +14,10 @@ jobs:
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
+
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
+
             - name: Create fake exe
               run: |
                   mkdir dir
