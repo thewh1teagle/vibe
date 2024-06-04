@@ -29,7 +29,7 @@
 	"general": "Général",
 	"i-prefer-manual-setup": "Je préfère télécharger manuellement",
 	"info-cancel-download": "Vous pouvez annuler et télécharger manuellement le modèle ultérieurement.",
-	"info-manual-download": "Une connexion Internet est requise pour télécharger le modèle IA",
+	"info-manual-download": "Une connexion Internet est requise pour télécharger le modèle d'IA",
 	"info-prompt": "Améliorez les transcriptions en écrivant les mots inhabituels attendus (noms de personnes, marques, casse spécifique, format de phrases, etc.) dont le modèle tâchera de s'inspirer.",
 	"info-temperature": "Des valeurs plus élevées donnent des mots plus singuliers; des valeurs plus basses orientent vers les mots courants. En général, réglez autour de 0,4 pour un résultat équilibré.",
 	"info-threads": "Augmentez le nombre de fils d'exécution processeur pour un décodage plus rapide ; Veillez à équilibrer la vitesse attendue avec l’utilisation générale des ressources. Recommandé : 4",
