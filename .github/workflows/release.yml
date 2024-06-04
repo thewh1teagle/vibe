@@ -43,10 +43,6 @@ jobs:
               run: bun install
               working-directory: ./desktop
 
-            # Run pre build
-            - name: Run pre_build.js on ${{ matrix.platform }}
-              run: bun scripts/pre_build.js
-
             - name: Cache Pre Build
               id: cache-pre-build
               uses: actions/cache@v4
@@ -56,6 +52,10 @@ jobs:
                       desktop/src-tauri/clblast
                       desktop/src-tauri/ffmpeg
                   key: ${{ runner.os }}-pre-build
+
+            # Run pre build
+            - name: Run pre_build.js on ${{ matrix.platform }}
+              run: bun scripts/pre_build.js
 
             # Install tauri cli with patch on macOS aarch64
             - name: Install custom tauri cli
