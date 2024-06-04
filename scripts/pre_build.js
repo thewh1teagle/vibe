@@ -213,10 +213,10 @@ if (process.env.GITHUB_ENV) {
 		await fs.appendFile(process.env.GITHUB_ENV, clblast)
 
 		if (buildForOldCPU) {
-			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON`)
-			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX2=ON`)
-			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_FMA=ON`)
-			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_F16C=ON`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON\n`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX2=ON\n`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_FMA=ON\n`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_F16C=ON\n`)
 		}
 
 		if (process.argv.includes('--nvidia')) {
