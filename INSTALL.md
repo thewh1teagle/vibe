@@ -79,4 +79,4 @@ Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.
 
 Some CPUs aren't support some features used by Whisper.
 
-Please try to use the following install: [vibe_2.0.0_x64-setup_older_cpu.exe](https://github.com/thewh1teagle/vibe/releases/download/v2.0.0/vibe_2.0.0_x64-setup_older_cpu.exe)
+Please try to download and install the release file named with `older-cpu.exe`: [Vibe releases](https://github.com/thewh1teagle/vibe/releases/latest)
