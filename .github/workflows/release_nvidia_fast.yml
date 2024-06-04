@@ -12,7 +12,7 @@ jobs:
             contents: write
         strategy:
             matrix:
-                cuda-toolkit: ['v12.5', 'v11.8']
+                cuda-toolkit: [v12.5, v11.8]
 
         runs-on: windows-latest
         steps:
@@ -34,7 +34,7 @@ jobs:
               shell: pwsh
               run: scripts/setup_cuda.ps1
               env:
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda_toolkit }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
