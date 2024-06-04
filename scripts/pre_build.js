@@ -140,7 +140,6 @@ if (process.argv.includes('--nvidia')) {
 			resources: {
 				'ffmpeg\\bin\\x64\\*.dll': './',
 				'openblas\\bin\\*.dll': './',
-				'C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll': './',
 				[`${cudaPath}\\bin\\cudart64_*`]: './',
 				[`${cudaPath}\\bin\\cublas64_*`]: './',
 				[`${cudaPath}\\bin\\cublasLt64_*`]: './',
