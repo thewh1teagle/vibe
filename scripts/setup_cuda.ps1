@@ -68,6 +68,8 @@ Write-Output "CUDA_PATH=$cudaPath"
 Write-Output "CUDA_VERSION=$($CUDA_MAJOR).$($CUDA_MINOR)"
 
 Write-Output "CUDA_PATH=$cudaPath" >> $env:GITHUB_ENV
+Write-Output "CUDA_PATH_$($CUDA_MAJOR)_$($CUDA_MINOR)=$cudaPath" >> $env:GITHUB_ENV
+Write-Output "CUDA_PATH_VX_Y=CUDA_PATH_V$($CUDA_MAJOR)_$($CUDA_MINOR)" >> $env:GITHUB_ENV
 Write-Output "CUDA_VERSION=$($CUDA_MAJOR).$($CUDA_MINOR)" >> $env:GITHUB_ENV
 
 Write-Output "Setup completed."
