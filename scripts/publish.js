@@ -10,7 +10,8 @@ import { Glob } from 'bun'
 const OWNER = 'thewh1teagle'
 const REPO = 'vibe'
 const TOKEN = process.env.GITHUB_TOKEN
-const TAG = await $`git describe --abbrev=0`.text()
+const tauriConfPath = path.join(__dirname, '../desktop/src-tauri/tauri.conf.json')
+const TAG = 'v' + (await JSON.parse(await fs.readFile(tauriConfPath)).version)
 const DST = process.argv[2]
 const glob = new Glob(DST)
 
