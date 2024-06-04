@@ -1,0 +1,29 @@
+name: Release for non AVX2 CPUs
+
+on:
+    push:
+        tags:
+            - 'v*'
+    workflow_dispatch:
+
+jobs:
+    publish-tauri:
+        permissions:
+            contents: write
+
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Create fake exe
+              run: |
+                  mkdir dir
+                  echo hi > dir\hello.exe
+              shell: pwsh
+            - name: Upload installer
+              uses: svenstaro/upload-release-action@v2
+              with:
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
+                  file: dir/*.exe
+                  tag: ${{ github.ref }}
+                  overwrite: true
+                  file_glob: true
