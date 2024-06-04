@@ -47,7 +47,7 @@ struct Args {
     file: PathBuf,
 
     /// Language to transcribe
-    #[arg(short, long, default_value = "en", value_parser = get_possible_languages())]
+    #[arg(short, long, default_value = "english", value_parser = get_possible_languages())]
     language: Option<String>,
 
     /// Temperature (default: 0.4)
