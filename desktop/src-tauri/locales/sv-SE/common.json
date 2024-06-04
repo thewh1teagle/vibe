@@ -43,7 +43,7 @@
 	"models-folder": "Modeller mapp",
 	"no-connection": "No Connection",
 	"others": "Andra",
-	"play-sound-on-finish": "Spela ljud när transkibering är klar",
+	"play-sound-on-finish": "Spelljud",
 	"popular": "Populär",
 	"print-tooltip": "Skriva ut",
 	"project-link": "Om Vibe",
@@ -70,5 +70,6 @@
 	"try-again": "Try Again",
 	"update-version": "Uppdatera Vibe",
 	"updating-modal-body": "Updaterar Vibe till version {{version}}",
-	"updating-modal-title": "Uppdaterar..."
+	"updating-modal-title": "Uppdaterar...",
+	"when-completing-transcription": "När du slutför transkriptionen"
 }
