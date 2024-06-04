@@ -27,3 +27,5 @@ jobs:
               run: |
                   bun scripts/publish.js dir/*.exe
               shell: pwsh
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

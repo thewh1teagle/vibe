@@ -80,3 +80,5 @@ jobs:
               run: |
                   bun scripts/publish.js target/release/bundle/nsis/*.exe
               shell: pwsh
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
