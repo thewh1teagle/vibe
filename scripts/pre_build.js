@@ -12,6 +12,7 @@ const platform = {
 	linux: 'linux',
 }[os.platform()]
 const cwd = process.cwd()
+const buildForOldCPU = process.argv.includes('--older-cpu')
 
 const config = {
 	ffmpegRealname: 'ffmpeg',
@@ -92,7 +93,7 @@ if (platform == 'windows') {
 	}
 
 	// Setup CLBlast
-	if (!(await fs.exists(config.clblastRealname))) {
+	if (!(await fs.exists(config.clblastRealname)) && !process.argv.includes('--nvidia')) {
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.clblastUrl} -O ${config.windows.clblastName}.zip`
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.zip` // 7z file inside
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.7z` // Inner folder
@@ -116,6 +117,44 @@ if (platform == 'macos') {
 	}
 }
 
+// Nvidia
+let cudaPath
+if (process.argv.includes('--nvidia')) {
+	if (process.env['CUDA_PATH']) {
+		cudaPath = process.env['CUDA_PATH']
+	} else {
+		cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5'
+		if (await fs.exists(cudaPath)) {
+			const folders = await fs.readdir(cudaPath)
+			if (folders.length > 0) {
+				cudaPath.replace('v12.5', folders[0])
+			}
+		}
+	}
+	if (process.env.GITHUB_ENV) {
+		console.log('CUDA_PATH', cudaPath)
+	}
+
+	const windowsConfig = {
+		bundle: {
+			resources: {
+				'ffmpeg\\bin\\x64\\*.dll': './',
+				'openblas\\bin\\*.dll': './',
+				'C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll': './',
+				[`${cudaPath}\\bin\\cudart64_*`]: './',
+				[`${cudaPath}\\bin\\cublas64_*`]: './',
+				[`${cudaPath}\\bin\\cublasLt64_*`]: './',
+			},
+		},
+	}
+	await fs.writeFile('tauri.windows.conf.json', JSON.stringify(windowsConfig, null, 4))
+
+	// modify features in cargo.toml
+	let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
+	content = content.replace('opencl', 'cuda')
+	await fs.writeFile('Cargo.toml', content)
+}
+
 // Development hints
 if (!process.env.GITHUB_ENV) {
 	console.log('\nCommands to build 🔨:')
@@ -131,12 +170,26 @@ if (!process.env.GITHUB_ENV) {
 		console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
 		console.log(`$env:PATH += "${exports.cmake}"`)
+		if (buildForOldCPU) {
+			console.log(`$env:WHISPER_NO_AVX = "ON"`)
+			console.log(`$env:WHISPER_NO_AVX2 = "ON"`)
+			console.log(`$env:WHISPER_NO_FMA = "ON"`)
+			console.log(`$env:WHISPER_NO_F16C = "ON"`)
+		}
+		if (process.argv.includes('--nvidia')) {
+			console.log(`$env:CUDA_PATH = "${cudaPath}"`)
+		}
 	}
 	if (platform == 'macos') {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
 		console.log(`export WHISPER_METAL_EMBED_LIBRARY=ON`)
 	}
-	console.log('bunx tauri build')
+	if (process.argv.includes('--nvidia')) {
+		console.log(`$env:CUDA_PATH = "${exports.cudaPath}"`)
+	}
+	if (!process.env.GITHUB_ENV) {
+		console.log('bunx tauri build')
+	}
 }
 
 // Config Github ENV
@@ -158,12 +211,25 @@ if (process.env.GITHUB_ENV) {
 		const clblast = `CLBlast_DIR=${exports.clblast}\n`
 		console.log('Adding ENV', clblast)
 		await fs.appendFile(process.env.GITHUB_ENV, clblast)
+
+		if (buildForOldCPU) {
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON\n`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX2=ON\n`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_FMA=ON\n`)
+			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_F16C=ON\n`)
+		}
+
+		if (process.argv.includes('--nvidia')) {
+			const cudaEnv = `CUDA_PATH=${cudaPath}\n`
+			console.log('Adding ENV', cudaEnv)
+			await fs.appendFile(process.env.GITHUB_ENV, cudaEnv)
+		}
 	}
 }
 
 // --dev or --build
 const action = process.argv?.[2]
-if (action?.includes('--')) {
+if (action?.includes('--build' || action.includes('--dev'))) {
 	process.chdir(path.join(cwd, '..'))
 	process.env['FFMPEG_DIR'] = exports.ffmpeg
 	if (platform === 'windows') {
@@ -176,5 +242,5 @@ if (action?.includes('--')) {
 		process.env['WHISPER_METAL_EMBED_LIBRARY'] = 'ON'
 	}
 	await $`bun install`
-	await $`bunx tauri ${action == '--dev' ? 'dev' : 'build'}`
+	await $`bunx tauri ${action.includes('--dev') ? 'dev' : 'build'}`
 }

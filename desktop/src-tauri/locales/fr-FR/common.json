@@ -73,5 +73,5 @@
 	"update-version": "Mettre à jour Vibe",
 	"updating-modal-body": "Mise à jour de Vibe vers la version {{version}}",
 	"updating-modal-title": "Mise à jour en cours…",
-    "when-completing-transcription": "Quand la transcription est terminée" 
+	"when-completing-transcription": "Quand la transcription est terminée" 
 }

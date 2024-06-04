@@ -1,0 +1,98 @@
+name: Release for nvidia GPUs
+
+on:
+    push:
+        tags:
+            - 'v*'
+    workflow_dispatch:
+
+jobs:
+    publish-tauri:
+        permissions:
+            contents: write
+        strategy:
+            matrix:
+                cuda-toolkit: [12.2.0, 11.8.0]
+
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Add msbuild to PATH
+              uses: microsoft/setup-msbuild@v2
+
+            - name: Install CUDA Toolkit
+              id: cuda-toolkit
+              uses: Jimver/cuda-toolkit@v0.2.15
+              with:
+                  cuda: '${{ matrix.cuda-toolkit }}'
+                  method: 'local'
+                  sub-packages: '["nvcc", "visual_studio_integration", "cudart", "cublas", "cublas_dev", "thrust"]'
+
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install frontend dependencies
+              run: bun install
+              working-directory: ./desktop
+
+            - name: Cache Pre Build
+              id: cache-pre-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      desktop/src-tauri/openblas
+                      desktop/src-tauri/ffmpeg
+                  key: ${{ runner.os }}-pre-build
+
+            # Run pre build
+            - name: Run pre_build.js
+              run: bun scripts/pre_build.js --nvidia
+
+            - name: Build
+              uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+              with:
+                  projectPath: './desktop'
+                  tauriScript: bunx tauri
+
+            - name: Rename installer
+              run: |
+                  $cudaPath = (Get-Item env:CUDA_PATH).Value
+                  $cudaVersion = (Split-Path $cudaPath -Leaf)
+                  # Get the list of exe files in the directory
+                  $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
+
+                  # Rename each exe file
+                  foreach ($file in $exe_files) {
+                      # Split the file name and extension
+                      $name = $file.BaseName
+                      $ext = $file.Extension
+
+                      # New file name
+                      $suffix = $cudaVersion
+                      $new_name = "{0}_nvidia_{1}{2}" -f $name, $suffix, $ext
+
+                      # Rename the file
+                      Rename-Item -Path $file.FullName -NewName $new_name
+                      Write-Output "Renamed '$($file.FullName)' to '$new_name'"
+                  }
+              shell: pwsh
+
+            - name: Upload installer
+              uses: svenstaro/upload-release-action@v2
+              with:
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
+                  file: target/release/bundle/nsis/*.exe
+                  tag: ${{ github.ref }}
+                  overwrite: true
+                  file_glob: true
