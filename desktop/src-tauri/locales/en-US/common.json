@@ -42,11 +42,9 @@
 	"mode-text": "Text",
 	"models-folder": "Models Folder",
 	"no-connection": "No Connection",
-	"open": "Open",
 	"others": "Others",
 	"play-sound-on-finish": "Play sound",
 	"popular": "Popular",
-	"print": "Print (html)",
 	"print-tooltip": "Print",
 	"project-link": "About Vibe",
 	"prompt": "Prompt",
@@ -73,5 +71,5 @@
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
-    "when-completing-transcription": "When completing transcription" 
+	"when-completing-transcription": "When completing transcription"
 }

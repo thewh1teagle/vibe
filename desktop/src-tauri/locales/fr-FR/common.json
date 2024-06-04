@@ -1,4 +1,4 @@
-{ 
+{
 	"aborting": "Abandonner",
 	"advanced": "Avancé",
 	"advanced-options": "Options avancées",
@@ -42,11 +42,9 @@
 	"mode-text": "Texte",
 	"models-folder": "Dossier des modèles",
 	"no-connection": "Pas de connexion",
-	"open": "Ouvrir",
 	"others": "Autres",
 	"play-sound-on-finish": "Jouer un son",
 	"popular": "Populaire",
-	"print": "Imprimer (html)",
 	"print-tooltip": "Imprimer",
 	"project-link": "À propos de Vibe",
 	"prompt": "Invite",
@@ -73,5 +71,5 @@
 	"update-version": "Mettre à jour Vibe",
 	"updating-modal-body": "Mise à jour de Vibe vers la version {{version}}",
 	"updating-modal-title": "Mise à jour en cours…",
-	"when-completing-transcription": "Quand la transcription est terminée" 
+	"when-completing-transcription": "Quand la transcription est terminée"
 }
