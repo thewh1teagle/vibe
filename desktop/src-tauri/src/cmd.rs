@@ -1,13 +1,11 @@
 use crate::config;
 use eyre::{Context, ContextCompat, OptionExt, Result};
 use serde_json::{json, Value};
-use std::net::{SocketAddr, TcpStream};
 use std::path::PathBuf;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use std::time::Duration;
 use tauri::{
     window::{ProgressBarState, ProgressBarStatus},
     Manager,
@@ -17,18 +15,18 @@ use vibe::{model::SegmentCallbackData, transcript::Transcript};
 /// Return true if there's internet connection
 /// timeout in ms
 #[tauri::command]
-pub fn is_online(timeout: Option<u64>) -> bool {
-    let timeout = timeout.unwrap_or(2000); // Default 2 seconds timeout
-    let addr = "8.8.8.8:53"; // Google DNS
-    let timeout_duration = Duration::from_millis(timeout);
+pub async fn is_online(timeout: Option<u64>) -> Result<bool> {
+    let timeout = std::time::Duration::from_millis(timeout.unwrap_or(2000));
+    let targets = ["1.1.1.1:80", "1.1.1.1:53", "8.8.8.8:53", "8.8.8.8:80"];
 
-    match addr.parse::<SocketAddr>() {
-        Ok(socket_addr) => TcpStream::connect_timeout(&socket_addr, timeout_duration).is_ok(),
-        Err(err) => {
-            log::error!("{:?}", err);
-            false
-        }
-    }
+    let tasks = targets.iter().map(|addr| async move {
+        tokio::time::timeout(timeout, tokio::net::TcpStream::connect(addr))
+            .await
+            .map(|res| res.is_ok())
+            .unwrap_or(false)
+    });
+
+    Ok(futures::future::join_all(tasks).await.into_iter().any(|res| res))
 }
 
 fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Result<()> {
