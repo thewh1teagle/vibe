@@ -60,7 +60,6 @@ fn main() {
     if cfg!(all(feature = "cuda", windows)) {
         let cuda_path = env::var("CUDA_PATH").unwrap_or_default();
         let cuda_path = PathBuf::from(cuda_path);
-        println!("cargo:warning={}", cuda_path.join("lib\\x64").display());
         println!("cargo:rustc-link-search={}", cuda_path.join("lib\\x64").display());
     }
 
