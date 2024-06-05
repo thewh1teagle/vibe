@@ -55,6 +55,14 @@ fn main() {
         println!("cargo:rustc-link-search=C:\\vcpkg\\packages\\opencl_x64-windows\\lib");
         // C:\vcpkg\packages\opencl_x64-windows\lib\OpenCL.lib
     }
+    
+    // Sometimes it doesn't find the libs files after restring Github cache
+    if cfg!(all(feature = "cuda", windows)) {
+        let cuda_path = env::var("CUDA_PATH").unwrap_or_default();
+        let cuda_path = PathBuf::from(cuda_path);
+        println!("cargo:warning={}", cuda_path.join("lib\\x64").display());
+        println!("cargo:rustc-link-search={}", cuda_path.join("lib\\x64").display());
+    }
 
     if ffmpeg_dir.exists() {
         if !ffmpeg_dir.exists() {

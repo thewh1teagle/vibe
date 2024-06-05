@@ -39,9 +39,8 @@ jobs:
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
 
-            # No idea why but otherwise after cache restore it will be missing some files...
-            # - name: Rust cache
-            #   uses: swatinem/rust-cache@v2
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
