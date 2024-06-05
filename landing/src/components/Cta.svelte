@@ -77,13 +77,16 @@
 
 <div class="flex gap-3 flex-col lg:flex-row">
 	{#if asset?.platform.toLowerCase() === 'macos'}
-		<button on:mousedown={ctaClick} class="btn btn-primary hidden lg:flex">
-			<MacIcon />
-			{t('download-for')}{asset?.platform}
-		</button>
-		<button on:mousedown={ctaClick} class="btn btn-primary lg:hidden">
-			{t('download')}
-		</button>
+		{#if isMobile}
+			<button on:mousedown={ctaClick} class="btn btn-primary">
+				{t('download')}
+			</button>
+		{:else}
+			<button on:mousedown={ctaClick} class="btn btn-primary hidden lg:flex">
+				<MacIcon />
+				{t('download-for')}{asset?.platform}
+			</button>
+		{/if}
 	{:else}
 		<a href={asset?.url} class="btn btn-primary hidden md:flex">
 			{#if asset?.platform.toLowerCase() === 'linux'}
