@@ -61,7 +61,7 @@
 	})
 
 	onMount(() => {
-		isMobile = mobile()
+		isMobile = mobile() || window.screen.width < 480
 	})
 
 	const t = $i18n.t
