@@ -1,9 +1,12 @@
 {
-	"title": "Transcription audio locale.",
-	"description": "Découvrez la transcription linguistique sans faille avec Vibe - votre solution tout-en-un pour une transcription audio et vidéo hors-ligne et sans effort.",
-	"intel": "Puce Intel",
 	"apple-silicon": "Puce Apple",
-	"star-on-github": "Mettre une étoile sur Github",
+	"description": "Découvrez la transcription linguistique sans faille avec Vibe - votre solution tout-en-un pour une transcription audio et vidéo hors-ligne et sans effort.",
 	"download-for": "Télécharger pour ",
-	"open-logs-folder": "Ouvrir le dossier des journaux"
+	"features": "Caractéristiques",
+	"home": "Maison",
+	"intel": "Puce Intel",
+	"open-logs-folder": "Ouvrir le dossier des journaux",
+	"star-on-github": "Mettre une étoile sur Github",
+	"support-vibe": "Ambiance de soutien",
+	"title": "Transcription audio locale."
 }
