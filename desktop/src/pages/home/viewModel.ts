@@ -75,7 +75,7 @@ export function viewModel() {
 			multiple: true,
 			filters: [
 				{
-					name: 'Audio',
+					name: 'Audio or Video files',
 					extensions: [...config.audioExtensions, ...config.videoExtensions],
 				},
 			],
