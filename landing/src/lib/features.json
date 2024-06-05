@@ -15,13 +15,21 @@
 		"imageURL": "/feature-formats.png"
 	},
 	{
+		"title": "Transcribe audio / video",
+		"description": "Supports audio and video formats like MP4, MKV, MP3, WAV (and more)",
+		"imageURL": "/feature-transcribe-audio-video.png",
+		"align": "center"
+	},
+	{
 		"title": "Optimized for GPU",
 		"description": "Vibe is optimized to run on Nvidia / AMD / Apple GPUs!",
-		"imageURL": "/feature-gpu.png"
+		"imageURL": "/feature-gpu.png",
+		"align": "center"
 	},
 	{
 		"title": "Ultimate privacy",
 		"description": "Fully offline transcription, no data ever leaves your device",
-		"imageURL": "/feature-privacy.png"
+		"imageURL": "/feature-privacy.png",
+		"align": "center"
 	}
 ]
