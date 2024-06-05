@@ -2,6 +2,8 @@ name: Deploy Landing
 
 on:
     push:
+        branches:
+            - main
         paths:
             - 'landing/**'
             - 'scripts/landing_links.js'
