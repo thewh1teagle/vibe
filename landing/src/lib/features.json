@@ -7,7 +7,8 @@
 	{
 		"title": "Batch transcribe multiple files!",
 		"description": "You can transcribe as many files as you want easily in single click.",
-		"imageURL": "/feature-batch-transcribe.png"
+		"imageURL": "/feature-batch-transcribe.png",
+		"align": "center"
 	},
 	{
 		"title": "Multiple formats",
@@ -31,5 +32,10 @@
 		"description": "Fully offline transcription, no data ever leaves your device",
 		"imageURL": "/feature-privacy.png",
 		"align": "center"
+	},
+	{
+		"title": "Total Freedom",
+		"description": "Vibe provides an easy way to customize models in settings",
+		"imageURL": "/feature-model-customize.png"
 	}
 ]
