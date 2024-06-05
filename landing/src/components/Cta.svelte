@@ -68,17 +68,18 @@
 </script>
 
 <div class="flex gap-3 flex-col lg:flex-row">
-	{#if asset?.platform.toLowerCase() === 'macos'}
-		{#if isMobile}
-			<button on:mousedown={ctaClick} class="btn btn-primary">
-				{t('download')}
-			</button>
-		{:else}
-			<button on:mousedown={ctaClick} class="btn btn-primary hidden lg:flex">
-				<MacIcon />
-				{t('download-for')}{asset?.platform}
-			</button>
-		{/if}
+	<!-- mobile cta open modal -->
+	{#if isMobile}
+		<button on:mousedown={ctaClick} class="btn btn-primary">
+			{t('download')}
+		</button>
+		<!-- macOS cta -->
+	{:else if asset?.platform.toLowerCase() === 'macos'}
+		<button on:mousedown={ctaClick} class="btn btn-primary hidden lg:flex">
+			<MacIcon />
+			{t('download-for')}{asset?.platform}
+		</button>
+		<!-- linux / windows -->
 	{:else}
 		<a href={asset?.url} class="btn btn-primary hidden md:flex">
 			{#if asset?.platform.toLowerCase() === 'linux'}
@@ -89,6 +90,7 @@
 			{t('download-for')}{asset?.platform}
 		</a>
 	{/if}
+
 	<a class="btn" href="https://github.com/thewh1teagle/vibe" target="_blank">
 		<GithubIcon width="18" height="18" />
 		{t('star-on-github')}
