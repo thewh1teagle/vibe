@@ -71,5 +71,7 @@
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
-	"when-completing-transcription": "When completing transcription"
+	"when-completing-transcription": "When completing transcription",
+	"info-max-text-ctx": "Max context tokens to use from past text as prompt for the decoder",
+	"max-text-ctx": "Maximum context"
 }

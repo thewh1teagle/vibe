@@ -1,0 +1,14 @@
+{
+	// i18n
+	"i18n-ally.enabledParsers": ["ts", "json"],
+	"i18n-ally.sortKeys": true,
+	"i18n-ally.namespace": true,
+	"i18n-ally.sourceLanguage": "en-US",
+	"i18n-ally.enabledFrameworks": ["react", "svelte"],
+	"i18n-ally.keystyle": "flat",
+	"i18n-ally.translate.engines": ["google",],
+	"i18n-ally.tabStyle": "tab",
+	"i18n-ally.localesPaths": [
+		"static/locales"
+	],
+}

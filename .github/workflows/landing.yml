@@ -2,8 +2,10 @@ name: Deploy Landing
 
 on:
     push:
+        branches:
+            - main
         paths:
-            - 'landing/'
+            - 'landing/**'
             - 'scripts/landing_links.js'
     workflow_dispatch:
 

@@ -71,6 +71,11 @@ pub fn transcribe(
         params.set_temperature(temperature);
     }
 
+    if let Some(max_text_ctx) = options.max_text_ctx {
+        log::debug!("setting n_max_text_ctx to {}", max_text_ctx);
+        params.set_n_max_text_ctx(max_text_ctx)
+    }
+
     // handle args
     if let Some(init_prompt) = options.init_prompt.to_owned() {
         log::debug!("setting init prompt to {init_prompt}");
@@ -171,6 +176,7 @@ mod tests {
             init_prompt: None,
             temperature: None,
             translate: None,
+            max_text_ctx: None,
         };
         transcribe(args, None, None, None)?;
 

@@ -1,0 +1,41 @@
+[
+	{
+		"title": "Transcribe almost every language",
+		"description": "Vibe supports up to 100 languages!",
+		"imageURL": "/feature-languages.png"
+	},
+	{
+		"title": "Batch transcribe multiple files!",
+		"description": "You can transcribe as many files as you want easily in single click.",
+		"imageURL": "/feature-batch-transcribe.png",
+		"align": "center"
+	},
+	{
+		"title": "Multiple formats",
+		"description": "You can export transcription in your preferred format",
+		"imageURL": "/feature-formats.png"
+	},
+	{
+		"title": "Transcribe audio / video",
+		"description": "Supports audio and video formats like MP4, MKV, MP3, WAV (and more)",
+		"imageURL": "/feature-transcribe-audio-video.png",
+		"align": "center"
+	},
+	{
+		"title": "Optimized for GPU",
+		"description": "Vibe is optimized to run on Nvidia / AMD / Apple GPUs!",
+		"imageURL": "/feature-gpu.png",
+		"align": "center"
+	},
+	{
+		"title": "Ultimate privacy",
+		"description": "Fully offline transcription, no data ever leaves your device",
+		"imageURL": "/feature-privacy.png",
+		"align": "center"
+	},
+	{
+		"title": "Total Freedom",
+		"description": "Vibe provides an easy way to customize models in settings",
+		"imageURL": "/feature-model-customize.png"
+	}
+]

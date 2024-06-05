@@ -77,6 +77,21 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						type="number"
 					/>
 				</label>
+				<label className="form-control w-full">
+					<div className="label">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={t('common.info-max-text-ctx')} />
+							{t('common.max-text-ctx')}
+						</span>
+					</div>
+					<input
+						step={1}
+						value={options.max_text_ctx ?? 0}
+						onChange={(e) => setOptions({ ...options, max_text_ctx: parseInt(e.target.value) })}
+						className="input input-bordered"
+						type="number"
+					/>
+				</label>
 			</div>
 		</div>
 	)
