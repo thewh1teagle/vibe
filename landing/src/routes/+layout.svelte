@@ -6,9 +6,6 @@
 	import Footer from '~/components/Footer.svelte'
 </script>
 
-<head>
-	<base href="/vibe" />
-</head>
 <div dir={$i18n.dir()}>
 	<div>
 		{#if $isLoading}

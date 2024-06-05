@@ -6,8 +6,8 @@
 
 <footer class="footer footer-center mt-36 p-10 bg-base-200 text-base-content rounded">
 	<nav class="grid grid-flow-col gap-4">
-		<a class="link link-hover" href="/">{t('home')}</a>
-		<a class="link link-hover" href="/features">{t('features')}</a>
+		<a class="link link-hover" href="/vibe">{t('home')}</a>
+		<a class="link link-hover" href="/vibe/features">{t('features')}</a>
 		<a class="link link-hover" href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
 		<a class="link link-hover" href="https://github.com/sponsors/thewh1teagle" target="_blank">{t('support-vibe')}</a>
 	</nav>

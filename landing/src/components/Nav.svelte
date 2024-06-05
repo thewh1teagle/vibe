@@ -14,7 +14,7 @@
 	<!-- links -->
 	<ul class="flex-none menu menu-horizontal px-1" dir="ltr">
 		<li>
-			<a href="/features">{t('features')}</a>
+			<a href="/vibe/features">{t('features')}</a>
 		</li>
 		<li>
 			<a href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
