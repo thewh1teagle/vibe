@@ -66,7 +66,7 @@
 		</a>
 	{/if}
 	<a class="btn" href="https://github.com/thewh1teagle/vibe" target="_blank">
-		<GithubIcon />
+		<GithubIcon width="18" height="18" />
 		{$i18n.t('star-on-github')}
 	</a>
 </div>
