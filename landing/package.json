@@ -12,33 +12,33 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^3.2.0",
+    "@sveltejs/adapter-auto": "^3.2.1",
     "@sveltejs/adapter-static": "^3.0.1",
-    "@sveltejs/kit": "^2.5.8",
-    "@sveltejs/vite-plugin-svelte": "^3.1.0",
+    "@sveltejs/kit": "^2.5.10",
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@types/eslint": "8.56.10",
-    "@typescript-eslint/eslint-plugin": "^7.9.0",
-    "@typescript-eslint/parser": "^7.9.0",
+    "@typescript-eslint/eslint-plugin": "^7.12.1-alpha.17",
+    "@typescript-eslint/parser": "^7.12.1-alpha.17",
     "autoprefixer": "^10.4.19",
-    "daisyui": "^4.11.1",
-    "eslint": "^9.2.0",
+    "daisyui": "^4.12.2",
+    "eslint": "^9.4.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^2.39.0",
     "postcss": "^8.4.38",
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.1",
     "prettier-plugin-svelte": "^3.2.3",
-    "svelte": "^4.2.17",
-    "svelte-check": "^3.7.1",
+    "svelte": "^5.0.0-next.149",
+    "svelte-check": "^3.8.0",
     "tailwindcss": "^3.4.3",
-    "tslib": "^2.6.2",
-    "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "tslib": "^2.6.3",
+    "typescript": "^5.6.0-dev.20240605",
+    "vite": "^6.0.0-alpha.18"
   },
   "type": "module",
   "dependencies": {
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-http-backend": "^2.5.2",
     "svelte-i18next": "^2.2.2",
-    "svelte-persisted-store": "^0.9.2"
+    "svelte-persisted-store": "^0.11.0"
   }
 }
