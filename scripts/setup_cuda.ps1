@@ -13,12 +13,9 @@ $CUDA_PATCH=$Matches.patch
 
 Write-Output "Selected CUDA version: $CUDA_VERSION_FULL"
 
-
-
 $src = "cuda"
 $dst = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v$($CUDA_MAJOR).$($CUDA_MINOR)"
-
-$file = "cuda.exe"
+$installer = "cuda.exe"
 
 if ($CUDA_VERSION_FULL -eq "12.5.0") {
     $downloadUrl = "https://developer.download.nvidia.com/compute/cuda/12.5.0/local_installers/cuda_12.5.0_555.85_windows.exe"
@@ -31,10 +28,10 @@ if ($CUDA_VERSION_FULL -eq "12.5.0") {
 
 # Download cuda
 Write-Output "Downloading CUDA from: $downloadUrl"
-if (-not (Test-Path -Path $file)) {
+if (-not (Test-Path -Path $installer)) {
     Write-Output "Downloading CUDA installer..."
     # If the file does not exist, download it
-    & "C:\msys64\usr\bin\wget" $downloadUrl -O $file -q
+    & "C:\msys64\usr\bin\wget" $downloadUrl -O $installer -q
 }
 
 # Extract cuda
@@ -42,7 +39,7 @@ if (-not (Test-Path -Path $src -Type Container)) {
     # Extract CUDA using 7-Zip
     Write-Output "Extracting CUDA using 7-Zip..."
     mkdir "$src"
-    & 'C:\Program Files\7-Zip\7z' x $file -o"$src"
+    & 'C:\Program Files\7-Zip\7z' x $installer -o"$src"
 }
 
 # Create destination directory if it doesn't exist
@@ -73,6 +70,7 @@ foreach ($dir in $directories) {
     }
 }
 
+# Add msbuild cuda extensions
 $msBuildExtensions = (Get-ChildItem  "$src\visual_studio_integration\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions").fullname
 (Get-ChildItem 'C:\Program Files\Microsoft Visual Studio\2022\*\MSBuild\Microsoft\VC\*\BuildCustomizations').FullName | ForEach-Object { 
     $destination = $_
@@ -83,7 +81,7 @@ $msBuildExtensions = (Get-ChildItem  "$src\visual_studio_integration\CUDAVisualS
     }
 }
 
-# add to github env
+# Add to Github env
 Write-Output "Setting environment variables for GitHub Actions..."
 
 Write-Output "CUDA_PATH=$dst"
