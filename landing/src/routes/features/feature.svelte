@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths'
+
 	export let title: string
 	export let description: string
 	export let videoURL = ''
@@ -10,10 +12,10 @@
 	<div class="text-lg opacity-80 mt-6 mb-6">{description}</div>
 
 	{#if imageURL}
-		<img src={imageURL} alt="Image" class="rounded-lg" />
+		<img src={`${base}${imageURL}`} alt="Image" class="rounded-lg" />
 	{/if}
 
 	{#if videoURL}
-		<video src={videoURL} controls class="rounded-lg"></video>
+		<video src={`${base}${videoURL}`} controls class="rounded-lg"></video>
 	{/if}
 </div>

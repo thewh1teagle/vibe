@@ -1,4 +1,5 @@
 <script>
+	import { base } from '$app/paths'
 	import Logo from '~/icons/Logo.svelte'
 	import { i18n } from '~/lib/i18n'
 	const t = $i18n.t
@@ -14,7 +15,7 @@
 	<!-- links -->
 	<ul class="flex-none menu menu-horizontal px-1" dir="ltr">
 		<li>
-			<a href="/vibe/features">{t('features')}</a>
+			<a href={`${base}/features`}>{t('features')}</a>
 		</li>
 		<li>
 			<a href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
