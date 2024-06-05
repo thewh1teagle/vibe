@@ -1,6 +1,7 @@
 export function relativeURL(path: string) {
-	if (path.startsWith('/')) {
-		path = path.slice(1)
+	const baseURL = import.meta.env.PROD ? '/vibe' : ''
+	if (!path.startsWith('/')) {
+		path = '/' + path
 	}
-	return `${import.meta.env.BASE_URL}${path}`
+	return `${baseURL}${path}`
 }
