@@ -41,6 +41,8 @@ jobs:
 
             - name: Rust cache
               uses: swatinem/rust-cache@v2
+              with:
+                  key: ${{ matrix.cuda-toolkit }}
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
