@@ -134,3 +134,11 @@ Along with `latest.json` file (used for auto updater).
 When `Release` action finish, it will run `Deploy landing` action
 
 and update downloads links in landing page.
+
+# Landing
+
+## Compress images
+
+```console
+bunx tinypng-go static/*.png
+```

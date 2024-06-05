@@ -14,7 +14,7 @@
 
 	{#if imageURL}
 		<div class="flex {align}">
-			<img src={`${base}${imageURL}`} alt="Image" class="rounded-lg" />
+			<img src={`${base}${imageURL}`} alt="Image" class="rounded-lg preview-hover-image" />
 		</div>
 	{/if}
 
@@ -34,5 +34,20 @@
 	}
 	.end {
 		justify-content: flex-end;
+	}
+
+	.preview-hover-image {
+		transition:
+			transform 0.55s ease-in-out,
+			translateY 0.53s ease-in-out;
+	}
+
+	.preview-hover-image:hover {
+		transform: scale(1.05);
+		z-index: 10;
+	}
+
+	.preview-hover-image:not(:hover) {
+		transform: scale(1);
 	}
 </style>
