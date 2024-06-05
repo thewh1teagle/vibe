@@ -10,7 +10,7 @@ export default function AudioInput({ onClick }: AudioInputProps) {
 	return (
 		<div className="flex items-center w-full justify-center">
 			<button onMouseDown={onClick} className="btn btn-primary w-full">
-				{t('common.select-audio-file')}
+				{t('common.select-file')}
 			</button>
 		</div>
 	)

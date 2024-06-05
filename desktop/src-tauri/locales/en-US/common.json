@@ -30,6 +30,7 @@
 	"i-prefer-manual-setup": "I prefer download manually",
 	"info-cancel-download": "You can cancel and download model manually later.",
 	"info-manual-download": "Internet connection is required to downlod the AI modal",
+	"info-max-text-ctx": "Max context tokens to use from past text as prompt for the decoder",
 	"info-prompt": "Make transcripts better by writing expected words.",
 	"info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result.",
 	"info-threads": "Increase CPU for faster decoding; balance speed with resource usage. Recommended: 4",
@@ -37,6 +38,7 @@
 	"language": "Language",
 	"leftover": "left",
 	"logs-folder": "Logs Folder",
+	"max-text-ctx": "Maximum context",
 	"modal-close": "Close",
 	"modal-error-body": "A bug happend!",
 	"mode-text": "Text",
@@ -54,7 +56,7 @@
 	"right-alignment": "Right alignment",
 	"save-success": "Saved Successfuly!",
 	"save-transcript": "Save Transcript",
-	"select-audio-file": "Select Audio File",
+	"select-file": "Select File",
 	"select-language": "Select Language",
 	"select-model": "Select Model",
 	"settings": "Settings",
@@ -71,7 +73,5 @@
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
-	"when-completing-transcription": "When completing transcription",
-	"info-max-text-ctx": "Max context tokens to use from past text as prompt for the decoder",
-	"max-text-ctx": "Maximum context"
+	"when-completing-transcription": "When completing transcription"
 }
