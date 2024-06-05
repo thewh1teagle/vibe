@@ -7,6 +7,7 @@
 	import GithubIcon from '~/icons/Github.svelte'
 	import ChipIcon from '~/icons/Chip.svelte'
 	import latestRelease from '$lib/latest_release.json'
+	import mobile from 'is-mobile'
 
 	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos') // default to macos
 	let ctaClicked = false
@@ -60,16 +61,7 @@
 	})
 
 	onMount(() => {
-		function checkIsMobile() {
-			var match = window.matchMedia || (window as any).msMatchMedia
-			if (match) {
-				var mq = match('(pointer:coarse)')
-				return mq.matches
-			}
-			return false
-		}
-
-		isMobile = checkIsMobile()
+		isMobile = mobile()
 	})
 
 	const t = $i18n.t

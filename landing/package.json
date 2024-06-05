@@ -38,6 +38,7 @@
   "dependencies": {
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-http-backend": "^2.5.2",
+    "is-mobile": "^4.0.0",
     "svelte-i18next": "^2.2.2",
     "svelte-persisted-store": "^0.9.2"
   }
