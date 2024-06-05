@@ -56,7 +56,7 @@
 	"right-alignment": "Alignement à droite",
 	"save-success": "Enregistré avec succès !",
 	"save-transcript": "Enregistrer la transcription",
-	"select-audio-file": "Sélectionner un fichier audio",
+	"select-file": "Choisir le dossier",
 	"select-language": "Sélectionner une langue",
 	"select-model": "Sélectionner un modèle",
 	"settings": "Paramètres",
