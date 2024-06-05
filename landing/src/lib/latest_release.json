@@ -19,6 +19,12 @@
             "arch": "windows-x86_64"
         },
         {
+            "url": "https://github.com/thewh1teagle/vibe/releases/download/v2.0.1/vibe_2.0.1_x64-setup_older_cpu.exe",
+            "name": "vibe_2.0.1_x64-setup_older_cpu.exe",
+            "platform": "Windows",
+            "arch": "windows-x86_64"
+        },
+        {
             "url": "https://github.com/thewh1teagle/vibe/releases/download/v2.0.1/vibe_2.0.1_x64.dmg",
             "name": "vibe_2.0.1_x64.dmg",
             "platform": "MacOS",
