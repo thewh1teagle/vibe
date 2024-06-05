@@ -7,7 +7,6 @@
 	import GithubIcon from '~/icons/Github.svelte'
 	import ChipIcon from '~/icons/Chip.svelte'
 	import latestRelease from '$lib/latest_release.json'
-	import Logo from '~/icons/Logo.svelte'
 
 	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos') // default to macos
 	let ctaClicked = false
@@ -18,8 +17,10 @@
 	const macSiliconAsset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos' && a.arch === 'darwin-aarch64')
 	let mobileModalOpen = false
 
+	let isMobile = false
+
 	function ctaClick() {
-		if (window.navigator.maxTouchPoints > 0) {
+		if (isMobile) {
 			// is mobile
 			mobileModalOpen = true
 		} else {
@@ -56,6 +57,19 @@
 		const currentOs = getOS()
 		asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === currentOs) // default to macos
 		currentURL = location.href
+	})
+
+	onMount(() => {
+		function checkIsMobile() {
+			var match = window.matchMedia || (window as any).msMatchMedia
+			if (match) {
+				var mq = match('(pointer:coarse)')
+				return mq.matches
+			}
+			return false
+		}
+
+		isMobile = checkIsMobile()
 	})
 
 	const t = $i18n.t
