@@ -95,7 +95,7 @@ export default function TextArea({
 								toast.dismiss(mytoast.id)
 								openPath({ name: '', path: filePath ?? '' })
 							}}>
-							<div className="link link-primary ms-5">{defaultPath.name}</div>
+							<div className="link link-primary ms-5">{defaultPath?.name}</div>
 						</button>
 					</span>
 				),

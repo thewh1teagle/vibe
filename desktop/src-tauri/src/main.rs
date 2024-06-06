@@ -48,6 +48,7 @@ fn main() {
             cmd::open_path,
             cmd::get_x86_features,
             cmd::get_save_path,
+            cmd::audio::get_audio_devices,
             #[cfg(any(windows, target_os = "linux"))]
             cmd::get_deeplinks
         ])

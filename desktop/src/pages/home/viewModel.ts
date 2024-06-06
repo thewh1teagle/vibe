@@ -187,6 +187,17 @@ export function viewModel() {
 		CheckCpuAndInit()
 	}, [])
 
+	async function startRecord() {
+		setSegments(null)
+		setLoading(true)
+		
+		setTimeout(() => {
+			setSegments([{start: 0, stop: 10, text: 'Hello world'}])
+			setLoading(false)
+		}, 5000)
+
+	}
+
 	async function transcribe() {
 		setSegments(null)
 		setLoading(true)
@@ -228,6 +239,7 @@ export function viewModel() {
 	}
 
 	return {
+		startRecord,
 		preferences,
 		openPath,
 		selectFiles,
