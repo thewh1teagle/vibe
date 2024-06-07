@@ -33,7 +33,7 @@ export default function HTMLView({ segments, file, preferences }: HTMLViewProps)
 					overflow: 'hidden',
 					textOverflow: 'ellipsis',
 				}}>
-				{file.name}
+				{file?.name}
 			</h1>
 			{segments.map((segment) => (
 				<div key={segment.text} className="segment" style={{ fontSize: '18px', display: 'flex', flexDirection: 'column', paddingTop: '18px' }}>

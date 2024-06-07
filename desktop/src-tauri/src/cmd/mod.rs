@@ -11,6 +11,7 @@ use tauri::{
     Manager,
 };
 use vibe::{model::SegmentCallbackData, transcript::Transcript};
+pub mod audio;
 
 /// Return true if there's internet connection
 /// timeout in ms

@@ -36,6 +36,9 @@ open = "5.1.3"
 showfile = "0.1.1"
 clap = { version = "4.5.4", features = ["derive", "string"] }
 futures = "0.3.30"
+cpal = "0.15.3"
+hound = "3.5.1"
+rand = "0.8.5"
 
 
 [target.'cfg(target_os = "linux")'.dependencies]

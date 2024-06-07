@@ -10,7 +10,14 @@ path = "src/lib.rs"
 [dependencies]
 eyre = { workspace = true }
 serde_json = { workspace = true }
-ffmpeg-next = "6.1.1"
+ffmpeg-next = { version = "6.1.1", features = [
+	"filter",
+	"software-resampling",
+	"software-scaling",
+	"format",
+	"device",
+	"codec",
+] } # TODO: use only what necessary
 futures-util = "0.3.30"
 hound = "3.5.1"
 log = "0.4.20"

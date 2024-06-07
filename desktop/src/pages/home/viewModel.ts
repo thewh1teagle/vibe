@@ -1,7 +1,7 @@
 import '@fontsource/roboto'
 import { event, path } from '@tauri-apps/api'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
-import { listen } from '@tauri-apps/api/event'
+import { emit, listen } from '@tauri-apps/api/event'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as dialog from '@tauri-apps/plugin-dialog'
@@ -12,6 +12,7 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
+import { AudioDevice } from '~/lib/audio'
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
 import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
@@ -31,13 +32,20 @@ export function viewModel() {
 	const [settingsVisible, setSettingsVisible] = useState(location.hash === '#settings')
 	const navigate = useNavigate()
 	const [loading, setLoading] = useState(false)
+	const [isRecording, setIsRecording] = useState(false)
 	const abortRef = useRef<boolean>(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
 	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files ?? [])
+	const [tabIndex, setTabIndex] = useState(1)
 	const preferences = usePreferencesContext()
+	const [devices, setDevices] = useState<AudioDevice[]>([])
+
+
+
+
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -62,6 +70,20 @@ export function viewModel() {
 			const { payload } = event
 			setSegments((prev) => (prev ? [...prev, payload] : [payload]))
 		})
+	}
+
+	async function handleRecordFinish() {
+		await listen<{path: string, name: string}>('record_finish', (event) => {
+			const {name, path} = event.payload
+			setTabIndex(0)
+			setFiles([{name, path}])
+			setIsRecording(false)
+		})
+	}
+
+	async function loadAudioDevices() {
+		let newDevices = await invoke<AudioDevice[]>('get_audio_devices')
+		setDevices(newDevices)
 	}
 
 	async function onAbort() {
@@ -181,11 +203,23 @@ export function viewModel() {
 		handleDeepLinks()
 		checkModelExists()
 		handleNewSegment()
+		handleRecordFinish()
+		loadAudioDevices()
 	}
 
 	useEffect(() => {
 		CheckCpuAndInit()
 	}, [])
+
+	async function startRecord(device: AudioDevice) {
+		setSegments(null)
+		setIsRecording(true)
+		invoke("start_record", {device})
+	}
+
+	async function stopRecord() {
+		emit("stop_record")
+	}
 
 	async function transcribe() {
 		setSegments(null)
@@ -228,6 +262,12 @@ export function viewModel() {
 	}
 
 	return {
+		devices,
+		setDevices,
+		isRecording,
+		setIsRecording,
+		startRecord,
+		stopRecord,
 		preferences,
 		openPath,
 		selectFiles,
@@ -245,5 +285,7 @@ export function viewModel() {
 		segments,
 		transcribe,
 		onAbort,
+		tabIndex,
+		setTabIndex
 	}
 }

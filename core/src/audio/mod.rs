@@ -69,6 +69,13 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
     reader.into_samples::<i16>().map(|x| x.context("sample")).collect()
 }
 
+/// Merge audio files, taking to shortest one and merge the others
+/// Same as doing
+/// ffmpeg -i short.wav -i single.wav -filter_complex amix=inputs=2:duration=shortest -ac 2 merged.wav
+pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use eyre::Result;
