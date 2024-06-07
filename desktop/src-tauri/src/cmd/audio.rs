@@ -59,78 +59,146 @@ unsafe impl Sync for StreamHandle {}
 
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(app_handle: AppHandle, device: AudioDevice) -> Result<PathBuf> {
+/// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
+pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, store_in_documents: bool) -> Result<()> {
     let host = cpal::default_host();
 
-    let mut wav_paths: Vec<PathBuf> = Vec::new();
-    log::debug!("Recording from device: {}", device.name);
-    log::debug!("Device ID: {}", device.id);
+    let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();
+    let mut stream_handles = Vec::new();
+    let mut stream_writers = Vec::new();
 
-    let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
-    let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
-    let config = device.default_input_config().context("Failed to get default input config")?;
-    let spec = wav_spec_from_config(&config);
+    for device in devices {
+        log::debug!("Recording from device: {}", device.name);
+        log::debug!("Device ID: {}", device.id);
 
-    let path = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
-    wav_paths.push(path.clone());
-    let writer = hound::WavWriter::create(path.clone(), spec)?;
-    let writer = Arc::new(Mutex::new(Some(writer)));
-    let writer_2 = writer.clone();
+        let is_input = device.is_input;
+        let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
+        let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+        let config = if is_input {
+            device.default_input_config().context("Failed to get default input config")?
+        } else {
+            device.default_output_config().context("Failed to get default input config")?
+        };
+        let spec = wav_spec_from_config(&config);
 
-    let err_fn = move |err| {
-        log::error!("An error occurred on stream: {}", err);
-    };
+        let path = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
+        log::debug!("WAV file path: {:?}", path);
+        wav_paths.push((path.clone(), 0));
 
-    let stream = match config.sample_format() {
-        cpal::SampleFormat::I8 => device.build_input_stream(
-            &config.into(),
-            move |data, _: &_| write_input_data::<i8, i8>(data, &writer_2),
-            err_fn,
-            None,
-        )?,
-        cpal::SampleFormat::I16 => device.build_input_stream(
-            &config.into(),
-            move |data, _: &_| write_input_data::<i16, i16>(data, &writer_2),
-            err_fn,
-            None,
-        )?,
-        cpal::SampleFormat::I32 => device.build_input_stream(
-            &config.into(),
-            move |data, _: &_| write_input_data::<i32, i32>(data, &writer_2),
-            err_fn,
-            None,
-        )?,
-        cpal::SampleFormat::F32 => device.build_input_stream(
-            &config.into(),
-            move |data, _: &_| write_input_data::<f32, f32>(data, &writer_2),
-            err_fn,
-            None,
-        )?,
-        sample_format => {
-            bail!("Unsupported sample format '{}'", sample_format)
-        }
-    };
-    stream.play()?;
+        let writer = hound::WavWriter::create(path.clone(), spec)?;
+        let writer = Arc::new(Mutex::new(Some(writer)));
+        stream_writers.push(writer.clone());
+        let writer_2 = writer.clone();
 
-    let stream_handle = Arc::new(Mutex::new(Some(StreamHandle(stream))));
+        let err_fn = move |err| {
+            log::error!("An error occurred on stream: {}", err);
+        };
+
+        let stream = match config.sample_format() {
+            cpal::SampleFormat::I8 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    log::debug!("Writing input data (I8)");
+                    write_input_data::<i8, i8>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            )?,
+            cpal::SampleFormat::I16 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    log::debug!("Writing input data (I16)");
+                    write_input_data::<i16, i16>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            )?,
+            cpal::SampleFormat::I32 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    log::debug!("Writing input data (I32)");
+                    write_input_data::<i32, i32>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            )?,
+            cpal::SampleFormat::F32 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    log::debug!("Writing input data (F32)");
+                    write_input_data::<f32, f32>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            )?,
+            sample_format => {
+                bail!("Unsupported sample format '{}'", sample_format)
+            }
+        };
+        stream.play()?;
+        log::debug!("Stream started playing");
+
+        let stream_handle = Arc::new(Mutex::new(Some(StreamHandle(stream))));
+        stream_handles.push(stream_handle.clone());
+        log::debug!("Stream handle created");
+    }
+
     let app_handle_clone = app_handle.clone();
-    let path_clone = path.clone();
     app_handle.once("stop_record", move |_event| {
-        let stream = stream_handle.lock().unwrap().take();
-        if let Some(stream) = stream {
-            stream.0.pause();
-            writer.lock().unwrap().take().unwrap().finalize().unwrap();
-
-            app_handle_clone
-                .emit(
-                    "record_finish",
-                    json!({"path": path_clone.to_str().unwrap(), "name": path_clone.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),
-                )
-                .unwrap();
+        for (i, stream_handle) in stream_handles.iter().enumerate() {
+            let stream = stream_handle.lock().unwrap().take();
+            let writer = stream_writers[i].clone();
+            
+            if let Some(stream) = stream {
+                log::debug!("Pausing stream");
+                stream.0.pause().unwrap();
+                log::debug!("Finalizing writer");
+                let writer = writer.lock().unwrap().take().unwrap();
+                let written = writer.len();
+                wav_paths[i] = (wav_paths[i].0.clone(), written.into());
+                writer.finalize().unwrap();
+            }
         }
+
+        let mut dst = if stream_handles.len() == 1 {
+            wav_paths[0].0.clone()
+        } else {
+            if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
+                let dst = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
+                log::debug!("Merging WAV files");
+                vibe::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).unwrap();
+                dst
+            } 
+            else if wav_paths[0].1 > wav_paths[1].1 {
+                // First WAV file has a larger sample count, choose it
+                wav_paths[0].0.clone()
+            } else {
+                // Second WAV file has a larger sample count or both have non-positive sample counts,
+                // choose the second WAV file or fallback to the first one
+                wav_paths[1].0.clone()
+            }
+        };
+        if store_in_documents {
+            if let Some(file_name) = dst.file_name() {
+                let documents_path = app_handle_clone.path().document_dir().unwrap();
+                let target_path = documents_path.join(file_name);
+                std::fs::rename(&dst, &target_path).context("Failed to move file to documents directory").unwrap();
+                dst = target_path;
+            } else {
+                log::error!("Failed to retrieve file name from destination path");
+            }
+        }
+
+        log::debug!("Emitting record_finish event");
+        app_handle_clone
+            .emit(
+                "record_finish",
+                json!({"path": dst.to_str().unwrap(), "name": dst.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),
+            )
+            .unwrap();
     });
 
-    Ok(path)
+    Ok(())
 }
 
 fn sample_format(format: cpal::SampleFormat) -> hound::SampleFormat {

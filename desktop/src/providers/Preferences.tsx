@@ -5,26 +5,30 @@ import i18n from '~/lib/i18n'
 
 type Direction = 'ltr' | 'rtl'
 
+type ModifyState<T> = Dispatch<SetStateAction<T>>
+
 // Define the type of preferences
 export interface Preferences {
 	displayLanguage: string
-	setDisplayLanguage: Dispatch<SetStateAction<string>>
+	setDisplayLanguage: ModifyState<string>
 	soundOnFinish: boolean
-	setSoundOnFinish: Dispatch<SetStateAction<boolean>>
+	setSoundOnFinish: ModifyState<boolean>
 	focusOnFinish: boolean
-	setFocusOnFinish: Dispatch<SetStateAction<boolean>>
+	setFocusOnFinish: ModifyState<boolean>
 	modelPath: string | null
-	setModelPath: Dispatch<SetStateAction<string | null>>
+	setModelPath: ModifyState<string | null>
 	skippedSetup: boolean
-	setSkippedSetup: Dispatch<SetStateAction<boolean>>
+	setSkippedSetup: ModifyState<boolean>
 	textAreaDirection: Direction
-	setTextAreaDirection: Dispatch<SetStateAction<Direction>>
+	setTextAreaDirection: ModifyState<Direction>
 	textFormat: TextFormat
-	setTextFormat: Dispatch<SetStateAction<TextFormat>>
+	setTextFormat: ModifyState<TextFormat>
 	modelOptions: ModelOptions
-	setModelOptions: Dispatch<SetStateAction<ModelOptions>>
+	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
-	setTheme: Dispatch<SetStateAction<'light' | 'dark'>>
+	setTheme: ModifyState<'light' | 'dark'>
+	storeRecordInDocuments: boolean
+	setStoreRecordInDocuments: ModifyState<boolean>
 }
 
 // Create the context
@@ -56,6 +60,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
 	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'normal')
+	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage<boolean>('prefs_store_record_in_documents', false)
 	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', {
 		init_prompt: '',
 		verbose: false,
@@ -69,6 +74,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 	const preferences: Preferences = {
 		modelOptions,
 		setModelOptions,
+		storeRecordInDocuments,
+		setStoreRecordInDocuments,
 		textFormat,
 		setTextFormat,
 		textAreaDirection,

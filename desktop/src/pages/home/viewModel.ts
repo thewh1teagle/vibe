@@ -39,12 +39,11 @@ export function viewModel() {
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
 	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files ?? [])
-	const [tabIndex, setTabIndex] = useState(1)
+	const [tabIndex, setTabIndex] = useState(0)
 	const preferences = usePreferencesContext()
 	const [devices, setDevices] = useState<AudioDevice[]>([])
-
-
-
+	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
+	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
@@ -83,6 +82,14 @@ export function viewModel() {
 
 	async function loadAudioDevices() {
 		let newDevices = await invoke<AudioDevice[]>('get_audio_devices')
+		const defaultInput = newDevices.find(d => d.isDefault && d.isInput)
+		const defaultOutput = newDevices.find(d => d.isDefault && !d.isInput)
+		if (defaultInput) {
+			setInputDevice(defaultInput)
+		}
+		if (defaultOutput) {
+			setOutputDevice(defaultOutput)
+		}
 		setDevices(newDevices)
 	}
 
@@ -211,10 +218,18 @@ export function viewModel() {
 		CheckCpuAndInit()
 	}, [])
 
-	async function startRecord(device: AudioDevice) {
+	async function startRecord() {
+		
 		setSegments(null)
 		setIsRecording(true)
-		invoke("start_record", {device})
+		let devices: AudioDevice[] = []
+		if (inputDevice) {
+			devices.push(inputDevice)
+		}
+		if (outputDevice) {
+			devices.push(outputDevice)
+		}
+		invoke("start_record", {devices, storeInDocuments: preferences.storeRecordInDocuments})
 	}
 
 	async function stopRecord() {
@@ -264,6 +279,10 @@ export function viewModel() {
 	return {
 		devices,
 		setDevices,
+		inputDevice,
+		setInputDevice,
+		outputDevice,
+		setOutputDevice,
 		isRecording,
 		setIsRecording,
 		startRecord,

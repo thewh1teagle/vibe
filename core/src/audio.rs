@@ -95,7 +95,7 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
 
 /// Merge audio files, taking to shortest one and merge the others
 /// ffmpeg -i short.wav -i single.wav -filter_complex amix=inputs=2:duration=shortest -ac 2 merged.wav
-fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
+pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
     let output = dst.to_str().unwrap();
     let mut pid = Command::new(ffmpeg_path)
