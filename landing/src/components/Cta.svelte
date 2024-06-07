@@ -7,6 +7,7 @@
 	import GithubIcon from '~/icons/Github.svelte'
 	import ChipIcon from '~/icons/Chip.svelte'
 	import latestRelease from '$lib/latest_release.json'
+	import mobile from 'is-mobile'
 
 	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos') // default to macos
 	let ctaClicked = false
@@ -15,15 +16,23 @@
 	const linuxAsset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'linux')
 	const macIntelAsset = latestRelease.assets.find((a) => a.platform.toLocaleLowerCase() === 'macos' && a.arch === 'darwin-x86_64')
 	const macSiliconAsset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos' && a.arch === 'darwin-aarch64')
+	let mobileModalOpen = false
+
+	let isMobile = false
 
 	function ctaClick() {
-		const platform = asset?.platform.toLowerCase()
-		if (platform == 'macos') {
-			ctaClicked = true
-		} else if (platform == 'windows') {
-			window.open(windowsAsset?.url, '_blank')
-		} else if (platform === 'linux') {
-			window.open(linuxAsset?.url, '_blank')
+		if (isMobile) {
+			// is mobile
+			mobileModalOpen = true
+		} else {
+			const platform = asset?.platform.toLowerCase()
+			if (platform == 'macos') {
+				ctaClicked = true
+			} else if (platform == 'windows') {
+				window.open(windowsAsset?.url, '_blank')
+			} else if (platform === 'linux') {
+				window.open(linuxAsset?.url, '_blank')
+			}
 		}
 	}
 
@@ -43,18 +52,34 @@
 		asset = macSiliconAsset
 	}
 
+	let currentURL = ''
+
 	onMount(async () => {
 		const currentOs = getOS()
 		asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === currentOs) // default to macos
+		currentURL = location.href
 	})
+
+	onMount(() => {
+		isMobile = mobile() || window.screen.width < 480
+	})
+
+	const t = $i18n.t
 </script>
 
 <div class="flex gap-3 flex-col lg:flex-row">
-	{#if asset?.platform.toLowerCase() === 'macos'}
-		<button on:mousedown={ctaClick} class="btn btn-primary hidden md:flex">
-			<MacIcon />
-			{$i18n.t('download-for')}{asset?.platform}
+	<!-- mobile cta open modal -->
+	{#if isMobile}
+		<button on:mousedown={ctaClick} class="btn btn-primary">
+			{t('download')}
 		</button>
+		<!-- macOS cta -->
+	{:else if asset?.platform.toLowerCase() === 'macos'}
+		<button on:mousedown={ctaClick} class="btn btn-primary hidden lg:flex">
+			<MacIcon />
+			{t('download-for')}{asset?.platform}
+		</button>
+		<!-- linux / windows -->
 	{:else}
 		<a href={asset?.url} class="btn btn-primary hidden md:flex">
 			{#if asset?.platform.toLowerCase() === 'linux'}
@@ -62,12 +87,13 @@
 			{:else if asset?.platform.toLowerCase() === 'windows'}
 				<WindowsIcon />
 			{/if}
-			{$i18n.t('download-for')}{asset?.platform}
+			{t('download-for')}{asset?.platform}
 		</a>
 	{/if}
+
 	<a class="btn" href="https://github.com/thewh1teagle/vibe" target="_blank">
 		<GithubIcon width="18" height="18" />
-		{$i18n.t('star-on-github')}
+		{t('star-on-github')}
 	</a>
 </div>
 <!-- version -->
@@ -79,11 +105,11 @@
 	<div class="flex gap-2 mt-3">
 		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url}>
 			<ChipIcon />
-			{$i18n.t('intel')}
+			{t('intel')}
 		</a>
 		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url}>
 			<ChipIcon />
-			{$i18n.t('apple-silicon')}
+			{t('apple-silicon')}
 		</a>
 	</div>
 {/if}
@@ -96,3 +122,19 @@
 
 	<a aria-label="Linux" rel="noopener" href={linuxAsset?.url}><LinuxIcon /></a>
 </div>
+
+<dialog class="modal" class:modal-open={mobileModalOpen}>
+	<div class="modal-box">
+		<h3 class="font-bold text-lg text-center">{t('download-on-pc')}</h3>
+		<p class="py-4 text-center">{t('available-for')} macOS / Windows / Linux</p>
+		<div class="flex justify-center">
+			<button on:click={() => navigator.clipboard.writeText(currentURL)} class="btn btn-primary">{t('copy-download-link')}</button>
+		</div>
+
+		<div class="modal-action">
+			<form method="dialog">
+				<button on:click={() => (mobileModalOpen = false)} class="btn btn-ghost">{t('cancel')}</button>
+			</form>
+		</div>
+	</div>
+</dialog>
