@@ -76,6 +76,14 @@ fn main() {
                 let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
                 std::fs::copy(entry, dst).unwrap();
             }
+
+            for entry in glob::glob(&format!("{}/*", ffmpeg_dir.join("bin").to_str().unwrap()))
+                .unwrap()
+                .flatten()
+            {
+                let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
+                std::fs::copy(entry, dst).unwrap();
+            }
         }
 
         if cfg!(target_os = "windows") {

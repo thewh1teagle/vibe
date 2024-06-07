@@ -1,10 +1,44 @@
-use eyre::{bail, Context, Result};
+use eyre::{bail, Context, ContextCompat, Result};
 use hound::{SampleFormat, WavReader};
 use std::process::Stdio;
 use std::{path::PathBuf, process::Command};
+use which::which;
 
-pub fn normalize(input: PathBuf, output: PathBuf, seek: String) -> Result<()> {
-    let mut pid = Command::new("ffmpeg")
+#[cfg(not(windows))]
+const EXECUTABLE_NAME: &str = "ffmpeg";
+
+#[cfg(windows)]
+const EXECUTABLE_NAME: &str = "ffmpeg.exe";
+
+fn find_ffmpeg_path() -> Option<PathBuf> {
+    // Check if `ffmpeg` is in the PATH environment variable using the `which` crate
+    if let Ok(path) = which(EXECUTABLE_NAME) {
+        return Some(path);
+    }
+
+    // Check in current working directory
+    let cwd = std::env::current_dir().ok()?;
+    let ffmpeg_in_cwd = cwd.join(EXECUTABLE_NAME);
+    if ffmpeg_in_cwd.is_file() && ffmpeg_in_cwd.exists() {
+        return Some(ffmpeg_in_cwd);
+    }
+
+    // Check in the same folder as the executable
+    if let Ok(exe_path) = std::env::current_exe() {
+        let exe_folder = exe_path.parent()?;
+        let ffmpeg_in_exe_folder = exe_folder.join(EXECUTABLE_NAME);
+        if ffmpeg_in_exe_folder.exists() {
+            return Some(ffmpeg_in_exe_folder);
+        }
+    }
+
+    None
+}
+
+pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
+    let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
+    log::debug!("ffmpeg path is {}", ffmpeg_path.display());
+    let mut pid = Command::new(ffmpeg_path)
         .args([
             "-i",
             input.to_str().unwrap(),
@@ -53,9 +87,10 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
 /// Merge audio files, taking to shortest one and merge the others
 /// ffmpeg -i short.wav -i single.wav -filter_complex amix=inputs=2:duration=shortest -ac 2 merged.wav
 fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
+    let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
     let output = dst.to_str().unwrap();
-    let mut pid = Command::new("ffmpeg")
-        .args(&[
+    let mut pid = Command::new(ffmpeg_path)
+        .args([
             "-i",
             a.to_str().unwrap(),
             "-i",
@@ -103,7 +138,7 @@ mod tests {
         // Copy a sample input file to the temporary directory.
         log::debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
-        audio::normalize(input_file_path, output_file_path.clone(), "0".to_owned())?;
+        audio::normalize(input_file_path, output_file_path.clone())?;
         log::debug!("check output at {}", output_file_path.display());
 
         Ok(())
