@@ -9,30 +9,30 @@ edition = "2021"
 
 [build-dependencies]
 fs_extra = "1.3.0"
-tauri-build = { version = "=2.0.0-beta.15", features = [] }
+tauri-build = { version = "2.0.0-beta.17", features = [] }
 
 [dependencies]
-tauri = { version = "=2.0.0-beta.19", features = [
+tauri = { version = "=2.0.0-beta.22", features = [
 	"protocol-asset",
 	"devtools",
 ] }
-tauri-plugin-window-state = "=2.0.0-beta.7"
-tauri-plugin-fs = "2.0.0-beta.7"
-tauri-plugin-updater = "2.0.0-beta.5"
-tauri-plugin-dialog = "2.0.0-beta.7"
-tauri-plugin-process = "2.0.0-beta.4"
-tauri-plugin-os = "2.0.0-beta.4"
-tauri-plugin-shell = "2.0.0-beta.5"
-tauri-plugin-deep-link = "2.0.0-beta.5"
-tokio = { version = "1.35.1", features = ["net"] }
+tauri-plugin-window-state = "2.0.0-beta.9"
+tauri-plugin-fs = "2.0.0-beta.9"
+tauri-plugin-updater = "2.0.0-beta.7"
+tauri-plugin-dialog = "2.0.0-beta.9"
+tauri-plugin-process = "2.0.0-beta.6"
+tauri-plugin-os = "2.0.0-beta.6"
+tauri-plugin-shell = "2.0.0-beta.7"
+tauri-plugin-deep-link = "2.0.0-beta.7"
+tokio = { version = "1.38.0", features = ["net"] }
 once_cell = "1.19.0"
-env_logger = "0.10.1"
-log = "0.4.20"
-serde = { version = "^1.0.198", features = ["derive"] }
+env_logger = "0.10.2"
+log = "0.4.21"
+serde = { version = "^1.0.203", features = ["derive"] }
 serde_json = { workspace = true }
 eyre = { workspace = true }
 url = "2.5.0"
-open = "5.1.3"
+open = "5.1.4"
 showfile = "0.1.1"
 clap = { version = "4.5.4", features = ["derive", "string"] }
 futures = "0.3.30"
@@ -40,7 +40,7 @@ futures = "0.3.30"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 vibe = { path = "../../core", features = ["openblas"] }
-openssl = { version = "0.10.63", features = ["vendored"] }
+openssl = { version = "0.10.64", features = ["vendored"] }
 
 [target.'cfg(windows)'.dependencies]
 vibe = { path = "../../core", features = ["opencl", "openblas"] }

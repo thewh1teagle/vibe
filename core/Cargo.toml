@@ -13,11 +13,11 @@ serde_json = { workspace = true }
 ffmpeg-next = "6.1.1"
 futures-util = "0.3.30"
 hound = "3.5.1"
-log = "0.4.20"
-reqwest = { version = "0.11.23", features = ["stream"] }
+log = "0.4.21"
+reqwest = { version = "0.11.27", features = ["stream"] }
 sha256 = "1.5.0"
-tempfile = "3.9.0"
-tokio = { version = "1.35.1", features = [
+tempfile = "3.10.1"
+tokio = { version = "1.38.0", features = [
 	"tokio-macros",
 	"macros",
 	"rt",
@@ -26,10 +26,10 @@ tokio = { version = "1.35.1", features = [
 whisper-rs = { git = "https://github.com/tazz4843/whisper-rs", rev = "e6271bf", features = [
 	"whisper-cpp-log",
 ] }
-clap = { version = "4.4.13", features = ["derive"] }
-env_logger = "0.10.1"
-serde = { version = "1.0.195", features = ["derive"] }
-num = "0.4.1"
+clap = { version = "4.5.4", features = ["derive"] }
+env_logger = "0.10.2"
+serde = { version = "1.0.203", features = ["derive"] }
+num = "0.4.3"
 once_cell = "1.19.0"
 dirs-next = "2.0.0"
 
