@@ -142,3 +142,9 @@ and update downloads links in landing page.
 ```console
 bunx tinypng-go static/*.png
 ```
+
+Normalize wav file for tests
+
+```console
+ffmpeg -i file.wav -ar 16000 -ac 1 -c:a pcm_s16le normal.wav
+```

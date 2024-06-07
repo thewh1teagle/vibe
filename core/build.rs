@@ -76,12 +76,21 @@ fn main() {
                 let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
                 std::fs::copy(entry, dst).unwrap();
             }
+
+            for entry in glob::glob(&format!("{}/*", ffmpeg_dir.join("bin").to_str().unwrap()))
+                .unwrap()
+                .flatten()
+            {
+                let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
+                std::fs::copy(entry, dst).unwrap();
+            }
         }
 
         if cfg!(target_os = "windows") {
             let target_dir = get_cargo_target_dir().unwrap();
             let patterns = [
                 format!("{}\\*.dll", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
+                format!("{}\\*.exe", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
                 format!("{}\\*.dll", openblas_dir.join("..\\bin").to_str().unwrap()),
                 format!("{}\\*.dll", clblast_dir.join("..\\..\\..\\bin").to_str().unwrap()),
             ];

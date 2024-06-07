@@ -27,7 +27,6 @@ export interface Preferences {
 	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
 	setTheme: ModifyState<'light' | 'dark'>
-
 	storeRecordInDocuments: boolean
 	setStoreRecordInDocuments: ModifyState<boolean>
 }
@@ -75,6 +74,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 	const preferences: Preferences = {
 		modelOptions,
 		setModelOptions,
+		storeRecordInDocuments,
+		setStoreRecordInDocuments,
 		textFormat,
 		setTextFormat,
 		textAreaDirection,
@@ -91,8 +92,6 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 		setModelPath,
 		theme,
 		setTheme,
-		storeRecordInDocuments,
-		setStoreRecordInDocuments,
 	}
 
 	return <PreferencesContext.Provider value={preferences}>{children}</PreferencesContext.Provider>

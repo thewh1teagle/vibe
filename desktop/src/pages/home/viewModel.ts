@@ -39,24 +39,11 @@ export function viewModel() {
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
 	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files ?? [])
-	const [tabIndex, setTabIndex] = useState(1)
+	const [tabIndex, setTabIndex] = useState(0)
 	const preferences = usePreferencesContext()
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
-
-
-	useEffect(() => {
-		const defaultInput = devices.find(d => d.isInput)
-		const defaultOutput = devices.find(d => !d.isInput)
-		if (defaultInput) {
-			setInputDevice(defaultInput)
-		}
-		if (defaultOutput) {
-			setOutputDevice(defaultOutput)
-		}
-		
-	}, [devices])
 
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
@@ -95,6 +82,14 @@ export function viewModel() {
 
 	async function loadAudioDevices() {
 		let newDevices = await invoke<AudioDevice[]>('get_audio_devices')
+		const defaultInput = newDevices.find(d => d.isDefault && d.isInput)
+		const defaultOutput = newDevices.find(d => d.isDefault && !d.isInput)
+		if (defaultInput) {
+			setInputDevice(defaultInput)
+		}
+		if (defaultOutput) {
+			setOutputDevice(defaultOutput)
+		}
 		setDevices(newDevices)
 	}
 
@@ -224,20 +219,17 @@ export function viewModel() {
 	}, [])
 
 	async function startRecord() {
+		
 		setSegments(null)
 		setIsRecording(true)
-		console.log('start record', devices)
-		const recordDevices = []
+		let devices: AudioDevice[] = []
 		if (inputDevice) {
-			recordDevices.push(inputDevice)
+			devices.push(inputDevice)
 		}
 		if (outputDevice) {
-			recordDevices.push(outputDevice)
+			devices.push(outputDevice)
 		}
-		if (recordDevices.length !== 0) {
-			invoke("start_record", {devices: recordDevices, storeInDocuments: preferences.storeRecordInDocuments})
-		}
-		
+		invoke("start_record", {devices, storeInDocuments: preferences.storeRecordInDocuments})
 	}
 
 	async function stopRecord() {
@@ -285,12 +277,12 @@ export function viewModel() {
 	}
 
 	return {
+		devices,
+		setDevices,
 		inputDevice,
 		setInputDevice,
 		outputDevice,
 		setOutputDevice,
-		devices,
-		setDevices,
 		isRecording,
 		setIsRecording,
 		startRecord,

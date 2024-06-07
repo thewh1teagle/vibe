@@ -35,7 +35,7 @@ pub fn transcribe(
         .tempfile()?
         .into_temp_path()
         .to_path_buf();
-    audio::normalize(options.path.clone(), out_path.clone(), "0".to_owned())?;
+    audio::normalize(options.path.clone(), out_path.clone())?;
     let original_samples = audio::parse_wav_file(&out_path)?;
     let mut samples = vec![0.0f32; original_samples.len()];
     whisper_rs::install_whisper_log_trampoline();
@@ -161,7 +161,7 @@ mod tests {
         // Copy a sample input file to the temporary directory.
         log::debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
-        audio::normalize(input_file_path.clone(), output_file_path.clone(), "".to_owned())?;
+        audio::normalize(input_file_path.clone(), output_file_path.clone())?;
         log::debug!("check output at {}", output_file_path.display());
         let args = &config::TranscribeOptions {
             path: input_file_path
