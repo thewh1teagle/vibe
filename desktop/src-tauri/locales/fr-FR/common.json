@@ -56,6 +56,7 @@
 	"reset-app": "Réinitialiser Vibe",
 	"reset-ask-dialog": "Êtes-vous sûr de vouloir réinitialiser Vibe ? Les données de l’application seront effacées, y compris les fichiers de modèles.",
 	"right-alignment": "Alignement à droite",
+	"save-record-in-documents-folder": "Enregistrer le fichier audio dans des documents",
 	"save-success": "Enregistré avec succès !",
 	"save-transcript": "Enregistrer la transcription",
 	"select-file": "Choisir le dossier",

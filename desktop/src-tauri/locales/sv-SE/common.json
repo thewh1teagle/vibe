@@ -56,6 +56,7 @@
 	"reset-app": "Återställ Vibe",
 	"reset-ask-dialog": "Are you sure you want to reset vibe? app data will be cleared including models files.",
 	"right-alignment": "Högerjustering",
+	"save-record-in-documents-folder": "Spara ljudfil i dokument",
 	"save-success": "Sparad framgångsrikt!",
 	"save-transcript": "Spara avskrift",
 	"select-file": "Välj fil",

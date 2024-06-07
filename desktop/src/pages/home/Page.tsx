@@ -87,10 +87,19 @@ export default function Home() {
 			{tabIndex === 1 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
-						<div className="join join-vertical">
+						<div className="">
 							<LanguageInput />
 							<AudioDeviceInput type="input" />
 							<AudioDeviceInput type="output" />
+							<label className="label cursor-pointer mt-2 mb-5">
+								<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
+								<input
+									type="checkbox"
+									className="toggle toggle-primary"
+									onChange={(e) => vm.preferences.setFocusOnFinish(e.target.checked)}
+									checked={vm.preferences.focusOnFinish}
+								/>
+							</label>
 						</div>
 						{!vm.loading && (
 							<button onMouseDown={vm.startRecord} className="btn btn-primary mt-3">
@@ -107,19 +116,6 @@ export default function Home() {
 							</>
 						)}
 					</div>
-
-					<div className="h-20" />
-					{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
-					{(vm.segments || vm.loading) && (
-						<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
-							<TextArea
-								file={vm.files?.[0]}
-								placeholder={t('common.transcript-will-displayed-shortly')}
-								segments={vm.segments}
-								readonly={vm.loading}
-							/>
-						</div>
-					)}
 				</>
 			)}
 		</Layout>

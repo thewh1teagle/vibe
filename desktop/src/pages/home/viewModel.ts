@@ -192,7 +192,6 @@ export function viewModel() {
 		setLoading(true)
 		
 		setTimeout(() => {
-			setSegments([{start: 0, stop: 10, text: 'Hello world'}])
 			setLoading(false)
 		}, 5000)
 
