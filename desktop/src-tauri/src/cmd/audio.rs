@@ -60,7 +60,7 @@ unsafe impl Sync for StreamHandle {}
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>) -> Result<()> {
+pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, store_in_documents: bool) -> Result<()> {
     let host = cpal::default_host();
 
     let mut wav_paths: Vec<PathBuf> = Vec::new();
@@ -140,6 +140,12 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>) -> R
             dst_path = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
             vibe::audio::merge_wav_files(wav_paths_clone[0].clone(), wav_paths_clone[1].clone(), dst_path.clone()).unwrap();
         }
+        if store_in_documents {
+            let new_dst = app_handle_clone.path().document_dir().unwrap().join(format!("{}.wav", random_string(5)));
+            std::fs::rename(dst_path, new_dst.clone());
+            dst_path = new_dst.clone();
+        }
+        
         
         app_handle_clone
             .emit(

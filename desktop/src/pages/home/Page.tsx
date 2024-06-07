@@ -93,8 +93,8 @@ export default function Home() {
 								<input
 									type="checkbox"
 									className="toggle toggle-primary"
-									onChange={(e) => vm.preferences.setFocusOnFinish(e.target.checked)}
-									checked={vm.preferences.focusOnFinish}
+									onChange={(e) => vm.preferences.setStoreRecordInDocuments(e.target.checked)}
+									checked={vm.preferences.storeRecordInDocuments}
 								/>
 							</label>
 						</div>

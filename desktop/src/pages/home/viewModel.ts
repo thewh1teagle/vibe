@@ -235,7 +235,7 @@ export function viewModel() {
 			recordDevices.push(outputDevice)
 		}
 		if (recordDevices.length !== 0) {
-			invoke("start_record", {devices: recordDevices})
+			invoke("start_record", {devices: recordDevices, storeInDocuments: preferences.storeRecordInDocuments})
 		}
 		
 	}

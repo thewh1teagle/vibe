@@ -1,30 +1,35 @@
-import { Dispatch, ReactNode, SetStateAction, createContext, useContext } from 'react'
+import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
 import i18n from '~/lib/i18n'
 
 type Direction = 'ltr' | 'rtl'
 
+type ModifyState<T> = Dispatch<SetStateAction<T>>
+
 // Define the type of preferences
 export interface Preferences {
 	displayLanguage: string
-	setDisplayLanguage: Dispatch<SetStateAction<string>>
+	setDisplayLanguage: ModifyState<string>
 	soundOnFinish: boolean
-	setSoundOnFinish: Dispatch<SetStateAction<boolean>>
+	setSoundOnFinish: ModifyState<boolean>
 	focusOnFinish: boolean
-	setFocusOnFinish: Dispatch<SetStateAction<boolean>>
+	setFocusOnFinish: ModifyState<boolean>
 	modelPath: string | null
-	setModelPath: Dispatch<SetStateAction<string | null>>
+	setModelPath: ModifyState<string | null>
 	skippedSetup: boolean
-	setSkippedSetup: Dispatch<SetStateAction<boolean>>
+	setSkippedSetup: ModifyState<boolean>
 	textAreaDirection: Direction
-	setTextAreaDirection: Dispatch<SetStateAction<Direction>>
+	setTextAreaDirection: ModifyState<Direction>
 	textFormat: TextFormat
-	setTextFormat: Dispatch<SetStateAction<TextFormat>>
+	setTextFormat: ModifyState<TextFormat>
 	modelOptions: ModelOptions
-	setModelOptions: Dispatch<SetStateAction<ModelOptions>>
+	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
-	setTheme: Dispatch<SetStateAction<'light' | 'dark'>>
+	setTheme: ModifyState<'light' | 'dark'>
+
+	storeRecordInDocuments: boolean
+	setStoreRecordInDocuments: ModifyState<boolean>
 }
 
 // Create the context
@@ -64,6 +69,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 		temperature: 0.4,
 		max_text_ctx: undefined,
 	})
+	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 
 	const preferences: Preferences = {
@@ -85,6 +91,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 		setModelPath,
 		theme,
 		setTheme,
+		storeRecordInDocuments,
+		setStoreRecordInDocuments,
 	}
 
 	return <PreferencesContext.Provider value={preferences}>{children}</PreferencesContext.Provider>
