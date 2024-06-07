@@ -50,8 +50,8 @@
 -   🎮 Optimized for `Nvidia` GPUs! (see [INSTALL.md#nvidia](https://github.com/thewh1teagle/vibe/blob/main/INSTALL.md#nvidia))
 -   🔧 Total Freedom: Customize Models Easily via Settings
 -   ⚙️ Model arguments for advanced users
--   ⏳ ~Transcribe system audio~ 🕒 Coming soon!
--   🎤 ~Transcribe from microphone~ 🕒 Coming soon!
+-   ⏳ Transcribe system audio
+-   🎤 Transcribe from microphone
 -   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
 
 # Supported platforms 🖥️
