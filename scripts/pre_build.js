@@ -217,8 +217,11 @@ if (process.env.GITHUB_ENV) {
 
 		if (process.argv.includes('--nvidia')) {
 			const cudaEnv = `CUDA_PATH=${cudaPath}\n`
+			const cudaToolkitEnv = `CUDATOOLKITDIR=${cudaPath}\n`
 			console.log('Adding ENV', cudaEnv)
+			console.log('Adding ENV', cudaToolkitEnv)
 			await fs.appendFile(process.env.GITHUB_ENV, cudaEnv)
+			await fs.appendFile(process.env.GITHUB_ENV, cudaToolkitEnv)
 		}
 	}
 }
