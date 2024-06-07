@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fs::File;
 use std::io::BufWriter;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Manager};
 
@@ -73,7 +73,7 @@ pub async fn start_record(app_handle: AppHandle, device: AudioDevice) -> Result<
 
     let path = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
     wav_paths.push(path.clone());
-    let writer = hound::WavWriter::create(&path.clone(), spec)?;
+    let writer = hound::WavWriter::create(path.clone(), spec)?;
     let writer = Arc::new(Mutex::new(Some(writer)));
     let writer_2 = writer.clone();
 

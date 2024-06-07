@@ -30,6 +30,15 @@ fn find_ffmpeg_path() -> Option<PathBuf> {
         if ffmpeg_in_exe_folder.exists() {
             return Some(ffmpeg_in_exe_folder);
         }
+        // For macOS, check in the Resources folder next to the executable
+        #[cfg(target_os = "macos")]
+        {
+            let resources_folder = exe_folder.join("../Resources");
+            let ffmpeg_in_resources = resources_folder.join(EXECUTABLE_NAME);
+            if ffmpeg_in_resources.exists() {
+                return Some(ffmpeg_in_resources);
+            }
+        }
     }
 
     None

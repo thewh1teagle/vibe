@@ -1,10 +1,10 @@
 {
-  "bundle": {
-    "resources": {
-      "ffmpeg\\bin\\x64\\*": "./",
-      "openblas\\bin\\*.dll": "./",
-      "clblast\\bin\\*.dll": "./",
-      "C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll": "./"
-    }
-  }
+	"bundle": {
+		"resources": {
+			"ffmpeg\\bin\\x64\\*": "./",
+			"openblas\\bin\\*.dll": "./",
+			"clblast\\bin\\*.dll": "./",
+			"C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll": "./"
+		}
+	}
 }
