@@ -45,6 +45,7 @@ const config = {
 			'libavformat-dev',
 			'libavfilter-dev',
 			'libavdevice-dev', // FFMPEG
+			'libasound2-dev', // cpal
 		],
 	},
 	macos: {

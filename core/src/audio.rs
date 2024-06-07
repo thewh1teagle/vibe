@@ -1,9 +1,11 @@
 use eyre::{bail, Context, ContextCompat, Result};
 use hound::{SampleFormat, WavReader};
-use std::os::windows::process::CommandExt;
 use std::process::Stdio;
 use std::{path::PathBuf, process::Command};
 use which::which;
+
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
 
 #[cfg(not(windows))]
 const EXECUTABLE_NAME: &str = "ffmpeg";
@@ -11,6 +13,7 @@ const EXECUTABLE_NAME: &str = "ffmpeg";
 #[cfg(windows)]
 const EXECUTABLE_NAME: &str = "ffmpeg.exe";
 
+#[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 fn find_ffmpeg_path() -> Option<PathBuf> {
@@ -127,9 +130,7 @@ pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     .stdin(Stdio::null());
 
     #[cfg(windows)]
-    {
-        cmd.creation_flags(CREATE_NO_WINDOW);
-    }
+    cmd.creation_flags(CREATE_NO_WINDOW);
 
     let mut pid = cmd.spawn()?;
     if !pid.wait()?.success() {
