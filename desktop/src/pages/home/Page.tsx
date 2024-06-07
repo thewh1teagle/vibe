@@ -8,15 +8,13 @@ import AudioInput from '~/pages/home/AudioInput'
 import AudioPlayer from './AudioPlayer'
 import ProgressPanel from './ProgressPanel'
 import { viewModel } from './viewModel'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import * as webviewWindow from '@tauri-apps/api/webviewWindow'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
 
 export default function Home() {
 	const { t } = useTranslation()
 	const vm = viewModel()
-
-	const [tabIndex, setTabIndex] = useState(1)
 
 	async function showWindow() {
 		const currentWindow = await webviewWindow.getCurrent()
@@ -33,14 +31,14 @@ export default function Home() {
 	return (
 		<Layout>
 			<div role="tablist" className="tabs tabs-lifted flex m-auto mt-5">
-				<a role="tab" onClick={() => setTabIndex(0)} className={cx('tab', tabIndex === 0 && 'tab-active')}>
+				<a role="tab" onClick={() => vm.setTabIndex(0)} className={cx('tab', vm.tabIndex === 0 && 'tab-active')}>
 					{t('common.files')}
 				</a>
-				<a role="tab" onClick={() => setTabIndex(1)} className={cx('tab', tabIndex === 1 && 'tab-active')}>
+				<a role="tab" onClick={() => vm.setTabIndex(1)} className={cx('tab', vm.tabIndex === 1 && 'tab-active')}>
 					{t('common.record')}
 				</a>
 			</div>
-			{tabIndex === 0 && (
+			{vm.tabIndex === 0 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
 						<div className="join join-vertical">
@@ -84,13 +82,12 @@ export default function Home() {
 				</>
 			)}
 
-			{tabIndex === 1 && (
+			{vm.tabIndex === 1 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
 						<div className="">
-							<LanguageInput />
-							<AudioDeviceInput type="input" />
-							<AudioDeviceInput type="output" />
+							<AudioDeviceInput devices={vm.devices} type="input" />
+							<AudioDeviceInput devices={vm.devices} type="output" />
 							<label className="label cursor-pointer mt-2 mb-5">
 								<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
 								<input
@@ -101,15 +98,15 @@ export default function Home() {
 								/>
 							</label>
 						</div>
-						{!vm.loading && (
-							<button onMouseDown={vm.startRecord} className="btn btn-primary mt-3">
+						{!vm.isRecording && (
+							<button onMouseDown={() => vm.startRecord(vm.devices.filter((d) => d.isInput)[0])} className="btn btn-primary mt-3">
 								{t('common.start-record')}
 							</button>
 						)}
 
-						{vm.loading && (
+						{vm.isRecording && (
 							<>
-								<button onMouseDown={vm.startRecord} className="btn relative btn-primary mt-3">
+								<button onMouseDown={vm.stopRecord} className="btn relative btn-success mt-3">
 									<span className="loading loading-spinner"></span>
 									{t('common.stop-and-transcribe')}
 								</button>

@@ -7,6 +7,7 @@ mod config;
 mod deep_link;
 mod panic_hook;
 mod setup;
+mod utils;
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -49,6 +50,7 @@ fn main() {
             cmd::get_x86_features,
             cmd::get_save_path,
             cmd::audio::get_audio_devices,
+            cmd::audio::start_record,
             #[cfg(any(windows, target_os = "linux"))]
             cmd::get_deeplinks
         ])
