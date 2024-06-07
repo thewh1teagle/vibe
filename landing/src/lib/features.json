@@ -22,6 +22,12 @@
 		"align": "center"
 	},
 	{
+		"title": "Transcribe microphone / speakers",
+		"description": "Effortlessly convert spoken words to text directly from your microphone or speakers.",
+		"imageURL": "/feature-transcribe-audio-video.png",
+		"align": "center"
+	},
+	{
 		"title": "Optimized for GPU",
 		"description": "Vibe is optimized to run on Nvidia/AMD/Apple GPUs!",
 		"imageURL": "/feature-gpu.png",
