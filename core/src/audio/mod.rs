@@ -72,7 +72,35 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
 /// Merge audio files, taking to shortest one and merge the others
 /// Same as doing
 /// ffmpeg -i short.wav -i single.wav -filter_complex amix=inputs=2:duration=shortest -ac 2 merged.wav
-pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
+    use std::process::{Command, Stdio};
+
+    // Execute ffmpeg command
+    let args = &[
+        "-i",
+        a.to_str().unwrap(),
+        "-i",
+        b.to_str().unwrap(),
+        "-filter_complex",
+        "amix=inputs=2:duration=shortest",
+        "-ac",
+        "2",
+        dst.to_str().unwrap(),
+    ];
+    log::debug!("args: {:?}", args);
+    let output = Command::new("ffmpeg")
+        .args(args)
+        .stdout(Stdio::null())
+        .stderr(Stdio::piped())
+        .output()?;
+
+    // Check for errors in ffmpeg execution
+    if !output.status.success() {
+        let stderr = output.stderr;
+        let stderr = String::from_utf8(stderr).unwrap_or_default();
+        bail!("ffmpeg failed with unknown error {}", stderr);
+    }
+
     Ok(())
 }
 

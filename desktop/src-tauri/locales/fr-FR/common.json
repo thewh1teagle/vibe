@@ -59,6 +59,7 @@
 	"save-record-in-documents-folder": "Enregistrer le fichier audio dans des documents",
 	"save-success": "Enregistré avec succès !",
 	"save-transcript": "Enregistrer la transcription",
+	"select-audio-device": "Sélectionnez un périphérique audio",
 	"select-file": "Choisir le dossier",
 	"select-language": "Sélectionner une langue",
 	"select-model": "Sélectionner un modèle",

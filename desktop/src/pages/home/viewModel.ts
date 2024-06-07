@@ -42,9 +42,21 @@ export function viewModel() {
 	const [tabIndex, setTabIndex] = useState(1)
 	const preferences = usePreferencesContext()
 	const [devices, setDevices] = useState<AudioDevice[]>([])
+	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
+	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 
 
-
+	useEffect(() => {
+		const defaultInput = devices.find(d => d.isInput)
+		const defaultOutput = devices.find(d => !d.isInput)
+		if (defaultInput) {
+			setInputDevice(defaultInput)
+		}
+		if (defaultOutput) {
+			setOutputDevice(defaultOutput)
+		}
+		
+	}, [devices])
 
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
@@ -211,10 +223,21 @@ export function viewModel() {
 		CheckCpuAndInit()
 	}, [])
 
-	async function startRecord(device: AudioDevice) {
+	async function startRecord() {
 		setSegments(null)
 		setIsRecording(true)
-		invoke("start_record", {device})
+		console.log('start record', devices)
+		const recordDevices = []
+		if (inputDevice) {
+			recordDevices.push(inputDevice)
+		}
+		if (outputDevice) {
+			recordDevices.push(outputDevice)
+		}
+		if (recordDevices.length !== 0) {
+			invoke("start_record", {devices: recordDevices})
+		}
+		
 	}
 
 	async function stopRecord() {
@@ -262,6 +285,10 @@ export function viewModel() {
 	}
 
 	return {
+		inputDevice,
+		setInputDevice,
+		outputDevice,
+		setOutputDevice,
 		devices,
 		setDevices,
 		isRecording,

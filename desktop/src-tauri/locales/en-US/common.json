@@ -79,5 +79,6 @@
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
-	"when-completing-transcription": "When completing transcription"
+	"when-completing-transcription": "When completing transcription",
+	"select-audio-device": "Select Audio Device"
 }

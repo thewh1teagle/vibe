@@ -59,6 +59,7 @@
 	"save-record-in-documents-folder": "将音频文件保存在文档中",
 	"save-success": "保存成功！",
 	"save-transcript": "保存字幕",
+	"select-audio-device": "选择音频设备",
 	"select-file": "选择文件",
 	"select-language": "选择语言",
 	"select-model": "选择模型",

@@ -86,8 +86,8 @@ export default function Home() {
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
 						<div className="">
-							<AudioDeviceInput devices={vm.devices} type="input" />
-							<AudioDeviceInput devices={vm.devices} type="output" />
+							<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
+							<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
 							<label className="label cursor-pointer mt-2 mb-5">
 								<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
 								<input
@@ -99,7 +99,7 @@ export default function Home() {
 							</label>
 						</div>
 						{!vm.isRecording && (
-							<button onMouseDown={() => vm.startRecord(vm.devices.filter((d) => d.isInput)[0])} className="btn btn-primary mt-3">
+							<button onMouseDown={() => vm.startRecord()} className="btn btn-primary mt-3">
 								{t('common.start-record')}
 							</button>
 						)}
