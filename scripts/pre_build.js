@@ -223,6 +223,7 @@ if (process.env.GITHUB_ENV) {
 			console.log('Adding ENV', cudaToolkitEnv)
 			await fs.appendFile(process.env.GITHUB_ENV, cudaEnv)
 			await fs.appendFile(process.env.GITHUB_ENV, cudaToolkitEnv)
+			await fs.appendFile(process.env.GITHUB_PATH, `${path.join(cudaPath, 'bin')}\n`)
 		}
 	}
 }
