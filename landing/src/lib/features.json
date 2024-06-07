@@ -5,37 +5,37 @@
 		"imageURL": "/feature-languages.png"
 	},
 	{
-		"title": "Batch transcribe multiple files!",
-		"description": "You can transcribe as many files as you want easily in single click.",
+		"title": "Batch transcribe multiple files",
+		"description": "Easily transcribe as many files as you want with a single click.",
 		"imageURL": "/feature-batch-transcribe.png",
 		"align": "center"
 	},
 	{
 		"title": "Multiple formats",
-		"description": "You can export transcription in your preferred format",
+		"description": "Export transcriptions in your preferred format including SRT, VTT, TXT, HTML and many more",
 		"imageURL": "/feature-formats.png"
 	},
 	{
 		"title": "Transcribe audio / video",
-		"description": "Supports audio and video formats like MP4, MKV, MP3, WAV (and more)",
+		"description": "Supports audio and video formats like MP4, MKV, MP3, WAV (there's more)",
 		"imageURL": "/feature-transcribe-audio-video.png",
 		"align": "center"
 	},
 	{
 		"title": "Optimized for GPU",
-		"description": "Vibe is optimized to run on Nvidia / AMD / Apple GPUs!",
+		"description": "Vibe is optimized to run on Nvidia/AMD/Apple GPUs!",
 		"imageURL": "/feature-gpu.png",
 		"align": "center"
 	},
 	{
 		"title": "Ultimate privacy",
-		"description": "Fully offline transcription, no data ever leaves your device",
+		"description": "Enjoy fully offline transcription, ensuring no data ever leaves your device.",
 		"imageURL": "/feature-privacy.png",
 		"align": "center"
 	},
 	{
 		"title": "Total Freedom",
-		"description": "Vibe provides an easy way to customize models in settings",
+		"description": "Customize models effortlessly in settings for a tailored experience.",
 		"imageURL": "/feature-model-customize.png"
 	}
 ]
