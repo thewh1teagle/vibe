@@ -82,6 +82,7 @@ fn main() {
             let target_dir = get_cargo_target_dir().unwrap();
             let patterns = [
                 format!("{}\\*.dll", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
+                format!("{}\\*.exe", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
                 format!("{}\\*.dll", openblas_dir.join("..\\bin").to_str().unwrap()),
                 format!("{}\\*.dll", clblast_dir.join("..\\..\\..\\bin").to_str().unwrap()),
             ];

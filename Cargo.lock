@@ -359,26 +359,6 @@ checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
 
 [[package]]
 name = "bindgen"
-version = "0.64.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4243e6031260db77ede97ad86c27e501d646a27ab57b59a574f725d98ab1fb4"
-dependencies = [
- "bitflags 1.3.2",
- "cexpr",
- "clang-sys",
- "lazy_static",
- "lazycell",
- "peeking_take_while",
- "proc-macro2",
- "quote",
- "regex",
- "rustc-hash",
- "shlex",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "bindgen"
 version = "0.69.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a00dc851838a2120612785d195287475a3ac45514741da670b735818822129a0"
@@ -873,7 +853,7 @@ version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f01585027057ff5f0a5bf276174ae4c1594a2c5bde93d5f46a016d76270f5a9"
 dependencies = [
- "bindgen 0.69.4",
+ "bindgen",
 ]
 
 [[package]]
@@ -1337,31 +1317,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f9bfee30e4dedf0ab8b422f03af778d9612b63f502710fc500a334ebe2de645"
 dependencies = [
  "simd-adler32",
-]
-
-[[package]]
-name = "ffmpeg-next"
-version = "6.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e72c72e8dcf638fb0fb03f033a954691662b5dabeaa3f85a6607d101569fccd"
-dependencies = [
- "bitflags 1.3.2",
- "ffmpeg-sys-next",
- "libc",
-]
-
-[[package]]
-name = "ffmpeg-sys-next"
-version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2529ad916d08c3562c754c21bc9b17a26c7882c0f5706cc2cd69472175f1620"
-dependencies = [
- "bindgen 0.64.0",
- "cc",
- "libc",
- "num_cpus",
- "pkg-config",
- "vcpkg",
 ]
 
 [[package]]
@@ -3207,12 +3162,6 @@ dependencies = [
  "password-hash",
  "sha2",
 ]
-
-[[package]]
-name = "peeking_take_while"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19b17cddbe7ec3f8bc800887bab5e717348c95ea2ca0b1bf0837fb964dc67099"
 
 [[package]]
 name = "percent-encoding"
@@ -5541,7 +5490,6 @@ dependencies = [
  "dirs-next",
  "env_logger",
  "eyre",
- "ffmpeg-next",
  "futures-util",
  "glob",
  "hound",
@@ -5859,7 +5807,7 @@ name = "whisper-rs-sys"
 version = "0.10.0"
 source = "git+https://github.com/tazz4843/whisper-rs?rev=e6271bf#e6271bf0f3a05bfa502d9c32230e657fa510a1bd"
 dependencies = [
- "bindgen 0.69.4",
+ "bindgen",
  "cfg-if",
  "cmake",
  "fs_extra",
