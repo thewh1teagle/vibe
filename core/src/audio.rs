@@ -1,5 +1,6 @@
 use eyre::{bail, Context, ContextCompat, Result};
 use hound::{SampleFormat, WavReader};
+use std::os::windows::process::CommandExt;
 use std::process::Stdio;
 use std::{path::PathBuf, process::Command};
 use which::which;
@@ -9,6 +10,8 @@ const EXECUTABLE_NAME: &str = "ffmpeg";
 
 #[cfg(windows)]
 const EXECUTABLE_NAME: &str = "ffmpeg.exe";
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 fn find_ffmpeg_path() -> Option<PathBuf> {
     // Check if `ffmpeg` is in the PATH environment variable using the `which` crate
@@ -47,24 +50,30 @@ fn find_ffmpeg_path() -> Option<PathBuf> {
 pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
     let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
     log::debug!("ffmpeg path is {}", ffmpeg_path.display());
-    let mut pid = Command::new(ffmpeg_path)
-        .args([
-            "-i",
-            input.to_str().unwrap(),
-            "-ar",
-            "16000",
-            "-ac",
-            "1",
-            "-c:a",
-            "pcm_s16le",
-            (output.to_str().unwrap()),
-            "-hide_banner",
-            "-y",
-            "-loglevel",
-            "error",
-        ])
-        .stdin(Stdio::null())
-        .spawn()?;
+
+    let mut cmd = Command::new(ffmpeg_path);
+    let cmd = cmd.args([
+        "-i",
+        input.to_str().unwrap(),
+        "-ar",
+        "16000",
+        "-ac",
+        "1",
+        "-c:a",
+        "pcm_s16le",
+        output.to_str().unwrap(),
+        "-hide_banner",
+        "-y",
+        "-loglevel",
+        "error",
+    ]);
+
+    let cmd = cmd.stdin(Stdio::null());
+
+    #[cfg(windows)]
+    let cmd = cmd.creation_flags(CREATE_NO_WINDOW);
+
+    let mut pid = cmd.spawn()?;
     if !pid.wait()?.success() {
         bail!("unable to convert file")
     }
@@ -98,25 +107,31 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
 pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
     let output = dst.to_str().unwrap();
-    let mut pid = Command::new(ffmpeg_path)
-        .args([
-            "-i",
-            a.to_str().unwrap(),
-            "-i",
-            b.to_str().unwrap(),
-            "-filter_complex",
-            "amix=inputs=2:duration=shortest",
-            "-ac",
-            "2",
-            output,
-            "-hide_banner",
-            "-y",
-            "-loglevel",
-            "error",
-        ])
-        .stdin(Stdio::null())
-        .spawn()?;
 
+    let mut cmd = Command::new(ffmpeg_path);
+    cmd.args([
+        "-i",
+        a.to_str().unwrap(),
+        "-i",
+        b.to_str().unwrap(),
+        "-filter_complex",
+        "amix=inputs=2:duration=shortest",
+        "-ac",
+        "2",
+        output,
+        "-hide_banner",
+        "-y",
+        "-loglevel",
+        "error",
+    ])
+    .stdin(Stdio::null());
+
+    #[cfg(windows)]
+    {
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    let mut pid = cmd.spawn()?;
     if !pid.wait()?.success() {
         bail!("unable to merge files");
     }
