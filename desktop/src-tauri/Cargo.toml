@@ -55,6 +55,9 @@ windows = { version = "0.56.0", features = [
 [target.'cfg(target_os = "macos")'.dependencies]
 vibe = { path = "../../core", features = ["coreml", "metal"] }
 cocoa = "0.25.0"
+screencapturekit = { version = "0.2.8", features = ["ci"] }
+screencapturekit-sys = "0.2.8"
+objc_id = "0.1"
 
 [features]
 default = ["custom-protocol"]

@@ -3974,6 +3974,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
+name = "screencapturekit"
+version = "0.2.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a5eeeb57ac94960cfe5ff4c402be6585ae4c8d29a2cf41b276048c2e849d64e"
+dependencies = [
+ "screencapturekit-sys",
+]
+
+[[package]]
+name = "screencapturekit-sys"
+version = "0.2.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22411b57f7d49e7fe08025198813ee6fd65e1ee5eff4ebc7880c12c82bde4c60"
+dependencies = [
+ "block",
+ "dispatch",
+ "objc",
+ "objc-foundation",
+ "objc_id",
+ "once_cell",
+]
+
+[[package]]
 name = "security-framework"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5519,10 +5542,13 @@ dependencies = [
  "futures",
  "hound",
  "log",
+ "objc_id",
  "once_cell",
  "open",
  "openssl",
  "rand 0.8.5",
+ "screencapturekit",
+ "screencapturekit-sys",
  "serde",
  "serde_json",
  "showfile",
@@ -5809,7 +5835,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs"
 version = "0.12.0"
-source = "git+https://github.com/tazz4843/whisper-rs?rev=e6271bf#e6271bf0f3a05bfa502d9c32230e657fa510a1bd"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/pass-cmake-flags#35aca74d64df512d5b15e8ab40ed1e5a3802ccfd"
 dependencies = [
  "log",
  "whisper-rs-sys",
@@ -5818,7 +5844,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs-sys"
 version = "0.10.0"
-source = "git+https://github.com/tazz4843/whisper-rs?rev=e6271bf#e6271bf0f3a05bfa502d9c32230e657fa510a1bd"
+source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/pass-cmake-flags#35aca74d64df512d5b15e8ab40ed1e5a3802ccfd"
 dependencies = [
  "bindgen",
  "cfg-if",

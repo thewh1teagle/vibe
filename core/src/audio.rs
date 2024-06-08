@@ -16,7 +16,7 @@ const EXECUTABLE_NAME: &str = "ffmpeg.exe";
 #[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-fn find_ffmpeg_path() -> Option<PathBuf> {
+pub fn find_ffmpeg_path() -> Option<PathBuf> {
     // Check if `ffmpeg` is in the PATH environment variable using the `which` crate
     if let Ok(path) = which(EXECUTABLE_NAME) {
         return Some(path);
