@@ -53,7 +53,9 @@
 -   ⏳ Transcribe system audio
 -   🎤 Transcribe from microphone
 -   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
-
+-   👥 ~Speaker diarization~ (coming soon)
+-   📱 ~iOS & Android support~ (coming soon)
+-   
 # Supported platforms 🖥️
 
 `MacOS`
