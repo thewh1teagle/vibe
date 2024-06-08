@@ -1,13 +1,12 @@
 import * as shell from '@tauri-apps/plugin-shell'
-import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
-import { cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
+import { ModifyState, cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
 import { ErrorModalState } from '~/providers/ErrorModal'
 
 interface ErrorModalProps {
 	state: ErrorModalState
-	setState: Dispatch<SetStateAction<ErrorModalState>>
+	setState: ModifyState<ErrorModalState>
 }
 
 export default function ErrorModal({ state, setState }: ErrorModalProps) {

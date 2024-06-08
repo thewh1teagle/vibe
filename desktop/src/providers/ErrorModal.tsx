@@ -1,4 +1,5 @@
-import { Dispatch, ReactNode, SetStateAction, createContext, useState } from 'react'
+import { ReactNode, createContext, useState } from 'react'
+import { ModifyState } from '~/lib/utils'
 
 export interface ErrorModalState {
 	open: boolean
@@ -6,7 +7,7 @@ export interface ErrorModalState {
 }
 interface ErrorModalContext {
 	state: ErrorModalState
-	setState: Dispatch<SetStateAction<ErrorModalState>>
+	setState: ModifyState<ErrorModalState>
 }
 
 export const ErrorModalContext = createContext<ErrorModalContext>({} as ErrorModalContext)

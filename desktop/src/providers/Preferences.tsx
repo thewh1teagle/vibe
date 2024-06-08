@@ -1,11 +1,10 @@
-import { Dispatch, ReactNode, SetStateAction, createContext, useContext } from 'react'
+import { ReactNode, createContext, useContext } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
 import i18n from '~/lib/i18n'
+import { ModifyState } from '~/lib/utils'
 
 type Direction = 'ltr' | 'rtl'
-
-type ModifyState<T> = Dispatch<SetStateAction<T>>
 
 // Define the type of preferences
 export interface Preferences {

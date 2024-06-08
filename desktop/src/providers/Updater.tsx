@@ -4,15 +4,16 @@ import { DownloadEvent, Update, check as checkUpdate } from '@tauri-apps/plugin-
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ErrorModalContext } from './ErrorModal'
-
+import { ModifyState } from '~/lib/utils'
 // Define the context type
+
 type UpdaterContextType = {
 	availableUpdate: boolean
-	setAvailableUpdate: React.Dispatch<React.SetStateAction<boolean>>
+	setAvailableUpdate: ModifyState<boolean>
 	updating: boolean
-	setUpdating: React.Dispatch<React.SetStateAction<boolean>>
+	setUpdating: ModifyState<boolean>
 	manifest?: Update
-	setManifest: React.Dispatch<React.SetStateAction<Update | undefined>>
+	setManifest: ModifyState<Update | undefined>
 	updateApp: () => Promise<void>
 	progress: number | null
 }

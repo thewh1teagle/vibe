@@ -5,11 +5,14 @@ import * as path from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
 import * as config from './config'
+import { Dispatch, SetStateAction } from 'react'
 
 export interface NamedPath {
 	name: string
 	path: string
 }
+
+export type ModifyState<T> = Dispatch<SetStateAction<T>>
 
 export async function pathToNamedPath(pathString: string) {
 	const name = await path.basename(pathString)

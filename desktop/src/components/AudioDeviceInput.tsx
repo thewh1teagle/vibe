@@ -1,12 +1,12 @@
-import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AudioDevice } from '~/lib/audio'
+import { ModifyState } from '~/lib/utils'
 
 interface AudioDeviceInputProps {
 	type: 'output' | 'input'
 	devices: AudioDevice[]
 	device: AudioDevice | null
-	setDevice: Dispatch<SetStateAction<AudioDevice | null>>
+	setDevice: ModifyState<AudioDevice | null>
 }
 
 export default function AudioDeviceInput({ type, devices, device, setDevice }: AudioDeviceInputProps) {

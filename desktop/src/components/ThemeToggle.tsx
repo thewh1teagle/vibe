@@ -1,10 +1,11 @@
-import { Dispatch, SetStateAction, useEffect } from 'react'
+import { useEffect } from 'react'
 import { ReactComponent as SunIcon } from '~/icons/sun.svg'
 import { ReactComponent as MoonIcon } from '~/icons/moon.svg'
+import { ModifyState } from '~/lib/utils'
 
 interface ThemeToggleProps {
 	theme: 'dark' | 'light'
-	setTheme: Dispatch<SetStateAction<'light' | 'dark'>>
+	setTheme: ModifyState<'light' | 'dark'>
 }
 export default function ThemeToggle({ theme, setTheme }: ThemeToggleProps) {
 	useEffect(() => {

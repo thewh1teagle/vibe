@@ -1,5 +1,4 @@
 import * as shell from '@tauri-apps/plugin-shell'
-import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '~/components/InfoTooltip'
 import { ReactComponent as ChevronLeftIcon } from '~/icons/chevron-left.svg'
@@ -12,11 +11,11 @@ import { ReactComponent as ResetIcon } from '~/icons/reset.svg'
 import { ReactComponent as DiscordIcon } from '~/icons/discord.svg'
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
-import { cx } from '~/lib/utils'
+import { ModifyState, cx } from '~/lib/utils'
 import { viewModel } from './viewModel'
 
 interface SettingsPageProps {
-	setVisible: Dispatch<SetStateAction<boolean>>
+	setVisible: ModifyState<boolean>
 }
 
 export default function SettingsPage({ setVisible }: SettingsPageProps) {

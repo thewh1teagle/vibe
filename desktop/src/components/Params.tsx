@@ -1,14 +1,14 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
 import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
-import { cx } from '~/lib/utils'
+import { ModifyState, cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
 import { ModelOptions as IModelOptions } from '~/providers/Preferences'
 
 interface ParamsProps {
 	options: IModelOptions
-	setOptions: React.Dispatch<React.SetStateAction<IModelOptions>>
+	setOptions: ModifyState<IModelOptions>
 }
 
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
