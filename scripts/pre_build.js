@@ -67,6 +67,9 @@ const exports = {
 if (platform == 'linux') {
 	// Install APT packages
 	await $`sudo apt-get update`
+	if (process.argv.includes('--opencl')) {
+		config.linux.aptPackages.push('libclblast-dev')
+	}
 	for (const name of config.linux.aptPackages) {
 		await $`sudo apt-get install -y ${name}`
 	}
