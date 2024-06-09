@@ -160,6 +160,15 @@ if (process.argv.includes('--nvidia')) {
 		content = content.replace('opencl', 'cuda')
 		await fs.writeFile('Cargo.toml', content)
 	}
+	if (platform === 'linux') {
+		// modify features in cargo.toml
+		let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
+		content = content.replace(
+			'vibe = { path = "../../core", features = ["openblas"] }',
+			'vibe = { path = "../../core", features = ["openblas", "cuda"] }'
+		)
+		await fs.writeFile('Cargo.toml', content)
+	}
 }
 
 // Linux OpenCL
