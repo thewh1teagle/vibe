@@ -113,13 +113,15 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 			let err_fn = move |err| {
 				log::error!("An error occurred on stream: {}", err);
 			};
+
+            let volume_factor = if cfg!(windows) {3} else {1};
 	
 			let stream = match config.sample_format() {
 				cpal::SampleFormat::I8 => device.build_input_stream(
 					&config.into(),
 					move |data, _: &_| {
 						log::debug!("Writing input data (I8)");
-						write_input_data::<i8, i8>(data, &writer_2)
+						write_input_data::<i8, i8>(data, &writer_2, volume_factor.into())
 					},
 					err_fn,
 					None,
@@ -128,7 +130,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 					&config.into(),
 					move |data, _: &_| {
 						log::debug!("Writing input data (I16)");
-						write_input_data::<i16, i16>(data, &writer_2)
+						write_input_data::<i16, i16>(data, &writer_2, volume_factor.into())
 					},
 					err_fn,
 					None,
@@ -137,7 +139,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 					&config.into(),
 					move |data, _: &_| {
 						log::debug!("Writing input data (I32)");
-						write_input_data::<i32, i32>(data, &writer_2)
+						write_input_data::<i32, i32>(data, &writer_2, volume_factor.into())
 					},
 					err_fn,
 					None,
@@ -146,7 +148,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 					&config.into(),
 					move |data, _: &_| {
 						log::debug!("Writing input data (F32)");
-						write_input_data::<f32, f32>(data, &writer_2)
+						write_input_data::<f32, f32>(data, &writer_2, volume_factor.into())
 					},
 					err_fn,
 					None,
@@ -251,15 +253,18 @@ fn wav_spec_from_config(config: &cpal::SupportedStreamConfig) -> hound::WavSpec 
     }
 }
 
-fn write_input_data<T, U>(input: &[T], writer: &WavWriterHandle)
+use std::ops::Mul;
+
+
+fn write_input_data<T, U>(input: &[T], writer: &WavWriterHandle, volume_factor: U)
 where
     T: Sample,
-    U: Sample + hound::Sample + FromSample<T>,
+    U: Sample + hound::Sample + FromSample<T> + Mul<Output = U> + Copy,
 {
     if let Ok(mut guard) = writer.try_lock() {
         if let Some(writer) = guard.as_mut() {
             for &sample in input.iter() {
-                let sample: U = U::from_sample(sample);
+                let sample: U = U::from_sample(sample) * volume_factor;
                 writer.write_sample(sample).ok();
             }
         }
