@@ -123,7 +123,7 @@ let cudaPath
 if (process.argv.includes('--nvidia')) {
 	if (process.env['CUDA_PATH']) {
 		cudaPath = process.env['CUDA_PATH']
-	} else {
+	} else if (platform === 'windows') {
 		const cudaRoot = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\'
 		cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5'
 		if (await fs.exists(cudaRoot)) {
@@ -133,26 +133,39 @@ if (process.argv.includes('--nvidia')) {
 			}
 		}
 	}
+
 	if (process.env.GITHUB_ENV) {
 		console.log('CUDA_PATH', cudaPath)
 	}
 
-	const windowsConfig = {
-		bundle: {
-			resources: {
-				'ffmpeg\\bin\\x64\\*.dll': './',
-				'openblas\\bin\\*.dll': './',
-				[`${cudaPath}\\bin\\cudart64_*`]: './',
-				[`${cudaPath}\\bin\\cublas64_*`]: './',
-				[`${cudaPath}\\bin\\cublasLt64_*`]: './',
+	if (platform === 'windows') {
+		const windowsConfig = {
+			bundle: {
+				resources: {
+					'ffmpeg\\bin\\x64\\*.dll': './',
+					'openblas\\bin\\*.dll': './',
+					[`${cudaPath}\\bin\\cudart64_*`]: './',
+					[`${cudaPath}\\bin\\cublas64_*`]: './',
+					[`${cudaPath}\\bin\\cublasLt64_*`]: './',
+				},
 			},
-		},
-	}
-	await fs.writeFile('tauri.windows.conf.json', JSON.stringify(windowsConfig, null, 4))
+		}
+		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(windowsConfig, null, 4))
 
-	// modify features in cargo.toml
+		// modify features in cargo.toml
+		let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
+		content = content.replace('opencl', 'cuda')
+		await fs.writeFile('Cargo.toml', content)
+	}
+}
+
+// Linux OpenCL
+if (platform === 'linux' && process.argv.includes('--opencl')) {
 	let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
-	content = content.replace('opencl', 'cuda')
+	content = content.replace(
+		'vibe = { path = "../../core", features = ["openblas"] }',
+		'vibe = { path = "../../core", features = ["openblas", "opencl"] }'
+	)
 	await fs.writeFile('Cargo.toml', content)
 }
 
