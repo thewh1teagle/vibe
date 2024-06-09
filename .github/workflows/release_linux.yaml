@@ -23,8 +23,6 @@ jobs:
 
             - name: Rust cache
               uses: swatinem/rust-cache@v2
-              with:
-                  key: ${{ matrix.cuda-toolkit }}
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
@@ -39,7 +37,7 @@ jobs:
               with:
                   path: |
                       desktop/src-tauri/openblas
-                  key: ${{ runner.os }}-pre-build
+                  key: ${{ matrix.os }}-pre-build
 
             # Run pre build
             - name: Run pre_build.js
@@ -61,7 +59,7 @@ jobs:
                 # Rename .deb files
                 for file in target/release/bundle/deb/*.deb; do
                     name=$(basename "$file" .deb)
-                    new_name="${name}_ubuntu_${{ runner.os }}_opencl.deb"
+                    new_name="${name}_ubuntu_${{ matrix.os }}_opencl.deb"
                     mv "$file" "target/release/bundle/deb/$new_name"
                     echo "Renamed '$file' to '$new_name'"
                 done
