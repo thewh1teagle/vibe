@@ -16,10 +16,10 @@ jobs:
             include:
               - platform: 'ubuntu-22.04'
                 cuda_version: '12.4.1'
-				platform_version: '22.04'
+                platform_version: '22.04'
               - platform: 'ubuntu-24.04'
                 cuda_version: '12.4.1'
-				platform_version: '24.04'
+                platform_version: '24.04'
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -49,7 +49,7 @@ jobs:
               with:
                   path: |
                       desktop/src-tauri/openblas
-                  key: ${{ matrix.os }}-pre-build
+                  key: ${{ matrix.platform }}-pre-build
 
             # Run pre build
             - name: Run pre_build.js

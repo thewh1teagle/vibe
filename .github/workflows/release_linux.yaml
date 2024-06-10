@@ -12,12 +12,12 @@ jobs:
             contents: write
         strategy:
           fail-fast: false
-		matrix:
-            include:
-              - platform: 'ubuntu-22.04'
-            	platform_version: '22.04'
-              - platform: 'ubuntu-24.04'
-                platform_version: '24.04'
+          matrix:
+              include:
+                - platform: 'ubuntu-22.04'
+                  platform_version: '22.04'
+                - platform: 'ubuntu-24.04'
+                  platform_version: '24.04'
         runs-on: ${{ matrix.platform }}
         steps:
             - uses: actions/checkout@v4
