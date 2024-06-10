@@ -32,8 +32,8 @@ export function viewModel() {
 	async function downloadModel() {
 		handleProgressEvenets()
 		try {
-			if (location.state.downloadURL) {
-				const path = await invoke('download_model', { url: location.state.downloadURL })
+			if (location?.state?.downloadURL) {
+				const path = await invoke('download_model', { url: location?.state?.downloadURL })
 				preferences.setModelPath(path as string)
 				navigate('/')
 			} else {
