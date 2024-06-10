@@ -6,4 +6,4 @@ export const unsupportedCpuReadmeURL = 'https://github.com/thewh1teagle/vibe/blo
 export const sponsorURL = 'https://github.com/sponsors/thewh1teagle'
 
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm']
-export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus']
+export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a']
