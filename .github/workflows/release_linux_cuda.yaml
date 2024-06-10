@@ -16,8 +16,10 @@ jobs:
             include:
               - platform: 'ubuntu-22.04'
                 cuda_version: '12.4.1'
+				platform_version: '22.04'
               - platform: 'ubuntu-24.04'
                 cuda_version: '12.4.1'
+				platform_version: '24.04'
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -69,7 +71,7 @@ jobs:
                 # Rename .deb files
                 for file in target/release/bundle/deb/*.deb; do
                     name=$(basename "$file" .deb)
-                    new_name="${name}_ubuntu_${{ matrix.platform }}_nvidia_${{ matrix.cuda_version }}.deb"
+                    new_name="${name}_${{ matrix.platform }}_nvidia_${{ matrix.cuda_version }}.deb"
                     mv "$file" "target/release/bundle/deb/$new_name"
                     echo "Renamed '$file' to '$new_name'"
                 done
@@ -77,7 +79,7 @@ jobs:
                 # Rename .rpm files
                 for file in target/release/bundle/rpm/*.rpm; do
                     name=$(basename "$file" .rpm)
-                    new_name="${name}_ubuntu_${{ matrix.platform }}_nvidia_${{ matrix.cuda_version }}.rpm"
+                    new_name="${name}_${{ matrix.platform_version }}_nvidia_${{ matrix.cuda_version }}.rpm"
                     mv "$file" "target/release/bundle/rpm/$new_name"
                     echo "Renamed '$file' to '$new_name'"
                 done

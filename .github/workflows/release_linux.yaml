@@ -12,9 +12,13 @@ jobs:
             contents: write
         strategy:
           fail-fast: false
-          matrix:
-            os: [ubuntu-22.04, ubuntu-24.04]
-        runs-on: ${{ matrix.os }}
+		matrix:
+            include:
+              - platform: 'ubuntu-22.04'
+            	platform_version: '22.04'
+              - platform: 'ubuntu-24.04'
+                platform_version: '24.04'
+        runs-on: ${{ matrix.platform }}
         steps:
             - uses: actions/checkout@v4
 
@@ -37,7 +41,7 @@ jobs:
               with:
                   path: |
                       desktop/src-tauri/openblas
-                  key: ${{ matrix.os }}-pre-build
+                  key: ${{ matrix.platform }}-pre-build
 
             # Run pre build
             - name: Run pre_build.js
@@ -59,7 +63,7 @@ jobs:
                 # Rename .deb files
                 for file in target/release/bundle/deb/*.deb; do
                     name=$(basename "$file" .deb)
-                    new_name="${name}_ubuntu_${{ matrix.os }}_opencl.deb"
+                    new_name="${name}_${{ matrix.platform }}_opencl.deb"
                     mv "$file" "target/release/bundle/deb/$new_name"
                     echo "Renamed '$file' to '$new_name'"
                 done
@@ -67,7 +71,7 @@ jobs:
                 # Rename .rpm files
                 for file in target/release/bundle/rpm/*.rpm; do
                     name=$(basename "$file" .rpm)
-                    new_name="${name}_ubuntu_${{ runner.os }}_opencl.rpm"
+                    new_name="${name}_${{ matrix.platform_version }}_opencl.rpm"
                     mv "$file" "target/release/bundle/rpm/$new_name"
                     echo "Renamed '$file' to '$new_name'"
                 done
