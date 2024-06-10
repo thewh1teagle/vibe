@@ -45,7 +45,9 @@
 	"mode-text": "Text",
 	"models-folder": "Models Folder",
 	"no-connection": "No Connection",
+	"no-record": "None",
 	"others": "Others",
+	"paste-model-link": "Paste AI Model Link",
 	"play-sound-on-finish": "Play sound",
 	"popular": "Popular",
 	"print-tooltip": "Print",
@@ -79,6 +81,5 @@
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
-	"when-completing-transcription": "When completing transcription",
-	"no-record": "None"
+	"when-completing-transcription": "When completing transcription"
 }

@@ -11,6 +11,7 @@ import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
 import { usePreferencesContext } from '~/providers/Preferences'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
+import { useNavigate } from 'react-router-dom'
 
 async function openModelPath() {
 	const dst = await path.appLocalDataDir()
@@ -45,12 +46,21 @@ export function viewModel() {
 	const { t } = useTranslation()
 	const listenersRef = useRef<UnlistenFn[]>([])
 	const isMountedRef = useRef<boolean>(false)
+	const [downloadURL, setDownloadURL] = useState('')
+	const navigate = useNavigate()
 
 	async function askAndReset() {
 		const yes = await ask(t('common.reset-ask-dialog'), { kind: 'info' })
 		if (yes) {
 			resetApp()
 		}
+	}
+
+	async function downloadModel() {
+		if (!downloadModel) {
+			return
+		}
+		navigate('/setup', { state: { downloadURL } })
 	}
 
 	async function loadMeta() {
@@ -107,6 +117,9 @@ export function viewModel() {
 	}, [])
 
 	return {
+		downloadModel,
+		downloadURL,
+		setDownloadURL,
 		preferences,
 		askAndReset,
 		openModelPath,

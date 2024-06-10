@@ -1,11 +1,12 @@
 import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { usePreferencesContext } from '~/providers/Preferences'
 
 export function viewModel() {
+	const location = useLocation()
 	const [downloadProgress, setDownloadProgress] = useState(0)
 	const [isOnline, setIsOnline] = useState<boolean | null>(null)
 	const downloadProgressRef = useRef(0)
@@ -31,9 +32,15 @@ export function viewModel() {
 	async function downloadModel() {
 		handleProgressEvenets()
 		try {
-			const path = await invoke('download_model')
-			preferences.setModelPath(path as string)
-			navigate('/')
+			if (location.state.downloadURL) {
+				const path = await invoke('download_model', { url: location.state.downloadURL })
+				preferences.setModelPath(path as string)
+				navigate('/')
+			} else {
+				const path = await invoke('download_model')
+				preferences.setModelPath(path as string)
+				navigate('/')
+			}
 		} catch (error) {
 			console.error(error)
 			setErrorModal?.({ open: true, log: String(error) })

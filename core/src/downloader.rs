@@ -1,4 +1,4 @@
-use eyre::{Context, Ok, OptionExt, Result};
+use eyre::{bail, Context, OptionExt, Result};
 use futures_util::StreamExt;
 use reqwest;
 use std::clone::Clone;
@@ -7,6 +7,28 @@ use std::path::PathBuf;
 
 pub struct Downloader {
     client: reqwest::Client,
+}
+
+pub async fn get_filename(url: &str) -> Result<String> {
+    let client = reqwest::Client::new();
+
+    let response = client.head(url).send().await?;
+
+    if let Some(content_disposition) = response.headers().get("Content-Disposition") {
+        let content_disposition = content_disposition.to_str();
+        if let Ok(content_disposition) = content_disposition {
+            let parts: Vec<&str> = content_disposition.split(';').collect();
+            for part in parts {
+                let part = part.trim();
+                if part.starts_with("filename=") {
+                    let filename = part.trim_start_matches("filename=").trim_matches('"');
+                    return Ok(filename.to_string());
+                }
+            }
+        }
+    }
+
+    bail!("Filename not found in headers")
 }
 
 impl Downloader {

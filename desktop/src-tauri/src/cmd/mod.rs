@@ -92,10 +92,16 @@ pub fn get_x86_features() -> Option<Value> {
         None
     }
 }
-
 #[tauri::command]
-pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
-    let model_path = vibe::config::get_model_path()?;
+pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -> Result<String> {
+    let model_path = if let Some(url) = url.clone() {
+        let filename = vibe::downloader::get_filename(&url).await?;
+        log::debug!("url filename is {}", filename);
+        vibe::config::get_models_folder().unwrap().join(filename)
+    } else {
+        vibe::config::get_model_path()?
+    };
+
     let mut downloader = vibe::downloader::Downloader::new();
     log::debug!("Download model invoked! with path {}", model_path.display());
 
@@ -135,8 +141,9 @@ pub async fn download_model(app_handle: tauri::AppHandle) -> Result<String> {
         }
     };
 
+    let download_url = if let Some(url) = url { url } else { config::URL.into() };
     downloader
-        .download(config::URL, model_path.to_owned(), download_progress_callback)
+        .download(&download_url, model_path.to_owned(), download_progress_callback)
         .await?;
     set_progress_bar(&app_handle_c, None).unwrap();
     Ok(model_path.to_str().context("to_str")?.to_string())
