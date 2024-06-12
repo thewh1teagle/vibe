@@ -87,6 +87,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 						value={vm.downloadURL}
 						onChange={(event) => vm.setDownloadURL(event.target.value)}
 						placeholder={t('common.paste-model-link')}
+						onKeyDown={(event) => (event.key === 'Enter' ? vm.downloadModel() : null)}
 					/>
 					<svg
 						onClick={vm.downloadModel}

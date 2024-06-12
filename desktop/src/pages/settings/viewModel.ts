@@ -57,7 +57,7 @@ export function viewModel() {
 	}
 
 	async function downloadModel() {
-		if (!downloadModel) {
+		if (!downloadURL) {
 			return
 		}
 		navigate('/setup', { state: { downloadURL } })

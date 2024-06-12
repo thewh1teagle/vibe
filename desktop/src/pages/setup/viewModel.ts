@@ -77,5 +77,6 @@ export function viewModel() {
 		setDownloadProgress,
 		downloadProgressRef,
 		isOnline,
+		location
 	}
 }

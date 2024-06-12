@@ -11,7 +11,7 @@ function App() {
 			{vm.downloadProgress > 0 && (
 				<>
 					<progress className="progress progress-primary w-56 my-2" value={vm.downloadProgress} max="100"></progress>
-					<p>{t('common.this-happens-once')}</p>
+					{!vm?.location?.state?.downloadURL && <p>{t('common.this-happens-once')}</p>}
 				</>
 			)}
 			{(vm.downloadProgress === 0 || vm.isOnline === null) && <span className="loading loading-spinner loading-lg"></span>}
