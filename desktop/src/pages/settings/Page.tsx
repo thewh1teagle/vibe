@@ -139,7 +139,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					{t('common.report-issue')}
 					<GithubIcon className="w-4 h-4" />
 				</button>
-				<button onMouseDown={() => shell.open(config.sponsorURL)} className="btn bg-base-300 text-base-content">
+				<button onMouseDown={() => shell.open(config.supportVibeURL)} className="btn bg-base-300 text-base-content">
 					{t('common.support-the-project')}
 					<HeartIcon fill="#db61a2" className="w-4 h-4 stroke-2" />
 				</button>

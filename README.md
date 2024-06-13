@@ -20,7 +20,7 @@
     🔗 Download Vibe
   </a>
     &nbsp; | &nbsp; Give it a Star ⭐ | &nbsp;
-    <a target="_blank" href="https://github.com/sponsors/thewh1teagle">Support the project 🤝</a>
+    <a target="_blank" href="https://ko-fi.com/thewh1teagle">Support the project 🤝</a>
 </p>
 
 <hr />
@@ -55,7 +55,8 @@
 -   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
 -   👥 ~Speaker diarization~ (coming soon)
 -   📱 ~iOS & Android support~ (coming soon)
--   
+-
+
 # Supported platforms 🖥️
 
 `MacOS`
