@@ -80,6 +80,7 @@
 		"shell:allow-open",
 		"fs:default",
 		"fs:allow-exists",
-		"deep-link:allow-get-current"
+		"deep-link:allow-get-current",
+		"deep-link:default"
 	]
 }

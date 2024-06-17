@@ -4,7 +4,6 @@
 mod cli;
 mod cmd;
 mod config;
-mod deep_link;
 mod panic_hook;
 mod setup;
 mod utils;
@@ -15,7 +14,14 @@ mod dock;
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
 mod x86_features;
 
+use tauri::Manager;
 use tauri_plugin_window_state::StateFlags;
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+    args: Vec<String>,
+    cwd: String,
+}
 
 fn main() {
     // Attach console in Windows:
@@ -32,6 +38,11 @@ fn main() {
                 .with_state_flags(!StateFlags::VISIBLE)
                 .build(),
         )
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+            println!("{}, {argv:?}, {cwd}", app.package_info().name);
+
+            app.emit("single-instance", Payload { args: argv, cwd }).unwrap();
+        }))
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
@@ -51,8 +62,6 @@ fn main() {
             cmd::get_save_path,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
-            #[cfg(any(windows, target_os = "linux"))]
-            cmd::get_deeplinks
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
