@@ -121,7 +121,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 					&config.into(),
 					move |data, _: &_| {
 						log::debug!("Writing input data (I8)");
-						write_input_data::<i8, i8>(data, &writer_2, volume_factor.into())
+						write_input_data::<i8, i8>(data, &writer_2, volume_factor)
 					},
 					err_fn,
 					None,
