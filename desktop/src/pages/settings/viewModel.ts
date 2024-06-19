@@ -1,5 +1,4 @@
 import { path } from '@tauri-apps/api'
-import * as app from '@tauri-apps/api/app'
 import { invoke } from '@tauri-apps/api/core'
 import { ask } from '@tauri-apps/plugin-dialog'
 import * as shell from '@tauri-apps/plugin-shell'

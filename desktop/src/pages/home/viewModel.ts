@@ -3,10 +3,8 @@ import { event, path } from '@tauri-apps/api'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import * as webview from '@tauri-apps/api/webviewWindow'
-import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
-import * as os from '@tauri-apps/plugin-os'
 import { open } from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -15,6 +13,8 @@ import { TextFormat } from '~/components/FormatSelect'
 import { AudioDevice } from '~/lib/audio'
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
+import { useDeepLinks } from '~/lib/useDeepLinks'
+import { useSingleInstance } from '~/lib/useSingleInstance'
 import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
 import { getX86Features } from '~/lib/x86Features'
 import { ErrorModalContext } from '~/providers/ErrorModal'
@@ -44,7 +44,8 @@ export function viewModel() {
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
-
+	useDeepLinks({ files, setFiles })
+	useSingleInstance({files, setFiles})
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -159,31 +160,6 @@ export function viewModel() {
 		})
 	}
 
-	async function handleDeepLinks() {
-		const platform = await os.platform()
-		const newFiles = []
-		if (platform === 'macos') {
-			await onOpenUrl(async (urls) => {
-				for (let url of urls) {
-					if (url.startsWith('file://')) {
-						url = decodeURIComponent(url)
-						url = url.replace('file://', '')
-						// take only the first one
-						newFiles.push(await pathToNamedPath(url))
-					}
-				}
-			})
-		} else if (platform == 'windows' || platform == 'linux') {
-			const urls: string[] = await invoke('get_deeplinks')
-			for (const url of urls) {
-				newFiles.push(await pathToNamedPath(url))
-			}
-		}
-		setFiles([...files, ...newFiles])
-		if (newFiles.length > 1) {
-			navigate('/batch', { state: { files: newFiles } })
-		}
-	}
 
 	async function CheckCpuAndInit() {
 		const features = await getX86Features()
@@ -207,7 +183,6 @@ export function viewModel() {
 		}
 
 		handleDrop()
-		handleDeepLinks()
 		checkModelExists()
 		handleNewSegment()
 		handleRecordFinish()

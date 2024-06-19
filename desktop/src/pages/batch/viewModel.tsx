@@ -14,6 +14,9 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as os from '@tauri-apps/plugin-os'
 import { usePreferencesContext } from '~/providers/Preferences'
+import { useTranslation } from 'react-i18next'
+import { useDeepLinks } from '~/lib/useDeepLinks'
+import { useSingleInstance } from '~/lib/useSingleInstance'
 
 export function viewModel() {
 	const location = useLocation()
@@ -27,6 +30,9 @@ export function viewModel() {
 	const preferences = usePreferencesContext()
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
+	useDeepLinks({ files, setFiles })
+	useSingleInstance({ files, setFiles })
+	const { t } = useTranslation()
 
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {
@@ -91,42 +97,6 @@ export function viewModel() {
 				navigate('/', { state: { files: newFiles } })
 			}
 		})
-	}
-
-	async function handleDeepLinks() {
-		const platform = await os.platform()
-		let newFiles = []
-		if (platform === 'macos') {
-			await onOpenUrl(async (urls) => {
-				for (let url of urls) {
-					if (url.startsWith('file://')) {
-						url = decodeURIComponent(url)
-						url = url.replace('file://', '')
-						// take only the first one
-						newFiles.push(await pathToNamedPath(url))
-					}
-				}
-			})
-		} else if (platform == 'windows' || platform == 'linux') {
-			const urls: string[] = await invoke('get_deeplinks')
-			for (const url of urls) {
-				newFiles.push(await pathToNamedPath(url))
-			}
-		}
-		newFiles = newFiles.filter((f) => {
-			const path = f.path.toLowerCase()
-			return (
-				config.videoExtensions.some((ext) => path.endsWith(ext.toLowerCase())) ||
-				config.audioExtensions.some((ext) => path.endsWith(ext.toLowerCase())) ||
-				files.includes(f)
-			)
-		})
-		if (newFiles.length > 1) {
-			setFiles(newFiles)
-		}
-		if (newFiles.length === 1) {
-			navigate('/', { state: { files: newFiles } })
-		}
 	}
 
 	async function start() {
@@ -200,7 +170,6 @@ export function viewModel() {
 	}
 
 	useEffect(() => {
-		handleDeepLinks()
 		handleDrop()
 		ListenForProgress()
 	}, [])
