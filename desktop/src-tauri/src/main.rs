@@ -32,7 +32,7 @@ fn main() {
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             app.get_webview_window("main").unwrap().set_focus().unwrap();
             log::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
-            app.emit("single-instance", argv);
+            app.emit("single-instance", argv).unwrap();
         }))
         .setup(|app| setup::setup(app))
         .plugin(
