@@ -1,6 +1,7 @@
 use crate::config;
-use eyre::{Context, ContextCompat, OptionExt, Result};
+use eyre::{bail, Context, ContextCompat, OptionExt, Result};
 use serde_json::{json, Value};
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -56,22 +57,6 @@ fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Res
         })?;
     }
     Ok(())
-}
-
-#[tauri::command]
-#[cfg(any(windows, target_os = "linux"))]
-pub fn get_deeplinks(app_handle: tauri::AppHandle) -> Vec<String> {
-    let opened_urls = app_handle.state::<crate::deep_link::OpenedUrls>();
-    let opened_urls = opened_urls.0.lock().unwrap();
-    let mut urls = Vec::new();
-
-    if let Some(opened_urls) = &*opened_urls {
-        for url in opened_urls {
-            urls.push(url.to_string());
-        }
-    }
-
-    urls
 }
 
 #[tauri::command]
@@ -188,15 +173,25 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Tra
         set_progress_bar(&app_handle, Some(progress.into())).unwrap();
     };
 
-    let transcript = vibe::model::transcribe(
-        &options,
-        Some(Box::new(progress_callback)),
-        Some(Box::new(new_segment_callback)),
-        Some(Box::new(abort_callback)),
-    )
-    .with_context(|| format!("options: {:?}", options))?;
+    // prevent panic crash. sometimes whisper.cpp crash without nice errors.
+    let unwind_result = catch_unwind(AssertUnwindSafe(|| {
+        vibe::model::transcribe(
+            &options,
+            Some(Box::new(progress_callback)),
+            Some(Box::new(new_segment_callback)),
+            Some(Box::new(abort_callback)),
+        )
+    }));
     set_progress_bar(&app_handle_c, None).unwrap();
-    Ok(transcript)
+    match unwind_result {
+        Err(error) => {
+            bail!("transcribe crash: {:?}", error)
+        }
+        Ok(transcribe_result) => {
+            let transcript = transcribe_result.with_context(|| format!("options: {:?}", options))?;
+            Ok(transcript)
+        }
+    }
 }
 
 #[tauri::command]
@@ -237,6 +232,11 @@ pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
 }
 
 #[tauri::command]
+pub fn get_argv() -> Vec<String> {
+    std::env::args().collect()
+}
+
+#[tauri::command]
 /// Opens folder or open folder of a file
 pub async fn open_path(path: PathBuf) -> Result<()> {
     if path.is_file() {
@@ -245,4 +245,15 @@ pub async fn open_path(path: PathBuf) -> Result<()> {
         open::that(path)?;
     }
     Ok(())
+}
+
+#[tauri::command]
+pub fn get_cuda_version() -> String {
+    env!("CUDA_VERSION").to_string()
+}
+
+#[tauri::command]
+pub fn is_avx2_enabled() -> bool {
+    #[allow(clippy::comparison_to_empty)]
+    return env!("WHISPER_NO_AVX") != "ON";
 }

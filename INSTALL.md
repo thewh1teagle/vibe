@@ -80,3 +80,13 @@ Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.
 Some CPUs aren't support some features used by Whisper.
 
 Please try to download and install the release file named with `older-cpu.exe`: [Vibe releases](https://github.com/thewh1teagle/vibe/releases/latest)
+
+## Link to download model
+
+You can add links to your websites for letting users download your models easily from your website directly to vibe.
+
+The URL should be like
+
+```
+vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true
+```
