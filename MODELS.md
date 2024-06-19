@@ -29,3 +29,9 @@ This specialized model is designed for processing Hebrew (Ivrit) language data. 
 [👉 Download ggml-ivrit-v2-d3-e3](https://tinyurl.com/yckxca25)
 
 Enjoy exploring these models and enhancing your applications with Vibe! 🌐✨
+
+Want More?
+
+If you’re looking for additional models, you can find a wide variety on the following page:
+
+[👉 See More Models Here](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
