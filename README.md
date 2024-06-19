@@ -55,7 +55,7 @@
 -   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
 -   👥 ~Speaker diarization~ (coming soon)
 -   📱 ~iOS & Android support~ (coming soon)
--
+-   📥 Custom Model Integration: Easily integrate models hosted on your own website by providing their URL in this format: `vibe://download/?url=<your_model_url>`
 
 # Supported platforms 🖥️
 
