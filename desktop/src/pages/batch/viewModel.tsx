@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, pathToNamedPath } from '~/lib/utils'
@@ -12,12 +12,11 @@ import { ErrorModalContext } from '~/providers/ErrorModal'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
 import { usePreferencesContext } from '~/providers/Preferences'
-import { useDeepLinks } from '~/lib/useDeepLinks'
-import { useSingleInstance } from '~/lib/useSingleInstance'
+import { useFilesContext } from '~/providers/FilesProvider'
 
 export function viewModel() {
-	const location = useLocation()
-	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files)
+	const { files, setFiles } = useFilesContext()
+
 	const [format, setFormat] = useState<TextFormat>('normal')
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [progress, setProgress] = useState<number | null>(null)
@@ -27,8 +26,6 @@ export function viewModel() {
 	const preferences = usePreferencesContext()
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
-	useDeepLinks({ files, setFiles })
-	useSingleInstance({ files, setFiles })
 
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {

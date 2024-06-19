@@ -9,11 +9,10 @@ import * as os from '@tauri-apps/plugin-os'
 import { invoke } from '@tauri-apps/api/core'
 
 interface UseDeepLinksProps {
-	files: NamedPath[]
 	setFiles: ModifyState<NamedPath[]>
 }
 
-export function useDeepLinks({ files: _files, setFiles }: UseDeepLinksProps) {
+export function useDeepLinks({ setFiles }: UseDeepLinksProps) {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 
@@ -21,12 +20,13 @@ export function useDeepLinks({ files: _files, setFiles }: UseDeepLinksProps) {
 		const newFiles: NamedPath[] = []
 		for (let url of urls) {
 			if (url.startsWith('vibe://download/?url=')) {
-				const host = new URL(url).hostname
+				const downloadURL = url.replace('vibe://download/?url=', '')
+				const host = new URL(downloadURL).hostname
 				const confirm = await ask(`${t('common.ask-for-download-model')} ${host}`, { kind: 'info', title: t('common.download-model') })
 				if (confirm) {
-					const downloadURL = url.replace('vibe://download/?url=', '')
 					navigate('/setup', { state: { downloadURL } })
 				}
+				break
 			} else if (config.videoExtensions.some((e) => url.endsWith(e)) || config.audioExtensions.some((e) => url.endsWith(e))) {
 				url = url.replace('file://', '')
 				url = decodeURIComponent(url)

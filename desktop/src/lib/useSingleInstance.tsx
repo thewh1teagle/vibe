@@ -5,31 +5,34 @@ import { useEffect } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import * as config from '~/lib/config'
+import * as os from '@tauri-apps/plugin-os'
 
 interface UseSingleInstanceProps {
-	files: NamedPath[]
 	setFiles: ModifyState<NamedPath[]>
 }
 
-export function useSingleInstance({ files, setFiles }: UseSingleInstanceProps) {
+export function useSingleInstance({ setFiles }: UseSingleInstanceProps) {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 
 	async function handleSingleInstance() {
+		const platform = await os.platform()
 		await listen<string[]>('single-instance', async (event) => {
 			const argv = event.payload
 			let action = argv?.[1]
 
 			// vibe://download/?url=google.com
-			if (action && action.startsWith('vibe://download/?')) {
+			// already handled in deep links in macos
+			if (action && action.startsWith('vibe://download/?') && platform != 'macos') {
 				const params = new URLSearchParams(action.replace('vibe://download/?', ''))
 				const url = params.get('url')
 				if (url) {
+					const downloadURL = url.replace('vibe://download/?url=', '')
 					const hostname = new URL(url).hostname
 					const confirm = await ask(`${t('common.ask-for-download-model')} ${hostname}?`, { title: t('common.download-model'), kind: 'info' })
 					if (confirm) {
 						console.log('downloading from ', url)
-						navigate('/setup', { state: { downloadURL: url } })
+						navigate('/setup', { state: { downloadURL } })
 					}
 				}
 			}
@@ -41,7 +44,7 @@ export function useSingleInstance({ files, setFiles }: UseSingleInstanceProps) {
 				}
 			}
 			if (newFiles) {
-				setFiles([...files, ...newFiles])
+				setFiles([...newFiles])
 			}
 		})
 	}
