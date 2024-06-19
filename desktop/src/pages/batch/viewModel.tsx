@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, pathToNamedPath } from '~/lib/utils'
@@ -11,13 +11,12 @@ import successSound from '~/assets/success.mp3'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
-import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
-import * as os from '@tauri-apps/plugin-os'
 import { usePreferencesContext } from '~/providers/Preferences'
+import { useFilesContext } from '~/providers/FilesProvider'
 
 export function viewModel() {
-	const location = useLocation()
-	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files)
+	const { files, setFiles } = useFilesContext()
+
 	const [format, setFormat] = useState<TextFormat>('normal')
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [progress, setProgress] = useState<number | null>(null)
@@ -93,42 +92,6 @@ export function viewModel() {
 		})
 	}
 
-	async function handleDeepLinks() {
-		const platform = await os.platform()
-		let newFiles = []
-		if (platform === 'macos') {
-			await onOpenUrl(async (urls) => {
-				for (let url of urls) {
-					if (url.startsWith('file://')) {
-						url = decodeURIComponent(url)
-						url = url.replace('file://', '')
-						// take only the first one
-						newFiles.push(await pathToNamedPath(url))
-					}
-				}
-			})
-		} else if (platform == 'windows' || platform == 'linux') {
-			const urls: string[] = await invoke('get_deeplinks')
-			for (const url of urls) {
-				newFiles.push(await pathToNamedPath(url))
-			}
-		}
-		newFiles = newFiles.filter((f) => {
-			const path = f.path.toLowerCase()
-			return (
-				config.videoExtensions.some((ext) => path.endsWith(ext.toLowerCase())) ||
-				config.audioExtensions.some((ext) => path.endsWith(ext.toLowerCase())) ||
-				files.includes(f)
-			)
-		})
-		if (newFiles.length > 1) {
-			setFiles(newFiles)
-		}
-		if (newFiles.length === 1) {
-			navigate('/', { state: { files: newFiles } })
-		}
-	}
-
 	async function start() {
 		if (inProgress) {
 			return
@@ -200,7 +163,6 @@ export function viewModel() {
 	}
 
 	useEffect(() => {
-		handleDeepLinks()
 		handleDrop()
 		ListenForProgress()
 	}, [])

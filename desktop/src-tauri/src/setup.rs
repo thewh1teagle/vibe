@@ -1,4 +1,4 @@
-use crate::{cli, deep_link, panic_hook};
+use crate::{cli, panic_hook};
 use tauri::{App, Manager};
 
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
@@ -8,6 +8,13 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Log some useful data
     if let Ok(version) = tauri::webview_version() {
         log::debug!("webview version: {}", version);
+    }
+
+    #[cfg(windows)]
+    {
+        if let Err(error) = crate::register_custom_protocol::register() {
+            log::error!("{:?}", error);
+        }
     }
 
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
@@ -22,9 +29,6 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     log::debug!("CPU feature detection is not supported on this architecture.");
 
     log::debug!("COMMIT_HASH: {}", env!("COMMIT_HASH"));
-
-    // Add deep links from argv as tauri::State
-    deep_link::create_state(app);
 
     if cli::is_cli_detected() {
         cli::run(app);
