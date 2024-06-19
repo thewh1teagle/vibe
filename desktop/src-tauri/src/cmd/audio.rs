@@ -179,7 +179,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             let stream = stream_handle.lock().unwrap().take();
             let writer = stream_writers[i].clone();
 
-			
+
 			if let Some(stream) = stream {
 				log::debug!("Pausing stream");
 				stream.0.pause().unwrap();
@@ -189,7 +189,6 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 				wav_paths[i] = (wav_paths[i].0.clone(), written);
 				writer.finalize().unwrap();
 			}
-			
         }
 
 		#[cfg(target_os = "macos")]
@@ -210,7 +209,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             log::debug!("Merging WAV files");
             vibe::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).unwrap();
             dst
-        } 
+        }
         else if wav_paths[0].1 > wav_paths[1].1 {
             // First WAV file has a larger sample count, choose it
             wav_paths[0].0.clone()
