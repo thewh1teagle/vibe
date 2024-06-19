@@ -22,6 +22,12 @@ For tasks that require high accuracy and can afford more computational resources
 
 [👉 Download ggml-large-v3](https://tinyurl.com/3cn846h8)
 
+### 🌿 Small Model
+
+A small yet capable model for various tasks requiring a balance of efficiency and performance.
+
+[👉 Download ggml-small](https://shorturl.at/EmJS8)
+
 ### ✡️ Ivrit Model (v2 d3 e3)
 
 This specialized model is designed for processing Hebrew (Ivrit) language data. It’s optimized for tasks involving Hebrew and ensures high accuracy for language-specific applications.
