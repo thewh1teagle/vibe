@@ -1,6 +1,7 @@
 use crate::config;
-use eyre::{Context, ContextCompat, OptionExt, Result};
+use eyre::{bail, Context, ContextCompat, OptionExt, Result};
 use serde_json::{json, Value};
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -188,15 +189,25 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Tra
         set_progress_bar(&app_handle, Some(progress.into())).unwrap();
     };
 
-    let transcript = vibe::model::transcribe(
-        &options,
-        Some(Box::new(progress_callback)),
-        Some(Box::new(new_segment_callback)),
-        Some(Box::new(abort_callback)),
-    )
-    .with_context(|| format!("options: {:?}", options))?;
+    // prevent panic crash. sometimes whisper.cpp crash without nice errors.
+    let unwind_result = catch_unwind(AssertUnwindSafe(|| {
+        vibe::model::transcribe(
+            &options,
+            Some(Box::new(progress_callback)),
+            Some(Box::new(new_segment_callback)),
+            Some(Box::new(abort_callback)),
+        )
+    }));
     set_progress_bar(&app_handle_c, None).unwrap();
-    Ok(transcript)
+    match unwind_result {
+        Err(error) => {
+            bail!("transcribe crash: {:?}", error)
+        }
+        Ok(transcribe_result) => {
+            let transcript = transcribe_result.with_context(|| format!("options: {:?}", options))?;
+            Ok(transcript)
+        }
+    }
 }
 
 #[tauri::command]
