@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
-import { Segment, Transcript, asSrt, asText, asVtt } from '~/lib/transcript'
+import { Segment, Transcript, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, pathToNamedPath } from '~/lib/utils'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
@@ -34,6 +34,9 @@ export function viewModel() {
 		}
 		if (format === 'vtt') {
 			return asVtt(segments)
+		}
+		if (format === 'json') {
+			return asJson(segments)
 		}
 		return asText(segments)
 	}
