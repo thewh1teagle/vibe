@@ -232,6 +232,11 @@ pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
 }
 
 #[tauri::command]
+pub fn get_argv() -> Vec<String> {
+    std::env::args().collect()
+}
+
+#[tauri::command]
 /// Opens folder or open folder of a file
 pub async fn open_path(path: PathBuf) -> Result<()> {
     if path.is_file() {

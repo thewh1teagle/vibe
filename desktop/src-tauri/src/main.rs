@@ -59,6 +59,7 @@ fn main() {
             cmd::open_path,
             cmd::get_x86_features,
             cmd::get_save_path,
+            cmd::get_argv,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
         ])

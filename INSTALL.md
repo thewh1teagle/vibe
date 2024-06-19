@@ -88,5 +88,5 @@ You can add links to your websites for letting users download your models easily
 The URL should be like
 
 ```
-vibe://download/?url=https://huggingface.co/ivrit-ai/whisper-v2-d3-e3
+vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true
 ```
