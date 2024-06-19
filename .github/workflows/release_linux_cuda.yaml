@@ -54,6 +54,8 @@ jobs:
             # Run pre build
             - name: Run pre_build.js
               run: bun scripts/pre_build.js --nvidia
+              env:
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda_version }}
 
             - name: Build
               uses: tauri-apps/tauri-action@v0

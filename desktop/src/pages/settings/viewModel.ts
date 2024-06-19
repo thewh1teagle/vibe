@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
-import { NamedPath, getAppInfo, getIssueUrl, ls, resetApp } from '~/lib/utils'
+import { NamedPath, getAppInfo, getIssueUrl, getPrettyVersion, ls, resetApp } from '~/lib/utils'
 import { usePreferencesContext } from '~/providers/Preferences'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
@@ -65,9 +65,8 @@ export function viewModel() {
 
 	async function loadMeta() {
 		try {
-			const name = await app.getName()
-			const ver = await app.getVersion()
-			setAppVersion(`${name} ${ver}`)
+			const prettyVersion = await getPrettyVersion()
+			setAppVersion(prettyVersion)
 		} catch (e) {
 			console.error(e)
 		}
