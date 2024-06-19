@@ -28,7 +28,7 @@ This specialized model is designed for processing Hebrew (Ivrit) language data. 
 
 [👉 Download ggml-ivrit-v2-d3-e3](https://tinyurl.com/yckxca25)
 
-Enjoy exploring these models and enhancing your applications with Vibe! 🌐✨
+Enjoy exploring these models and enhancing your Vibe! 🌐✨
 
 Want More?
 
