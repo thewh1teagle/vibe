@@ -19,7 +19,7 @@
   <a target="_blank" href="https://thewh1teagle.github.io/vibe/">
     🔗 Baixar o Vibe
   </a>
-    &nbsp; | &nbsp; Give it a Star ⭐ | &nbsp;
+    &nbsp; | &nbsp; Dê uma estrela ⭐ | &nbsp;
     <a target="_blank" href="https://ko-fi.com/thewh1teagle">Apoie o projeto  🤝</a>
 </p>
 
