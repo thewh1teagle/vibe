@@ -31,7 +31,6 @@ export function useSingleInstance({ setFiles }: UseSingleInstanceProps) {
 					const hostname = new URL(url).hostname
 					const confirm = await ask(`${t('common.ask-for-download-model')} ${hostname}?`, { title: t('common.download-model'), kind: 'info' })
 					if (confirm) {
-						console.log('downloading from ', url)
 						navigate('/setup', { state: { downloadURL } })
 					}
 				}
