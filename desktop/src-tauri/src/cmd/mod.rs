@@ -59,6 +59,22 @@ fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Res
 }
 
 #[tauri::command]
+#[cfg(any(windows, target_os = "linux"))]
+pub fn get_deeplinks(app_handle: tauri::AppHandle) -> Vec<String> {
+    let opened_urls = app_handle.state::<crate::deep_link::OpenedUrls>();
+    let opened_urls = opened_urls.0.lock().unwrap();
+    let mut urls = Vec::new();
+
+    if let Some(opened_urls) = &*opened_urls {
+        for url in opened_urls {
+            urls.push(url.to_string());
+        }
+    }
+
+    urls
+}
+
+#[tauri::command]
 pub fn get_commit_hash() -> String {
     env!("COMMIT_HASH").to_string()
 }

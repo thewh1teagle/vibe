@@ -78,14 +78,6 @@
 			"endpoints": [
 				"https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
 			]
-		},
-		"deep-link": {
-			"mobile": [],
-			"desktop": {
-				"schemes": [
-					"vibe"
-				]
-			}
 		}
 	}
 }
