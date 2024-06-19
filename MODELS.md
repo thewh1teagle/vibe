@@ -30,7 +30,7 @@ This specialized model is designed for processing Hebrew (Ivrit) language data. 
 
 Enjoy exploring these models and enhancing your Vibe! 🌐✨
 
-Want More?
+### Want More?
 
 If you’re looking for additional models, you can find a wide variety on the following page:
 
