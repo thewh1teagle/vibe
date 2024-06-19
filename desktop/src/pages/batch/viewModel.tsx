@@ -11,10 +11,7 @@ import successSound from '~/assets/success.mp3'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
-import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
-import * as os from '@tauri-apps/plugin-os'
 import { usePreferencesContext } from '~/providers/Preferences'
-import { useTranslation } from 'react-i18next'
 import { useDeepLinks } from '~/lib/useDeepLinks'
 import { useSingleInstance } from '~/lib/useSingleInstance'
 
@@ -32,7 +29,6 @@ export function viewModel() {
 	const navigate = useNavigate()
 	useDeepLinks({ files, setFiles })
 	useSingleInstance({ files, setFiles })
-	const { t } = useTranslation()
 
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {

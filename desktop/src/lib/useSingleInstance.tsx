@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { ModifyState, NamedPath } from './utils'
 import { ask } from '@tauri-apps/plugin-dialog'
-import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { listen } from '@tauri-apps/api/event'
 
@@ -12,7 +11,6 @@ interface UseSingleInstanceProps {
 
 export function useSingleInstance({ files: _files, setFiles: _setFiles }: UseSingleInstanceProps) {
 	const { t } = useTranslation()
-	const navigate = useNavigate()
 
 	async function handleSingleInstance() {
 		await listen<string[]>('single-instance', async (event) => {
