@@ -1,86 +1,85 @@
 {
-	"$schema": "../gen/schemas/desktop-schema.json",
-	"identifier": "migrated",
-	"description": "permissions that were migrated from v1",
-	"local": true,
-	"windows": [
-		"main"
-	],
-	"permissions": [
-		{
-			"identifier": "fs:scope",
-			"allow": [
-				{
-					"path": "**",
-					"requireLiteralLeadingDot": false
-				},
-				{
-					"path": "$HOME/**",
-					"requireLiteralLeadingDot": false
-				},
-				{
-					"path": "$APPCONFIG/**",
-					"requireLiteralLeadingDot": false
-				},
-				{
-					"path": "$APPDATA/**",
-					"requireLiteralLeadingDot": false
-				},
-				{
-					"path": "$APPLOCALDATA/**",
-					"requireLiteralLeadingDot": false
-				},
-				{
-					"path": "$CONFIG/**",
-					"requireLiteralLeadingDot": false
-				},
-				{
-					"path": "$DATA/**",
-					"requireLiteralLeadingDot": false
-				}
-			]
-		},
-		"path:default",
-		"event:default",
-		"window:default",
-		"app:default",
-		"resources:default",
-		"menu:default",
-		"tray:default",
-		"fs:default",
-		"fs:allow-remove",
-		"fs:allow-read-dir",
-		"fs:allow-read-text-file",
-		"fs:allow-app-write",
-		"os:allow-arch",
-		"os:allow-platform",
-		"os:allow-version",
-		"os:allow-os-type",
-		"window:default",
-		"window:allow-unminimize",
-		"window:allow-set-focus",
-		"window:allow-close",
-		"window:allow-destroy",
-		"window:allow-show",
-		"window:allow-is-visible",
-		"window-state:allow-restore-state",
-		"window-state:allow-save-window-state",
-		"webview:default",
-		"webview:allow-print",
-		"dialog:default",
-		"dialog:allow-open",
-		"dialog:allow-save",
-		"dialog:allow-ask",
-		"dialog:allow-message",
-		"process:allow-restart",
-		"app:default",
-		"app:allow-version",
-		"app:allow-name",
-		"updater:default",
-		"shell:allow-open",
-		"fs:default",
-		"fs:allow-exists",
-		"deep-link:allow-get-current",
-		"deep-link:default"
-	]
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "migrated",
+  "description": "permissions that were migrated from v1",
+  "local": true,
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$HOME/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$APPCONFIG/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$APPDATA/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$APPLOCALDATA/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$CONFIG/**",
+          "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$DATA/**",
+          "requireLiteralLeadingDot": false
+        }
+      ]
+    },
+    "path:default",
+    "event:default",
+    "window:default",
+    "app:default",
+    "resources:default",
+    "menu:default",
+    "tray:default",
+    "fs:default",
+    "fs:allow-remove",
+    "fs:allow-read-dir",
+    "fs:allow-read-text-file",
+    "fs:allow-app-write",
+    "os:allow-arch",
+    "os:allow-platform",
+    "os:allow-version",
+    "os:allow-os-type",
+    "window:default",
+    "window:allow-unminimize",
+    "window:allow-set-focus",
+    "window:allow-close",
+    "window:allow-destroy",
+    "window:allow-show",
+    "window:allow-is-visible",
+    "window-state:allow-restore-state",
+    "window-state:allow-save-window-state",
+    "webview:default",
+    "webview:allow-print",
+    "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "dialog:allow-ask",
+    "dialog:allow-message",
+    "process:allow-restart",
+    "app:default",
+    "app:allow-version",
+    "app:allow-name",
+    "updater:default",
+    "shell:allow-open",
+    "fs:default",
+    "fs:allow-exists",
+    "deep-link:allow-get-current"
+  ]
 }

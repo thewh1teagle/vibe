@@ -40,7 +40,11 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     for (device_index, device) in devices.enumerate() {
         let name = device.name()?;
         let is_default_in = default_in.as_ref().map_or(false, |d| d == &name);
-        let is_default_out = if cfg!(target_os = "macos") {false} else {default_out.as_ref().map_or(false, |d| d == &name)};
+        let is_default_out = if cfg!(target_os = "macos") {
+            false
+        } else {
+            default_out.as_ref().map_or(false, |d| d == &name)
+        };
 
         let is_input = device.default_input_config().is_ok();
 
@@ -53,8 +57,13 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
         audio_devices.push(audio_device);
     }
 
-	#[cfg(target_os = "macos")]
-	audio_devices.push(AudioDevice { is_default: true, is_input: false, id: "screencapturekit".to_string(), name: "Speakers".into() });
+    #[cfg(target_os = "macos")]
+    audio_devices.push(AudioDevice {
+        is_default: true,
+        is_input: false,
+        id: "screencapturekit".to_string(),
+        name: "Speakers".into(),
+    });
 
     Ok(audio_devices)
 }
@@ -73,98 +82,95 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
     let mut stream_handles = Vec::new();
     let mut stream_writers = Vec::new();
 
-	#[cfg(target_os = "macos")]
-	let mut screencapture_stream: Option<_> = None;
+    #[cfg(target_os = "macos")]
+    let mut screencapture_stream: Option<_> = None;
 
     for device in devices {
         log::debug!("Recording from device: {}", device.name);
         log::debug!("Device ID: {}", device.id);
 
         let is_input = device.is_input;
-		if device.id == "screencapturekit" {
-			#[cfg(target_os = "macos")]
-			{
-				let stream = screen_capture_kit::init();
-				let stream = Arc::new(stream);
-				screencapture_stream = Some(stream.clone());
-				screen_capture_kit::start_capture(&stream);
-			}
+        if device.id == "screencapturekit" {
+            #[cfg(target_os = "macos")]
+            {
+                let stream = screen_capture_kit::init();
+                let stream = Arc::new(stream);
+                screencapture_stream = Some(stream.clone());
+                screen_capture_kit::start_capture(&stream);
+            }
+        } else {
+            let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
+            let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+            let config = if is_input {
+                device.default_input_config().context("Failed to get default input config")?
+            } else {
+                device.default_output_config().context("Failed to get default input config")?
+            };
+            let spec = wav_spec_from_config(&config);
 
-			
-		} else {
-			let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
-			let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
-			let config = if is_input {
-				device.default_input_config().context("Failed to get default input config")?
-			} else {
-				device.default_output_config().context("Failed to get default input config")?
-			};
-			let spec = wav_spec_from_config(&config);
-	
-			let path = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
-			log::debug!("WAV file path: {:?}", path);
-			wav_paths.push((path.clone(), 0));
-	
-			let writer = hound::WavWriter::create(path.clone(), spec)?;
-			let writer = Arc::new(Mutex::new(Some(writer)));
-			stream_writers.push(writer.clone());
-			let writer_2 = writer.clone();
-	
-			let err_fn = move |err| {
-				log::error!("An error occurred on stream: {}", err);
-			};
+            let path = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
+            log::debug!("WAV file path: {:?}", path);
+            wav_paths.push((path.clone(), 0));
 
-            let volume_factor = if cfg!(windows) {3} else {1};
-	
-			let stream = match config.sample_format() {
-				cpal::SampleFormat::I8 => device.build_input_stream(
-					&config.into(),
-					move |data, _: &_| {
-						log::debug!("Writing input data (I8)");
-						write_input_data::<i8, i8>(data, &writer_2, volume_factor.into())
-					},
-					err_fn,
-					None,
-				)?,
-				cpal::SampleFormat::I16 => device.build_input_stream(
-					&config.into(),
-					move |data, _: &_| {
-						log::debug!("Writing input data (I16)");
-						write_input_data::<i16, i16>(data, &writer_2, volume_factor.into())
-					},
-					err_fn,
-					None,
-				)?,
-				cpal::SampleFormat::I32 => device.build_input_stream(
-					&config.into(),
-					move |data, _: &_| {
-						log::debug!("Writing input data (I32)");
-						write_input_data::<i32, i32>(data, &writer_2, volume_factor.into())
-					},
-					err_fn,
-					None,
-				)?,
-				cpal::SampleFormat::F32 => device.build_input_stream(
-					&config.into(),
-					move |data, _: &_| {
-						log::debug!("Writing input data (F32)");
-						write_input_data::<f32, f32>(data, &writer_2, volume_factor.into())
-					},
-					err_fn,
-					None,
-				)?,
-				sample_format => {
-					bail!("Unsupported sample format '{}'", sample_format)
-				}
-			};
-			stream.play()?;
-			log::debug!("Stream started playing");
-	
-			let stream_handle = Arc::new(Mutex::new(Some(StreamHandle(stream))));
-			stream_handles.push(stream_handle.clone());
-			log::debug!("Stream handle created");
-		}
-       
+            let writer = hound::WavWriter::create(path.clone(), spec)?;
+            let writer = Arc::new(Mutex::new(Some(writer)));
+            stream_writers.push(writer.clone());
+            let writer_2 = writer.clone();
+
+            let err_fn = move |err| {
+                log::error!("An error occurred on stream: {}", err);
+            };
+
+            let volume_factor = if cfg!(windows) { 3 } else { 1 };
+
+            let stream = match config.sample_format() {
+                cpal::SampleFormat::I8 => device.build_input_stream(
+                    &config.into(),
+                    move |data, _: &_| {
+                        log::debug!("Writing input data (I8)");
+                        write_input_data::<i8, i8>(data, &writer_2, volume_factor)
+                    },
+                    err_fn,
+                    None,
+                )?,
+                cpal::SampleFormat::I16 => device.build_input_stream(
+                    &config.into(),
+                    move |data, _: &_| {
+                        log::debug!("Writing input data (I16)");
+                        write_input_data::<i16, i16>(data, &writer_2, volume_factor.into())
+                    },
+                    err_fn,
+                    None,
+                )?,
+                cpal::SampleFormat::I32 => device.build_input_stream(
+                    &config.into(),
+                    move |data, _: &_| {
+                        log::debug!("Writing input data (I32)");
+                        write_input_data::<i32, i32>(data, &writer_2, volume_factor.into())
+                    },
+                    err_fn,
+                    None,
+                )?,
+                cpal::SampleFormat::F32 => device.build_input_stream(
+                    &config.into(),
+                    move |data, _: &_| {
+                        log::debug!("Writing input data (F32)");
+                        write_input_data::<f32, f32>(data, &writer_2, volume_factor.into())
+                    },
+                    err_fn,
+                    None,
+                )?,
+                sample_format => {
+                    bail!("Unsupported sample format '{}'", sample_format)
+                }
+            };
+            stream.play()?;
+            log::debug!("Stream started playing");
+
+            let stream_handle = Arc::new(Mutex::new(Some(StreamHandle(stream))));
+            stream_handles.push(stream_handle.clone());
+            log::debug!("Stream handle created");
+        }
     }
 
     let app_handle_clone = app_handle.clone();
@@ -173,7 +179,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             let stream = stream_handle.lock().unwrap().take();
             let writer = stream_writers[i].clone();
 
-			
+
 			if let Some(stream) = stream {
 				log::debug!("Pausing stream");
 				stream.0.pause().unwrap();
@@ -183,7 +189,6 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 				wav_paths[i] = (wav_paths[i].0.clone(), written);
 				writer.finalize().unwrap();
 			}
-			
         }
 
 		#[cfg(target_os = "macos")]
@@ -204,7 +209,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             log::debug!("Merging WAV files");
             vibe::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).unwrap();
             dst
-        } 
+        }
         else if wav_paths[0].1 > wav_paths[1].1 {
             // First WAV file has a larger sample count, choose it
             wav_paths[0].0.clone()
@@ -254,7 +259,6 @@ fn wav_spec_from_config(config: &cpal::SupportedStreamConfig) -> hound::WavSpec 
 }
 
 use std::ops::Mul;
-
 
 fn write_input_data<T, U>(input: &[T], writer: &WavWriterHandle, volume_factor: U)
 where

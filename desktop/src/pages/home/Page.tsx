@@ -11,7 +11,6 @@ import { viewModel } from './viewModel'
 import { useEffect } from 'react'
 import * as webviewWindow from '@tauri-apps/api/webviewWindow'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
-import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 
 export default function Home() {
 	const { t } = useTranslation()
@@ -25,14 +24,7 @@ export default function Home() {
 		}
 	}
 
-	async function handleDeepLinks() {
-		await onOpenUrl((urls) => {
-			console.log('deep link:', urls)
-		})
-	}
-
 	useEffect(() => {
-		handleDeepLinks()
 		showWindow()
 	}, [])
 

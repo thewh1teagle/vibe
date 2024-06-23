@@ -51,6 +51,13 @@ fn extract_whisper_env() {
 fn main() {
     let hash = commit_hash();
     println!("cargo:rustc-env=COMMIT_HASH={}", hash);
+
+    // Passed from Github action
+    println!(
+        "cargo:rustc-env=CUDA_VERSION={}",
+        std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()
+    );
+
     copy_locales();
     extract_whisper_env();
     tauri_build::build();

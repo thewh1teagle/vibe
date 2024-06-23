@@ -8,7 +8,7 @@ Windows: Version `8` greater.
 Hardware:
 No special requirement. resource usage can be customized through advanced settings in main window.
 
-Currenly, `MacOS` computers get the best performance since there's GPU optimizations.
+Currently, `MacOS` computers get the best performance since there's GPU optimizations.
 
 </details>
 
@@ -18,6 +18,24 @@ Currenly, `MacOS` computers get the best performance since there's GPU optimizat
 Nvidia's performance is incredible — transcribe 1 hour in just 1-5 minutes!
 
 Look for installers with `nvidia` in [vibe/releases/latest](https://github.com/thewh1teagle/vibe/releases/latest)
+
+</details>
+
+<details>
+<summary>Vibe use only CPU</summary>
+
+Sometimes Windows doesn't use the GPU although nvidia is supported.
+There's a potential fix in windows settings.
+
+1. Hit `Win` + `R`
+2. Type `ms-settings:display-advancedgraphics` and press `Enter`
+3. Select `Browse`
+4. Navigate to `vibe.exe` by pasting `%localappdata%\vibe` in the path address bar and press `Enter`
+5. Select `vibe.exe`
+6. Vibe added to the list. select `Options`
+7. Select the best GPU option - high Performance
+8. Save it
+9. Restart Vibe
 
 </details>
 
@@ -75,8 +93,25 @@ Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.
 
 </details>
 
-## Unsupported CPUs
+<details>
+	<summary>Unsupported CPU</summary>
 
 Some CPUs aren't support some features used by Whisper.
 
 Please try to download and install the release file named with `older-cpu.exe`: [Vibe releases](https://github.com/thewh1teagle/vibe/releases/latest)
+
+</details>
+
+<details>
+	<summary>Special link to download models in vibe</summary>
+
+You can add links to your websites for letting users download your models easily from your website directly to vibe.
+
+The URL should be like
+
+```
+vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true
+```
+
+</details>
+

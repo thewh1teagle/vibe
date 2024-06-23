@@ -15,7 +15,7 @@ i18next
 		},
 		fallbackLng: 'en-US',
 		// lng: 'en', // testing in dev mode
-		supportedLngs: ['en-US', 'he-IL', 'fr-FR'],
+		supportedLngs: ['en-US', 'he-IL', 'fr-FR', 'pl-PL'],
 		ns: 'translation',
 		backend: {
 			loadPath: 'locales/{{lng}}.json',

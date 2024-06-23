@@ -19,8 +19,8 @@ const config = {
 	openblasRealname: 'openblas',
 	clblastRealname: 'clblast',
 	windows: {
-		ffmpegName: 'ffmpeg-6.1-windows-desktop-vs2022ltl-default',
-		ffmpegUrl: 'https://master.dl.sourceforge.net/project/avbuild/windows-desktop/ffmpeg-6.1-windows-desktop-vs2022ltl-default.7z?viasf=1',
+		ffmpegName: 'ffmpeg-7.0-windows-desktop-vs2022-default',
+		ffmpegUrl: 'https://unlimited.dl.sourceforge.net/project/avbuild/windows-desktop/ffmpeg-7.0-windows-desktop-vs2022-default.7z?viasf=1',
 
 		openBlasName: 'OpenBLAS-0.3.26-x64',
 		openBlasUrl: 'https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.26/OpenBLAS-0.3.26-x64.zip',

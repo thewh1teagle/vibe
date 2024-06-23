@@ -104,19 +104,37 @@ WHISPER_NO_FMA = "ON"
 WHISPER_NO_F16C = "ON"
 ```
 
+Rust analyzer failed to run on windows
+
+1. Execute `cargo clean`
+2. Add to `settings.json`:
+
+````json
+"rust-analyzer.cargo.extraEnv": {
+	"FFMPEG_DIR": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\ffmpeg",
+	"OPENBLAS_PATH": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\openblas",
+	"CLBlast_DIR": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\clblast",
+	"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
+}
+```
+
+3. Relaunch `VSCode`
+
 ## Test
 
-```
+````
+
 export RUST_LOG=trace
 cargo test -- --nocapture
-```
+
+````
 
 # Lint
 
 ```console
 cargo fmt
 cargo clippy
-```
+````
 
 # Create new release
 
@@ -147,4 +165,11 @@ Normalize wav file for tests
 
 ```console
 ffmpeg -i file.wav -ar 16000 -ac 1 -c:a pcm_s16le normal.wav
+```
+
+## Edit PR before merge
+
+```console
+gh pr checkout <url>
+git push <fork url> HEAD:<branch>
 ```

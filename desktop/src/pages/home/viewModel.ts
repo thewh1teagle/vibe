@@ -3,10 +3,8 @@ import { event, path } from '@tauri-apps/api'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import * as webview from '@tauri-apps/api/webviewWindow'
-import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
-import * as os from '@tauri-apps/plugin-os'
 import { open } from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -18,6 +16,7 @@ import * as transcript from '~/lib/transcript'
 import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
 import { getX86Features } from '~/lib/x86Features'
 import { ErrorModalContext } from '~/providers/ErrorModal'
+import { useFilesContext } from '~/providers/FilesProvider'
 import { ModelOptions, usePreferencesContext } from '~/providers/Preferences'
 import { UpdaterContext } from '~/providers/Updater'
 
@@ -38,13 +37,13 @@ export function viewModel() {
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
-	const [files, setFiles] = useState<NamedPath[]>(location?.state?.files ?? [])
+
+	const { files, setFiles } = useFilesContext()
 	const [tabIndex, setTabIndex] = useState(0)
 	const preferences = usePreferencesContext()
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
-
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -72,18 +71,18 @@ export function viewModel() {
 	}
 
 	async function handleRecordFinish() {
-		await listen<{path: string, name: string}>('record_finish', (event) => {
-			const {name, path} = event.payload
+		await listen<{ path: string; name: string }>('record_finish', (event) => {
+			const { name, path } = event.payload
 			setTabIndex(0)
-			setFiles([{name, path}])
+			setFiles([{ name, path }])
 			setIsRecording(false)
 		})
 	}
 
 	async function loadAudioDevices() {
 		let newDevices = await invoke<AudioDevice[]>('get_audio_devices')
-		const defaultInput = newDevices.find(d => d.isDefault && d.isInput)
-		const defaultOutput = newDevices.find(d => d.isDefault && !d.isInput)
+		const defaultInput = newDevices.find((d) => d.isDefault && d.isInput)
+		const defaultOutput = newDevices.find((d) => d.isDefault && !d.isInput)
 		if (defaultInput) {
 			setInputDevice(defaultInput)
 		}
@@ -159,32 +158,6 @@ export function viewModel() {
 		})
 	}
 
-	async function handleDeepLinks() {
-		const platform = await os.platform()
-		const newFiles = []
-		if (platform === 'macos') {
-			await onOpenUrl(async (urls) => {
-				for (let url of urls) {
-					if (url.startsWith('file://')) {
-						url = decodeURIComponent(url)
-						url = url.replace('file://', '')
-						// take only the first one
-						newFiles.push(await pathToNamedPath(url))
-					}
-				}
-			})
-		} else if (platform == 'windows' || platform == 'linux') {
-			const urls: string[] = await invoke('get_deeplinks')
-			for (const url of urls) {
-				newFiles.push(await pathToNamedPath(url))
-			}
-		}
-		setFiles([...files, ...newFiles])
-		if (newFiles.length > 1) {
-			navigate('/batch', { state: { files: newFiles } })
-		}
-	}
-
 	async function CheckCpuAndInit() {
 		const features = await getX86Features()
 		if (features) {
@@ -207,7 +180,6 @@ export function viewModel() {
 		}
 
 		handleDrop()
-		handleDeepLinks()
 		checkModelExists()
 		handleNewSegment()
 		handleRecordFinish()
@@ -219,7 +191,6 @@ export function viewModel() {
 	}, [])
 
 	async function startRecord() {
-		
 		setSegments(null)
 		setIsRecording(true)
 		let devices: AudioDevice[] = []
@@ -229,11 +200,11 @@ export function viewModel() {
 		if (outputDevice) {
 			devices.push(outputDevice)
 		}
-		invoke("start_record", {devices, storeInDocuments: preferences.storeRecordInDocuments})
+		invoke('start_record', { devices, storeInDocuments: preferences.storeRecordInDocuments })
 	}
 
 	async function stopRecord() {
-		emit("stop_record")
+		emit('stop_record')
 	}
 
 	async function transcribe() {
@@ -305,6 +276,6 @@ export function viewModel() {
 		transcribe,
 		onAbort,
 		tabIndex,
-		setTabIndex
+		setTabIndex,
 	}
 }

@@ -10,6 +10,13 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         log::debug!("webview version: {}", version);
     }
 
+    #[cfg(windows)]
+    {
+        if let Err(error) = crate::register_custom_protocol::register() {
+            log::error!("{:?}", error);
+        }
+    }
+
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
     log::debug!(
         "CPU Features\n{}",

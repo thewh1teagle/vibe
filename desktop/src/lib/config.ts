@@ -1,6 +1,6 @@
 export const aboutURL = 'https://thewh1teagle.github.io/vibe/'
 export const updateVersionURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
-export const modelsURL = 'https://huggingface.co/ggerganov/whisper.cpp'
+export const modelsURL = 'https://github.com/thewh1teagle/vibe/blob/main/MODELS.md#vibe-models'
 export const discordURL = 'https://discord.gg/EcxWSstQN8'
 export const unsupportedCpuReadmeURL = 'https://github.com/thewh1teagle/vibe/blob/main/INSTALL.md#unsupported-cpus'
 export const supportVibeURL = 'https://ko-fi.com/thewh1teagle'

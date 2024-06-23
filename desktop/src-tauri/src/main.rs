@@ -7,6 +7,7 @@ mod config;
 mod panic_hook;
 mod setup;
 mod utils;
+use tauri::Manager;
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -14,14 +15,10 @@ mod dock;
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
 mod x86_features;
 
-use tauri::Manager;
-use tauri_plugin_window_state::StateFlags;
+#[cfg(windows)]
+mod register_custom_protocol;
 
-#[derive(Clone, serde::Serialize)]
-struct Payload {
-    args: Vec<String>,
-    cwd: String,
-}
+use tauri_plugin_window_state::StateFlags;
 
 fn main() {
     // Attach console in Windows:
@@ -32,17 +29,17 @@ fn main() {
     log::debug!("Vibe App Running");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+            app.get_webview_window("main").unwrap().set_focus().unwrap();
+            log::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
+            app.emit("single-instance", argv).unwrap();
+        }))
         .setup(|app| setup::setup(app))
         .plugin(
             tauri_plugin_window_state::Builder::default()
                 .with_state_flags(!StateFlags::VISIBLE)
                 .build(),
         )
-        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            println!("{}, {argv:?}, {cwd}", app.package_info().name);
-
-            app.emit("single-instance", Payload { args: argv, cwd }).unwrap();
-        }))
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
@@ -55,11 +52,14 @@ fn main() {
             cmd::download_model,
             cmd::get_default_model_path,
             cmd::get_commit_hash,
+            cmd::get_cuda_version,
+            cmd::is_avx2_enabled,
             cmd::is_online,
             cmd::get_path_dst,
             cmd::open_path,
             cmd::get_x86_features,
             cmd::get_save_path,
+            cmd::get_argv,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
         ])

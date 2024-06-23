@@ -70,7 +70,7 @@
 -   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
 -   👥 ~Speaker diarization~ (coming soon)
 -   📱 ~iOS & Android support~ (coming soon)
--
+-   📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
 
 # Supported platforms 🖥️
 

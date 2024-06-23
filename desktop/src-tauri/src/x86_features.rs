@@ -20,18 +20,22 @@ impl X86features {
         // Disabled only if WHISPER_NO_{flag} was set during compile
         Self {
             avx: X86feature {
+                #[allow(clippy::comparison_to_empty)]
                 enabled: env!("WHISPER_NO_AVX") != "ON",
                 support: is_x86_feature_detected!("avx"),
             },
             avx2: X86feature {
+                #[allow(clippy::comparison_to_empty)]
                 enabled: env!("WHISPER_NO_AVX2") != "ON",
                 support: is_x86_feature_detected!("avx2"),
             },
             fma: X86feature {
+                #[allow(clippy::comparison_to_empty)]
                 enabled: env!("WHISPER_NO_FMA") != "ON",
                 support: is_x86_feature_detected!("fma"),
             },
             f16c: X86feature {
+                #[allow(clippy::comparison_to_empty)]
                 enabled: env!("WHISPER_NO_F16C") != "ON",
                 support: is_x86_feature_detected!("f16c"),
             },
