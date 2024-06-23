@@ -2,24 +2,36 @@ use crate::audio;
 use crate::config::TranscribeOptions;
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, Context, Ok, OptionExt, Result};
+use std::path::Path;
 use std::sync::Mutex;
 use std::time::Instant;
 pub use whisper_rs::SegmentCallbackData;
-use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
-
+pub use whisper_rs::WhisperContext;
+use whisper_rs::{FullParams, SamplingStrategy, WhisperContextParameters};
 type ProgressCallbackType = once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>>;
 static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| Mutex::new(None));
 
+pub fn create_context(model_path: &Path) -> Result<WhisperContext> {
+    log::debug!("open model...");
+    if !model_path.exists() {
+        bail!("whisper file doesn't exist")
+    }
+    let ctx = WhisperContext::new_with_params(
+        model_path.to_str().ok_or_eyre("can't convert model option to str")?,
+        WhisperContextParameters::default(),
+    )
+    .context("failed to open model")?;
+    Ok(ctx)
+}
+
 pub fn transcribe(
+    ctx: &WhisperContext,
     options: &TranscribeOptions,
     progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
 ) -> Result<Transcript> {
     log::debug!("Transcribe called with {:?}", options);
-    if !options.model_path.exists() {
-        bail!("whisper file doesn't exist")
-    }
 
     if !options.path.clone().exists() {
         bail!("audio file doesn't exist")
@@ -40,18 +52,10 @@ pub fn transcribe(
     let mut samples = vec![0.0f32; original_samples.len()];
     whisper_rs::install_whisper_log_trampoline();
     whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)?;
-
-    log::debug!("open model...");
-    let ctx = WhisperContext::new_with_params(
-        options.model_path.to_str().ok_or_eyre("can't convert model option to str")?,
-        WhisperContextParameters::default(),
-    )
-    .context("failed to open model")?;
     let mut state = ctx.create_state().context("failed to create key")?;
 
     let mut params = FullParams::new(SamplingStrategy::default());
     log::debug!("set language to {:?}", options.lang);
-
     if let Some(true) = options.translate {
         params.set_translate(true);
     }
@@ -169,7 +173,6 @@ mod tests {
                 .ok_or_eyre("cant convert path to str")?
                 .to_owned()
                 .into(),
-            model_path: config::get_model_path()?,
             lang: None,
             n_threads: None,
             verbose: false,
@@ -178,7 +181,8 @@ mod tests {
             translate: None,
             max_text_ctx: None,
         };
-        transcribe(args, None, None, None)?;
+        let ctx = create_context(Path::new(&config::get_model_path().unwrap())).unwrap();
+        transcribe(&ctx, args, None, None, None)?;
 
         Ok(())
     }

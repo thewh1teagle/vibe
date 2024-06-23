@@ -27,7 +27,6 @@ pub fn get_model_path() -> Result<PathBuf> {
 #[derive(Deserialize, Serialize)]
 pub struct TranscribeOptions {
     pub path: PathBuf,
-    pub model_path: PathBuf,
     pub lang: Option<String>,
     pub verbose: bool,
 

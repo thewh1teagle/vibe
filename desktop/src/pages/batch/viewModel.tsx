@@ -98,6 +98,7 @@ export function viewModel() {
 		}
 		setInProgress(true)
 		let localIndex = 0
+		await invoke('load_model', { modelPath: preferences.modelPath })
 		try {
 			setCurrentIndex(localIndex)
 			const loopStartTime = performance.now()
@@ -108,11 +109,11 @@ export function viewModel() {
 				setProgress(null)
 				const options = {
 					path: file.path,
-					model_path: preferences.modelPath,
 					...preferences.modelOptions,
 				}
 				const startTime = performance.now()
-				const res: Transcript = await invoke('transcribe', { options })
+
+				const res: Transcript = await invoke('transcribe', { options, modelPath: preferences.modelPath })
 
 				// Calculate time
 				let total = Math.round((performance.now() - startTime) / 1000)

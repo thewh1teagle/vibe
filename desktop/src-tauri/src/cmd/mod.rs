@@ -1,16 +1,19 @@
 use crate::config;
+use crate::setup::ModelContext;
 use eyre::{bail, Context, ContextCompat, OptionExt, Result};
 use serde_json::{json, Value};
 use std::panic::{catch_unwind, AssertUnwindSafe};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
+use tauri::State;
 use tauri::{
     window::{ProgressBarState, ProgressBarStatus},
     Manager,
 };
+use tokio::sync::Mutex;
 use vibe::{model::SegmentCallbackData, transcript::Transcript};
 pub mod audio;
 
@@ -142,7 +145,16 @@ pub async fn get_default_model_path() -> Result<String> {
 }
 
 #[tauri::command]
-pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::TranscribeOptions) -> Result<Transcript> {
+pub async fn transcribe(
+    app_handle: tauri::AppHandle,
+    options: vibe::config::TranscribeOptions,
+    model_context_state: State<'_, Mutex<Option<ModelContext>>>,
+) -> Result<Transcript> {
+    let model_context = model_context_state.lock().await;
+    if model_context.is_none() {
+        bail!("Please load model first")
+    }
+    let ctx = model_context.as_ref().unwrap();
     let app_handle_c = app_handle.clone();
 
     let new_segment_callback = move |data: SegmentCallbackData| {
@@ -176,6 +188,7 @@ pub async fn transcribe(app_handle: tauri::AppHandle, options: vibe::config::Tra
     // prevent panic crash. sometimes whisper.cpp crash without nice errors.
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
         vibe::model::transcribe(
+            &ctx.handle,
             &options,
             Some(Box::new(progress_callback)),
             Some(Box::new(new_segment_callback)),
@@ -256,4 +269,29 @@ pub fn get_cuda_version() -> String {
 pub fn is_avx2_enabled() -> bool {
     #[allow(clippy::comparison_to_empty)]
     return env!("WHISPER_NO_AVX") != "ON";
+}
+
+#[tauri::command]
+pub async fn load_model(model_path: String, model_context_state: State<'_, Mutex<Option<ModelContext>>>) -> Result<String> {
+    let mut state_guard = model_context_state.lock().await;
+    if let Some(state) = state_guard.as_ref() {
+        // check if new path is different
+        if model_path != state.path {
+            log::debug!("model path changed. reloading");
+            // reload
+            let context = vibe::model::create_context(Path::new(&model_path))?;
+            *state_guard = Some(ModelContext {
+                path: model_path.clone(),
+                handle: context,
+            });
+        }
+    } else {
+        log::debug!("loading model first time");
+        let context = vibe::model::create_context(Path::new(&model_path))?;
+        *state_guard = Some(ModelContext {
+            path: model_path.clone(),
+            handle: context,
+        });
+    }
+    Ok(model_path)
 }

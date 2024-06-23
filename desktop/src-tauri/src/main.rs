@@ -50,6 +50,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             cmd::transcribe,
             cmd::download_model,
+            cmd::load_model,
             cmd::get_default_model_path,
             cmd::get_commit_hash,
             cmd::get_cuda_version,

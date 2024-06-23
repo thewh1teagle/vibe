@@ -119,9 +119,8 @@ pub fn run(app: &App) {
 
     let args = Args::parse();
     let lang = language_name_to_whisper_lang(&args.language);
-    let mut options = TranscribeOptions {
+    let options = TranscribeOptions {
         path: args.file,
-        model_path: args.model,
         lang: Some(lang),
         init_prompt: args.init_prompt,
         n_threads: args.n_threads,
@@ -130,11 +129,12 @@ pub fn run(app: &App) {
         verbose: false,
         max_text_ctx: args.max_text_ctx,
     };
-    options.model_path = prepare_model_path(&options.model_path);
+    let model_path = prepare_model_path(&args.model);
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
-    let transcript = model::transcribe(&options, None, None, None).unwrap();
+    let ctx = model::create_context(&model_path).unwrap();
+    let transcript = model::transcribe(&ctx, &options, None, None, None).unwrap();
     let elapsed = start.elapsed();
     println!(
         "{}",

@@ -210,14 +210,14 @@ export function viewModel() {
 	async function transcribe() {
 		setSegments(null)
 		setLoading(true)
+		await invoke('load_model', { modelPath: preferences.modelPath })
 		try {
 			const options = {
 				path: files[0].path,
-				model_path: preferences.modelPath,
 				...preferences.modelOptions,
 			}
 			const startTime = performance.now()
-			const res: transcript.Transcript = await invoke('transcribe', { options })
+			const res: transcript.Transcript = await invoke('transcribe', { options, modelPath: preferences.modelPath })
 
 			// Calcualte time
 			const total = Math.round((performance.now() - startTime) / 1000)

@@ -1,9 +1,19 @@
 use crate::{cli, panic_hook};
 use tauri::{App, Manager};
+use tokio::sync::Mutex;
+use vibe::model::WhisperContext;
+
+pub struct ModelContext {
+    pub path: String,
+    pub handle: WhisperContext,
+}
 
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Add panic hook
     panic_hook::set_panic_hook(app.app_handle());
+
+    // Manage model context
+    app.manage(Mutex::new(None::<ModelContext>));
 
     // Log some useful data
     if let Ok(version) = tauri::webview_version() {
