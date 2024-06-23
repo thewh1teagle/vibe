@@ -166,3 +166,9 @@ Normalize wav file for tests
 ```console
 ffmpeg -i file.wav -ar 16000 -ac 1 -c:a pcm_s16le normal.wav
 ```
+
+## Edit PR before merge
+
+```console
+gh pr checkout <url>
+```
