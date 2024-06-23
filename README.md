@@ -10,21 +10,6 @@
 
 <h1 align="center">Vibe - Transcribe on your own!</h1>
 
-<hr/>
-
-  <p align="center">
-    <strong>🌍 Languages:</strong>
-    <br/>
-  </p>
-
-  <div align="center">
-
-  [![Portuguese](https://img.shields.io/badge/Language-Portuguese-2088ff?style=for-the-badge)](README.pt-BR.md)
-  
-  </div> 
-
-<hr/>
-
 <p align="center">
   <strong>⌨️ Transcribe audio / video offline using OpenAI Whisper</strong>
   <br/>
