@@ -22,9 +22,9 @@ Look for installers with `nvidia` in [vibe/releases/latest](https://github.com/t
 </details>
 
 <details>
-<summary>Vibe use only CPU</summary>
+<summary>Speedup GPU in Windows 🚀</summary>
 
-Sometimes Windows doesn't use the GPU although nvidia is supported.
+Sometimes Windows doesn't use the GPU although nvidia / opencl is supported.
 There's a potential fix in windows settings.
 
 1. Hit `Win` + `R`
