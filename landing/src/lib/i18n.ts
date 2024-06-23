@@ -8,7 +8,7 @@ i18next
 	.use(LanguageDetector)
 	.init({
 		detection: {
-			order: ['querystring', 'localStorage', 'navigator'],
+			order: ['localStorage', 'querystring', 'navigator'],
 			caches: ['localStorage'],
 			lookupQuerystring: 'lng',
 			lookupLocalStorage: 'locale',
@@ -20,6 +20,7 @@ i18next
 		backend: {
 			loadPath: 'locales/{{lng}}.json',
 		},
+		debug: false,
 	})
 
 export const i18n = createI18nStore(i18next)
