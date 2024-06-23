@@ -22,6 +22,24 @@ Look for installers with `nvidia` in [vibe/releases/latest](https://github.com/t
 </details>
 
 <details>
+<summary>Vibe use only CPU</summary>
+
+Sometimes Windows doesn't use the GPU although nvidia is supported.
+There's a potential fix in windows settings.
+
+1. Hit `Win` + `R`
+2. Type `ms-settings:display-advancedgraphics` and press `Enter`
+3. Select `Browse`
+4. Navigate to `vibe.exe` by pasting `%localappdata%\vibe` in the path address bar and press `Enter`
+5. Select `vibe.exe`
+6. Vibe added to the list. select `Options`
+7. Select the best GPU option - high Performance
+8. Save it
+9. Restart Vibe
+
+</details>
+
+<details>
 <summary>macOS with `coreml` for faster transcribe (2-3x) 🌟</summary>
 
 1. Download [ggml-medium-encoder.mlmodelc.zip](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium-encoder.mlmodelc.zip?download=true)
@@ -75,13 +93,17 @@ Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.
 
 </details>
 
-## Unsupported CPUs
+<details>
+	<summary>Unsupported CPU</summary>
 
 Some CPUs aren't support some features used by Whisper.
 
 Please try to download and install the release file named with `older-cpu.exe`: [Vibe releases](https://github.com/thewh1teagle/vibe/releases/latest)
 
-## Link to download model
+</details>
+
+<details>
+	<summary>Special link to download models in vibe</summary>
 
 You can add links to your websites for letting users download your models easily from your website directly to vibe.
 
@@ -90,3 +112,6 @@ The URL should be like
 ```
 vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true
 ```
+
+</details>
+
