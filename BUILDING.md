@@ -171,4 +171,5 @@ ffmpeg -i file.wav -ar 16000 -ac 1 -c:a pcm_s16le normal.wav
 
 ```console
 gh pr checkout <url>
+git push <fork url> HEAD:<branch>
 ```
