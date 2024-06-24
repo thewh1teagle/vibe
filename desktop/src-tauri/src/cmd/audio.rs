@@ -10,7 +10,7 @@ use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Manager};
 
 #[cfg(target_os = "macos")]
-use crate::cmd::screen_capture_kit;
+use crate::screen_capture_kit;
 
 use crate::utils::random_string;
 

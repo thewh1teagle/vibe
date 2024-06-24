@@ -17,9 +17,6 @@ use tokio::sync::Mutex;
 use vibe::{model::SegmentCallbackData, transcript::Transcript};
 pub mod audio;
 
-#[cfg(target_os = "macos")]
-mod screen_capture_kit;
-
 /// Return true if there's internet connection
 /// timeout in ms
 #[tauri::command]

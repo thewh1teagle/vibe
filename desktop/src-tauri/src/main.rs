@@ -21,6 +21,9 @@ mod custom_protocol;
 #[cfg(windows)]
 mod gpu_preference;
 
+#[cfg(target_os = "macos")]
+mod screen_capture_kit;
+
 use tauri_plugin_window_state::StateFlags;
 
 fn main() {
