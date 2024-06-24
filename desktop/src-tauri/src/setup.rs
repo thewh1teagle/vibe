@@ -22,7 +22,10 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     #[cfg(windows)]
     {
-        if let Err(error) = crate::register_custom_protocol::register() {
+        if let Err(error) = crate::custom_protocol::register() {
+            log::error!("{:?}", error);
+        }
+        if let Err(error) = crate::gpu_preference::set_gpu_preference() {
             log::error!("{:?}", error);
         }
     }

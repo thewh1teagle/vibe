@@ -16,7 +16,10 @@ mod dock;
 mod x86_features;
 
 #[cfg(windows)]
-mod register_custom_protocol;
+mod custom_protocol;
+
+#[cfg(windows)]
+mod gpu_preference;
 
 use tauri_plugin_window_state::StateFlags;
 
