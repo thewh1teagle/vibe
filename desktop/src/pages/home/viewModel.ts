@@ -210,8 +210,10 @@ export function viewModel() {
 	async function transcribe() {
 		setSegments(null)
 		setLoading(true)
-		await invoke('load_model', { modelPath: preferences.modelPath })
+		abortRef.current = false
+
 		try {
+			await invoke('load_model', { modelPath: preferences.modelPath })
 			const options = {
 				path: files[0].path,
 				...preferences.modelOptions,
