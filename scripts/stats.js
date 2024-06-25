@@ -1,9 +1,10 @@
 const assetsURL = 'https://api.github.com/repos/thewh1teagle/vibe/releases'
-const patterns = ['.exe', '.dmg', '.deb']
+const patterns = ['.exe', '.dmg', '.deb', '.rpm']
 const patternsNames = {
 	'.exe': 'Windows',
 	'.dmg': 'macOS',
 	'.deb': 'Linux',
+	'.rpm': 'Linux',
 }
 // Get releases JSON from Github
 const res = await fetch(assetsURL)
@@ -22,23 +23,15 @@ for (const release of releases) {
 
 		const downloadCount = asset?.['download_count'] || 0
 		const kind = patterns.find((pattern) => name.includes(pattern))
+		const prettyKind = patternsNames[kind]
 		if (kind) {
-			stats[kind] = (stats[kind] || 0) + downloadCount
+			stats[prettyKind] = (stats[prettyKind] || 0) + downloadCount
 		}
 	}
 }
 
-// Raw stats
 const total = Object.values(stats).reduce((acc, val) => acc + val, 0)
-stats['total'] = total
-stats['date'] = new Date().toLocaleDateString('en-US', { timeZone: 'UTC' })
+stats['Total Downloads'] = total
+stats['Date'] = new Date().toLocaleDateString('en-US', { timeZone: 'UTC' })
 
-// Pretty stats
-const prettyStats = {}
-for (const pattern in patternsNames) {
-	prettyStats[patternsNames[pattern]] = stats[pattern] || 0
-}
-prettyStats['Total Downloads'] = stats['total'] || 0
-prettyStats['Date'] = stats['date'] || ''
-
-console.log(JSON.stringify(prettyStats, null, 4))
+console.log(JSON.stringify(stats, null, 4))
