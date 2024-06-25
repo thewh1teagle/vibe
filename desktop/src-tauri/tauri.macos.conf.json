@@ -11,7 +11,14 @@
 				"ffmpeg/lib/libswresample.4.dylib",
 				"ffmpeg/lib/libswscale.7.dylib"
 			],
-			"signingIdentity": "-"
+			"signingIdentity": "-",
+			"dmg": {
+				"background": "../../design/dmg_background.png",
+				"windowSize": {
+					"height": 400,
+					"width": 660
+				}
+			}
 		},
 		"resources": {
 			"ffmpeg/bin/*": "./"
