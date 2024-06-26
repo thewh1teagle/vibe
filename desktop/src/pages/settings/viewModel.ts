@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { NamedPath, getAppInfo, getIssueUrl, getPrettyVersion, ls, resetApp } from '~/lib/utils'
-import { usePreferencesContext } from '~/providers/Preferences'
+import { usePreferenceProvider } from '~/providers/Preference'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
@@ -41,7 +41,7 @@ export function viewModel() {
 
 	const [models, setModels] = useState<NamedPath[]>([])
 	const [appVersion, setAppVersion] = useState('')
-	const preferences = usePreferencesContext()
+	const preference = usePreferenceProvider()
 	const { t } = useTranslation()
 	const listenersRef = useRef<UnlistenFn[]>([])
 	const isMountedRef = useRef<boolean>(false)
@@ -79,18 +79,18 @@ export function viewModel() {
 	}
 
 	async function getDefaultModel() {
-		if (!preferences.modelPath) {
+		if (!preference.modelPath) {
 			const defaultModelPath = await invoke('get_default_model_path')
-			preferences!.setModelPath(defaultModelPath as string)
+			preference!.setModelPath(defaultModelPath as string)
 		}
 	}
 
 	async function changeLanguage() {
-		await i18n.changeLanguage(preferences.displayLanguage)
-		const name = supportedLanguages[preferences.displayLanguage]
+		await i18n.changeLanguage(preference.displayLanguage)
+		const name = supportedLanguages[preference.displayLanguage]
 		if (name) {
-			preferences.setModelOptions({ ...preferences.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
-			preferences.setTextAreaDirection(i18n.dir())
+			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
+			preference.setTextAreaDirection(i18n.dir())
 		}
 	}
 	async function onWindowFocus() {
@@ -102,7 +102,7 @@ export function viewModel() {
 			return
 		}
 		changeLanguage()
-	}, [preferences.displayLanguage])
+	}, [preference.displayLanguage])
 
 	useEffect(() => {
 		loadMeta()
@@ -118,7 +118,7 @@ export function viewModel() {
 		downloadModel,
 		downloadURL,
 		setDownloadURL,
-		preferences,
+		preference: preference,
 		askAndReset,
 		openModelPath,
 		openModelsUrl,

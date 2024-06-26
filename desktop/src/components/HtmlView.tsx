@@ -1,11 +1,11 @@
 import { Segment, formatTimestamp } from '~/lib/transcript'
 import { NamedPath } from '~/lib/utils'
-import { Preferences } from '~/providers/Preferences'
+import { Preference } from '~/providers/Preference'
 
 interface HTMLViewProps {
 	segments: Segment[]
 	file: NamedPath
-	preferences: Preferences
+	preference: Preference
 }
 
 function formatDuration(start: number, stop: number) {
@@ -14,12 +14,12 @@ function formatDuration(start: number, stop: number) {
 	return `${startFmt} --> ${stopFmt}`
 }
 
-export default function HTMLView({ segments, file, preferences }: HTMLViewProps) {
+export default function HTMLView({ segments, file, preference }: HTMLViewProps) {
 	return (
 		<div
 			autoCorrect="off"
 			contentEditable={true}
-			dir={preferences.textAreaDirection}
+			dir={preference.textAreaDirection}
 			className="html printable"
 			style={{ padding: '22px', minHeight: '90vh', fontFamily: 'Roboto, Arial', maxWidth: '1000px', margin: 'auto', outline: 'none' }}>
 			<h1
@@ -40,7 +40,7 @@ export default function HTMLView({ segments, file, preferences }: HTMLViewProps)
 					<div style={{ marginBottom: '10px' }}>
 						<div
 							className="timestamp"
-							style={{ fontSize: '12px', paddingBottom: '6px', color: preferences.theme === 'dark' ? '#3B4045' : '#000000' }}>
+							style={{ fontSize: '12px', paddingBottom: '6px', color: preference.theme === 'dark' ? '#3B4045' : '#000000' }}>
 							{formatDuration(segment.start, segment.stop)}
 						</div>
 						{segment.text}

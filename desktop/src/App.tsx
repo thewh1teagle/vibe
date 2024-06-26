@@ -9,7 +9,7 @@ import HomePage from '~/pages/home/Page'
 import BatchPage from './pages/batch/Page'
 import { ErrorModalProvider } from './providers/ErrorModal'
 import { UpdaterProvider } from './providers/Updater'
-import { PreferencesProvider } from './providers/Preferences'
+import { PreferenceProvider } from './providers/Preference'
 import { ErrorBoundary } from 'react-error-boundary'
 import { BoundaryFallback } from './components/BoundaryFallback'
 import ErrorModalWithContext from './components/ErrorModalWithContext'
@@ -25,7 +25,7 @@ export default function App() {
 		<ErrorBoundary FallbackComponent={BoundaryFallback}>
 			<ErrorModalProvider>
 				<UpdaterProvider>
-					<PreferencesProvider>
+					<PreferenceProvider>
 						<Toaster />
 						<ErrorModalWithContext />
 						<UpdateProgress />
@@ -36,7 +36,7 @@ export default function App() {
 								<Route path="/batch" element={<BatchPage />} />
 							</Routes>
 						</FilesProvider>
-					</PreferencesProvider>
+					</PreferenceProvider>
 				</UpdaterProvider>
 			</ErrorModalProvider>
 		</ErrorBoundary>

@@ -2,11 +2,11 @@ import { ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName } from '~/lib/i18n'
-import { usePreferencesContext } from '~/providers/Preferences'
+import { usePreferenceProvider } from '~/providers/Preference'
 
 export default function LanguageInput() {
 	const { t } = useTranslation()
-	const preferences = usePreferencesContext()
+	const preference = usePreferenceProvider()
 
 	// create entries with translated labels
 	const entries = Object.entries(WhisperLanguages).map(([name, code]) => {
@@ -17,7 +17,7 @@ export default function LanguageInput() {
 		return a.label.localeCompare(b.label)
 	})
 	function onChange(event: ChangeEvent<HTMLSelectElement>) {
-		preferences.setModelOptions({ ...preferences.modelOptions, lang: event.target.value })
+		preference.setModelOptions({ ...preference.modelOptions, lang: event.target.value })
 	}
 
 	const popularLanguages = [getI18nLanguageName(), 'auto', 'english']
@@ -43,7 +43,7 @@ export default function LanguageInput() {
 			<div className="label">
 				<span className="label-text">{t('common.language')}</span>
 			</div>
-			<select value={preferences.modelOptions.lang} onChange={onChange} className="select select-bordered">
+			<select value={preference.modelOptions.lang} onChange={onChange} className="select select-bordered">
 				<optgroup label={groupNames.popular}>
 					{popularEntries.map(({ label, code }) => (
 						<option key={code} value={code}>

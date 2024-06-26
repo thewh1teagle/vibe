@@ -64,7 +64,7 @@ export default function Home() {
 								<button onMouseDown={vm.transcribe} className="btn btn-primary mt-3">
 									{t('common.transcribe')}
 								</button>
-								<ModelOptions options={vm.preferences.modelOptions} setOptions={vm.preferences.setModelOptions} />
+								<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 							</>
 						)}
 					</div>
@@ -94,8 +94,8 @@ export default function Home() {
 								<input
 									type="checkbox"
 									className="toggle toggle-primary"
-									onChange={(e) => vm.preferences.setStoreRecordInDocuments(e.target.checked)}
-									checked={vm.preferences.storeRecordInDocuments}
+									onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
+									checked={vm.preference.storeRecordInDocuments}
 								/>
 							</label>
 						</div>

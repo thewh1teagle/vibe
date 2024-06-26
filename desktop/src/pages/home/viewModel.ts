@@ -17,7 +17,7 @@ import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
 import { getX86Features } from '~/lib/x86Features'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { useFilesContext } from '~/providers/FilesProvider'
-import { ModelOptions, usePreferencesContext } from '~/providers/Preferences'
+import { ModelOptions, usePreferenceProvider } from '~/providers/Preference'
 import { UpdaterContext } from '~/providers/Updater'
 
 export interface BatchOptions {
@@ -40,7 +40,7 @@ export function viewModel() {
 
 	const { files, setFiles } = useFilesContext()
 	const [tabIndex, setTabIndex] = useState(0)
-	const preferences = usePreferencesContext()
+	const preference = usePreferenceProvider()
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
@@ -128,14 +128,14 @@ export function viewModel() {
 			const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
 			if (filtered.length === 0) {
 				// Download new model if no models and it's not manual installation
-				if (!preferences.skippedSetup) {
+				if (!preference.skippedSetup) {
 					navigate('/setup')
 				}
 			} else {
-				if (!preferences.modelPath || !(await fs.exists(preferences.modelPath))) {
+				if (!preference.modelPath || !(await fs.exists(preference.modelPath))) {
 					// if model path not found set another one as default
 					const absPath = await path.join(configPath, filtered[0].name)
-					preferences.setModelPath(absPath)
+					preference.setModelPath(absPath)
 				}
 			}
 		} catch (e) {
@@ -200,7 +200,7 @@ export function viewModel() {
 		if (outputDevice) {
 			devices.push(outputDevice)
 		}
-		invoke('start_record', { devices, storeInDocuments: preferences.storeRecordInDocuments })
+		invoke('start_record', { devices, storeInDocuments: preference.storeRecordInDocuments })
 	}
 
 	async function stopRecord() {
@@ -213,13 +213,13 @@ export function viewModel() {
 		abortRef.current = false
 
 		try {
-			await invoke('load_model', { modelPath: preferences.modelPath })
+			await invoke('load_model', { modelPath: preference.modelPath })
 			const options = {
 				path: files[0].path,
-				...preferences.modelOptions,
+				...preference.modelOptions,
 			}
 			const startTime = performance.now()
-			const res: transcript.Transcript = await invoke('transcribe', { options, modelPath: preferences.modelPath })
+			const res: transcript.Transcript = await invoke('transcribe', { options, modelPath: preference.modelPath })
 
 			// Calcualte time
 			const total = Math.round((performance.now() - startTime) / 1000)
@@ -238,10 +238,10 @@ export function viewModel() {
 			setProgress(null)
 			if (!abortRef.current) {
 				// Focus back the window and play sound
-				if (preferences.soundOnFinish) {
+				if (preference.soundOnFinish) {
 					new Audio(successSound).play()
 				}
-				if (preferences.focusOnFinish) {
+				if (preference.focusOnFinish) {
 					webview.getCurrent().unminimize()
 					webview.getCurrent().setFocus()
 				}
@@ -260,7 +260,7 @@ export function viewModel() {
 		setIsRecording,
 		startRecord,
 		stopRecord,
-		preferences,
+		preference: preference,
 		openPath,
 		selectFiles,
 		isAborting,

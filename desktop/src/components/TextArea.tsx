@@ -9,7 +9,7 @@ import { ReactComponent as PrintIcon } from '~/icons/print.svg'
 import { Segment, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, cx, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
-import { usePreferencesContext } from '~/providers/Preferences'
+import { usePreferenceProvider } from '~/providers/Preference'
 import HTMLView from './HtmlView'
 import toast from 'react-hot-toast'
 import { invoke } from '@tauri-apps/api/core'
@@ -44,24 +44,24 @@ export default function TextArea({
 	file: NamedPath
 }) {
 	const { t } = useTranslation()
-	const preferences = usePreferencesContext()
+	const preference = usePreferenceProvider()
 	const [text, setText] = useState('')
 
 	useEffect(() => {
 		if (segments) {
 			setText(
-				preferences.textFormat === 'vtt'
+				preference.textFormat === 'vtt'
 					? asVtt(segments)
-					: preferences.textFormat === 'srt'
+					: preference.textFormat === 'srt'
 					? asSrt(segments)
-					: preferences.textFormat === 'json'
+					: preference.textFormat === 'json'
 					? asJson(segments)
 					: asText(segments)
 			)
 		} else {
 			setText('')
 		}
-	}, [preferences.textFormat, segments])
+	}, [preference.textFormat, segments])
 
 	async function download(text: string, format: TextFormat, file: NamedPath) {
 		if (format === 'html') {
@@ -117,11 +117,11 @@ export default function TextArea({
 			<div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row items-center">
 				<Copy text={text} />
 				<div className="tooltip tooltip-bottom" data-tip={t('common.save-transcript')}>
-					<button onMouseDown={() => download(text, preferences.textFormat, file)} className="btn btn-square btn-md">
+					<button onMouseDown={() => download(text, preference.textFormat, file)} className="btn btn-square btn-md">
 						<DownloadIcon className="h-6 w-6" />
 					</button>
 				</div>
-				{['html', 'pdf'].includes(preferences.textFormat) && (
+				{['html', 'pdf'].includes(preference.textFormat) && (
 					<div className="tooltip tooltip-bottom" data-tip={t('common.print-tooltip')}>
 						<div onMouseDown={() => window.print()} className={cx('h-full p-2 rounded-lg cursor-pointer')}>
 							<PrintIcon className="w-6 h-6" />
@@ -131,17 +131,17 @@ export default function TextArea({
 
 				<div className="tooltip tooltip-bottom" data-tip={t('common.right-alignment')}>
 					<div
-						onMouseDown={() => preferences.setTextAreaDirection(preferences.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
-						className={cx('h-full p-2 rounded-lg cursor-pointer', preferences.textAreaDirection == 'rtl' && 'bg-base-100')}>
+						onMouseDown={() => preference.setTextAreaDirection(preference.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
+						className={cx('h-full p-2 rounded-lg cursor-pointer', preference.textAreaDirection == 'rtl' && 'bg-base-100')}>
 						<AlignRightIcon className="w-6 h-6" />
 					</div>
 				</div>
 
 				<div className="tooltip tooltip-bottom ms-auto me-1" data-tip={t('common.format')}>
 					<select
-						value={preferences.textFormat}
+						value={preference.textFormat}
 						onChange={(event) => {
-							preferences.setTextFormat(event.target.value as unknown as TextFormat)
+							preference.setTextFormat(event.target.value as unknown as TextFormat)
 						}}
 						className="select select-bordered">
 						<option value="normal">{t('common.mode-text')}</option>
@@ -153,8 +153,8 @@ export default function TextArea({
 					</select>
 				</div>
 			</div>
-			{['html', 'pdf'].includes(preferences.textFormat) ? (
-				<HTMLView preferences={preferences} segments={segments ?? []} file={file} />
+			{['html', 'pdf'].includes(preference.textFormat) ? (
+				<HTMLView preference={preference} segments={segments ?? []} file={file} />
 			) : (
 				<textarea
 					placeholder={placeholder}
@@ -163,7 +163,7 @@ export default function TextArea({
 					spellCheck={false}
 					onChange={(e) => setText(e.target.value)}
 					value={text}
-					dir={preferences.textAreaDirection}
+					dir={preference.textAreaDirection}
 					className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
 				/>
 			)}

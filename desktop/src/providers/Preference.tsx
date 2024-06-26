@@ -6,8 +6,8 @@ import { ModifyState } from '~/lib/utils'
 
 type Direction = 'ltr' | 'rtl'
 
-// Define the type of preferences
-export interface Preferences {
+// Define the type of preference
+export interface Preference {
 	displayLanguage: string
 	setDisplayLanguage: ModifyState<string>
 	soundOnFinish: boolean
@@ -31,11 +31,11 @@ export interface Preferences {
 }
 
 // Create the context
-const PreferencesContext = createContext<Preferences | null>(null)
+const PreferenceContext = createContext<Preference | null>(null)
 
-// Custom hook to use the preferences context
-export function usePreferencesContext() {
-	return useContext(PreferencesContext) as Preferences
+// Custom hook to use the preference context
+export function usePreferenceProvider() {
+	return useContext(PreferenceContext) as Preference
 }
 
 export interface ModelOptions {
@@ -50,8 +50,8 @@ export interface ModelOptions {
 
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
-// Preferences provider component
-export function PreferencesProvider({ children }: { children: ReactNode }) {
+// Preference provider component
+export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
@@ -70,7 +70,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 
-	const preferences: Preferences = {
+	const preference: Preference = {
 		modelOptions,
 		setModelOptions,
 		storeRecordInDocuments,
@@ -93,5 +93,5 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 		setTheme,
 	}
 
-	return <PreferencesContext.Provider value={preferences}>{children}</PreferencesContext.Provider>
+	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>
 }

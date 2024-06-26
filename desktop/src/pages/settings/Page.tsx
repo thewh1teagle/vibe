@@ -36,7 +36,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					<span className="label-text">{t('common.language')}</span>
 				</div>
 				<select
-					onChange={(e) => vm.preferences.setDisplayLanguage(e.target.value)}
+					onChange={(e) => vm.preference.setDisplayLanguage(e.target.value)}
 					value={t(i18n.language)}
 					className="select select-bordered capitalize">
 					<option>{t('common.select-language')}</option>
@@ -58,8 +58,8 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					<input
 						type="checkbox"
 						className="toggle toggle-primary"
-						onChange={(e) => vm.preferences.setSoundOnFinish(e.target.checked)}
-						checked={vm.preferences.soundOnFinish}
+						onChange={(e) => vm.preference.setSoundOnFinish(e.target.checked)}
+						checked={vm.preference.soundOnFinish}
 					/>
 				</label>
 				<label className="label cursor-pointer">
@@ -67,8 +67,8 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					<input
 						type="checkbox"
 						className="toggle toggle-primary"
-						onChange={(e) => vm.preferences.setFocusOnFinish(e.target.checked)}
-						checked={vm.preferences.focusOnFinish}
+						onChange={(e) => vm.preference.setFocusOnFinish(e.target.checked)}
+						checked={vm.preference.focusOnFinish}
 					/>
 				</label>
 			</div>
@@ -105,8 +105,8 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				</label>
 				<select
 					onFocus={vm.loadModels}
-					onChange={(e) => vm.preferences.setModelPath(e.target.value)}
-					value={vm.preferences.modelPath ?? undefined}
+					onChange={(e) => vm.preference.setModelPath(e.target.value)}
+					value={vm.preference.modelPath ?? undefined}
 					className="select select-bordered flex-1">
 					<option>{t('common.select-model')}</option>
 					{vm.models.map((model, index) => (

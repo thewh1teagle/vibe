@@ -3,7 +3,7 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/ErrorModal'
-import { usePreferencesContext } from '~/providers/Preferences'
+import { usePreferenceProvider } from '~/providers/Preference'
 
 export function viewModel() {
 	const location = useLocation()
@@ -12,7 +12,7 @@ export function viewModel() {
 	const downloadProgressRef = useRef(0)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
-	const preferences = usePreferencesContext()
+	const preference = usePreferenceProvider()
 
 	function handleProgressEvenets() {
 		listen('download_progress', (event) => {
@@ -34,11 +34,11 @@ export function viewModel() {
 		try {
 			if (location?.state?.downloadURL) {
 				const path = await invoke('download_model', { url: location?.state?.downloadURL })
-				preferences.setModelPath(path as string)
+				preference.setModelPath(path as string)
 				navigate('/')
 			} else {
 				const path = await invoke('download_model')
-				preferences.setModelPath(path as string)
+				preference.setModelPath(path as string)
 				navigate('/')
 			}
 		} catch (error) {
@@ -59,7 +59,7 @@ export function viewModel() {
 
 	async function cancelSetup() {
 		// Cancel and go to settings
-		preferences.setSkippedSetup(true)
+		preference.setSkippedSetup(true)
 		emit('abort_download')
 		navigate('/#settings')
 	}
@@ -77,6 +77,6 @@ export function viewModel() {
 		setDownloadProgress,
 		downloadProgressRef,
 		isOnline,
-		location
+		location,
 	}
 }

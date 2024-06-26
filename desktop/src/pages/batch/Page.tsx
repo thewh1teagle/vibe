@@ -17,7 +17,7 @@ export default function BatchPage() {
 				<LanguageInput />
 
 				<FormatSelect setFormat={vm.setFormat} format={vm.format} />
-				<ModelOptions options={vm.preferences.modelOptions} setOptions={vm.preferences.setModelOptions} />
+				<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 
 				<div className="mt-5">
 					<BatchPanel

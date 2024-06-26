@@ -4,7 +4,7 @@ import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
 import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
 import { ModifyState, cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
-import { ModelOptions as IModelOptions } from '~/providers/Preferences'
+import { ModelOptions as IModelOptions } from '~/providers/Preference'
 
 interface ParamsProps {
 	options: IModelOptions

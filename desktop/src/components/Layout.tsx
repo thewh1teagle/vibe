@@ -5,13 +5,13 @@ import AppMenu from './AppMenu'
 import DropModal from './DropModal'
 import SettingsModal from './SettingsModal'
 import ThemeToggle from './ThemeToggle'
-import { usePreferencesContext } from '~/providers/Preferences'
+import { usePreferenceProvider } from '~/providers/Preference'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { t } = useTranslation()
-	const { setTheme, theme } = usePreferencesContext()
+	const { setTheme, theme } = usePreferenceProvider()
 	return (
 		<div className="flex flex-col pb-[80px]">
 			<div className="absolute right-16 top-16">

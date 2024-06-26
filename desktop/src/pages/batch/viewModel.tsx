@@ -11,7 +11,7 @@ import successSound from '~/assets/success.mp3'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
-import { usePreferencesContext } from '~/providers/Preferences'
+import { usePreferenceProvider } from '~/providers/Preference'
 import { useFilesContext } from '~/providers/FilesProvider'
 
 export function viewModel() {
@@ -23,7 +23,7 @@ export function viewModel() {
 	const [inProgress, setInProgress] = useState(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const isAbortingRef = useRef<boolean>(false)
-	const preferences = usePreferencesContext()
+	const preference = usePreferenceProvider()
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
 
@@ -98,7 +98,7 @@ export function viewModel() {
 		}
 		setInProgress(true)
 		let localIndex = 0
-		await invoke('load_model', { modelPath: preferences.modelPath })
+		await invoke('load_model', { modelPath: preference.modelPath })
 		try {
 			setCurrentIndex(localIndex)
 			const loopStartTime = performance.now()
@@ -109,11 +109,11 @@ export function viewModel() {
 				setProgress(null)
 				const options = {
 					path: file.path,
-					...preferences.modelOptions,
+					...preference.modelOptions,
 				}
 				const startTime = performance.now()
 
-				const res: Transcript = await invoke('transcribe', { options, modelPath: preferences.modelPath })
+				const res: Transcript = await invoke('transcribe', { options, modelPath: preference.modelPath })
 
 				// Calculate time
 				let total = Math.round((performance.now() - startTime) / 1000)
@@ -143,10 +143,10 @@ export function viewModel() {
 				setIsAborting(false)
 				setProgress(null)
 				// Focus back the window and play sound
-				if (preferences!.soundOnFinish) {
+				if (preference!.soundOnFinish) {
 					new Audio(successSound).play()
 				}
-				if (preferences!.focusOnFinish) {
+				if (preference!.focusOnFinish) {
 					webview.getCurrent().unminimize()
 					webview.getCurrent().setFocus()
 				}
@@ -192,6 +192,6 @@ export function viewModel() {
 		files,
 		format,
 		setFormat,
-		preferences,
+		preference: preference,
 	}
 }

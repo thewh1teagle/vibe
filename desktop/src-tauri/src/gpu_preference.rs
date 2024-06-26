@@ -9,7 +9,7 @@ pub fn set_gpu_preference() -> Result<()> {
     let directx = hkcu.open_subkey_with_flags("Software\\Microsoft\\DirectX", KEY_ALL_ACCESS)?;
 
     // Create the main key for the UserGpuPreferences if it doesn't exist
-    let user_gpu_preferences = directx.create_subkey("UserGpuPreferences")?;
+    let user_gpu_preference = directx.create_subkey("UserGpuPreferences")?;
 
     // Get the current executable path
     let program_path = env::current_exe()?;
@@ -17,7 +17,7 @@ pub fn set_gpu_preference() -> Result<()> {
 
     // Set the GPU preference for the current executable
     // 0 = Auto ; 1 = Power Saving ; 2 = High
-    user_gpu_preferences.0.set_value(program_path_str, &"GpuPreference=2;")?;
+    user_gpu_preference.0.set_value(program_path_str, &"GpuPreference=2;")?;
 
     log::debug!(
         "GPU preference set for high performance successfully for the current executable ({}).",
