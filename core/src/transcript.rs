@@ -28,7 +28,7 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
 pub struct Transcript {
     pub processing_time: Duration,
     pub segments: Vec<Segment>,
-    // pub word_segments: Option<Vec<Utternace>>,
+    pub word_segments: Vec<Segment>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

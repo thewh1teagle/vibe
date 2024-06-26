@@ -28,6 +28,8 @@ export interface Preference {
 	setTheme: ModifyState<'light' | 'dark'>
 	storeRecordInDocuments: boolean
 	setStoreRecordInDocuments: ModifyState<boolean>
+	maxWordPerLine: boolean | null
+	setMaxWordPerLine: ModifyState<boolean | null>
 }
 
 // Create the context
@@ -46,7 +48,6 @@ export interface ModelOptions {
 	temperature?: number
 	translate?: boolean
 	max_text_ctx?: number
-	word_timestamps?: boolean
 }
 
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -60,19 +61,22 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
 	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'normal')
+	const [maxWordPerLine, setMaxWordPerLine] = useLocalStorage<number | null>('prefs_max_word_per_line', null)
+
 	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', {
 		init_prompt: '',
 		verbose: false,
 		lang: 'en',
 		n_threads: 4,
 		temperature: 0.4,
-		max_text_ctx: undefined,
-		word_timestamps: false,
+		max_text_ctx: undefined
 	})
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 
 	const preference: Preference = {
+		maxWordPerLine,
+		setMaxWordPerLine,
 		modelOptions,
 		setModelOptions,
 		storeRecordInDocuments,

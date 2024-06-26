@@ -35,7 +35,6 @@ pub struct TranscribeOptions {
     pub temperature: Option<f32>,
     pub translate: Option<bool>,
     pub max_text_ctx: Option<i32>,
-    pub word_timestamps: Option<bool>,
 }
 
 impl fmt::Debug for TranscribeOptions {
