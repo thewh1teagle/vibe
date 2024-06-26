@@ -36,6 +36,23 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						/>
 					</label>
 				</div>
+
+				<div className="form-control w-full mt-3">
+					<label className="label cursor-pointer">
+						<span className="label-text flex items-center gap-1 cursor-default">
+							<InfoTooltip text={t('common.info-use-word-timestamps')} />
+							{t('common.use-word-timestamps')}
+						</span>
+
+						<input
+							type="checkbox"
+							className="toggle toggle-primary"
+							checked={options.word_timestamps}
+							onChange={(e) => setOptions({ ...options, word_timestamps: e.target.checked })}
+						/>
+					</label>
+				</div>
+
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text flex items-center gap-1">

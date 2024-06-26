@@ -78,6 +78,11 @@ struct Args {
     #[arg(short, long, default_value = "srt", value_parser = get_possible_formats())]
     // TODO: use possible values. confusing crate!
     format: String,
+
+    /// Format of the transcript
+    #[arg(long)]
+    // TODO: use possible values. confusing crate!
+    word_timestamps: bool,
 }
 
 fn get_possible_languages() -> Vec<String> {
@@ -128,6 +133,7 @@ pub fn run(app: &App) {
         translate: args.translate,
         verbose: false,
         max_text_ctx: args.max_text_ctx,
+        word_timestamps: Some(args.word_timestamps),
     };
     let model_path = prepare_model_path(&args.model);
 

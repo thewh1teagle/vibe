@@ -37,6 +37,7 @@
 	"info-temperature": "Wyższe wartości prowadzą do bardziej unikalnych słów; niższe wartości trzymają się popularnych słów. Zazwyczaj wartość 0,4 zapewnia zrównoważony wynik.",
 	"info-threads": "Zwiększ moc CPU dla szybszego dekodowania; zbalansuj prędkość z wykorzystanymi zasobami. Rekomendowane: 4",
 	"info-translate-to-english": "Włączenie tej opcji umożliwia tłumaczenie transkrypcji na język angielski z dowolnego języka.",
+	"info-use-word-timestamps": "Transkrypcja ze znacznikami czasu słów zamiast znaczników czasu zdań. \nPrzydatne w formacie JSON.",
 	"language": "Język",
 	"leftover": "pozostałości",
 	"logs-folder": "Folder z logami",
@@ -83,5 +84,6 @@
 	"update-version": "Zaaktualizuj Vibe",
 	"updating-modal-body": "Aktualizowanie Vibe do wersji {{version}}",
 	"updating-modal-title": "Aktualizowanie...",
+	"use-word-timestamps": "Znaczniki czasu dla każdego słowa",
 	"when-completing-transcription": "Podczas zakończenia transkrypcji"
 }
