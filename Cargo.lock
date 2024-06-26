@@ -5600,30 +5600,6 @@ name = "vibe"
 version = "0.0.6"
 dependencies = [
  "clap",
- "dirs-next",
- "env_logger",
- "eyre",
- "futures-util",
- "glob",
- "hound",
- "log",
- "num",
- "once_cell",
- "reqwest 0.11.27",
- "serde",
- "serde_json",
- "sha256",
- "tempfile",
- "tokio",
- "which 6.0.1",
- "whisper-rs",
-]
-
-[[package]]
-name = "vibe-desktop"
-version = "0.0.6"
-dependencies = [
- "clap",
  "cocoa",
  "cpal",
  "env_logger",
@@ -5655,9 +5631,33 @@ dependencies = [
  "tauri-plugin-window-state",
  "tokio",
  "url",
- "vibe",
+ "vibe_core",
  "windows 0.56.0",
  "winreg 0.52.0",
+]
+
+[[package]]
+name = "vibe_core"
+version = "0.0.6"
+dependencies = [
+ "clap",
+ "dirs-next",
+ "env_logger",
+ "eyre",
+ "futures-util",
+ "glob",
+ "hound",
+ "log",
+ "num",
+ "once_cell",
+ "reqwest 0.11.27",
+ "serde",
+ "serde_json",
+ "sha256",
+ "tempfile",
+ "tokio",
+ "which 6.0.1",
+ "whisper-rs",
 ]
 
 [[package]]

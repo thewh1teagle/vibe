@@ -207,7 +207,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
             log::debug!("Merging WAV files");
-            vibe::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).unwrap();
+            vibe_core::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).unwrap();
             dst
         }
         else if wav_paths[0].1 > wav_paths[1].1 {

@@ -1,7 +1,7 @@
 use crate::{cli, panic_hook};
 use tauri::{App, Manager};
 use tokio::sync::Mutex;
-use vibe::model::WhisperContext;
+use vibe_core::model::WhisperContext;
 
 pub struct ModelContext {
     pub path: String,

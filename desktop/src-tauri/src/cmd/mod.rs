@@ -14,7 +14,7 @@ use tauri::{
     Manager,
 };
 use tokio::sync::Mutex;
-use vibe::{model::SegmentCallbackData, transcript::Transcript};
+use vibe_core::{model::SegmentCallbackData, transcript::Transcript};
 pub mod audio;
 
 /// Return true if there's internet connection
@@ -80,14 +80,14 @@ pub fn get_x86_features() -> Option<Value> {
 #[tauri::command]
 pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -> Result<String> {
     let model_path = if let Some(url) = url.clone() {
-        let filename = vibe::downloader::get_filename(&url).await?;
+        let filename = vibe_core::downloader::get_filename(&url).await?;
         log::debug!("url filename is {}", filename);
-        vibe::config::get_models_folder().unwrap().join(filename)
+        vibe_core::config::get_models_folder().unwrap().join(filename)
     } else {
-        vibe::config::get_model_path()?
+        vibe_core::config::get_model_path()?
     };
 
-    let mut downloader = vibe::downloader::Downloader::new();
+    let mut downloader = vibe_core::downloader::Downloader::new();
     log::debug!("Download model invoked! with path {}", model_path.display());
 
     let abort_atomic = Arc::new(AtomicBool::new(false));
@@ -136,7 +136,7 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
 
 #[tauri::command]
 pub async fn get_default_model_path() -> Result<String> {
-    let model_path = vibe::config::get_model_path()?;
+    let model_path = vibe_core::config::get_model_path()?;
     let model_path = model_path.to_str().ok_or_eyre("cant convert model path to string")?;
     Ok(model_path.to_string())
 }
@@ -144,7 +144,7 @@ pub async fn get_default_model_path() -> Result<String> {
 #[tauri::command]
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
-    options: vibe::config::TranscribeOptions,
+    options: vibe_core::config::TranscribeOptions,
     model_context_state: State<'_, Mutex<Option<ModelContext>>>,
 ) -> Result<Transcript> {
     let model_context = model_context_state.lock().await;
@@ -184,7 +184,7 @@ pub async fn transcribe(
 
     // prevent panic crash. sometimes whisper.cpp crash without nice errors.
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
-        vibe::model::transcribe(
+        vibe_core::model::transcribe(
             &ctx.handle,
             &options,
             Some(Box::new(progress_callback)),
@@ -276,7 +276,7 @@ pub async fn load_model(model_path: String, model_context_state: State<'_, Mutex
         if model_path != state.path {
             log::debug!("model path changed. reloading");
             // reload
-            let context = vibe::model::create_context(Path::new(&model_path))?;
+            let context = vibe_core::model::create_context(Path::new(&model_path))?;
             *state_guard = Some(ModelContext {
                 path: model_path.clone(),
                 handle: context,
@@ -284,7 +284,7 @@ pub async fn load_model(model_path: String, model_context_state: State<'_, Mutex
         }
     } else {
         log::debug!("loading model first time");
-        let context = vibe::model::create_context(Path::new(&model_path))?;
+        let context = vibe_core::model::create_context(Path::new(&model_path))?;
         *state_guard = Some(ModelContext {
             path: model_path.clone(),
             handle: context,

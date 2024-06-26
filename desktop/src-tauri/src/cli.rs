@@ -4,8 +4,8 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 use std::{env, process};
 use tauri::App;
-use vibe::config::{get_models_folder, TranscribeOptions};
-use vibe::model;
+use vibe_core::config::{get_models_folder, TranscribeOptions};
+use vibe_core::model;
 
 /// Attach to console if cli detected in Windows
 #[cfg(windows)]

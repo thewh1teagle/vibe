@@ -1,10 +1,10 @@
 [package]
-name = "vibe"
+name = "vibe_core"
 version = "0.0.6"
 edition = "2021"
 
 [lib]
-name = "vibe"
+name = "vibe_core"
 path = "src/lib.rs"
 
 [dependencies]

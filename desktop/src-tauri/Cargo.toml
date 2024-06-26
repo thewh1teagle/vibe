@@ -1,5 +1,5 @@
 [package]
-name = "vibe-desktop"
+name = "vibe"
 version = "0.0.6"
 description = "Vibe"
 authors = ["@thewh1teagle"]
@@ -43,11 +43,11 @@ tauri-plugin-single-instance = "2.0.0-beta.9"
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
-vibe = { path = "../../core", features = ["openblas"] }
+vibe_core = { path = "../../core", features = ["openblas"] }
 openssl = { version = "0.10.63", features = ["vendored"] }
 
 [target.'cfg(windows)'.dependencies]
-vibe = { path = "../../core", features = ["opencl", "openblas"] }
+vibe_core = { path = "../../core", features = ["opencl", "openblas"] }
 windows = { version = "0.56.0", features = [
 	"Win32_System_Console",
 	"Win32_Foundation",
@@ -55,7 +55,7 @@ windows = { version = "0.56.0", features = [
 winreg = "0.52.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-vibe = { path = "../../core", features = ["coreml", "metal"] }
+vibe_core = { path = "../../core", features = ["coreml", "metal"] }
 cocoa = "0.25.0"
 screencapturekit = { version = "0.2.8", features = ["ci"] }
 screencapturekit-sys = "0.2.8"

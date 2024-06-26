@@ -11,7 +11,7 @@ use std::io::Write;
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use vibe::audio::find_ffmpeg_path;
+use vibe_core::audio::find_ffmpeg_path;
 
 const MAX_CHANNELS: usize = 2;
 
