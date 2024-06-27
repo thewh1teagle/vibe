@@ -59,6 +59,8 @@ pub fn transcribe(
 
     if let Some(true) = options.word_timestamps {
         params.set_token_timestamps(true);
+        params.set_split_on_word(true);
+        params.set_max_len(options.max_sentence_len.unwrap_or(1));
     }
 
     if let Some(true) = options.translate {
@@ -131,26 +133,10 @@ pub fn transcribe(
 
     log::debug!("looping segments...");
     for s in 0..num_segments {
-        if let Some(true) = options.word_timestamps {
-            let num_tokens = state.full_n_tokens(s)?;
-            for t in 0..num_tokens {
-                let text = state.full_get_token_text_lossy(s, t)?;
-                let token_data = state.full_get_token_data(s, t)?;
-                if text.starts_with("[_") {
-                    continue;
-                }
-                segments.push(Segment {
-                    start: token_data.t0,
-                    stop: token_data.t1,
-                    text,
-                });
-            }
-        } else {
-            let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
-            let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
-            let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
-            segments.push(Segment { text, start, stop });
-        }
+        let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
+        let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
+        let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
+        segments.push(Segment { text, start, stop });
     }
 
     // cleanup
@@ -203,6 +189,7 @@ mod tests {
             translate: None,
             max_text_ctx: None,
             word_timestamps: None,
+            max_sentence_len: None,
         };
         let ctx = create_context(Path::new(&config::get_model_path().unwrap())).unwrap();
         transcribe(&ctx, args, None, None, None)?;

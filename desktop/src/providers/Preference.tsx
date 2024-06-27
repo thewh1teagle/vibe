@@ -47,6 +47,7 @@ export interface ModelOptions {
 	translate?: boolean
 	max_text_ctx?: number
 	word_timestamps?: boolean
+	max_sentence_len?: number
 }
 
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -68,6 +69,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		temperature: 0.4,
 		max_text_ctx: undefined,
 		word_timestamps: false,
+		max_sentence_len: 1,
 	})
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')

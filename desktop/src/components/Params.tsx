@@ -37,6 +37,19 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					</label>
 				</div>
 
+				<label className="form-control w-full">
+					<div className="label">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={t('common.info-prompt')} />
+							{t('common.prompt')} ({t('common.leftover')} {1024 - (options?.init_prompt?.length ?? 0)} {t('common.characters')})
+						</span>
+					</div>
+					<textarea
+						value={options?.init_prompt}
+						onChange={(e) => setOptions({ ...options, init_prompt: e.target.value.slice(0, 1024) })}
+						className="textarea textarea-bordered w-full"></textarea>
+				</label>
+
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">
@@ -52,18 +65,19 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						/>
 					</label>
 				</div>
-
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text flex items-center gap-1">
-							<InfoTooltip text={t('common.info-prompt')} />
-							{t('common.prompt')} ({t('common.leftover')} {1024 - (options?.init_prompt?.length ?? 0)} {t('common.characters')})
+							<InfoTooltip text={t('common.info-max-sentence-len')} />
+							{t('common.max-sentence-len')}
 						</span>
 					</div>
-					<textarea
-						value={options?.init_prompt}
-						onChange={(e) => setOptions({ ...options, init_prompt: e.target.value.slice(0, 1024) })}
-						className="textarea textarea-bordered w-full"></textarea>
+					<input
+						value={options.max_sentence_len}
+						onChange={(e) => setOptions({ ...options, max_sentence_len: parseInt(e.target.value) ?? 1 })}
+						className="input input-bordered"
+						type="number"
+					/>
 				</label>
 				<label className="form-control w-full">
 					<div className="label">

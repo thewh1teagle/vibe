@@ -83,6 +83,11 @@ struct Args {
     #[arg(long)]
     // TODO: use possible values. confusing crate!
     word_timestamps: bool,
+
+    /// Format of the transcript
+    #[arg(long)]
+    // TODO: use possible values. confusing crate!
+    max_sentence_len: Option<i32>,
 }
 
 fn get_possible_languages() -> Vec<String> {
@@ -134,6 +139,7 @@ pub fn run(app: &App) {
         verbose: false,
         max_text_ctx: args.max_text_ctx,
         word_timestamps: Some(args.word_timestamps),
+        max_sentence_len: args.max_sentence_len,
     };
     let model_path = prepare_model_path(&args.model);
 

@@ -36,6 +36,7 @@ pub struct TranscribeOptions {
     pub translate: Option<bool>,
     pub max_text_ctx: Option<i32>,
     pub word_timestamps: Option<bool>,
+    pub max_sentence_len: Option<i32>,
 }
 
 impl fmt::Debug for TranscribeOptions {
