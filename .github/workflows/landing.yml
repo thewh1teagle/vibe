@@ -5,8 +5,8 @@ on:
         branches:
             - main
         paths:
-            - 'landing/**'
-            - 'scripts/landing_links.js'
+            - "landing/**"
+            - "scripts/landing_links.js"
     workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
@@ -18,7 +18,7 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-    group: 'pages'
+    group: "pages"
     cancel-in-progress: false
 
 jobs:
@@ -47,12 +47,14 @@ jobs:
             - name: Build
               run: bun run build
               working-directory: landing
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Upload Artifacts
               uses: actions/upload-pages-artifact@v1
               with:
                   # this should match the `pages` option in your adapter-static options
-                  path: 'landing/build/'
+                  path: "landing/build/"
 
     deploy:
         needs: build
