@@ -98,7 +98,7 @@ export function viewModel() {
 		}
 		setInProgress(true)
 		let localIndex = 0
-		await invoke('load_model', { modelPath: preference.modelPath })
+		await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
 		try {
 			setCurrentIndex(localIndex)
 			const loopStartTime = performance.now()

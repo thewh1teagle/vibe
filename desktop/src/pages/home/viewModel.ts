@@ -213,7 +213,7 @@ export function viewModel() {
 		abortRef.current = false
 
 		try {
-			await invoke('load_model', { modelPath: preference.modelPath })
+			await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
 			const options = {
 				path: files[0].path,
 				...preference.modelOptions,

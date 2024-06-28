@@ -145,7 +145,7 @@ pub fn run(app: &App) {
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
-    let ctx = model::create_context(&model_path).unwrap();
+    let ctx = model::create_context(&model_path, None).unwrap();
     let transcript = model::transcribe(&ctx, &options, None, None, None).unwrap();
     let elapsed = start.elapsed();
     println!(

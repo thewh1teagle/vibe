@@ -28,6 +28,8 @@ export interface Preference {
 	setTheme: ModifyState<'light' | 'dark'>
 	storeRecordInDocuments: boolean
 	setStoreRecordInDocuments: ModifyState<boolean>
+	gpuDevice: number
+	setGpuDevice: ModifyState<number>
 }
 
 // Create the context
@@ -55,6 +57,7 @@ const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-sche
 // Preference provider component
 export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
+	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
@@ -95,6 +98,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setModelPath,
 		theme,
 		setTheme,
+		gpuDevice,
+		setGpuDevice,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

@@ -119,4 +119,10 @@ fn main() {
             println!("cargo:rustc-link-search={}", path);
         }
     }
+
+    // Passed from Github action
+    println!(
+        "cargo:rustc-env=CUDA_VERSION={}",
+        std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()
+    );
 }

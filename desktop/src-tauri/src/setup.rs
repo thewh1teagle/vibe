@@ -5,6 +5,7 @@ use vibe_core::model::WhisperContext;
 
 pub struct ModelContext {
     pub path: String,
+    pub gpu_device: Option<i32>,
     pub handle: WhisperContext,
 }
 

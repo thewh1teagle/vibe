@@ -11,14 +11,25 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContextParameters};
 type ProgressCallbackType = once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>>;
 static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| Mutex::new(None));
 
-pub fn create_context(model_path: &Path) -> Result<WhisperContext> {
+pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<WhisperContext> {
     log::debug!("open model...");
     if !model_path.exists() {
         bail!("whisper file doesn't exist")
     }
+    let mut ctx_params = WhisperContextParameters::default();
+    if !env!("CUDA_VERSION").is_empty() {
+        // Nvidia
+        ctx_params.use_gpu = true;
+        if let Some(gpu_device) = gpu_device {
+            ctx_params.gpu_device = gpu_device;
+        }
+        // todo: let the user select gpu
+    }
+    log::debug!("gpu device: {:?}", ctx_params.gpu_device);
+    log::debug!("use gpu: {:?}", ctx_params.use_gpu);
     let ctx = WhisperContext::new_with_params(
         model_path.to_str().ok_or_eyre("can't convert model option to str")?,
-        WhisperContextParameters::default(),
+        ctx_params,
     )
     .context("failed to open model")?;
     Ok(ctx)
@@ -191,7 +202,7 @@ mod tests {
             word_timestamps: None,
             max_sentence_len: None,
         };
-        let ctx = create_context(Path::new(&config::get_model_path().unwrap())).unwrap();
+        let ctx = create_context(Path::new(&config::get_model_path().unwrap()), None).unwrap();
         transcribe(&ctx, args, None, None, None)?;
 
         Ok(())

@@ -163,7 +163,10 @@ if (process.argv.includes('--nvidia')) {
 	if (platform === 'linux') {
 		// modify features in cargo.toml
 		let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
-		content = content.replace('vibe = { path = "../../core", features = ["openblas"] }', 'vibe = { path = "../../core", features = ["openblas", "cuda"] }')
+		content = content.replace(
+			'vibe_core = { path = "../../core", features = ["openblas"] }',
+			'vibe_core = { path = "../../core", features = ["openblas", "cuda"] }'
+		)
 		await fs.writeFile('Cargo.toml', content)
 	}
 }
@@ -171,7 +174,10 @@ if (process.argv.includes('--nvidia')) {
 // Linux OpenCL
 if (platform === 'linux' && process.argv.includes('--opencl')) {
 	let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
-	content = content.replace('vibe = { path = "../../core", features = ["openblas"] }', 'vibe = { path = "../../core", features = ["openblas", "opencl"] }')
+	content = content.replace(
+		'vibe_core = { path = "../../core", features = ["openblas"] }',
+		'vibe_core = { path = "../../core", features = ["openblas", "opencl"] }'
+	)
 	await fs.writeFile('Cargo.toml', content)
 }
 

@@ -269,25 +269,31 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub async fn load_model(model_path: String, model_context_state: State<'_, Mutex<Option<ModelContext>>>) -> Result<String> {
+pub async fn load_model(
+    model_path: String,
+    gpu_device: Option<i32>,
+    model_context_state: State<'_, Mutex<Option<ModelContext>>>,
+) -> Result<String> {
     let mut state_guard = model_context_state.lock().await;
     if let Some(state) = state_guard.as_ref() {
         // check if new path is different
-        if model_path != state.path {
-            log::debug!("model path changed. reloading");
+        if model_path != state.path || gpu_device != state.gpu_device {
+            log::debug!("model path or gpu device changed. reloading");
             // reload
-            let context = vibe_core::model::create_context(Path::new(&model_path))?;
+            let context = vibe_core::model::create_context(Path::new(&model_path), gpu_device)?;
             *state_guard = Some(ModelContext {
                 path: model_path.clone(),
                 handle: context,
+                gpu_device,
             });
         }
     } else {
         log::debug!("loading model first time");
-        let context = vibe_core::model::create_context(Path::new(&model_path))?;
+        let context = vibe_core::model::create_context(Path::new(&model_path), gpu_device)?;
         *state_guard = Some(ModelContext {
             path: model_path.clone(),
             handle: context,
+            gpu_device,
         });
     }
     Ok(model_path)

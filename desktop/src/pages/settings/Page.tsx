@@ -152,6 +152,17 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			<div className="label mt-10">
 				<span className="label-text">{t('common.advanced')}</span>
 			</div>
+			<label className="form-control w-full">
+				<div className="label">
+					<span className="label-text flex items-center gap-1">{t('common.gpu-device')}</span>
+				</div>
+				<input
+					value={vm.preference.gpuDevice}
+					onChange={(e) => vm.preference.setGpuDevice(parseInt(e.target.value) ?? 0)}
+					className="input input-bordered"
+					type="number"
+				/>
+			</label>
 			<div className="flex flex-col gap-1">
 				<button onMouseDown={vm.openLogsFolder} className="btn bg-base-300 text-base-content">
 					{t('common.logs-folder')}
