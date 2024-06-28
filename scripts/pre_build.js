@@ -168,6 +168,12 @@ if (process.argv.includes('--nvidia')) {
 			'vibe_core = { path = "../../core", features = ["openblas", "cuda"] }'
 		)
 		await fs.writeFile('Cargo.toml', content)
+
+		// Add cuda toolkit depends package
+		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.linux.deb.depends.push('nvidia-cuda-toolkit')
+		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
 	}
 }
 
