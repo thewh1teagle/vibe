@@ -19,6 +19,8 @@ Nvidia's performance is incredible — transcribe 1 hour in just 1-5 minutes!
 
 Look for installers with `nvidia` in [vibe/releases/latest](https://github.com/thewh1teagle/vibe/releases/latest)
 
+On Linux, you may also need to install [`cuda-toolkit`](https://developer.nvidia.com/cuda-downloads). 
+
 </details>
 
 <details>
