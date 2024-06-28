@@ -29,6 +29,7 @@
 	"focus-window-on-finish": "העבר חלון לחזית",
 	"format": "פורמט",
 	"general": "כללי",
+	"gpu-device": "מספר התקן GPU",
 	"i-prefer-manual-setup": "אני מעדיף להוריד ידנית",
 	"info-cancel-download": "ניתן לעצור את ההורדה ולהגדיר את המודל ידנית.",
 	"info-manual-download": "כדי להשתמש ב-Vibe, תחילה עליך להתחבר לאינטרנט כדי שהתוכנה תוכל להוריד את המודל שמבצע את התמלול.",

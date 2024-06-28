@@ -29,6 +29,7 @@
 	"focus-window-on-finish": "Mettre la fenêtre au premier plan",
 	"format": "Format",
 	"general": "Général",
+	"gpu-device": "Numéro de périphérique GPU",
 	"i-prefer-manual-setup": "Je préfère télécharger manuellement",
 	"info-cancel-download": "Vous pouvez annuler et télécharger manuellement le modèle ultérieurement.",
 	"info-manual-download": "Une connexion Internet est requise pour télécharger le modèle d'IA",

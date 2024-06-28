@@ -29,6 +29,7 @@
 	"focus-window-on-finish": "Focar janela ao terminar",
 	"format": "Formatar",
 	"general": "Geral",
+	"gpu-device": "Número do dispositivo GPU",
 	"i-prefer-manual-setup": "Prefiro fazer o download manualmente",
 	"info-cancel-download": "Você pode cancelar e fazer o download do modelo manualmente mais tarde.",
 	"info-manual-download": "É necessária uma conexão com a Internet para fazer o download do modelo AI",

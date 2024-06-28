@@ -29,6 +29,7 @@
 	"focus-window-on-finish": "Skupienie na oknie",
 	"format": "format",
 	"general": "ogólny",
+	"gpu-device": "Numer urządzenia GPU",
 	"i-prefer-manual-setup": "Preferuję pobieranie ręczne",
 	"info-cancel-download": "Możesz anulować i ręcznie pobrać model później.",
 	"info-manual-download": "Połączenie internetowe jest wymagane do pobrania modalu AI",

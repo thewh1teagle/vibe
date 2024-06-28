@@ -29,6 +29,7 @@
 	"focus-window-on-finish": "Fokusera Vibe när transkibering är klar",
 	"format": "Formatera",
 	"general": "Allmän",
+	"gpu-device": "GPU-enhetsnummer",
 	"i-prefer-manual-setup": "I prefer download manually",
 	"info-cancel-download": "You can cancel and download model manually later.",
 	"info-manual-download": "Internet connection is required to downlod the AI modal",
