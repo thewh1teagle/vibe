@@ -56,6 +56,7 @@
 -   👥 ~Speaker diarization~ (coming soon)
 -   📱 ~iOS & Android support~ (coming soon)
 -   📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
+-   📹 Choose caption length optimized for videos / reels
 
 # Supported platforms 🖥️
 
