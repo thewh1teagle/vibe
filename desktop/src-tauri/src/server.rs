@@ -1,5 +1,4 @@
 use crate::cmd;
-use crate::config::{DEAFULT_SERVER_HOST, DEAFULT_SERVER_PORT};
 use crate::setup::ModelContext;
 use axum::extract::State;
 use axum::http::StatusCode;
@@ -11,34 +10,61 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::Manager;
 use tokio::sync::Mutex;
+use utoipa::{OpenApi, ToSchema};
+use utoipa_swagger_ui::SwaggerUi;
 use vibe_core::config::TranscribeOptions;
-use vibe_core::transcript::Transcript;
+use vibe_core::transcript::{Segment, Transcript};
 
-pub async fn run(app_handle: tauri::AppHandle) {
+#[derive(OpenApi)]
+#[openapi(
+    paths(list_models, load, transcribe),
+    components(schemas(TranscribeOptions, LoadPayload, Transcript, Segment))
+)]
+struct ApiDoc;
+
+pub async fn run(app_handle: tauri::AppHandle, host: String, port: u16) {
     let app = Router::new()
-        .route("/", get(|| async { "Vibe Server Running" }))
+        .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route("/transcribe", post(transcribe))
         .route("/load", post(load))
         .route("/list", get(list_models))
         .with_state(app_handle);
 
-    let listener = tokio::net::TcpListener::bind(format!("{}:{}", DEAFULT_SERVER_HOST, DEAFULT_SERVER_PORT))
-        .await
-        .unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(format!("{}:{}", host, port)).await.unwrap();
+    log::info!("Serve on http://{}:{}", host, port);
+    axum::serve(listener, app.into_make_service()).await.unwrap();
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 struct LoadPayload {
     pub model_path: String,
     pub gpu_device: Option<i32>,
 }
+
+/// Load model from path
+#[utoipa::path(
+	post,
+	path = "/load",
+	responses(
+		(status = 200, description = "Load model", body = LoadPayload)
+	),
+)]
 async fn load(State(app_handle): State<tauri::AppHandle>, Json(payload): Json<LoadPayload>) -> Result<String, String> {
     cmd::load_model(app_handle, payload.model_path, payload.gpu_device)
         .await
         .map_err(|e| e.to_string())
 }
 
+/// List all Todo items
+///
+/// List all Todo items from in-memory storage.
+#[utoipa::path(
+	get,
+	path = "/list",
+	responses(
+		(status = 200, description = "List all models")
+	)
+)]
 async fn list_models(State(app_handle): State<tauri::AppHandle>) -> Result<Json<Value>, (StatusCode, String)> {
     let models_folder = cmd::get_models_folder(app_handle).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
@@ -60,6 +86,14 @@ async fn list_models(State(app_handle): State<tauri::AppHandle>) -> Result<Json<
     Ok(Json(Value::Array(model_files.into_iter().map(Value::String).collect())))
 }
 
+/// Transcribe file
+#[utoipa::path(
+	post,
+	path = "/transcribe",
+	responses(
+		(status = 200, description = "List all models", body = Transcript)
+	)
+)]
 async fn transcribe(
     State(app_handle): State<tauri::AppHandle>,
     Json(payload): Json<TranscribeOptions>,

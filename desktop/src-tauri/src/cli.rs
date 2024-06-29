@@ -47,7 +47,7 @@ struct Args {
 
     /// Path to file to transcribe
     #[arg(long)]
-    file: Option<PathBuf>,
+    file: Option<String>,
 
     /// Language to transcribe
     #[arg(short, long, default_value = "english", value_parser = get_possible_languages())]
@@ -95,6 +95,13 @@ struct Args {
     /// Run http server
     #[arg(long)]
     server: bool,
+
+    #[arg(long, default_value = "0.0.0.0")]
+    host: String,
+
+    /// Port
+    #[arg(long, default_value = "3022")]
+    port: u16,
 }
 
 fn get_possible_languages() -> Vec<String> {
@@ -137,7 +144,7 @@ pub async fn run(app_handle: &AppHandle) {
     let args = Args::parse();
 
     if args.server {
-        server::run(app_handle.clone()).await;
+        server::run(app_handle.clone(), args.host, args.port).await;
     }
     let lang = language_name_to_whisper_lang(&args.language);
     let options = TranscribeOptions {

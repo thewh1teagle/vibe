@@ -1,10 +1,10 @@
 use core::fmt;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use utoipa::ToSchema;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, ToSchema)]
 pub struct TranscribeOptions {
-    pub path: PathBuf,
+    pub path: String,
     pub lang: Option<String>,
     pub verbose: bool,
 

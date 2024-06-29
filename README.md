@@ -57,7 +57,8 @@
 -   📱 ~iOS & Android support~ (coming soon)
 -   📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
 -   📹 Choose caption length optimized for videos / reels
--   ⚡ HTTP API at port 3022
+-   ⚡ HTTP API with Swagger docs! (See `http://<host>:3022/docs` for docs)
+
 # Supported platforms 🖥️
 
 `MacOS`

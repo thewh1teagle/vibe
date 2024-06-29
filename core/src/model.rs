@@ -2,7 +2,7 @@ use crate::audio;
 use crate::config::TranscribeOptions;
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, Context, Ok, OptionExt, Result};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Instant;
 pub use whisper_rs::SegmentCallbackData;
@@ -43,7 +43,7 @@ pub fn transcribe(
 ) -> Result<Transcript> {
     log::debug!("Transcribe called with {:?}", options);
 
-    if !options.path.clone().exists() {
+    if !PathBuf::from(options.path.clone()).exists() {
         bail!("audio file doesn't exist")
     }
 
@@ -57,7 +57,7 @@ pub fn transcribe(
         .tempfile()?
         .into_temp_path()
         .to_path_buf();
-    audio::normalize(options.path.clone(), out_path.clone())?;
+    audio::normalize(PathBuf::from(options.path.clone()), out_path.clone())?;
     let original_samples = audio::parse_wav_file(&out_path)?;
     let mut samples = vec![0.0f32; original_samples.len()];
     whisper_rs::install_whisper_log_trampoline();
@@ -154,7 +154,7 @@ pub fn transcribe(
 
     Ok(Transcript {
         segments,
-        processing_time: Instant::now().duration_since(st),
+        processing_time_sec: Instant::now().duration_since(st).as_secs(),
     })
 }
 
@@ -186,11 +186,7 @@ mod tests {
         audio::normalize(input_file_path.clone(), output_file_path.clone())?;
         log::debug!("check output at {}", output_file_path.display());
         let args = &config::TranscribeOptions {
-            path: input_file_path
-                .to_str()
-                .ok_or_eyre("cant convert path to str")?
-                .to_owned()
-                .into(),
+            path: input_file_path.to_str().ok_or_eyre("cant convert path to str")?.to_owned(),
             lang: None,
             n_threads: None,
             verbose: false,

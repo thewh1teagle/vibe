@@ -1,6 +1,6 @@
 use num::integer::div_floor;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
+use utoipa::ToSchema;
 
 pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker: &str) -> String {
     assert!(seconds >= 0, "non-negative timestamp expected");
@@ -24,14 +24,14 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
     format!("{hours_marker}{minutes:02}:{seconds:02}{decimal_marker}{milliseconds:03}")
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Transcript {
-    pub processing_time: Duration,
+    pub processing_time_sec: u64,
     pub segments: Vec<Segment>,
     // pub word_segments: Option<Vec<Utternace>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Segment {
     pub start: i64,
     pub stop: i64,
