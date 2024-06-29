@@ -6,6 +6,7 @@ import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
 import * as config from './config'
 import { Dispatch, SetStateAction } from 'react'
+import { Store } from '@tauri-apps/plugin-store'
 
 export interface NamedPath {
 	name: string
@@ -54,6 +55,8 @@ export function validPath(path: string) {
 export async function resetApp() {
 	const modelPath = localStorage.getItem('model_path')
 	try {
+		const store = new Store(config.storeFilename)
+		await store.clear()
 		if (modelPath) {
 			try {
 				await fs.remove(modelPath)
@@ -85,7 +88,7 @@ export async function getAppInfo() {
 	const osVer = await os.version()
 	const configPath = await api.path.appLocalDataDir()
 	const entries = await ls(configPath)
-	const cudaVersion = await invoke("get_cuda_version")
+	const cudaVersion = await invoke('get_cuda_version')
 	const models = entries
 		.filter((e) => e.name?.endsWith('.bin'))
 		.map((e) => e.name)
@@ -110,8 +113,8 @@ export async function getPrettyVersion() {
 	const appVersion = await app.getVersion()
 	const appName = await app.getName()
 	let version = `${appName} ${appVersion}`
-	const cudaVersion = await invoke("get_cuda_version")
-	const avx2Enabled = await invoke("is_avx2_enabled")
+	const cudaVersion = await invoke('get_cuda_version')
+	const avx2Enabled = await invoke('is_avx2_enabled')
 	if (cudaVersion) {
 		version += ` (nvidia ${cudaVersion})`
 	}
@@ -130,3 +133,5 @@ export async function getIssueUrl(logs: string) {
 export async function openPath(path: NamedPath) {
 	await invoke('open_path', { path: path.path })
 }
+
+export async function getModelsFolder() {}

@@ -1,6 +1,6 @@
 import { path } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/core'
-import { ask } from '@tauri-apps/plugin-dialog'
+import { ask, open } from '@tauri-apps/plugin-dialog'
 import * as shell from '@tauri-apps/plugin-shell'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,9 +11,12 @@ import { usePreferenceProvider } from '~/providers/Preference'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
+import { Store } from '@tauri-apps/plugin-store'
+
+const store = new Store(config.storeFilename)
 
 async function openModelPath() {
-	const dst = await path.appLocalDataDir()
+	let dst = await invoke<string>('get_models_folder')
 	invoke('open_path', { path: dst })
 }
 
@@ -72,16 +75,32 @@ export function viewModel() {
 	}
 
 	async function loadModels() {
-		const configPath = await path.appLocalDataDir()
-		const entries = await ls(configPath)
+		const modelsFolder = await invoke<string>('get_models_folder')
+		const entries = await ls(modelsFolder)
 		const found = entries.filter((e) => e.name?.endsWith('.bin'))
 		setModels(found)
 	}
 
 	async function getDefaultModel() {
 		if (!preference.modelPath) {
-			const defaultModelPath = await invoke('get_default_model_path')
-			preference!.setModelPath(defaultModelPath as string)
+			const modelsFolder = await invoke<string>('get_models_folder')
+
+			let files = await ls(modelsFolder)
+			files = files.filter((f) => f.name.endsWith('.bin'))
+			if (files) {
+				const defaultModelPath = files?.[0].path
+				preference.setModelPath(defaultModelPath as string)
+			}
+		}
+	}
+
+	async function changeModelsFolder() {
+		const path = await open({ directory: true, multiple: false })
+		if (path) {
+			await store.set('models_folder', path)
+			await store.save()
+			await loadModels()
+			await getDefaultModel()
 		}
 	}
 
@@ -127,5 +146,6 @@ export function viewModel() {
 		appVersion,
 		reportIssue,
 		loadModels,
+		changeModelsFolder,
 	}
 }

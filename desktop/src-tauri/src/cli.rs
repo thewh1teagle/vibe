@@ -4,8 +4,10 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 use std::{env, process};
 use tauri::App;
-use vibe_core::config::{get_models_folder, TranscribeOptions};
+use vibe_core::config::TranscribeOptions;
 use vibe_core::model;
+
+use crate::cmd::get_models_folder;
 
 /// Attach to console if cli detected in Windows
 #[cfg(windows)]
@@ -101,7 +103,7 @@ pub fn get_possible_formats() -> Vec<String> {
     vec!["txt".into(), "srt".into(), "vtt".into()]
 }
 
-fn prepare_model_path(path: &Path) -> PathBuf {
+fn prepare_model_path(path: &Path, app_handle: &tauri::AppHandle) -> PathBuf {
     if path.is_absolute() {
         return path.to_path_buf();
     }
@@ -110,7 +112,7 @@ fn prepare_model_path(path: &Path) -> PathBuf {
         return path.to_path_buf();
     }
     // Check if relative to app config exists
-    let relative_to_models_folder = get_models_folder().unwrap().join(path);
+    let relative_to_models_folder = get_models_folder(app_handle.clone()).unwrap().join(path);
     if relative_to_models_folder.exists() {
         return relative_to_models_folder;
     }
@@ -141,7 +143,7 @@ pub fn run(app: &App) {
         word_timestamps: Some(args.word_timestamps),
         max_sentence_len: args.max_sentence_len,
     };
-    let model_path = prepare_model_path(&args.model);
+    let model_path = prepare_model_path(&args.model, app.handle());
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time

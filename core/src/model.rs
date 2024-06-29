@@ -202,7 +202,7 @@ mod tests {
             word_timestamps: None,
             max_sentence_len: None,
         };
-        let ctx = create_context(Path::new(&config::get_model_path().unwrap()), None).unwrap();
+        let ctx = create_context(Path::new("model.bin"), None).unwrap();
         transcribe(&ctx, args, None, None, None)?;
 
         Ok(())

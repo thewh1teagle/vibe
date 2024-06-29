@@ -78,7 +78,7 @@ impl Default for Downloader {
 
 #[cfg(test)]
 mod tests {
-    use crate::{config, downloader};
+    use crate::downloader;
     use eyre::{Context, Result};
 
     fn init() {
@@ -93,10 +93,13 @@ mod tests {
     async fn test_download() -> Result<()> {
         init();
         let mut d = downloader::Downloader::new();
-        let filepath = config::get_model_path()?;
-        d.download(config::URL, filepath, on_download_progress)
-            .await
-            .context("Cant download")?;
+        d.download(
+            "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true",
+            "model.bin".into(),
+            on_download_progress,
+        )
+        .await
+        .context("Cant download")?;
         Ok(())
     }
 }

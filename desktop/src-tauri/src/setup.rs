@@ -1,5 +1,6 @@
-use crate::{cli, panic_hook};
+use crate::{cli, config::STORE_FILENAME, panic_hook};
 use tauri::{App, Manager};
+use tauri_plugin_store::StoreBuilder;
 use tokio::sync::Mutex;
 use vibe_core::model::WhisperContext;
 
@@ -15,6 +16,9 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     // Manage model context
     app.manage(Mutex::new(None::<ModelContext>));
+
+    let mut store = StoreBuilder::new(STORE_FILENAME).build(app.handle().clone());
+    let _ = store.load();
 
     // Log some useful data
     if let Ok(version) = tauri::webview_version() {

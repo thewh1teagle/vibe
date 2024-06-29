@@ -9,6 +9,8 @@ import { ReactComponent as HeartIcon } from '~/icons/heart.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as ResetIcon } from '~/icons/reset.svg'
 import { ReactComponent as DiscordIcon } from '~/icons/discord.svg'
+import { ReactComponent as WrenchIcon } from '~/icons/wrench.svg'
+
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { ModifyState, cx } from '~/lib/utils'
@@ -120,6 +122,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					{t('common.models-folder')}
 					<FolderIcon className="h-4 w-4" />
 				</button>
+				<button onMouseDown={vm.changeModelsFolder} className="btn bg-base-300 text-base-content">
+					{t('common.change-models-folder')}
+					<WrenchIcon className="h-4 w-4" />
+				</button>
 				<button onMouseDown={vm.openModelsUrl} className="btn bg-base-300 text-base-content">
 					{t('common.download-models-link')}
 					<LinkIcon className="w-4 h-4" />
@@ -152,7 +158,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			<div className="label mt-10">
 				<span className="label-text">{t('common.advanced')}</span>
 			</div>
-			<label className="form-control w-full">
+			<label className="form-control w-full py-2">
 				<div className="label">
 					<span className="label-text flex items-center gap-1">{t('common.gpu-device')}</span>
 				</div>

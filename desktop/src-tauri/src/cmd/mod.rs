@@ -1,6 +1,6 @@
-use crate::config;
+use crate::config::{DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
 use crate::setup::ModelContext;
-use eyre::{bail, Context, ContextCompat, OptionExt, Result};
+use eyre::{bail, Context, ContextCompat, Result};
 use serde_json::{json, Value};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
@@ -8,11 +8,12 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use tauri::State;
 use tauri::{
     window::{ProgressBarState, ProgressBarStatus},
     Manager,
 };
+use tauri::{State, Wry};
+use tauri_plugin_store::{with_store, StoreCollection};
 use tokio::sync::Mutex;
 use vibe_core::{model::SegmentCallbackData, transcript::Transcript};
 pub mod audio;
@@ -82,9 +83,9 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     let model_path = if let Some(url) = url.clone() {
         let filename = vibe_core::downloader::get_filename(&url).await?;
         log::debug!("url filename is {}", filename);
-        vibe_core::config::get_models_folder().unwrap().join(filename)
+        get_models_folder(app_handle.clone())?.join(filename)
     } else {
-        vibe_core::config::get_model_path()?
+        get_models_folder(app_handle.clone())?.join(DEAFULT_MODEL_FILENAME)
     };
 
     let mut downloader = vibe_core::downloader::Downloader::new();
@@ -126,19 +127,16 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
         }
     };
 
-    let download_url = if let Some(url) = url { url } else { config::URL.into() };
+    let download_url = if let Some(url) = url {
+        url
+    } else {
+        DEAFULT_MODEL_URL.to_string()
+    };
     downloader
         .download(&download_url, model_path.to_owned(), download_progress_callback)
         .await?;
     set_progress_bar(&app_handle_c, None).unwrap();
     Ok(model_path.to_str().context("to_str")?.to_string())
-}
-
-#[tauri::command]
-pub async fn get_default_model_path() -> Result<String> {
-    let model_path = vibe_core::config::get_model_path()?;
-    let model_path = model_path.to_str().ok_or_eyre("cant convert model path to string")?;
-    Ok(model_path.to_string())
 }
 
 #[tauri::command]
@@ -297,4 +295,18 @@ pub async fn load_model(
         });
     }
     Ok(model_path)
+}
+
+#[tauri::command]
+pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
+    let stores = app_handle.state::<StoreCollection<Wry>>();
+    if let Ok(Some(models_folder)) = with_store(app_handle.clone(), stores, STORE_FILENAME, |store| {
+        log::debug!("{:?}", store.get("models_folder"));
+        Ok(store.get("models_folder").and_then(|p| p.as_str().map(PathBuf::from)))
+    }) {
+        log::debug!("models folder: {:?}", models_folder);
+        return Ok(models_folder);
+    }
+    let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
+    Ok(path)
 }

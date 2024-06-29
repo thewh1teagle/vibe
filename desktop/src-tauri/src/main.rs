@@ -46,6 +46,7 @@ fn main() {
                 .with_state_flags(!StateFlags::VISIBLE)
                 .build(),
         )
+        .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
@@ -57,7 +58,6 @@ fn main() {
             cmd::transcribe,
             cmd::download_model,
             cmd::load_model,
-            cmd::get_default_model_path,
             cmd::get_commit_hash,
             cmd::get_cuda_version,
             cmd::is_avx2_enabled,
@@ -69,6 +69,7 @@ fn main() {
             cmd::get_argv,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
+            cmd::get_models_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
