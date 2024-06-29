@@ -15,10 +15,10 @@ jobs:
             matrix:
                 include:
                     - platform: "ubuntu-22.04"
-                      cuda_version: "12.4.1"
+                      cuda-version: "12.4.1"
                       platform_version: "22.04"
                     - platform: "ubuntu-24.04"
-                      cuda_version: "12.4.1"
+                      cuda-version: "12.4.1"
                       platform_version: "24.04"
 
         runs-on: ${{ matrix.platform }}
@@ -28,7 +28,7 @@ jobs:
             - uses: Jimver/cuda-toolkit@v0.2.15
               id: cuda-toolkit
               with:
-                  cuda: ${{ matrix.cuda_version }}
+                  cuda: ${{ matrix.cuda-version }}
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
@@ -55,7 +55,7 @@ jobs:
             - name: Run pre_build.js
               run: bun scripts/pre_build.js --nvidia
               env:
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda_version }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
@@ -63,7 +63,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
               with:
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
@@ -74,7 +74,7 @@ jobs:
                   # Rename .deb files
                   for file in target/release/bundle/deb/*.deb; do
                       name=$(basename "$file" .deb)
-                      new_name="${name}_${{ matrix.platform }}_nvidia_${{ matrix.cuda_version }}.deb"
+                      new_name="${name}_${{ matrix.platform }}_nvidia_${{ matrix.cuda-version }}.deb"
                       mv "$file" "target/release/bundle/deb/$new_name"
                       echo "Renamed '$file' to '$new_name'"
                   done
@@ -82,7 +82,7 @@ jobs:
                   # Rename .rpm files
                   for file in target/release/bundle/rpm/*.rpm; do
                       name=$(basename "$file" .rpm)
-                      new_name="${name}_${{ matrix.platform_version }}_nvidia_${{ matrix.cuda_version }}.rpm"
+                      new_name="${name}_${{ matrix.platform_version }}_nvidia_${{ matrix.cuda-version }}.rpm"
                       mv "$file" "target/release/bundle/rpm/$new_name"
                       echo "Renamed '$file' to '$new_name'"
                   done

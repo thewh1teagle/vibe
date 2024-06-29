@@ -12,7 +12,7 @@ jobs:
             contents: write
         strategy:
             matrix:
-                cuda-toolkit: [12.5.0, 11.8.0]
+                cuda-version: [12.5.0, 11.8.0]
 
         runs-on: windows-latest
         steps:
@@ -34,7 +34,7 @@ jobs:
               shell: pwsh
               run: scripts/setup_cuda.ps1
               env:
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
@@ -42,7 +42,7 @@ jobs:
             - name: Rust cache
               uses: swatinem/rust-cache@v2
               with:
-                  key: ${{ matrix.cuda-toolkit }}
+                  key: ${{ matrix.cuda-version }}
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
@@ -64,7 +64,7 @@ jobs:
             - name: Run pre_build.js
               run: bun scripts/pre_build.js --nvidia
               env:
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
@@ -72,7 +72,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
               with:
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
