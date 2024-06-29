@@ -43,11 +43,11 @@ pub fn is_cli_detected() -> bool {
 struct Args {
     /// Path to model
     #[arg(long, short)]
-    model: PathBuf,
+    model: Option<PathBuf>,
 
     /// Path to file to transcribe
     #[arg(long)]
-    file: PathBuf,
+    file: Option<PathBuf>,
 
     /// Language to transcribe
     #[arg(short, long, default_value = "english", value_parser = get_possible_languages())]
@@ -94,7 +94,7 @@ struct Args {
 
     /// Run http server
     #[arg(long)]
-    run_server: Option<bool>,
+    server: bool,
 }
 
 fn get_possible_languages() -> Vec<String> {
@@ -136,12 +136,12 @@ pub async fn run(app_handle: &AppHandle) {
 
     let args = Args::parse();
 
-    if let Some(true) = args.run_server {
+    if args.server {
         server::run(app_handle.clone()).await;
     }
     let lang = language_name_to_whisper_lang(&args.language);
     let options = TranscribeOptions {
-        path: args.file,
+        path: args.file.unwrap(),
         lang: Some(lang),
         init_prompt: args.init_prompt,
         n_threads: args.n_threads,
@@ -152,7 +152,7 @@ pub async fn run(app_handle: &AppHandle) {
         word_timestamps: Some(args.word_timestamps),
         max_sentence_len: args.max_sentence_len,
     };
-    let model_path = prepare_model_path(&args.model, app_handle);
+    let model_path = prepare_model_path(&args.model.unwrap(), app_handle);
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
