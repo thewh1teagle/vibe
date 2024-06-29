@@ -16,7 +16,7 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
     milliseconds -= seconds * 1_000;
 
     let hours_marker = if always_include_hours || hours != 0 {
-        format!("{hours}:")
+        format!("{:02}:", hours)
     } else {
         String::new()
     };

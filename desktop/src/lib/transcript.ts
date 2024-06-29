@@ -31,7 +31,7 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 	const formattedSeconds = Math.floor(milliseconds / 1_000)
 	milliseconds -= formattedSeconds * 1_000
 
-	const hoursMarker = alwaysIncludeHours || hours !== 0 ? `${hours}:` : ''
+	const hoursMarker = alwaysIncludeHours || hours !== 0 ? `${String(hours).padStart(2, '0')}:` : ''
 
 	let result = `${hoursMarker}${String(minutes).padStart(2, '0')}:${String(formattedSeconds).padStart(2, '0')}`
 
