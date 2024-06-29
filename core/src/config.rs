@@ -6,7 +6,7 @@ use utoipa::ToSchema;
 pub struct TranscribeOptions {
     pub path: String,
     pub lang: Option<String>,
-    pub verbose: bool,
+    pub verbose: Option<bool>,
 
     pub n_threads: Option<i32>,
     pub init_prompt: Option<String>,

@@ -189,7 +189,7 @@ mod tests {
             path: input_file_path.to_str().ok_or_eyre("cant convert path to str")?.to_owned(),
             lang: None,
             n_threads: None,
-            verbose: false,
+            verbose: Some(false),
             init_prompt: None,
             temperature: None,
             translate: None,

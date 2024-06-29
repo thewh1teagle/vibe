@@ -154,7 +154,7 @@ pub async fn run(app_handle: &AppHandle) {
         n_threads: args.n_threads,
         temperature: args.temperature,
         translate: args.translate,
-        verbose: false,
+        verbose: Some(false),
         max_text_ctx: args.max_text_ctx,
         word_timestamps: Some(args.word_timestamps),
         max_sentence_len: args.max_sentence_len,
