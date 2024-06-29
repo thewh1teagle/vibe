@@ -41,6 +41,7 @@ cpal = "0.15.3"
 hound = "3.5.1"
 rand = "0.8.5"
 tauri-plugin-single-instance = "2.0.0-beta.9"
+axum = "0.7.5"
 
 
 [target.'cfg(target_os = "linux")'.dependencies]

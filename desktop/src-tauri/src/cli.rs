@@ -3,11 +3,12 @@ use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 use std::{env, process};
-use tauri::App;
+use tauri::AppHandle;
 use vibe_core::config::TranscribeOptions;
 use vibe_core::model;
 
 use crate::cmd::get_models_folder;
+use crate::server;
 
 /// Attach to console if cli detected in Windows
 #[cfg(windows)]
@@ -90,6 +91,10 @@ struct Args {
     #[arg(long)]
     // TODO: use possible values. confusing crate!
     max_sentence_len: Option<i32>,
+
+    /// Run http server
+    #[arg(long)]
+    run_server: Option<bool>,
 }
 
 fn get_possible_languages() -> Vec<String> {
@@ -125,11 +130,15 @@ fn language_name_to_whisper_lang(name: &str) -> String {
     languages[name].as_str().unwrap().to_string()
 }
 
-pub fn run(app: &App) {
+pub async fn run(app_handle: &AppHandle) {
     #[cfg(target_os = "macos")]
     crate::dock::set_dock_visible(false);
 
     let args = Args::parse();
+
+    if let Some(true) = args.run_server {
+        server::run(app_handle.clone()).await;
+    }
     let lang = language_name_to_whisper_lang(&args.language);
     let options = TranscribeOptions {
         path: args.file,
@@ -143,7 +152,7 @@ pub fn run(app: &App) {
         word_timestamps: Some(args.word_timestamps),
         max_sentence_len: args.max_sentence_len,
     };
-    let model_path = prepare_model_path(&args.model, app.handle());
+    let model_path = prepare_model_path(&args.model, app_handle);
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
@@ -181,7 +190,7 @@ pub fn run(app: &App) {
         }
     }
 
-    app.cleanup_before_exit();
+    app_handle.cleanup_before_exit();
     eprintln!(
         "Transcription completed in {:.1}s ⏱️",
         elapsed.as_secs_f64() + elapsed.subsec_nanos() as f64 * 1e-9

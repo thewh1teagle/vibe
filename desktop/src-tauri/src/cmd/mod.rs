@@ -267,11 +267,8 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub async fn load_model(
-    model_path: String,
-    gpu_device: Option<i32>,
-    model_context_state: State<'_, Mutex<Option<ModelContext>>>,
-) -> Result<String> {
+pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
+    let model_context_state: State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
     let mut state_guard = model_context_state.lock().await;
     if let Some(state) = state_guard.as_ref() {
         // check if new path is different
