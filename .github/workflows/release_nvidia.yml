@@ -3,7 +3,7 @@ name: Release for nvidia GPUs
 on:
     push:
         tags:
-            - 'v*'
+            - "v*"
     workflow_dispatch:
 
 jobs:
@@ -72,8 +72,9 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-toolkit }}
               with:
-                  projectPath: './desktop'
+                  projectPath: "./desktop"
                   tauriScript: bunx tauri
 
             - name: Rename installer
