@@ -23,7 +23,6 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
         if let Some(gpu_device) = gpu_device {
             ctx_params.gpu_device = gpu_device;
         }
-        // todo: let the user select gpu
     }
     log::debug!("gpu device: {:?}", ctx_params.gpu_device);
     log::debug!("use gpu: {:?}", ctx_params.use_gpu);
