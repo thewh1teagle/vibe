@@ -59,11 +59,12 @@ async function publish(dst, token, tag) {
 	checkResponse(res)
 	const releaseData = await res.json()
 	const releaseID = releaseData.id
-	const prevID = releaseData.assets.find((a) => a.name === dst)?.id
+	const prev = releaseData.assets.find((a) => a.name.toLowerCase() === dst.toLowerCase())
 
-	if (prevID) {
+	if (prev) {
 		// Delete previous asset
-		const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/assets/${prevID}`, {
+		console.info('Deleting previous release', prev)
+		const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/assets/${prev.id}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				'X-GitHub-Api-tag': '2022-11-28',
@@ -77,6 +78,7 @@ async function publish(dst, token, tag) {
 	// Upload asset
 	try {
 		const name = path.basename(dst)
+		console.info('Upload', name)
 		const res = await fetch(`https://uploads.github.com/repos/${OWNER}/${REPO}/releases/${releaseID}/assets?name=${name}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,

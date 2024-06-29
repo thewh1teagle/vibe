@@ -168,7 +168,7 @@ pub async fn transcribe(
     // allow abort transcription
     let app_handle_c = app_handle.clone();
     app_handle.listen("abort_transcribe", move |_| {
-        set_progress_bar(&app_handle_c, None).unwrap();
+        let _ = set_progress_bar(&app_handle_c, None);
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
@@ -177,7 +177,7 @@ pub async fn transcribe(
     let app_handle_c = app_handle.clone();
     let progress_callback = move |progress: i32| {
         // log::debug!("desktop progress is {}", progress);
-        set_progress_bar(&app_handle, Some(progress.into())).unwrap();
+        let _ = set_progress_bar(&app_handle, Some(progress.into()));
     };
 
     // prevent panic crash. sometimes whisper.cpp crash without nice errors.
@@ -190,7 +190,7 @@ pub async fn transcribe(
             Some(Box::new(abort_callback)),
         )
     }));
-    set_progress_bar(&app_handle_c, None).unwrap();
+    let _ = set_progress_bar(&app_handle_c, None);
     match unwind_result {
         Err(error) => {
             bail!("transcribe crash: {:?}", error)
@@ -267,11 +267,8 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub async fn load_model(
-    model_path: String,
-    gpu_device: Option<i32>,
-    model_context_state: State<'_, Mutex<Option<ModelContext>>>,
-) -> Result<String> {
+pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
+    let model_context_state: State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
     let mut state_guard = model_context_state.lock().await;
     if let Some(state) = state_guard.as_ref() {
         // check if new path is different

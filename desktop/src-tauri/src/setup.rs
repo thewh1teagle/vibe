@@ -48,8 +48,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     log::debug!("COMMIT_HASH: {}", env!("COMMIT_HASH"));
 
+    let app_handle = app.app_handle().clone();
     if cli::is_cli_detected() {
-        cli::run(app);
+        tauri::async_runtime::spawn(async move {
+            cli::run(&app_handle).await;
+        });
     } else {
         // Create main window
         tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
