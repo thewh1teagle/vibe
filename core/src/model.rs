@@ -20,9 +20,10 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
     if !env!("CUDA_VERSION").is_empty() {
         // Nvidia
         ctx_params.use_gpu = true;
-        if let Some(gpu_device) = gpu_device {
-            ctx_params.gpu_device = gpu_device;
-        }
+    }
+    // set GPU device number from preference
+    if let Some(gpu_device) = gpu_device {
+        ctx_params.gpu_device = gpu_device;
     }
     log::debug!("gpu device: {:?}", ctx_params.gpu_device);
     log::debug!("use gpu: {:?}", ctx_params.use_gpu);
