@@ -109,7 +109,7 @@ Rust analyzer failed to run on windows
 1. Execute `cargo clean`
 2. Add to `settings.json`:
 
-````json
+```json
 "rust-analyzer.cargo.extraEnv": {
 	"FFMPEG_DIR": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\ffmpeg",
 	"OPENBLAS_PATH": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\openblas",
