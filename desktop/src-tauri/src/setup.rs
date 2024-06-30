@@ -1,3 +1,5 @@
+use std::fs;
+
 use crate::{cli, config::STORE_FILENAME, panic_hook};
 use tauri::{App, Manager};
 use tauri_plugin_store::StoreBuilder;
@@ -13,6 +15,9 @@ pub struct ModelContext {
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Add panic hook
     panic_hook::set_panic_hook(app.app_handle());
+
+    let app_data = app.path().app_local_data_dir().unwrap();
+    fs::create_dir_all(app_data).expect("cant create local app data directory");
 
     // Manage model context
     app.manage(Mutex::new(None::<ModelContext>));

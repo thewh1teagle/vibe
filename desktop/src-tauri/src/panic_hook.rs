@@ -32,5 +32,6 @@ pub fn set_panic_hook(app: &AppHandle) {
         eprintln!("{}", message);
         // do whatever with the message
         std::fs::write(log_path.as_path(), format!("{}\nCOMMIT: {}", message, env!("COMMIT_HASH"))).unwrap();
+        showfile::show_path_in_file_manager(log_path.as_path());
     }));
 }
