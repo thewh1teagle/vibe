@@ -1,4 +1,4 @@
-name: Release for non AVX2 CPUs
+name: Non avx2 and cuda
 
 on:
     push:

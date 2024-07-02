@@ -1,4 +1,4 @@
-name: Release for Linux with OpenCL and Cuda
+name: Linux with OpenCL and Cuda
 
 on:
     push:
