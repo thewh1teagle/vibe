@@ -122,19 +122,17 @@ Rust analyzer failed to run on windows
 
 ## Test
 
-````
-
+```
 export RUST_LOG=trace
 cargo test -- --nocapture
-
-````
+```
 
 # Lint
 
 ```console
 cargo fmt
 cargo clippy
-````
+```
 
 # Create new release
 
@@ -172,4 +170,17 @@ ffmpeg -i file.wav -ar 16000 -ac 1 -c:a pcm_s16le normal.wav
 ```console
 gh pr checkout <url>
 git push <fork url> HEAD:<branch>
+```
+
+## Update packages
+
+```console
+bunx ncu -u -t newest
+cd src-tauri
+cargo install cargo-edit
+rm -rf ../Cargo.lock
+CARGO_NET_GIT_FETCH_WITH_CLI=true
+CARGO_NET_GIT_FETCH_WITH_CLI=true cargo upgrade
+# OR
+cargo +nightly -Zunstable-options update --breaking
 ```

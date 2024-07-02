@@ -3,7 +3,7 @@ name: Release
 on:
     push:
         tags:
-            - 'v*'
+            - "v*"
     workflow_dispatch:
 
 jobs:
@@ -14,14 +14,14 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - platform: 'macos-latest' # for Arm based macs (M1 and above).
-                      args: '--target aarch64-apple-darwin'
-                    - platform: 'macos-latest' # for Intel based macs.
-                      args: '--target x86_64-apple-darwin'
-                    - platform: 'ubuntu-22.04' # Ubuntu x86_64
-                      args: ''
-                    - platform: 'windows-latest' # Windows x86_64
-                      args: '--target x86_64-pc-windows-msvc'
+                    - platform: "macos-latest" # for Arm based macs (M1 and above).
+                      args: "--target aarch64-apple-darwin"
+                    - platform: "macos-latest" # for Intel based macs.
+                      args: "--target x86_64-apple-darwin"
+                    - platform: "ubuntu-22.04" # Ubuntu x86_64
+                      args: ""
+                    - platform: "windows-latest" # Windows x86_64
+                      args: "--target x86_64-pc-windows-msvc"
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -57,28 +57,6 @@ jobs:
             - name: Run pre_build.js on ${{ matrix.platform }}
               run: bun scripts/pre_build.js
 
-            # Install tauri cli with patch on macOS aarch64
-            - name: Install custom tauri cli
-              run: cargo install tauri-cli --git https://github.com/thewh1teagle/tauri --branch temp-macos-signing-without-runtime-config --debug
-              if: matrix.platform == 'macos-latest'
-
-            - name: Build for aarch64
-              uses: tauri-apps/tauri-action@v0
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-              with:
-                  tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
-                  releaseName: 'v__VERSION__'
-                  releaseBody: 'See the assets to download this version and install.'
-                  releaseDraft: true
-                  prerelease: false
-                  args: ${{ matrix.args }}
-                  projectPath: './desktop'
-                  tauriScript: cargo tauri
-              if: matrix.platform == 'macos-latest'
-
             - name: Build
               uses: tauri-apps/tauri-action@v0
               env:
@@ -87,11 +65,10 @@ jobs:
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
               with:
                   tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
-                  releaseName: 'v__VERSION__'
-                  releaseBody: 'See the assets to download this version and install.'
+                  releaseName: "v__VERSION__"
+                  releaseBody: "What's new? 🎉📣"
                   releaseDraft: true
                   prerelease: false
                   args: ${{ matrix.args }}
-                  projectPath: './desktop'
+                  projectPath: "./desktop"
                   tauriScript: bunx tauri
-              if: matrix.platform != 'macos-latest'

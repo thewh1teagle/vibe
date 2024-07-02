@@ -12,6 +12,7 @@
 				"ffmpeg/lib/libswscale.7.dylib"
 			],
 			"signingIdentity": "-",
+			"hardenedRuntime": false,
 			"dmg": {
 				"background": "../../design/dmg_background.png",
 				"windowSize": {
