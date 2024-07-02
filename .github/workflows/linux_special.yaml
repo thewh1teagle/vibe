@@ -1,4 +1,4 @@
-name: Release for Linux with Nvidia
+name: Release for Linux with OpenCL and Cuda
 
 on:
     push:
@@ -8,6 +8,83 @@ on:
 
 jobs:
     publish-tauri:
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - platform: "ubuntu-22.04"
+                      platform_version: "22.04"
+                    - platform: "ubuntu-24.04"
+                      platform_version: "24.04"
+        runs-on: ${{ matrix.platform }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install frontend dependencies
+              run: bun install
+              working-directory: ./desktop
+
+            - name: Cache Pre Build
+              id: cache-pre-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      desktop/src-tauri/openblas
+                  key: ${{ matrix.platform }}-pre-build
+
+            # Run pre build
+            - name: Run pre_build.js
+              run: bun scripts/pre_build.js --opencl
+
+            - name: Build
+              uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+              with:
+                  projectPath: "./desktop"
+                  tauriScript: bunx tauri
+
+            - name: Rename installer
+              run: |
+
+                  # Rename .deb files
+                  for file in target/release/bundle/deb/*.deb; do
+                      name=$(basename "$file" .deb)
+                      new_name="${name}_${{ matrix.platform }}_opencl.deb"
+                      mv "$file" "target/release/bundle/deb/$new_name"
+                      echo "Renamed '$file' to '$new_name'"
+                  done
+
+                  # Rename .rpm files
+                  for file in target/release/bundle/rpm/*.rpm; do
+                      name=$(basename "$file" .rpm)
+                      new_name="${name}_${{ matrix.platform_version }}_opencl.rpm"
+                      mv "$file" "target/release/bundle/rpm/$new_name"
+                      echo "Renamed '$file' to '$new_name'"
+                  done
+              shell: bash
+
+            - name: Upload installer
+              run: |
+                  bun scripts/publish.js target/release/bundle/deb/*.deb
+                  bun scripts/publish.js target/release/bundle/rpm/*.rpm
+              shell: pwsh
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    publish-tauri-linux-cuda:
         permissions:
             contents: write
         strategy:
