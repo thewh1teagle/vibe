@@ -1,4 +1,4 @@
-name: Non avx2 and cuda
+name: Non avx2, cuda, portable
 
 on:
     push:
