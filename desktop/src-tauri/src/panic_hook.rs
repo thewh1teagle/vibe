@@ -1,10 +1,14 @@
 use std::{panic, path::PathBuf, sync::Arc};
 use tauri::{AppHandle, Manager};
 
-use crate::config;
+use crate::{cmd::is_portable, config, utils::get_current_dir};
 
 fn get_log_path(app: &AppHandle) -> PathBuf {
-    let config_path = app.path().app_config_dir().unwrap();
+    let config_path = if is_portable() {
+        get_current_dir().unwrap()
+    } else {
+        app.path().app_config_dir().unwrap()
+    };
     let mut log_path = config_path.join(format!("{}.txt", config::LOG_FILENAME_PREFIX));
     let mut count = 0;
     while log_path.exists() {

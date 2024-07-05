@@ -58,6 +58,12 @@ fn main() {
         std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()
     );
 
+    // Windows portable
+    println!(
+        "cargo:rustc-env=WINDOWS_PORTABLE={}",
+        std::env::var("WINDOWS_PORTABLE").unwrap_or_default().trim()
+    );
+
     copy_locales();
     extract_whisper_env();
     tauri_build::build();

@@ -123,7 +123,7 @@ export function viewModel() {
 
 	async function checkModelExists() {
 		try {
-			const configPath = await path.appLocalDataDir()
+			const configPath = await invoke<string>("get_models_folder")
 			const entries = await ls(configPath)
 			const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
 			if (filtered.length === 0) {

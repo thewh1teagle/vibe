@@ -1,4 +1,3 @@
-import { path } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/core'
 import { ask, open } from '@tauri-apps/plugin-dialog'
 import * as shell from '@tauri-apps/plugin-shell'
@@ -35,7 +34,7 @@ async function reportIssue() {
 }
 
 async function openLogsFolder() {
-	const dst = await path.appConfigDir()
+	const dst = await invoke<string>("get_logs_folder")
 	invoke('open_path', { path: dst })
 }
 

@@ -1,5 +1,6 @@
 use crate::config::{DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
 use crate::setup::ModelContext;
+use crate::utils::get_current_dir;
 use eyre::{bail, Context, ContextCompat, Result};
 use serde_json::{json, Value};
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -295,6 +296,21 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
 }
 
 #[tauri::command]
+pub fn is_portable() -> bool {
+    !env!("WINDOWS_PORTABLE").is_empty()
+}
+
+#[tauri::command]
+pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
+    let config_path = if is_portable() {
+        get_current_dir()?
+    } else {
+        app_handle.path().app_config_dir()?
+    };
+    Ok(config_path)
+}
+
+#[tauri::command]
 pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     let stores = app_handle.state::<StoreCollection<Wry>>();
     if let Ok(Some(models_folder)) = with_store(app_handle.clone(), stores, STORE_FILENAME, |store| {
@@ -303,6 +319,9 @@ pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     }) {
         log::debug!("models folder: {:?}", models_folder);
         return Ok(models_folder);
+    }
+    if is_portable() {
+        return get_current_dir();
     }
     let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
     Ok(path)

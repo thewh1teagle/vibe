@@ -7,7 +7,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    publish-tauri-older-cpu:
+    older-cpu:
         permissions:
             contents: write
 
@@ -82,7 +82,93 @@ jobs:
               shell: pwsh
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    publish-tauri-nvidia:
+    portable:
+        permissions:
+            contents: write
+
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Add msbuild to PATH
+              uses: microsoft/setup-msbuild@v2
+
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install frontend dependencies
+              run: bun install
+              working-directory: ./desktop
+
+            - name: Cache Pre Build
+              id: cache-pre-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      desktop/src-tauri/openblas
+                      desktop/src-tauri/clblast
+                      desktop/src-tauri/ffmpeg
+                  key: ${{ runner.os }}-pre-build
+
+            # Run pre build
+            - name: Run pre_build.js
+              run: bun scripts/pre_build.js
+
+            - name: Build
+              uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+                  WINDOWS_PORTABLE: 1
+              with:
+                  projectPath: "./desktop"
+                  tauriScript: bunx tauri
+
+
+            - name: Prepare Portable zip
+              run: |
+                # Get all EXE files in the specified directory
+                $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
+
+                # Unzip each EXE file and zip the contents
+                foreach ($file in $exe_files) {
+                    $name = $file.BaseName
+                    $ext = "_portable.zip"
+
+                    # Create a new directory for extraction in the same folder
+                    $extract_dir = New-Item -ItemType Directory -Path "$($file.DirectoryName)\$name"
+                    echo $extract_dir.FullName
+
+                    try {
+                        # Unzip the EXE file into the new directory
+                        & 7z x $file.FullName -o"$extract_dir"
+
+                        # Zip the contents into a new zip file
+                        $zip_name = "{0}{1}" -f $name, $ext
+                        & 7z a "$($file.DirectoryName)\$zip_name" "$extract_dir\*"
+
+                        Write-Output "Zipped contents of '$($file.FullName)' to '$zip_name'"
+                    } finally {
+                        # Remove the extraction directory
+                        Remove-Item -Recurse -Force $extract_dir
+                    }
+                }
+              shell: pwsh
+
+            - name: Upload installer
+              run: |
+                  bun scripts/publish.js target/release/bundle/nsis/*.zip
+              shell: pwsh
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    nvidia:
         permissions:
             contents: write
         strategy:

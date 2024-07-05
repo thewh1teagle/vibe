@@ -5,26 +5,44 @@
         "source.organizeImports": "never"
     },
     "files.eol": "\n",
-    
     // Rust analyzer
     "rust-analyzer.checkOnSave": true,
     "rust-analyzer.check.command": "clippy",
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },
-    
     // Formatting
     "prettier.configPath": ".prettierrc.json",
-    
     // i18n
-    "i18n-ally.enabledParsers": ["ts", "json"],
+    "i18n-ally.enabledParsers": [
+        "ts",
+        "json"
+    ],
     "i18n-ally.sortKeys": true,
     "i18n-ally.namespace": true,
     "i18n-ally.sourceLanguage": "en-US",
-    "i18n-ally.enabledFrameworks": ["react", "svelte"],
+    "i18n-ally.enabledFrameworks": [
+        "react",
+        "svelte"
+    ],
     "i18n-ally.keystyle": "flat",
-    "i18n-ally.translate.engines": ["google",],
-    "i18n-ally.localesPaths": ["desktop/src-tauri/locales"],
+    "i18n-ally.translate.engines": [
+        "google",
+    ],
+    "i18n-ally.localesPaths": [
+        "desktop/src-tauri/locales"
+    ],
     "i18n-ally.pathMatcher": "{locale}/{namespace}.json",
-	"i18n-ally.tabStyle": "tab",
+    "i18n-ally.tabStyle": "tab",
+    "rust-analyzer.runnables.extraEnv": [
+        {
+            "platform": "win32",
+            "env": {
+                "FFMPEG_DIR": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\ffmpeg",
+                "OPENBLAS_PATH": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\openblas",
+                "CLBlast_DIR": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\clblast",
+                "LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
+            }
+        }
+    ]
 }

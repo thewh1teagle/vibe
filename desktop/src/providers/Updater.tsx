@@ -5,6 +5,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ErrorModalContext } from './ErrorModal'
 import { ModifyState } from '~/lib/utils'
+import { invoke } from '@tauri-apps/api/core'
+import { open } from '@tauri-apps/plugin-shell'
+import { latestReleaseURL } from '~/lib/config'
 // Define the context type
 
 type UpdaterContextType = {
@@ -101,6 +104,16 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	async function updateApp() {
+		const cudaVersion = await invoke('get_cuda_version')
+		const avx2Enabled = await invoke('is_avx2_enabled')
+		const isPortable = await invoke<string>('is_portable')
+
+		// Nvidia / Older CPU / Portabl - No updates available
+		if (cudaVersion || !avx2Enabled || isPortable) {
+			await open(latestReleaseURL)
+			return
+		}
+
 		const shouldUpdate = await dialog.ask(t('common.ask-for-update-body', { version: update?.version }), {
 			title: t('common.ask-for-update-title'),
 			kind: 'info',
