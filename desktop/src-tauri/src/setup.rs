@@ -4,7 +4,7 @@ use crate::{cli, config::STORE_FILENAME, panic_hook};
 use tauri::{App, Manager};
 use tauri_plugin_store::StoreBuilder;
 use tokio::sync::Mutex;
-use vibe_core::model::WhisperContext;
+use vibe_core::transcribe::WhisperContext;
 
 pub struct ModelContext {
     pub path: String,

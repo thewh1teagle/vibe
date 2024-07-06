@@ -35,6 +35,16 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
     Ok(ctx)
 }
 
+pub fn create_normalized_audio(source: PathBuf) -> Result<PathBuf> {
+    let out_path = tempfile::Builder::new()
+        .suffix(".wav")
+        .tempfile()?
+        .into_temp_path()
+        .to_path_buf();
+    audio::normalize(source, out_path.clone())?;
+    Ok(out_path)
+}
+
 pub fn transcribe(
     ctx: &WhisperContext,
     options: &TranscribeOptions,
@@ -53,12 +63,7 @@ pub fn transcribe(
         *guard = Some(Box::new(callback));
     }
 
-    let out_path = tempfile::Builder::new()
-        .suffix(".wav")
-        .tempfile()?
-        .into_temp_path()
-        .to_path_buf();
-    audio::normalize(PathBuf::from(options.path.clone()), out_path.clone())?;
+    let out_path = create_normalized_audio(options.path.clone().into())?;
     let original_samples = audio::parse_wav_file(&out_path)?;
     let mut samples = vec![0.0f32; original_samples.len()];
     whisper_rs::install_whisper_log_trampoline();
@@ -147,7 +152,12 @@ pub fn transcribe(
         let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
-        segments.push(Segment { text, start, stop });
+        segments.push(Segment {
+            text,
+            start,
+            stop,
+            speaker_id: None,
+        });
     }
 
     // cleanup

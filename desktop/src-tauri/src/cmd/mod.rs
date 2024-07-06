@@ -16,7 +16,7 @@ use tauri::{
 use tauri::{State, Wry};
 use tauri_plugin_store::{with_store, StoreCollection};
 use tokio::sync::Mutex;
-use vibe_core::{model::SegmentCallbackData, transcript::Transcript};
+use vibe_core::{transcribe::SegmentCallbackData, transcript::Transcript};
 pub mod audio;
 
 /// Return true if there's internet connection
@@ -183,7 +183,7 @@ pub async fn transcribe(
 
     // prevent panic crash. sometimes whisper.cpp crash without nice errors.
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
-        vibe_core::model::transcribe(
+        vibe_core::transcribe::transcribe(
             &ctx.handle,
             &options,
             Some(Box::new(progress_callback)),
@@ -276,7 +276,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
         if model_path != state.path || gpu_device != state.gpu_device {
             log::debug!("model path or gpu device changed. reloading");
             // reload
-            let context = vibe_core::model::create_context(Path::new(&model_path), gpu_device)?;
+            let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device)?;
             *state_guard = Some(ModelContext {
                 path: model_path.clone(),
                 handle: context,
@@ -285,7 +285,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
         }
     } else {
         log::debug!("loading model first time");
-        let context = vibe_core::model::create_context(Path::new(&model_path), gpu_device)?;
+        let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device)?;
         *state_guard = Some(ModelContext {
             path: model_path.clone(),
             handle: context,
