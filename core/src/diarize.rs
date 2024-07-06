@@ -62,7 +62,7 @@ pub fn diarize(model_path: PathBuf, source_audio: PathBuf, mut transcript: Trans
             let other_embedding = &segment_embeddings[j].1;
             let sim = speaker_identify::compute_cosine_similarity(embedding, other_embedding);
             log::debug!("sim: {}", sim);
-            if sim > 0.1 {
+            if sim > 0.4 {
                 let speaker_id = *segment_speaker_id.get(&j).unwrap_or(&speaker_id_counter);
                 segment_speaker_id.insert(*i, speaker_id); // Assign the same speaker ID as j
                 assigned = true;
