@@ -64,6 +64,7 @@
 	"prompt": "Prompt",
 	"recognize-speakers": "Recognize speakers",
 	"record": "Record",
+	"replace-all": "Replace All",
 	"report-issue": "Report Issue",
 	"reset-app": "Reset Vibe",
 	"reset-ask-dialog": "Are you sure you want to reset vibe? app data will be cleared including models files.",

@@ -279,6 +279,7 @@ export function viewModel() {
 		availableUpdate,
 		updateApp,
 		segments,
+		setSegments,
 		transcribe,
 		onAbort,
 		tabIndex,

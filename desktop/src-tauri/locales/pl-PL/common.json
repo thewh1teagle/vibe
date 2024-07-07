@@ -64,6 +64,7 @@
 	"prompt": "Podpowidź",
 	"recognize-speakers": "Wykryj głośniki",
 	"record": "Nagraj",
+	"replace-all": "Zamień wszystko",
 	"report-issue": "Zgłoś błąd",
 	"reset-app": "Restartuj Vibe",
 	"reset-ask-dialog": "Czy na pewno chcesz zresetować vibe? Dane aplikacji zostaną usunięte, w tym pliki modeli.",

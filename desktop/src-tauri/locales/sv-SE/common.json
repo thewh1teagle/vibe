@@ -64,6 +64,7 @@
 	"prompt": "Prompt",
 	"recognize-speakers": "Upptäck högtalare",
 	"record": "Spela in",
+	"replace-all": "Ersätt alla",
 	"report-issue": "Raportera Fel",
 	"reset-app": "Återställ Vibe",
 	"reset-ask-dialog": "Are you sure you want to reset vibe? app data will be cleared including models files.",
