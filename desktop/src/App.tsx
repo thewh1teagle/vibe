@@ -15,6 +15,7 @@ import { BoundaryFallback } from './components/BoundaryFallback'
 import ErrorModalWithContext from './components/ErrorModalWithContext'
 import { Toaster } from 'react-hot-toast'
 import { FilesProvider } from './providers/FilesProvider'
+import { ToastProvider } from './providers/Toast'
 
 export default function App() {
 	const { i18n } = useTranslation()
@@ -26,16 +27,18 @@ export default function App() {
 			<ErrorModalProvider>
 				<UpdaterProvider>
 					<PreferenceProvider>
-						<Toaster />
-						<ErrorModalWithContext />
-						<UpdateProgress />
-						<FilesProvider>
-							<Routes>
-								<Route path="/" element={<HomePage />} />
-								<Route path="/setup" element={<SetupPage />} />
-								<Route path="/batch" element={<BatchPage />} />
-							</Routes>
-						</FilesProvider>
+						<ToastProvider>
+							<Toaster />
+							<ErrorModalWithContext />
+							<UpdateProgress />
+							<FilesProvider>
+								<Routes>
+									<Route path="/" element={<HomePage />} />
+									<Route path="/setup" element={<SetupPage />} />
+									<Route path="/batch" element={<BatchPage />} />
+								</Routes>
+							</FilesProvider>
+						</ToastProvider>
 					</PreferenceProvider>
 				</UpdaterProvider>
 			</ErrorModalProvider>

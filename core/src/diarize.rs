@@ -1,92 +1,139 @@
-use crate::{transcribe::create_normalized_audio, transcript::Transcript};
-use eyre::{bail, Result};
-use sherpa_rs::speaker_identify;
-use std::collections::HashMap;
 use std::path::PathBuf;
 
-pub fn diarize(model_path: PathBuf, source_audio: PathBuf, mut transcript: Transcript) -> Result<Transcript> {
-    log::debug!("diarize");
+/// wget https://github.com/snakers4/silero-vad/raw/master/files/silero_vad.onnx
+/// wget https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/nemo_en_speakerverification_speakernet.onnx
+use eyre::{bail, eyre, Result};
+use sherpa_rs::{
+    embedding_manager, speaker_id,
+    vad::{Vad, VadConfig},
+};
 
-    // Normalize the audio
-    let normalized_audio = create_normalized_audio(source_audio)?;
+use crate::transcript::Transcript;
 
-    // Read the audio file
-    let (sample_rate, samples) = read_audio_file(normalized_audio.to_str().unwrap()).unwrap();
-    log::debug!("sample rate {} of {} samples", sample_rate, samples.len());
+#[derive(Debug)]
+pub struct DiarizeSegment {
+    pub start_sec: f32,
+    pub duration_sec: f32,
+    pub speaker: String,
+}
 
-    // Initialize the speaker embedding extractor
-    let config = speaker_identify::ExtractorConfig::new(model_path.to_str().unwrap().to_string(), None, None, false);
-    let mut extractor = speaker_identify::EmbeddingExtractor::new_from_config(config).unwrap();
+pub fn get_diarize_segments(
+    vad_model_path: PathBuf,
+    speaker_id_model_path: PathBuf,
+    audio_path: PathBuf,
+) -> Result<Vec<DiarizeSegment>> {
+    // Read audio data from the file
+    log::debug!("reading file at {}", audio_path.display());
+    let (mut samples, sample_rate) = read_audio_file(&audio_path.to_string_lossy())?;
+    log::debug!("samples: {} rate: {}", samples.len(), sample_rate);
 
-    // Placeholder for segment embeddings
-    let mut segment_embeddings: Vec<(usize, Vec<f32>)> = Vec::new();
-
-    // Process each segment in the transcript to compute embeddings
-    for (i, segment) in transcript.segments.iter().enumerate() {
-        // Ensure segment start and stop times are within audio bounds
-        let start_seconds = segment.start as f64 / 100.0; // Convert to seconds
-        let stop_seconds = segment.stop as f64 / 100.0; // Convert to seconds
-
-        // Calculate sample indices
-        let start_sample = (start_seconds * sample_rate as f64) as usize;
-        let stop_sample = (stop_seconds * sample_rate as f64) as usize;
-
-        // Check if start_sample and stop_sample are within bounds
-        if start_sample >= samples.len() || stop_sample > samples.len() {
-            log::error!(
-                "Audio segment indices out of bounds: start_sample {}, stop_sample {}",
-                start_sample,
-                stop_sample
-            );
-            continue; // Skip this segment or handle the error condition
-        }
-
-        // Extract audio segment
-        let segment_samples = samples[start_sample..stop_sample].to_vec();
-
-        // Compute embedding for the segment
-        if let Ok(segment_embedding) = extractor.compute_speaker_embedding(sample_rate, segment_samples) {
-            segment_embeddings.push((i, segment_embedding));
-        }
+    if sample_rate != 16000 {
+        bail!("The sample rate must be 16000.");
     }
 
-    // Identify speakers based on embeddings similarity
-    let mut speaker_id_counter = 0;
-    let mut segment_speaker_id: HashMap<usize, usize> = HashMap::new();
+    let extractor_config =
+        speaker_id::ExtractorConfig::new(speaker_id_model_path.to_string_lossy().to_string(), None, None, false);
+    let mut extractor = speaker_id::EmbeddingExtractor::new_from_config(extractor_config).unwrap();
+    let mut embedding_manager = embedding_manager::EmbeddingManager::new(extractor.embedding_size.try_into().unwrap()); // Assuming dimension 512 for embeddings
 
-    for (i, embedding) in &segment_embeddings {
-        let mut assigned = false;
+    let mut speaker_counter = 0;
 
-        // Compare with subsequent embeddings
-        for (j, _) in segment_embeddings.iter().enumerate().skip(i + 1) {
-            let other_embedding = &segment_embeddings[j].1;
-            let sim = speaker_identify::compute_cosine_similarity(embedding, other_embedding);
-            log::debug!("sim: {}", sim);
-            if sim > 0.4 {
-                let speaker_id = *segment_speaker_id.get(&j).unwrap_or(&speaker_id_counter);
-                segment_speaker_id.insert(*i, speaker_id); // Assign the same speaker ID as j
-                assigned = true;
-                break;
+    let window_size: usize = 512;
+    let config = VadConfig::new(
+        vad_model_path.to_string_lossy().to_string(),
+        0.4,
+        0.4,
+        0.5,
+        sample_rate,
+        window_size.try_into().unwrap(),
+        None,
+        None,
+        Some(true),
+    );
+
+    let mut vad = Vad::new_from_config(config, 3.0).unwrap();
+    let mut segments: Vec<DiarizeSegment> = Vec::new();
+    while samples.len() > window_size {
+        let window = &samples[..window_size];
+        vad.accept_waveform(window.to_vec()); // Convert slice to Vec
+        if vad.is_speech() {
+            while !vad.is_empty() {
+                let segment = vad.front();
+                let start_sec = (segment.start as f32) / sample_rate as f32;
+                let duration_sec = (segment.samples.len() as f32) / sample_rate as f32;
+
+                // Compute the speaker embedding
+                let embedding = extractor
+                    .compute_speaker_embedding(sample_rate, segment.samples)
+                    .map_err(|e| eyre!("{:?}", e))?;
+
+                let name = if let Some(speaker_name) = embedding_manager.search(&embedding, 0.45) {
+                    speaker_name
+                } else {
+                    // Register a new speaker and add the embedding
+                    let name = format!("{}", speaker_counter);
+                    embedding_manager
+                        .add(name.clone(), &mut embedding.clone())
+                        .map_err(|e| eyre!("{:?}", e))?;
+
+                    speaker_counter += 1;
+                    name
+                };
+                log::debug!("({}) start={}s duration={}s", name, start_sec, duration_sec);
+                segments.push(DiarizeSegment {
+                    start_sec,
+                    duration_sec,
+                    speaker: name,
+                });
+                vad.pop();
             }
+            vad.clear();
         }
-
-        if !assigned {
-            segment_speaker_id.insert(*i, speaker_id_counter);
-            speaker_id_counter += 1;
-        }
+        samples = samples[window_size..].to_vec(); // Move the remaining samples to the next iteration
     }
+    Ok(segments)
+}
 
-    // Update the transcript with identified speakers
-    for (i, segment) in transcript.segments.iter_mut().enumerate() {
-        if let Some(&speaker_id) = segment_speaker_id.get(&i) {
-            segment.speaker_id = Some(speaker_id);
+pub fn merge_diarization(diarize_segments: Vec<DiarizeSegment>, mut transcript: Transcript) -> Result<Transcript> {
+    // Iterate through each segment in the transcript
+    for segment in &mut transcript.segments {
+        // Find the corresponding diarize segment
+        if let Some(diarize_segment) = find_matching_segment(&diarize_segments, segment.start, segment.stop) {
+            // Assign speaker_id to the segment
+            log::debug!("found matching segment");
+            segment.speaker = Some(diarize_segment.speaker.clone());
         }
     }
 
     Ok(transcript)
 }
 
-fn read_audio_file(path: &str) -> Result<(i32, Vec<f32>)> {
+// Function to find a matching DiarizeSegment for given start and stop times
+fn find_matching_segment(diarize_segments: &[DiarizeSegment], start: i64, stop: i64) -> Option<&DiarizeSegment> {
+    let mut start = (start as f32) / 100.0;
+    let stop = (stop as f32) / 100.0;
+
+    diarize_segments.iter().find(|&segment| {
+        let segment_stop_sec: f32 = segment.start_sec + segment.duration_sec;
+        let mut segment_start_sec: f32 = segment.start_sec;
+
+        if start <= 1.0 && segment_start_sec <= 1.0 {
+            start = 0.0;
+            segment_start_sec = 0.0;
+        }
+        log::debug!(
+            "{} >= {} && {} <= {} : {}",
+            start,
+            segment_start_sec,
+            stop,
+            segment_stop_sec,
+            start >= segment_start_sec && stop <= segment_stop_sec
+        );
+        start >= segment_start_sec && stop <= segment_stop_sec
+    })
+}
+
+fn read_audio_file(path: &str) -> Result<(Vec<f32>, i32)> {
     let mut reader = hound::WavReader::open(path)?;
     let sample_rate = reader.spec().sample_rate as i32;
 
@@ -98,5 +145,5 @@ fn read_audio_file(path: &str) -> Result<(i32, Vec<f32>)> {
     // Collect samples into a Vec<f32>
     let samples: Vec<f32> = reader.samples::<i16>().map(|s| s.unwrap() as f32 / i16::MAX as f32).collect();
 
-    Ok((sample_rate, samples))
+    Ok((samples, sample_rate))
 }

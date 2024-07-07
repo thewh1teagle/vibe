@@ -72,7 +72,9 @@ fn main() {
             cmd::audio::start_record,
             cmd::get_models_folder,
             cmd::is_portable,
-            cmd::get_logs_folder
+            cmd::get_logs_folder,
+            cmd::is_diarization_available,
+            cmd::download_diarization_models
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

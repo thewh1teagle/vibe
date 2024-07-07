@@ -5,9 +5,9 @@ use std::time::Instant;
 use std::{env, process};
 use tauri::AppHandle;
 use vibe_core::config::TranscribeOptions;
+use vibe_core::diarize::merge_diarization;
 
-#[cfg(feature = "diarize")]
-use vibe_core::diarize::diarize;
+use vibe_core::diarize::get_diarize_segments;
 
 use vibe_core::transcribe;
 
@@ -97,14 +97,16 @@ struct Args {
     max_sentence_len: Option<i32>,
 
     /// Enable diarize (speaker labels)
-    #[cfg(feature = "diarize")]
     #[arg(long)]
     diarize: bool,
 
-    /// Path to diarization model
-    #[cfg(feature = "diarize")]
+    /// Path to vad model
     #[arg(long)]
-    pub diarize_model_path: Option<String>,
+    pub diarize_vad_model: Option<String>,
+
+    /// Path to speaker id model
+    #[arg(long)]
+    diarize_speaker_id_model: Option<String>,
 
     /// Run http server
     #[arg(long)]
@@ -158,16 +160,13 @@ pub async fn run(app_handle: &AppHandle) {
     #[allow(unused_mut)]
     let mut args = Args::parse();
 
-    #[cfg(feature = "diarize")]
-    {
-        if args.diarize && args.diarize_model_path.is_none() {
-            panic!("Please provide model path with --diarize-model-path")
-        }
-        if args.diarize {
-            args.word_timestamps = true;
-            args.max_sentence_len = Some(24);
-            args.format = "json".into();
-        }
+    if args.diarize && args.diarize_vad_model.is_none() {
+        panic!("Please provide model path with --diarize-model-path")
+    }
+    if args.diarize {
+        args.word_timestamps = true;
+        args.max_sentence_len = Some(24);
+        args.format = "json".into();
     }
 
     if args.server {
@@ -192,19 +191,17 @@ pub async fn run(app_handle: &AppHandle) {
     let start = Instant::now(); // Measure start time
     let ctx = transcribe::create_context(&model_path, None).unwrap();
     #[allow(unused_mut)]
-    let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None).unwrap();
+    let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None).unwrap();
 
-    #[cfg(feature = "diarize")]
-    {
-        if args.diarize {
-            // Add speaker labels to transcript
-            transcript = diarize(
-                PathBuf::from(args.diarize_model_path.unwrap()),
-                options.path.into(),
-                transcript,
-            )
-            .unwrap();
-        }
+    if args.diarize {
+        // Add speaker labels to transcript
+        let diarize_segments = get_diarize_segments(
+            PathBuf::from(args.diarize_vad_model.unwrap()),
+            PathBuf::from(args.diarize_speaker_id_model.unwrap()),
+            options.path.into(),
+        )
+        .unwrap();
+        transcript = merge_diarization(diarize_segments, transcript).unwrap();
     }
 
     let elapsed = start.elapsed();

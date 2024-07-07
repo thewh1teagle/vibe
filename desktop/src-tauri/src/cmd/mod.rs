@@ -1,4 +1,4 @@
-use crate::config::{DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
+use crate::config::{self, DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
 use crate::setup::ModelContext;
 use crate::utils::get_current_dir;
 use eyre::{bail, Context, ContextCompat, Result};
@@ -16,6 +16,8 @@ use tauri::{
 use tauri::{State, Wry};
 use tauri_plugin_store::{with_store, StoreCollection};
 use tokio::sync::Mutex;
+use vibe_core::config::DiarizeOptions;
+use vibe_core::downloader;
 use vibe_core::{transcribe::SegmentCallbackData, transcript::Transcript};
 pub mod audio;
 
@@ -145,6 +147,7 @@ pub async fn transcribe(
     app_handle: tauri::AppHandle,
     options: vibe_core::config::TranscribeOptions,
     model_context_state: State<'_, Mutex<Option<ModelContext>>>,
+    recognize_speakers: Option<bool>,
 ) -> Result<Transcript> {
     let model_context = model_context_state.lock().await;
     if model_context.is_none() {
@@ -182,6 +185,15 @@ pub async fn transcribe(
     };
 
     // prevent panic crash. sometimes whisper.cpp crash without nice errors.
+
+    let diarize_options = if recognize_speakers.unwrap_or_default() {
+        Some(DiarizeOptions {
+            speaker_id_model_path: get_models_folder(app_handle_c.clone())?.join(config::SPEAKER_ID_MODEL_FILENAME),
+            vad_model_path: get_models_folder(app_handle_c.clone())?.join(config::VAD_MODEL_FILENAME),
+        })
+    } else {
+        None
+    };
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
         vibe_core::transcribe::transcribe(
             &ctx.handle,
@@ -189,8 +201,10 @@ pub async fn transcribe(
             Some(Box::new(progress_callback)),
             Some(Box::new(new_segment_callback)),
             Some(Box::new(abort_callback)),
+            diarize_options,
         )
     }));
+
     let _ = set_progress_bar(&app_handle_c, None);
     match unwind_result {
         Err(error) => {
@@ -325,4 +339,51 @@ pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     }
     let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
     Ok(path)
+}
+
+#[tauri::command]
+pub fn is_diarization_available(app_handle: tauri::AppHandle) -> Result<bool> {
+    let models_folder = get_models_folder(app_handle)?;
+    let vad_path = models_folder.join(config::VAD_MODEL_FILENAME);
+    let speaker_id_path = models_folder.join(config::SPEAKER_ID_MODEL_FILENAME);
+    Ok(vad_path.exists() && speaker_id_path.exists())
+}
+
+fn create_progress_callback(app_handle: tauri::AppHandle, start_progress: f64, end_progress: f64) -> impl Fn(u64, u64) -> bool {
+    move |current: u64, total: u64| {
+        let app_handle = app_handle.clone();
+
+        // Update progress in background
+        tauri::async_runtime::spawn(async move {
+            let window = app_handle.get_webview_window("main").unwrap();
+            let percentage = start_progress + ((current as f64 / total as f64) * (end_progress - start_progress));
+            log::debug!("percentage: {}", percentage);
+            if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
+                log::error!("Failed to set progress bar: {}", e);
+            }
+            if let Err(e) = window.emit("download_progress", (current, total)) {
+                log::error!("Failed to emit download progress: {}", e);
+            }
+        });
+        // Return the abort signal immediately
+        false
+    }
+}
+
+#[tauri::command]
+pub async fn download_diarization_models(app_handle: tauri::AppHandle) -> Result<()> {
+    let models_folder = get_models_folder(app_handle.clone())?;
+    let vad_path = models_folder.join(config::VAD_MODEL_FILENAME);
+    let speaker_id_path = models_folder.join(config::SPEAKER_ID_MODEL_FILENAME);
+    let mut dn = downloader::Downloader::new();
+
+    // Download vad
+    let dn_callback = create_progress_callback(app_handle.clone(), 0.0, 50.0);
+    dn.download(config::VAD_MODEL_URL, vad_path, dn_callback).await?;
+
+    // Download speaker embedding model
+    let dn_callback = create_progress_callback(app_handle.clone(), 50.0, 100.0);
+    dn.download(config::SPEAKER_ID_MODEL_URL, speaker_id_path, dn_callback)
+        .await?;
+    Ok(())
 }

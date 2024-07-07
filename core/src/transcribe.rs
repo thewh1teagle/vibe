@@ -1,5 +1,5 @@
 use crate::audio;
-use crate::config::TranscribeOptions;
+use crate::config::{DiarizeOptions, TranscribeOptions};
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, Context, Ok, OptionExt, Result};
 use std::path::{Path, PathBuf};
@@ -51,6 +51,7 @@ pub fn transcribe(
     progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
+    diarize_options: Option<DiarizeOptions>,
 ) -> Result<Transcript> {
     log::debug!("Transcribe called with {:?}", options);
 
@@ -156,17 +157,26 @@ pub fn transcribe(
             text,
             start,
             stop,
-            speaker_id: None,
+            speaker: None,
         });
+    }
+
+    let mut transcript = Transcript {
+        segments,
+        processing_time_sec: Instant::now().duration_since(st).as_secs(),
+    };
+
+    if let Some(options) = diarize_options {
+        let diarize_segments =
+            crate::diarize::get_diarize_segments(options.vad_model_path, options.speaker_id_model_path, out_path.clone())?;
+        log::debug!("diariz_segmetns={:?}", diarize_segments);
+        transcript = crate::diarize::merge_diarization(diarize_segments, transcript)?;
     }
 
     // cleanup
     std::fs::remove_file(out_path)?;
 
-    Ok(Transcript {
-        segments,
-        processing_time_sec: Instant::now().duration_since(st).as_secs(),
-    })
+    Ok(transcript)
 }
 
 #[cfg(test)]
@@ -209,7 +219,7 @@ mod tests {
             max_sentence_len: None,
         };
         let ctx = create_context(Path::new("model.bin"), None).unwrap();
-        transcribe(&ctx, args, None, None, None)?;
+        transcribe(&ctx, args, None, None, None, None)?;
 
         Ok(())
     }
