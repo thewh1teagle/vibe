@@ -139,6 +139,8 @@ export default function TextArea({
 	const replaceBoxVisibleRef = useRef(false)
 	const [replaceBoxPos, setReplaceBoxPos] = useState({ x: 0, y: 0 })
 	const [selectedText, setSelectedText] = useState('')
+	const segmentsTextAreaRef = useRef<HTMLTextAreaElement | null>(null)
+	const segmentsInFocusRef = useRef<boolean>(false)
 
 	useEffect(() => {
 		if (segments) {
@@ -210,26 +212,33 @@ export default function TextArea({
 	}, [replaceBoxVisible])
 
 	function onMouseUp(event: MouseEvent) {
-		console.log('already', replaceBoxVisibleRef.current)
+		if (!segmentsInFocusRef.current) {
+			return
+		}
 		if (replaceBoxVisibleRef.current) {
 			return
 		}
 
 		const text = window.getSelection()?.toString()
-		if (text) {
-			setSelectedText(text)
+		if (!text) {
+			return
 		}
 
-		// Get x and y coordinates relative to the entire page
+		setSelectedText(text)
+
 		const mouseX = event.pageX
 		const mouseY = event.pageY
+
+		const segmentsTextArea = segmentsTextAreaRef.current
+		if (!segmentsTextArea) {
+			return
+		}
+
 		const newPos = { x: mouseX - 10, y: mouseY - 40 }
 		setReplaceBoxPos(newPos)
-		console.log(newPos)
 
-		if (text && text.length < 100) {
+		if (text.length < 100) {
 			setReplaceBoxVisible(true)
-			console.log(text, mouseX, mouseY)
 		}
 	}
 
@@ -245,7 +254,10 @@ export default function TextArea({
 					selected={selectedText}
 					segments={segments}
 					setSegments={setSegments}
-					onClickOutside={() => setReplaceBoxVisible(false)}
+					onClickOutside={() => {
+						setSelectedText('')
+						setReplaceBoxVisible(false)
+					}}
 					x={replaceBoxPos.x}
 					y={replaceBoxPos.y}
 					dir={preference.textAreaDirection}
@@ -294,6 +306,9 @@ export default function TextArea({
 				<HTMLView preference={preference} segments={segments ?? []} file={file} />
 			) : (
 				<textarea
+					onFocus={() => (segmentsInFocusRef.current = true)}
+					onBlur={() => (segmentsInFocusRef.current = false)}
+					ref={segmentsTextAreaRef}
 					placeholder={placeholder}
 					readOnly={readonly}
 					autoCorrect="off"
