@@ -6,6 +6,7 @@ import DropModal from './DropModal'
 import SettingsModal from './SettingsModal'
 import ThemeToggle from './ThemeToggle'
 import { usePreferenceProvider } from '~/providers/Preference'
+import Toast from './Toast'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
@@ -14,11 +15,13 @@ export default function Layout({ children }: { children: ReactNode }) {
 	const { setTheme, theme } = usePreferenceProvider()
 	return (
 		<div className="flex flex-col pb-[80px]">
+			<Toast />
 			<div className="absolute right-16 top-16">
 				<ThemeToggle setTheme={setTheme} theme={theme} />
 			</div>
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} />}
 			<DropModal />
+
 			<div className="flex flex-col m-auto w-full mt-10">
 				<div className="relative text-center">
 					<div className="relative w-[300px] m-auto">

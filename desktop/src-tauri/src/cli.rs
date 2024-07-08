@@ -5,7 +5,11 @@ use std::time::Instant;
 use std::{env, process};
 use tauri::AppHandle;
 use vibe_core::config::TranscribeOptions;
-use vibe_core::model;
+use vibe_core::diarize::merge_diarization;
+
+use vibe_core::diarize::get_diarize_segments;
+
+use vibe_core::transcribe;
 
 use crate::cmd::get_models_folder;
 use crate::server;
@@ -92,6 +96,18 @@ struct Args {
     // TODO: use possible values. confusing crate!
     max_sentence_len: Option<i32>,
 
+    /// Enable diarize (speaker labels)
+    #[arg(long)]
+    diarize: bool,
+
+    /// Path to vad model
+    #[arg(long)]
+    pub diarize_vad_model: Option<String>,
+
+    /// Path to speaker id model
+    #[arg(long)]
+    diarize_speaker_id_model: Option<String>,
+
     /// Run http server
     #[arg(long)]
     server: bool,
@@ -141,7 +157,17 @@ pub async fn run(app_handle: &AppHandle) {
     #[cfg(target_os = "macos")]
     crate::dock::set_dock_visible(false);
 
-    let args = Args::parse();
+    #[allow(unused_mut)]
+    let mut args = Args::parse();
+
+    if args.diarize && args.diarize_vad_model.is_none() {
+        panic!("Please provide model path with --diarize-model-path")
+    }
+    if args.diarize {
+        args.word_timestamps = true;
+        args.max_sentence_len = Some(24);
+        args.format = "json".into();
+    }
 
     if args.server {
         server::run(app_handle.clone(), args.host, args.port).await;
@@ -163,8 +189,21 @@ pub async fn run(app_handle: &AppHandle) {
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
-    let ctx = model::create_context(&model_path, None).unwrap();
-    let transcript = model::transcribe(&ctx, &options, None, None, None).unwrap();
+    let ctx = transcribe::create_context(&model_path, None).unwrap();
+    #[allow(unused_mut)]
+    let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None).unwrap();
+
+    if args.diarize {
+        // Add speaker labels to transcript
+        let diarize_segments = get_diarize_segments(
+            PathBuf::from(args.diarize_vad_model.unwrap()),
+            PathBuf::from(args.diarize_speaker_id_model.unwrap()),
+            options.path.into(),
+        )
+        .unwrap();
+        transcript = merge_diarization(diarize_segments, transcript).unwrap();
+    }
+
     let elapsed = start.elapsed();
     println!(
         "{}",
@@ -172,6 +211,7 @@ pub async fn run(app_handle: &AppHandle) {
             "srt" => transcript.as_srt(),
             "vtt" => transcript.as_vtt(),
             "txt" => transcript.as_text(),
+            "json" => transcript.as_json(),
             _ => {
                 eprintln!("Invalid format specified. Defaulting to SRT format.");
                 transcript.as_srt()

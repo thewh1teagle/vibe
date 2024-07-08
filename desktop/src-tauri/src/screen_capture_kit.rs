@@ -36,7 +36,6 @@ impl UnsafeSCStreamOutput for StoreAudioHandler {
                 break; // max two channels for now
             }
             let mut file = OpenOptions::new()
-                .write(true)
                 .create(true)
                 .append(true) // Use append mode
                 .open(base_path.join(PathBuf::from(format!("output{}.raw", i))))
@@ -127,7 +126,7 @@ pub fn screencapturekit_to_wav(output_path: PathBuf) -> Result<()> {
             "[0:a][1:a]amerge=inputs=2",
             "-ac",
             "2",
-            &output_path.to_str().unwrap(),
+            output_path.to_str().unwrap(),
             "-hide_banner",
             "-y",
             "-loglevel",

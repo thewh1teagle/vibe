@@ -1,7 +1,7 @@
 use std::{panic, path::PathBuf, sync::Arc};
 use tauri::{AppHandle, Manager};
 
-use crate::{cmd::is_portable, config, utils::get_current_dir};
+use crate::{cli, cmd::is_portable, config, utils::get_current_dir};
 
 fn get_log_path(app: &AppHandle) -> PathBuf {
     let config_path = if is_portable() {
@@ -36,6 +36,8 @@ pub fn set_panic_hook(app: &AppHandle) {
         eprintln!("{}", message);
         // do whatever with the message
         std::fs::write(log_path.as_path(), format!("{}\nCOMMIT: {}", message, env!("COMMIT_HASH"))).unwrap();
-        showfile::show_path_in_file_manager(log_path.as_path());
+        if !cli::is_cli_detected() {
+            showfile::show_path_in_file_manager(log_path.as_path());
+        }
     }));
 }

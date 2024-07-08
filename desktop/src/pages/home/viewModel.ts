@@ -123,7 +123,7 @@ export function viewModel() {
 
 	async function checkModelExists() {
 		try {
-			const configPath = await invoke<string>("get_models_folder")
+			const configPath = await invoke<string>('get_models_folder')
 			const entries = await ls(configPath)
 			const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
 			if (filtered.length === 0) {
@@ -219,7 +219,11 @@ export function viewModel() {
 				...preference.modelOptions,
 			}
 			const startTime = performance.now()
-			const res: transcript.Transcript = await invoke('transcribe', { options, modelPath: preference.modelPath })
+			const res: transcript.Transcript = await invoke('transcribe', {
+				options,
+				modelPath: preference.modelPath,
+				recognizeSpeakers: preference.recognizeSpeakers,
+			})
 
 			// Calcualte time
 			const total = Math.round((performance.now() - startTime) / 1000)
@@ -275,6 +279,7 @@ export function viewModel() {
 		availableUpdate,
 		updateApp,
 		segments,
+		setSegments,
 		transcribe,
 		onAbort,
 		tabIndex,

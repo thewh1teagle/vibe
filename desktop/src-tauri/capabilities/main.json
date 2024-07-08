@@ -63,6 +63,7 @@
 		"os:allow-platform",
 		"os:allow-version",
 		"os:allow-os-type",
+		"os:allow-locale",
 		"window:default",
 		"window:allow-unminimize",
 		"window:allow-set-focus",

@@ -28,7 +28,6 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
 pub struct Transcript {
     pub processing_time_sec: u64,
     pub segments: Vec<Segment>,
-    // pub word_segments: Option<Vec<Utternace>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -36,6 +35,8 @@ pub struct Segment {
     pub start: i64,
     pub stop: i64,
     pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub speaker: Option<String>,
 }
 
 impl Segment {
@@ -67,6 +68,10 @@ impl Transcript {
         self.segments
             .iter()
             .fold(String::new(), |transcript, fragment| transcript + fragment.text.as_str())
+    }
+
+    pub fn as_json(&self) -> String {
+        serde_json::to_string_pretty(self).unwrap()
     }
 
     pub fn as_vtt(&self) -> String {

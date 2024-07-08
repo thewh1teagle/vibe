@@ -1277,6 +1277,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "env_filter"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a009aa4810eb158359dda09d0c87378e4bbb89b5a801f016885a4707ba24f7ea"
+dependencies = [
+ "log",
+ "regex",
+]
+
+[[package]]
 name = "env_logger"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1287,6 +1297,19 @@ dependencies = [
  "log",
  "regex",
  "termcolor",
+]
+
+[[package]]
+name = "env_logger"
+version = "0.11.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38b35839ba51819680ba087cd351788c9a3c476841207e0b8cee0b04722343b9"
+dependencies = [
+ "anstream",
+ "anstyle",
+ "env_filter",
+ "humantime",
+ "log",
 ]
 
 [[package]]
@@ -1334,6 +1357,16 @@ checksum = "0f214dc438f977e6d4e3500aaa277f5ad94ca83fbbd9b1a15713ce2344ccc5a1"
 dependencies = [
  "event-listener",
  "pin-project-lite",
+]
+
+[[package]]
+name = "eyre"
+version = "0.6.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7cd915d99f24784cdc19fd37ef22b97e3ff0ae756c7e492e9fbfe897d61e2aec"
+dependencies = [
+ "indenter",
+ "once_cell",
 ]
 
 [[package]]
@@ -4469,6 +4502,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "sherpa-rs"
+version = "0.1.4-beta.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "046740180d09d36251ec452b3c88d83c9ae6e81012022c1e7e030673f49d4427"
+dependencies = [
+ "env_logger 0.11.3",
+ "eyre 0.6.12",
+ "hound",
+ "log",
+ "sherpa-rs-sys",
+]
+
+[[package]]
+name = "sherpa-rs-sys"
+version = "0.1.4-beta.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "501bf0c40e0e7803d56bb5dd0b72eeac00f5b6f778a6ccda0dd7a253210a0a79"
+dependencies = [
+ "bindgen",
+ "cmake",
+ "fs_extra",
+]
+
+[[package]]
 name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5800,8 +5857,8 @@ dependencies = [
  "clap",
  "cocoa",
  "cpal",
- "env_logger",
- "eyre",
+ "env_logger 0.10.2",
+ "eyre 1.0.0",
  "fs_extra",
  "futures",
  "hound",
@@ -5843,8 +5900,8 @@ version = "0.0.6"
 dependencies = [
  "clap",
  "dirs-next",
- "env_logger",
- "eyre",
+ "env_logger 0.10.2",
+ "eyre 1.0.0",
  "futures-util",
  "glob",
  "hound",
@@ -5855,6 +5912,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha256",
+ "sherpa-rs",
  "tempfile",
  "tokio",
  "utoipa",

@@ -1,5 +1,5 @@
 use crate::audio;
-use crate::config::TranscribeOptions;
+use crate::config::{DiarizeOptions, TranscribeOptions};
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, Context, Ok, OptionExt, Result};
 use std::path::{Path, PathBuf};
@@ -35,12 +35,23 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
     Ok(ctx)
 }
 
+pub fn create_normalized_audio(source: PathBuf) -> Result<PathBuf> {
+    let out_path = tempfile::Builder::new()
+        .suffix(".wav")
+        .tempfile()?
+        .into_temp_path()
+        .to_path_buf();
+    audio::normalize(source, out_path.clone())?;
+    Ok(out_path)
+}
+
 pub fn transcribe(
     ctx: &WhisperContext,
     options: &TranscribeOptions,
     progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
+    diarize_options: Option<DiarizeOptions>,
 ) -> Result<Transcript> {
     log::debug!("Transcribe called with {:?}", options);
 
@@ -53,12 +64,7 @@ pub fn transcribe(
         *guard = Some(Box::new(callback));
     }
 
-    let out_path = tempfile::Builder::new()
-        .suffix(".wav")
-        .tempfile()?
-        .into_temp_path()
-        .to_path_buf();
-    audio::normalize(PathBuf::from(options.path.clone()), out_path.clone())?;
+    let out_path = create_normalized_audio(options.path.clone().into())?;
     let original_samples = audio::parse_wav_file(&out_path)?;
     let mut samples = vec![0.0f32; original_samples.len()];
     whisper_rs::install_whisper_log_trampoline();
@@ -147,16 +153,30 @@ pub fn transcribe(
         let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
         let stop = state.full_get_segment_t1(s).context("failed to get end timestamp")?;
-        segments.push(Segment { text, start, stop });
+        segments.push(Segment {
+            text,
+            start,
+            stop,
+            speaker: None,
+        });
+    }
+
+    let mut transcript = Transcript {
+        segments,
+        processing_time_sec: Instant::now().duration_since(st).as_secs(),
+    };
+
+    if let Some(options) = diarize_options {
+        let diarize_segments =
+            crate::diarize::get_diarize_segments(options.vad_model_path, options.speaker_id_model_path, out_path.clone())?;
+        log::debug!("diariz_segmetns={:?}", diarize_segments);
+        transcript = crate::diarize::merge_diarization(diarize_segments, transcript)?;
     }
 
     // cleanup
     std::fs::remove_file(out_path)?;
 
-    Ok(Transcript {
-        segments,
-        processing_time_sec: Instant::now().duration_since(st).as_secs(),
-    })
+    Ok(transcript)
 }
 
 #[cfg(test)]
@@ -199,7 +219,7 @@ mod tests {
             max_sentence_len: None,
         };
         let ctx = create_context(Path::new("model.bin"), None).unwrap();
-        transcribe(&ctx, args, None, None, None)?;
+        transcribe(&ctx, args, None, None, None, None)?;
 
         Ok(())
     }

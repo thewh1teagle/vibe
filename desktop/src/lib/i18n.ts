@@ -1,7 +1,7 @@
 import { resolveResource } from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
-import i18n from 'i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
+import { locale } from '@tauri-apps/plugin-os'
+import i18n, { LanguageDetectorAsyncModule } from 'i18next'
 import resourcesToBackend from 'i18next-resources-to-backend'
 import { initReactI18next } from 'react-i18next/initReactI18next'
 
@@ -20,6 +20,18 @@ export const supportedLanguageValues = Object.values(supportedLanguages)
 export function getI18nLanguageName() {
 	const name = supportedLanguages[i18n.language as keyof typeof supportedLanguages]
 	return name
+}
+
+const LanguageDetector: LanguageDetectorAsyncModule = {
+	type: 'languageDetector',
+	async: true, // If this is set to true, your detect function receives a callback function that you should call with your language, useful to retrieve your language stored in AsyncStorage for example
+	detect: (callback) => {
+		locale().then((detectedLocale) => {
+			if (detectedLocale) {
+				callback(detectedLocale)
+			}
+		})
+	},
 }
 
 i18n.use(LanguageDetector)

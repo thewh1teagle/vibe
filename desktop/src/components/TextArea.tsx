@@ -1,13 +1,13 @@
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { ReactComponent as PrintIcon } from '~/icons/print.svg'
 import { Segment, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
-import { NamedPath, cx, openPath } from '~/lib/utils'
+import { ModifyState, NamedPath, cx, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferenceProvider } from '~/providers/Preference'
 import HTMLView from './HtmlView'
@@ -32,13 +32,102 @@ function Copy({ text }: { text: string }) {
 	)
 }
 
+function ReplaceWithBox({
+	segments,
+	setSegments,
+	x,
+	y,
+	dir,
+	onClickOutside,
+	selected,
+}: {
+	selected: string
+	segments: Segment[] | null
+	setSegments: ModifyState<Segment[] | null>
+	x: number
+	y: number
+	dir: 'ltr' | 'rtl'
+
+	onClickOutside: () => void
+}) {
+	const boxRef = useRef<HTMLDivElement>(null)
+	const textAreaRef = useRef<HTMLTextAreaElement>(null)
+	const { t } = useTranslation()
+	const [value, setValue] = useState('')
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+				onClickOutside()
+			}
+			event.stopPropagation()
+		}
+		document.addEventListener('mousedown', handleClickOutside)
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+		}
+	}, [onClickOutside])
+
+	useEffect(() => {
+		// textAreaRef.current?.focus()
+	}, [])
+
+	function replace() {
+		setSegments(segments!.map((s) => ({ ...s, text: s.text.replace(selected, value) })))
+		onClickOutside()
+	}
+
+	const safeX = Math.max(x, 50) // Ensure mouseX is at least 200 pixels
+
+	return (
+		<div ref={boxRef} style={{ left: x, top: y }} className="absolute z-10 bg-transparent flex flex-col">
+			<details className="dropdown">
+				<summary className="cursor-pointer p-0.5 bg-primary rounded-full m-1">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth={1.5}
+						stroke="currentColor"
+						className="h-4 w-4 rounded-3xl">
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+						/>
+					</svg>
+				</summary>
+				<ul
+					style={{ left: safeX > x ? 50 : 0 }}
+					className={cx('menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow', safeX > x && 'absolute')}>
+					<textarea
+						ref={textAreaRef}
+						value={value}
+						onChange={(e) => setValue(e.target.value)}
+						dir={dir}
+						className="textarea textarea-bordered resize-none"
+						name=""
+						id=""
+						placeholder={`${t('common.replace-all')}... (${selected})`}
+					/>
+					<button onClick={replace} className="btn btn-primary btn-xs">
+						{t('common.replace-all')}
+					</button>
+				</ul>
+			</details>
+		</div>
+	)
+}
+
 export default function TextArea({
 	segments,
+	setSegments,
 	readonly,
 	placeholder,
 	file,
 }: {
 	segments: Segment[] | null
+	setSegments: ModifyState<Segment[] | null>
 	readonly: boolean
 	placeholder?: string
 	file: NamedPath
@@ -46,6 +135,12 @@ export default function TextArea({
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const [text, setText] = useState('')
+	const [replaceBoxVisible, setReplaceBoxVisible] = useState(false)
+	const replaceBoxVisibleRef = useRef(false)
+	const [replaceBoxPos, setReplaceBoxPos] = useState({ x: 0, y: 0 })
+	const [selectedText, setSelectedText] = useState('')
+	const segmentsTextAreaRef = useRef<HTMLTextAreaElement | null>(null)
+	const segmentsInFocusRef = useRef<boolean>(false)
 
 	useEffect(() => {
 		if (segments) {
@@ -112,8 +207,62 @@ export default function TextArea({
 		}
 	}
 
+	useEffect(() => {
+		replaceBoxVisibleRef.current = replaceBoxVisible
+	}, [replaceBoxVisible])
+
+	function onMouseUp(event: MouseEvent) {
+		if (!segmentsInFocusRef.current) {
+			return
+		}
+		if (replaceBoxVisibleRef.current) {
+			return
+		}
+
+		const text = window.getSelection()?.toString()
+		if (!text) {
+			return
+		}
+
+		setSelectedText(text)
+
+		const mouseX = event.pageX
+		const mouseY = event.pageY
+
+		const segmentsTextArea = segmentsTextAreaRef.current
+		if (!segmentsTextArea) {
+			return
+		}
+
+		const newPos = { x: mouseX - 10, y: mouseY - 40 }
+		setReplaceBoxPos(newPos)
+
+		if (text.length < 100) {
+			setReplaceBoxVisible(true)
+		}
+	}
+
+	useEffect(() => {
+		window.addEventListener('mouseup', onMouseUp)
+		return () => window.removeEventListener('mouseup', onMouseUp)
+	}, [])
+
 	return (
 		<div className="w-full h-full">
+			{replaceBoxVisible && (
+				<ReplaceWithBox
+					selected={selectedText}
+					segments={segments}
+					setSegments={setSegments}
+					onClickOutside={() => {
+						setSelectedText('')
+						setReplaceBoxVisible(false)
+					}}
+					x={replaceBoxPos.x}
+					y={replaceBoxPos.y}
+					dir={preference.textAreaDirection}
+				/>
+			)}
 			<div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row items-center">
 				<Copy text={text} />
 				<div className="tooltip tooltip-bottom" data-tip={t('common.save-transcript')}>
@@ -157,6 +306,9 @@ export default function TextArea({
 				<HTMLView preference={preference} segments={segments ?? []} file={file} />
 			) : (
 				<textarea
+					onFocus={() => (segmentsInFocusRef.current = true)}
+					onBlur={() => (segmentsInFocusRef.current = false)}
+					ref={segmentsTextAreaRef}
 					placeholder={placeholder}
 					readOnly={readonly}
 					autoCorrect="off"

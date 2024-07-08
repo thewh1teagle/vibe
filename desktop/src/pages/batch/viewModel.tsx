@@ -113,7 +113,11 @@ export function viewModel() {
 				}
 				const startTime = performance.now()
 
-				const res: Transcript = await invoke('transcribe', { options, modelPath: preference.modelPath })
+				const res: Transcript = await invoke('transcribe', {
+					options,
+					modelPath: preference.modelPath,
+					recognizeSpeakers: preference.recognizeSpeakers,
+				})
 
 				// Calculate time
 				let total = Math.round((performance.now() - startTime) / 1000)

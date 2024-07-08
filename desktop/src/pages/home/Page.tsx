@@ -73,6 +73,7 @@ export default function Home() {
 					{(vm.segments || vm.loading) && (
 						<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
 							<TextArea
+								setSegments={vm.setSegments}
 								file={vm.files?.[0]}
 								placeholder={t('common.transcript-will-displayed-shortly')}
 								segments={vm.segments}

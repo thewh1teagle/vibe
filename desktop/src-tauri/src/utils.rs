@@ -15,5 +15,5 @@ pub fn random_string(length: usize) -> String {
 pub fn get_current_dir() -> Result<PathBuf> {
     let current_dir = env::current_exe().context("current_dir")?;
     let current_dir = current_dir.parent().context("current dir parent")?;
-    return Ok(current_dir.to_path_buf());
+    Ok(current_dir.to_path_buf())
 }

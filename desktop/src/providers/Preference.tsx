@@ -30,6 +30,9 @@ export interface Preference {
 	setStoreRecordInDocuments: ModifyState<boolean>
 	gpuDevice: number
 	setGpuDevice: ModifyState<number>
+
+	recognizeSpeakers: boolean
+	setRecognizeSpeakers: ModifyState<boolean>
 }
 
 // Create the context
@@ -74,10 +77,13 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		word_timestamps: false,
 		max_sentence_len: 1,
 	})
+	const [recognizeSpeakers, setRecognizeSpeakers] = useLocalStorage<boolean>('prefs_recognize_speakers', false)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 
 	const preference: Preference = {
+		recognizeSpeakers,
+		setRecognizeSpeakers,
 		modelOptions,
 		setModelOptions,
 		storeRecordInDocuments,
