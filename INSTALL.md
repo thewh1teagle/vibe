@@ -19,7 +19,7 @@ Nvidia's performance is incredible — transcribe 1 hour in just 1-5 minutes!
 
 Look for installers with `nvidia` in [vibe/releases/latest](https://github.com/thewh1teagle/vibe/releases/latest)
 
-On Linux, you may also need to install [`cuda-toolkit`](https://developer.nvidia.com/cuda-downloads). 
+On Linux, you may also need to install [`cuda-toolkit`](https://developer.nvidia.com/cuda-downloads).
 
 </details>
 
@@ -117,3 +117,14 @@ vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/g
 
 </details>
 
+<details>
+	<summary>Install on Windows 7</summary>
+
+1. Download [MicrosoftEdgeWebView2RuntimeInstallerX64.exe](https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/MicrosoftEdgeWebView2RuntimeInstallerX64.exe)
+2. Right click -> start as admin
+3. Accept the admin prompt
+4. Wait few minutes, it will install it in background (Without success message)
+5. Restart the computer
+6. Install Vibe normally
+
+</details>
