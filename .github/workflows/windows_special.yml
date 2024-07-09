@@ -85,7 +85,14 @@ jobs:
     portable:
         permissions:
             contents: write
-
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - rust_version: "stable" # https://github.com/rustdesk/rustdesk/discussions/7503, also 1.78 has ABI change which causes our sciter version not working, https://blog.rust-lang.org/2024/03/30/i128-layout-update.html
+                      name: portable
+                    - rust_version: "1.75"
+                      name: portable-win7
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
@@ -101,6 +108,8 @@ jobs:
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
+              with:
+                  toolchain: ${{ matrix.rust_version }}
 
             - name: Install frontend dependencies
               run: bun install
@@ -131,35 +140,34 @@ jobs:
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
 
-
             - name: Prepare Portable zip
               run: |
-                # Get all EXE files in the specified directory
-                $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
+                  # Get all EXE files in the specified directory
+                  $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
 
-                # Unzip each EXE file and zip the contents
-                foreach ($file in $exe_files) {
-                    $name = $file.BaseName
-                    $ext = "_portable.zip"
+                  # Unzip each EXE file and zip the contents
+                  foreach ($file in $exe_files) {
+                      $name = $file.BaseName
+                      $ext = "_${{ matrix.name }}.zip"
 
-                    # Create a new directory for extraction in the same folder
-                    $extract_dir = New-Item -ItemType Directory -Path "$($file.DirectoryName)\$name"
-                    echo $extract_dir.FullName
+                      # Create a new directory for extraction in the same folder
+                      $extract_dir = New-Item -ItemType Directory -Path "$($file.DirectoryName)\$name"
+                      echo $extract_dir.FullName
 
-                    try {
-                        # Unzip the EXE file into the new directory
-                        & 7z x $file.FullName -o"$extract_dir"
+                      try {
+                          # Unzip the EXE file into the new directory
+                          & 7z x $file.FullName -o"$extract_dir"
 
-                        # Zip the contents into a new zip file
-                        $zip_name = "{0}{1}" -f $name, $ext
-                        & 7z a "$($file.DirectoryName)\$zip_name" "$extract_dir\*"
+                          # Zip the contents into a new zip file
+                          $zip_name = "{0}{1}" -f $name, $ext
+                          & 7z a "$($file.DirectoryName)\$zip_name" "$extract_dir\*"
 
-                        Write-Output "Zipped contents of '$($file.FullName)' to '$zip_name'"
-                    } finally {
-                        # Remove the extraction directory
-                        Remove-Item -Recurse -Force $extract_dir
-                    }
-                }
+                          Write-Output "Zipped contents of '$($file.FullName)' to '$zip_name'"
+                      } finally {
+                          # Remove the extraction directory
+                          Remove-Item -Recurse -Force $extract_dir
+                      }
+                  }
               shell: pwsh
 
             - name: Upload installer
