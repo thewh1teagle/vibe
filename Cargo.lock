@@ -4503,9 +4503,9 @@ dependencies = [
 
 [[package]]
 name = "sherpa-rs"
-version = "0.1.5-beta.1"
+version = "0.1.5-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31a1cf8853ee54f293d9c84afb49118f9f347ec772c4449e9984d68e62111be2"
+checksum = "006be76c09799ed29d10de3c9c15db1bd486b6c0620f3ecedb77eff306e6d355"
 dependencies = [
  "env_logger 0.11.3",
  "eyre 0.6.12",
@@ -4516,9 +4516,9 @@ dependencies = [
 
 [[package]]
 name = "sherpa-rs-sys"
-version = "0.1.5-beta.1"
+version = "0.1.5-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "880d7be4df6f9bf5073f63fe4a94807c36fb212a94a9b506c35a9a616070868b"
+checksum = "5d00f45670cf0f727a7bbbc624c115318c55ca43052e310d5c1644324b681b2f"
 dependencies = [
  "bindgen",
  "cmake",
