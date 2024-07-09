@@ -100,6 +100,9 @@ jobs:
             - name: Add msbuild to PATH
               uses: microsoft/setup-msbuild@v2
 
+            - name: Setup cmake
+              uses: jwlawson/actions-setup-cmake@v2
+
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
 
