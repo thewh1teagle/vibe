@@ -110,6 +110,7 @@ jobs:
               uses: dtolnay/rust-toolchain@stable
               with:
                   toolchain: ${{ matrix.rust_version }}
+                  components: "rustfmt"
 
             - name: Install frontend dependencies
               run: bun install
