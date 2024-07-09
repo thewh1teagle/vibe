@@ -16,7 +16,6 @@ use tauri::{
 use tauri::{State, Wry};
 use tauri_plugin_store::{with_store, StoreCollection};
 use tokio::sync::Mutex;
-use vibe_core::config::DiarizeOptions;
 use vibe_core::downloader;
 use vibe_core::{transcribe::SegmentCallbackData, transcript::Transcript};
 pub mod audio;
@@ -187,10 +186,15 @@ pub async fn transcribe(
     // prevent panic crash. sometimes whisper.cpp crash without nice errors.
 
     let diarize_options = if recognize_speakers.unwrap_or_default() {
-        Some(DiarizeOptions {
-            speaker_id_model_path: get_models_folder(app_handle_c.clone())?.join(config::SPEAKER_ID_MODEL_FILENAME),
-            vad_model_path: get_models_folder(app_handle_c.clone())?.join(config::VAD_MODEL_FILENAME),
-        })
+        #[cfg(feature = "diarize")]
+        {
+            Some(vibe_core::config::DiarizeOptions {
+                speaker_id_model_path: get_models_folder(app_handle_c.clone())?.join(config::SPEAKER_ID_MODEL_FILENAME),
+                vad_model_path: get_models_folder(app_handle_c.clone())?.join(config::VAD_MODEL_FILENAME),
+            })
+        }
+        #[cfg(not(feature = "diarize"))]
+        None
     } else {
         None
     };

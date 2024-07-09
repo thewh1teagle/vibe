@@ -51,7 +51,7 @@ pub fn transcribe(
     progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
     new_segment_callback: Option<Box<dyn Fn(whisper_rs::SegmentCallbackData)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
-    diarize_options: Option<DiarizeOptions>,
+    #[allow(unused_variables)] diarize_options: Option<DiarizeOptions>,
 ) -> Result<Transcript> {
     log::debug!("Transcribe called with {:?}", options);
 
@@ -161,16 +161,20 @@ pub fn transcribe(
         });
     }
 
+    #[allow(unused_mut)]
     let mut transcript = Transcript {
         segments,
         processing_time_sec: Instant::now().duration_since(st).as_secs(),
     };
 
-    if let Some(options) = diarize_options {
-        let diarize_segments =
-            crate::diarize::get_diarize_segments(options.vad_model_path, options.speaker_id_model_path, out_path.clone())?;
-        log::debug!("diariz_segmetns={:?}", diarize_segments);
-        transcript = crate::diarize::merge_diarization(diarize_segments, transcript)?;
+    #[cfg(feature = "diarize")]
+    {
+        if let Some(options) = diarize_options {
+            let diarize_segments =
+                crate::diarize::get_diarize_segments(options.vad_model_path, options.speaker_id_model_path, out_path.clone())?;
+            log::debug!("diariz_segmetns={:?}", diarize_segments);
+            transcript = crate::diarize::merge_diarization(diarize_segments, transcript)?;
+        }
     }
 
     // cleanup

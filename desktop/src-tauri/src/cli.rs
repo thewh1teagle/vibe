@@ -5,9 +5,6 @@ use std::time::Instant;
 use std::{env, process};
 use tauri::AppHandle;
 use vibe_core::config::TranscribeOptions;
-use vibe_core::diarize::merge_diarization;
-
-use vibe_core::diarize::get_diarize_segments;
 
 use vibe_core::transcribe;
 
@@ -192,17 +189,6 @@ pub async fn run(app_handle: &AppHandle) {
     let ctx = transcribe::create_context(&model_path, None).unwrap();
     #[allow(unused_mut)]
     let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None).unwrap();
-
-    if args.diarize {
-        // Add speaker labels to transcript
-        let diarize_segments = get_diarize_segments(
-            PathBuf::from(args.diarize_vad_model.unwrap()),
-            PathBuf::from(args.diarize_speaker_id_model.unwrap()),
-            options.path.into(),
-        )
-        .unwrap();
-        transcript = merge_diarization(diarize_segments, transcript).unwrap();
-    }
 
     let elapsed = start.elapsed();
     println!(
