@@ -33,7 +33,7 @@ once_cell = "1.19.0"
 dirs-next = "2.0.0"
 which = "6.0.1"
 utoipa = { version = "4.2.3", features = ["axum_extras"] }
-sherpa-rs = "=0.1.5-beta.2"
+sherpa-rs = "=0.1.5-beta.3"
 # sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
 
 
