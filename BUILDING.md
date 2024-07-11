@@ -111,9 +111,9 @@ Rust analyzer failed to run on windows
 
 ```json
 "rust-analyzer.cargo.extraEnv": {
-	"FFMPEG_DIR": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\ffmpeg",
-	"OPENBLAS_PATH": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\openblas",
-	"CLBlast_DIR": "C:\\Users\\User\\Documents\\code\\vibe\\desktop\\src-tauri\\clblast",
+	"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
+	"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
+	"CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast",
 	"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
 }
 ```
