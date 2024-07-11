@@ -1,4 +1,5 @@
 import { $ } from 'bun';
+import clipboard from 'clipboardy';
 
 // Get the last tag commit
 const gitInfo = (await $`git describe --tags --abbrev=0`.text()).trim()
@@ -25,6 +26,6 @@ And add technical features only if they are critical.
 Commits are:
 ${messages}
 `
-
-
-console.log(prompt)
+await clipboard.write(prompt);
+console.log('Prompt in your clipboard 🦄')
+console.log('https://chat.openai.com/')
