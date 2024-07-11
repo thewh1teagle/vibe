@@ -245,6 +245,7 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
 }
 
 #[tauri::command]
+#[cfg(windows)]
 pub fn set_high_gpu_preference(mode: bool) -> Result<()> {
     if mode {
         crate::gpu_preference::set_gpu_preference_high()?;
