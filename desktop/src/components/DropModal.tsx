@@ -67,7 +67,7 @@ export default function DropModal() {
 
 	useEffect(() => {
 		handleDrops()
-		os.platform().then((p) => setPlatofrm(p))
+		setPlatofrm(os.platform())
 		return () => {
 			listeners.current.forEach((unlisten) => unlisten())
 		}
