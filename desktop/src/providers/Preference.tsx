@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
+import { ReactNode, createContext, useContext, useEffect, useRef } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
 import i18n from '~/lib/i18n'
