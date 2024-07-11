@@ -35,6 +35,7 @@
 	"high-gpu-performance": "Définir les performances graphiques sur élevé",
 	"i-prefer-manual-setup": "Je préfère télécharger manuellement",
 	"info-cancel-download": "Vous pouvez annuler et télécharger manuellement le modèle ultérieurement.",
+	"info-gpu-device": "Sélectionnez le périphérique GPU pour la transcription. \nSaisissez le numéro de périphérique GPU, en commençant par 0. Si vous disposez de 2 GPU, choisissez 0 ou 1.",
 	"info-high-gpu-performance": "Améliore les performances graphiques de Vibe, mais consommera plus de ressources système.",
 	"info-manual-download": "Une connexion Internet est requise pour télécharger le modèle d'IA",
 	"info-max-sentence-len": "Combien de lettres y aura-t-il dans une seule phrase. \nne fonctionne que lorsque l'horodatage des mots est activé.",

@@ -95,5 +95,6 @@
 	"use-word-timestamps": "Timestamps per each word",
 	"when-completing-transcription": "When completing transcription",
 	"high-gpu-performance": "Set Graphics performance to high",
-	"info-high-gpu-performance": "Enhances graphics performance for Vibe, but will consume more system resources."
+	"info-high-gpu-performance": "Enhances graphics performance for Vibe, but will consume more system resources.",
+	"info-gpu-device": "Select the GPU device for transcription. Enter the GPU device number, starting from 0. If you have 2 GPUs, choose either 0 or 1."
 }

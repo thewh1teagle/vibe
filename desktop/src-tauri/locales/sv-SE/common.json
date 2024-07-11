@@ -35,6 +35,7 @@
 	"high-gpu-performance": "Ställ in grafikprestanda på hög",
 	"i-prefer-manual-setup": "I prefer download manually",
 	"info-cancel-download": "You can cancel and download model manually later.",
+	"info-gpu-device": "Välj GPU-enheten för transkription. \nAnge GPU-enhetsnumret, med början från 0. Om du har 2 GPU:er väljer du antingen 0 eller 1.",
 	"info-high-gpu-performance": "Förbättrar grafikprestandan för Vibe, men kommer att förbruka mer systemresurser.",
 	"info-manual-download": "Internet connection is required to downlod the AI modal",
 	"info-max-sentence-len": "Hur många bokstäver blir det i en mening. \nfungerar bara när ord tidsstämplar är på.",

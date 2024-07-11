@@ -35,6 +35,7 @@
 	"high-gpu-performance": "Defina o desempenho gráfico como alto",
 	"i-prefer-manual-setup": "Prefiro fazer o download manualmente",
 	"info-cancel-download": "Você pode cancelar e fazer o download do modelo manualmente mais tarde.",
+	"info-gpu-device": "Selecione o dispositivo GPU para transcrição. \nInsira o número do dispositivo GPU, começando em 0. Se você tiver 2 GPUs, escolha 0 ou 1.",
 	"info-high-gpu-performance": "Melhora o desempenho gráfico do Vibe, mas consumirá mais recursos do sistema.",
 	"info-manual-download": "É necessária uma conexão com a Internet para fazer o download do modelo AI",
 	"info-max-sentence-len": "Quantas letras haverá em uma única frase. \nfunciona somente quando os carimbos de data/hora do Word estão ativados.",

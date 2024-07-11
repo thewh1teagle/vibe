@@ -35,6 +35,7 @@
 	"high-gpu-performance": "Ustaw wydajność grafiki na wysoką",
 	"i-prefer-manual-setup": "Preferuję pobieranie ręczne",
 	"info-cancel-download": "Możesz anulować i ręcznie pobrać model później.",
+	"info-gpu-device": "Wybierz urządzenie GPU do transkrypcji. \nWprowadź numer urządzenia GPU, zaczynając od 0. Jeśli masz 2 procesory graficzne, wybierz 0 lub 1.",
 	"info-high-gpu-performance": "Zwiększa wydajność grafiki w systemie Vibe, ale zużywa więcej zasobów systemowych.",
 	"info-manual-download": "Połączenie internetowe jest wymagane do pobrania modalu AI",
 	"info-max-sentence-len": "Ile liter będzie w jednym zdaniu. \ndziała tylko wtedy, gdy włączone są znaczniki czasu słów.",

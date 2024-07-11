@@ -171,9 +171,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				<span className="label-text">{t('common.advanced')}</span>
 			</div>
 			<label className="form-control w-full py-2">
-				<div className="label">
-					<span className="label-text flex items-center gap-1">{t('common.gpu-device')}</span>
-				</div>
+				<span className="label-text flex items-center gap-1 cursor-default">
+					<InfoTooltip text={t('common.info-gpu-device')} />
+					{t('common.gpu-device')}
+				</span>
 				<input
 					value={vm.preference.gpuDevice}
 					onChange={(e) => vm.preference.setGpuDevice(parseInt(e.target.value) ?? 0)}
