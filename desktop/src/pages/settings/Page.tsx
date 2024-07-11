@@ -15,6 +15,8 @@ import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { ModifyState, cx } from '~/lib/utils'
 import { viewModel } from './viewModel'
+import * as os from '@tauri-apps/plugin-os'
+import { useEffect, useState } from 'react'
 
 interface SettingsPageProps {
 	setVisible: ModifyState<boolean>
@@ -23,6 +25,16 @@ interface SettingsPageProps {
 export default function SettingsPage({ setVisible }: SettingsPageProps) {
 	const { t, i18n } = useTranslation()
 	const vm = viewModel()
+
+	const [platform, setPlatform] = useState<os.Platform | null>(null)
+
+	async function getPlatform() {
+		setPlatform(os.platform())
+	}
+
+	useEffect(() => {
+		getPlatform()
+	}, [])
 
 	return (
 		<div className="flex flex-col m-auto w-[300px] mt-10 pb-4 dark:font-normal">
@@ -169,6 +181,24 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					type="number"
 				/>
 			</label>
+			{platform === 'windows' && (
+				<div className="form-control w-full mt-3">
+					<label className="label cursor-pointer">
+						<span className="label-text flex items-center gap-1 cursor-default">
+							<InfoTooltip text={t('common.info-high-gpu-performance')} />
+							{t('common.high-gpu-performance')}
+						</span>
+
+						<input
+							type="checkbox"
+							className="toggle toggle-primary"
+							checked={vm.preference.highGraphicsPreference}
+							onChange={() => vm.preference.setHighGraphicsPreference(!vm.preference.highGraphicsPreference)}
+						/>
+					</label>
+				</div>
+			)}
+
 			<div className="flex flex-col gap-1">
 				<button onMouseDown={vm.openLogsFolder} className="btn bg-base-300 text-base-content">
 					{t('common.logs-folder')}

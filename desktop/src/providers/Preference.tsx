@@ -1,4 +1,5 @@
-import { ReactNode, createContext, useContext } from 'react'
+import { invoke } from '@tauri-apps/api/core'
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
 import i18n from '~/lib/i18n'
@@ -30,6 +31,9 @@ export interface Preference {
 	setStoreRecordInDocuments: ModifyState<boolean>
 	gpuDevice: number
 	setGpuDevice: ModifyState<number>
+
+	highGraphicsPreference: boolean
+	setHighGraphicsPreference: ModifyState<boolean>
 
 	recognizeSpeakers: boolean
 	setRecognizeSpeakers: ModifyState<boolean>
@@ -67,6 +71,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
 	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'normal')
+	const isMounted = useRef<boolean>()
 	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', {
 		init_prompt: '',
 		verbose: false,
@@ -80,8 +85,19 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [recognizeSpeakers, setRecognizeSpeakers] = useLocalStorage<boolean>('prefs_recognize_speakers', false)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
+	const [highGraphicsPreference, setHighGraphicsPreference] = useLocalStorage<boolean>('prefs_high_graphics_performance', false)
+
+	useEffect(() => {
+		if (!isMounted.current) {
+			isMounted.current = true
+			return
+		}
+		invoke('set_high_gpu_preference', { mode: highGraphicsPreference })
+	}, [highGraphicsPreference])
 
 	const preference: Preference = {
+		highGraphicsPreference,
+		setHighGraphicsPreference,
 		recognizeSpeakers,
 		setRecognizeSpeakers,
 		modelOptions,

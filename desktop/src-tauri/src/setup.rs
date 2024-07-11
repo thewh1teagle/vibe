@@ -36,9 +36,6 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         if let Err(error) = crate::custom_protocol::register() {
             log::error!("{:?}", error);
         }
-        if let Err(error) = crate::gpu_preference::set_gpu_preference() {
-            log::error!("{:?}", error);
-        }
     }
 
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]

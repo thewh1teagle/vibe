@@ -245,6 +245,16 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
 }
 
 #[tauri::command]
+pub fn set_high_gpu_preference(mode: bool) -> Result<()> {
+    if mode {
+        crate::gpu_preference::set_gpu_preference_high()?;
+    } else {
+        crate::gpu_preference::remove_gpu_preference()?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
 pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
     // Get the file stem (filename without extension)
     let stem = src_path.file_stem().and_then(|s| s.to_str()).unwrap_or_default();

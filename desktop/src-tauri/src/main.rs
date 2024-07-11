@@ -78,7 +78,9 @@ fn main() -> Result<()> {
             cmd::is_portable,
             cmd::get_logs_folder,
             cmd::is_diarization_available,
-            cmd::download_diarization_models
+            cmd::download_diarization_models,
+            #[cfg(windows)]
+            cmd::set_high_gpu_preference
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

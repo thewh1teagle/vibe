@@ -93,5 +93,7 @@
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
 	"use-word-timestamps": "Timestamps per each word",
-	"when-completing-transcription": "When completing transcription"
+	"when-completing-transcription": "When completing transcription",
+	"high-gpu-performance": "Set Graphics performance to high",
+	"info-high-gpu-performance": "Enhances graphics performance for Vibe, but will consume more system resources."
 }
