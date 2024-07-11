@@ -45,7 +45,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     log::debug!(
         "CPU Features\n{}",
         crate::cmd::get_x86_features()
-            .map(|v| serde_json::to_string(&v)?)
+            .map(|v| serde_json::to_string(&v).unwrap_or_default())
             .unwrap_or_default()
     );
 
