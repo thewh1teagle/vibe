@@ -6,6 +6,7 @@ use axum::response::Result;
 use axum::routing::post;
 use axum::Json;
 use axum::{routing::get, Router};
+use eyre::eyre;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::Manager;
@@ -22,7 +23,7 @@ use vibe_core::transcript::{Segment, Transcript};
 )]
 struct ApiDoc;
 
-pub async fn run(app_handle: tauri::AppHandle, host: String, port: u16) {
+pub async fn run(app_handle: tauri::AppHandle, host: String, port: u16) -> eyre::Result<()> {
     let app = Router::new()
         .merge(SwaggerUi::new("/docs").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route("/transcribe", post(transcribe))
@@ -30,9 +31,12 @@ pub async fn run(app_handle: tauri::AppHandle, host: String, port: u16) {
         .route("/list", get(list_models))
         .with_state(app_handle);
 
-    let listener = tokio::net::TcpListener::bind(format!("{}:{}", host, port)).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(format!("{}:{}", host, port)).await?;
     log::info!("Serve on http://{}:{}", host, port);
-    axum::serve(listener, app.into_make_service()).await.unwrap();
+    axum::serve(listener, app.into_make_service())
+        .await
+        .map_err(|e| eyre!("{:?}", e))?;
+    Ok(())
 }
 
 #[derive(Deserialize, Serialize, ToSchema)]

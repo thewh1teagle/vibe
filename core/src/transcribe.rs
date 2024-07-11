@@ -1,7 +1,7 @@
 use crate::audio;
 use crate::config::{DiarizeOptions, TranscribeOptions};
 use crate::transcript::{Segment, Transcript};
-use eyre::{bail, Context, Ok, OptionExt, Result};
+use eyre::{bail, eyre, Context, OptionExt, Result};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Instant;
@@ -60,7 +60,7 @@ pub fn transcribe(
     }
 
     if let Some(callback) = progress_callback {
-        let mut guard = PROGRESS_CALLBACK.lock().unwrap();
+        let mut guard = PROGRESS_CALLBACK.lock().map_err(|e| eyre!("{:?}", e))?;
         *guard = Some(Box::new(callback));
     }
 
@@ -123,12 +123,19 @@ pub fn transcribe(
         params.set_abort_callback_safe(abort_callback);
     }
 
-    if PROGRESS_CALLBACK.lock().unwrap().as_ref().is_some() {
+    if PROGRESS_CALLBACK.lock().map_err(|e| eyre!("{:?}", e))?.as_ref().is_some() {
         params.set_progress_callback_safe(|progress| {
             // using move here lead to crash
             log::debug!("progress callback {}", progress);
-            if let Some(progress_callback) = PROGRESS_CALLBACK.lock().unwrap().as_ref() {
-                progress_callback(progress);
+            match PROGRESS_CALLBACK.lock() {
+                Ok(callback_guard) => {
+                    if let Some(progress_callback) = callback_guard.as_ref() {
+                        progress_callback(progress);
+                    }
+                }
+                Err(e) => {
+                    log::error!("Failed to lock PROGRESS_CALLBACK: {:?}", e);
+                }
             }
         });
     }
@@ -222,7 +229,7 @@ mod tests {
             word_timestamps: None,
             max_sentence_len: None,
         };
-        let ctx = create_context(Path::new("model.bin"), None).unwrap();
+        let ctx = create_context(Path::new("model.bin"), None)?;
         transcribe(&ctx, args, None, None, None, None)?;
 
         Ok(())

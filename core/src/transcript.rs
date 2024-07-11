@@ -1,3 +1,4 @@
+use eyre::Result;
 use num::integer::div_floor;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -70,8 +71,8 @@ impl Transcript {
             .fold(String::new(), |transcript, fragment| transcript + fragment.text.as_str())
     }
 
-    pub fn as_json(&self) -> String {
-        serde_json::to_string_pretty(self).unwrap()
+    pub fn as_json(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(self)?)
     }
 
     pub fn as_vtt(&self) -> String {

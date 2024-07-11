@@ -41,7 +41,7 @@ sherpa-rs = { version = "=0.1.5-beta.3", optional = true }
 glob = "0.3.1"
 
 [features]
-diarize = []
+diarize = ["sherpa-rs"]
 coreml = ["whisper-rs/coreml"]
 cuda = ["whisper-rs/cuda"]
 opencl = ["whisper-rs/opencl"]

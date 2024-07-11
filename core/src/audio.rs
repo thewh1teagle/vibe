@@ -57,14 +57,14 @@ pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
     let mut cmd = Command::new(ffmpeg_path);
     let cmd = cmd.args([
         "-i",
-        input.to_str().unwrap(),
+        input.to_str().context("tostr")?,
         "-ar",
         "16000",
         "-ac",
         "1",
         "-c:a",
         "pcm_s16le",
-        output.to_str().unwrap(),
+        output.to_str().context("tostr")?,
         "-hide_banner",
         "-y",
         "-loglevel",
@@ -109,14 +109,14 @@ pub fn parse_wav_file(path: &PathBuf) -> Result<Vec<i16>> {
 /// ffmpeg -i short.wav -i single.wav -filter_complex amix=inputs=2:duration=shortest -ac 2 merged.wav
 pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
-    let output = dst.to_str().unwrap();
+    let output = dst.to_str().context("tostr")?;
 
     let mut cmd = Command::new(ffmpeg_path);
     cmd.args([
         "-i",
-        a.to_str().unwrap(),
+        a.to_str().context("tostr")?,
         "-i",
-        b.to_str().unwrap(),
+        b.to_str().context("tostr")?,
         "-filter_complex",
         "amix=inputs=2:duration=shortest",
         "-ac",

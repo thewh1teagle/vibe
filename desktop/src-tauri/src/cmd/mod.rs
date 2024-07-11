@@ -1,7 +1,7 @@
 use crate::config::{self, DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
 use crate::setup::ModelContext;
-use crate::utils::get_current_dir;
-use eyre::{bail, Context, ContextCompat, Result};
+use crate::utils::{get_current_dir, LogError};
+use eyre::{bail, eyre, Context, ContextCompat, Result};
 use serde_json::{json, Value};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
@@ -41,7 +41,7 @@ fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Res
     let window = app_handle.get_webview_window("main").context("get window")?;
     if let Some(progress) = progress {
         log::debug!("set_progress_bar {}", progress);
-        window.emit("transcribe_progress", progress).unwrap();
+        window.emit("transcribe_progress", progress)?;
         if progress > 1.0 {
             window.set_progress_bar(ProgressBarState {
                 progress: Some(progress as u64),
@@ -101,7 +101,7 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     // allow abort transcription
     let app_handle_d = app_handle_c.clone();
     app_handle.listen("abort_download", move |_| {
-        set_progress_bar(&app_handle_d, None).unwrap();
+        set_progress_bar(&app_handle_d, None).log_error();
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
@@ -114,14 +114,15 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
 
             // Update progress in background
             tauri::async_runtime::spawn(async move {
-                let window = app_handle.get_webview_window("main").unwrap();
                 let percentage = (current as f64 / total as f64) * 100.0;
                 log::debug!("percentage: {}", percentage);
                 if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
                     log::error!("Failed to set progress bar: {}", e);
                 }
-                if let Err(e) = window.emit("download_progress", (current, total)) {
-                    log::error!("Failed to emit download progress: {}", e);
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    if let Err(e) = window.emit("download_progress", (current, total)) {
+                        log::error!("Failed to emit download progress: {}", e);
+                    }
                 }
             });
             // Return the abort signal immediately
@@ -137,7 +138,7 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     downloader
         .download(&download_url, model_path.to_owned(), download_progress_callback)
         .await?;
-    set_progress_bar(&app_handle_c, None).unwrap();
+    set_progress_bar(&app_handle_c, None)?;
     Ok(model_path.to_str().context("to_str")?.to_string())
 }
 
@@ -152,7 +153,7 @@ pub async fn transcribe(
     if model_context.is_none() {
         bail!("Please load model first")
     }
-    let ctx = model_context.as_ref().unwrap();
+    let ctx = model_context.as_ref().context("as ref")?;
     let app_handle_c = app_handle.clone();
 
     let new_segment_callback = move |data: SegmentCallbackData| {
@@ -163,7 +164,8 @@ pub async fn transcribe(
                 "new_segment",
                 serde_json::json!({"start": data.start_timestamp, "stop": data.end_timestamp, "text": data.text}),
             )
-            .unwrap();
+            .map_err(|e| eyre!("{:?}", e))
+            .log_error();
     };
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
@@ -359,14 +361,15 @@ fn create_progress_callback(app_handle: tauri::AppHandle, start_progress: f64, e
 
         // Update progress in background
         tauri::async_runtime::spawn(async move {
-            let window = app_handle.get_webview_window("main").unwrap();
             let percentage = start_progress + ((current as f64 / total as f64) * (end_progress - start_progress));
             log::debug!("percentage: {}", percentage);
             if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
                 log::error!("Failed to set progress bar: {}", e);
             }
-            if let Err(e) = window.emit("download_progress", (current, total)) {
-                log::error!("Failed to emit download progress: {}", e);
+            if let Some(window) = app_handle.get_webview_window("main") {
+                if let Err(e) = window.emit("download_progress", (current, total)) {
+                    log::error!("Failed to emit download progress: {}", e);
+                }
             }
         });
         // Return the abort signal immediately

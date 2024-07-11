@@ -17,7 +17,7 @@ interface ParamsProps {
 
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const [open, setOpen] = useState(false)
-	const { recognizeSpeakers, setRecognizeSpeakers } = usePreferenceProvider()
+	const { recognizeSpeakers: _, setRecognizeSpeakers } = usePreferenceProvider()
 	const { t } = useTranslation()
 	const toast = useToastProvider()
 
@@ -69,7 +69,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				{t('common.more-options')}
 			</div>
 			<div className="collapse-content w-full">
-				<div className="form-control w-full mt-3">
+				{/* <div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">
 							<InfoTooltip text={t('common.info-recognize-speakers')} />
@@ -77,7 +77,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						</span>
 						<input type="checkbox" className="toggle toggle-primary" checked={recognizeSpeakers} onChange={onRecognizeSpeakerChange} />
 					</label>
-				</div>
+				</div> */}
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">

@@ -25,9 +25,11 @@ mod gpu_preference;
 #[cfg(target_os = "macos")]
 mod screen_capture_kit;
 
+use eyre::{eyre, Result};
 use tauri_plugin_window_state::StateFlags;
+use utils::LogError;
 
-fn main() {
+fn main() -> Result<()> {
     // Attach console in Windows:
     #[cfg(windows)]
     cli::attach_console();
@@ -37,9 +39,11 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            app.get_webview_window("main").unwrap().set_focus().unwrap();
             log::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
-            app.emit("single-instance", argv).unwrap();
+            if let Some(webview) = app.get_webview_window("main") {
+                webview.set_focus().map_err(|e| eyre!("{:?}", e)).log_error();
+            }
+            app.emit("single-instance", argv).map_err(|e| eyre!("{:?}", e)).log_error();
         }))
         .setup(|app| setup::setup(app))
         .plugin(
@@ -78,4 +82,5 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+    Ok(())
 }

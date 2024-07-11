@@ -33,8 +33,8 @@ pub fn get_diarize_segments(
 
     let extractor_config =
         speaker_id::ExtractorConfig::new(speaker_id_model_path.to_string_lossy().to_string(), None, None, false);
-    let mut extractor = speaker_id::EmbeddingExtractor::new_from_config(extractor_config).unwrap();
-    let mut embedding_manager = embedding_manager::EmbeddingManager::new(extractor.embedding_size.try_into().unwrap()); // Assuming dimension 512 for embeddings
+    let mut extractor = speaker_id::EmbeddingExtractor::new_from_config(extractor_config).map_err(|e| eyre!("{:?}", e))?;
+    let mut embedding_manager = embedding_manager::EmbeddingManager::new(extractor.embedding_size.try_into()?); // Assuming dimension 512 for embeddings
 
     let mut speaker_counter = 0;
 
@@ -45,13 +45,13 @@ pub fn get_diarize_segments(
         0.4,
         0.5,
         sample_rate,
-        window_size.try_into().unwrap(),
+        window_size.try_into()?,
         None,
         None,
         Some(true),
     );
 
-    let mut vad = Vad::new_from_config(config, 3.0).unwrap();
+    let mut vad = Vad::new_from_config(config, 3.0).map_err(|e| eyre!("{:?}", e))?;
     let mut segments: Vec<DiarizeSegment> = Vec::new();
     while samples.len() > window_size {
         let window = &samples[..window_size];
@@ -143,7 +143,8 @@ fn read_audio_file(path: &str) -> Result<(Vec<f32>, i32)> {
     }
 
     // Collect samples into a Vec<f32>
-    let samples: Vec<f32> = reader.samples::<i16>().map(|s| s.unwrap() as f32 / i16::MAX as f32).collect();
+    let samples_i16: Vec<Result<i16>> = reader.samples::<i16>().map(|s| s.map_err(|e| eyre!("{:?}", e))).collect();
+    let samples: Vec<f32> = samples_i16.into_iter().map(|s| s.unwrap() as f32 / i16::MAX as f32).collect();
 
     Ok((samples, sample_rate))
 }

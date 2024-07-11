@@ -1,6 +1,6 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{FromSample, Sample, Stream};
-use eyre::{bail, Context, ContextCompat, Result};
+use eyre::{bail, eyre, Context, ContextCompat, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fs::File;
@@ -12,7 +12,7 @@ use tauri::{AppHandle, Manager};
 #[cfg(target_os = "macos")]
 use crate::screen_capture_kit;
 
-use crate::utils::random_string;
+use crate::utils::{random_string, LogError};
 
 type WavWriterHandle = Arc<Mutex<Option<hound::WavWriter<BufWriter<File>>>>>;
 
@@ -30,8 +30,8 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     let host = cpal::default_host();
     let mut audio_devices = Vec::new();
 
-    let default_in = host.default_input_device().map(|e| e.name().unwrap());
-    let default_out = host.default_output_device().map(|e| e.name().unwrap());
+    let default_in = host.default_input_device().map(|e| e.name()).context("name")?;
+    let default_out = host.default_output_device().map(|e| e.name()).context("name")?;
     log::debug!("Default Input Device:\n{:?}", default_in);
     log::debug!("Default Output Device:\n{:?}", default_out);
 
@@ -93,10 +93,10 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         if device.id == "screencapturekit" {
             #[cfg(target_os = "macos")]
             {
-                let stream = screen_capture_kit::init();
+                let stream = screen_capture_kit::init()?;
                 let stream = Arc::new(stream);
                 screencapture_stream = Some(stream.clone());
-                screen_capture_kit::start_capture(&stream);
+                screen_capture_kit::start_capture(&stream)?;
             }
         } else {
             let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
@@ -176,41 +176,43 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
     let app_handle_clone = app_handle.clone();
     app_handle.once("stop_record", move |_event| {
         for (i, stream_handle) in stream_handles.iter().enumerate() {
-            let stream = stream_handle.lock().unwrap().take();
-            let writer = stream_writers[i].clone();
-
-
-			if let Some(stream) = stream {
-				log::debug!("Pausing stream");
-				stream.0.pause().unwrap();
-				log::debug!("Finalizing writer");
-				let writer = writer.lock().unwrap().take().unwrap();
-				let written = writer.len();
-				wav_paths[i] = (wav_paths[i].0.clone(), written);
-				writer.finalize().unwrap();
-			}
+            let stream_handle = stream_handle.lock().map_err(|e| eyre!("{:?}", e)).log_error();
+            if let Some(mut stream_handle) = stream_handle {
+                let stream = stream_handle.take();
+                let writer = stream_writers[i].clone();
+    
+                if let Some(stream) = stream {
+                    log::debug!("Pausing stream");
+                    stream.0.pause().map_err(|e| eyre!("{:?}", e)).log_error();
+                    log::debug!("Finalizing writer");
+                    let writer = writer.lock().unwrap().take().unwrap();
+                    let written = writer.len();
+                    wav_paths[i] = (wav_paths[i].0.clone(), written);
+                    writer.finalize().map_err(|e| eyre!("{:?}", e)).log_error();
+                }
+            }
         }
 
-		#[cfg(target_os = "macos")]
-		{
-			if let Some(stream) = screencapture_stream {
-				screen_capture_kit::stop_capture(&stream);
-				let output_path = std::env::temp_dir().join(format!("{}.wav", random_string(5)));
-				screen_capture_kit::screencapturekit_to_wav(output_path.clone()).unwrap();
-				log::debug!("output path is {}", output_path.display());
-				wav_paths.push((output_path, 1));
-			}
-		}
+        #[cfg(target_os = "macos")]
+        {
+            if let Some(stream) = screencapture_stream {
+                screen_capture_kit::stop_capture(&stream).map_err(|e| eyre!("{:?}", e)).log_error();
+                let output_path = std::env::temp_dir().join(format!("{}.wav", random_string(5)));
+                
+                screen_capture_kit::screencapturekit_to_wav(output_path.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+                log::debug!("output path is {}", output_path.display());
+                wav_paths.push((output_path, 1));
+            }
+        }
 
         let mut dst = if wav_paths.len() == 1 {
             wav_paths[0].0.clone()
         } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
             log::debug!("Merging WAV files");
-            vibe_core::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).unwrap();
+            vibe_core::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
             dst
-        }
-        else if wav_paths[0].1 > wav_paths[1].1 {
+        } else if wav_paths[0].1 > wav_paths[1].1 {
             // First WAV file has a larger sample count, choose it
             wav_paths[0].0.clone()
         } else {
@@ -220,22 +222,23 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         };
         if store_in_documents {
             if let Some(file_name) = dst.file_name() {
-                let documents_path = app_handle_clone.path().document_dir().unwrap();
-                let target_path = documents_path.join(file_name);
-                std::fs::rename(&dst, &target_path).context("Failed to move file to documents directory").unwrap();
-                dst = target_path;
+                let documents_path = app_handle_clone.path().document_dir().map_err(|e| eyre!("{e:?}")).log_error();
+                if let Some(documents_path) = documents_path {
+                    let target_path = documents_path.join(file_name);
+                    std::fs::rename(&dst, &target_path).context("Failed to move file to documents directory").map_err(|e| eyre!("{e:?}")).log_error();
+                    dst = target_path;
+                }
+      
             } else {
                 log::error!("Failed to retrieve file name from destination path");
             }
         }
 
         log::debug!("Emitting record_finish event");
-        app_handle_clone
-            .emit(
-                "record_finish",
-                json!({"path": dst.to_str().unwrap(), "name": dst.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),
-            )
-            .unwrap();
+        app_handle_clone.emit(
+            "record_finish",
+            json!({"path": dst.to_string_lossy(), "name": dst.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),
+        ).map_err(|e| eyre!("{e:?}")).log_error();
     });
 
     Ok(())

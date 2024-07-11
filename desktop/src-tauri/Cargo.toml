@@ -63,8 +63,8 @@ screencapturekit-sys = "0.2.8"
 objc_id = "0.1"
 
 [features]
-diarize = ["vibe_core/diarize"]
 default = ["custom-protocol"]
+diarize = ["vibe_core/diarize"]
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]

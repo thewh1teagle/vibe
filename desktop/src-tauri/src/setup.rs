@@ -1,6 +1,7 @@
 use std::fs;
 
-use crate::{cli, config::STORE_FILENAME, panic_hook};
+use crate::{cli, config::STORE_FILENAME, panic_hook, utils::LogError};
+use eyre::eyre;
 use tauri::{App, Manager};
 use tauri_plugin_store::StoreBuilder;
 use tokio::sync::Mutex;
@@ -14,9 +15,9 @@ pub struct ModelContext {
 
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Add panic hook
-    panic_hook::set_panic_hook(app.app_handle());
+    panic_hook::set_panic_hook(app.app_handle())?;
 
-    let app_data = app.path().app_local_data_dir().unwrap();
+    let app_data = app.path().app_local_data_dir()?;
     fs::create_dir_all(app_data).expect("cant create local app data directory");
 
     // Manage model context
@@ -44,7 +45,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     log::debug!(
         "CPU Features\n{}",
         crate::cmd::get_x86_features()
-            .map(|v| serde_json::to_string(&v).unwrap())
+            .map(|v| serde_json::to_string(&v)?)
             .unwrap_or_default()
     );
 
@@ -56,11 +57,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let app_handle = app.app_handle().clone();
     if cli::is_cli_detected() {
         tauri::async_runtime::spawn(async move {
-            cli::run(&app_handle).await;
+            cli::run(&app_handle).await.map_err(|e| eyre!("{:?}", e)).log_error();
         });
     } else {
         // Create main window
-        tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+        let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
             .inner_size(800.0, 700.0)
             .min_inner_size(800.0, 700.0)
             .center()
@@ -69,8 +70,10 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .focused(true)
             .shadow(true)
             .visible(false)
-            .build()
-            .expect("Can't create main window");
+            .build();
+        if let Err(error) = result {
+            log::error!("{:?}", error);
+        }
     }
     Ok(())
 }

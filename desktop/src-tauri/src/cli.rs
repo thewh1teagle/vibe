@@ -1,11 +1,11 @@
 use clap::Parser;
+use eyre::{Context, ContextCompat, Result};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 use std::{env, process};
 use tauri::AppHandle;
 use vibe_core::config::TranscribeOptions;
-
 use vibe_core::transcribe;
 
 use crate::cmd::get_models_folder;
@@ -119,8 +119,13 @@ struct Args {
 
 fn get_possible_languages() -> Vec<String> {
     let languages = include_str!("../../src/assets/whisper-languages.json");
-    let languages: Value = serde_json::from_str(languages).unwrap();
-    let languages = languages.as_object().unwrap().keys().cloned().collect::<Vec<String>>();
+    let languages: Value = serde_json::from_str(languages).expect("whisper languages");
+    let languages = languages
+        .as_object()
+        .expect("whisper languages deserialize erroo")
+        .keys()
+        .cloned()
+        .collect::<Vec<String>>();
     languages
 }
 
@@ -128,29 +133,29 @@ pub fn get_possible_formats() -> Vec<String> {
     vec!["txt".into(), "srt".into(), "vtt".into()]
 }
 
-fn prepare_model_path(path: &Path, app_handle: &tauri::AppHandle) -> PathBuf {
+fn prepare_model_path(path: &Path, app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     if path.is_absolute() {
-        return path.to_path_buf();
+        return Ok(path.to_path_buf());
     }
     // Check if relative to current dir
     if path.exists() {
-        return path.to_path_buf();
+        return Ok(path.to_path_buf());
     }
     // Check if relative to app config exists
-    let relative_to_models_folder = get_models_folder(app_handle.clone()).unwrap().join(path);
+    let relative_to_models_folder = get_models_folder(app_handle.clone())?.join(path);
     if relative_to_models_folder.exists() {
-        return relative_to_models_folder;
+        return Ok(relative_to_models_folder);
     }
-    path.to_path_buf()
+    Ok(path.to_path_buf())
 }
 
-fn language_name_to_whisper_lang(name: &str) -> String {
+fn language_name_to_whisper_lang(name: &str) -> Result<String> {
     let languages_json = include_str!("../../src/assets/whisper-languages.json");
-    let languages: Value = serde_json::from_str(languages_json).unwrap();
-    languages[name].as_str().unwrap().to_string()
+    let languages: Value = serde_json::from_str(languages_json).context("tostr")?;
+    Ok(languages[name].as_str().context("as_str")?.to_string())
 }
 
-pub async fn run(app_handle: &AppHandle) {
+pub async fn run(app_handle: &AppHandle) -> Result<()> {
     #[cfg(target_os = "macos")]
     crate::dock::set_dock_visible(false);
 
@@ -167,11 +172,11 @@ pub async fn run(app_handle: &AppHandle) {
     }
 
     if args.server {
-        server::run(app_handle.clone(), args.host, args.port).await;
+        server::run(app_handle.clone(), args.host, args.port).await?;
     }
-    let lang = language_name_to_whisper_lang(&args.language);
+    let lang = language_name_to_whisper_lang(&args.language)?;
     let options = TranscribeOptions {
-        path: args.file.unwrap(),
+        path: args.file.context("file")?,
         lang: Some(lang),
         init_prompt: args.init_prompt,
         n_threads: args.n_threads,
@@ -182,13 +187,13 @@ pub async fn run(app_handle: &AppHandle) {
         word_timestamps: Some(args.word_timestamps),
         max_sentence_len: args.max_sentence_len,
     };
-    let model_path = prepare_model_path(&args.model.unwrap(), app_handle);
+    let model_path = prepare_model_path(&args.model.context("model")?, app_handle)?;
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
-    let ctx = transcribe::create_context(&model_path, None).unwrap();
+    let ctx = transcribe::create_context(&model_path, None)?;
     #[allow(unused_mut)]
-    let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None).unwrap();
+    let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None)?;
 
     let elapsed = start.elapsed();
     println!(
@@ -197,7 +202,7 @@ pub async fn run(app_handle: &AppHandle) {
             "srt" => transcript.as_srt(),
             "vtt" => transcript.as_vtt(),
             "txt" => transcript.as_text(),
-            "json" => transcript.as_json(),
+            "json" => transcript.as_json()?,
             _ => {
                 eprintln!("Invalid format specified. Defaulting to SRT format.");
                 transcript.as_srt()

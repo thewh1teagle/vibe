@@ -1,4 +1,4 @@
-use eyre::{bail, Result};
+use eyre::{bail, eyre, Context, ContextCompat, Result};
 use objc_id::Id;
 use screencapturekit_sys::os_types::base::BOOL;
 use screencapturekit_sys::{
@@ -12,6 +12,8 @@ use std::ops::Deref;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use vibe_core::audio::find_ffmpeg_path;
+
+use crate::utils::LogError;
 
 const MAX_CHANNELS: usize = 2;
 
@@ -35,26 +37,30 @@ impl UnsafeSCStreamOutput for StoreAudioHandler {
                 log::warn!("Audio recording with screen capture: more than two channels detected, only storing first two");
                 break; // max two channels for now
             }
-            let mut file = OpenOptions::new()
+            let result = OpenOptions::new()
                 .create(true)
                 .append(true) // Use append mode
                 .open(base_path.join(PathBuf::from(format!("output{}.raw", i))))
-                .expect("failed to open file");
-            if let Err(e) = file.write_all(buffer.data.deref()) {
-                log::error!("failed to write SCStream buffer to file: {:?}", e);
+                .context("failed to open file")
+                .log_error();
+
+            if let Some(mut file) = result {
+                if let Err(e) = file.write_all(buffer.data.deref()) {
+                    log::error!("failed to write SCStream buffer to file: {:?}", e);
+                }
             }
         }
     }
 }
 
-pub fn init() -> Id<UnsafeSCStream> {
+pub fn init() -> Result<Id<UnsafeSCStream>> {
     // Don't record the screen
     let display = UnsafeSCShareableContent::get()
-        .unwrap()
+        .map_err(|e| eyre!("{:?}", e))?
         .displays()
         .into_iter()
         .next()
-        .unwrap();
+        .context("next")?;
     let width = display.get_width();
     let height = display.get_height();
     let filter = UnsafeContentFilter::init(UnsafeInitParams::Display(display));
@@ -69,32 +75,36 @@ pub fn init() -> Id<UnsafeSCStream> {
 
     let stream = UnsafeSCStream::init(filter, config.into(), ErrorHandler);
     stream.add_stream_output(StoreAudioHandler {}, 1);
-    stream
+    Ok(stream)
 }
 
-pub fn start_capture(stream: &Id<UnsafeSCStream>) {
+pub fn start_capture(stream: &Id<UnsafeSCStream>) -> Result<()> {
     let base_path = std::env::temp_dir();
     for i in 0..MAX_CHANNELS {
         let output_path = base_path.join(format!("output{}.raw", i));
         if output_path.exists() {
-            fs::remove_file(output_path).unwrap();
+            fs::remove_file(output_path)?;
         }
     }
-    stream.start_capture().expect("Failed to start capture");
+    stream.start_capture().map_err(|e| eyre!("Failed to start capture {}", e))?;
+    Ok(())
 }
 
-pub fn stop_capture(stream: &Id<UnsafeSCStream>) {
-    stream.stop_capture().expect("Failed to stop capture");
-}
-
-#[allow(dead_code)]
-pub fn pause_capture(stream: &Id<UnsafeSCStream>) {
-    stream.start_capture().expect("Failed to pause capture");
+pub fn stop_capture(stream: &Id<UnsafeSCStream>) -> Result<()> {
+    stream.stop_capture().map_err(|e| eyre!("Failed to stop capture {}", e))?;
+    Ok(())
 }
 
 #[allow(dead_code)]
-pub fn resume_capture(stream: &Id<UnsafeSCStream>) {
-    stream.stop_capture().expect("Failed to resume capture");
+pub fn pause_capture(stream: &Id<UnsafeSCStream>) -> Result<()> {
+    stream.start_capture().map_err(|e| eyre!("{}", e))?;
+    Ok(())
+}
+
+#[allow(dead_code)]
+pub fn resume_capture(stream: &Id<UnsafeSCStream>) -> Result<()> {
+    stream.stop_capture().map_err(|e| eyre!("{:?}", e))?;
+    Ok(())
 }
 
 pub fn screencapturekit_to_wav(output_path: PathBuf) -> Result<()> {
@@ -103,7 +113,7 @@ pub fn screencapturekit_to_wav(output_path: PathBuf) -> Result<()> {
     let base_path = std::env::temp_dir();
     let output_0 = base_path.join(format!("output{}.raw", 0));
     let output_1 = base_path.join(format!("output{}.raw", 1));
-    let mut pid = Command::new(find_ffmpeg_path().unwrap())
+    let mut pid = Command::new(find_ffmpeg_path().context("no ffmpeg")?)
         .args([
             "-y",
             "-f",
@@ -126,7 +136,7 @@ pub fn screencapturekit_to_wav(output_path: PathBuf) -> Result<()> {
             "[0:a][1:a]amerge=inputs=2",
             "-ac",
             "2",
-            output_path.to_str().unwrap(),
+            &output_path.to_string_lossy(),
             "-hide_banner",
             "-y",
             "-loglevel",
@@ -134,8 +144,8 @@ pub fn screencapturekit_to_wav(output_path: PathBuf) -> Result<()> {
         ])
         .stdin(Stdio::null())
         .spawn()
-        .expect("failed to execute process");
-    if !pid.wait().unwrap().success() {
+        .context("failed to execute process")?;
+    if !pid.wait().context("wait")?.success() {
         bail!("unable to convert file")
     }
     log::info!("COMPLETED - {}", output_path.display());
