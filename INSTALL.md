@@ -63,6 +63,12 @@ sudo apt install ./vibe*.deb
 
 Currenly, listening for the audio file isn't supported on `Linux`
 
+In addition you may need to set this environment variable before start it
+
+```console
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+```
+
 </details>
 
 <details>
