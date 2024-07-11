@@ -32,8 +32,11 @@
 	"format": "Format",
 	"general": "General",
 	"gpu-device": "GPU Device number",
+	"high-gpu-performance": "Set Graphics performance to high",
 	"i-prefer-manual-setup": "I prefer download manually",
 	"info-cancel-download": "You can cancel and download model manually later.",
+	"info-gpu-device": "Select the GPU device for transcription. Enter the GPU device number, starting from 0. If you have 2 GPUs, choose either 0 or 1.",
+	"info-high-gpu-performance": "Enhances graphics performance for Vibe, but will consume more system resources.",
 	"info-manual-download": "Internet connection is required to downlod the AI modal",
 	"info-max-sentence-len": "How many letters will be in single sentence. works only when word timestamps is on.",
 	"info-max-text-ctx": "Max context tokens to use from past text as prompt for the decoder",
@@ -48,6 +51,7 @@
 	"logs-folder": "Logs Folder",
 	"max-sentence-len": "Max Sentence Length",
 	"max-text-ctx": "Maximum context",
+	"microphone": "Microphone",
 	"modal-close": "Close",
 	"modal-error-body": "A bug happend!",
 	"mode-text": "Text",
@@ -77,6 +81,7 @@
 	"select-model": "Select Model",
 	"settings": "Settings",
 	"setup-diarize-title": "Downloads Models",
+	"speakers": "Speakers",
 	"start-record": "Start Record",
 	"stop-and-transcribe": "Stop Recording",
 	"support-the-project": "Support Vibe",
@@ -93,8 +98,5 @@
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
 	"use-word-timestamps": "Timestamps per each word",
-	"when-completing-transcription": "When completing transcription",
-	"high-gpu-performance": "Set Graphics performance to high",
-	"info-high-gpu-performance": "Enhances graphics performance for Vibe, but will consume more system resources.",
-	"info-gpu-device": "Select the GPU device for transcription. Enter the GPU device number, starting from 0. If you have 2 GPUs, choose either 0 or 1."
+	"when-completing-transcription": "When completing transcription"
 }
