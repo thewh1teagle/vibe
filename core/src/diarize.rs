@@ -23,9 +23,9 @@ pub fn get_diarize_segments(
     audio_path: PathBuf,
 ) -> Result<Vec<DiarizeSegment>> {
     // Read audio data from the file
-    log::debug!("reading file at {}", audio_path.display());
+    tracing::debug!("reading file at {}", audio_path.display());
     let (mut samples, sample_rate) = read_audio_file(&audio_path.to_string_lossy())?;
-    log::debug!("samples: {} rate: {}", samples.len(), sample_rate);
+    tracing::debug!("samples: {} rate: {}", samples.len(), sample_rate);
 
     if sample_rate != 16000 {
         bail!("The sample rate must be 16000.");
@@ -79,7 +79,7 @@ pub fn get_diarize_segments(
                     speaker_counter += 1;
                     name
                 };
-                log::debug!("({}) start={}s duration={}s", name, start_sec, duration_sec);
+                tracing::debug!("({}) start={}s duration={}s", name, start_sec, duration_sec);
                 segments.push(DiarizeSegment {
                     start_sec,
                     duration_sec,
@@ -100,7 +100,7 @@ pub fn merge_diarization(diarize_segments: Vec<DiarizeSegment>, mut transcript: 
         // Find the corresponding diarize segment
         if let Some(diarize_segment) = find_matching_segment(&diarize_segments, segment.start, segment.stop) {
             // Assign speaker_id to the segment
-            log::debug!("found matching segment");
+            tracing::debug!("found matching segment");
             segment.speaker = Some(diarize_segment.speaker.clone());
         }
     }
@@ -121,7 +121,7 @@ fn find_matching_segment(diarize_segments: &[DiarizeSegment], start: i64, stop: 
             start = 0.0;
             segment_start_sec = 0.0;
         }
-        log::debug!(
+        tracing::debug!(
             "{} >= {} && {} <= {} : {}",
             start,
             segment_start_sec,

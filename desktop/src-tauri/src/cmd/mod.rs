@@ -40,7 +40,7 @@ pub async fn is_online(timeout: Option<u64>) -> Result<bool> {
 fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Result<()> {
     let window = app_handle.get_webview_window("main").context("get window")?;
     if let Some(progress) = progress {
-        log::debug!("set_progress_bar {}", progress);
+        tracing::debug!("set_progress_bar {}", progress);
         window.emit("transcribe_progress", progress)?;
         if progress > 1.0 {
             window.set_progress_bar(ProgressBarState {
@@ -84,14 +84,14 @@ pub fn get_x86_features() -> Option<Value> {
 pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -> Result<String> {
     let model_path = if let Some(url) = url.clone() {
         let filename = vibe_core::downloader::get_filename(&url).await?;
-        log::debug!("url filename is {}", filename);
+        tracing::debug!("url filename is {}", filename);
         get_models_folder(app_handle.clone())?.join(filename)
     } else {
         get_models_folder(app_handle.clone())?.join(DEAFULT_MODEL_FILENAME)
     };
 
     let mut downloader = vibe_core::downloader::Downloader::new();
-    log::debug!("Download model invoked! with path {}", model_path.display());
+    tracing::debug!("Download model invoked! with path {}", model_path.display());
 
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
@@ -115,13 +115,13 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
             // Update progress in background
             tauri::async_runtime::spawn(async move {
                 let percentage = (current as f64 / total as f64) * 100.0;
-                log::debug!("percentage: {}", percentage);
+                tracing::debug!("percentage: {}", percentage);
                 if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
-                    log::error!("Failed to set progress bar: {}", e);
+                    tracing::error!("Failed to set progress bar: {}", e);
                 }
                 if let Some(window) = app_handle.get_webview_window("main") {
                     if let Err(e) = window.emit("download_progress", (current, total)) {
-                        log::error!("Failed to emit download progress: {}", e);
+                        tracing::error!("Failed to emit download progress: {}", e);
                     }
                 }
             });
@@ -181,7 +181,7 @@ pub async fn transcribe(
 
     let app_handle_c = app_handle.clone();
     let progress_callback = move |progress: i32| {
-        // log::debug!("desktop progress is {}", progress);
+        // tracing::debug!("desktop progress is {}", progress);
         let _ = set_progress_bar(&app_handle, Some(progress.into()));
     };
 
@@ -305,7 +305,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
     if let Some(state) = state_guard.as_ref() {
         // check if new path is different
         if model_path != state.path || gpu_device != state.gpu_device {
-            log::debug!("model path or gpu device changed. reloading");
+            tracing::debug!("model path or gpu device changed. reloading");
             // reload
             let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device)?;
             *state_guard = Some(ModelContext {
@@ -315,7 +315,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
             });
         }
     } else {
-        log::debug!("loading model first time");
+        tracing::debug!("loading model first time");
         let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device)?;
         *state_guard = Some(ModelContext {
             path: model_path.clone(),
@@ -345,10 +345,10 @@ pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
 pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     let stores = app_handle.state::<StoreCollection<Wry>>();
     if let Ok(Some(models_folder)) = with_store(app_handle.clone(), stores, STORE_FILENAME, |store| {
-        log::debug!("{:?}", store.get("models_folder"));
+        tracing::debug!("{:?}", store.get("models_folder"));
         Ok(store.get("models_folder").and_then(|p| p.as_str().map(PathBuf::from)))
     }) {
-        log::debug!("models folder: {:?}", models_folder);
+        tracing::debug!("models folder: {:?}", models_folder);
         return Ok(models_folder);
     }
     if is_portable() {
@@ -373,13 +373,13 @@ fn create_progress_callback(app_handle: tauri::AppHandle, start_progress: f64, e
         // Update progress in background
         tauri::async_runtime::spawn(async move {
             let percentage = start_progress + ((current as f64 / total as f64) * (end_progress - start_progress));
-            log::debug!("percentage: {}", percentage);
+            tracing::debug!("percentage: {}", percentage);
             if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
-                log::error!("Failed to set progress bar: {}", e);
+                tracing::error!("Failed to set progress bar: {}", e);
             }
             if let Some(window) = app_handle.get_webview_window("main") {
                 if let Err(e) = window.emit("download_progress", (current, total)) {
-                    log::error!("Failed to emit download progress: {}", e);
+                    tracing::error!("Failed to emit download progress: {}", e);
                 }
             }
         });

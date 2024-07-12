@@ -22,7 +22,7 @@ struct ErrorHandler;
 
 impl UnsafeSCStreamError for ErrorHandler {
     fn handle_error(&self) {
-        log::error!("ERROR in SCStream");
+        tracing::error!("ERROR in SCStream");
     }
 }
 
@@ -34,7 +34,7 @@ impl UnsafeSCStreamOutput for StoreAudioHandler {
 
         for (i, buffer) in audio_buffers.into_iter().enumerate() {
             if i > MAX_CHANNELS {
-                log::warn!("Audio recording with screen capture: more than two channels detected, only storing first two");
+                tracing::warn!("Audio recording with screen capture: more than two channels detected, only storing first two");
                 break; // max two channels for now
             }
             let result = OpenOptions::new()
@@ -46,7 +46,7 @@ impl UnsafeSCStreamOutput for StoreAudioHandler {
 
             if let Some(mut file) = result {
                 if let Err(e) = file.write_all(buffer.data.deref()) {
-                    log::error!("failed to write SCStream buffer to file: {:?}", e);
+                    tracing::error!("failed to write SCStream buffer to file: {:?}", e);
                 }
             }
         }
@@ -148,6 +148,6 @@ pub fn screencapturekit_to_wav(output_path: PathBuf) -> Result<()> {
     if !pid.wait().context("wait")?.success() {
         bail!("unable to convert file")
     }
-    log::info!("COMPLETED - {}", output_path.display());
+    tracing::info!("COMPLETED - {}", output_path.display());
     Ok(())
 }

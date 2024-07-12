@@ -21,6 +21,6 @@ pub fn register() -> Result<()> {
     let command_value = format!("\"{}\" \"%1\"", program_path.to_str().context("tostr")?);
     command.0.set_value("", &command_value)?;
 
-    log::debug!("Protocol handler registered successfully.");
+    tracing::debug!("Protocol handler registered successfully.");
     Ok(())
 }

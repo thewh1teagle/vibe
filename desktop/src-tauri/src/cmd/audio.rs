@@ -32,11 +32,11 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
 
     let default_in = host.default_input_device().map(|e| e.name()).context("name")?;
     let default_out = host.default_output_device().map(|e| e.name()).context("name")?;
-    log::debug!("Default Input Device:\n{:?}", default_in);
-    log::debug!("Default Output Device:\n{:?}", default_out);
+    tracing::debug!("Default Input Device:\n{:?}", default_in);
+    tracing::debug!("Default Output Device:\n{:?}", default_out);
 
     let devices = host.devices()?;
-    log::debug!("Devices: ");
+    tracing::debug!("Devices: ");
     for (device_index, device) in devices.enumerate() {
         let name = device.name()?;
         let is_default_in = default_in.as_ref().map_or(false, |d| d == &name);
@@ -86,8 +86,8 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
     let mut screencapture_stream: Option<_> = None;
 
     for device in devices {
-        log::debug!("Recording from device: {}", device.name);
-        log::debug!("Device ID: {}", device.id);
+        tracing::debug!("Recording from device: {}", device.name);
+        tracing::debug!("Device ID: {}", device.id);
 
         let is_input = device.is_input;
         if device.id == "screencapturekit" {
@@ -109,7 +109,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             let spec = wav_spec_from_config(&config);
 
             let path = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
-            log::debug!("WAV file path: {:?}", path);
+            tracing::debug!("WAV file path: {:?}", path);
             wav_paths.push((path.clone(), 0));
 
             let writer = hound::WavWriter::create(path.clone(), spec)?;
@@ -118,7 +118,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             let writer_2 = writer.clone();
 
             let err_fn = move |err| {
-                log::error!("An error occurred on stream: {}", err);
+                tracing::error!("An error occurred on stream: {}", err);
             };
 
             let volume_factor = if cfg!(windows) { 3 } else { 1 };
@@ -127,7 +127,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::I8 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        log::debug!("Writing input data (I8)");
+                        tracing::debug!("Writing input data (I8)");
                         write_input_data::<i8, i8>(data, &writer_2, volume_factor)
                     },
                     err_fn,
@@ -136,7 +136,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::I16 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        log::debug!("Writing input data (I16)");
+                        tracing::debug!("Writing input data (I16)");
                         write_input_data::<i16, i16>(data, &writer_2, volume_factor.into())
                     },
                     err_fn,
@@ -145,7 +145,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::I32 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        log::debug!("Writing input data (I32)");
+                        tracing::debug!("Writing input data (I32)");
                         write_input_data::<i32, i32>(data, &writer_2, volume_factor.into())
                     },
                     err_fn,
@@ -154,7 +154,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::F32 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        log::debug!("Writing input data (F32)");
+                        tracing::debug!("Writing input data (F32)");
                         write_input_data::<f32, f32>(data, &writer_2, volume_factor.into())
                     },
                     err_fn,
@@ -165,11 +165,11 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 }
             };
             stream.play()?;
-            log::debug!("Stream started playing");
+            tracing::debug!("Stream started playing");
 
             let stream_handle = Arc::new(Mutex::new(Some(StreamHandle(stream))));
             stream_handles.push(stream_handle.clone());
-            log::debug!("Stream handle created");
+            tracing::debug!("Stream handle created");
         }
     }
 
@@ -182,9 +182,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 let writer = stream_writers[i].clone();
     
                 if let Some(stream) = stream {
-                    log::debug!("Pausing stream");
+                    tracing::debug!("Pausing stream");
                     stream.0.pause().map_err(|e| eyre!("{:?}", e)).log_error();
-                    log::debug!("Finalizing writer");
+                    tracing::debug!("Finalizing writer");
                     let writer = writer.lock().unwrap().take().unwrap();
                     let written = writer.len();
                     wav_paths[i] = (wav_paths[i].0.clone(), written);
@@ -200,7 +200,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 let output_path = std::env::temp_dir().join(format!("{}.wav", random_string(5)));
                 
                 screen_capture_kit::screencapturekit_to_wav(output_path.clone()).map_err(|e| eyre!("{e:?}")).log_error();
-                log::debug!("output path is {}", output_path.display());
+                tracing::debug!("output path is {}", output_path.display());
                 wav_paths.push((output_path, 1));
             }
         }
@@ -209,7 +209,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             wav_paths[0].0.clone()
         } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
-            log::debug!("Merging WAV files");
+            tracing::debug!("Merging WAV files");
             vibe_core::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
             dst
         } else if wav_paths[0].1 > wav_paths[1].1 {
@@ -230,11 +230,11 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 }
       
             } else {
-                log::error!("Failed to retrieve file name from destination path");
+                tracing::error!("Failed to retrieve file name from destination path");
             }
         }
 
-        log::debug!("Emitting record_finish event");
+        tracing::debug!("Emitting record_finish event");
         app_handle_clone.emit(
             "record_finish",
             json!({"path": dst.to_string_lossy(), "name": dst.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),

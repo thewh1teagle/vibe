@@ -35,11 +35,12 @@ fn main() -> Result<()> {
     cli::attach_console();
 
     env_logger::init();
-    log::debug!("Vibe App Running");
+    let _ = tracing_log::LogTracer::init();
+    tracing::debug!("Vibe App Running");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            log::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
+            tracing::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
             if let Some(webview) = app.get_webview_window("main") {
                 webview.set_focus().map_err(|e| eyre!("{:?}", e)).log_error();
             }

@@ -32,7 +32,7 @@ pub async fn run(app_handle: tauri::AppHandle, host: String, port: u16) -> eyre:
         .with_state(app_handle);
 
     let listener = tokio::net::TcpListener::bind(format!("{}:{}", host, port)).await?;
-    log::info!("Serve on http://{}:{}", host, port);
+    tracing::info!("Serve on http://{}:{}", host, port);
     axum::serve(listener, app.into_make_service())
         .await
         .map_err(|e| eyre!("{:?}", e))?;
@@ -75,7 +75,7 @@ async fn list_models(State(app_handle): State<tauri::AppHandle>) -> Result<Json<
     let mut model_files = Vec::new();
 
     if models_folder.exists() && models_folder.is_dir() {
-        log::debug!("checking {:?}", models_folder);
+        tracing::debug!("checking {:?}", models_folder);
         for entry in std::fs::read_dir(&models_folder).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))? {
             let entry = entry.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
             let path = entry.path();
@@ -86,7 +86,7 @@ async fn list_models(State(app_handle): State<tauri::AppHandle>) -> Result<Json<
         }
     }
 
-    log::debug!("files: {:?}", model_files);
+    tracing::debug!("files: {:?}", model_files);
     Ok(Json(Value::Array(model_files.into_iter().map(Value::String).collect())))
 }
 

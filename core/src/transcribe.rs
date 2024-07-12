@@ -15,7 +15,7 @@ static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| M
 
 pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<WhisperContext> {
     whisper_rs::install_whisper_log_trampoline();
-    log::debug!("open model...");
+    tracing::debug!("open model...");
     if !model_path.exists() {
         bail!("whisper file doesn't exist")
     }
@@ -28,10 +28,10 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
     if let Some(gpu_device) = gpu_device {
         ctx_params.gpu_device = gpu_device;
     }
-    log::debug!("gpu device: {:?}", ctx_params.gpu_device);
-    log::debug!("use gpu: {:?}", ctx_params.use_gpu);
+    tracing::debug!("gpu device: {:?}", ctx_params.gpu_device);
+    tracing::debug!("use gpu: {:?}", ctx_params.use_gpu);
     let model_path = model_path.to_str().ok_or_eyre("can't convert model option to str")?;
-    log::debug!("creating whisper context with model path {}", model_path);
+    tracing::debug!("creating whisper context with model path {}", model_path);
     let ctx_unwind_result = catch_unwind(AssertUnwindSafe(|| {
         WhisperContext::new_with_params(model_path, ctx_params).context("failed to open model")
     }));
@@ -41,7 +41,7 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
         }
         Ok(ctx_result) => {
             let ctx = ctx_result?;
-            log::debug!("created context successfuly");
+            tracing::debug!("created context successfuly");
             Ok(ctx)
         }
     }
@@ -65,7 +65,7 @@ pub fn transcribe(
     abort_callback: Option<Box<dyn Fn() -> bool>>,
     #[allow(unused_variables)] diarize_options: Option<DiarizeOptions>,
 ) -> Result<Transcript> {
-    log::debug!("Transcribe called with {:?}", options);
+    tracing::debug!("Transcribe called with {:?}", options);
 
     if !PathBuf::from(options.path.clone()).exists() {
         bail!("audio file doesn't exist")
@@ -83,7 +83,7 @@ pub fn transcribe(
     let mut state = ctx.create_state().context("failed to create key")?;
 
     let mut params = FullParams::new(SamplingStrategy::default());
-    log::debug!("set language to {:?}", options.lang);
+    tracing::debug!("set language to {:?}", options.lang);
 
     if let Some(true) = options.word_timestamps {
         params.set_token_timestamps(true);
@@ -106,23 +106,23 @@ pub fn transcribe(
     params.set_token_timestamps(true);
 
     if let Some(temperature) = options.temperature {
-        log::debug!("setting temperature to {temperature}");
+        tracing::debug!("setting temperature to {temperature}");
         params.set_temperature(temperature);
     }
 
     if let Some(max_text_ctx) = options.max_text_ctx {
-        log::debug!("setting n_max_text_ctx to {}", max_text_ctx);
+        tracing::debug!("setting n_max_text_ctx to {}", max_text_ctx);
         params.set_n_max_text_ctx(max_text_ctx)
     }
 
     // handle args
     if let Some(init_prompt) = options.init_prompt.to_owned() {
-        log::debug!("setting init prompt to {init_prompt}");
+        tracing::debug!("setting init prompt to {init_prompt}");
         params.set_initial_prompt(&init_prompt);
     }
 
     if let Some(n_threads) = options.n_threads {
-        log::debug!("setting n threads to {n_threads}");
+        tracing::debug!("setting n threads to {n_threads}");
         params.set_n_threads(n_threads);
     }
 
@@ -137,7 +137,7 @@ pub fn transcribe(
     if PROGRESS_CALLBACK.lock().map_err(|e| eyre!("{:?}", e))?.as_ref().is_some() {
         params.set_progress_callback_safe(|progress| {
             // using move here lead to crash
-            log::debug!("progress callback {}", progress);
+            tracing::debug!("progress callback {}", progress);
             match PROGRESS_CALLBACK.lock() {
                 Ok(callback_guard) => {
                     if let Some(progress_callback) = callback_guard.as_ref() {
@@ -145,28 +145,28 @@ pub fn transcribe(
                     }
                 }
                 Err(e) => {
-                    log::error!("Failed to lock PROGRESS_CALLBACK: {:?}", e);
+                    tracing::error!("Failed to lock PROGRESS_CALLBACK: {:?}", e);
                 }
             }
         });
     }
 
-    log::debug!("set start time...");
+    tracing::debug!("set start time...");
     let st = std::time::Instant::now();
-    log::debug!("setting state full...");
+    tracing::debug!("setting state full...");
     state.full(params, &samples).context("failed to transcribe")?;
     let _et = std::time::Instant::now();
 
     let mut segments = Vec::new();
 
-    log::debug!("getting segments count...");
+    tracing::debug!("getting segments count...");
     let num_segments = state.full_n_segments().context("failed to get number of segments")?;
     if num_segments == 0 {
         bail!("no segements found!")
     }
-    log::debug!("found {} sentence segments", num_segments);
+    tracing::debug!("found {} sentence segments", num_segments);
 
-    log::debug!("looping segments...");
+    tracing::debug!("looping segments...");
     for s in 0..num_segments {
         let text = state.full_get_segment_text_lossy(s).context("failed to get segment")?;
         let start = state.full_get_segment_t0(s).context("failed to get start timestamp")?;
@@ -190,7 +190,7 @@ pub fn transcribe(
         if let Some(options) = diarize_options {
             let diarize_segments =
                 crate::diarize::get_diarize_segments(options.vad_model_path, options.speaker_id_model_path, out_path.clone())?;
-            log::debug!("diariz_segmetns={:?}", diarize_segments);
+            tracing::debug!("diariz_segmetns={:?}", diarize_segments);
             transcript = crate::diarize::merge_diarization(diarize_segments, transcript)?;
         }
     }
@@ -217,17 +217,17 @@ mod tests {
     #[test]
     fn test_audio_conversion() -> Result<()> {
         init();
-        log::debug!("test");
+        tracing::debug!("test");
         // Create a temporary directory to store input and output files.
         let temp_dir = tempdir()?;
         let input_file_path = temp_dir.path().join("input.mp3");
         let output_file_path = temp_dir.path().join("output.wav");
 
         // Copy a sample input file to the temporary directory.
-        log::debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
+        tracing::debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
         fs::copy("src/audio/test_audio.wav", &input_file_path)?;
         audio::normalize(input_file_path.clone(), output_file_path.clone())?;
-        log::debug!("check output at {}", output_file_path.display());
+        tracing::debug!("check output at {}", output_file_path.display());
         let args = &config::TranscribeOptions {
             path: input_file_path.to_str().ok_or_eyre("cant convert path to str")?.to_owned(),
             lang: None,

@@ -19,7 +19,7 @@ pub fn set_gpu_preference_high() -> Result<()> {
     // 0 = Auto ; 1 = Power Saving ; 2 = High
     user_gpu_preference.0.set_value(program_path_str, &"GpuPreference=2;")?;
 
-    log::debug!(
+    tracing::debug!(
         "GPU preference set for high performance successfully for the current executable ({}).",
         program_path_str
     );
@@ -40,7 +40,7 @@ pub fn remove_gpu_preference() -> Result<()> {
     // Delete the GPU preference for the current executable
     user_gpu_preference.delete_value(program_path_str)?;
 
-    log::debug!(
+    tracing::debug!(
         "GPU preference removed successfully for the current executable ({}).",
         program_path_str
     );

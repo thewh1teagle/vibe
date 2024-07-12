@@ -28,18 +28,18 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     // Log some useful data
     if let Ok(version) = tauri::webview_version() {
-        log::debug!("webview version: {}", version);
+        tracing::debug!("webview version: {}", version);
     }
 
     #[cfg(windows)]
     {
         if let Err(error) = crate::custom_protocol::register() {
-            log::error!("{:?}", error);
+            tracing::error!("{:?}", error);
         }
     }
 
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
-    log::debug!(
+    tracing::debug!(
         "CPU Features\n{}",
         crate::cmd::get_x86_features()
             .map(|v| serde_json::to_string(&v).unwrap_or_default())
@@ -47,9 +47,9 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     );
 
     #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows")))]
-    log::debug!("CPU feature detection is not supported on this architecture.");
+    tracing::debug!("CPU feature detection is not supported on this architecture.");
 
-    log::debug!("COMMIT_HASH: {}", env!("COMMIT_HASH"));
+    tracing::debug!("COMMIT_HASH: {}", env!("COMMIT_HASH"));
 
     let app_handle = app.app_handle().clone();
     if cli::is_cli_detected() {
@@ -69,7 +69,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .visible(false)
             .build();
         if let Err(error) = result {
-            log::error!("{:?}", error);
+            tracing::error!("{:?}", error);
         }
     }
     Ok(())

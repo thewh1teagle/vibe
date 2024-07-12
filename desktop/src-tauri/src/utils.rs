@@ -27,7 +27,7 @@ impl<T> LogError<T> for Result<T> {
         match self {
             Ok(value) => Some(value),
             Err(ref e) => {
-                log::error!("Error: {:?}", e);
+                tracing::error!("Error: {:?}", e);
                 None
             }
         }
