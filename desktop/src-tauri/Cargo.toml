@@ -42,7 +42,7 @@ utoipa = { version = "4.2.3", features = ["axum_extras"] }
 utoipa-swagger-ui = { version = "7.1.0", features = ["axum"] }
 tracing = { version = "0.1.40", features = ["log"] }
 tracing-log = "0.2.0"
-tracing-subscriber = "0.3.18"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json"] }
 
 
 [target.'cfg(target_os = "linux")'.dependencies]

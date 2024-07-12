@@ -199,6 +199,21 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					</label>
 				</div>
 			)}
+			<div className="form-control w-full mt-3">
+				<label className="label cursor-pointer">
+					<span className="label-text flex items-center gap-1 cursor-default">
+						<InfoTooltip text={t('common.info-enable-logs')} />
+						{t('common.enable-logs')}
+					</span>
+
+					<input
+						type="checkbox"
+						className="toggle toggle-primary"
+						checked={vm.isLogToFileSet ?? false}
+						onChange={() => vm.setLogToFile(!vm.isLogToFileSet)}
+					/>
+				</label>
+			</div>
 
 			<div className="flex flex-col gap-1">
 				<button onMouseDown={vm.openLogsFolder} className="btn bg-base-300 text-base-content">

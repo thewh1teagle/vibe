@@ -11,6 +11,7 @@ import WhisperLanguages from '~/assets/whisper-languages.json'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import { Store } from '@tauri-apps/plugin-store'
+import { useStoreValue } from '~/lib/useStoreValue'
 
 const store = new Store(config.storeFilename)
 
@@ -34,12 +35,13 @@ async function reportIssue() {
 }
 
 async function openLogsFolder() {
-	const dst = await invoke<string>("get_logs_folder")
+	const dst = await invoke<string>('get_logs_folder')
 	invoke('open_path', { path: dst })
 }
 
 export function viewModel() {
 	const { i18n } = useTranslation()
+	const [isLogToFileSet, setLogToFile] = useStoreValue<boolean>('prefs_log_to_file')
 
 	const [models, setModels] = useState<NamedPath[]>([])
 	const [appVersion, setAppVersion] = useState('')
@@ -132,7 +134,11 @@ export function viewModel() {
 		}
 	}, [])
 
+	useEffect(() => {}, [preference])
+
 	return {
+		isLogToFileSet,
+		setLogToFile,
 		downloadModel,
 		downloadURL,
 		setDownloadURL,

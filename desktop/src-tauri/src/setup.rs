@@ -26,6 +26,10 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let mut store = StoreBuilder::new(STORE_FILENAME).build(app.handle().clone());
     let _ = store.load();
 
+    // Setup logging to terminal
+    crate::logging::setup_logging(app.handle(), store).unwrap();
+    tracing::debug!("Vibe App Running");
+
     // Log some useful data
     if let Ok(version) = tauri::webview_version() {
         tracing::debug!("webview version: {}", version);

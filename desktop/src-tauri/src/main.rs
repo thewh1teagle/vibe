@@ -9,6 +9,7 @@ mod server;
 mod setup;
 mod utils;
 use tauri::Manager;
+mod logging;
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -27,16 +28,13 @@ mod screen_capture_kit;
 
 use eyre::{eyre, Result};
 use tauri_plugin_window_state::StateFlags;
+
 use utils::LogError;
 
 fn main() -> Result<()> {
     // Attach console in Windows:
     #[cfg(windows)]
     cli::attach_console();
-
-    env_logger::init();
-    let _ = tracing_log::LogTracer::init();
-    tracing::debug!("Vibe App Running");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
