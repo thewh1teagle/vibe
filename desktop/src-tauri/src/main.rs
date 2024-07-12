@@ -36,6 +36,14 @@ fn main() -> Result<()> {
     #[cfg(windows)]
     cli::attach_console();
 
+    let _handler = crash_handler::CrashHandler::attach(unsafe {
+        crash_handler::make_crash_event(move |cc: &crash_handler::CrashContext| {
+            // let handled = md_client.request_dump(cc).is_ok();
+            tracing::error!("Crash exception code: {}", cc.exception_code);
+            crash_handler::CrashEventResult::Handled(true)
+        })
+    });
+
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
