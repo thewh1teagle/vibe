@@ -184,3 +184,17 @@ CARGO_NET_GIT_FETCH_WITH_CLI=true cargo upgrade
 # OR
 cargo +nightly -Zunstable-options update --breaking
 ```
+
+## Debug in release mode in VSCode
+
+```json
+{
+	"rust-analyzer.runnables.extraEnv": {
+		"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
+		"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
+		"CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast",
+		"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
+	},
+	"rust-analyzer.runnables.extraArgs": ["--release"]
+}
+```
