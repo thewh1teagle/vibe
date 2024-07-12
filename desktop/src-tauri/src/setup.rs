@@ -1,10 +1,20 @@
-use crate::{cli, config::STORE_FILENAME, panic_hook, utils::LogError};
+use crate::{
+    cli,
+    config::STORE_FILENAME,
+    panic_hook,
+    utils::{get_issue_url, LogError},
+};
 use eyre::eyre;
+use once_cell::sync::Lazy;
 use std::fs;
 use tauri::{App, Manager};
+use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_shell::ShellExt;
 use tauri_plugin_store::StoreBuilder;
 use tokio::sync::Mutex;
 use vibe_core::transcribe::WhisperContext;
+
+pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
 
 pub struct ModelContext {
     pub path: String,
@@ -26,6 +36,10 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let _ = store.load();
 
     // Setup logging to terminal
+    {
+        let mut app_handle = STATIC_APP.lock().unwrap();
+        *app_handle = Some(app.handle().clone());
+    }
     crate::logging::setup_logging(app.handle(), store).unwrap();
     tracing::debug!("Vibe App Running");
 
@@ -34,10 +48,27 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let _handler = crash_handler::CrashHandler::attach(unsafe {
         crash_handler::make_crash_event(move |cc: &crash_handler::CrashContext| {
             #[cfg(windows)]
-            tracing::error!("Crash exception code: {}", cc.exception_code);
+            let info = cc.exception_code;
+
+            #[cfg(windows)]
+            tracing::error!("Crash exception code: {}", info);
 
             #[cfg(unix)]
-            tracing::error!("Crash exception code: {:?}", cc.exception);
+            let info = cc.exception;
+
+            #[cfg(unix)]
+            tracing::error!("Crash exception code: {:?}", info);
+
+            if let Some(app_handle) = STATIC_APP.lock().unwrap().as_ref() {
+                app_handle
+                    .dialog()
+                    .message("App crashed with error. Please register to Github and then click report.")
+                    .kind(tauri_plugin_dialog::MessageDialogKind::Error)
+                    .title("Vibe Crashed")
+                    .ok_button_label("Report")
+                    .show(|_| {});
+                let _ = app_handle.shell().open(get_issue_url(format!("{:?}", info)), None);
+            }
 
             crash_handler::CrashEventResult::Handled(true)
         })
