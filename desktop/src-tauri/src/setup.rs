@@ -53,8 +53,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             #[cfg(windows)]
             tracing::error!("Crash exception code: {}", info);
 
-            #[cfg(unix)]
+            #[cfg(target_os = "macos")]
             let info = cc.exception;
+
+            #[cfg(target_os = "linux")]
+            let info = cc.siginfo;
 
             #[cfg(unix)]
             tracing::error!("Crash exception code: {:?}", info);
