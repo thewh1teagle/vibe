@@ -9,13 +9,13 @@
 	import latestRelease from '$lib/latest_release.json'
 	import mobile from 'is-mobile'
 
-	let asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos') // default to macos
+	let asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === 'macos') // default to macos
 	let ctaClicked = false
 
-	const windowsAsset = latestRelease.assets.find((a) => a.platform.toLocaleLowerCase() === 'windows')
-	const linuxAsset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'linux')
-	const macIntelAsset = latestRelease.assets.find((a) => a.platform.toLocaleLowerCase() === 'macos' && a.arch === 'darwin-x86_64')
-	const macSiliconAsset = latestRelease.assets.find((a) => a.platform.toLowerCase() === 'macos' && a.arch === 'darwin-aarch64')
+	const windowsAsset = latestRelease.assets.find((a) => a.platform?.toLocaleLowerCase() === 'windows')
+	const linuxAsset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === 'linux')
+	const macIntelAsset = latestRelease.assets.find((a) => a.platform?.toLocaleLowerCase() === 'macos' && a.arch === 'darwin-x86_64')
+	const macSiliconAsset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === 'macos' && a.arch === 'darwin-aarch64')
 	let mobileModalOpen = false
 
 	let isMobile = false
@@ -56,7 +56,7 @@
 
 	onMount(async () => {
 		const currentOs = getOS()
-		asset = latestRelease.assets.find((a) => a.platform.toLowerCase() === currentOs) // default to macos
+		asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === currentOs) // default to macos
 		currentURL = location.href
 	})
 
