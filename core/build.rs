@@ -121,6 +121,7 @@ fn main() {
     }
 
     // Passed from Github action
+    println!("cargo:rerun-if-env-changed=CUDA_VERSION");
     println!(
         "cargo:rustc-env=CUDA_VERSION={}",
         std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()

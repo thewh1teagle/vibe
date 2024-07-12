@@ -30,6 +30,10 @@ fn copy_locales() {
 }
 
 fn extract_whisper_env() {
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_AVX");
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_AVX2");
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_FMA");
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_F16C");
     println!(
         "cargo:rustc-env=WHISPER_NO_AVX={}",
         std::env::var("WHISPER_NO_AVX").unwrap_or_default().trim()
@@ -50,15 +54,19 @@ fn extract_whisper_env() {
 
 fn main() {
     let hash = commit_hash();
+    println!("cargo:rerun-if-env-changed=COMMIT_HASH");
     println!("cargo:rustc-env=COMMIT_HASH={}", hash);
 
     // Passed from Github action
+
+    println!("cargo:rerun-if-env-changed=CUDA_VERSION");
     println!(
         "cargo:rustc-env=CUDA_VERSION={}",
         std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()
     );
 
     // Windows portable
+    println!("cargo:rerun-if-env-changed=WINDOWS_PORTABLE");
     println!(
         "cargo:rustc-env=WINDOWS_PORTABLE={}",
         std::env::var("WINDOWS_PORTABLE").unwrap_or_default().trim()
