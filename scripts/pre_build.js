@@ -46,6 +46,7 @@ const config = {
 			'libavfilter-dev',
 			'libavdevice-dev', // FFMPEG
 			'libasound2-dev', // cpal
+			'libomp-dev' // OpenMP in ggml.ai
 		],
 	},
 	macos: {
