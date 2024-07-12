@@ -2,12 +2,14 @@ use crate::audio;
 use crate::config::{DiarizeOptions, TranscribeOptions};
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, eyre, Context, OptionExt, Result};
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Instant;
 pub use whisper_rs::SegmentCallbackData;
 pub use whisper_rs::WhisperContext;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContextParameters};
+
 type ProgressCallbackType = once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>>;
 static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| Mutex::new(None));
 
@@ -27,12 +29,21 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
     }
     log::debug!("gpu device: {:?}", ctx_params.gpu_device);
     log::debug!("use gpu: {:?}", ctx_params.use_gpu);
-    let ctx = WhisperContext::new_with_params(
-        model_path.to_str().ok_or_eyre("can't convert model option to str")?,
-        ctx_params,
-    )
-    .context("failed to open model")?;
-    Ok(ctx)
+    let model_path = model_path.to_str().ok_or_eyre("can't convert model option to str")?;
+    log::debug!("creating whisper context with model path {}", model_path);
+    let ctx_unwind_result = catch_unwind(AssertUnwindSafe(|| {
+        WhisperContext::new_with_params(model_path, ctx_params).context("failed to open model")
+    }));
+    match ctx_unwind_result {
+        Err(error) => {
+            bail!("create whisper context crash: {:?}", error)
+        }
+        Ok(ctx_result) => {
+            let ctx = ctx_result?;
+            log::debug!("created context successfuly");
+            Ok(ctx)
+        }
+    }
 }
 
 pub fn create_normalized_audio(source: PathBuf) -> Result<PathBuf> {
@@ -67,7 +78,6 @@ pub fn transcribe(
     let out_path = create_normalized_audio(options.path.clone().into())?;
     let original_samples = audio::parse_wav_file(&out_path)?;
     let mut samples = vec![0.0f32; original_samples.len()];
-    whisper_rs::install_whisper_log_trampoline();
     whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)?;
     let mut state = ctx.create_state().context("failed to create key")?;
 
@@ -88,7 +98,7 @@ pub fn transcribe(
     }
 
     params.set_print_special(false);
-    params.set_print_progress(false);
+    params.set_print_progress(true);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
     params.set_suppress_blank(true);

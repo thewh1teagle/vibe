@@ -6177,7 +6177,6 @@ name = "whisper-rs"
 version = "0.12.0"
 source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/pass-cmake-flags#d17e03caa65bcf8021430af53391d8fc0130f4a2"
 dependencies = [
- "log",
  "whisper-rs-sys",
 ]
 
