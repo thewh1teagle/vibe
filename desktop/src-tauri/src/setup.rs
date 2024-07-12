@@ -1,7 +1,6 @@
-use std::fs;
-
 use crate::{cli, config::STORE_FILENAME, panic_hook, utils::LogError};
 use eyre::eyre;
+use std::fs;
 use tauri::{App, Manager};
 use tauri_plugin_store::StoreBuilder;
 use tokio::sync::Mutex;
@@ -29,6 +28,20 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Setup logging to terminal
     crate::logging::setup_logging(app.handle(), store).unwrap();
     tracing::debug!("Vibe App Running");
+
+    // Crash handler
+
+    let _handler = crash_handler::CrashHandler::attach(unsafe {
+        crash_handler::make_crash_event(move |cc: &crash_handler::CrashContext| {
+            #[cfg(windows)]
+            tracing::error!("Crash exception code: {}", cc.exception_code);
+
+            #[cfg(unix)]
+            tracing::error!("Crash exception code: {:?}", cc.exception);
+
+            crash_handler::CrashEventResult::Handled(true)
+        })
+    });
 
     // Log some useful data
     if let Ok(version) = tauri::webview_version() {
