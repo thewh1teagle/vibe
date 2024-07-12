@@ -22,7 +22,7 @@ tokio = { version = "1.35.1", features = [
 	"rt-multi-thread",
 ] }
 whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs", branch = "feat/pass-cmake-flags", features = [
-	"whisper-cpp-log",
+	"whisper-cpp-tracing",
 ] }
 clap = { version = "4.4.13", features = ["derive"] }
 env_logger = "0.10.1"

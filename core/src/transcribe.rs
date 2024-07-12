@@ -14,7 +14,7 @@ type ProgressCallbackType = once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) +
 static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| Mutex::new(None));
 
 pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<WhisperContext> {
-    whisper_rs::install_whisper_log_trampoline();
+    whisper_rs::install_whisper_tracing_trampoline();
     tracing::debug!("open model...");
     if !model_path.exists() {
         bail!("whisper file doesn't exist")
