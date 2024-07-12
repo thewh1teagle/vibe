@@ -4,6 +4,7 @@ use crate::{
     config,
     utils::{get_current_dir, LogError},
 };
+use chrono::Local;
 use eyre::{eyre, Context, Result};
 use std::{panic, path::PathBuf, sync::Arc};
 use tauri::{AppHandle, Manager};
@@ -14,12 +15,12 @@ fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
     } else {
         app.path().app_config_dir()?
     };
-    let mut log_path = config_path.join(format!("{}.txt", config::CRASH_LOG_FILENAME_PREFIX));
-    let mut count = 0;
-    while log_path.exists() {
-        log_path = config_path.join(format!("{}_{}.txt", config::CRASH_LOG_FILENAME_PREFIX, count));
-        count += 1;
-    }
+
+    let current_datetime = Local::now();
+    let formatted_datetime = current_datetime.format("%Y-%m-%d-%H-%M-%S").to_string();
+    let log_filename = format!("{}_{}.txt", config::CRASH_LOG_FILENAME_PREFIX, formatted_datetime);
+    let log_path = config_path.join(log_filename);
+
     Ok(log_path)
 }
 
