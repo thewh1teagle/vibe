@@ -47,7 +47,8 @@
 -   🔄 Automatic updates
 -   🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
 -   💻 Optimized for `GPU` (`macOS`, `Windows`)
--   🎮 Optimized for `Nvidia` GPUs! (see [INSTALL.md#nvidia](https://github.com/thewh1teagle/vibe/blob/main/INSTALL.md#nvidia))
+-   🎮 Optimized for `Nvidia` GPUs! (see [INSTALL.md#nvidia](INSTALL.md#nvidia))
+-   🎮 Optimized for `AMD` GPUs (linux only)! (see [INSTALL.md#amd](INSTALL.md#amd))
 -   🔧 Total Freedom: Customize Models Easily via Settings
 -   ⚙️ Model arguments for advanced users
 -   ⏳ Transcribe system audio

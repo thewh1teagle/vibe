@@ -243,6 +243,10 @@ if (!process.env.GITHUB_ENV) {
 		if (process.argv.includes('--nvidia')) {
 			console.log(`$env:CUDA_PATH = "${cudaPath}"`)
 		}
+		if (process.argv.includes('--rocm')) {
+			console.log(`$env:ROCM_VERSION = your rocm version`)
+			console.log(`$env:ROCM_PATH = "${rocmPath}"`)
+		}
 	}
 	if (platform == 'macos') {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
