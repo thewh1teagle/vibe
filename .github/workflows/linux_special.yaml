@@ -5,7 +5,11 @@ on:
         tags:
             - "v*"
     workflow_dispatch:
-
+      inputs:
+        build_only:
+            description: 'Set to true to only build without publishing'
+            required: false
+            default: 'false'
 jobs:
     publish-tauri:
         permissions:
@@ -78,6 +82,7 @@ jobs:
               shell: bash
 
             - name: Upload installer
+              if: github.event.inputs.build_only != 'true'
               run: |
                   bun scripts/publish.js target/release/bundle/deb/*.deb
                   bun scripts/publish.js target/release/bundle/rpm/*.rpm
@@ -166,6 +171,7 @@ jobs:
               shell: bash
 
             - name: Upload installer
+              if: github.event.inputs.build_only != 'true'
               run: |
                   bun scripts/publish.js target/release/bundle/deb/*.deb
                   bun scripts/publish.js target/release/bundle/rpm/*.rpm
