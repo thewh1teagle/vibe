@@ -289,7 +289,13 @@ pub async fn open_path(path: PathBuf) -> Result<()> {
 
 #[tauri::command]
 pub fn get_cuda_version() -> String {
-    env!("CUDA_VERSION").to_string()
+    let cuda_version = env!("CUDA_VERSION").to_string();
+    if !cuda_version.is_empty() {
+        format!("NVIDIA CUDA {cuda_version}")
+    } else {
+        let rocm_version = env!("ROCM_VERSION").to_string();
+        format!("AMD ROCm {rocm_version}")
+    }
 }
 
 #[tauri::command]

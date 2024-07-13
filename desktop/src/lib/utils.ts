@@ -116,7 +116,7 @@ export async function getPrettyVersion() {
 	const avx2Enabled = await invoke('is_avx2_enabled')
 	const isPortable = await invoke('is_portable')
 	if (cudaVersion) {
-		version += ` (nvidia ${cudaVersion})`
+		version += ` (${cudaVersion})`
 	}
 	if (!avx2Enabled) {
 		version += ` (older cpu)`
@@ -137,4 +137,4 @@ export async function openPath(path: NamedPath) {
 	await invoke('open_path', { path: path.path })
 }
 
-export async function getModelsFolder() {}
+export async function getModelsFolder() { }

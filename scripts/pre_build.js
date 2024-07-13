@@ -46,7 +46,8 @@ const config = {
 			'libavfilter-dev',
 			'libavdevice-dev', // FFMPEG
 			'libasound2-dev', // cpal
-			'libomp-dev' // OpenMP in ggml.ai
+			'libomp-dev', // OpenMP in ggml.ai
+			'libstdc++-12-dev' //ROCm
 		],
 	},
 	macos: {
@@ -186,6 +187,36 @@ if (platform === 'linux' && process.argv.includes('--opencl')) {
 		'vibe_core = { path = "../../core", features = ["openblas", "opencl"] }'
 	)
 	await fs.writeFile('Cargo.toml', content)
+}
+
+// AMD
+let rocmPath
+if (process.argv.includes('--amd')) {
+	if (process.env['ROCM_PATH']) {
+		cudaPath = process.env['ROCM_PATH']
+	} else if (platform === 'linux') {
+		rocmPath = "/opt/rocm"
+	}
+
+	if (process.env.GITHUB_ENV) {
+		console.log('ROCM_PATH', rocmPath)
+	}
+
+	if (platform === 'linux') {
+		// modify features in cargo.toml
+		let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
+		content = content.replace(
+			'vibe_core = { path = "../../core", features = ["openblas"] }',
+			'vibe_core = { path = "../../core", features = ["openblas","rocm"] }'
+		)
+		await fs.writeFile('Cargo.toml', content)
+
+		// Add rocm toolkit depends package
+		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.linux.deb.depends.push('rocm')
+		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
+	}
 }
 
 // Development hints
