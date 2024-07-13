@@ -7,7 +7,7 @@ on:
     workflow_dispatch:
       inputs:
         build_only:
-            description: 'Set to true to only build without publishing'
+            description: 'Build without publishing'
             required: false
             default: 'false'
 jobs:
