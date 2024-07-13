@@ -190,13 +190,8 @@ if (platform === 'linux' && process.argv.includes('--opencl')) {
 }
 
 // AMD
-let rocmPath
+let rocmPath = "/opt/rocm"
 if (process.argv.includes('--amd')) {
-	if (process.env['ROCM_PATH']) {
-		cudaPath = process.env['ROCM_PATH']
-	} else if (platform === 'linux') {
-		rocmPath = "/opt/rocm"
-	}
 
 	if (process.env.GITHUB_ENV) {
 		console.log('ROCM_PATH', rocmPath)

@@ -95,7 +95,6 @@ AMD support is only available under linux environment
 
 3. Run 
 ```console
-export ROCM_PATH="your rocm path"
 export ROCM_VERSION="your rocm version"
 cd desktop
 bunx tauri build
