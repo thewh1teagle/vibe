@@ -180,7 +180,6 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             if let Some(mut stream_handle) = stream_handle {
                 let stream = stream_handle.take();
                 let writer = stream_writers[i].clone();
-    
                 if let Some(stream) = stream {
                     tracing::debug!("Pausing stream");
                     stream.0.pause().map_err(|e| eyre!("{:?}", e)).log_error();
@@ -198,7 +197,6 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             if let Some(stream) = screencapture_stream {
                 screen_capture_kit::stop_capture(&stream).map_err(|e| eyre!("{:?}", e)).log_error();
                 let output_path = std::env::temp_dir().join(format!("{}.wav", random_string(5)));
-                
                 screen_capture_kit::screencapturekit_to_wav(output_path.clone()).map_err(|e| eyre!("{e:?}")).log_error();
                 tracing::debug!("output path is {}", output_path.display());
                 wav_paths.push((output_path, 1));
@@ -228,7 +226,6 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                     std::fs::rename(&dst, &target_path).context("Failed to move file to documents directory").map_err(|e| eyre!("{e:?}")).log_error();
                     dst = target_path;
                 }
-      
             } else {
                 tracing::error!("Failed to retrieve file name from destination path");
             }
