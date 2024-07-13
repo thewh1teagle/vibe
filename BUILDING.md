@@ -181,6 +181,8 @@ ffmpeg -i file.wav -ar 16000 -ac 1 -c:a pcm_s16le normal.wav
 
 ## Edit PR before merge
 
+1. Install [gh cli](https://cli.github.com/)
+
 ```console
 gh pr checkout <url>
 git push <fork url> HEAD:<branch>
