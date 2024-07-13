@@ -37,7 +37,6 @@
     "rust-analyzer.cargo.extraEnv": {
         "FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
         "OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-        "CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast",
-        "LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
+        "CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast"
     }
 }
