@@ -19,6 +19,8 @@ jobs:
                       args: ""
                     - platform: "windows-latest" # Windows x86_64
                       args: "--target x86_64-pc-windows-msvc"
+                    - platform: "windows-latest" # Windows x86_64 with opencl
+                      args: '--target x86_64-pc-windows-msvc --features "opencl,openblas"'
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -66,4 +68,4 @@ jobs:
 
             - name: Test
               run: |
-                cargo test -p vibe_core --release -- --nocapture
+                cargo test ${{ matrix.args }} -p vibe_core --release -- --nocapture
