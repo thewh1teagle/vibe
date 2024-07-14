@@ -46,7 +46,7 @@ jobs:
                       desktop/src-tauri/openblas
                       desktop/src-tauri/clblast
                       desktop/src-tauri/ffmpeg
-                  key: ${{ matrix.platform }}-${{ matrix.args }}-pre-build
+                  key: ${{ matrix.platform }}-pre-build
 
             # Run pre build
             - name: Run pre_build.js on ${{ matrix.platform }}
