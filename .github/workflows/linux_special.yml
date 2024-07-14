@@ -46,9 +46,26 @@ jobs:
                       cuda-version: "12.4.1"
                       name: "ubuntu-24.04-cuda-12"
 
+                    # Ubuntu 24.04 rocm
+                    - platform: "ubuntu-24.04"
+                      args: '--features "rocm"'
+                      rocm-version: "6.1.2"
+                      pre-build-args: "--rocm"
+                      rust-version: "stable"
+                      cuda-version: "12.4.1"
+                      name: "ubuntu-24.04-rocm-6.1.2"
+
         runs-on: ${{ matrix.platform }}
         steps:
             - uses: actions/checkout@v4
+
+            - name: Install rocm 
+              if: contains(matrix.args, 'rocm')
+              run: |
+                wget https://repo.radeon.com/amdgpu-install/${{ matrix.rocm-version }}/ubuntu/jammy/amdgpu-install_6.1.60102-1_all.deb
+                apt install ./amdgpu-install_6.1.60102-1_all.deb
+                apt update
+                sudo apt install -y rocm
 
             - uses: Jimver/cuda-toolkit@v0.2.15
               if: contains(matrix.args, 'cuda')
@@ -93,6 +110,7 @@ jobs:
                   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
                   INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
+                  INPUT_ROCM_VERSION: ${{ matrix.cuda-version }}
               with:
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
