@@ -58,6 +58,7 @@ jobs:
                   pre-build-args: "--rocm"
                   name: "Ubuntu 22.04 - ROCM"
                   action: "build"
+                  artifact-pattern: "target/release/bundle/deb/*.deb"
 
         runs-on: ${{ matrix.platform }}
         name: ${{ matrix.name }}
@@ -148,3 +149,8 @@ jobs:
               run: |
                 cargo test ${{ matrix.args }} -p vibe_core --release -- --nocapture
               continue-on-error: ${{ contains(matrix.args, 'opencl') }} # OpenCL fail. need to check with whisper.cpp author
+
+            - uses: actions/upload-artifact@v4
+              if: ${{ matrix.artifact-pattern }}
+              with:
+                path: ${{ matrix.artifact-pattern }}
