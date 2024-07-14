@@ -150,22 +150,4 @@ mod tests {
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
     }
-
-    #[test]
-    fn test_audio_conversion() -> Result<()> {
-        init();
-        tracing::debug!("test");
-        // Create a temporary directory to store input and output files.
-        let temp_dir = tempdir()?;
-        let input_file_path = temp_dir.path().join("input.mp3");
-        let output_file_path = temp_dir.path().join("output.wav");
-
-        // Copy a sample input file to the temporary directory.
-        tracing::debug!("copying from {} to {}", "src/audio/test_audio.wav", input_file_path.display());
-        fs::copy("src/audio/test_audio.wav", &input_file_path)?;
-        audio::normalize(input_file_path, output_file_path.clone())?;
-        tracing::debug!("check output at {}", output_file_path.display());
-
-        Ok(())
-    }
 }

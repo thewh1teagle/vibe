@@ -47,3 +47,7 @@ cuda = ["whisper-rs/cuda"]
 opencl = ["whisper-rs/opencl"]
 openblas = ["whisper-rs/openblas"]
 metal = ["whisper-rs/metal"]
+
+
+[profile.test]
+inherits = "release"
