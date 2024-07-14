@@ -1,107 +1,71 @@
-name: Non avx2, cuda, portable
+name: Windows Non avx2, cuda, portable
 
 on:
-    push:
-        tags:
-            - "v*"
     workflow_dispatch:
-
+      inputs:
+        skip-publish:
+            description: 'Skip publish'
+            required: false
+            default: '0'
 jobs:
-    older-cpu:
-        permissions:
-            contents: write
-
-        runs-on: windows-latest
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Add msbuild to PATH
-              uses: microsoft/setup-msbuild@v2
-
-            - name: setup Bun
-              uses: oven-sh/setup-bun@v1
-
-            - name: Rust cache
-              uses: swatinem/rust-cache@v2
-
-            - name: Install Rust stable
-              uses: dtolnay/rust-toolchain@stable
-
-            - name: Install frontend dependencies
-              run: bun install
-              working-directory: ./desktop
-
-            - name: Cache Pre Build
-              id: cache-pre-build
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      desktop/src-tauri/openblas
-                      desktop/src-tauri/clblast
-                      desktop/src-tauri/ffmpeg
-                  key: ${{ runner.os }}-pre-build
-
-            # Run pre build
-            - name: Run pre_build.js
-              run: bun scripts/pre_build.js --older-cpu
-
-            - name: Build
-              uses: tauri-apps/tauri-action@v0
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-              with:
-                  projectPath: "./desktop"
-                  tauriScript: bunx tauri
-
-            - name: Rename installer
-              run: |
-                  # Get the list of exe files in the directory
-                  $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
-
-                  # Rename each exe file
-                  foreach ($file in $exe_files) {
-                      # Split the file name and extension
-                      $name = $file.BaseName
-                      $ext = $file.Extension
-
-                      # New file name
-                      $suffix = "older_cpu"
-                      $new_name = "{0}_{1}{2}" -f $name, $suffix, $ext
-
-                      # Rename the file
-                      Rename-Item -Path $file.FullName -NewName $new_name
-                      Write-Output "Renamed '$($file.FullName)' to '$new_name'"
-                  }
-              shell: pwsh
-
-            - name: Upload installer
-              run: |
-                  bun scripts/publish.js target/release/bundle/nsis/*.exe
-              shell: pwsh
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    portable:
+    publish-tauri:
         permissions:
             contents: write
         strategy:
             fail-fast: false
             matrix:
                 include:
-                    - rust_version: "stable" # https://github.com/rustdesk/rustdesk/discussions/7503, also 1.78 has ABI change which causes our sciter version not working, https://blog.rust-lang.org/2024/03/30/i128-layout-update.html
+                    # Windows no AVX2
+                    - platform: "windows-latest"
+                      args: '--features="openblas"'
+                      pre-build-args: "--older-cpu --openblas"
+                      rust-version: "stable"
+                    
+                    # Windows cuda 12.5.0
+                    - platform: "windows-latest"
+                      args: '--features="cuda,openblas"'
+                      pre-build-args: "--cuda --openblas"
+                      name: 'cuda-12.5.0'
+                      cuda-verison: '12.5.0'
+                      rust-version: "stable"
+
+                    # Windows cuda 11.8.0
+                    - platform: "windows-latest"
+                      args: '--features="cuda,openblas"'
+                      pre-build-args: "--cuda --openblas" 
+                      name: 'cuda-11.8.0'
+                      cuda-verison: '11.8.0'
+                      rust-version: "stable"                      
+
+                    # Windows portable
+                    - platform: "windows-latest" # Windows x86_64
+                      args: '--features="openblas"'
+                      pre-build-args: "--portable --openblas"
                       name: portable
-                    - rust_version: "1.75"
+                      rust-version: "stable"
+
+                    # Windows7 portable
+                    - platform: "windows-latest" # Windows x86_64
+                      args: '--features="openblas"'
+                      pre-build-args: "--portable --openblas"
                       name: portable-win7
-        runs-on: windows-latest
+                      rust-version: "1.75"
+
+        runs-on: ${{ matrix.platform }}
         steps:
             - uses: actions/checkout@v4
 
             - name: Add msbuild to PATH
               uses: microsoft/setup-msbuild@v2
 
-            - name: Setup cmake
-              uses: jwlawson/actions-setup-cmake@v2
+
+            - name: Setup CUDA Toolkit
+              if: contains(matrix.args, 'cuda')
+              id: cuda-toolkit
+              shell: pwsh
+              run: scripts/setup_cuda.ps1
+              env:
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-verison }}
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
@@ -111,13 +75,11 @@ jobs:
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
-              with:
-                  toolchain: ${{ matrix.rust_version }}
-                  components: "rustfmt"
 
             - name: Install frontend dependencies
               run: bun install
               working-directory: ./desktop
+
 
             - name: Cache Pre Build
               id: cache-pre-build
@@ -131,7 +93,8 @@ jobs:
 
             # Run pre build
             - name: Run pre_build.js
-              run: bun scripts/pre_build.js
+              run: bun scripts/pre_build.js ${{ matrix.pre-build-args }}
+
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
@@ -139,143 +102,38 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-                  WINDOWS_PORTABLE: 1
               with:
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
+                  args: ${{ matrix.args }}
 
-            - name: Prepare Portable zip
+
+            - name: Rename Installer
               run: |
-                  # Get all EXE files in the specified directory
-                  $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
+                # Get the list of exe files in the directory
+                $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
 
-                  # Unzip each EXE file and zip the contents
-                  foreach ($file in $exe_files) {
-                      $name = $file.BaseName
-                      $ext = "_${{ matrix.name }}.zip"
+                # Rename each exe file
+                foreach ($file in $exe_files) {
+                    # Split the file name and extension
+                    $name = $file.BaseName
+                    $ext = $file.Extension
 
-                      # Create a new directory for extraction in the same folder
-                      $extract_dir = New-Item -ItemType Directory -Path "$($file.DirectoryName)\$name"
-                      echo $extract_dir.FullName
+                    # New file name
+                    $suffix = "${{ matrix.name }}"
+                    $new_name = "{0}_{1}{2}" -f $name, $suffix, $ext
 
-                      try {
-                          # Unzip the EXE file into the new directory
-                          & 7z x $file.FullName -o"$extract_dir"
-
-                          # Zip the contents into a new zip file
-                          $zip_name = "{0}{1}" -f $name, $ext
-                          & 7z a "$($file.DirectoryName)\$zip_name" "$extract_dir\*"
-
-                          Write-Output "Zipped contents of '$($file.FullName)' to '$zip_name'"
-                      } finally {
-                          # Remove the extraction directory
-                          Remove-Item -Recurse -Force $extract_dir
-                      }
-                  }
+                    # Rename the file
+                    Rename-Item -Path $file.FullName -NewName $new_name
+                    Write-Output "Renamed '$($file.FullName)' to '$new_name'"
+                }
               shell: pwsh
 
+              
             - name: Upload installer
+              if: github.event.inputs.skip-publish != '1'
               run: |
-                  bun scripts/publish.js target/release/bundle/nsis/*.zip
+                bun scripts/publish.js target/release/bundle/nsis/*.exe
               shell: pwsh
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    nvidia:
-        permissions:
-            contents: write
-        strategy:
-            matrix:
-                cuda-version: [12.5.0, 11.8.0]
-
-        runs-on: windows-latest
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Add msbuild to PATH
-              uses: microsoft/setup-msbuild@v2
-
-            # - name: Cache cuda installer
-            #   id: cache-cuda-installer
-            #   uses: actions/cache@v4
-            #   with:
-            #       path: |
-            #           cuda.exe
-            #       key: ${{ runner.os }}-cuda-installer
-
-            - name: Setup CUDA Toolkit
-              id: cuda-toolkit
-              shell: pwsh
-              run: scripts/setup_cuda.ps1
-              env:
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
-
-            - name: setup Bun
-              uses: oven-sh/setup-bun@v1
-
-            - name: Rust cache
-              uses: swatinem/rust-cache@v2
-              with:
-                  key: ${{ matrix.cuda-version }}
-
-            - name: Install Rust stable
-              uses: dtolnay/rust-toolchain@stable
-
-            - name: Install frontend dependencies
-              run: bun install
-              working-directory: ./desktop
-
-            - name: Cache Pre Build
-              id: cache-pre-build
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      desktop/src-tauri/openblas
-                      desktop/src-tauri/ffmpeg
-                  key: ${{ runner.os }}-pre-build
-
-            # Run pre build
-            - name: Run pre_build.js
-              run: bun scripts/pre_build.js --nvidia
-              env:
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
-
-            - name: Build
-              uses: tauri-apps/tauri-action@v0
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
-              with:
-                  projectPath: "./desktop"
-                  tauriScript: bunx tauri
-
-            - name: Rename installer
-              run: |
-                  $cudaPath = (Get-Item env:CUDA_PATH).Value
-                  $cudaVersion = (Split-Path $cudaPath -Leaf)
-                  # Get the list of exe files in the directory
-                  $exe_files = Get-ChildItem -Path "target\release\bundle\nsis\*.exe"
-
-                  # Rename each exe file
-                  foreach ($file in $exe_files) {
-                      # Split the file name and extension
-                      $name = $file.BaseName
-                      $ext = $file.Extension
-
-                      # New file name
-                      $suffix = $cudaVersion
-                      $new_name = "{0}_nvidia_{1}{2}" -f $name, $suffix, $ext
-
-                      # Rename the file
-                      Rename-Item -Path $file.FullName -NewName $new_name
-                      Write-Output "Renamed '$($file.FullName)' to '$new_name'"
-                  }
-              shell: pwsh
-
-            - name: Upload installer
-              run: |
-                  bun scripts/publish.js target/release/bundle/nsis/*.exe
-              shell: pwsh
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

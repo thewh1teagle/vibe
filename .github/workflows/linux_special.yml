@@ -1,0 +1,129 @@
+name: Linux with OpenCL and Cuda
+
+on:
+    workflow_dispatch:
+      inputs:
+        skip-publish:
+            description: 'Skip publish'
+            required: false
+            default: '0'
+jobs:
+    publish-tauri:
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    # Ubuntu 22.04
+                    - platform: "ubuntu-22.04"
+                      args: ""
+                      pre-build-args: ""
+                      rust-version: "stable"
+                      name: "ubuntu-22.04"
+
+                    # Ubuntu 24.04
+                    - platform: "ubuntu-24.04"
+                      args: ""
+                      pre-build-args: ""
+                      rust-version: "stable"
+                      name: "ubuntu-24.04"
+
+
+                    # Ubuntu 22.04 cuda
+                    - platform: "ubuntu-22.04"
+                      args: '--features "cuda"'
+                      pre-build-args: "--cuda"
+                      rust-version: "stable"
+                      cuda-version: "12.4.1"
+                      name: "ubuntu-22.04-cuda-12"
+
+                    # Ubuntu 24.04 cuda
+                    - platform: "ubuntu-24.04"
+                      args: '--features "cuda"'
+                      pre-build-args: "--cuda"
+                      rust-version: "stable"
+                      cuda-version: "12.4.1"
+                      name: "ubuntu-24.04-cuda-12"
+
+        runs-on: ${{ matrix.platform }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: Jimver/cuda-toolkit@v0.2.15
+              if: contains(matrix.args, 'cuda')
+              id: cuda-toolkit
+              with:
+                  cuda: ${{ matrix.cuda-version }}
+                  method: 'network'
+
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install frontend dependencies
+              run: bun install
+              working-directory: ./desktop
+
+
+            - name: Cache Pre Build
+              id: cache-pre-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      desktop/src-tauri/openblas
+                      desktop/src-tauri/clblast
+                      desktop/src-tauri/ffmpeg
+                  key: ${{ runner.os }}-pre-build
+
+            # Run pre build
+            - name: Run pre_build.js
+              run: bun scripts/pre_build.js ${{ matrix.pre-build-args }}
+
+
+            - name: Build
+              uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+                  INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
+              with:
+                  projectPath: "./desktop"
+                  tauriScript: bunx tauri
+                  args: ${{ matrix.args }}
+
+
+            - name: Rename installer
+              run: |
+
+                  # Rename .deb files
+                  for file in target/release/bundle/deb/*.deb; do
+                      name=$(basename "$file" .deb)
+                      new_name="${name}_${{ matrix.name }}.deb"
+                      mv "$file" "target/release/bundle/deb/$new_name"
+                      echo "Renamed '$file' to '$new_name'"
+                  done
+
+                  # Rename .rpm files
+                  for file in target/release/bundle/rpm/*.rpm; do
+                      name=$(basename "$file" .rpm)
+                      new_name="${name}_${{ matrix.name }}.rpm"
+                      mv "$file" "target/release/bundle/rpm/$new_name"
+                      echo "Renamed '$file' to '$new_name'"
+                  done
+              shell: bash
+
+
+            - name: Upload installer
+              if: github.event.inputs.skip-publish != '1'
+              run: |
+                  bun scripts/publish.js target/release/bundle/deb/*.deb
+                  bun scripts/publish.js target/release/bundle/rpm/*.rpm
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
