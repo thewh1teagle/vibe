@@ -37,9 +37,9 @@ jobs:
                   name: "Windows - x86_64 with OpenBLAS"
       
                 - platform: "windows-latest" # Windows x86_64 with opencl
-                  args: '--target x86_64-pc-windows-msvc --features "openblas,opencl"'
+                  args: '--target x86_64-pc-windows-msvc --features "opencl"'
                   pre-build-args: "--opencl"
-                  name: "Windows - x86_64 with OpenBLAS and OpenCL"
+                  name: "Windows - x86_64 with OpenCL"
 
         runs-on: ${{ matrix.platform }}
         name: ${{ matrix.name }}
