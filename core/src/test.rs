@@ -63,6 +63,7 @@ fn test_transcribe_with_callbacks() {
         Some(Box::new(new_segment_callback)),
         None,
         None,
-    );
+    )
+    .unwrap();
     println!("{:?}", result);
 }
