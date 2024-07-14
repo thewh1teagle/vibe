@@ -27,7 +27,8 @@ tracing = { version = "0.1.40", features = ["log"] }
 # sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
 
 [dev-dependencies]
-serial_test = "3.1.1"eyre = { workspace = true }
+eyre = { workspace = true }
+serial_test = "3.1.1"
 serde_json = { workspace = true }
 futures-util = "0.3.30"
 hound = "3.5.1"
