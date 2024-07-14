@@ -34,13 +34,19 @@ which = "6.0.1"
 utoipa = { version = "4.2.3", features = ["axum_extras"] }
 sherpa-rs = { version = "=0.1.5-beta.3", optional = true }
 tracing = { version = "0.1.40", features = ["log"] }
+
+
 # sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
 
+[dev-dependencies]
+serial_test = "3.1.1"
+tracing-test = "0.2.5"
 
 [build-dependencies]
 glob = "0.3.1"
 
 [features]
+default = []
 diarize = ["sherpa-rs"]
 coreml = ["whisper-rs/coreml"]
 cuda = ["whisper-rs/cuda"]

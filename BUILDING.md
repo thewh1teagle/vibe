@@ -127,6 +127,12 @@ export RUST_LOG=trace
 cargo test -- --nocapture
 ```
 
+## Test core in release mode
+
+```console
+cargo test -p vibe_core --release -- --nocapture
+```
+
 # Lint
 
 ```console

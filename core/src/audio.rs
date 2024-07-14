@@ -138,16 +138,3 @@ pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     }
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use eyre::Result;
-    use std::fs;
-    use tempfile::tempdir;
-
-    use crate::audio;
-
-    fn init() {
-        let _ = env_logger::builder().is_test(true).try_init();
-    }
-}
