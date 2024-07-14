@@ -23,14 +23,6 @@ utoipa = { version = "4.2.3", features = ["axum_extras"] }
 sherpa-rs = { version = "=0.1.5-beta.3", optional = true }
 tracing = { version = "0.1.40", features = ["log"] }
 eyre = { workspace = true }
-
-
-# sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
-
-[dev-dependencies]
-serial_test = "3.1.1"
-serde_json = { workspace = true }
-futures-util = "0.3.30"
 hound = "3.5.1"
 reqwest = { version = "0.11.23", features = ["stream"] }
 sha256 = "1.5.0"
@@ -41,6 +33,13 @@ tokio = { version = "1.35.1", features = [
 	"rt",
 	"rt-multi-thread",
 ] }
+serde_json = { workspace = true }
+futures-util = "0.3.30"
+# sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
+
+[dev-dependencies]
+
+serial_test = "3.1.1"
 tracing-test = "0.2.5"
 
 [build-dependencies]
