@@ -1,4 +1,4 @@
-name: Non avx2, cuda, portable
+name: Windows Non avx2, cuda, portable
 
 on:
     workflow_dispatch:
