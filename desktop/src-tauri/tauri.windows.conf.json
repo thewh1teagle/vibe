@@ -1,8 +1,7 @@
 {
 	"bundle": {
 		"resources": {
-			"ffmpeg\\bin\\x64\\*": "./",
-			"openblas\\bin\\*.dll": "./"
+			"ffmpeg\\bin\\x64\\*": "./"
 		}
 	}
 }

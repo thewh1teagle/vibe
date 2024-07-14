@@ -12,7 +12,10 @@ const platform = {
 	linux: 'linux',
 }[os.platform()]
 const cwd = process.cwd()
-const buildForOldCPU = process.argv.includes('--older-cpu')
+
+function hasFeature(name) {
+	return process.argv.includes(name)
+}
 
 const config = {
 	ffmpegRealname: 'ffmpeg',
@@ -68,7 +71,7 @@ const exports = {
 if (platform == 'linux') {
 	// Install APT packages
 	await $`sudo apt-get update`
-	if (process.argv.includes('--opencl')) {
+	if (hasFeature('opencl')) {
 		config.linux.aptPackages.push('libclblast-dev')
 	}
 	for (const name of config.linux.aptPackages) {
@@ -88,7 +91,7 @@ if (platform == 'windows') {
 	}
 
 	// Setup OpenBlas
-	if (!(await fs.exists(config.openblasRealname))) {
+	if (!(await fs.exists(config.openblasRealname)) && hasFeature('openblas')) {
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.openBlasUrl} -O ${config.windows.openBlasName}.zip`
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.openBlasName}.zip -o${config.openblasRealname}`
 		await $`rm ${config.windows.openBlasName}.zip`
@@ -98,7 +101,7 @@ if (platform == 'windows') {
 	}
 
 	// Setup CLBlast
-	if (!(await fs.exists(config.clblastRealname)) && !process.argv.includes('--cuda')) {
+	if (!(await fs.exists(config.clblastRealname)) && !hasFeature('cuda')) {
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.clblastUrl} -O ${config.windows.clblastName}.zip`
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.zip` // 7z file inside
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.7z` // Inner folder
@@ -124,7 +127,7 @@ if (platform == 'macos') {
 
 // Nvidia
 let cudaPath
-if (process.argv.includes('--cuda')) {
+if (hasFeature('cuda')) {
 	if (process.env['CUDA_PATH']) {
 		cudaPath = process.env['CUDA_PATH']
 	} else if (platform === 'windows') {
@@ -165,7 +168,7 @@ if (process.argv.includes('--cuda')) {
 	}
 }
 
-if (process.argv.includes('--opencl')) {
+if (hasFeature('opencl')) {
 	if (platform === 'windows') {
 		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
 		const tauriConfig = JSON.parse(tauriConfigContent)
@@ -174,6 +177,16 @@ if (process.argv.includes('--opencl')) {
 		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
 
 		console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
+	}
+}
+
+// OpenBlas
+if (hasFeature('openblas')) {
+	if (platform === 'windows') {
+		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.resources['openblas\\bin\\*.dll'] = './'
+		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
 	}
 }
 
@@ -191,13 +204,13 @@ if (!process.env.GITHUB_ENV) {
 		console.log(`$env:OPENBLAS_PATH = "${exports.openBlas}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
 		console.log(`$env:PATH += "${exports.cmake}"`)
-		if (buildForOldCPU) {
+		if (hasFeature('older-cpu')) {
 			console.log(`$env:WHISPER_NO_AVX = "ON"`)
 			console.log(`$env:WHISPER_NO_AVX2 = "ON"`)
 			console.log(`$env:WHISPER_NO_FMA = "ON"`)
 			console.log(`$env:WHISPER_NO_F16C = "ON"`)
 		}
-		if (process.argv.includes('--cuda')) {
+		if (hasFeature('cuda')) {
 			console.log(`$env:CUDA_PATH = "${cudaPath}"`)
 		}
 	}
@@ -227,13 +240,13 @@ if (process.env.GITHUB_ENV) {
 		console.log('Adding ENV', openblas)
 		await fs.appendFile(process.env.GITHUB_ENV, openblas)
 
-		if (process.argv.includes('--opencl')) {
+		if (hasFeature('opencl')) {
 			const clblast = `CLBlast_DIR=${exports.clblast}\n`
 			console.log('Adding ENV', clblast)
 			await fs.appendFile(process.env.GITHUB_ENV, clblast)
 		}
 
-		if (buildForOldCPU) {
+		if (hasFeature('older-cpu')) {
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON\n`)
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX2=ON\n`)
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_FMA=ON\n`)

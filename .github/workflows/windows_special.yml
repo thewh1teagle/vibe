@@ -18,20 +18,20 @@ jobs:
                     # Windows no AVX2
                     - platform: "windows-latest"
                       args: '--features="opencl"'
-                      pre-build-args: "--older-cpu --opencl"
+                      pre-build-args: "--older-cpu --opencl --openblas"
                       rust-version: "stable"
                     
                     # Windows cuda 12.5.0
                     - platform: "windows-latest"
-                      args: '--features="cuda"'
-                      pre-build-args: "--cuda"
+                      args: '--features="cuda,openblas"'
+                      pre-build-args: "--cuda --openblas"
                       name: 'cuda-12.5.0'
                       cuda-verison: '12.5.0'
                       rust-version: "stable"
 
                     # Windows cuda 11.8.0
                     - platform: "windows-latest"
-                      args: '--features="cuda"'
+                      args: '--features="cuda,openblas"'
                       pre-build-args: "--cuda"
                       name: 'cuda-11.8.0'
                       cuda-verison: '11.8.0'
@@ -39,15 +39,15 @@ jobs:
 
                     # Windows portable with opencl
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--features="opencl"'
-                      pre-build-args: "--portable --opencl"
+                      args: '--features="opencl,openblas"'
+                      pre-build-args: "--portable --opencl --openblas"
                       name: portable
                       rust-version: "stable"
 
                     # Windows7 portable with opencl
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--features="opencl"'
-                      pre-build-args: "--portable --opencl"
+                      args: '--features="opencl,openblas"'
+                      pre-build-args: "--portable --opencl --openblas"
                       name: portable-win7
                       rust-version: "1.75"
 
