@@ -206,3 +206,12 @@ cargo +nightly -Zunstable-options update --breaking
 	"rust-analyzer.runnables.extraArgs": ["--release"]
 }
 ```
+
+## Test core
+
+```console
+$env:PATH += "$env:CLBlast_DIR\..\..\..\bin"
+$env:PATH += "$env:OPENBLAS_PATH\bin"
+$env:PATH += "C:\vcpkg\packages\opencl_x64-windows\bin"
+cargo test --target x86_64-pc-windows-msvc --features "opencl,openblas" -p vibe_core --release -- --nocapture
+```

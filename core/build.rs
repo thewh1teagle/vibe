@@ -52,6 +52,7 @@ fn main() {
 
     if cfg!(feature = "opencl") {
         println!("cargo:rustc-link-search={}", clblast_dir.join("..\\..\\").display());
+        println!("cargo:rustc-link-search={}", clblast_dir.join("..\\lib").display());
         println!("cargo:rustc-link-search=C:\\vcpkg\\packages\\opencl_x64-windows\\lib");
     }
 

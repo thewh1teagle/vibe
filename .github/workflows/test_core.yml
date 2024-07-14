@@ -10,28 +10,39 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                include:
-                    - platform: "macos-latest" # for Arm based macs (M1 and above).
-                      args: "--target aarch64-apple-darwin"
-                      pre-build-args: ""
-
-                    - platform: "macos-13" # for Intel based macs.
-                      args: "--target x86_64-apple-darwin"
-                      pre-build-args: ""
-
-                    - platform: "ubuntu-22.04" # Ubuntu x86_64
-                      args: ""
-                      pre-build-args: ""
-                      
-                    - platform: "windows-latest" # Windows x86_64
-                      args: "--target x86_64-pc-windows-msvc"
-                      pre-build-args: ""
-
-                    - platform: "windows-latest" # Windows x86_64 with opencl
-                      args: '--target x86_64-pc-windows-msvc --features "opencl,openblas"'
-                      pre-build-args: "--opencl --openblas"
+              include:
+                - platform: "macos-latest" # for Arm based macs (M1 and above).
+                  args: "--target aarch64-apple-darwin"
+                  pre-build-args: ""
+                  name: "MacOS (Arm) - aarch64"
+      
+                - platform: "macos-13" # for Intel based macs.
+                  args: "--target x86_64-apple-darwin"
+                  pre-build-args: ""
+                  name: "MacOS (Intel) - x86_64"
+      
+                - platform: "ubuntu-22.04" # Ubuntu x86_64
+                  args: ""
+                  pre-build-args: ""
+                  name: "Ubuntu 22.04 - x86_64"
+      
+                - platform: "windows-latest" # Windows x86_64
+                  args: "--target x86_64-pc-windows-msvc"
+                  pre-build-args: ""
+                  name: "Windows - x86_64"
+      
+                - platform: "windows-latest" # Windows x86_64 with openblas
+                  args: '--target x86_64-pc-windows-msvc --features "openblas"'
+                  pre-build-args: "--openblas"
+                  name: "Windows - x86_64 with OpenBLAS"
+      
+                - platform: "windows-latest" # Windows x86_64 with opencl
+                  args: '--target x86_64-pc-windows-msvc --features "openblas,opencl"'
+                  pre-build-args: "--opencl"
+                  name: "Windows - x86_64 with OpenBLAS and OpenCL"
 
         runs-on: ${{ matrix.platform }}
+        name: ${{ matrix.name }}
         steps:
             - uses: actions/checkout@v4
 
@@ -74,6 +85,13 @@ jobs:
             - name: Add ffmpeg to path
               run: echo "$PWD/desktop/src-tauri/ffmpeg/bin" >> $GITHUB_PATH
               if: contains(matrix.platform, 'windows') == false
+
+            - name: Add openblas and opencl DLLs to path
+              if: contains(matrix.pre-build-args, 'openblas') || contains(matrix.pre-build-args, 'opencl')
+              run: |
+                $env:PATH += ";$env:CLBlast_DIR\..\..\..\bin"
+                $env:PATH += ";$env:OPENBLAS_PATH\bin"
+                $env:PATH += ";C:\vcpkg\packages\opencl_x64-windows\bin"
 
             - name: Test
               run: |

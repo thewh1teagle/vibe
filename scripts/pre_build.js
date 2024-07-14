@@ -175,8 +175,6 @@ if (hasFeature('opencl')) {
 		tauriConfig.bundle.resources['clblast\\bin\\*.dll'] = './'
 		tauriConfig.bundle.resources['C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll'] = './'
 		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
-
-		console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
 	}
 }
 
@@ -212,6 +210,9 @@ if (!process.env.GITHUB_ENV) {
 		}
 		if (hasFeature('cuda')) {
 			console.log(`$env:CUDA_PATH = "${cudaPath}"`)
+		}
+		if (hasFeature('opencl')) {
+			console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
 		}
 	}
 	if (platform == 'macos') {
