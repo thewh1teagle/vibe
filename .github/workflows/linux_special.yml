@@ -20,14 +20,14 @@ jobs:
                       args: ""
                       pre-build-args: ""
                       rust-version: "stable"
-                      name: "ubuntu-22.0"
+                      name: "ubuntu-22.04"
 
                     # Ubuntu 24.04
                     - platform: "ubuntu-24.04"
                       args: ""
                       pre-build-args: ""
                       rust-version: "stable"
-                      name: "ubuntu-24.0"
+                      name: "ubuntu-24.04"
 
 
                     # Ubuntu 22.04 cuda
