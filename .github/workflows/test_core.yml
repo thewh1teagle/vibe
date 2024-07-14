@@ -2,7 +2,12 @@ name: Test Core
 
 on:
     workflow_dispatch:
-
+    pull_request:
+      paths:
+          - '.github/workflows/lint.yml'
+          - 'desktop/src-tauri/**'
+          - 'cli/src/**'
+          - 'core/src/**'
 jobs:
     test:
         permissions:
