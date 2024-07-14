@@ -100,9 +100,9 @@ jobs:
             - name: Add openblas and opencl DLLs to path
               if: contains(matrix.pre-build-args, 'openblas') || contains(matrix.pre-build-args, 'opencl')
               run: |
-                $env:PATH += ";$pwddesktop\src-tauri\clblast\bin"
-                $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
-                $env:PATH += ";C:\vcpkg\packages\opencl_x64-windows\bin"
+                echo "$PWD/desktop/src-tauri/clblast/bin" >> $env:GITHUB_PATH
+                echo "$PWD/desktop/src-tauri/openblas/bin" >> $env:GITHUB_PATH
+                echo "C:/vcpkg/packages/opencl_x64-windows/bin" >> $env:GITHUB_PATH
 
 
             - name: Build
