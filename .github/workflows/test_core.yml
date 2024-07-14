@@ -50,7 +50,13 @@ jobs:
             - name: Run pre_build.js on ${{ matrix.platform }}
               run: bun scripts/pre_build.js
 
-            - name: Prepare tiny model
+            - name: Download tiny model on Windows
+              if: contains(matrix.platform, 'windows')
+              run: |
+                C:\msys64\usr\bin\wget.exe https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+        
+            - name: Download tiny model on Linux
+              if: contains(matrix.platform, 'windows') == false
               run: |
                 wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
 
