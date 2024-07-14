@@ -55,6 +55,7 @@ jobs:
               id: cuda-toolkit
               with:
                   cuda: ${{ matrix.cuda-version }}
+                  method: 'network'
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
