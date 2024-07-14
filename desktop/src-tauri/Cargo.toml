@@ -53,7 +53,7 @@ vibe_core = { path = "../../core", features = ["openblas"] }
 openssl = { version = "0.10.63", features = ["vendored"] }
 
 [target.'cfg(windows)'.dependencies]
-vibe_core = { path = "../../core", features = ["opencl", "openblas"] }
+vibe_core = { path = "../../core", features = ["openblas"] }
 windows = { version = "0.56.0", features = [
 	"Win32_System_Console",
 	"Win32_Foundation",
@@ -70,6 +70,12 @@ objc_id = "0.1"
 [features]
 default = ["custom-protocol"]
 diarize = ["vibe_core/diarize"]
+cuda = ["vibe_core/cuda"]
+coreml = ["vibe_core/coreml"]
+metal = ["vibe_core/metal"]
+openblas = ["vibe_core/openblas"]
+opencl = ["vibe_core/opencl"]
+
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
