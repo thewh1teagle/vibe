@@ -4195,6 +4195,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "scc"
+version = "2.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af947d0ca10a2f3e00c7ec1b515b7c83e5cb3fa62d4c11a64301d9eec54440e9"
+dependencies = [
+ "sdd",
+]
+
+[[package]]
 name = "schannel"
 version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4263,6 +4272,12 @@ dependencies = [
  "objc_id",
  "once_cell",
 ]
+
+[[package]]
+name = "sdd"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b84345e4c9bd703274a082fb80caaa99b7612be48dfaa1dd9266577ec412309d"
 
 [[package]]
 name = "security-framework"
@@ -4436,6 +4451,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b80d3d6b56b64335c0180e5ffde23b3c5e08c14c585b51a15bd0e95393f46703"
 dependencies = [
  "darling",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.70",
+]
+
+[[package]]
+name = "serial_test"
+version = "3.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b4b487fe2acf240a021cf57c6b2b4903b1e78ca0ecd862a71b71d2a51fed77d"
+dependencies = [
+ "futures",
+ "log",
+ "once_cell",
+ "parking_lot",
+ "scc",
+ "serial_test_derive",
+]
+
+[[package]]
+name = "serial_test_derive"
+version = "3.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "82fe9db325bcef1fbcde82e078a5cc4efdf787e96b3b9cf45b50b529f2083d67"
+dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.70",
@@ -5631,6 +5671,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "tracing-test"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "557b891436fe0d5e0e363427fc7f217abf9ccd510d5136549847bdcbcd011d68"
+dependencies = [
+ "tracing-core",
+ "tracing-subscriber",
+ "tracing-test-macro",
+]
+
+[[package]]
+name = "tracing-test-macro"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04659ddb06c87d233c566112c1c9c5b9e98256d9af50ec3bc9c8327f873a7568"
+dependencies = [
+ "quote",
+ "syn 2.0.70",
+]
+
+[[package]]
 name = "tray-icon"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5953,11 +6014,13 @@ dependencies = [
  "reqwest 0.11.27",
  "serde",
  "serde_json",
+ "serial_test",
  "sha256",
  "sherpa-rs",
  "tempfile",
  "tokio",
  "tracing",
+ "tracing-test",
  "utoipa",
  "which 6.0.1",
  "whisper-rs",
@@ -6219,7 +6282,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs"
 version = "0.12.0"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/pass-cmake-flags#d17e03caa65bcf8021430af53391d8fc0130f4a2"
+source = "git+https://github.com/tazz4843/whisper-rs.git?rev=f1030ef#f1030ef7626e962caf946927be80b8397ec4b7e4"
 dependencies = [
  "tracing",
  "whisper-rs-sys",
@@ -6228,7 +6291,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs-sys"
 version = "0.10.0"
-source = "git+https://github.com/thewh1teagle/whisper-rs?branch=feat/pass-cmake-flags#d17e03caa65bcf8021430af53391d8fc0130f4a2"
+source = "git+https://github.com/tazz4843/whisper-rs.git?rev=f1030ef#f1030ef7626e962caf946927be80b8397ec4b7e4"
 dependencies = [
  "bindgen",
  "cfg-if",

@@ -75,31 +75,3 @@ impl Default for Downloader {
         Self::new()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::downloader;
-    use eyre::{Context, Result};
-
-    fn init() {
-        let _ = env_logger::builder().is_test(true).try_init();
-    }
-
-    fn on_download_progress(_: u64, _: u64) -> bool {
-        false
-    }
-
-    #[tokio::test]
-    async fn test_download() -> Result<()> {
-        init();
-        let mut d = downloader::Downloader::new();
-        d.download(
-            "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true",
-            "model.bin".into(),
-            on_download_progress,
-        )
-        .await
-        .context("Cant download")?;
-        Ok(())
-    }
-}

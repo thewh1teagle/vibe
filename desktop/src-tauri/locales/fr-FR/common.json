@@ -19,6 +19,7 @@
 	"confirm-update": "Mettre à jour maintenant",
 	"copied": "Copié !",
 	"copy": "Copier",
+	"copy-logs": "Copier les journaux",
 	"customize": "Personnaliser",
 	"customize-info": "Téléchargez n’importe quel modèle pris en charge au format ggml ou gguf (avec l’extension de fichier se terminant par ‘.bin’). Transférez-le dans le dossier des modèles, puis sélectionnez-le dans la liste déroulante. Pas besoin de redémarrer 🌟",
 	"discord-community": "Communauté Discord",

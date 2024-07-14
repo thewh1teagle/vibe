@@ -48,18 +48,21 @@ crash-handler = "0.6.2"
 urlencoding = "2.1.3"
 
 
+# Linux
 [target.'cfg(target_os = "linux")'.dependencies]
-vibe_core = { path = "../../core", features = ["openblas"] }
+vibe_core = { path = "../../core", features = [] }
 openssl = { version = "0.10.63", features = ["vendored"] }
 
+# Windows
 [target.'cfg(windows)'.dependencies]
-vibe_core = { path = "../../core", features = ["opencl", "openblas"] }
+vibe_core = { path = "../../core", features = [] }
 windows = { version = "0.56.0", features = [
 	"Win32_System_Console",
 	"Win32_Foundation",
 ] }
 winreg = "0.52.0"
 
+# macOS
 [target.'cfg(target_os = "macos")'.dependencies]
 vibe_core = { path = "../../core", features = ["coreml", "metal"] }
 cocoa = "0.25.0"
@@ -70,6 +73,12 @@ objc_id = "0.1"
 [features]
 default = ["custom-protocol"]
 diarize = ["vibe_core/diarize"]
+cuda = ["vibe_core/cuda"]
+coreml = ["vibe_core/coreml"]
+metal = ["vibe_core/metal"]
+openblas = ["vibe_core/openblas"]
+opencl = ["vibe_core/opencl"]
+
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]

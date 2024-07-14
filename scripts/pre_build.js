@@ -12,7 +12,10 @@ const platform = {
 	linux: 'linux',
 }[os.platform()]
 const cwd = process.cwd()
-const buildForOldCPU = process.argv.includes('--older-cpu')
+
+function hasFeature(name) {
+	return process.argv.includes(`--${name}`) || process.argv.includes(name)
+}
 
 const config = {
 	ffmpegRealname: 'ffmpeg',
@@ -47,7 +50,7 @@ const config = {
 			'libavdevice-dev', // FFMPEG
 			'libasound2-dev', // cpal
 			'libomp-dev', // OpenMP in ggml.ai
-			'libstdc++-12-dev' //ROCm
+			'libstdc++-12-dev', //ROCm
 		],
 	},
 	macos: {
@@ -69,7 +72,7 @@ const exports = {
 if (platform == 'linux') {
 	// Install APT packages
 	await $`sudo apt-get update`
-	if (process.argv.includes('--opencl')) {
+	if (hasFeature('opencl')) {
 		config.linux.aptPackages.push('libclblast-dev')
 	}
 	for (const name of config.linux.aptPackages) {
@@ -89,7 +92,7 @@ if (platform == 'windows') {
 	}
 
 	// Setup OpenBlas
-	if (!(await fs.exists(config.openblasRealname))) {
+	if (!(await fs.exists(config.openblasRealname)) && hasFeature('openblas')) {
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.openBlasUrl} -O ${config.windows.openBlasName}.zip`
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.openBlasName}.zip -o${config.openblasRealname}`
 		await $`rm ${config.windows.openBlasName}.zip`
@@ -99,7 +102,7 @@ if (platform == 'windows') {
 	}
 
 	// Setup CLBlast
-	if (!(await fs.exists(config.clblastRealname)) && !process.argv.includes('--nvidia')) {
+	if (!(await fs.exists(config.clblastRealname)) && !hasFeature('cuda')) {
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.clblastUrl} -O ${config.windows.clblastName}.zip`
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.zip` // 7z file inside
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.clblastName}.7z` // Inner folder
@@ -125,7 +128,7 @@ if (platform == 'macos') {
 
 // Nvidia
 let cudaPath
-if (process.argv.includes('--nvidia')) {
+if (hasFeature('cuda')) {
 	if (process.env['CUDA_PATH']) {
 		cudaPath = process.env['CUDA_PATH']
 	} else if (platform === 'windows') {
@@ -156,21 +159,8 @@ if (process.argv.includes('--nvidia')) {
 			},
 		}
 		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(windowsConfig, null, 4))
-
-		// modify features in cargo.toml
-		let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
-		content = content.replace('opencl', 'cuda')
-		await fs.writeFile('Cargo.toml', content)
 	}
 	if (platform === 'linux') {
-		// modify features in cargo.toml
-		let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
-		content = content.replace(
-			'vibe_core = { path = "../../core", features = ["openblas"] }',
-			'vibe_core = { path = "../../core", features = ["openblas", "cuda"] }'
-		)
-		await fs.writeFile('Cargo.toml', content)
-
 		// Add cuda toolkit depends package
 		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
 		const tauriConfig = JSON.parse(tauriConfigContent)
@@ -179,33 +169,33 @@ if (process.argv.includes('--nvidia')) {
 	}
 }
 
-// Linux OpenCL
-if (platform === 'linux' && process.argv.includes('--opencl')) {
-	let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
-	content = content.replace(
-		'vibe_core = { path = "../../core", features = ["openblas"] }',
-		'vibe_core = { path = "../../core", features = ["openblas", "opencl"] }'
-	)
-	await fs.writeFile('Cargo.toml', content)
+if (hasFeature('opencl')) {
+	if (platform === 'windows') {
+		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.resources['clblast\\bin\\*.dll'] = './'
+		tauriConfig.bundle.resources['C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll'] = './'
+		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
+	}
 }
 
-// AMD
-let rocmPath = "/opt/rocm"
-if (process.argv.includes('--amd')) {
+// OpenBlas
+if (hasFeature('openblas')) {
+	if (platform === 'windows') {
+		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.resources['openblas\\bin\\*.dll'] = './'
+		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
+	}
+}
 
+// ROCM
+let rocmPath = '/opt/rocm'
+if (hasFeature('rocm')) {
 	if (process.env.GITHUB_ENV) {
 		console.log('ROCM_PATH', rocmPath)
 	}
-
 	if (platform === 'linux') {
-		// modify features in cargo.toml
-		let content = await fs.readFile('Cargo.toml', { encoding: 'utf-8' })
-		content = content.replace(
-			'vibe_core = { path = "../../core", features = ["openblas"] }',
-			'vibe_core = { path = "../../core", features = ["openblas","rocm"] }'
-		)
-		await fs.writeFile('Cargo.toml', content)
-
 		// Add rocm toolkit depends package
 		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
 		const tauriConfig = JSON.parse(tauriConfigContent)
@@ -226,20 +216,22 @@ if (!process.env.GITHUB_ENV) {
 	if (platform == 'windows') {
 		console.log(`$env:FFMPEG_DIR = "${exports.ffmpeg}"`)
 		console.log(`$env:OPENBLAS_PATH = "${exports.openBlas}"`)
-		console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
 		console.log(`$env:PATH += "${exports.cmake}"`)
-		if (buildForOldCPU) {
+		if (hasFeature('older-cpu')) {
 			console.log(`$env:WHISPER_NO_AVX = "ON"`)
 			console.log(`$env:WHISPER_NO_AVX2 = "ON"`)
 			console.log(`$env:WHISPER_NO_FMA = "ON"`)
 			console.log(`$env:WHISPER_NO_F16C = "ON"`)
 		}
-		if (process.argv.includes('--nvidia')) {
+		if (hasFeature('cuda')) {
 			console.log(`$env:CUDA_PATH = "${cudaPath}"`)
 		}
-		if (process.argv.includes('--rocm')) {
-			console.log(`$env:ROCM_VERSION = your rocm version`)
+		if (hasFeature('opencl')) {
+			console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
+		}
+		if (hasFeature('rocm')) {
+			console.log(`$env:ROCM_VERSION = "6.1.2"`)
 			console.log(`$env:ROCM_PATH = "${rocmPath}"`)
 		}
 	}
@@ -268,11 +260,14 @@ if (process.env.GITHUB_ENV) {
 		const openblas = `OPENBLAS_PATH=${exports.openBlas}\n`
 		console.log('Adding ENV', openblas)
 		await fs.appendFile(process.env.GITHUB_ENV, openblas)
-		const clblast = `CLBlast_DIR=${exports.clblast}\n`
-		console.log('Adding ENV', clblast)
-		await fs.appendFile(process.env.GITHUB_ENV, clblast)
 
-		if (buildForOldCPU) {
+		if (hasFeature('opencl')) {
+			const clblast = `CLBlast_DIR=${exports.clblast}\n`
+			console.log('Adding ENV', clblast)
+			await fs.appendFile(process.env.GITHUB_ENV, clblast)
+		}
+
+		if (hasFeature('older-cpu')) {
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON\n`)
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX2=ON\n`)
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_FMA=ON\n`)

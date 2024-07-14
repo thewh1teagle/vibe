@@ -67,6 +67,7 @@ fn main() -> Result<()> {
             cmd::is_avx2_enabled,
             cmd::is_online,
             cmd::get_path_dst,
+            cmd::get_logs,
             cmd::open_path,
             cmd::get_x86_features,
             cmd::get_save_path,

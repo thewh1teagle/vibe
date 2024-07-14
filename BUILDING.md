@@ -141,6 +141,12 @@ export RUST_LOG=trace
 cargo test -- --nocapture
 ```
 
+## Test core in release mode
+
+```console
+cargo test -p vibe_core --release -- --nocapture
+```
+
 # Lint
 
 ```console
@@ -213,4 +219,15 @@ cargo +nightly -Zunstable-options update --breaking
 	},
 	"rust-analyzer.runnables.extraArgs": ["--release"]
 }
+```
+
+## Test core
+
+```console
+bun run scripts/pre_build.js
+# Export env
+$env:PATH += ";$pwddesktop\src-tauri\clblast\bin"
+$env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
+$env:PATH += ";C:\vcpkg\packages\opencl_x64-windows\bin"
+cargo test --target x86_64-pc-windows-msvc --features "opencl,openblas" -p vibe_core --release -- --nocapture
 ```

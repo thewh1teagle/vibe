@@ -21,7 +21,8 @@ jobs:
                     - platform: "ubuntu-22.04" # Ubuntu x86_64
                       args: ""
                     - platform: "windows-latest" # Windows x86_64
-                      args: "--target x86_64-pc-windows-msvc"
+                      args: '--target x86_64-pc-windows-msvc --features "openblas"'
+                      pre-build-args: "--openblas"
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -55,7 +56,7 @@ jobs:
 
             # Run pre build
             - name: Run pre_build.js on ${{ matrix.platform }}
-              run: bun scripts/pre_build.js
+              run: bun scripts/pre_build.js ${{ matrix.pre-build-args }}
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
@@ -68,7 +69,7 @@ jobs:
                   releaseName: "v__VERSION__"
                   releaseBody: "What's new? 🎉📣"
                   releaseDraft: true
-                  prerelease: false
+                  prerelease: true
                   args: ${{ matrix.args }}
                   projectPath: "./desktop"
                   tauriScript: bunx tauri

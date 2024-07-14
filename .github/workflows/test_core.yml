@@ -1,0 +1,116 @@
+name: Test Core
+
+on:
+    workflow_dispatch:
+    pull_request:
+      paths:
+          - '.github/workflows/lint.yml'
+          - 'desktop/src-tauri/**'
+          - 'cli/src/**'
+          - 'core/src/**'
+jobs:
+    test:
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: false
+            matrix:
+              include:
+                - platform: "macos-latest" # for Arm based macs (M1 and above).
+                  args: "--target aarch64-apple-darwin"
+                  pre-build-args: ""
+                  name: "MacOS (Arm) - aarch64"
+                  action: "test"
+      
+                - platform: "macos-13" # for Intel based macs.
+                  args: "--target x86_64-apple-darwin"
+                  pre-build-args: ""
+                  name: "MacOS (Intel) - x86_64"
+                  action: "test"
+      
+                - platform: "ubuntu-22.04" # Ubuntu x86_64
+                  args: ""
+                  pre-build-args: ""
+                  name: "Ubuntu 22.04 - x86_64"
+                  action: "test"
+      
+                - platform: "windows-latest" # Windows x86_64
+                  args: "--target x86_64-pc-windows-msvc"
+                  pre-build-args: ""
+                  name: "Windows - x86_64"
+                  action: "test"
+      
+                - platform: "windows-latest" # Windows x86_64 with openblas
+                  args: '--target x86_64-pc-windows-msvc --features "openblas"'
+                  pre-build-args: "--openblas"
+                  name: "Windows - x86_64 with OpenBLAS"
+                  action: "test"
+      
+                - platform: "windows-latest" # Windows x86_64 with opencl
+                  args: '--target x86_64-pc-windows-msvc --features "opencl"'
+                  pre-build-args: "--opencl"
+                  name: "Windows - x86_64 with OpenCL"
+                  action: "test"
+
+        runs-on: ${{ matrix.platform }}
+        name: ${{ matrix.name }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+                  targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+            - name: Cache Pre Build
+              id: cache-pre-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      desktop/src-tauri/openblas
+                      desktop/src-tauri/clblast
+                      desktop/src-tauri/ffmpeg
+                  key: ${{ matrix.platform }}-pre-build
+
+            # Run pre build
+            - name: Run pre_build.js on ${{ matrix.platform }}
+              run: bun scripts/pre_build.js ${{ matrix.pre-build-args }}
+
+            - name: Download tiny model on Windows
+              if: contains(matrix.platform, 'windows')
+              run: |
+                C:\msys64\usr\bin\wget.exe https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+        
+            - name: Download tiny model on Linux
+              if: contains(matrix.platform, 'windows') == false
+              run: |
+                wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+
+            - name: Add ffmpeg to path
+              run: echo "$PWD/desktop/src-tauri/ffmpeg/bin" >> $GITHUB_PATH
+              if: contains(matrix.platform, 'windows') == false
+
+            - name: Add openblas and opencl DLLs to path
+              if: contains(matrix.pre-build-args, 'openblas') || contains(matrix.pre-build-args, 'opencl')
+              run: |
+                echo "$PWD/desktop/src-tauri/clblast/bin" >> $env:GITHUB_PATH
+                echo "$PWD/desktop/src-tauri/openblas/bin" >> $env:GITHUB_PATH
+                echo "C:/vcpkg/packages/opencl_x64-windows/bin" >> $env:GITHUB_PATH
+
+
+            - name: Build
+              if: matrix.action == 'build'
+              run: |
+                cargo build ${{ matrix.args }} -p vibe_core --release 
+
+            - name: Test
+              if: matrix.action == 'test'
+              run: |
+                cargo test ${{ matrix.args }} -p vibe_core --release -- --nocapture
