@@ -68,8 +68,8 @@ jobs:
               if: contains(matrix.args, 'rocm')
               run: |
                 wget https://repo.radeon.com/amdgpu-install/${{ matrix.rocm-version }}/ubuntu/jammy/amdgpu-install_6.1.60102-1_all.deb
-                apt install ./amdgpu-install_6.1.60102-1_all.deb
-                apt update
+                sudo apt install -y ./amdgpu-install_6.1.60102-1_all.deb
+                sudo apt update
                 sudo apt install -y rocm
 
 
