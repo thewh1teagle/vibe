@@ -405,3 +405,10 @@ pub async fn download_diarization_models(app_handle: tauri::AppHandle) -> Result
         .await?;
     Ok(())
 }
+
+#[tauri::command]
+pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
+    let path = crate::logging::get_log_path(&app_handle)?;
+    let content = std::fs::read_to_string(path)?;
+    Ok(content)
+}
