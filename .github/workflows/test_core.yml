@@ -60,6 +60,10 @@ jobs:
               run: |
                 wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
 
+            - name: Add ffmpeg to path
+              run: echo "$PWD/desktop/src-tauri/ffmpeg/bin" >> $GITHUB_PATH
+              if: contains(matrix.platform, 'windows') == false
+
             - name: Test
               run: |
                 cargo test -p vibe_core --release -- --nocapture
