@@ -68,7 +68,7 @@ jobs:
                   releaseName: "v__VERSION__"
                   releaseBody: "What's new? 🎉📣"
                   releaseDraft: true
-                  prerelease: false
+                  prerelease: true
                   args: ${{ matrix.args }}
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
