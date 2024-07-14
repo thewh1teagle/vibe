@@ -17,13 +17,13 @@ jobs:
                 include:
                     # Windows no AVX2
                     - platform: "windows-latest"
-                      args: "--target x86_64-pc-windows-msvc"
+                      args: ""
                       pre-build-args: "--older-cpu"
                       rust-version: "stable"
                     
                     # Windows cuda 12.5.0
                     - platform: "windows-latest"
-                      args: '--target x86_64-pc-windows-msvc --features="cuda"'
+                      args: '--features="cuda"'
                       pre-build-args: "--cuda"
                       name: 'cuda-12.5.0'
                       cuda-verison: '12.5.0'
@@ -31,7 +31,7 @@ jobs:
 
                     # Windows cuda 11.8.0
                     - platform: "windows-latest"
-                      args: '--target x86_64-pc-windows-msvc --features="cuda"'
+                      args: '--features="cuda"'
                       pre-build-args: "--cuda"
                       name: 'cuda-11.8.0'
                       cuda-verison: '11.8.0'
@@ -39,14 +39,14 @@ jobs:
 
                     # Windows portable with opencl
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--target x86_64-pc-windows-msvc --features="opencl"'
+                      args: '--features="opencl"'
                       pre-build-args: "--portable"
                       name: portable
                       rust-version: "stable"
 
                     # Windows7 portable with opencl
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--target x86_64-pc-windows-msvc --features="opencl"'
+                      args: '--features="opencl"'
                       pre-build-args: "--portable"
                       name: portable-win7
                       rust-version: "1.75"
