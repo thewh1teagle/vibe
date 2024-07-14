@@ -52,11 +52,11 @@ jobs:
                   name: "Windows - x86_64 with OpenCL"
                   action: "test"
 
-                - platform: "ubuntu-24.04"
+                - platform: "ubuntu-22.04"
                   args: '--features "rocm"'
                   rocm-version: "6.1.2"
                   pre-build-args: "--rocm"
-                  name: "Ubuntu 24.04 - ROCM"
+                  name: "Ubuntu 22.04 - ROCM"
                   action: "build"
 
         runs-on: ${{ matrix.platform }}
