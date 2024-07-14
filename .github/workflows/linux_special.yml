@@ -50,10 +50,6 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Add msbuild to PATH
-              uses: microsoft/setup-msbuild@v2
-
-
             - uses: Jimver/cuda-toolkit@v0.2.15
               if: contains(matrix.args, 'cuda')
               id: cuda-toolkit
