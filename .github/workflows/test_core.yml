@@ -13,14 +13,23 @@ jobs:
                 include:
                     - platform: "macos-latest" # for Arm based macs (M1 and above).
                       args: "--target aarch64-apple-darwin"
+                      pre-build-args: ""
+
                     - platform: "macos-13" # for Intel based macs.
                       args: "--target x86_64-apple-darwin"
+                      pre-build-args: ""
+
                     - platform: "ubuntu-22.04" # Ubuntu x86_64
                       args: ""
+                      pre-build-args: ""
+                      
                     - platform: "windows-latest" # Windows x86_64
                       args: "--target x86_64-pc-windows-msvc"
+                      pre-build-args: ""
+
                     - platform: "windows-latest" # Windows x86_64 with opencl
                       args: '--target x86_64-pc-windows-msvc --features "opencl,openblas"'
+                      pre-build-args: "--opencl --openblas"
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -50,7 +59,7 @@ jobs:
 
             # Run pre build
             - name: Run pre_build.js on ${{ matrix.platform }}
-              run: bun scripts/pre_build.js
+              run: bun scripts/pre_build.js ${{ matrix.pre-build-args }}
 
             - name: Download tiny model on Windows
               if: contains(matrix.platform, 'windows')
