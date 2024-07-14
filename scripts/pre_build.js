@@ -14,7 +14,7 @@ const platform = {
 const cwd = process.cwd()
 
 function hasFeature(name) {
-	return process.argv.includes(name)
+	return process.argv.includes(`--${name}`) || process.argv.includes(name)
 }
 
 const config = {
