@@ -19,6 +19,7 @@
 	"confirm-update": "Aggiorna ora",
 	"copied": "Copiato!",
 	"copy": "Copia",
+	"copy-logs": "Copia registri",
 	"customize": "Personalizza",
 	"customize-info": "Scarica un qualunque modello supportato nel formato ggml o gguf (con estensione file '.bin'). Copialo nella cartella dei modelli e,selezionalo dal menù a tendina. Non è richiesto il riavvio 🌟",
 	"discord-community": "Discord",

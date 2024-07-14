@@ -216,6 +216,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			</div>
 
 			<div className="flex flex-col gap-1">
+				<button onMouseDown={vm.copyLogs} className="btn bg-base-300 text-base-content">
+					{t('common.copy-logs')}
+					<FolderIcon className="h-4 w-4" />
+				</button>
 				<button onMouseDown={vm.openLogsFolder} className="btn bg-base-300 text-base-content">
 					{t('common.logs-folder')}
 					<FolderIcon className="h-4 w-4" />

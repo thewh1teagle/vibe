@@ -19,6 +19,7 @@
 	"confirm-update": "Zaaktualizuj teraz",
 	"copied": "Skopiowano!",
 	"copy": "Kopiuj",
+	"copy-logs": "Kopiuj logi",
 	"customize": "Dostosuj",
 	"customize-info": "Pobierz dowolny wspierany model w formacie ggml lub gguf (z rozszerzeniem pliku kończącym się na „.bin”). Przenieś go do folderu modeli, a następnie wybierz z listy. Nie ma potrzeby ponownego uruchamiania 🌟",
 	"discord-community": "Discord Community",

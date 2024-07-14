@@ -39,6 +39,11 @@ async function openLogsFolder() {
 	invoke('open_path', { path: dst })
 }
 
+async function copyLogs() {
+	const logs = await invoke<string>("get_logs")
+	navigator.clipboard.writeText(logs)
+}
+
 export function viewModel() {
 	const { i18n } = useTranslation()
 	const [isLogToFileSet, setLogToFile] = useStoreValue<boolean>('prefs_log_to_file')
@@ -137,6 +142,7 @@ export function viewModel() {
 	useEffect(() => {}, [preference])
 
 	return {
+		copyLogs,
 		isLogToFileSet,
 		setLogToFile,
 		downloadModel,
