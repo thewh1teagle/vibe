@@ -52,10 +52,26 @@ jobs:
                   name: "Windows - x86_64 with OpenCL"
                   action: "test"
 
+                - platform: "ubuntu-24.04"
+                  args: '--features "rocm"'
+                  rocm-version: "6.1.2"
+                  pre-build-args: "--rocm"
+                  name: "Ubuntu 24.04 - ROCM"
+                  action: "build"
+
         runs-on: ${{ matrix.platform }}
         name: ${{ matrix.name }}
         steps:
             - uses: actions/checkout@v4
+
+            - name: Install rocm 
+              if: contains(matrix.args, 'rocm')
+              run: |
+                wget https://repo.radeon.com/amdgpu-install/${{ matrix.rocm-version }}/ubuntu/jammy/amdgpu-install_6.1.60102-1_all.deb
+                apt install ./amdgpu-install_6.1.60102-1_all.deb
+                apt update
+                sudo apt install -y rocm
+
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
