@@ -2,7 +2,11 @@ name: Non avx2, cuda, portable
 
 on:
     workflow_dispatch:
-
+      inputs:
+        build_only:
+            description: 'Build without publishing'
+            required: false
+            default: 'false'
 jobs:
     publish-tauri:
         permissions:
@@ -127,6 +131,7 @@ jobs:
 
               
             - name: Upload installer
+              if: github.event.inputs.build_only != 'true'
               run: |
                 bun scripts/publish.js target/release/bundle/nsis/*.exe
               shell: pwsh
