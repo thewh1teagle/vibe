@@ -17,8 +17,8 @@ jobs:
                 include:
                     # Windows no AVX2
                     - platform: "windows-latest"
-                      args: ""
-                      pre-build-args: "--older-cpu"
+                      args: '--features="opencl"'
+                      pre-build-args: "--older-cpu --opencl"
                       rust-version: "stable"
                     
                     # Windows cuda 12.5.0
@@ -40,14 +40,14 @@ jobs:
                     # Windows portable with opencl
                     - platform: "windows-latest" # Windows x86_64
                       args: '--features="opencl"'
-                      pre-build-args: "--portable"
+                      pre-build-args: "--portable --opencl"
                       name: portable
                       rust-version: "stable"
 
                     # Windows7 portable with opencl
                     - platform: "windows-latest" # Windows x86_64
                       args: '--features="opencl"'
-                      pre-build-args: "--portable"
+                      pre-build-args: "--portable --opencl"
                       name: portable-win7
                       rust-version: "1.75"
 

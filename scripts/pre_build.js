@@ -165,6 +165,18 @@ if (process.argv.includes('--cuda')) {
 	}
 }
 
+if (process.argv.includes('--opencl')) {
+	if (platform === 'windows') {
+		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.resources['clblast\\bin\\*.dll'] = './'
+		tauriConfig.bundle.resources['C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll'] = './'
+		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
+
+		console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
+	}
+}
+
 // Development hints
 if (!process.env.GITHUB_ENV) {
 	console.log('\nCommands to build 🔨:')
@@ -177,7 +189,6 @@ if (!process.env.GITHUB_ENV) {
 	if (platform == 'windows') {
 		console.log(`$env:FFMPEG_DIR = "${exports.ffmpeg}"`)
 		console.log(`$env:OPENBLAS_PATH = "${exports.openBlas}"`)
-		console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
 		console.log(`$env:PATH += "${exports.cmake}"`)
 		if (buildForOldCPU) {
@@ -215,9 +226,12 @@ if (process.env.GITHUB_ENV) {
 		const openblas = `OPENBLAS_PATH=${exports.openBlas}\n`
 		console.log('Adding ENV', openblas)
 		await fs.appendFile(process.env.GITHUB_ENV, openblas)
-		const clblast = `CLBlast_DIR=${exports.clblast}\n`
-		console.log('Adding ENV', clblast)
-		await fs.appendFile(process.env.GITHUB_ENV, clblast)
+
+		if (process.argv.includes('--opencl')) {
+			const clblast = `CLBlast_DIR=${exports.clblast}\n`
+			console.log('Adding ENV', clblast)
+			await fs.appendFile(process.env.GITHUB_ENV, clblast)
+		}
 
 		if (buildForOldCPU) {
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON\n`)

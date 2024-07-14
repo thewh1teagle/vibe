@@ -22,6 +22,7 @@ jobs:
                       args: ""
                     - platform: "windows-latest" # Windows x86_64
                       args: "--target x86_64-pc-windows-msvc"
+                      pre-build-args: "--opencl --openblas"
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -55,7 +56,7 @@ jobs:
 
             # Run pre build
             - name: Run pre_build.js on ${{ matrix.platform }}
-              run: bun scripts/pre_build.js
+              run: bun scripts/pre_build.js ${{ matrix.pre-build-args }}
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
