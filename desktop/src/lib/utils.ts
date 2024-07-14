@@ -113,16 +113,20 @@ export async function getPrettyVersion() {
 	const appName = await app.getName()
 	let version = `${appName} ${appVersion}`
 	const cudaVersion = await invoke('get_cuda_version')
+	const rocmVersion = await invoke('get_rocm_version')
 	const avx2Enabled = await invoke('is_avx2_enabled')
 	const isPortable = await invoke('is_portable')
 	if (cudaVersion) {
-		version += ` (${cudaVersion})`
+		version += ` (cuda ${cudaVersion})`
 	}
 	if (!avx2Enabled) {
 		version += ` (older cpu)`
 	}
 	if (isPortable) {
 		version += ` (portable)`
+	}
+	if (rocmVersion) {
+		version += ` (rocm ${rocmVersion})`
 	}
 	return version
 }
