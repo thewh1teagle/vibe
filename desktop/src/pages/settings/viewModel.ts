@@ -40,8 +40,16 @@ async function openLogsFolder() {
 }
 
 async function copyLogs() {
-	const logs = await invoke<string>("get_logs")
-	navigator.clipboard.writeText(logs)
+	const logs = await invoke<string>('get_logs')
+	const templated = `<details>
+<summary>logs</summary>
+
+\`\`\`console
+${logs}
+\`\`\`
+</details>
+`
+	navigator.clipboard.writeText(templated)
 }
 
 export function viewModel() {
