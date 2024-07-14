@@ -17,8 +17,8 @@ jobs:
                 include:
                     # Windows no AVX2
                     - platform: "windows-latest"
-                      args: '--features="opencl"'
-                      pre-build-args: "--older-cpu --opencl --openblas"
+                      args: '--features="openblas"'
+                      pre-build-args: "--older-cpu --openblas"
                       rust-version: "stable"
                     
                     # Windows cuda 12.5.0
@@ -32,22 +32,22 @@ jobs:
                     # Windows cuda 11.8.0
                     - platform: "windows-latest"
                       args: '--features="cuda,openblas"'
-                      pre-build-args: "--cuda"
+                      pre-build-args: "--cuda --openblas" 
                       name: 'cuda-11.8.0'
                       cuda-verison: '11.8.0'
                       rust-version: "stable"                      
 
-                    # Windows portable with opencl
+                    # Windows portable
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--features="opencl,openblas"'
-                      pre-build-args: "--portable --opencl --openblas"
+                      args: '--features="openblas"'
+                      pre-build-args: "--portable --openblas"
                       name: portable
                       rust-version: "stable"
 
-                    # Windows7 portable with opencl
+                    # Windows7 portable
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--features="opencl,openblas"'
-                      pre-build-args: "--portable --opencl --openblas"
+                      args: '--features="openblas"'
+                      pre-build-args: "--portable --openblas"
                       name: portable-win7
                       rust-version: "1.75"
 
