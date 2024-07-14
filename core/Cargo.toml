@@ -22,12 +22,12 @@ which = "6.0.1"
 utoipa = { version = "4.2.3", features = ["axum_extras"] }
 sherpa-rs = { version = "=0.1.5-beta.3", optional = true }
 tracing = { version = "0.1.40", features = ["log"] }
+eyre = { workspace = true }
 
 
 # sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
 
 [dev-dependencies]
-eyre = { workspace = true }
 serial_test = "3.1.1"
 serde_json = { workspace = true }
 futures-util = "0.3.30"
