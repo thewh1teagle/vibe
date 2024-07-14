@@ -120,7 +120,7 @@ jobs:
                     $ext = $file.Extension
 
                     # New file name
-                    $suffix = ${{ matrix.name }}
+                    $suffix = "${{ matrix.name }}"
                     $new_name = "{0}_{1}{2}" -f $name, $suffix, $ext
 
                     # Rename the file
