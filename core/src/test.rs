@@ -12,7 +12,7 @@ pub use whisper_rs::SegmentCallbackData;
 #[serial]
 #[traced_test]
 fn test_transcribe() {
-    let ctx = create_context(&PathBuf::from("ggml-tiny.bin"), None).unwrap();
+    let ctx = create_context(&PathBuf::from("../ggml-tiny.bin"), None).unwrap();
     let options = &TranscribeOptions {
         init_prompt: None,
         lang: Some("en".into()),
@@ -33,7 +33,7 @@ fn test_transcribe() {
 #[serial]
 #[traced_test]
 fn test_transcribe_with_callbacks() {
-    let ctx = create_context(&PathBuf::from("ggml-tiny.bin"), None).unwrap();
+    let ctx = create_context(&PathBuf::from("../ggml-tiny.bin"), None).unwrap();
     let options = &TranscribeOptions {
         init_prompt: None,
         lang: Some("en".into()),
