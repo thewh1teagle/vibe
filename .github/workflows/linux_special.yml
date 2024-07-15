@@ -39,12 +39,13 @@ jobs:
                       name: "ubuntu-22.04-cuda-12"
 
                     # Ubuntu 24.04 cuda
-                    - platform: "ubuntu-24.04"
-                      args: '--features "cuda"'
-                      pre-build-args: "--cuda"
-                      rust-version: "stable"
-                      cuda-version: "12.4.1"
-                      name: "ubuntu-24.04-cuda-12"
+                    # https://github.com/Jimver/cuda-toolkit/issues/365
+                    # - platform: "ubuntu-24.04"
+                    #   args: '--features "cuda"'
+                    #   pre-build-args: "--cuda"
+                    #   rust-version: "stable"
+                    #   cuda-version: "12.4.1"
+                    #   name: "ubuntu-24.04-cuda-12"
 
                     # Ubuntu 22.04 rocm
                     - platform: "ubuntu-22.04"
