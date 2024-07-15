@@ -46,13 +46,12 @@ jobs:
                       cuda-version: "12.4.1"
                       name: "ubuntu-24.04-cuda-12"
 
-                    # Ubuntu 24.04 rocm
-                    - platform: "ubuntu-24.04"
+                    # Ubuntu 22.04 rocm
+                    - platform: "ubuntu-22.04"
                       args: '--features "rocm"'
                       rocm-version: "6.1.2"
                       pre-build-args: "--rocm"
                       rust-version: "stable"
-                      cuda-version: "12.4.1"
                       name: "ubuntu-24.04-rocm-6.1.2"
 
         runs-on: ${{ matrix.platform }}
@@ -94,8 +93,8 @@ jobs:
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
 
-            - name: Rust cache
-              uses: swatinem/rust-cache@v2
+            # - name: Rust cache
+            #   uses: swatinem/rust-cache@v2
 
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
