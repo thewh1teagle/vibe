@@ -293,6 +293,11 @@ pub fn get_cuda_version() -> String {
 }
 
 #[tauri::command]
+pub fn get_rocm_version() -> String {
+    env!("ROCM_VERSION").to_string()
+}
+
+#[tauri::command]
 pub fn is_avx2_enabled() -> bool {
     #[allow(clippy::comparison_to_empty)]
     return env!("WHISPER_NO_AVX") != "ON";

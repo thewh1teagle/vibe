@@ -20,8 +20,8 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
         bail!("whisper file doesn't exist")
     }
     let mut ctx_params = WhisperContextParameters::default();
-    if !env!("CUDA_VERSION").is_empty() {
-        // Nvidia
+    if !env!("CUDA_VERSION").is_empty() || !env!("ROCM_VERSION").is_empty() {
+        // Nvidia or AMD
         ctx_params.use_gpu = true;
     }
     // set GPU device number from preference

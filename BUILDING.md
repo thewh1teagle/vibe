@@ -86,6 +86,20 @@ $env:CudaToolkitDir = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
 bun run scripts/pre_build.js --build
 ```
 
+## Build with `AMD` support
+AMD support is only available under linux environment
+
+1. Install [`rocm toolkit`](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/)
+
+2. Run `bun scripts/pre_build.js --amd`
+
+3. Run 
+```console
+export ROCM_VERSION="your rocm version"
+cd desktop
+bunx tauri build
+```
+
 ## Gotchas
 
 On Ubuntu you may need to copy some libraries for `ffmpeg_next` library

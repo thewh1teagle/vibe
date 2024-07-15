@@ -50,6 +50,7 @@ const config = {
 			'libavdevice-dev', // FFMPEG
 			'libasound2-dev', // cpal
 			'libomp-dev', // OpenMP in ggml.ai
+			'libstdc++-12-dev', //ROCm
 		],
 	},
 	macos: {
@@ -188,6 +189,21 @@ if (hasFeature('openblas')) {
 	}
 }
 
+// ROCM
+let rocmPath = '/opt/rocm'
+if (hasFeature('rocm')) {
+	if (process.env.GITHUB_ENV) {
+		console.log('ROCM_PATH', rocmPath)
+	}
+	if (platform === 'linux') {
+		// Add rocm toolkit depends package
+		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.linux.deb.depends.push('rocm')
+		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
+	}
+}
+
 // Development hints
 if (!process.env.GITHUB_ENV) {
 	console.log('\nCommands to build 🔨:')
@@ -213,6 +229,10 @@ if (!process.env.GITHUB_ENV) {
 		}
 		if (hasFeature('opencl')) {
 			console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
+		}
+		if (hasFeature('rocm')) {
+			console.log(`$env:ROCM_VERSION = "6.1.2"`)
+			console.log(`$env:ROCM_PATH = "${rocmPath}"`)
 		}
 	}
 	if (platform == 'macos') {

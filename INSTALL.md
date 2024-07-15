@@ -24,6 +24,16 @@ On Linux, you may also need to install [`cuda-toolkit`](https://developer.nvidia
 </details>
 
 <details>
+<summary>AMD 🚀</summary>
+Only available under Linux!
+
+Look for installers with `amd` in [vibe/releases/latest](https://github.com/thewh1teagle/vibe/releases/latest)
+
+[`rocm toolkit`](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/) is strictly required at runtime.
+
+</details>
+
+<details>
 <summary>Speedup GPU in Windows 🚀</summary>
 
 Sometimes Windows doesn't use the GPU although nvidia / opencl is supported.

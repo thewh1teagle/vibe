@@ -8,19 +8,7 @@ name = "vibe_core"
 path = "src/lib.rs"
 
 [dependencies]
-eyre = { workspace = true }
-serde_json = { workspace = true }
-futures-util = "0.3.30"
-hound = "3.5.1"
-reqwest = { version = "0.11.23", features = ["stream"] }
-sha256 = "1.5.0"
-tempfile = "3.9.0"
-tokio = { version = "1.35.1", features = [
-	"tokio-macros",
-	"macros",
-	"rt",
-	"rt-multi-thread",
-] }
+
 whisper-rs = { git = "https://github.com/tazz4843/whisper-rs.git", rev = "f1030ef", features = [
 	"whisper-cpp-tracing",
 ] }
@@ -34,11 +22,23 @@ which = "6.0.1"
 utoipa = { version = "4.2.3", features = ["axum_extras"] }
 sherpa-rs = { version = "=0.1.5-beta.3", optional = true }
 tracing = { version = "0.1.40", features = ["log"] }
-
-
+eyre = { workspace = true }
+hound = "3.5.1"
+reqwest = { version = "0.11.23", features = ["stream"] }
+sha256 = "1.5.0"
+tempfile = "3.9.0"
+tokio = { version = "1.35.1", features = [
+	"tokio-macros",
+	"macros",
+	"rt",
+	"rt-multi-thread",
+] }
+serde_json = { workspace = true }
+futures-util = "0.3.30"
 # sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
 
 [dev-dependencies]
+
 serial_test = "3.1.1"
 tracing-test = "0.2.5"
 
@@ -53,7 +53,7 @@ cuda = ["whisper-rs/cuda"]
 opencl = ["whisper-rs/opencl"]
 openblas = ["whisper-rs/openblas"]
 metal = ["whisper-rs/metal"]
-
+rocm = ["whisper-rs/hipblas"]
 
 [profile.test]
 inherits = "release"

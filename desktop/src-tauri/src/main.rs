@@ -64,6 +64,7 @@ fn main() -> Result<()> {
             cmd::load_model,
             cmd::get_commit_hash,
             cmd::get_cuda_version,
+            cmd::get_rocm_version,
             cmd::is_avx2_enabled,
             cmd::is_online,
             cmd::get_path_dst,
