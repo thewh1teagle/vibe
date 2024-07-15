@@ -43,7 +43,7 @@ jobs:
                       args: '--features "cuda"'
                       pre-build-args: "--cuda"
                       rust-version: "stable"
-                      cuda-version: "12.4.1"
+                      cuda-version: "12.5.1"
                       name: "ubuntu-24.04-cuda-12"
 
                     # Ubuntu 22.04 rocm
