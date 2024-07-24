@@ -284,7 +284,7 @@ if (action?.includes('--build' || action.includes('--dev'))) {
 	if (platform === 'windows') {
 		process.env['OPENBLAS_PATH'] = exports.openBlas
 		process.env['CLBlast_DIR'] = exports.clblast
-		process.env['LIBCLANG_PATH'] = exports.libClang
+		process.env['LIBCLANG_PATH'] = process.env['LIBCLANG_PATH'] || exports.libClang
 		process.env['PATH'] = `${process.env['PATH']};${exports.cmake}`
 	}
 	if (platform == 'macos') {
