@@ -59,8 +59,7 @@ async function publish(dst, token, tag) {
 	checkResponse(res)
 	const releaseData = await res.json()
 	const releaseID = releaseData.id
-	const prev = releaseData.assets.find((a) => a.name.toLowerCase() === dst.toLowerCase())
-
+	const prev = releaseData.assets.find((a) => a.name.toLowerCase() === path.basename(DST).toLowerCase())
 	if (prev) {
 		// Delete previous asset
 		console.info('Deleting previous release', prev)
@@ -90,7 +89,7 @@ async function publish(dst, token, tag) {
 			body: await fs.readFile(dst),
 		})
 		await checkResponse(res)
-		console.log(`Upload asset ${name} from ${dst} successfuly!`)
+		console.log(`Upload asset ${name} from ${dst} successfuly for https://github.com/${OWNER}/${REPO}/releases/${TAG}`)
 	} catch (e) {
 		console.error(`Failed to upload asset ${dst}: ${e}`)
 	}
