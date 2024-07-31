@@ -4,7 +4,9 @@ on:
     workflow_dispatch:
       inputs:
         skip-publish:
-            description: 'Skip publish'
+            required: false
+            default: '0'
+        debug:
             required: false
             default: '0'
 jobs:
@@ -138,3 +140,4 @@ jobs:
               shell: pwsh
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                DEBUG: ${{ github.event.inputs.debug }}
