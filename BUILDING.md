@@ -85,7 +85,7 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 ```console
 $env:CUDA_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
 $env:CudaToolkitDir = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
-bun run scripts/pre_build.js --build
+bun run scripts/pre_build.js --openblas --build
 ```
 
 ## Build with `AMD` support
