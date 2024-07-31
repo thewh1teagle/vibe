@@ -45,7 +45,7 @@ export default function DropModal() {
 						setPath(newPath)
 						setOpen(true)
 						// Focus window
-						const currentWindow = webview.getCurrent().window
+						const currentWindow = webview.getCurrentWebview().window
 						currentWindow.setFocus()
 					}
 				}

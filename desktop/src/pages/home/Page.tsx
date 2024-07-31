@@ -17,7 +17,7 @@ export default function Home() {
 	const vm = viewModel()
 
 	async function showWindow() {
-		const currentWindow = await webviewWindow.getCurrent()
+		const currentWindow = webviewWindow.getCurrentWebviewWindow()
 		await currentWindow.show()
 		if (import.meta.env.PROD) {
 			await currentWindow.setFocus()

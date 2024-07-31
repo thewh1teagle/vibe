@@ -246,8 +246,8 @@ export function viewModel() {
 					new Audio(successSound).play()
 				}
 				if (preference.focusOnFinish) {
-					webview.getCurrent().unminimize()
-					webview.getCurrent().setFocus()
+					webview.getCurrentWebviewWindow().unminimize()
+					webview.getCurrentWebviewWindow().setFocus()
 				}
 			}
 		}
