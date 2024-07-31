@@ -11,6 +11,8 @@ import { viewModel } from './viewModel'
 import { useEffect } from 'react'
 import * as webviewWindow from '@tauri-apps/api/webviewWindow'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
+import { ReactComponent as FileIcon } from '~/icons/file.svg'
+import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
 
 export default function Home() {
 	const { t } = useTranslation()
@@ -32,10 +34,10 @@ export default function Home() {
 		<Layout>
 			<div role="tablist" className="tabs tabs-lifted flex m-auto mt-5">
 				<a role="tab" onClick={() => vm.setTabIndex(0)} className={cx('tab [--tab-border-color:gray]', vm.tabIndex === 0 && 'tab-active')}>
-					{t('common.files')}
+					<FileIcon className="w-[18px] h-[18px]" />
 				</a>
 				<a role="tab" onClick={() => vm.setTabIndex(1)} className={cx('tab [--tab-border-color:gray]', vm.tabIndex === 1 && 'tab-active')}>
-					{t('common.record')}
+					<MicrphoneIcon className="w-[18px] h-[18px]" />
 				</a>
 			</div>
 			{vm.tabIndex === 0 && (
