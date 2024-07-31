@@ -19,8 +19,8 @@ jobs:
                 include:
                     # Windows no AVX2
                     - platform: "windows-latest"
-                      args: '--features="openblas"'
-                      pre-build-args: "--older-cpu --openblas"
+                      args: '--features="openblas,opencl"'
+                      pre-build-args: "--older-cpu --openblas --opencl"
                       name: "older-cpu"
                       rust-version: "stable"
                     
