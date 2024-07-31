@@ -60,7 +60,7 @@ async function publish(dst, token, tag) {
 	checkResponse(res)
 	const releaseData = await res.json()
 	const releaseID = releaseData.id
-	const prev = releaseData.assets.find((a) => a.name.toLowerCase() === path.basename(DST).toLowerCase())
+	const prev = releaseData.assets.find((a) => a.name.toLowerCase() === path.basename(dst).toLowerCase())
 	if (DEBUG) {
 		console.log('[DEBUG] releaseData.assets', releaseData.assets)
 		console.log('[DEBUG] path.basename(DST)', path.basename(DST))
