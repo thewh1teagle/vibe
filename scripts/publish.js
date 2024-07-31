@@ -14,6 +14,7 @@ const tauriConfPath = path.join(__dirname, '../desktop/src-tauri/tauri.conf.json
 const TAG = 'v' + (await JSON.parse(await fs.readFile(tauriConfPath)).version)
 const DST = process.argv[2]
 const glob = new Glob(DST)
+const DEBUG = process.env.DEBUG === '1'
 
 async function publish(dst, token, tag) {
 	if (!(await fs.exists(dst))) {
@@ -60,6 +61,10 @@ async function publish(dst, token, tag) {
 	const releaseData = await res.json()
 	const releaseID = releaseData.id
 	const prev = releaseData.assets.find((a) => a.name.toLowerCase() === path.basename(DST).toLowerCase())
+	if (DEBUG) {
+		console.log('[DEBUG] releaseData.assets', releaseData.assets)
+		console.log('[DEBUG] path.basename(DST)', path.basename(DST))
+	}
 	if (prev) {
 		// Delete previous asset
 		console.info('Deleting previous release', prev)
