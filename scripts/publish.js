@@ -63,7 +63,7 @@ async function publish(dst, token, tag) {
 	const prev = releaseData.assets.find((a) => a.name.toLowerCase() === path.basename(dst).toLowerCase())
 	if (DEBUG) {
 		console.log('[DEBUG] releaseData.assets', releaseData.assets)
-		console.log('[DEBUG] path.basename(DST)', path.basename(DST))
+		console.log('[DEBUG] path.basename(DST)', path.basename(dst))
 	}
 	if (prev) {
 		// Delete previous asset
