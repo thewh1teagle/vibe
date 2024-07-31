@@ -93,11 +93,9 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 	return (
 		<div className="flex flex-col w-full">
 			<div className="flex-col shadow-lg flex justify-between px-3 py-2 bg-base-300 relative rounded-lg  w-[100%] m-auto mt-3 select-none">
-				<div>
-					<span className="overflow-hidden cursor-pointer link link-hover" onClick={onLabelClick}>
-						{label}
-					</span>
-				</div>
+				<span className="overflow-hidden cursor-pointer link link-hover text-ellipsis" onClick={onLabelClick}>
+					{label}
+				</span>
 
 				<div className="flex flex-col mt-3 w-[90%] m-auto ">
 					<progress
