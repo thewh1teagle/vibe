@@ -45,7 +45,7 @@
     "daisyui": "^4.12.10",
     "npm-check-updates": "^17.0.0-8",
     "postcss": "^8.4.40",
-    "tailwindcss": "^4.0.0-alpha.18",
+    "tailwindcss": "^3.4.7",
     "typescript": "^5.6.0-dev.20240731",
     "typescript-eslint": "^8.0.0-alpha.60",
     "vite": "^5.4.0-beta.0"
