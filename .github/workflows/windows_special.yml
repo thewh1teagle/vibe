@@ -42,15 +42,15 @@ jobs:
 
                     # Windows portable
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--features="openblas"'
-                      pre-build-args: "--portable --openblas"
+                      args: '--features="openblas,opencl"'
+                      pre-build-args: "--portable --openblas --opencl"
                       name: portable
                       rust-version: "stable"
 
                     # Windows7 portable
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--features="openblas"'
-                      pre-build-args: "--portable --openblas"
+                      args: '--features="openblas,opencl"'
+                      pre-build-args: "--portable --openblas --opencl"
                       name: portable-win7
                       rust-version: "1.75"
 
