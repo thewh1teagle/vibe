@@ -8,7 +8,7 @@ mod panic_hook;
 mod server;
 mod setup;
 mod utils;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 mod logging;
 
 #[cfg(target_os = "macos")]

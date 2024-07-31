@@ -1,6 +1,5 @@
-use fs_extra::dir::{copy, CopyOptions};
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn commit_hash() -> String {
     let output = std::process::Command::new("git")
@@ -8,6 +7,25 @@ fn commit_hash() -> String {
         .output()
         .unwrap();
     String::from_utf8(output.stdout).unwrap()
+}
+
+fn copy_files(src: &Path, dst: &Path, overwrite: bool) {
+    if dst.exists() && !overwrite {
+        return;
+    }
+    if cfg!(unix) {
+        std::process::Command::new("cp")
+            .arg("-rf")
+            .arg(src)
+            .arg(dst)
+            .status()
+            .expect("Failed to execute cp command");
+    } else if cfg!(windows) {
+        std::process::Command::new("robocopy.exe")
+            .args(&["/e", src.to_str().unwrap(), dst.to_str().unwrap()])
+            .status()
+            .expect("Failed to execute xcopy command");
+    }
 }
 
 fn copy_locales() {
@@ -18,15 +36,8 @@ fn copy_locales() {
     // Construct the source and target paths for the locales folder
     let src_locales = src_tauri.join("locales");
     let target_locales = target_dir.join("locales");
-
-    // Specify copy options
-    let mut options = CopyOptions::new();
-    options.overwrite = true; // Allow overwriting existing files/directories
-
-    // Copy the locales folder to the target directory
-    copy(src_locales, target_locales.parent().unwrap(), &options).unwrap_or_else(|err| {
-        panic!("Failed to copy locales folder: {}", err);
-    });
+    let target_locales = target_locales.parent().unwrap();
+    copy_files(src_locales.as_path(), target_locales, true);
 }
 
 fn extract_whisper_env() {

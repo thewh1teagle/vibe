@@ -13,7 +13,7 @@ use tauri::{
     window::{ProgressBarState, ProgressBarStatus},
     Manager,
 };
-use tauri::{State, Wry};
+use tauri::{Emitter, Listener, State, Wry};
 use tauri_plugin_store::{with_store, StoreCollection};
 use tokio::sync::Mutex;
 use vibe_core::downloader;
