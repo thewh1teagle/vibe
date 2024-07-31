@@ -4,6 +4,9 @@ import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
 import i18n from '~/lib/i18n'
 import { ModifyState } from '~/lib/utils'
+import * as os from '@tauri-apps/plugin-os'
+import { supportedLanguages } from '~/lib/i18n'
+import WhisperLanguages from '~/assets/whisper-languages.json'
 
 type Direction = 'ltr' | 'rtl'
 
@@ -88,12 +91,28 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [highGraphicsPreference, setHighGraphicsPreference] = useLocalStorage<boolean>('prefs_high_graphics_performance', false)
 
 	useEffect(() => {
-		if (!isMounted.current) {
+		if (!isMounted.current || os.platform() !== 'windows') {
 			isMounted.current = true
 			return
 		}
 		invoke('set_high_gpu_preference', { mode: highGraphicsPreference })
 	}, [highGraphicsPreference])
+
+	useEffect(() => {
+		document.documentElement.setAttribute('data-theme', theme)
+	}, [theme])
+
+	async function changeLanguage() {
+		await i18n.changeLanguage(preference.displayLanguage)
+		const name = supportedLanguages[preference.displayLanguage]
+		if (name) {
+			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
+			preference.setTextAreaDirection(i18n.dir())
+		}
+	}
+	useEffect(() => {
+		changeLanguage()
+	}, [language])
 
 	const preference: Preference = {
 		highGraphicsPreference,

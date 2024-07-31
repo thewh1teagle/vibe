@@ -51,8 +51,12 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					<span className="label-text">{t('common.language')}</span>
 				</div>
 				<select
-					onChange={(e) => vm.preference.setDisplayLanguage(e.target.value)}
-					value={t(i18n.language)}
+					onChange={(e) => {
+						console.log('settings display language to ', e.target.value)
+						console.log('current display language is ', vm.preference.displayLanguage)
+						vm.preference.setDisplayLanguage(e.target.value)
+					}}
+					value={vm.preference.displayLanguage}
 					className="select select-bordered capitalize">
 					<option>{t('common.select-language')}</option>
 					{Object.entries(supportedLanguages).map(([code, name], index) => (
@@ -63,11 +67,28 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				</select>
 			</label>
 
-			<div className="label mt-10">
+			<label className="form-control w-full">
+				<div className="label">
+					<span className="label-text">{t('common.theme')}</span>
+				</div>
+				<select
+					onChange={(e) => vm.preference.setTheme(e.target.value as any)}
+					value={vm.preference.theme}
+					className="select select-bordered capitalize">
+					<option>{t('common.select-theme')}</option>
+					{config.themes.map((theme) => (
+						<option key={theme} value={theme}>
+							{t(`common.${theme}`)}
+						</option>
+					))}
+				</select>
+			</label>
+
+			<div className="label mt-5">
 				<span className="label-text opacity-60">{t('common.when-completing-transcription')}</span>
 			</div>
 
-			<div className="form-control mt-5">
+			<div className="form-control">
 				<label className="label cursor-pointer">
 					<span className="label-text">{t('common.play-sound-on-finish')}</span>
 					<input

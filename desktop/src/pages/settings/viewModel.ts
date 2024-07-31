@@ -4,10 +4,8 @@ import * as shell from '@tauri-apps/plugin-shell'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as config from '~/lib/config'
-import { supportedLanguages } from '~/lib/i18n'
 import { NamedPath, getAppInfo, getIssueUrl, getPrettyVersion, ls, resetApp } from '~/lib/utils'
 import { usePreferenceProvider } from '~/providers/Preference'
-import WhisperLanguages from '~/assets/whisper-languages.json'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import { Store } from '@tauri-apps/plugin-store'
@@ -53,7 +51,6 @@ ${logs}
 }
 
 export function viewModel() {
-	const { i18n } = useTranslation()
 	const [isLogToFileSet, setLogToFile] = useStoreValue<boolean>('prefs_log_to_file')
 
 	const [models, setModels] = useState<NamedPath[]>([])
@@ -61,7 +58,6 @@ export function viewModel() {
 	const preference = usePreferenceProvider()
 	const { t } = useTranslation()
 	const listenersRef = useRef<UnlistenFn[]>([])
-	const isMountedRef = useRef<boolean>(false)
 	const [downloadURL, setDownloadURL] = useState('')
 	const navigate = useNavigate()
 
@@ -118,24 +114,9 @@ export function viewModel() {
 		}
 	}
 
-	async function changeLanguage() {
-		await i18n.changeLanguage(preference.displayLanguage)
-		const name = supportedLanguages[preference.displayLanguage]
-		if (name) {
-			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
-			preference.setTextAreaDirection(i18n.dir())
-		}
-	}
 	async function onWindowFocus() {
 		listenersRef.current.push(await listen('tauri://focus', loadModels))
 	}
-	useEffect(() => {
-		if (!isMountedRef.current) {
-			isMountedRef.current = true
-			return
-		}
-		changeLanguage()
-	}, [preference.displayLanguage])
 
 	useEffect(() => {
 		loadMeta()

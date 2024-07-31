@@ -31,7 +31,6 @@ export default function Home() {
 	return (
 		<Layout>
 			<div role="tablist" className="tabs tabs-lifted flex m-auto mt-5">
-				{/* todo: use tab border with opacity */}
 				<a role="tab" onClick={() => vm.setTabIndex(0)} className={cx('tab [--tab-border-color:gray]', vm.tabIndex === 0 && 'tab-active')}>
 					{t('common.files')}
 				</a>
