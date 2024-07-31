@@ -56,7 +56,7 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 					</div>
 				</div>
 			</div>
-			<div className="collapse-content">
+			<div className="collapse-content max-w-[100%] overflow-hidden">
 				<BatchQueue progress={progress} activeIndex={index} files={files} />
 			</div>
 		</div>

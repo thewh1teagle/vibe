@@ -17,7 +17,8 @@ export default function BatchQueue({ files, activeIndex, progress }: BatchQueueP
 						<div className="flex flex-col justify-between w-full gap-2">
 							<div className="cursor-pointer flex gap-1 justify-between link link-hover" onClick={() => openPath(file)}>
 								{/* Finished */}
-								{file.name} {activeIndex > index && <CheckIcon className="h-5 w-5 stroke-success" />}
+								<span className="max-w-[80%] overflow-hidden text-ellipsis"> {file.name}</span>{' '}
+								{activeIndex > index && <CheckIcon className="h-5 w-5 stroke-success" />}
 							</div>
 							{/* In progress */}
 							{progress && activeIndex === index ? <progress className="progress w-full progress-primary" value={progress} max={100} /> : null}
