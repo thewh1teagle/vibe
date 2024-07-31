@@ -19,6 +19,7 @@ jobs:
                     - platform: "windows-latest"
                       args: '--features="openblas"'
                       pre-build-args: "--older-cpu --openblas"
+                      name: "older-cpu"
                       rust-version: "stable"
                     
                     # Windows cuda 12.5.0
