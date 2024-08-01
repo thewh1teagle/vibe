@@ -6,7 +6,9 @@ use winreg::RegKey;
 
 pub fn set_gpu_preference_high() -> Result<()> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-    let directx = hkcu.open_subkey_with_flags("Software\\Microsoft\\DirectX", KEY_ALL_ACCESS)?;
+    // let directx = hkcu.open_subkey_with_flags("Software\\Microsoft\\DirectX", KEY_ALL_ACCESS)?;
+    // Create if not exists
+    let (directx, _) = hkcu.create_subkey_with_flags("Software\\Microsoft\\DirectX", KEY_ALL_ACCESS)?;
 
     // Create the main key for the UserGpuPreferences if it doesn't exist
     let user_gpu_preference = directx.create_subkey("UserGpuPreferences")?;
