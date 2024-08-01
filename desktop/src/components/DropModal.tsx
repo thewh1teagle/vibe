@@ -30,13 +30,30 @@ export default function DropModal() {
 	const [platform, setPlatofrm] = useState<os.Platform>('macos')
 
 	async function handleDrops() {
+		// Add blur
 		listeners.current.push(
-			await event.listen<{ position: Position }>('tauri://drop-over', (event) => {
+			await event.listen('tauri://drag-enter', () => {
+				setOpen(true)
+			})
+		)
+
+		// Remove blur
+		listeners.current.push(
+			await event.listen('tauri://drag-leave', (_event) => {
+				setOpen(false)
+			})
+		)
+
+		// Update positions
+		listeners.current.push(
+			await event.listen<{ position: Position }>('tauri://drag-over', (event) => {
 				setPosition(event.payload.position)
 			})
 		)
+
+		// Get dropped path
 		listeners.current.push(
-			await event.listen<{ paths?: string[] }>('tauri://drag', async (event) => {
+			await event.listen<{ paths?: string[] }>('tauri://drag-drop', async (event) => {
 				// const paths = ((event.payload as any)?.paths as string[]) ?? []
 				const { paths } = event.payload
 				if (paths && paths.length > 0) {
@@ -49,17 +66,6 @@ export default function DropModal() {
 						currentWindow.setFocus()
 					}
 				}
-			})
-		)
-
-		listeners.current.push(
-			await event.listen('tauri://drag-cancelled', (_event) => {
-				setOpen(false)
-			})
-		)
-
-		listeners.current.push(
-			await event.listen('tauri://drop', () => {
 				setOpen(false)
 			})
 		)

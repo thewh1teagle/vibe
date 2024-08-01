@@ -145,7 +145,7 @@ export function viewModel() {
 	}
 
 	async function handleDrop() {
-		listen<{ paths: string[] }>('tauri://drop', async (event) => {
+		listen<{ paths: string[] }>('tauri://drag-drop', async (event) => {
 			const newFiles: NamedPath[] = []
 			for (const path of event.payload.paths) {
 				const file = await pathToNamedPath(path)
