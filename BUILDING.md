@@ -138,6 +138,14 @@ Rust analyzer failed to run on windows
 
 3. Relaunch `VSCode`
 
+When compile on Windows with OpenCL you should enable the following env:
+
+```console
+$env:CMAKE_BUILD_TYPE = "RelWithDebInfo"
+```
+
+Otherwise you will get error such as `ggml_gallocr_needs_realloc: graph has different number of nodes` and it will transcribe slower.
+
 ## Test
 
 ```
