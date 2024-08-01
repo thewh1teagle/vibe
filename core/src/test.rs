@@ -14,12 +14,12 @@ use std::time::Instant;
 #[serial]
 #[traced_test]
 fn test_transcribe() {
-    let ctx = create_context(&PathBuf::from("../ggml-medium.bin"), None).unwrap();
+    let ctx = create_context(&PathBuf::from("../ggml-tiny.bin"), None).unwrap();
     let options = &TranscribeOptions {
         init_prompt: None,
         lang: Some("en".into()),
         max_sentence_len: None,
-        path: "../samples/single.wav".into(),
+        path: "../samples/short.wav".into(),
         verbose: None,
         max_text_ctx: None,
         n_threads: None,
