@@ -13,13 +13,14 @@ import { usePreferenceProvider } from '~/providers/Preference'
 import HTMLView from './HtmlView'
 import toast from 'react-hot-toast'
 import { invoke } from '@tauri-apps/api/core'
+import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 
 function Copy({ text }: { text: string }) {
 	const { t } = useTranslation()
 	const [info, setInfo] = useState(t('common.copy'))
 
 	function onCopy() {
-		navigator.clipboard.writeText(text)
+		clipboard.writeText(text)
 		setInfo(t('common.copied'))
 		setTimeout(() => setInfo(t('common.copy')), 1000)
 	}

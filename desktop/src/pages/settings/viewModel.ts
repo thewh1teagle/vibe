@@ -10,6 +10,7 @@ import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import { Store } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/useStoreValue'
+import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 
 const store = new Store(config.storeFilename)
 
@@ -47,7 +48,7 @@ ${logs}
 \`\`\`
 </details>
 `
-	navigator.clipboard.writeText(templated)
+	clipboard.writeText(templated)
 }
 
 export function viewModel() {

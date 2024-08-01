@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ModifyState, cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
 import { ErrorModalState } from '~/providers/ErrorModal'
+import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 
 interface ErrorModalProps {
 	state: ErrorModalState
@@ -39,7 +40,7 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 					<CopyIcon
 						className="w-6 h-6 z-10 right-4 bottom-4 absolute strokeBase-content
     opacity-50 cursor-pointer"
-						onMouseDown={() => navigator.clipboard.writeText(state?.log ?? '')}
+						onMouseDown={() => clipboard.writeText(state?.log ?? '')}
 					/>
 				</div>
 				<div className="flex justify-center gap-3 mt-3">

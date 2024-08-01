@@ -14,6 +14,7 @@
     "@fontsource/roboto": "^5.0.13",
     "@formatjs/intl-durationformat": "^0.2.4",
     "@tauri-apps/api": "^2.0.0-beta.16",
+    "@tauri-apps/plugin-clipboard-manager": "^2.1.0-beta.6",
     "@tauri-apps/plugin-deep-link": "^2.0.0-beta.9",
     "@tauri-apps/plugin-dialog": "^2.0.0-beta.7",
     "@tauri-apps/plugin-fs": "^2.0.0-beta.7",
