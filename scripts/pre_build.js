@@ -229,6 +229,7 @@ if (!process.env.GITHUB_ENV) {
 		}
 		if (hasFeature('opencl')) {
 			console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
+			console.log('$env:CMAKE_BUILD_TYPE = "RelWithDebInfo"')
 		}
 		if (hasFeature('rocm')) {
 			console.log(`$env:ROCM_VERSION = "6.1.2"`)
