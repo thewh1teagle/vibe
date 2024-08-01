@@ -21,8 +21,8 @@ jobs:
                     - platform: "ubuntu-24.04" # Ubuntu x86_64
                       args: ""
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--target x86_64-pc-windows-msvc --features "openblas,opencl"'
-                      pre-build-args: "--openblas --opencl"
+                      args: '--target x86_64-pc-windows-msvc --features "opencl"'
+                      pre-build-args: "--opencl"
 
         runs-on: ${{ matrix.platform }}
         steps:
