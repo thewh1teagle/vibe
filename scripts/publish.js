@@ -3,6 +3,8 @@ import fs from 'fs/promises'
 import path from 'path'
 import { Glob } from 'bun'
 
+// FYI: it doesn't work well with pre releases or draft release that already exists
+
 // Tired of non functional workflows extensions
 // Upload specifid file to latest release script
 
