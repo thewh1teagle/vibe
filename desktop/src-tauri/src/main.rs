@@ -59,6 +59,7 @@ fn main() -> Result<()> {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
+            cmd::get_cargo_features,
             cmd::transcribe,
             cmd::download_model,
             cmd::load_model,
