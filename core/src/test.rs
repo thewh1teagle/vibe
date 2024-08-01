@@ -1,6 +1,7 @@
 /*
 wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
 cargo test --features "opencl" -- --nocapture
+cargo test --release --features "opencl" -- --nocapture
 */
 use crate::{config::TranscribeOptions, transcribe::create_context};
 use serial_test::serial;

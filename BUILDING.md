@@ -233,5 +233,5 @@ bun run scripts/pre_build.js
 $env:PATH += ";$pwddesktop\src-tauri\clblast\bin"
 $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
 $env:PATH += ";C:\vcpkg\packages\opencl_x64-windows\bin"
-cargo test --target x86_64-pc-windows-msvc --features "opencl,openblas" -p vibe_core --release -- --nocapture
+cargo test --target x86_64-pc-windows-msvc --features "opencl" -p vibe_core --release -- --nocapture
 ```

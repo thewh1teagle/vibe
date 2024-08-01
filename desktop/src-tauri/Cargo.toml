@@ -57,7 +57,7 @@ openssl = { version = "0.10.63", features = ["vendored"] }
 
 # Windows
 [target.'cfg(windows)'.dependencies]
-vibe_core = { path = "../../core", features = ["openblas"] }
+vibe_core = { path = "../../core", features = [] }
 windows = { version = "0.56.0", features = [
 	"Win32_System_Console",
 	"Win32_Foundation",

@@ -240,7 +240,8 @@ if (!process.env.GITHUB_ENV) {
 		console.log(`export WHISPER_METAL_EMBED_LIBRARY=ON`)
 	}
 	if (!process.env.GITHUB_ENV) {
-		console.log('bunx tauri build')
+		const features = ['openblas', 'opencl', 'cuda'].filter((f) => hasFeature(f)).join(',')
+		console.log(`bunx tauri build --features "${features}"`)
 	}
 }
 
