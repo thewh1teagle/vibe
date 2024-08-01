@@ -267,6 +267,10 @@ if (process.env.GITHUB_ENV) {
 			const clblast = `CLBlast_DIR=${exports.clblast}\n`
 			console.log('Adding ENV', clblast)
 			await fs.appendFile(process.env.GITHUB_ENV, clblast)
+
+			const cmakeBuildType = `CMAKE_BUILD_TYPE=RelWithDebInfo\n`
+			console.log('Adding ENV', cmakeBuildType)
+			await fs.appendFile(process.env.GITHUB_ENV, cmakeBuildType)
 		}
 
 		if (hasFeature('older-cpu')) {
