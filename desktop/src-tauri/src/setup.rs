@@ -89,6 +89,8 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    tracing::debug!("Cargo features: {}", crate::cmd::get_cargo_features().join(", "));
+
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
     tracing::debug!(
         "CPU Features\n{}",

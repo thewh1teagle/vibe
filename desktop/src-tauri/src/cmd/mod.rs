@@ -417,3 +417,32 @@ pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
     let content = std::fs::read_to_string(path)?;
     Ok(content)
 }
+
+#[tauri::command]
+pub fn get_cargo_features() -> Vec<String> {
+    let mut enabled_features = Vec::new();
+
+    if cfg!(feature = "diarize") {
+        enabled_features.push("diarize".to_string());
+    }
+    if cfg!(feature = "cuda") {
+        enabled_features.push("cuda".to_string());
+    }
+    if cfg!(feature = "coreml") {
+        enabled_features.push("coreml".to_string());
+    }
+    if cfg!(feature = "metal") {
+        enabled_features.push("metal".to_string());
+    }
+    if cfg!(feature = "openblas") {
+        enabled_features.push("openblas".to_string());
+    }
+    if cfg!(feature = "opencl") {
+        enabled_features.push("opencl".to_string());
+    }
+    if cfg!(feature = "rocm") {
+        enabled_features.push("rocm".to_string());
+    }
+
+    enabled_features
+}

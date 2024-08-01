@@ -93,6 +93,7 @@ export async function getAppInfo() {
 		.map((e) => e.name)
 		.join(', ')
 	const defaultModel = localStorage.getItem('prefs_model_path')?.split('/')?.pop() ?? 'Not Found'
+	const cargoFeatures = await invoke<string[]>('get_cargo_features') || 'n/a'
 	return [
 		`App Version: ${appVersion}`,
 		`Commit Hash: ${commitHash}`,
@@ -104,6 +105,7 @@ export async function getAppInfo() {
 		`Cuda Version: ${cudaVersion || 'n/a'}`,
 		`Models: ${models}`,
 		`Default Model: ${defaultModel}`,
+		`Cargo features: ${cargoFeatures.join(', ')}`,
 		`\n\n${x86Features}`,
 	].join('\n')
 }
