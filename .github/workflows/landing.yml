@@ -37,6 +37,8 @@ jobs:
 
             - name: Update downloads manifest
               run: bun run scripts/landing_links.js
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Setup Pages
               uses: actions/configure-pages@v3
