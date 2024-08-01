@@ -147,18 +147,12 @@ if (hasFeature('cuda')) {
 	}
 
 	if (platform === 'windows') {
-		const windowsConfig = {
-			bundle: {
-				resources: {
-					'ffmpeg\\bin\\x64\\*': './',
-					'openblas\\bin\\*.dll': './',
-					[`${cudaPath}\\bin\\cudart64_*`]: './',
-					[`${cudaPath}\\bin\\cublas64_*`]: './',
-					[`${cudaPath}\\bin\\cublasLt64_*`]: './',
-				},
-			},
-		}
-		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(windowsConfig, null, 4))
+		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.resources[`${cudaPath}\\bin\\cudart64_*`] = './'
+		tauriConfig.bundle.resources[`${cudaPath}\\bin\\cublas64_*`] = './'
+		tauriConfig.bundle.resources[`${cudaPath}\\bin\\cublasLt64_*`] = './'
+		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
 	}
 	if (platform === 'linux') {
 		// Add cuda toolkit depends package
