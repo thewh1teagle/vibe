@@ -24,21 +24,28 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 		<div className={cx('collapse border border-base-300 bg-base-200', open && 'collapse-open')}>
 			<div className="collapse-title !cursor-default text-xl font-medium flex p-3 flex-row items-center">
 				<div className="flex flex-col ms-4">
+					{/* in progress */}
 					{inProgress && (
 						<span className="text-sm font-light tracking-wider">
 							{t('common.transcribing')} ({index + 1}/{files.length})
 						</span>
 					)}
+
+					{/* idle  */}
 					{!isAborting && !inProgress && index < files.length && (
 						<span className="text-sm font-light tracking-wider">
 							{t('common.transcribe')} {files.length} {t('common.files')}
 						</span>
 					)}
+
+					{/* finished idle */}
 					{!isAborting && !inProgress && index > files.length && (
 						<span className="text-sm font-light tracking-wider">
 							{t('common.transcribed')} {files.length} {t('common.files')}
 						</span>
 					)}
+
+					{/* aborting */}
 					{isAborting && <span className="text-sm font-light tracking-wider">{t('common.aborting')}...</span>}
 				</div>
 				<div className="ms-auto flex gap-3">

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
@@ -8,7 +8,6 @@ import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
 import successSound from '~/assets/success.mp3'
-import { ErrorModalContext } from '~/providers/ErrorModal'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
 import { usePreferenceProvider } from '~/providers/Preference'
@@ -24,7 +23,6 @@ export function viewModel() {
 	const [isAborting, setIsAborting] = useState(false)
 	const isAbortingRef = useRef<boolean>(false)
 	const preference = usePreferenceProvider()
-	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
 
 	function getText(segments: Segment[], format: TextFormat) {
@@ -99,10 +97,10 @@ export function viewModel() {
 		setInProgress(true)
 		let localIndex = 0
 		await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
-		try {
-			setCurrentIndex(localIndex)
-			const loopStartTime = performance.now()
-			for (const file of files) {
+		setCurrentIndex(localIndex)
+		const loopStartTime = performance.now()
+		for (const file of files) {
+			try {
 				if (isAbortingRef.current) {
 					break
 				}
@@ -129,33 +127,30 @@ export function viewModel() {
 				localIndex += 1
 				await new Promise((resolve) => setTimeout(resolve, 100))
 				setCurrentIndex(localIndex)
-			}
-			let total = Math.round((performance.now() - loopStartTime) / 1000)
-			console.info(`Transcribed ${files.length} files in ${total}`)
-		} catch (error) {
-			if (!isAbortingRef.current) {
-				console.error('error: ', error)
-				setErrorModal?.({ log: String(error), open: true })
-			}
-		} finally {
-			if (isAbortingRef.current) {
-				navigate('/')
-			} else {
+			} catch (error) {
+				if (isAbortingRef.current) {
+					navigate('/')
+				} else {
+					console.error(`error while transcribe ${file.name}: `, error)
+				}
 				localIndex += 1
 				setCurrentIndex(localIndex)
-				setInProgress(false)
-				setIsAborting(false)
-				setProgress(null)
-				// Focus back the window and play sound
-				if (preference!.soundOnFinish) {
-					new Audio(successSound).play()
-				}
-				if (preference!.focusOnFinish) {
-					webview.getCurrentWebviewWindow().unminimize()
-					webview.getCurrentWebviewWindow().setFocus()
-				}
 			}
 		}
+		setCurrentIndex(files.length + 1)
+		setInProgress(false)
+		setIsAborting(false)
+		setProgress(null)
+		// Focus back the window and play sound
+		if (preference!.soundOnFinish) {
+			new Audio(successSound).play()
+		}
+		if (preference!.focusOnFinish) {
+			webview.getCurrentWebviewWindow().unminimize()
+			webview.getCurrentWebviewWindow().setFocus()
+		}
+		let total = Math.round((performance.now() - loopStartTime) / 1000)
+		console.info(`Transcribed ${files.length} files in ${total}`)
 	}
 
 	async function ListenForProgress() {
