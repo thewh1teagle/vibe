@@ -58,7 +58,6 @@ jobs:
                   tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
                   releaseName: "v__VERSION__"
                   releaseBody: "What's new? 🎉📣"
-                  releaseDraft: true
                   prerelease: true
                   args: ${{ matrix.args }}
                   projectPath: "./desktop"
