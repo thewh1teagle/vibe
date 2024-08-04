@@ -236,7 +236,11 @@ if (!process.env.GITHUB_ENV) {
 	}
 	if (!process.env.GITHUB_ENV) {
 		const features = ['openblas', 'opencl', 'cuda'].filter((f) => hasFeature(f)).join(',')
-		console.log(`bunx tauri build --features "${features}"`)
+		if (features) {
+			console.log(`bunx tauri build --features "${features}"`)
+		} else {
+			console.log(`bunx tauri build`)
+		}
 	}
 }
 
