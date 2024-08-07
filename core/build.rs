@@ -2,11 +2,12 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+// Todo: link
 fn hard_link_force(src: &Path, dst: &Path) {
     if dst.exists() {
         std::fs::remove_file(dst).unwrap();
     }
-    std::fs::hard_link(src, dst).unwrap();
+    std::fs::copy(src, dst).unwrap();
 }
 
 fn get_cargo_target_dir() -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
