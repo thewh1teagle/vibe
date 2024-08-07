@@ -5,8 +5,6 @@ import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
 import { ModifyState, cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
 import { ModelOptions as IModelOptions, usePreferenceProvider } from '~/providers/Preference'
-import { invoke } from '@tauri-apps/api/core'
-import { ask } from '@tauri-apps/plugin-dialog'
 import { useToastProvider } from '~/providers/Toast'
 import { listen } from '@tauri-apps/api/event'
 
