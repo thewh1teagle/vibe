@@ -111,6 +111,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		}
 	}
 	useEffect(() => {
+		if (!isMounted.current) {
+			isMounted.current = true
+			return
+		}
 		changeLanguage()
 	}, [language])
 

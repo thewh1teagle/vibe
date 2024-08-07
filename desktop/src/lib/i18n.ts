@@ -14,7 +14,7 @@ export const supportedLanguages: { [key: string]: string } = {
 	'fr-FR': 'french',
 	'pl-PL': 'polish',
 	'it-IT': 'italian',
-	'hi-IN': 'hindi'
+	'hi-IN': 'hindi',
 }
 export const supportedLanguageKeys = Object.keys(supportedLanguages)
 export const supportedLanguageValues = Object.values(supportedLanguages)
@@ -29,8 +29,14 @@ const LanguageDetector: LanguageDetectorAsyncModule = {
 	async: true, // If this is set to true, your detect function receives a callback function that you should call with your language, useful to retrieve your language stored in AsyncStorage for example
 	detect: (callback) => {
 		locale().then((detectedLocale) => {
-			if (detectedLocale) {
-				callback(detectedLocale)
+			const prefs_language = localStorage.getItem('prefs_display_language')
+			if (prefs_language) {
+				const locale = JSON.parse(prefs_language)
+				callback(locale)
+			} else {
+				if (detectedLocale) {
+					callback(detectedLocale)
+				}
 			}
 		})
 	},
