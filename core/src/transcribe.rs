@@ -127,6 +127,7 @@ pub fn transcribe(
     }
 
     let out_path = create_normalized_audio(options.path.clone().into())?;
+    tracing::debug!("out path is {}", out_path.display());
     let original_samples = audio::parse_wav_file(&out_path)?;
 
     let mut state = ctx.create_state().context("failed to create key")?;

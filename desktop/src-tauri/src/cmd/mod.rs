@@ -204,14 +204,14 @@ pub async fn transcribe(
 
     let mut core_diarize_options = None;
     if diarize_options.enabled {
-        let embedding_model_path = get_models_folder(app_handle_c1.clone())?
-            .join(crate::config::EMBEDDING_MODEL_FILENAME)
+        let embedding_model_path = get_resources_folder(&app_handle_c1)?
+            .join(crate::config::EMBEDDING_MODEL_RESOURCE)
             .to_str()
             .ok_or_eyre("tostr")?
             .to_string();
 
-        let segment_model_path = get_models_folder(app_handle_c1.clone())?
-            .join(crate::config::SEGMENT_MODEL_FILENAME)
+        let segment_model_path = get_resources_folder(&app_handle_c1)?
+            .join(crate::config::SEGMENT_MODEL_RESOURCE)
             .to_str()
             .ok_or_eyre("tostr")?
             .to_string();
@@ -366,6 +366,10 @@ pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
         app_handle.path().app_config_dir()?
     };
     Ok(config_path)
+}
+
+pub fn get_resources_folder(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
+    app_handle.path().resource_dir().context("can't get resource dir")
 }
 
 #[tauri::command]

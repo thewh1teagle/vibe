@@ -45,8 +45,8 @@
 		],
 		"resources": {
 			"locales": "locales",
-			"segmentation-3.0.onnx": "segmentation-3.0.onnx",
-			"wespeaker_en_voxceleb_CAM++.onnx": "wespeaker_en_voxceleb_CAM++.onnx"
+			"segmentation-3.0.onnx": "./diarize",
+			"wespeaker_en_voxceleb_CAM++.onnx": "./diarize"
 		},
 		"fileAssociations": [
 			{
