@@ -77,8 +77,8 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				<label className="form-control w-full">
 					<div className="label">
 						<span className="label-text flex items-center gap-1">
-							<InfoTooltip text={t('common.info-diarize_threshold')} />
-							{t('common.diarize_threshold')}
+							<InfoTooltip text={t('common.info-diarize-threshold')} />
+							{t('common.diarize-threshold')}
 						</span>
 					</div>
 					<input
