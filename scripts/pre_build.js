@@ -205,8 +205,10 @@ if (hasFeature('rocm')) {
 }
 
 // Diarization
-await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
-await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
+if (!fs.exists(config.diarization.embedModelFilename)) {
+	await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
+	await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
+}
 
 // Development hints
 if (!process.env.GITHUB_ENV) {
