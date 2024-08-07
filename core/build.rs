@@ -1,6 +1,6 @@
+use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::{env, fs};
 
 fn hard_link_force(src: &Path, dst: &Path) {
     if dst.exists() {

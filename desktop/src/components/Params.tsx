@@ -17,22 +17,9 @@ interface ParamsProps {
 
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const [open, setOpen] = useState(false)
-	const { recognizeSpeakers: _, setRecognizeSpeakers } = usePreferenceProvider()
+	const preference = usePreferenceProvider()
 	const { t } = useTranslation()
 	const toast = useToastProvider()
-
-	async function askForSetupDiarize() {
-		const confirmed = await ask(t('common.ask-for-setup-diarize'), { title: t('common.setup-diarize-title') })
-		if (confirmed) {
-			// Download diarization models
-			toast.setMessage(t('common.downloading-ai-models'))
-			toast.setOpen(true)
-			toast.setProgress(0)
-			await invoke('download_diarization_models')
-			toast.setOpen(false)
-			setRecognizeSpeakers(true)
-		}
-	}
 
 	async function handleProgressEvents() {
 		listen<[number, number]>('download_progress', (event) => {
@@ -48,14 +35,9 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	async function onRecognizeSpeakerChange(event: ChangeEvent<HTMLInputElement>) {
 		const enabled = event.target.checked
 		if (enabled) {
-			const diarizeAvailable = await invoke<boolean>('is_diarization_available')
-			if (diarizeAvailable) {
-				setRecognizeSpeakers(true)
-			} else {
-				await askForSetupDiarize()
-			}
+			preference.setRecognizeSpeakers(true)
 		} else {
-			setRecognizeSpeakers(false)
+			preference.setRecognizeSpeakers(false)
 		}
 	}
 
@@ -70,15 +52,48 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				{t('common.more-options')}
 			</div>
 			<div className="collapse-content w-full">
-				{/* <div className="form-control w-full mt-3">
+				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">
 							<InfoTooltip text={t('common.info-recognize-speakers')} />
 							{t('common.recognize-speakers')}
 						</span>
-						<input type="checkbox" className="toggle toggle-primary" checked={recognizeSpeakers} onChange={onRecognizeSpeakerChange} />
+						<input type="checkbox" className="toggle toggle-primary" checked={preference.recognizeSpeakers} onChange={onRecognizeSpeakerChange} />
 					</label>
-				</div> */}
+				</div>
+				<label className="form-control w-full">
+					<div className="label">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={t('common.info-max-speakers')} />
+							{t('common.max-speakers')}
+						</span>
+					</div>
+					<input
+						onChange={(e) => preference.setMaxSpeakers(parseInt(e.target.value) || 5)}
+						value={preference.maxSpeakers}
+						className="input input-bordered"
+						type="number"
+					/>
+				</label>
+
+				<label className="form-control w-full">
+					<div className="label">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={t('common.info-diarize_threshold')} />
+							{t('common.diarize_threshold')}
+						</span>
+					</div>
+					<input
+						onChange={(e) => preference.setDiarizeThreshold(parseFloat(e.target.value))}
+						value={preference.diarizeThreshold}
+						className="input input-bordered"
+						type="number"
+						step={0.1}
+						min={0.0}
+						max={1.0}
+					/>
+				</label>
+
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">

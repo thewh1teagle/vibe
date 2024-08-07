@@ -6,9 +6,8 @@ cargo test --release --features "opencl" -- --nocapture
 use crate::{config::TranscribeOptions, transcribe::create_context};
 use serial_test::serial;
 use std::path::PathBuf;
-use tracing_test::traced_test;
 use std::time::Instant;
-
+use tracing_test::traced_test;
 
 #[test]
 #[serial]
@@ -30,5 +29,8 @@ fn test_transcribe() {
     let start = Instant::now();
     let result = crate::transcribe::transcribe(&ctx, options, None, None, None, None);
     println!("{:?}", result);
-    println!("Elapsed time: {:.2} seconds", Instant::now().duration_since(start).as_secs_f64());
+    println!(
+        "Elapsed time: {:.2} seconds",
+        Instant::now().duration_since(start).as_secs_f64()
+    );
 }

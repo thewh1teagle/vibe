@@ -57,6 +57,12 @@ const config = {
 		ffmpegName: 'ffmpeg-6.1-macOS-default',
 		ffmpegUrl: 'https://master.dl.sourceforge.net/project/avbuild/macOS/ffmpeg-6.1-macOS-default.tar.xz?viasf=1',
 	},
+	diarization: {
+		embedModelUrl: 'https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/wespeaker_en_voxceleb_CAM++.onnx',
+		embedModelFilename: 'wespeaker_en_voxceleb_CAM++.onnx',
+		segmentModelUrl: 'https://github.com/pengzhendong/pyannote-onnx/raw/master/pyannote_onnx/segmentation-3.0.onnx',
+		segmentModelFilename: 'segmentation-3.0.onnx',
+	},
 }
 
 // Export for Github actions
@@ -197,6 +203,10 @@ if (hasFeature('rocm')) {
 		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
 	}
 }
+
+// Diarization
+await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
+await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
 
 // Development hints
 if (!process.env.GITHUB_ENV) {

@@ -52,8 +52,6 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				</div>
 				<select
 					onChange={(e) => {
-						console.log('settings display language to ', e.target.value)
-						console.log('current display language is ', vm.preference.displayLanguage)
 						vm.preference.setDisplayLanguage(e.target.value)
 					}}
 					value={vm.preference.displayLanguage}

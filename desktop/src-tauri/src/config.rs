@@ -5,8 +5,5 @@ pub const DEAFULT_MODEL_URL: &str = "https://huggingface.co/ggerganov/whisper.cp
 pub const DEAFULT_MODEL_FILENAME: &str = "ggml-medium.bin";
 
 // Diarization
-pub const VAD_MODEL_URL: &str = "https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/silero_vad.onnx";
-pub const SPEAKER_ID_MODEL_URL: &str =
-    "https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/nemo_en_speakerverification_speakernet.onnx";
-pub const VAD_MODEL_FILENAME: &str = "silero_vad.onnx";
-pub const SPEAKER_ID_MODEL_FILENAME: &str = "nemo_en_speakerverification_speakernet.onnx";
+pub const SEGMENT_MODEL_FILENAME: &str = "segmentation-3.0.onnx";
+pub const EMBEDDING_MODEL_FILENAME: &str = "wespeaker_en_voxceleb_CAM++.onnx";

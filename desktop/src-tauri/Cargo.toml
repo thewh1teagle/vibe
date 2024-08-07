@@ -75,7 +75,6 @@ objc_id = "0.1"
 
 [features]
 default = ["custom-protocol"]
-diarize = ["vibe_core/diarize"]
 cuda = ["vibe_core/cuda"]
 coreml = ["vibe_core/coreml"]
 metal = ["vibe_core/metal"]

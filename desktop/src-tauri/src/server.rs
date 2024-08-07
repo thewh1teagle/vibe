@@ -1,4 +1,4 @@
-use crate::cmd;
+use crate::cmd::{self, DiarizeOptions};
 use crate::setup::ModelContext;
 use axum::extract::State;
 use axum::http::StatusCode;
@@ -103,7 +103,7 @@ async fn transcribe(
     Json(payload): Json<TranscribeOptions>,
 ) -> Result<Json<Transcript>, (StatusCode, String)> {
     let model_context_state: tauri::State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
-    let transcript = cmd::transcribe(app_handle.clone(), payload, model_context_state, None)
+    let transcript = cmd::transcribe(app_handle.clone(), payload, model_context_state, DiarizeOptions::default())
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 

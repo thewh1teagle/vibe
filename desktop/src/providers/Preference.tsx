@@ -2,11 +2,11 @@ import { invoke } from '@tauri-apps/api/core'
 import { ReactNode, createContext, useContext, useEffect, useRef } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
-import i18n from '~/lib/i18n'
 import { ModifyState } from '~/lib/utils'
 import * as os from '@tauri-apps/plugin-os'
 import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
+import { useTranslation } from 'react-i18next'
 
 type Direction = 'ltr' | 'rtl'
 
@@ -40,6 +40,11 @@ export interface Preference {
 
 	recognizeSpeakers: boolean
 	setRecognizeSpeakers: ModifyState<boolean>
+	maxSpeakers: number
+	setMaxSpeakers: ModifyState<number>
+	diarizeThreshold: number
+	setDiarizeThreshold: ModifyState<number>
+	setLanguageDirections: () => void
 }
 
 // Create the context
@@ -66,7 +71,11 @@ const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-sche
 
 // Preference provider component
 export function PreferenceProvider({ children }: { children: ReactNode }) {
+	const { i18n } = useTranslation()
+	const previ18Language = useRef(i18n.language)
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
+	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
+
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
@@ -86,9 +95,15 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		max_sentence_len: 1,
 	})
 	const [recognizeSpeakers, setRecognizeSpeakers] = useLocalStorage<boolean>('prefs_recognize_speakers', false)
+	const [maxSpeakers, setMaxSpeakers] = useLocalStorage<number>('prefs_max_speakers', 5)
+	const [diarizeThreshold, setDiarizeThreshold] = useLocalStorage<number>('prefs_diarize_threshold', 0.5)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 	const [highGraphicsPreference, setHighGraphicsPreference] = useLocalStorage<boolean>('prefs_high_graphics_performance', false)
+
+	useEffect(() => {
+		setIsFirstRun(false)
+	}, [])
 
 	useEffect(() => {
 		if (!isMounted.current || os.platform() !== 'windows') {
@@ -102,8 +117,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		document.documentElement.setAttribute('data-theme', theme)
 	}, [theme])
 
-	async function changeLanguage() {
-		await i18n.changeLanguage(preference.displayLanguage)
+	function setLanguageDefaults() {
 		const name = supportedLanguages[preference.displayLanguage]
 		if (name) {
 			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
@@ -115,10 +129,22 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			isMounted.current = true
 			return
 		}
-		changeLanguage()
+		if (previ18Language.current != i18n.language || isFirstRun) {
+			previ18Language.current = i18n.language
+			setLanguageDefaults()
+		}
+	}, [i18n.language])
+
+	useEffect(() => {
+		i18n.changeLanguage(language)
 	}, [language])
 
 	const preference: Preference = {
+		setLanguageDirections: setLanguageDefaults,
+		diarizeThreshold,
+		setDiarizeThreshold,
+		maxSpeakers,
+		setMaxSpeakers,
 		highGraphicsPreference,
 		setHighGraphicsPreference,
 		recognizeSpeakers,

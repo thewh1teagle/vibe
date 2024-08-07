@@ -1,7 +1,8 @@
-use crate::config::{self, DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
+use crate::config::{DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
 use crate::setup::ModelContext;
 use crate::utils::{get_current_dir, LogError};
-use eyre::{bail, eyre, Context, ContextCompat, Result};
+use eyre::{bail, eyre, Context, ContextCompat, OptionExt, Result};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
@@ -16,8 +17,8 @@ use tauri::{
 use tauri::{Emitter, Listener, State, Wry};
 use tauri_plugin_store::{with_store, StoreCollection};
 use tokio::sync::Mutex;
-use vibe_core::downloader;
-use vibe_core::{transcribe::SegmentCallbackData, transcript::Transcript};
+use vibe_core::transcript::Segment;
+use vibe_core::transcript::Transcript;
 pub mod audio;
 
 /// Return true if there's internet connection
@@ -142,12 +143,29 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     Ok(model_path.to_str().context("to_str")?.to_string())
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DiarizeOptions {
+    threshold: f32,
+    max_speakers: usize,
+    enabled: bool,
+}
+
+impl Default for DiarizeOptions {
+    fn default() -> Self {
+        DiarizeOptions {
+            enabled: false,
+            threshold: 0.0,
+            max_speakers: 0,
+        }
+    }
+}
+
 #[tauri::command]
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
     options: vibe_core::config::TranscribeOptions,
     model_context_state: State<'_, Mutex<Option<ModelContext>>>,
-    recognize_speakers: Option<bool>,
+    diarize_options: DiarizeOptions,
 ) -> Result<Transcript> {
     let model_context = model_context_state.lock().await;
     if model_context.is_none() {
@@ -156,14 +174,10 @@ pub async fn transcribe(
     let ctx = model_context.as_ref().context("as ref")?;
     let app_handle_c = app_handle.clone();
 
-    let new_segment_callback = move |data: SegmentCallbackData| {
+    let new_segment_callback = move |segment: Segment| {
         app_handle_c
             .clone()
-            .emit_to(
-                "main",
-                "new_segment",
-                serde_json::json!({"start": data.start_timestamp, "stop": data.end_timestamp, "text": data.text}),
-            )
+            .emit_to("main", "new_segment", segment)
             .map_err(|e| eyre!("{:?}", e))
             .log_error();
     };
@@ -180,6 +194,7 @@ pub async fn transcribe(
     let abort_callback = move || abort_atomic.load(Ordering::Relaxed);
 
     let app_handle_c = app_handle.clone();
+    let app_handle_c1 = app_handle.clone();
     let progress_callback = move |progress: i32| {
         // tracing::debug!("desktop progress is {}", progress);
         let _ = set_progress_bar(&app_handle, Some(progress.into()));
@@ -187,19 +202,26 @@ pub async fn transcribe(
 
     // prevent panic crash. sometimes whisper.cpp crash without nice errors.
 
-    let diarize_options = if recognize_speakers.unwrap_or_default() {
-        #[cfg(feature = "diarize")]
-        {
-            Some(vibe_core::config::DiarizeOptions {
-                speaker_id_model_path: get_models_folder(app_handle_c.clone())?.join(config::SPEAKER_ID_MODEL_FILENAME),
-                vad_model_path: get_models_folder(app_handle_c.clone())?.join(config::VAD_MODEL_FILENAME),
-            })
-        }
-        #[cfg(not(feature = "diarize"))]
-        None
-    } else {
-        None
-    };
+    let mut core_diarize_options = None;
+    if diarize_options.enabled {
+        let embedding_model_path = get_models_folder(app_handle_c1.clone())?
+            .join(crate::config::EMBEDDING_MODEL_FILENAME)
+            .to_str()
+            .ok_or_eyre("tostr")?
+            .to_string();
+
+        let segment_model_path = get_models_folder(app_handle_c1.clone())?
+            .join(crate::config::SEGMENT_MODEL_FILENAME)
+            .to_str()
+            .ok_or_eyre("tostr")?
+            .to_string();
+        core_diarize_options = Some(vibe_core::transcribe::DiarizeOptions {
+            embedding_model_path,
+            segment_model_path,
+            max_speakers: diarize_options.max_speakers,
+            threshold: diarize_options.threshold,
+        });
+    }
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
         vibe_core::transcribe::transcribe(
             &ctx.handle,
@@ -207,7 +229,7 @@ pub async fn transcribe(
             Some(Box::new(progress_callback)),
             Some(Box::new(new_segment_callback)),
             Some(Box::new(abort_callback)),
-            diarize_options,
+            core_diarize_options,
         )
     }));
 
@@ -364,54 +386,6 @@ pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
 }
 
 #[tauri::command]
-pub fn is_diarization_available(app_handle: tauri::AppHandle) -> Result<bool> {
-    let models_folder = get_models_folder(app_handle)?;
-    let vad_path = models_folder.join(config::VAD_MODEL_FILENAME);
-    let speaker_id_path = models_folder.join(config::SPEAKER_ID_MODEL_FILENAME);
-    Ok(vad_path.exists() && speaker_id_path.exists())
-}
-
-fn create_progress_callback(app_handle: tauri::AppHandle, start_progress: f64, end_progress: f64) -> impl Fn(u64, u64) -> bool {
-    move |current: u64, total: u64| {
-        let app_handle = app_handle.clone();
-
-        // Update progress in background
-        tauri::async_runtime::spawn(async move {
-            let percentage = start_progress + ((current as f64 / total as f64) * (end_progress - start_progress));
-            tracing::debug!("percentage: {}", percentage);
-            if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
-                tracing::error!("Failed to set progress bar: {}", e);
-            }
-            if let Some(window) = app_handle.get_webview_window("main") {
-                if let Err(e) = window.emit("download_progress", (current, total)) {
-                    tracing::error!("Failed to emit download progress: {}", e);
-                }
-            }
-        });
-        // Return the abort signal immediately
-        false
-    }
-}
-
-#[tauri::command]
-pub async fn download_diarization_models(app_handle: tauri::AppHandle) -> Result<()> {
-    let models_folder = get_models_folder(app_handle.clone())?;
-    let vad_path = models_folder.join(config::VAD_MODEL_FILENAME);
-    let speaker_id_path = models_folder.join(config::SPEAKER_ID_MODEL_FILENAME);
-    let mut dn = downloader::Downloader::new();
-
-    // Download vad
-    let dn_callback = create_progress_callback(app_handle.clone(), 0.0, 50.0);
-    dn.download(config::VAD_MODEL_URL, vad_path, dn_callback).await?;
-
-    // Download speaker embedding model
-    let dn_callback = create_progress_callback(app_handle.clone(), 50.0, 100.0);
-    dn.download(config::SPEAKER_ID_MODEL_URL, speaker_id_path, dn_callback)
-        .await?;
-    Ok(())
-}
-
-#[tauri::command]
 pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
     let path = crate::logging::get_log_path(&app_handle)?;
     let content = std::fs::read_to_string(path)?;
@@ -422,9 +396,6 @@ pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
 pub fn get_cargo_features() -> Vec<String> {
     let mut enabled_features = Vec::new();
 
-    if cfg!(feature = "diarize") {
-        enabled_features.push("diarize".to_string());
-    }
     if cfg!(feature = "cuda") {
         enabled_features.push("cuda".to_string());
     }

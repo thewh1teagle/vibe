@@ -85,7 +85,7 @@ export async function getAppInfo() {
 	const kVer = await os.version()
 	const osType = await os.type()
 	const osVer = await os.version()
-	const configPath = await invoke<string>("get_models_folder")
+	const configPath = await invoke<string>('get_models_folder')
 	const entries = await ls(configPath)
 	const cudaVersion = await invoke('get_cuda_version')
 	const models = entries
@@ -93,7 +93,7 @@ export async function getAppInfo() {
 		.map((e) => e.name)
 		.join(', ')
 	const defaultModel = localStorage.getItem('prefs_model_path')?.split('/')?.pop() ?? 'Not Found'
-	const cargoFeatures = await invoke<string[]>('get_cargo_features') || 'n/a'
+	const cargoFeatures = (await invoke<string[]>('get_cargo_features')) || 'n/a'
 	return [
 		`App Version: ${appVersion}`,
 		`Commit Hash: ${commitHash}`,
@@ -143,4 +143,8 @@ export async function openPath(path: NamedPath) {
 	await invoke('open_path', { path: path.path })
 }
 
-export async function getModelsFolder() { }
+export async function getModelsFolder() {}
+
+export function formatSpeaker(speaker?: number, prefix = 'Speaker') {
+	return `${prefix} ${speaker ?? '?'}: `
+}
