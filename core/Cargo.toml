@@ -35,7 +35,7 @@ tokio = { version = "1.35.1", features = [
 ] }
 serde_json = { workspace = true }
 futures-util = "0.3.30"
-# sherpa-rs = { version = "0.1.4-beta.2", path = "../../sherpa-rs" }
+pyannote-rs = "0.2.2"
 
 [dev-dependencies]
 
@@ -47,13 +47,14 @@ glob = "0.3.1"
 
 [features]
 default = []
-diarize = ["sherpa-rs"]
-coreml = ["whisper-rs/coreml"]
+coreml = ["whisper-rs/coreml", "pyannote-rs/coreml"]
+directml = ["pyannote-rs/directml"]
 cuda = ["whisper-rs/cuda"]
 opencl = ["whisper-rs/opencl"]
 openblas = ["whisper-rs/openblas"]
 metal = ["whisper-rs/metal"]
 rocm = ["whisper-rs/hipblas"]
+
 
 [profile.test]
 inherits = "release"

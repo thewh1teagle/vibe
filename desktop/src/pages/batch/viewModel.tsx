@@ -111,10 +111,11 @@ export function viewModel() {
 				}
 				const startTime = performance.now()
 
+				const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
 				const res: Transcript = await invoke('transcribe', {
 					options,
 					modelPath: preference.modelPath,
-					recognizeSpeakers: preference.recognizeSpeakers,
+					diarizeOptions,
 				})
 
 				// Calculate time

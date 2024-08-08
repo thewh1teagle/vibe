@@ -80,6 +80,10 @@ pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
     if !pid.wait()?.success() {
         bail!("unable to convert file")
     }
+
+    if !output.exists() {
+        bail!("seems like ffmpeg failed for some reason. output not exists")
+    }
     Ok(())
 }
 

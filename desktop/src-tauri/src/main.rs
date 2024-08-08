@@ -60,6 +60,7 @@ fn main() -> Result<()> {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
+            cmd::download_file,
             cmd::get_cargo_features,
             cmd::transcribe,
             cmd::download_model,
@@ -80,8 +81,6 @@ fn main() -> Result<()> {
             cmd::get_models_folder,
             cmd::is_portable,
             cmd::get_logs_folder,
-            cmd::is_diarization_available,
-            cmd::download_diarization_models,
             #[cfg(windows)]
             cmd::set_high_gpu_preference
         ])

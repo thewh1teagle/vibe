@@ -1,6 +1,5 @@
 use core::fmt;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
 use utoipa::ToSchema;
 
 #[derive(Deserialize, Serialize, ToSchema)]
@@ -16,12 +15,6 @@ pub struct TranscribeOptions {
     pub max_text_ctx: Option<i32>,
     pub word_timestamps: Option<bool>,
     pub max_sentence_len: Option<i32>,
-}
-
-#[derive(Deserialize, Serialize, ToSchema)]
-pub struct DiarizeOptions {
-    pub vad_model_path: PathBuf,
-    pub speaker_id_model_path: PathBuf,
 }
 
 impl fmt::Debug for TranscribeOptions {

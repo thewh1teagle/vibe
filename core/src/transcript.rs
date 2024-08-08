@@ -25,13 +25,13 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
     format!("{hours_marker}{minutes:02}:{seconds:02}{decimal_marker}{milliseconds:03}")
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct Transcript {
     pub processing_time_sec: u64,
     pub segments: Vec<Segment>,
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct Segment {
     pub start: i64,
     pub stop: i64,

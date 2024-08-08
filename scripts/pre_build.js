@@ -57,6 +57,12 @@ const config = {
 		ffmpegName: 'ffmpeg-6.1-macOS-default',
 		ffmpegUrl: 'https://master.dl.sourceforge.net/project/avbuild/macOS/ffmpeg-6.1-macOS-default.tar.xz?viasf=1',
 	},
+	diarization: {
+		embedModelUrl: 'https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/wespeaker_en_voxceleb_CAM++.onnx',
+		embedModelFilename: 'wespeaker_en_voxceleb_CAM++.onnx',
+		segmentModelUrl: 'https://github.com/pengzhendong/pyannote-onnx/raw/master/pyannote_onnx/segmentation-3.0.onnx',
+		segmentModelFilename: 'segmentation-3.0.onnx',
+	},
 }
 
 // Export for Github actions
@@ -198,6 +204,17 @@ if (hasFeature('rocm')) {
 	}
 }
 
+// Diarization
+if (!(await fs.exists(config.diarization.embedModelFilename))) {
+	if (platform == 'windows') {
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
+	} else {
+		await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
+		await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
+	}
+}
+
 // Development hints
 if (!process.env.GITHUB_ENV) {
 	console.log('\nCommands to build 🔨:')
@@ -208,6 +225,7 @@ if (!process.env.GITHUB_ENV) {
 	}
 	console.log('bun install')
 	if (platform == 'windows') {
+		console.log(`$env:RUSTFLAGS = "-C target-feature=+crt-static"`)
 		console.log(`$env:FFMPEG_DIR = "${exports.ffmpeg}"`)
 		console.log(`$env:OPENBLAS_PATH = "${exports.openBlas}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
@@ -257,6 +275,11 @@ if (process.env.GITHUB_ENV) {
 		await fs.appendFile(process.env.GITHUB_ENV, embed_metal)
 	}
 	if (platform == 'windows') {
+		// ort + whisper.cpp + fbank-rs... something there requires static linking of msvc
+		const rustFlags = `RUSTFLAGS=-C target-feature=+crt-static\n`
+		console.log('Adding ENV', rustFlags)
+		await fs.appendFile(process.env.GITHUB_ENV, rustFlags)
+
 		const openblas = `OPENBLAS_PATH=${exports.openBlas}\n`
 		console.log('Adding ENV', openblas)
 		await fs.appendFile(process.env.GITHUB_ENV, openblas)

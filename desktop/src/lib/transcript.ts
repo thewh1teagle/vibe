@@ -1,3 +1,5 @@
+import { formatSpeaker } from './utils'
+
 export interface Duration {
 	secs: number
 	nanos: number
@@ -13,6 +15,7 @@ export interface Segment {
 	start: number
 	stop: number
 	text: string
+	speaker?: number
 }
 
 export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, decimalMarker: string, includeMilliseconds: boolean = true): string {
@@ -42,30 +45,32 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 	return result
 }
 
-export function asSrt(segments: Segment[]) {
-	return segments.reduce((transcript, fragment, i) => {
+export function asSrt(segments: Segment[], speakerPrefix = 'Speaker') {
+	return segments.reduce((transcript, segment, i) => {
 		return (
 			transcript +
 			`${i > 0 ? '\n' : ''}${i + 1}\n` +
-			`${formatTimestamp(fragment.start, true, ',')} --> ${formatTimestamp(fragment.stop, true, ',')}\n` +
-			`${fragment.text.trim().replace('-->', '->')}\n`
+			`${formatTimestamp(segment.start, true, ',')} --> ${formatTimestamp(segment.stop, true, ',')}\n` +
+			`${segment.speaker ? formatSpeaker(segment.speaker, speakerPrefix) : ''}${segment.text.trim().replace('-->', '->')}\n`
 		)
 	}, '')
 }
 
-export function asVtt(segments: Segment[]) {
-	return segments.reduce((transcript, fragment) => {
+export function asVtt(segments: Segment[], speakerPrefix = 'Speaker') {
+	return segments.reduce((transcript, segment) => {
 		return (
 			transcript +
-			`${formatTimestamp(fragment.start, false, '.')} --> ${formatTimestamp(fragment.stop, false, '.')}\n` +
-			`${fragment.text.trim().replace('-->', '->')}\n`
+			`${formatTimestamp(segment.start, false, '.')} --> ${formatTimestamp(segment.stop, false, '.')}\n` +
+			`${segment.speaker ? formatSpeaker(segment.speaker, speakerPrefix) : ''}${segment.text.trim().replace('-->', '->')}\n`
 		)
 	}, '')
 }
 
-export function asText(segments: Segment[]) {
-	return segments.reduce((transcript, fragment) => {
-		return transcript + `${fragment.text.trim()}\n`
+export function asText(segments: Segment[], speakerPrefix = 'Speaker') {
+	return segments.reduce((transcript, segment) => {
+		return (
+			transcript + `${segment.speaker ? formatSpeaker(segment.speaker, speakerPrefix) + '\n' : ''}${segment.text.trim()}\n${segment.speaker ? '\n' : ''}`
+		)
 	}, '')
 }
 

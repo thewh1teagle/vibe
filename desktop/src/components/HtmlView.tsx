@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { Segment, formatTimestamp } from '~/lib/transcript'
-import { NamedPath } from '~/lib/utils'
+import { NamedPath, formatSpeaker } from '~/lib/utils'
 import { Preference } from '~/providers/Preference'
 
 interface HTMLViewProps {
@@ -15,6 +16,7 @@ function formatDuration(start: number, stop: number) {
 }
 
 export default function HTMLView({ segments, file, preference }: HTMLViewProps) {
+	const { t } = useTranslation()
 	return (
 		<div
 			autoCorrect="off"
@@ -43,6 +45,8 @@ export default function HTMLView({ segments, file, preference }: HTMLViewProps) 
 							style={{ fontSize: '12px', paddingBottom: '6px', color: preference.theme === 'dark' ? '#3B4045' : '#000000' }}>
 							{formatDuration(segment.start, segment.stop)}
 						</div>
+						{segment.speaker ? formatSpeaker(segment.speaker, t('common.speaker-prefix')) : ''}
+						{segment.speaker && <br />}
 						{segment.text}
 					</div>
 				</div>

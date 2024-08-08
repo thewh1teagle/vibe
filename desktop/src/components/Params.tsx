@@ -5,10 +5,13 @@ import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
 import { ModifyState, cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
 import { ModelOptions as IModelOptions, usePreferenceProvider } from '~/providers/Preference'
-import { invoke } from '@tauri-apps/api/core'
-import { ask } from '@tauri-apps/plugin-dialog'
 import { useToastProvider } from '~/providers/Toast'
 import { listen } from '@tauri-apps/api/event'
+import { ask } from '@tauri-apps/plugin-dialog'
+import { invoke } from '@tauri-apps/api/core'
+import * as config from '~/lib/config'
+import { path } from '@tauri-apps/api'
+import { exists } from '@tauri-apps/plugin-fs'
 
 interface ParamsProps {
 	options: IModelOptions
@@ -17,22 +20,9 @@ interface ParamsProps {
 
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const [open, setOpen] = useState(false)
-	const { recognizeSpeakers: _, setRecognizeSpeakers } = usePreferenceProvider()
+	const preference = usePreferenceProvider()
 	const { t } = useTranslation()
 	const toast = useToastProvider()
-
-	async function askForSetupDiarize() {
-		const confirmed = await ask(t('common.ask-for-setup-diarize'), { title: t('common.setup-diarize-title') })
-		if (confirmed) {
-			// Download diarization models
-			toast.setMessage(t('common.downloading-ai-models'))
-			toast.setOpen(true)
-			toast.setProgress(0)
-			await invoke('download_diarization_models')
-			toast.setOpen(false)
-			setRecognizeSpeakers(true)
-		}
-	}
 
 	async function handleProgressEvents() {
 		listen<[number, number]>('download_progress', (event) => {
@@ -44,18 +34,36 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		})
 	}
 
+	async function askOrEnableSpeakerRecognition() {
+		const modelsFolder = await invoke<string>('get_models_folder')
+		const embedModelPath = await path.join(modelsFolder, config.embeddingModelFilename)
+		const segmentModelPath = await path.join(modelsFolder, config.segmentModelFilename)
+
+		if ((await exists(embedModelPath)) && (await exists(segmentModelPath))) {
+			preference.setRecognizeSpeakers(true)
+		} else {
+			const should_download = await ask(t('common.ask-for-download-model'))
+			if (should_download) {
+				toast.setProgress(0)
+				toast.setMessage(t('common.downloading-ai-models'))
+				toast.setOpen(true)
+				await invoke('download_file', { url: config.embeddingModelUrl, path: embedModelPath })
+
+				toast.setProgress(0)
+				await invoke('download_file', { url: config.segmentModelUrl, path: segmentModelPath })
+				preference.setRecognizeSpeakers(true)
+				toast.setOpen(false)
+			}
+		}
+	}
+
 	//@ts-ignore
 	async function onRecognizeSpeakerChange(event: ChangeEvent<HTMLInputElement>) {
 		const enabled = event.target.checked
 		if (enabled) {
-			const diarizeAvailable = await invoke<boolean>('is_diarization_available')
-			if (diarizeAvailable) {
-				setRecognizeSpeakers(true)
-			} else {
-				await askForSetupDiarize()
-			}
+			askOrEnableSpeakerRecognition()
 		} else {
-			setRecognizeSpeakers(false)
+			preference.setRecognizeSpeakers(false)
 		}
 	}
 
@@ -70,15 +78,48 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				{t('common.more-options')}
 			</div>
 			<div className="collapse-content w-full">
-				{/* <div className="form-control w-full mt-3">
+				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">
 							<InfoTooltip text={t('common.info-recognize-speakers')} />
 							{t('common.recognize-speakers')}
 						</span>
-						<input type="checkbox" className="toggle toggle-primary" checked={recognizeSpeakers} onChange={onRecognizeSpeakerChange} />
+						<input type="checkbox" className="toggle toggle-primary" checked={preference.recognizeSpeakers} onChange={onRecognizeSpeakerChange} />
 					</label>
-				</div> */}
+				</div>
+				<label className="form-control w-full">
+					<div className="label">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={t('common.info-max-speakers')} />
+							{t('common.max-speakers')}
+						</span>
+					</div>
+					<input
+						onChange={(e) => preference.setMaxSpeakers(parseInt(e.target.value) || 5)}
+						value={preference.maxSpeakers}
+						className="input input-bordered"
+						type="number"
+					/>
+				</label>
+
+				<label className="form-control w-full">
+					<div className="label">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={t('common.info-diarize-threshold')} />
+							{t('common.diarize-threshold')}
+						</span>
+					</div>
+					<input
+						onChange={(e) => preference.setDiarizeThreshold(parseFloat(e.target.value))}
+						value={preference.diarizeThreshold}
+						className="input input-bordered"
+						type="number"
+						step={0.1}
+						min={0.0}
+						max={1.0}
+					/>
+				</label>
+
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">

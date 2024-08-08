@@ -147,12 +147,12 @@ export default function TextArea({
 		if (segments) {
 			setText(
 				preference.textFormat === 'vtt'
-					? asVtt(segments)
+					? asVtt(segments, t('common.speaker-prefix'))
 					: preference.textFormat === 'srt'
-					? asSrt(segments)
+					? asSrt(segments, t('common.speaker-prefix'))
 					: preference.textFormat === 'json'
 					? asJson(segments)
-					: asText(segments)
+					: asText(segments, t('common.speaker-prefix'))
 			)
 		} else {
 			setText('')

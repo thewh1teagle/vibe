@@ -1,6 +1,6 @@
+use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::{env, fs};
 
 fn copy_file(src: &Path, dst: &Path) {
     if dst.exists() {
