@@ -205,9 +205,14 @@ if (hasFeature('rocm')) {
 }
 
 // Diarization
-if (!fs.exists(config.diarization.embedModelFilename)) {
-	await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
-	await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
+if (!(await fs.exists(config.diarization.embedModelFilename))) {
+	if (platform == 'windows') {
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
+	} else {
+		await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
+		await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
+	}
 }
 
 // Development hints
@@ -220,6 +225,7 @@ if (!process.env.GITHUB_ENV) {
 	}
 	console.log('bun install')
 	if (platform == 'windows') {
+		console.log(`$env:RUSTFLAGS = "-C target-feature=+crt-static"`)
 		console.log(`$env:FFMPEG_DIR = "${exports.ffmpeg}"`)
 		console.log(`$env:OPENBLAS_PATH = "${exports.openBlas}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
@@ -269,6 +275,11 @@ if (process.env.GITHUB_ENV) {
 		await fs.appendFile(process.env.GITHUB_ENV, embed_metal)
 	}
 	if (platform == 'windows') {
+		// ort + whisper.cpp + fbank-rs... something there requires static linking of msvc
+		const rustFlags = `RUSTFLAGS=-C target-feature=+crt-static\n`
+		console.log('Adding ENV', rustFlags)
+		await fs.appendFile(process.env.GITHUB_ENV, rustFlags)
+
 		const openblas = `OPENBLAS_PATH=${exports.openBlas}\n`
 		console.log('Adding ENV', openblas)
 		await fs.appendFile(process.env.GITHUB_ENV, openblas)
