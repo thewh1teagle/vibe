@@ -54,7 +54,7 @@
 -   ⏳ Transcribe system audio
 -   🎤 Transcribe from microphone
 -   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
--   👥 Speaker diarization
+-   👥 Speaker diarization (Beta)
 -   📱 ~iOS & Android support~ (coming soon)
 -   📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
 -   📹 Choose caption length optimized for videos / reels
