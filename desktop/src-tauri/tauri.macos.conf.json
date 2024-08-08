@@ -1,6 +1,7 @@
 {
 	"bundle": {
 		"macOS": {
+			"entitlements": "entitlements.plist",
 			"frameworks": [
 				"ffmpeg/lib/libavcodec.60.dylib",
 				"ffmpeg/lib/libavdevice.60.dylib",
