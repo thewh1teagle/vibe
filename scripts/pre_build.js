@@ -271,7 +271,7 @@ if (process.env.GITHUB_ENV) {
 	}
 	if (platform == 'windows') {
 		// ort + whisper.cpp + fbank-rs... something there requires static linking of msvc
-		const rustFlags = `RUSTFLAGS="-C target-feature=+crt-static"\n`
+		const rustFlags = `RUSTFLAGS=-C target-feature=+crt-static\n`
 		console.log('Adding ENV', rustFlags)
 		await fs.appendFile(process.env.GITHUB_ENV, rustFlags)
 
