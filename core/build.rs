@@ -2,11 +2,11 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::{env, fs};
 
-fn hard_link_force(src: &Path, dst: &Path) {
+fn copy_file(src: &Path, dst: &Path) {
     if dst.exists() {
         std::fs::remove_file(dst).unwrap();
     }
-    std::fs::hard_link(src, dst).unwrap();
+    std::fs::copy(src, dst).unwrap();
 }
 
 fn get_cargo_target_dir() -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
@@ -82,7 +82,7 @@ fn main() {
                 .flatten()
             {
                 let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
-                hard_link_force(&entry, &dst);
+                copy_file(&entry, &dst);
             }
 
             for entry in glob::glob(&format!("{}/*", ffmpeg_dir.join("bin").to_str().unwrap()))
@@ -90,7 +90,7 @@ fn main() {
                 .flatten()
             {
                 let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
-                hard_link_force(&entry, &dst);
+                copy_file(&entry, &dst);
             }
         }
 
@@ -105,7 +105,7 @@ fn main() {
             for pattern in patterns {
                 for entry in glob::glob(&pattern).unwrap().flatten() {
                     let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
-                    hard_link_force(&entry, &dst);
+                    copy_file(&entry, &dst);
                 }
             }
         }
