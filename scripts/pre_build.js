@@ -205,7 +205,7 @@ if (hasFeature('rocm')) {
 }
 
 // Diarization
-if (!fs.exists(config.diarization.embedModelFilename)) {
+if (!(await fs.exists(config.diarization.embedModelFilename))) {
 	await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
 	await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
 }
