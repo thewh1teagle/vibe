@@ -152,30 +152,6 @@ pub fn transcribe(
                     break;
                 }
             }
-            let embedding_result = match extractor.compute(&diarize_segment.samples) {
-                Ok(result) => result.collect(),
-                Err(error) => {
-                    tracing::error!("error: {:?}", error);
-                    tracing::debug!(
-                        "start = {:.2}, end = {:.2}, speaker = ?",
-                        diarize_segment.start,
-                        diarize_segment.end
-                    );
-                    continue; // Skip to the next segment
-                }
-            };
-            let speaker: String;
-            if embedding_manager.get_all_speakers().len() >= diarize_options.max_speakers {
-                speaker = embedding_manager
-                    .get_best_speaker_match(embedding_result)
-                    .map(|s| s.to_string())
-                    .unwrap_or("?".into());
-            } else {
-                speaker = embedding_manager
-                    .search_speaker(embedding_result, diarize_options.threshold)
-                    .map(|r| r.to_string())
-                    .unwrap_or("?".into());
-            }
 
             // whisper compatible. segment indices
             tracing::debug!("diarize segment: {} - {}", diarize_segment.start, diarize_segment.end);
@@ -191,6 +167,31 @@ pub fn transcribe(
             tracing::debug!("looping segments...");
 
             if num_segments > 0 {
+                let embedding_result: Vec<f32> = match extractor.compute(&diarize_segment.samples) {
+                    Ok(result) => result.collect(),
+                    Err(error) => {
+                        tracing::error!("error: {:?}", error);
+                        tracing::debug!(
+                            "start = {:.2}, end = {:.2}, speaker = ?",
+                            diarize_segment.start,
+                            diarize_segment.end
+                        );
+                        continue; // Skip to the next segment
+                    }
+                };
+                // Find the speaker
+                let speaker = if embedding_manager.get_all_speakers().len() == diarize_options.max_speakers {
+                    embedding_manager
+                        .get_best_speaker_match(embedding_result)
+                        .map(|r| r.to_string())
+                        .unwrap_or("?".into())
+                } else {
+                    embedding_manager
+                        .search_speaker(embedding_result, diarize_options.threshold)
+                        .map(|r| r.to_string())
+                        .unwrap_or("?".into())
+                };
+
                 // convert to whisper comptible timestamps
                 let start = 100 * (diarize_segment.start as i64);
                 let stop = 100 * (diarize_segment.end as i64);
