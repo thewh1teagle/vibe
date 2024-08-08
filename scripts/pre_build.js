@@ -220,6 +220,7 @@ if (!process.env.GITHUB_ENV) {
 	}
 	console.log('bun install')
 	if (platform == 'windows') {
+		console.log(`$env:RUSTFLAGS = "-C target-feature=+crt-static"`)
 		console.log(`$env:FFMPEG_DIR = "${exports.ffmpeg}"`)
 		console.log(`$env:OPENBLAS_PATH = "${exports.openBlas}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
@@ -269,6 +270,10 @@ if (process.env.GITHUB_ENV) {
 		await fs.appendFile(process.env.GITHUB_ENV, embed_metal)
 	}
 	if (platform == 'windows') {
+		const rustFlags = `RUSTFLAGS="-C target-feature=+crt-static"\n`
+		console.log('Adding ENV', rustFlags)
+		await fs.appendFile(process.env.GITHUB_ENV, rustFlags)
+
 		const openblas = `OPENBLAS_PATH=${exports.openBlas}\n`
 		console.log('Adding ENV', openblas)
 		await fs.appendFile(process.env.GITHUB_ENV, openblas)
