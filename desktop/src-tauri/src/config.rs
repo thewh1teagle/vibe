@@ -5,5 +5,5 @@ pub const DEAFULT_MODEL_URL: &str = "https://huggingface.co/ggerganov/whisper.cp
 pub const DEAFULT_MODEL_FILENAME: &str = "ggml-medium.bin";
 
 // Diarization
-pub const SEGMENT_MODEL_RESOURCE: &str = "diarize/segmentation-3.0.onnx";
-pub const EMBEDDING_MODEL_RESOURCE: &str = "diarize/wespeaker_en_voxceleb_CAM++.onnx";
+pub const SEGMENT_MODEL_FILENAME: &str = "segmentation-3.0.onnx";
+pub const EMBEDDING_MODEL_FILENAME: &str = "wespeaker_en_voxceleb_CAM++.onnx";

@@ -7,6 +7,11 @@ import { InfoTooltip } from './InfoTooltip'
 import { ModelOptions as IModelOptions, usePreferenceProvider } from '~/providers/Preference'
 import { useToastProvider } from '~/providers/Toast'
 import { listen } from '@tauri-apps/api/event'
+import { ask } from '@tauri-apps/plugin-dialog'
+import { invoke } from '@tauri-apps/api/core'
+import * as config from '~/lib/config'
+import { path } from '@tauri-apps/api'
+import { exists } from '@tauri-apps/plugin-fs'
 
 interface ParamsProps {
 	options: IModelOptions
@@ -29,11 +34,34 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		})
 	}
 
+	async function askOrEnableSpeakerRecognition() {
+		const modelsFolder = await invoke<string>('get_models_folder')
+		const embedModelPath = await path.join(modelsFolder, config.embeddingModelFilename)
+		const segmentModelPath = await path.join(modelsFolder, config.segmentModelFilename)
+
+		if ((await exists(embedModelPath)) && (await exists(segmentModelPath))) {
+			preference.setRecognizeSpeakers(true)
+		} else {
+			const should_download = await ask(t('common.ask-for-download-model'))
+			if (should_download) {
+				toast.setProgress(0)
+				toast.setMessage(t('common.downloading-ai-models'))
+				toast.setOpen(true)
+				await invoke('download_file', { url: config.embeddingModelUrl, path: embedModelPath })
+
+				toast.setProgress(0)
+				await invoke('download_file', { url: config.segmentModelUrl, path: segmentModelPath })
+				preference.setRecognizeSpeakers(true)
+				toast.setOpen(false)
+			}
+		}
+	}
+
 	//@ts-ignore
 	async function onRecognizeSpeakerChange(event: ChangeEvent<HTMLInputElement>) {
 		const enabled = event.target.checked
 		if (enabled) {
-			preference.setRecognizeSpeakers(true)
+			askOrEnableSpeakerRecognition()
 		} else {
 			preference.setRecognizeSpeakers(false)
 		}

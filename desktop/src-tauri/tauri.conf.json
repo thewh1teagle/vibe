@@ -44,9 +44,7 @@
 			"icons/icon.ico"
 		],
 		"resources": {
-			"locales": "locales",
-			"segmentation-3.0.onnx": "./diarize",
-			"wespeaker_en_voxceleb_CAM++.onnx": "./diarize"
+			"locales": "locales"
 		},
 		"fileAssociations": [
 			{

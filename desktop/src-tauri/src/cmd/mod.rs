@@ -143,6 +143,49 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     Ok(model_path.to_str().context("to_str")?.to_string())
 }
 
+#[tauri::command]
+pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: String) -> Result<()> {
+    let mut downloader = vibe_core::downloader::Downloader::new();
+    tracing::debug!("Download model invoked! with path {}", path);
+
+    let abort_atomic = Arc::new(AtomicBool::new(false));
+    let abort_atomic_c = abort_atomic.clone();
+
+    let app_handle_c = app_handle.clone();
+
+    // allow abort transcription
+    let app_handle_d = app_handle_c.clone();
+    app_handle.listen("abort_download", move |_| {
+        set_progress_bar(&app_handle_d, None).log_error();
+        abort_atomic_c.store(true, Ordering::Relaxed);
+    });
+
+    let download_progress_callback = {
+        let app_handle = app_handle.clone();
+        let abort_atomic = abort_atomic.clone();
+
+        move |current: u64, total: u64| {
+            let app_handle = app_handle.clone();
+
+            // Update progress in background
+            tauri::async_runtime::spawn(async move {
+                let percentage = (current as f64 / total as f64) * 100.0;
+                tracing::debug!("percentage: {}", percentage);
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    if let Err(e) = window.emit("download_progress", (current, total)) {
+                        tracing::error!("Failed to emit download progress: {}", e);
+                    }
+                }
+            });
+            // Return the abort signal immediately
+            abort_atomic.load(Ordering::Relaxed)
+        }
+    };
+
+    downloader.download(&url, path.into(), download_progress_callback).await?;
+    Ok(())
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiarizeOptions {
     threshold: f32,
@@ -204,14 +247,14 @@ pub async fn transcribe(
 
     let mut core_diarize_options = None;
     if diarize_options.enabled {
-        let embedding_model_path = get_resources_folder(&app_handle_c1)?
-            .join(crate::config::EMBEDDING_MODEL_RESOURCE)
+        let embedding_model_path = get_models_folder(app_handle_c1.clone())?
+            .join(crate::config::EMBEDDING_MODEL_FILENAME)
             .to_str()
             .ok_or_eyre("tostr")?
             .to_string();
 
-        let segment_model_path = get_resources_folder(&app_handle_c1)?
-            .join(crate::config::SEGMENT_MODEL_RESOURCE)
+        let segment_model_path = get_models_folder(app_handle_c1.clone())?
+            .join(crate::config::SEGMENT_MODEL_FILENAME)
             .to_str()
             .ok_or_eyre("tostr")?
             .to_string();
@@ -366,10 +409,6 @@ pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
         app_handle.path().app_config_dir()?
     };
     Ok(config_path)
-}
-
-pub fn get_resources_folder(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
-    app_handle.path().resource_dir().context("can't get resource dir")
 }
 
 #[tauri::command]
