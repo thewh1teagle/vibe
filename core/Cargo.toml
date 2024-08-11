@@ -35,7 +35,7 @@ tokio = { version = "1.35.1", features = [
 ] }
 serde_json = { workspace = true }
 futures-util = "0.3.30"
-pyannote-rs = "0.2.4"
+pyannote-rs = "0.2.5"
 
 [dev-dependencies]
 
