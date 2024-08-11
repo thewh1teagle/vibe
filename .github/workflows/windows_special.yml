@@ -9,6 +9,9 @@ on:
         debug:
             required: false
             default: '0'
+        cargo_args:
+            required: false
+            default: ""
 jobs:
     publish-tauri:
         permissions:
@@ -90,7 +93,7 @@ jobs:
               with:
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
-                  args: ${{ matrix.args }}
+                  args: ${{ matrix.args }} ${{ github.event.inputs.cargo_args }}
 
 
             - name: Prepare Portable zip
