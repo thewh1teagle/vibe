@@ -2608,9 +2608,9 @@ dependencies = [
 
 [[package]]
 name = "knf-rs"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16373e9d1c0fe40f938246a58212acfbc708a0a51f827aa35a7681fdc394393a"
+checksum = "e535063f2ab45fd9fb5116d5d77fde3e667947c8eebf1b52248edc8cd996d074"
 dependencies = [
  "eyre 0.6.12",
  "knf-rs-sys",
@@ -3464,6 +3464,7 @@ checksum = "86d83095ae3c1258738d70ae7a06195c94d966a8e546f0d3609dc90885fb61f5"
 dependencies = [
  "half",
  "js-sys",
+ "libloading 0.8.5",
  "ndarray",
  "ort-sys",
  "thiserror",
@@ -3894,9 +3895,9 @@ dependencies = [
 
 [[package]]
 name = "pyannote-rs"
-version = "0.2.4"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "667ea916a23076e5b9dfa97024f2794452e6c2686dfc3d76c879c71d7ef103ba"
+checksum = "dc713341b803ea8c0f4979bba9a15dfcc45114dcb80ba5c5a2630423367feda6"
 dependencies = [
  "eyre 0.6.12",
  "hound",
@@ -6621,7 +6622,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs"
 version = "0.12.1"
-source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.2#733c962bb61cd6a3ed21648f70774e9f9f0db479"
+source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.2#c7a92e802e6e8f0e3d2e9e7ea13fc3475e55805b"
 dependencies = [
  "tracing",
  "whisper-rs-sys",
@@ -6630,7 +6631,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs-sys"
 version = "0.10.1"
-source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.2#733c962bb61cd6a3ed21648f70774e9f9f0db479"
+source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.2#c7a92e802e6e8f0e3d2e9e7ea13fc3475e55805b"
 dependencies = [
  "bindgen",
  "cfg-if",

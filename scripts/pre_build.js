@@ -239,6 +239,7 @@ if (!process.env.GITHUB_ENV) {
 		if (hasFeature('cuda')) {
 			console.log(`$env:CUDA_PATH = "${cudaPath}"`)
 			console.log(`$env:KNF_STATIC_CRT = "0"`)
+			console.log('$env:WHISPER_USE_STATIC_MSVC= "0"')
 		}
 		if (hasFeature('opencl')) {
 			console.log(`$env:CLBlast_DIR = "${exports.clblast}"`)
@@ -297,9 +298,13 @@ if (process.env.GITHUB_ENV) {
 
 		if (hasFeature('cuda')) {
 			// link msvc dynamic
-			const staticCrt = 'KNF_STATIC_CRT=0\n'
-			console.log('Adding ENV', staticCrt)
-			await fs.appendFile(process.env.GITHUB_ENV, staticCrt)
+			const knfStaticCrt = 'KNF_STATIC_CRT=0\n'
+			console.log('Adding ENV', knfStaticCrt)
+			await fs.appendFile(process.env.GITHUB_ENV, knfStaticCrt)
+
+			const whisperStaticMsvc = 'WHISPER_USE_STATIC_MSVC=0\n'
+			console.log('Adding ENV', whisperStaticMsvc)
+			await fs.appendFile(process.env.GITHUB_ENV, whisperStaticMsvc)
 		}
 
 		if (hasFeature('older-cpu')) {
