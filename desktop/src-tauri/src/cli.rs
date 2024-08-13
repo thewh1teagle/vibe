@@ -163,7 +163,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     let mut args = Args::parse();
 
     if args.diarize && args.diarize_vad_model.is_none() {
-        panic!("Please provide model path with --diarize-model-path")
+        panic!("Please provide model path with --diarize-vad-model")
     }
     if args.diarize {
         args.word_timestamps = true;
