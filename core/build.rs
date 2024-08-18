@@ -135,4 +135,6 @@ fn main() {
         "cargo:rustc-env=ROCM_VERSION={}",
         std::env::var("INPUT_ROCM_VERSION").unwrap_or_default()
     );
+    // Todo: link correctly in whisper-rs
+    println!("cargo:rustc-link-lib=msvcrt");
 }
