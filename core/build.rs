@@ -136,5 +136,7 @@ fn main() {
         std::env::var("INPUT_ROCM_VERSION").unwrap_or_default()
     );
     // Todo: link correctly in whisper-rs
-    println!("cargo:rustc-link-lib=msvcrt");
+    if cfg!(windows) {
+        println!("cargo:rustc-link-lib=msvcrt");
+    }   
 }
