@@ -52,6 +52,7 @@ cuda = ["whisper-rs/cuda", "pyannote-rs/load-dynamic"]
 openblas = ["whisper-rs/openblas"]
 metal = ["whisper-rs/metal"]
 rocm = ["whisper-rs/hipblas"]
+vulkan = ["whisper-rs/vulkan"]
 
 
 [profile.test]

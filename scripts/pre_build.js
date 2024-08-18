@@ -118,7 +118,7 @@ if (platform == 'windows') {
 	}
 
 	// Setup vcpkg packages
-	if (config.windows.vcpkgPackages) {
+	if (config.windows.vcpkgPackages.length > 0) {
 		await $`C:\\vcpkg\\vcpkg.exe install ${config.windows.vcpkgPackages}`.quiet()
 	}
 }

@@ -80,6 +80,7 @@ coreml = ["vibe_core/coreml"]
 metal = ["vibe_core/metal"]
 openblas = ["vibe_core/openblas"]
 rocm = ["vibe_core/rocm"]
+vulkan = ["vibe_core/vulkan"]
 
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
