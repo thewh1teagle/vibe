@@ -1366,16 +1366,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "env_filter"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f2c92ceda6ceec50f43169f9ee8424fe2db276791afde7b2cd8bc084cb376ab"
-dependencies = [
- "log",
- "regex",
-]
-
-[[package]]
 name = "env_logger"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1386,19 +1376,6 @@ dependencies = [
  "log",
  "regex",
  "termcolor",
-]
-
-[[package]]
-name = "env_logger"
-version = "0.11.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e13fa619b91fb2381732789fc5de83b45675e882f66623b7d8cb4f643017018d"
-dependencies = [
- "anstream",
- "anstyle",
- "env_filter",
- "humantime",
- "log",
 ]
 
 [[package]]
@@ -4860,29 +4837,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sherpa-rs"
-version = "0.1.5-beta.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "648ee94a85839896aa5cde75c8862a72cb257251bb79ffdf772bb5a6cf23e505"
-dependencies = [
- "env_logger 0.11.5",
- "eyre 0.6.12",
- "hound",
- "log",
- "sherpa-rs-sys",
-]
-
-[[package]]
-name = "sherpa-rs-sys"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0661c4b1ea12c0cc2c1064e177c4c52ca793e9a16bb48b9f9b3fc57c73e77214"
-dependencies = [
- "bindgen",
- "cmake",
-]
-
-[[package]]
 name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6306,7 +6260,7 @@ dependencies = [
  "cocoa",
  "cpal",
  "crash-handler",
- "env_logger 0.10.2",
+ "env_logger",
  "eyre 1.0.0",
  "futures",
  "hound",
@@ -6352,7 +6306,7 @@ version = "0.0.6"
 dependencies = [
  "clap",
  "dirs-next",
- "env_logger 0.10.2",
+ "env_logger",
  "eyre 1.0.0",
  "futures-util",
  "glob",
@@ -6365,7 +6319,6 @@ dependencies = [
  "serde_json",
  "serial_test",
  "sha256",
- "sherpa-rs",
  "tempfile",
  "tokio",
  "tracing",
