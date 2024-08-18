@@ -29,8 +29,8 @@ jobs:
                   action: "test"
       
                 - platform: "ubuntu-22.04" # Ubuntu x86_64
-                  args: ""
-                  pre-build-args: ""
+                  args: '--features "vulkan"'
+                  pre-build-args: "--vulkan"
                   name: "Ubuntu 22.04 - x86_64"
                   action: "test"
       
