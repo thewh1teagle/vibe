@@ -22,8 +22,8 @@ jobs:
                 include:
                     # Windows no AVX2
                     - platform: "windows-latest"
-                      args: '--features="opencl"'
-                      pre-build-args: "--older-cpu --opencl"
+                      args: '--features="vulkan"'
+                      pre-build-args: "--older-cpu --vulkan"
                       name: "older-cpu"
                       rust-version: "stable"
                     
@@ -45,8 +45,8 @@ jobs:
 
                     # Windows portable
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--features="opencl"'
-                      pre-build-args: "--portable --opencl"
+                      args: '--features="vulkan"'
+                      pre-build-args: "--portable --vulkan"
                       name: portable
                       rust-version: "stable"
 
@@ -57,6 +57,12 @@ jobs:
             - name: Add msbuild to PATH
               uses: microsoft/setup-msbuild@v2
 
+            - name: Prepare Vulkan SDK
+              uses: humbletim/setup-vulkan-sdk@v1.2.0
+              with:
+                vulkan-components: Vulkan-Headers, Vulkan-Loader
+                vulkan-use-cache: true
+              if: contains(matrix.args, 'vulkan')
 
             - name: Setup CUDA Toolkit
               if: contains(matrix.args, 'cuda')

@@ -57,12 +57,6 @@ fn main() {
     let openblas_dir = env::var("OPENBLAS_PATH").unwrap_or_default();
     let openblas_dir = PathBuf::from(openblas_dir);
 
-    if cfg!(feature = "opencl") {
-        println!("cargo:rustc-link-search={}", clblast_dir.join("..\\..\\").display());
-        println!("cargo:rustc-link-search={}", clblast_dir.join("..\\lib").display());
-        println!("cargo:rustc-link-search=C:\\vcpkg\\packages\\opencl_x64-windows\\lib");
-    }
-
     // Sometimes it doesn't find the libs files after restring Github cache
     if cfg!(all(feature = "cuda", windows)) {
         let cuda_path = env::var("CUDA_PATH").unwrap_or_default();

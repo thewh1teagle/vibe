@@ -36,7 +36,7 @@ Look for installers with `amd` in [vibe/releases/latest](https://github.com/thew
 <details>
 <summary>Speedup GPU in Windows 🚀</summary>
 
-Sometimes Windows doesn't use the GPU although nvidia / opencl is supported.
+Sometimes Windows doesn't use the GPU although nvidia / vulkan is supported.
 There's a potential fix in windows settings.
 
 1. Hit `Win` + `R`

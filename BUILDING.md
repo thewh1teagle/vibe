@@ -6,15 +6,7 @@
 
 **Windows**:
 
-Tools: [vcpkg](https://vcpkg.io/en/)
-
 **Note** Install Clang into `C:\Program Files\LLVM` or set `LIBCLANG_PATH` env.
-
-`vcpkg` packages
-
-```console
-C:\vcpkg\vcpkg.exe install opencl
-```
 
 `Winget` packages
 
@@ -240,6 +232,5 @@ bun run scripts/pre_build.js
 # Export env
 $env:PATH += ";$pwddesktop\src-tauri\clblast\bin"
 $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
-$env:PATH += ";C:\vcpkg\packages\opencl_x64-windows\bin"
-cargo test --target x86_64-pc-windows-msvc --features "opencl" -p vibe_core --release -- --nocapture
+cargo test --target x86_64-pc-windows-msvc --features "vulkan" -p vibe_core --release -- --nocapture
 ```

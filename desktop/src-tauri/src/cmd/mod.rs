@@ -451,8 +451,8 @@ pub fn get_cargo_features() -> Vec<String> {
     if cfg!(feature = "openblas") {
         enabled_features.push("openblas".to_string());
     }
-    if cfg!(feature = "opencl") {
-        enabled_features.push("opencl".to_string());
+    if cfg!(feature = "vulkan") {
+        enabled_features.push("vulkan".to_string());
     }
     if cfg!(feature = "rocm") {
         enabled_features.push("rocm".to_string());

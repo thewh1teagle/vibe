@@ -39,17 +39,23 @@ jobs:
                   pre-build-args: ""
                   name: "Windows - x86_64"
                   action: "test"
-      
+
+                - platform: "windows-latest" # Windows x86_64 with vulkan
+                  args: '--target x86_64-pc-windows-msvc --features "vulkan"'
+                  pre-build-args: "--vulkan"
+                  name: "Windows - x86_64 with Vulkan"
+                  action: "test"
+
                 - platform: "windows-latest" # Windows x86_64 with openblas
                   args: '--target x86_64-pc-windows-msvc --features "openblas"'
                   pre-build-args: "--openblas"
                   name: "Windows - x86_64 with OpenBLAS"
                   action: "test"
       
-                - platform: "windows-latest" # Windows x86_64 with opencl
-                  args: '--target x86_64-pc-windows-msvc --features "opencl"'
-                  pre-build-args: "--opencl"
-                  name: "Windows - x86_64 with OpenCL"
+                - platform: "windows-latest" # Windows x86_64 with vulkan
+                  args: '--target x86_64-pc-windows-msvc --features "vulkan"'
+                  pre-build-args: "--vulkan"
+                  name: "Windows - x86_64 with Vulkan"
                   action: "test"
 
                 - platform: "ubuntu-22.04"
@@ -89,6 +95,12 @@ jobs:
                 sudo apt update
                 sudo apt install -y rocm
 
+            - name: Prepare Vulkan SDK
+              uses: humbletim/setup-vulkan-sdk@v1.2.0
+              with:
+                vulkan-components: Vulkan-Headers, Vulkan-Loader
+                vulkan-use-cache: true
+              if: contains(matrix.args, 'vulkan')
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
@@ -130,12 +142,10 @@ jobs:
               run: echo "$PWD/desktop/src-tauri/ffmpeg/bin" >> $GITHUB_PATH
               if: contains(matrix.platform, 'windows') == false
 
-            - name: Add openblas and opencl DLLs to path
-              if: contains(matrix.pre-build-args, 'openblas') || contains(matrix.pre-build-args, 'opencl')
+            - name: Add openblas DLLs to path
+              if: contains(matrix.pre-build-args, 'openblas')
               run: |
-                echo "$PWD/desktop/src-tauri/clblast/bin" >> $env:GITHUB_PATH
                 echo "$PWD/desktop/src-tauri/openblas/bin" >> $env:GITHUB_PATH
-                echo "C:/vcpkg/packages/opencl_x64-windows/bin" >> $env:GITHUB_PATH
 
 
             - name: Build
@@ -147,4 +157,3 @@ jobs:
               if: matrix.action == 'test'
               run: |
                 cargo test ${{ matrix.args }} -p vibe_core --release -- --nocapture
-              continue-on-error: ${{ contains(matrix.args, 'opencl') }} # OpenCL fail. need to check with whisper.cpp author

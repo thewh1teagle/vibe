@@ -79,7 +79,6 @@ cuda = ["vibe_core/cuda"]
 coreml = ["vibe_core/coreml"]
 metal = ["vibe_core/metal"]
 openblas = ["vibe_core/openblas"]
-opencl = ["vibe_core/opencl"]
 rocm = ["vibe_core/rocm"]
 
 # this feature is used for production builds or when `devPath` points to the filesystem
