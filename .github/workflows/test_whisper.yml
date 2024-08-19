@@ -56,7 +56,7 @@ jobs:
 
             - name: Build
               run: |
-                cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON
+                cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON
                 cmake --build build --config Release
 
             - name: Test Windows
