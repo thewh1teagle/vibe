@@ -92,7 +92,10 @@ jobs:
                 sudo apt install -y rocm
 
             - name: Prepare Vulkan SDK for Windows
-              run: C:\vcpkg\vcpkg.exe install vulkan-sdk-components
+              run: |
+                C:\msys64\usr\bin\wget.exe https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe -O vulkan.exe
+                vulkan.exe --root C:\vulkan --accept-licenses --default-answer --confirm-command install
+                echo "VULKAN_SDK=C:\vulkan" >> $GITHUB_ENV
               if: ${{ contains(matrix.args, 'vulkan') && contains(matrix.platform, 'windows') }}
 
             - name: Prepare Vulkan SDK for Linux
