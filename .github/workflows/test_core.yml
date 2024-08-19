@@ -32,6 +32,7 @@ jobs:
                   args: '--features "vulkan"'
                   pre-build-args: "--vulkan"
                   name: "Ubuntu 22.04 - x86_64"
+                  vulkan-version: 1.3.274.0
                   action: "test"
       
                 - platform: "windows-latest" # Windows x86_64
@@ -50,6 +51,7 @@ jobs:
                   args: '--target x86_64-pc-windows-msvc --features "vulkan"'
                   pre-build-args: "--vulkan"
                   name: "Windows - x86_64 with Vulkan"
+                  vulkan-version: 1.3.274.0
                   action: "test"
 
                 - platform: "ubuntu-22.04"
@@ -92,7 +94,7 @@ jobs:
             - name: Prepare Vulkan SDK
               uses: humbletim/setup-vulkan-sdk@v1.2.0
               with:
-                vulkan-query-version: 1.3.290.0
+                vulkan-query-version: ${{ matrix.vulkan-version }}
                 vulkan-components: Vulkan-Headers, Vulkan-Loader
                 vulkan-use-cache: true
               if: contains(matrix.args, 'vulkan')
