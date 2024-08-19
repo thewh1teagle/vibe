@@ -56,15 +56,15 @@ jobs:
 
             - name: Build
               run: |
-                cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON
-                cmake --build build --config Release
+                cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON
+                cmake --build build --target main --config Release
 
             - name: Test Windows
               if: contains(matrix.platform, 'windows')
               run: |
-                .\build\bin\Release\main -m ggml-tiny.ggml -f short.wav
+                .\build\bin\Release\main -m ggml-tiny.bin -f short.wav
 
             - name: Test Unix
               if: ${{ contains(matrix.platform, 'ubuntu') || contains(matrix.platform, 'macos') }}
               run: |
-                  ./build/bin/main -m ggml-tiny.ggml -f short.wav
+                  ./build/bin/main -m ggml-tiny.bin -f short.wav
