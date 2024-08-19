@@ -83,6 +83,10 @@ jobs:
                 docker-images: true
                 swap-storage: true
 
+            - name: Install mesa-vulkan-drivers
+              run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers
+              if: ${{ contains(matrix.platform, 'ubuntu') && contains(matrix.args, 'vulkan') }}
+
             - name: Install rocm 
               if: contains(matrix.args, 'rocm')
               run: |
