@@ -62,9 +62,9 @@ jobs:
             - name: Test Windows
               if: contains(matrix.platform, 'windows')
               run: |
-                .\build\bin\Release\main -m ggml-tiny.ggml -f short.wav
+                .\build\bin\Release\main -m ggml-tiny.bin -f short.wav
 
             - name: Test Unix
               if: ${{ contains(matrix.platform, 'ubuntu') || contains(matrix.platform, 'macos') }}
               run: |
-                  ./build/bin/main -m ggml-tiny.ggml -f short.wav
+                  ./build/bin/main -m ggml-tiny.bin -f short.wav
