@@ -57,7 +57,7 @@ jobs:
             - name: Build
               run: |
                 cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON
-                cmake --build build --config Release
+                cmake --build build --target main --config Release
 
             - name: Test Windows
               if: contains(matrix.platform, 'windows')
