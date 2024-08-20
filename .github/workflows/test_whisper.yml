@@ -40,6 +40,7 @@ jobs:
                 sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
                 sudo apt update
                 sudo apt install vulkan-sdk -y
+                sudo apt-get install -y mesa-vulkan-drivers
               if: contains(matrix.platform, 'ubuntu')
 
             - name: Download assets on Windows
