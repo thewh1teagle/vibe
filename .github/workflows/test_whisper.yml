@@ -25,7 +25,9 @@ jobs:
             - uses: actions/checkout@v4
               with:
                 repository: 'ggerganov/whisper.cpp'
-                ref: 'fe36c909715e6751277ddb020e7892c7670b61d4'
+            
+            - name: checkout PR
+              run: gh pr checkout https://github.com/ggerganov/whisper.cpp/pull/2367
 
             - name: Prepare Vulkan SDK for Windows
               run: |
@@ -64,7 +66,7 @@ jobs:
             - name: Test Windows
               if: contains(matrix.platform, 'windows')
               run: |
-                C:\msys64\usr\bin\strace .\build\bin\Release\main -m ggml-tiny.bin -f short.wav
+                .\build\bin\Release\main -m ggml-tiny.bin -f short.wav
 
             - name: Test Unix
               if: ${{ contains(matrix.platform, 'ubuntu') || contains(matrix.platform, 'macos') }}
