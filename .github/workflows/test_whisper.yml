@@ -28,6 +28,8 @@ jobs:
             
             - name: checkout PR
               run: gh pr checkout https://github.com/ggerganov/whisper.cpp/pull/2367
+              env:
+                GH_TOKEN: ${{ github.token }}
 
             - name: Prepare Vulkan SDK for Windows
               run: |
