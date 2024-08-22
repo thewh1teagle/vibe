@@ -139,3 +139,19 @@ vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/g
 **There's no support for Windows 7**
 
 </details>
+
+<details>
+<summary>Usage on linux server</summary>
+
+To use Vibe on linux server you need to install fake display
+
+```console
+Xvfb :1 -screen 0 1024x768x24 &
+export DISPLAY=1
+
+wget https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-medium.bin
+wget https://github.com/thewh1teagle/vibe/raw/main/samples/single.wav
+vibe --model ggml-medium.bin --file single.wav
+```
+
+</details>
