@@ -146,6 +146,7 @@ vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/g
 To use Vibe on linux server you need to install fake display
 
 ```console
+sudo apt-get install xvfb -y
 Xvfb :1 -screen 0 1024x768x24 &
 export DISPLAY=1
 
