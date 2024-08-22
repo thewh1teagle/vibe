@@ -136,6 +136,9 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     } else {
         DEAFULT_MODEL_URL.to_string()
     };
+    // On Linux deep link not working so users may paste the deep link in the download input
+    let download_url = download_url.replace("vibe://download/?url=", "");
+
     downloader
         .download(&download_url, model_path.to_owned(), download_progress_callback)
         .await?;

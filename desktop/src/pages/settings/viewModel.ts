@@ -73,9 +73,7 @@ export function viewModel() {
 		if (!downloadURL) {
 			return
 		}
-		// On Linux deep link not working so users may paste the deep link in the download input
-		const url = downloadURL.replace('vibe://download/?url=', '')
-		navigate('/setup', { state: { downloadURL: url } })
+		navigate('/setup', { state: { downloadURL } })
 	}
 
 	async function loadMeta() {
