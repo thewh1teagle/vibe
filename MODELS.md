@@ -1,43 +1,54 @@
 # 🌟 Vibe Models 🌟
 
-Welcome to the Vibe Models page! Here you can find a curated list of suggested models to use with Vibe. To install a model, simply click the link, and it will open in Vibe for download. 📥
+Welcome to the Vibe Models page! Here you can find a curated list of suggested models to use with Vibe. To install a model, use the "Magic Setup" link to open it in Vibe, or copy and paste the direct download link in Vibe settings.
 
 ## Available Models
 
 ### 🌱 Tiny Model
 
-This model is a compact and efficient version, suitable for quick tasks and limited-resource environments. Ideal for applications where speed and low memory usage are critical.
+A compact and efficient version, suitable for quick tasks and limited-resource environments.
 
-[👉 Download ggml-tiny](https://shorturl.at/XSP9R)
-
-### ⚖️ Medium Model
-
-The medium model provides a balance between performance and resource usage, making it suitable for most general applications. It offers a good trade-off between accuracy and computational demand.
-
-[👉 Download ggml-medium](https://shorturl.at/Ha6br)
-
-### 🚀 Large Model (v3)
-
-For tasks that require high accuracy and can afford more computational resources, the large model (version 3) is ideal. It excels in more complex scenarios and provides superior results.
-
-[👉 Download ggml-large-v3](https://tinyurl.com/3cn846h8)
+[👉 Magic Setup](https://shorturl.at/XSP9R)  
+[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
 ### 🌿 Small Model
 
-A small yet capable model for various tasks requiring a balance of efficiency and performance.
+A small yet capable model for a balance of efficiency and performance.
 
-[👉 Download ggml-small](https://shorturl.at/EmJS8)
+[👉 Magic Setup](https://shorturl.at/EmJS8)  
+[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
+
+### ⚖️ Medium Model
+
+Balances performance and resource usage, making it ideal for most general applications.
+
+[👉 Magic Setup](https://shorturl.at/Ha6br)  
+[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
+
+### 🚀 Large Model (v3)
+
+For high accuracy and more computational resources, excels in complex scenarios.
+
+[👉 Magic Setup](https://tinyurl.com/3cn846h8)  
+[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
+
+### 🚀 Distil Large Model (v3)
+
+A highly optimized version of the large model, designed for English. It offers 2-3x faster performance compared to the standard large model while maintaining high accuracy.
+
+[🔽 Direct Download](https://huggingface.co/distil-whisper/distil-large-v3-ggml/resolve/main/ggml-distil-large-v3.bin?download=true)
 
 ### ✡️ Ivrit Model (v2 d3 e3)
 
-This specialized model is designed for processing Hebrew (Ivrit) language data. It’s optimized for tasks involving Hebrew and ensures high accuracy for language-specific applications.
+Specialized for Hebrew (Ivrit) language data, optimized for high accuracy in Hebrew tasks.
 
-[👉 Download ggml-ivrit-v2-d3-e3](https://tinyurl.com/yckxca25)
+[👉 Magic Setup](https://tinyurl.com/yckxca25)  
+[🔽 Direct Download](https://huggingface.co/ivrit-ai/whisper-v2-d3-e3-ggml/resolve/main/ggml-ivrit-v2-d3-e3.bin?download=true)
 
 Enjoy exploring these models and enhancing your Vibe! 🌐✨
 
 ### Want More?
 
-If you’re looking for additional models, you can find a wide variety on the following page:
+Find additional models here:
 
-[👉 See More Models Here](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
+[👉 See More Models](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
