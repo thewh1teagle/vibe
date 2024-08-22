@@ -68,7 +68,7 @@ winreg = "0.52.0"
 # macOS
 [target.'cfg(target_os = "macos")'.dependencies]
 # TODO: use metal? https://github.com/ggerganov/whisper.cpp/discussions/1722
-vibe_core = { path = "../../core", features = ["coreml"] }
+vibe_core = { path = "../../core", features = ["coreml", "metal"] }
 cocoa = "0.25.0"
 screencapturekit = { version = "0.2.8", features = ["ci"] }
 screencapturekit-sys = "0.2.8"
