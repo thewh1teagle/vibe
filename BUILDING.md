@@ -6,15 +6,7 @@
 
 **Windows**:
 
-Tools: [vcpkg](https://vcpkg.io/en/)
-
 **Note** Install Clang into `C:\Program Files\LLVM` or set `LIBCLANG_PATH` env.
-
-`vcpkg` packages
-
-```console
-C:\vcpkg\vcpkg.exe install opencl
-```
 
 `Winget` packages
 
@@ -32,6 +24,12 @@ sudo apt-get update
 sudo apt-get install -y ffmpeg libopenblas-dev # runtime
 sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake libssl-dev # tauri
 sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
+```
+
+_Vulkan_
+
+```console
+sudo apt-get install -y mesa-vulkan-drivers
 ```
 
 ## Build
@@ -69,7 +67,6 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 			"ffmpeg\\bin\\x64\\*.dll": "./",
 			"openblas\\bin\\*.dll": "./",
 			"clblast\\bin\\*.dll": "./",
-			"C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cudart64_*": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublas64_*": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublasLt64_*": "./"
@@ -137,12 +134,6 @@ Rust analyzer failed to run on windows
 ```
 
 3. Relaunch `VSCode`
-
-When compile on Windows with OpenCL you should enable the following env:
-
-```console
-$env:CMAKE_BUILD_TYPE = "RelWithDebInfo"
-```
 
 Otherwise you will get error such as `ggml_gallocr_needs_realloc: graph has different number of nodes` and it will transcribe slower.
 
@@ -240,6 +231,5 @@ bun run scripts/pre_build.js
 # Export env
 $env:PATH += ";$pwddesktop\src-tauri\clblast\bin"
 $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
-$env:PATH += ";C:\vcpkg\packages\opencl_x64-windows\bin"
-cargo test --target x86_64-pc-windows-msvc --features "opencl" -p vibe_core --release -- --nocapture
+cargo test --target x86_64-pc-windows-msvc --features "vulkan" -p vibe_core --release -- --nocapture
 ```

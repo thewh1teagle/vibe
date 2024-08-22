@@ -67,6 +67,7 @@ winreg = "0.52.0"
 
 # macOS
 [target.'cfg(target_os = "macos")'.dependencies]
+# TODO: use metal? https://github.com/ggerganov/whisper.cpp/discussions/1722
 vibe_core = { path = "../../core", features = ["coreml", "metal"] }
 cocoa = "0.25.0"
 screencapturekit = { version = "0.2.8", features = ["ci"] }
@@ -79,8 +80,8 @@ cuda = ["vibe_core/cuda"]
 coreml = ["vibe_core/coreml"]
 metal = ["vibe_core/metal"]
 openblas = ["vibe_core/openblas"]
-opencl = ["vibe_core/opencl"]
 rocm = ["vibe_core/rocm"]
+vulkan = ["vibe_core/vulkan"]
 
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!

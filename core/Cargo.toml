@@ -9,7 +9,7 @@ path = "src/lib.rs"
 
 [dependencies]
 
-whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs.git", branch = "v1.6.2", features = [
+whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs.git", branch = "v1.6.3-beta.0", features = [
 	"whisper-cpp-tracing",
 ] }
 clap = { version = "4.4.13", features = ["derive"] }
@@ -49,10 +49,10 @@ default = []
 coreml = ["whisper-rs/coreml", "pyannote-rs/coreml"]
 directml = ["pyannote-rs/directml"]
 cuda = ["whisper-rs/cuda", "pyannote-rs/load-dynamic"]
-opencl = ["whisper-rs/opencl"]
 openblas = ["whisper-rs/openblas"]
 metal = ["whisper-rs/metal"]
 rocm = ["whisper-rs/hipblas"]
+vulkan = ["whisper-rs/vulkan"]
 
 
 [profile.test]

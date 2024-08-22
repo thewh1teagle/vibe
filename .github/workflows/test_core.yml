@@ -28,10 +28,11 @@ jobs:
                   name: "MacOS (Intel) - x86_64"
                   action: "test"
       
-                - platform: "ubuntu-22.04" # Ubuntu x86_64
-                  args: ""
-                  pre-build-args: ""
-                  name: "Ubuntu 22.04 - x86_64"
+                - platform: "ubuntu-24.04" # Ubuntu x86_64
+                  args: '--features "vulkan"'
+                  pre-build-args: "--vulkan"
+                  name: "Ubuntu 24.04 - x86_64"
+                  vulkan-version: 1.3.204.0
                   action: "test"
       
                 - platform: "windows-latest" # Windows x86_64
@@ -39,17 +40,18 @@ jobs:
                   pre-build-args: ""
                   name: "Windows - x86_64"
                   action: "test"
-      
+
                 - platform: "windows-latest" # Windows x86_64 with openblas
                   args: '--target x86_64-pc-windows-msvc --features "openblas"'
                   pre-build-args: "--openblas"
                   name: "Windows - x86_64 with OpenBLAS"
                   action: "test"
       
-                - platform: "windows-latest" # Windows x86_64 with opencl
-                  args: '--target x86_64-pc-windows-msvc --features "opencl"'
-                  pre-build-args: "--opencl"
-                  name: "Windows - x86_64 with OpenCL"
+                - platform: "windows-latest" # Windows x86_64 with vulkan
+                  args: '--target x86_64-pc-windows-msvc --features "vulkan"'
+                  pre-build-args: "--vulkan"
+                  name: "Windows - x86_64 with Vulkan"
+                  vulkan-version: 1.3.204.0
                   action: "test"
 
                 - platform: "ubuntu-22.04"
@@ -81,6 +83,10 @@ jobs:
                 docker-images: true
                 swap-storage: true
 
+            - name: Install mesa-vulkan-drivers
+              run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers
+              if: ${{ contains(matrix.platform, 'ubuntu') && contains(matrix.args, 'vulkan') }}
+
             - name: Install rocm 
               if: contains(matrix.args, 'rocm')
               run: |
@@ -89,6 +95,20 @@ jobs:
                 sudo apt update
                 sudo apt install -y rocm
 
+            - name: Prepare Vulkan SDK for Windows
+              run: |
+                C:\msys64\usr\bin\wget.exe https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe -O vulkan.exe
+                .\vulkan.exe --root C:\vulkan --accept-licenses --default-answer --confirm-command install
+                echo "VULKAN_SDK=C:\vulkan" >> $env:GITHUB_ENV
+              if: ${{ contains(matrix.args, 'vulkan') && contains(matrix.platform, 'windows') }}
+
+            - name: Prepare Vulkan SDK for Linux
+              run: |
+                wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+                sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+                sudo apt update
+                sudo apt install vulkan-sdk -y
+              if: ${{ contains(matrix.args, 'vulkan') && contains(matrix.platform, 'ubuntu') }}
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
@@ -130,12 +150,10 @@ jobs:
               run: echo "$PWD/desktop/src-tauri/ffmpeg/bin" >> $GITHUB_PATH
               if: contains(matrix.platform, 'windows') == false
 
-            - name: Add openblas and opencl DLLs to path
-              if: contains(matrix.pre-build-args, 'openblas') || contains(matrix.pre-build-args, 'opencl')
+            - name: Add openblas DLLs to path
+              if: contains(matrix.pre-build-args, 'openblas')
               run: |
-                echo "$PWD/desktop/src-tauri/clblast/bin" >> $env:GITHUB_PATH
                 echo "$PWD/desktop/src-tauri/openblas/bin" >> $env:GITHUB_PATH
-                echo "C:/vcpkg/packages/opencl_x64-windows/bin" >> $env:GITHUB_PATH
 
 
             - name: Build
@@ -147,4 +165,3 @@ jobs:
               if: matrix.action == 'test'
               run: |
                 cargo test ${{ matrix.args }} -p vibe_core --release -- --nocapture
-              continue-on-error: ${{ contains(matrix.args, 'opencl') }} # OpenCL fail. need to check with whisper.cpp author

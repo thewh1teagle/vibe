@@ -136,6 +136,7 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     } else {
         DEAFULT_MODEL_URL.to_string()
     };
+
     downloader
         .download(&download_url, model_path.to_owned(), download_progress_callback)
         .await?;
@@ -398,7 +399,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
 
 #[tauri::command]
 pub fn is_portable() -> bool {
-    !env!("WINDOWS_PORTABLE").is_empty()
+    env!("WINDOWS_PORTABLE") == "1"
 }
 
 #[tauri::command]
@@ -451,8 +452,8 @@ pub fn get_cargo_features() -> Vec<String> {
     if cfg!(feature = "openblas") {
         enabled_features.push("openblas".to_string());
     }
-    if cfg!(feature = "opencl") {
-        enabled_features.push("opencl".to_string());
+    if cfg!(feature = "vulkan") {
+        enabled_features.push("vulkan".to_string());
     }
     if cfg!(feature = "rocm") {
         enabled_features.push("rocm".to_string());

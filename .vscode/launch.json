@@ -61,8 +61,8 @@
                     "OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
                     "CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast",
                     "LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin",
-                    "PATH": "${env:PATH};${workspaceFolder}\\desktop\\src-tauri\\openblas\\bin;${workspaceFolder}\\desktop\\src-tauri\\clblast\\bin;${workspaceFolder}\\desktop\\src-tauri\\ffmpeg\\bin\\x64;C:\\vcpkg\\packages\\opencl_x64-windows\\bin",
-                    "RUSTFLAGS": "-L ${workspaceFolder}\\desktop\\src-tauri\\clblast\\lib -L ${workspaceFolder}\\desktop\\src-tauri\\openblas\\lib -L C:\\vcpkg\\packages\\opencl_x64-windows\\lib"
+                    "PATH": "${env:PATH};${workspaceFolder}\\desktop\\src-tauri\\openblas\\bin;${workspaceFolder}\\desktop\\src-tauri\\clblast\\bin;${workspaceFolder}\\desktop\\src-tauri\\ffmpeg\\bin\\x64",
+                    "RUSTFLAGS": "-L ${workspaceFolder}\\desktop\\src-tauri\\clblast\\lib -L ${workspaceFolder}\\desktop\\src-tauri\\openblas\\lib"
                 },
             },
             "args": [],
