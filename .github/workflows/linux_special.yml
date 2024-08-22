@@ -132,7 +132,7 @@ jobs:
             - name: Build
               uses: tauri-apps/tauri-action@v0
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GH_TOKEN }}
                   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
                   INPUT_CUDA_VERSION: ${{ matrix.cuda-version }}
@@ -170,4 +170,4 @@ jobs:
                   bun scripts/publish.js target/release/bundle/deb/*.deb
                   bun scripts/publish.js target/release/bundle/rpm/*.rpm
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GH_TOKEN }}
