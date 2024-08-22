@@ -1,0 +1,30 @@
+name: Test upload
+
+on:
+    workflow_dispatch:
+jobs:
+    test-upload:
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    # Ubuntu 22.04
+                    - platform: "ubuntu-24.04"
+                      name: "ubuntu-24.04"
+
+        runs-on: ${{ matrix.platform }}
+        steps:
+            - uses: actions/checkout@v4
+
+    
+            - name: setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Upload installer
+              run: |
+                  echo hi > test1.txt
+                  bun scripts/publish.js test1.txt
+              env:
+                  GH_TOKEN: ${{ secrets.GH_TOKEN }}
