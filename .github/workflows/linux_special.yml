@@ -1,4 +1,4 @@
-name: Linux with Vulkan, Cuda and Rocm
+name: Linux with Vulkan
 
 on:
     workflow_dispatch:
