@@ -45,13 +45,22 @@ jobs:
               run: bun install
               working-directory: ./desktop
 
-            - name: Prepare Vulkan SDK
-              uses: humbletim/setup-vulkan-sdk@v1.2.0
-              with:
-                vulkan-query-version: 1.3.290.0
-                vulkan-components: Vulkan-Headers, Vulkan-Loader
-                vulkan-use-cache: true
-              if: contains(matrix.args, 'vulkan')
+            - name: Prepare Vulkan SDK for Windows
+              run: |
+                C:\msys64\usr\bin\wget.exe https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe -O vulkan.exe
+                .\vulkan.exe --root C:\vulkan --accept-licenses --default-answer --confirm-command install
+                echo "VULKAN_SDK=C:\vulkan" >> $env:GITHUB_ENV
+                Copy-Item -Path "C:\vulkan\Bin\*.dll" -Destination "." -Recurse
+              if: ${{ contains(matrix.platform, 'windows') && contains(matrix.args, 'vulkan') }}
+
+            - name: Prepare Vulkan SDK for Linux
+              run: |
+                wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+                sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+                sudo apt update
+                sudo apt install vulkan-sdk -y
+                sudo apt-get install -y mesa-vulkan-drivers
+              if: ${{ contains(matrix.platform, 'ubuntu') && contains(matrix.args, 'vulkan') }}
 
             # Run pre build
             - name: Run pre_build.js on ${{ matrix.platform }}
