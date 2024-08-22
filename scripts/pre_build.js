@@ -261,8 +261,9 @@ if (process.env.GITHUB_ENV) {
 		await fs.appendFile(process.env.GITHUB_ENV, ffmpeg)
 	}
 	if (platform == 'macos') {
-		const embed_metal = 'WHISPER_METAL_EMBED_LIBRARY=ON'
-		await fs.appendFile(process.env.GITHUB_ENV, embed_metal)
+		// TODO: handle metal
+		// const embed_metal = 'WHISPER_METAL_EMBED_LIBRARY=ON'
+		// await fs.appendFile(process.env.GITHUB_ENV, embed_metal)
 	}
 	if (platform == 'windows') {
 		const openblas = `OPENBLAS_PATH=${exports.openBlas}\n`
