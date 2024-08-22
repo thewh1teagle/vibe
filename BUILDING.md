@@ -26,6 +26,12 @@ sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev l
 sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
 ```
 
+_Vulkan_
+
+```console
+sudo apt-get install -y mesa-vulkan-drivers
+```
+
 ## Build
 
 Install dependencies from `desktop` folder

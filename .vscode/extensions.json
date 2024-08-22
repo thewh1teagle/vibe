@@ -7,6 +7,7 @@
 		"dbaeumer.vscode-eslint", // Integrates ESLint JavaScript into VS Code
 		"esbenp.prettier-vscode", // Code formatter using prettier,
 		"lokalise.i18n-ally",
-		"svelte.svelte-vscode" // i18n-ally is an all-in-one i18n (internationalization) extension for VS Code
+		"svelte.svelte-vscode",
+		"tamasfe.even-better-toml" // i18n-ally is an all-in-one i18n (internationalization) extension for VS Code
 	]
 }

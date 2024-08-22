@@ -1,7 +1,12 @@
-name: Test whisper
+name: Test
+on: [push, pull_request, workflow_dispatch]
 
-on:
-    workflow_dispatch:
+env:
+  MODEL_URL: https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+  MODEL_FILENAME: ggml-tiny.bin
+  AUDIO_URL: https://github.com/ggerganov/whisper.cpp/raw/master/samples/jfk.wav
+  AUDIO_FILENAME: jfk.wav
+
 jobs:
     test:
         permissions:
@@ -10,26 +15,34 @@ jobs:
             fail-fast: false
             matrix:
               include:
-                - platform: "macos-latest" # for Arm based macs (M1 and above).
+                # macOS
+
+                - platform: "macos-latest"
                   name: "MacOS (Arm) - aarch64"
-      
-                - platform: "ubuntu-24.04" # Ubuntu x86_64
+                  cmake-args: "-DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON"
+
+                # Linux
+                - platform: "ubuntu-24.04"
                   name: "Ubuntu 24.04 - x86_64"
-      
-                - platform: "windows-latest" # Windows x86_64
+                  cmake-args: "-DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON"
+
+                - platform: "ubuntu-24.04"
+                  name: "Ubuntu 24.04 - x86_64 - Vulkan"
+                  cmake-args: "-DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON"
+
+                # Windows
+                - platform: "windows-latest"
                   name: "Windows - x86_64"
+                  cmake-args: "-DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON"
+
+                - platform: "windows-latest"
+                  name: "Windows - x86_64 - Vulkan"
+                  cmake-args: "-DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON"
 
         runs-on: ${{ matrix.platform }}
         name: ${{ matrix.name }}
         steps:
             - uses: actions/checkout@v4
-              with:
-                repository: 'ggerganov/whisper.cpp'
-            
-            - name: checkout PR
-              run: gh pr checkout https://github.com/ggerganov/whisper.cpp/pull/2367
-              env:
-                GH_TOKEN: ${{ github.token }}
 
             - name: Prepare Vulkan SDK for Windows
               run: |
@@ -37,7 +50,7 @@ jobs:
                 .\vulkan.exe --root C:\vulkan --accept-licenses --default-answer --confirm-command install
                 echo "VULKAN_SDK=C:\vulkan" >> $env:GITHUB_ENV
                 Copy-Item -Path "C:\vulkan\Bin\*.dll" -Destination "." -Recurse
-              if: contains(matrix.platform, 'windows')
+              if: ${{ contains(matrix.platform, 'windows') && contains(matrix.cmake-args, 'DGGML_VULKAN=ON') }}
 
             - name: Prepare Vulkan SDK for Linux
               run: |
@@ -46,31 +59,28 @@ jobs:
                 sudo apt update
                 sudo apt install vulkan-sdk -y
                 sudo apt-get install -y mesa-vulkan-drivers
-              if: contains(matrix.platform, 'ubuntu')
+              if: ${{ contains(matrix.platform, 'ubuntu') && contains(matrix.cmake-args, 'DGGML_VULKAN=ON') }}
 
             - name: Download assets on Windows
               if: contains(matrix.platform, 'windows')
               run: |
-                C:\msys64\usr\bin\wget.exe https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
-                C:\msys64\usr\bin\wget.exe https://github.com/thewh1teagle/vibe/raw/main/samples/short.wav
+                C:\msys64\usr\bin\wget.exe ${{ env.MODEL_URL }}
+                C:\msys64\usr\bin\wget.exe ${{ env.AUDIO_URL }}
         
             - name: Download assets on Linux
               if: contains(matrix.platform, 'windows') == false
               run: |
-                wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
-                wget https://github.com/thewh1teagle/vibe/raw/main/samples/short.wav
-
+                wget ${{ env.MODEL_URL }}
+                wget ${{ env.AUDIO_URL }}
             - name: Build
               run: |
-                cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DGGML_STATIC=ON
+                cmake -B build ${{ matrix.cmake-args }}
                 cmake --build build --target main --config Release
-
             - name: Test Windows
               if: contains(matrix.platform, 'windows')
               run: |
-                .\build\bin\Release\main -m ggml-tiny.bin -f short.wav
-
+                .\build\bin\Release\main -m ${{ env.MODEL_FILENAME }} -f ${{ env.AUDIO_FILENAME }}
             - name: Test Unix
               if: ${{ contains(matrix.platform, 'ubuntu') || contains(matrix.platform, 'macos') }}
               run: |
-                  ./build/bin/main -m ggml-tiny.bin -f short.wav
+                  ./build/bin/main -m ${{ env.MODEL_FILENAME }} -f ${{ env.AUDIO_FILENAME }}
