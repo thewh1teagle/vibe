@@ -237,6 +237,10 @@ if (!process.env.GITHUB_ENV) {
 			console.log(`$env:ROCM_VERSION = "6.1.2"`)
 			console.log(`$env:ROCM_PATH = "${rocmPath}"`)
 		}
+
+		if (hasFeature('portable')) {
+			console.log('$env:WINDOWS_PORTABLE=1')
+		}
 	}
 	if (platform == 'macos') {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
@@ -270,22 +274,17 @@ if (process.env.GITHUB_ENV) {
 		console.log('Adding ENV', openblas)
 		await fs.appendFile(process.env.GITHUB_ENV, openblas)
 
-		if (hasFeature('cuda')) {
-			// link msvc dynamic
-			const knfStaticCrt = 'KNF_STATIC_CRT=0\n'
-			console.log('Adding ENV', knfStaticCrt)
-			await fs.appendFile(process.env.GITHUB_ENV, knfStaticCrt)
-
-			const whisperStaticMsvc = 'WHISPER_USE_STATIC_MSVC=0\n'
-			console.log('Adding ENV', whisperStaticMsvc)
-			await fs.appendFile(process.env.GITHUB_ENV, whisperStaticMsvc)
-		}
-
 		if (hasFeature('older-cpu')) {
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX=ON\n`)
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_AVX2=ON\n`)
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_FMA=ON\n`)
 			await fs.appendFile(process.env.GITHUB_ENV, `WHISPER_NO_F16C=ON\n`)
+		}
+
+		if (hasFeature('portable')) {
+			const windowsPortable = 'WINDOWS_PORTABLE=1\n'
+			console.log('Adding ENV', windowsPortable)
+			await fs.appendFile(process.env.GITHUB_ENV, windowsPortable)
 		}
 	}
 }

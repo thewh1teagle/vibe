@@ -398,7 +398,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
 
 #[tauri::command]
 pub fn is_portable() -> bool {
-    !env!("WINDOWS_PORTABLE").is_empty()
+    env!("WINDOWS_PORTABLE") == "1"
 }
 
 #[tauri::command]

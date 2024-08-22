@@ -22,21 +22,13 @@ jobs:
                       rust-version: "stable"
                       name: "ubuntu-22.04"
 
-                    # Ubuntu 24.04
-                    - platform: "ubuntu-24.04"
-                      args: '--features "vulkan"'
-                      pre-build-args: "--vulkan"
-                      rust-version: "stable"
-                      name: "ubuntu-24.04"
-
-
                     # Ubuntu 22.04 cuda
-                    - platform: "ubuntu-22.04"
-                      args: '--features "cuda"'
-                      pre-build-args: "--cuda"
-                      rust-version: "stable"
-                      cuda-version: "12.4.1"
-                      name: "ubuntu-22.04-nvidia-12"
+                    # - platform: "ubuntu-22.04"
+                    #   args: '--features "cuda"'
+                    #   pre-build-args: "--cuda"
+                    #   rust-version: "stable"
+                    #   cuda-version: "12.4.1"
+                    #   name: "ubuntu-22.04-nvidia-12"
 
                     # Ubuntu 24.04 cuda
                     # https://github.com/Jimver/cuda-toolkit/issues/365
@@ -48,12 +40,12 @@ jobs:
                     #   name: "ubuntu-24.04-nvidia-12"
 
                     # Ubuntu 22.04 rocm
-                    - platform: "ubuntu-22.04"
-                      args: '--features "rocm"'
-                      rocm-version: "6.1.2"
-                      pre-build-args: "--rocm"
-                      rust-version: "stable"
-                      name: "ubuntu-24.04-rocm-6.1.2"
+                    # - platform: "ubuntu-22.04"
+                    #   args: '--features "rocm"'
+                    #   rocm-version: "6.1.2"
+                    #   pre-build-args: "--rocm"
+                    #   rust-version: "stable"
+                    #   name: "ubuntu-24.04-rocm-6.1.2"
 
         runs-on: ${{ matrix.platform }}
         steps:

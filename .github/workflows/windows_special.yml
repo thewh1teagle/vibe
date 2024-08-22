@@ -27,21 +27,21 @@ jobs:
                       name: "older-cpu"
                       rust-version: "stable"
                     
-                    # Windows cuda 12.5.0
-                    - platform: "windows-latest"
-                      args: '--features="cuda"'
-                      pre-build-args: "--cuda"
-                      name: 'nvidia-12.5.0'
-                      cuda-verison: '12.5.0'
-                      rust-version: "stable"
+                    # # Windows cuda 12.5.0
+                    # - platform: "windows-latest"
+                    #   args: '--features="cuda"'
+                    #   pre-build-args: "--cuda"
+                    #   name: 'nvidia-12.5.0'
+                    #   cuda-verison: '12.5.0'
+                    #   rust-version: "stable"
 
                     # Windows cuda 11.8.0
-                    - platform: "windows-latest"
-                      args: '--features="cuda"'
-                      pre-build-args: "--cuda" 
-                      name: 'nvidia-11.8.0'
-                      cuda-verison: '11.8.0'
-                      rust-version: "stable"                      
+                    # - platform: "windows-latest"
+                    #   args: '--features="cuda"'
+                    #   pre-build-args: "--cuda" 
+                    #   name: 'nvidia-11.8.0'
+                    #   cuda-verison: '11.8.0'
+                    #   rust-version: "stable"                      
 
                     # Windows portable
                     - platform: "windows-latest" # Windows x86_64
