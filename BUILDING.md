@@ -67,7 +67,6 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 			"ffmpeg\\bin\\x64\\*.dll": "./",
 			"openblas\\bin\\*.dll": "./",
 			"clblast\\bin\\*.dll": "./",
-			"C:\\vcpkg\\packages\\opencl_x64-windows\\bin\\*.dll": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cudart64_*": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublas64_*": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublasLt64_*": "./"
@@ -135,12 +134,6 @@ Rust analyzer failed to run on windows
 ```
 
 3. Relaunch `VSCode`
-
-When compile on Windows with OpenCL you should enable the following env:
-
-```console
-$env:CMAKE_BUILD_TYPE = "RelWithDebInfo"
-```
 
 Otherwise you will get error such as `ggml_gallocr_needs_realloc: graph has different number of nodes` and it will transcribe slower.
 
