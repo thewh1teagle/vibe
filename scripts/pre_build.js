@@ -80,6 +80,7 @@ if (platform == 'linux') {
 	await $`sudo apt-get update`
 	if (hasFeature('vulkan')) {
 		config.linux.aptPackages.push('libvulkan1')
+		config.linux.aptPackages.push('mesa-vulkan-drivers')
 	}
 	for (const name of config.linux.aptPackages) {
 		await $`sudo apt-get install -y ${name}`
