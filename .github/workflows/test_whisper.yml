@@ -1,5 +1,5 @@
 name: Test
-on: [push, pull_request, workflow_dispatch]
+on: [workflow_dispatch]
 
 env:
   MODEL_URL: https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
@@ -43,6 +43,9 @@ jobs:
         name: ${{ matrix.name }}
         steps:
             - uses: actions/checkout@v4
+              with:
+                repository: 'https://github.com/ggerganov/whisper.cpp'
+                
 
             - name: Prepare Vulkan SDK for Windows
               run: |
