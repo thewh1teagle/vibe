@@ -45,10 +45,8 @@
 -   🌐 Translate to English from any language
 -   🖨️ Print transcript directly to any printer
 -   🔄 Automatic updates
--   🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
--   💻 Optimized for `GPU` (`macOS`, `Windows`)
--   🎮 Optimized for `Nvidia` GPUs! (see [INSTALL.md#nvidia](INSTALL.md#nvidia))
--   🎮 Optimized for `AMD` GPUs (linux only)! (see [INSTALL.md#amd](INSTALL.md#amd))
+-   💻 Optimized for `GPU` (`macOS`, `Windows`, `Linux`)
+-   🎮 Optimized for `Nvidia` / `AMD` / `Intel` GPUs! (`Vulkan`/`CoreML`)
 -   🔧 Total Freedom: Customize Models Easily via Settings
 -   ⚙️ Model arguments for advanced users
 -   ⏳ Transcribe system audio
