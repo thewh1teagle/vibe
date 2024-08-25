@@ -17,7 +17,7 @@ use std::sync::atomic::Ordering;
 pub static IS_CLI: Lazy<AtomicBool> = Lazy::new(|| AtomicBool::new(false));
 
 /// Attach to console if cli detected in Windows
-#[cfg(windows)]
+#[cfg(all(windows, not(debug_assertions)))]
 pub fn attach_console() {
     use windows::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
     let attach_result = unsafe { AttachConsole(ATTACH_PARENT_PROCESS) };
@@ -38,6 +38,22 @@ pub fn attach_console() {
     } else {
         tracing::debug!("No CLI detected.");
     }
+}
+
+pub fn is_cli_detected() -> bool {
+    if IS_CLI.load(Ordering::Relaxed) {
+        return true;
+    }
+    // Get the command-line arguments as an iterator
+    let args: Vec<String> = std::env::args().collect();
+
+    // Check if any argument starts with "--"
+    for arg in &args {
+        if arg.starts_with("--") || arg == "-h" {
+            return true;
+        }
+    }
+    false
 }
 
 /// Simple program to greet a person

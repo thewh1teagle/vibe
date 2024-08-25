@@ -36,7 +36,5 @@
     "i18n-ally.tabStyle": "tab",
     "rust-analyzer.cargo.extraEnv": {
         "FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
-        "OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-        "CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast"
     }
 }
