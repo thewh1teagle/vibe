@@ -1,41 +1,43 @@
 use clap::Parser;
 use eyre::{Context, ContextCompat, Result};
+use once_cell::sync::Lazy;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
+use std::process;
 use std::time::Instant;
-use std::{env, process};
 use tauri::AppHandle;
 use vibe_core::config::TranscribeOptions;
 use vibe_core::transcribe;
 
 use crate::cmd::get_models_folder;
 use crate::server;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
+
+pub static IS_CLI: Lazy<AtomicBool> = Lazy::new(|| AtomicBool::new(false));
 
 /// Attach to console if cli detected in Windows
 #[cfg(windows)]
 pub fn attach_console() {
     use windows::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
-    if env::var("RUST_LOG").is_ok() || is_cli_detected() {
-        // we ignore the result here because
-        // if the app started from a command line, like cmd or powershell,
-        // it will attach sucessfully which is what we want
-        // but if we were started from something like explorer,
-        // it will fail to attach console which is also what we want.
-        let _ = unsafe { AttachConsole(ATTACH_PARENT_PROCESS) };
-    }
-}
-
-pub fn is_cli_detected() -> bool {
-    // Get the command-line arguments as an iterator
-    let args: Vec<String> = env::args().collect();
-
-    // Check if any argument starts with "--"
-    for arg in &args {
-        if arg.starts_with("--") || arg == "-h" {
-            return true;
+    let attach_result = unsafe { AttachConsole(ATTACH_PARENT_PROCESS) };
+    if attach_result.is_ok() {
+        IS_CLI.store(true, Ordering::Relaxed);
+        // Wer'e in CLI
+        // Experimental: redirect stdout and stderr to the new console. otherwise c++ bindings writes won't show.
+        // https://users.rust-lang.org/t/stderr-write-from-c-bindings-missing-on-windows/116582
+        unsafe {
+            let conout = std::ffi::CString::new("CONOUT$").expect("CString::new failed");
+            let stdout = libc_stdhandle::stdout();
+            let stderr = libc_stdhandle::stderr();
+            let mode = std::ffi::CString::new("w").unwrap();
+            libc::freopen(conout.as_ptr(), mode.as_ptr(), stdout);
+            libc::freopen(conout.as_ptr(), mode.as_ptr(), stderr);
         }
+        tracing::debug!("CLI detected. attached console successfuly");
+    } else {
+        tracing::debug!("No CLI detected.");
     }
-    false
 }
 
 /// Simple program to greet a person

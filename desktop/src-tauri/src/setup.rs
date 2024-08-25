@@ -1,12 +1,12 @@
 use crate::{
-    cli,
+    cli::{self, IS_CLI},
     config::STORE_FILENAME,
     panic_hook,
     utils::{get_issue_url, LogError},
 };
 use eyre::eyre;
 use once_cell::sync::Lazy;
-use std::fs;
+use std::{fs, sync::atomic::Ordering};
 use tauri::{App, Manager};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::ShellExt;
@@ -105,7 +105,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     tracing::debug!("COMMIT_HASH: {}", env!("COMMIT_HASH"));
 
     let app_handle = app.app_handle().clone();
-    if cli::is_cli_detected() {
+    if IS_CLI.load(Ordering::Relaxed) {
         tauri::async_runtime::spawn(async move {
             cli::run(&app_handle).await.map_err(|e| eyre!("{:?}", e)).log_error();
         });

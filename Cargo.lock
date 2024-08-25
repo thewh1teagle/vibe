@@ -2661,9 +2661,19 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.155"
+version = "0.2.158"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
+checksum = "d8adc4bb1803a324070e64a98ae98f38934d91957a99cfb3a43dcbc01bc56439"
+
+[[package]]
+name = "libc-stdhandle"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6dac2473dc28934c5e0b82250dab231c9d3b94160d91fe9ff483323b05797551"
+dependencies = [
+ "cc",
+ "libc",
+]
 
 [[package]]
 name = "libloading"
@@ -6264,6 +6274,8 @@ dependencies = [
  "eyre 1.0.0",
  "futures",
  "hound",
+ "libc",
+ "libc-stdhandle",
  "objc_id",
  "once_cell",
  "open",

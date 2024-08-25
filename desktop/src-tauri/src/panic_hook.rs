@@ -1,12 +1,16 @@
 use crate::{
-    cli,
+    cli::IS_CLI,
     cmd::is_portable,
     config,
     utils::{get_current_dir, LogError},
 };
 use chrono::Local;
 use eyre::{eyre, Context, Result};
-use std::{panic, path::PathBuf, sync::Arc};
+use std::{
+    panic,
+    path::PathBuf,
+    sync::{atomic::Ordering, Arc},
+};
 use tauri::{AppHandle, Manager};
 
 fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
@@ -46,7 +50,8 @@ pub fn set_panic_hook(app: &AppHandle) -> Result<()> {
             .context("write")
             .map_err(|e| eyre!("{:?}", e))
             .log_error();
-        if !cli::is_cli_detected() {
+        // Open the log path in release mode
+        if !cfg!(debug_assertions) && !IS_CLI.load(Ordering::Relaxed) {
             showfile::show_path_in_file_manager(log_path.as_path());
         }
     }));
