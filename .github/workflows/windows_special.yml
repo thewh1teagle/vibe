@@ -176,13 +176,18 @@ jobs:
             - name: Upload installer
               if: github.event.inputs.skip-publish != '1'
               run: |
-                filePattern="${{ matrix.name }}" =~ "portable" ? "*.zip" : "*.exe"
-                if [[ ${{ matrix.args }} == *--debug* ]]; then
-                    dirPath="target/debug/bundle/nsis/"
-                else
-                    dirPath="target/release/bundle/nsis/"
-                fi
-                bun scripts/publish.js "$dirPath$filePattern"
+                $filePattern = if ($matrix.name -match "portable") {
+                  "*.zip"
+                } else {
+                  "*.exe"
+                }
+                if ($matrix.args -like "*--debug*") {
+                  $dirPath = "target/debug/bundle/nsis/"
+                } else {
+                  $dirPath = "target/release/bundle/nsis/"
+                }
+                $fullPath = "${dirPath}${filePattern}"
+                bun scripts/publish.js $fullPath
               shell: pwsh
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
