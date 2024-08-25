@@ -45,16 +45,14 @@
 -   🌐 Translate to English from any language
 -   🖨️ Print transcript directly to any printer
 -   🔄 Automatic updates
--   🖥️ Optimized for `CPU` on (`Windows` / `Linux`)
--   💻 Optimized for `GPU` (`macOS`, `Windows`)
--   🎮 Optimized for `Nvidia` GPUs! (see [INSTALL.md#nvidia](INSTALL.md#nvidia))
--   🎮 Optimized for `AMD` GPUs (linux only)! (see [INSTALL.md#amd](INSTALL.md#amd))
+-   💻 Optimized for `GPU` (`macOS`, `Windows`, `Linux`)
+-   🎮 Optimized for `Nvidia` / `AMD` / `Intel` GPUs! (`Vulkan`/`CoreML`)
 -   🔧 Total Freedom: Customize Models Easily via Settings
 -   ⚙️ Model arguments for advanced users
 -   ⏳ Transcribe system audio
 -   🎤 Transcribe from microphone
 -   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
--   👥 Speaker diarization (Beta)
+-   👥 Speaker diarization
 -   📱 ~iOS & Android support~ (coming soon)
 -   📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
 -   📹 Choose caption length optimized for videos / reels

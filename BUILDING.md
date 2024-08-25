@@ -26,10 +26,18 @@ sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev l
 sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
 ```
 
-_Vulkan_
+_Vulkan (Linux)_
 
 ```console
 sudo apt-get install -y mesa-vulkan-drivers
+```
+
+_Vulkan (Windows)_
+
+Download from [vulkan.lunarg.com](https://vulkan.lunarg.com/) and set environment variable
+
+```console
+$env:VULKAN_SDK = "C:\VulkanSDK\<version>"
 ```
 
 ## Build

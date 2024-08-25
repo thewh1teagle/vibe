@@ -218,7 +218,6 @@ if (!process.env.GITHUB_ENV) {
 	}
 	console.log('bun install')
 	if (platform == 'windows') {
-		console.log(`$env:RUSTFLAGS = "-C target-feature=+crt-static"`)
 		console.log(`$env:FFMPEG_DIR = "${exports.ffmpeg}"`)
 		console.log(`$env:OPENBLAS_PATH = "${exports.openBlas}"`)
 		console.log(`$env:LIBCLANG_PATH = "${exports.libClang}"`)
