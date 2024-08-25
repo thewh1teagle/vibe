@@ -103,4 +103,13 @@ neofetch
 
 </details>
 
+<details>
+<summary>vulkan-1.dll or vcomp140.dll is missing</summary>
+
+For `vcomp140.dll` install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+
+For `vulkan-1.dll` install [VulkanRT-Installer.exe](https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanRT-1.3.290.0-Installer.exe)
+
+</details>
+
 After you finished, share you results by opening [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=%5BBug%5D%3A+) or just comment in the issue.
