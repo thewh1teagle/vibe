@@ -50,13 +50,6 @@ jobs:
                       name: portable
                       rust-version: "stable"
 
-                    # Windows debug
-                    - platform: "windows-latest" # Windows x86_64
-                      args: '--features="vulkan" --debug'
-                      pre-build-args: "--vulkan"
-                      name: debug
-                      rust-version: "stable"
-
         runs-on: ${{ matrix.platform }}
         steps:
             - uses: actions/checkout@v4
@@ -176,18 +169,8 @@ jobs:
             - name: Upload installer
               if: github.event.inputs.skip-publish != '1'
               run: |
-                $filePattern = if ($matrix.name -match "portable") {
-                  "*.zip"
-                } else {
-                  "*.exe"
-                }
-                if ($matrix.args -like "*--debug*") {
-                  $dirPath = "target/debug/bundle/nsis/"
-                } else {
-                  $dirPath = "target/release/bundle/nsis/"
-                }
-                $fullPath = "${dirPath}${filePattern}"
-                bun scripts/publish.js $fullPath
+                $filePattern = '${{ matrix.name }}' -match 'portable' ? '*.zip' : '*.exe'
+                bun scripts/publish.js target/release/bundle/nsis/$filePattern
               shell: pwsh
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
