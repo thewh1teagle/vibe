@@ -8,8 +8,6 @@ import AudioInput from '~/pages/home/AudioInput'
 import AudioPlayer from './AudioPlayer'
 import ProgressPanel from './ProgressPanel'
 import { viewModel } from './viewModel'
-import { useEffect } from 'react'
-import * as webviewWindow from '@tauri-apps/api/webviewWindow'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
 import { ReactComponent as FileIcon } from '~/icons/file.svg'
 import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
@@ -18,17 +16,17 @@ export default function Home() {
 	const { t } = useTranslation()
 	const vm = viewModel()
 
-	async function showWindow() {
-		const currentWindow = webviewWindow.getCurrentWebviewWindow()
-		await currentWindow.show()
-		if (import.meta.env.PROD) {
-			await currentWindow.setFocus()
-		}
-	}
+	// async function showWindow() {
+	// 	const currentWindow = webviewWindow.getCurrentWebviewWindow()
+	// 	await currentWindow.show()
+	// 	if (import.meta.env.PROD) {
+	// 		await currentWindow.setFocus()
+	// 	}
+	// }
 
-	useEffect(() => {
-		showWindow()
-	}, [])
+	// useEffect(() => {
+	// showWindow()
+	// }, [])
 
 	return (
 		<Layout>
