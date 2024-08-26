@@ -41,9 +41,6 @@ pub fn attach_console() {
 }
 
 pub fn is_cli_detected() -> bool {
-    if IS_CLI.load(Ordering::Relaxed) {
-        return true;
-    }
     // Get the command-line arguments as an iterator
     let args: Vec<String> = std::env::args().collect();
 
