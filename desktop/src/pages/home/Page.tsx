@@ -11,22 +11,24 @@ import { viewModel } from './viewModel'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
 import { ReactComponent as FileIcon } from '~/icons/file.svg'
 import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
+import { useEffect } from 'react'
+import { webviewWindow } from '@tauri-apps/api'
 
 export default function Home() {
 	const { t } = useTranslation()
 	const vm = viewModel()
 
-	// async function showWindow() {
-	// 	const currentWindow = webviewWindow.getCurrentWebviewWindow()
-	// 	await currentWindow.show()
-	// 	if (import.meta.env.PROD) {
-	// 		await currentWindow.setFocus()
-	// 	}
-	// }
+	async function showWindow() {
+		const currentWindow = webviewWindow.getCurrentWebviewWindow()
+		await currentWindow.show()
+		if (import.meta.env.PROD) {
+			await currentWindow.setFocus()
+		}
+	}
 
-	// useEffect(() => {
-	// showWindow()
-	// }, [])
+	useEffect(() => {
+		showWindow()
+	}, [])
 
 	return (
 		<Layout>
