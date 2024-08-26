@@ -4,14 +4,23 @@ import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName } from '~/lib/i18n'
 import { usePreferenceProvider } from '~/providers/Preference'
 
+const specialModels = [{ pattern: 'ug.bin', languages: [{ code: 'ug', label: 'Uyghur', name: 'uyghur' }] }]
+
 export default function LanguageInput() {
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 
 	// create entries with translated labels
 	const entries = Object.entries(WhisperLanguages).map(([name, code]) => {
-		return { label: t(`language.${name}`), name, code }
+		return { label: t(`language.${name}`, { defaultValue: name }), name, code }
 	})
+
+	// Speical models with special languages
+	for (const special of specialModels) {
+		if (preference.modelPath?.endsWith(special.pattern)) {
+			entries.push(...special.languages)
+		}
+	}
 	// sort alphabet
 	entries.sort((a, b) => {
 		return a.label.localeCompare(b.label)
