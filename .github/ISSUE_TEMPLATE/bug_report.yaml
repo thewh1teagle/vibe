@@ -11,7 +11,7 @@ body:
               Thanks for taking the time to fill out this bug report!
               Please, if possible, just open settings in vibe, and click 'Report Bug'
               This way I'll get all the relevant info required
-              When you finished, if possible please check [Debug.md](https://github.com/thewh1teagle/vibe/blob/main/DEBUG.md) and add comments with more info.
+              When you finished, if possible please check [Debug.md](https://github.com/thewh1teagle/vibe/blob/main/docs/DEBUG.md) and add comments with more info.
 
     - type: textarea
       id: what-happened

@@ -66,7 +66,7 @@
 
 # Install notes
 
-See [Install.md](INSTALL.md)
+See [Install.md](docs/INSTALL.md)
 
 # Contribute 🤝
 
@@ -105,7 +105,7 @@ Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-
 
 # Issue report
 
-You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=%5BBug%5D%3A+) and it's recommend to check [DEBUG.md](DEBUG.md) first.
+You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=%5BBug%5D%3A+) and it's recommend to check [DEBUG.md](docs/DEBUG.md) first.
 
 # Credits
 
