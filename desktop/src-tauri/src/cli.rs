@@ -14,15 +14,12 @@ use crate::server;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 
-pub static IS_CLI: Lazy<AtomicBool> = Lazy::new(|| AtomicBool::new(false));
-
 /// Attach to console if cli detected in Windows
 #[cfg(all(windows, not(debug_assertions)))]
 pub fn attach_console() {
     use windows::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
     let attach_result = unsafe { AttachConsole(ATTACH_PARENT_PROCESS) };
     if attach_result.is_ok() {
-        IS_CLI.store(true, Ordering::Relaxed);
         // Wer'e in CLI
         // Experimental: redirect stdout and stderr to the new console. otherwise c++ bindings writes won't show.
         // https://users.rust-lang.org/t/stderr-write-from-c-bindings-missing-on-windows/116582
