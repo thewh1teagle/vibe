@@ -55,7 +55,7 @@ Find additional models here:
 
 ---
 
-Prepare your own models
+# Prepare your own models
 
 <details>
 <summary>Convert transformers to GGML</summary>
