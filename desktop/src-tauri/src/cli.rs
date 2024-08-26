@@ -1,6 +1,5 @@
 use clap::Parser;
 use eyre::{Context, ContextCompat, Result};
-use once_cell::sync::Lazy;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::process;
@@ -11,8 +10,6 @@ use vibe_core::transcribe;
 
 use crate::cmd::get_models_folder;
 use crate::server;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
 
 /// Attach to console if cli detected in Windows
 #[cfg(all(windows, not(debug_assertions)))]
