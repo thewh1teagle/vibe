@@ -52,3 +52,29 @@ Enjoy exploring these models and enhancing your Vibe! 🌐✨
 Find additional models here:
 
 [👉 See More Models](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
+
+---
+
+Prepare your own models
+
+<details>
+<summary>Convert transformers to GGML</summary>
+
+```console
+mkdir whisper
+cd whisper
+
+python3 -m venv venv
+source venv/bin/activate
+pip3 install torch torchvision torchaudio transformers
+
+git clone https://github.com/openai/whisper --depth 1
+git clone https://github.com/ggerganov/whisper.cpp --depth 1
+
+# Prepare whisper-tiny for conversion
+git clone https://huggingface.co/openai/whisper-tiny --depth 1
+python3 ./whisper.cpp/models/convert-h5-to-ggml.py ./whisper-tiny/ ./whisper .
+mv ggml-model.bin ggml-tiny.bin
+```
+
+</details>
