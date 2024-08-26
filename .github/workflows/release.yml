@@ -45,14 +45,6 @@ jobs:
               run: bun install
               working-directory: ./desktop
 
-            - name: Prepare Vulkan SDK for Windows
-              run: |
-                C:\msys64\usr\bin\wget.exe https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe -O vulkan.exe
-                .\vulkan.exe --root C:\vulkan --accept-licenses --default-answer --confirm-command install
-                echo "VULKAN_SDK=C:\vulkan" >> $env:GITHUB_ENV
-                Copy-Item -Path "C:\vulkan\Bin\*.dll" -Destination "." -Recurse
-              if: ${{ contains(matrix.platform, 'windows') && contains(matrix.args, 'vulkan') }}
-
             - name: Prepare Vulkan SDK for Ubuntu 22.04
               run: |
                 wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc

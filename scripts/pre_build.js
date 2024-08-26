@@ -21,6 +21,8 @@ const config = {
 	ffmpegRealname: 'ffmpeg',
 	openblasRealname: 'openblas',
 	clblastRealname: 'clblast',
+	vulkanRuntimeRealName: 'vulkan_runtime',
+	vulkanSdkRealName: 'vulkan_sdk',
 	windows: {
 		ffmpegName: 'ffmpeg-7.0-windows-desktop-vs2022-default',
 		ffmpegUrl: 'https://unlimited.dl.sourceforge.net/project/avbuild/windows-desktop/ffmpeg-7.0-windows-desktop-vs2022-default.7z?viasf=1',
@@ -31,6 +33,10 @@ const config = {
 		clblastName: 'CLBlast-1.6.2-windows-x64',
 		clblastUrl: 'https://github.com/CNugteren/CLBlast/releases/download/1.6.2/CLBlast-1.6.2-windows-x64.zip',
 
+		vulkanRuntimeName: 'VulkanRT-1.3.290.0-Components',
+		vulkanRuntimeUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanRT-1.3.290.0-Components.zip',
+		vulkanSdkName: 'VulkanSDK-1.3.290.0-Installer',
+		vulkanSdkUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe',
 		vcpkgPackages: [],
 	},
 	linux: {
@@ -118,6 +124,20 @@ if (platform == 'windows') {
 		await $`rm ${config.windows.clblastName}.7z`
 	}
 
+	// Setup Vulkan
+	if (!(await fs.exists(config.vulkanSdkRealName)) && hasFeature('vulkan')) {
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.vulkanSdkUrl} -O ${config.windows.vulkanSdkName}.exe`
+		let executable = path.join(cwd, `${config.windows.vulkanSdkName}.exe`)
+		let vulkanSdkRoot = path.join(cwd, config.vulkanSdkRealName)
+		await $`${executable} --root ${vulkanSdkRoot} --accept-licenses --default-answer --confirm-command install`
+
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.vulkanRuntimeUrl} -O ${config.windows.vulkanRuntimeName}.zip`
+		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.vulkanRuntimeName}.zip` // 7z file inside
+		await $`mv ${config.windows.vulkanRuntimeName} ${config.vulkanRuntimeRealName}`
+		await $`rm ${config.windows.vulkanSdkName}.exe`
+		await $`rm ${config.windows.vulkanRuntimeName}.zip`
+	}
+
 	// Setup vcpkg packages
 	if (config.windows.vcpkgPackages.length > 0) {
 		await $`C:\\vcpkg\\vcpkg.exe install ${config.windows.vcpkgPackages}`.quiet()
@@ -182,6 +202,26 @@ if (hasFeature('openblas')) {
 	}
 }
 
+// Vulkan
+let vulkanPath = path.join(cwd, config.vulkanSdkRealName)
+let vulkanRuntimePath = path.join(cwd, config.vulkanRuntimeRealName)
+if (hasFeature('vulkan')) {
+	if (platform === 'windows') {
+		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.resources['vulkan_runtime\\x64\\*.dll'] = './'
+		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
+	}
+	if (platform === 'linux') {
+		// Add vulkan depends
+		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
+		const tauriConfig = JSON.parse(tauriConfigContent)
+		tauriConfig.bundle.linux.deb.depends.push('libvulkan1')
+		tauriConfig.bundle.linux.deb.depends.push('mesa-vulkan-drivers')
+		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
+	}
+}
+
 // ROCM
 let rocmPath = '/opt/rocm'
 if (hasFeature('rocm')) {
@@ -241,6 +281,11 @@ if (!process.env.GITHUB_ENV) {
 		if (hasFeature('portable')) {
 			console.log('$env:WINDOWS_PORTABLE=1')
 		}
+
+		if (hasFeature('vulkan')) {
+			console.log(`$env:VULKAN_SDK = "${vulkanPath}"`)
+			console.log(`$env:PATH += "${vulkanRuntimePath}"`)
+		}
 	}
 	if (platform == 'macos') {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
@@ -284,6 +329,10 @@ if (process.env.GITHUB_ENV) {
 			const windowsPortable = 'WINDOWS_PORTABLE=1\n'
 			console.log('Adding ENV', windowsPortable)
 			await fs.appendFile(process.env.GITHUB_ENV, windowsPortable)
+		}
+
+		if (hasFeature('vulkan')) {
+			await fs.appendFile(process.env.GITHUB_ENV, `VULKAN_SDK=${vulkanPath}\n`)
 		}
 	}
 }

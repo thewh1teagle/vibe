@@ -19,6 +19,8 @@ openblas/
 .env
 !samples/*
 clblast/
+vulkan_sdk/
+vulkan_runtime/
 schemas/
 node_modules/
 .DS_Store

@@ -32,14 +32,6 @@ _Vulkan (Linux)_
 sudo apt-get install -y mesa-vulkan-drivers
 ```
 
-_Vulkan (Windows)_
-
-Download from [vulkan.lunarg.com](https://vulkan.lunarg.com/) and set environment variable
-
-```console
-$env:VULKAN_SDK = "C:\VulkanSDK\<version>"
-```
-
 ## Build
 
 Install dependencies from `desktop` folder
