@@ -22,9 +22,16 @@ jobs:
                 include:
                     # Windows no AVX2
                     - platform: "windows-latest"
+                      args: ''
+                      pre-build-args: "--older-cpu"
+                      name: "older-cpu"
+                      rust-version: "stable"
+
+                    # Windows no AVX2
+                    - platform: "windows-latest"
                       args: '--features="vulkan"'
                       pre-build-args: "--older-cpu --vulkan"
-                      name: "older-cpu"
+                      name: "older-cpu-vulkan"
                       rust-version: "stable"
                     
                     # # Windows cuda 12.5.0
