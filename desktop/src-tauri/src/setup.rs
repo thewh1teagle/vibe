@@ -101,6 +101,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows")))]
     tracing::debug!("CPU feature detection is not supported on this architecture.");
+    tracing::debug!("Executable Architecture: {}", std::env::consts::ARCH);
 
     tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
     tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
