@@ -416,7 +416,7 @@ pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
 pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     let stores = app_handle.state::<StoreCollection<Wry>>();
     if let Ok(Some(models_folder)) = with_store(app_handle.clone(), stores, STORE_FILENAME, |store| {
-        tracing::debug!("{:?}", store.get("models_folder"));
+        tracing::debug!("models folder {:?}", store.get("models_folder"));
         Ok(store.get("models_folder").and_then(|p| p.as_str().map(PathBuf::from)))
     }) {
         tracing::debug!("models folder: {:?}", models_folder);
