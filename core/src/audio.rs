@@ -64,6 +64,8 @@ pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
         "1",
         "-c:a",
         "pcm_s16le",
+        "-af", // normalize loudness
+        "loudnorm=I=-16:TP=-1.5:LRA=11",
         output.to_str().context("tostr")?,
         "-hide_banner",
         "-y",
