@@ -201,7 +201,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             }
         }
 
-        let mut dst = if wav_paths.len() == 1 {
+        let dst = if wav_paths.len() == 1 {
             wav_paths[0].0.clone()
         } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
@@ -216,22 +216,27 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             // choose the second WAV file or fallback to the first one
             wav_paths[1].0.clone()
         };
+ 
+
+        tracing::debug!("Emitting record_finish event");
+        let mut normalized = std::env::temp_dir().join(format!("{}.wav", get_local_time()));
+        vibe_core::audio::normalize(dst.clone(), normalized.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+
         if store_in_documents {
-            if let Some(file_name) = dst.file_name() {
+            if let Some(file_name) = normalized.file_name() {
                 let documents_path = app_handle_clone.path().document_dir().map_err(|e| eyre!("{e:?}")).log_error();
                 if let Some(documents_path) = documents_path {
                     let target_path = documents_path.join(file_name);
-                    std::fs::rename(&dst, &target_path).context("Failed to move file to documents directory").map_err(|e| eyre!("{e:?}")).log_error();
-                    dst = target_path;
+                    if std::fs::rename(&normalized, &target_path).context("Failed to move file to documents directory").map_err(|e| eyre!("{e:?}")).is_err() {
+                        // if it's different filesystem
+                        std::fs::copy(&normalized, &target_path).context("Failed to copy file to documents directory").map_err(|e| eyre!("{e:?}")).log_error();
+                    }
+                    normalized = target_path;
                 }
             } else {
                 tracing::error!("Failed to retrieve file name from destination path");
             }
         }
-
-        tracing::debug!("Emitting record_finish event");
-        let normalized = std::env::temp_dir().join(format!("{}.wav", get_local_time()));
-        vibe_core::audio::normalize(dst.clone(), normalized.clone()).map_err(|e| eyre!("{e:?}")).log_error();
 
         // Clean files
         for (path, _) in wav_paths {
