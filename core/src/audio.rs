@@ -1,5 +1,6 @@
 use eyre::{bail, Context, ContextCompat, Result};
 use hound::{SampleFormat, WavReader};
+use std::io::Read;
 use std::process::Stdio;
 use std::{path::PathBuf, process::Command};
 use which::which;
@@ -55,7 +56,7 @@ pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
     tracing::debug!("ffmpeg path is {}", ffmpeg_path.display());
 
     let mut cmd = Command::new(ffmpeg_path);
-    let cmd = cmd.args([
+    let cmd = cmd.stderr(Stdio::piped()).args([
         "-i",
         input.to_str().context("tostr")?,
         "-ar",
@@ -80,7 +81,12 @@ pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
 
     let mut pid = cmd.spawn()?;
     if !pid.wait()?.success() {
-        bail!("unable to convert file")
+        let mut output = String::new();
+        if let Some(ref mut stderr) = pid.stderr {
+            stderr.take(1000).read_to_string(&mut output)?;
+        }
+
+        bail!("unable to convert file: {:?} args: {:?}", output, cmd.get_args());
     }
 
     if !output.exists() {
