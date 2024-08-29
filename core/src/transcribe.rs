@@ -314,7 +314,9 @@ pub fn transcribe(
     };
 
     // cleanup
-    std::fs::remove_file(out_path)?;
+    if out_path.starts_with(std::env::temp_dir()) {
+        std::fs::remove_file(out_path)?;
+    }
 
     Ok(transcript)
 }
