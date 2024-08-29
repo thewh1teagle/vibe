@@ -1,3 +1,4 @@
+use chrono::Local;
 use eyre::{Context, ContextCompat, Result};
 use rand::distributions::Alphanumeric;
 use rand::Rng;
@@ -5,6 +6,11 @@ use std::env;
 use std::path::PathBuf;
 
 use crate::cmd::{get_commit_hash, get_cuda_version, get_x86_features};
+
+pub fn get_local_time() -> String {
+    let now = Local::now();
+    now.format("%Y-%m-%d %H:%M:%S").to_string()
+}
 
 pub fn random_string(length: usize) -> String {
     rand::thread_rng()

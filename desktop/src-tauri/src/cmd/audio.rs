@@ -12,7 +12,7 @@ use tauri::{AppHandle, Emitter, Listener, Manager};
 #[cfg(target_os = "macos")]
 use crate::screen_capture_kit;
 
-use crate::utils::{random_string, LogError};
+use crate::utils::{get_local_time, random_string, LogError};
 
 type WavWriterHandle = Arc<Mutex<Option<hound::WavWriter<BufWriter<File>>>>>;
 
@@ -230,7 +230,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         }
 
         tracing::debug!("Emitting record_finish event");
-        let normalized = std::env::temp_dir().join(format!("{}.wav", random_string(10)));
+        let normalized = std::env::temp_dir().join(format!("{}.wav", get_local_time()));
         vibe_core::audio::normalize(dst.clone(), normalized.clone()).map_err(|e| eyre!("{e:?}")).log_error();
 
         // Clean files
