@@ -2,6 +2,7 @@ use crate::audio;
 use crate::config::TranscribeOptions;
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, eyre, Context, OptionExt, Result};
+use hound::WavReader;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
@@ -47,7 +48,23 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<Whis
     }
 }
 
+pub fn should_normalize(source: PathBuf) -> bool {
+    if source.extension().unwrap_or_default() == "wav" {
+        // Maybe no need normalize
+        if let Ok(reader) = WavReader::open(source.clone()) {
+            let spec = reader.spec();
+            tracing::debug!("wav spec: {:?}", spec);
+            if spec.channels == 1 && spec.sample_rate == 16000 && spec.bits_per_sample == 16 {
+                return false;
+            }
+        }
+    }
+    true
+}
+
 pub fn create_normalized_audio(source: PathBuf) -> Result<PathBuf> {
+    tracing::debug!("normalize {:?}", source.display());
+
     let out_path = tempfile::Builder::new()
         .suffix(".wav")
         .tempfile()?
@@ -126,7 +143,12 @@ pub fn transcribe(
         bail!("audio file doesn't exist")
     }
 
-    let out_path = create_normalized_audio(options.path.clone().into())?;
+    let out_path = if should_normalize(options.path.clone().into()) {
+        create_normalized_audio(options.path.clone().into())?
+    } else {
+        tracing::debug!("Skip normalize");
+        options.path.clone().into()
+    };
     tracing::debug!("out path is {}", out_path.display());
     let original_samples = audio::parse_wav_file(&out_path)?;
 
