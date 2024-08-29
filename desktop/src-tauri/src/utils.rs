@@ -9,7 +9,7 @@ use crate::cmd::{get_commit_hash, get_cuda_version, get_x86_features};
 
 pub fn get_local_time() -> String {
     let now = Local::now();
-    now.format("%Y-%m-%d %H:%M:%S").to_string()
+    now.format("%Y-%m-%d %H-%M-%S").to_string()
 }
 
 pub fn random_string(length: usize) -> String {
