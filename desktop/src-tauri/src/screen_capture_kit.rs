@@ -1,3 +1,4 @@
+use core_graphics_helmer_fork::access::ScreenCaptureAccess;
 use eyre::{bail, eyre, Context, ContextCompat, Result};
 use objc_id::Id;
 use screencapturekit_sys::os_types::base::BOOL;
@@ -53,7 +54,24 @@ impl UnsafeSCStreamOutput for StoreAudioHandler {
     }
 }
 
+pub fn reset_screen_permissions() {
+    #[cfg(target_os = "macos")]
+    std::process::Command::new("tccutil")
+        .arg("reset")
+        .arg("ScreenCapture")
+        .arg("github.com.thewh1teagle.vibe")
+        .spawn()
+        .expect("failed to reset screen permissions");
+}
+
+pub fn has_permission() -> bool {
+    ScreenCaptureAccess::default().preflight()
+}
+
 pub fn init() -> Result<Id<UnsafeSCStream>> {
+    if !has_permission() {
+        reset_screen_permissions();
+    }
     // Don't record the screen
     let display = UnsafeSCShareableContent::get()
         .map_err(|e| eyre!("{:?}", e))?
