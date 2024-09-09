@@ -64,9 +64,9 @@ const config = {
 		ffmpegUrl: 'https://master.dl.sourceforge.net/project/avbuild/macOS/ffmpeg-6.1-macOS-default.tar.xz?viasf=1',
 	},
 	diarization: {
-		embedModelUrl: 'https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/wespeaker_en_voxceleb_CAM++.onnx',
+		embedModelUrl: 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx',
 		embedModelFilename: 'wespeaker_en_voxceleb_CAM++.onnx',
-		segmentModelUrl: 'https://github.com/pengzhendong/pyannote-onnx/raw/master/pyannote_onnx/segmentation-3.0.onnx',
+		segmentModelUrl: 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx',
 		segmentModelFilename: 'segmentation-3.0.onnx',
 	},
 }
