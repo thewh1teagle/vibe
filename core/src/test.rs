@@ -1,5 +1,5 @@
 /*
-wget https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+wget https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-tiny.bin
 cargo test --features "vulkan" -- --nocapture
 cargo test --release --features "vulkan" -- --nocapture
 */
