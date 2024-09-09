@@ -75,6 +75,12 @@ git clone https://github.com/ggerganov/whisper.cpp --depth 1
 git clone https://huggingface.co/openai/whisper-tiny --depth 1
 python3 ./whisper.cpp/models/convert-h5-to-ggml.py ./whisper-tiny/ ./whisper .
 mv ggml-model.bin ggml-tiny.bin
+
+# Optional: upload to hugginface
+
+pip install -U "huggingface_hub[cli]"
+huggingface-cli login
+huggingface-cli upload thewh1teagle/ggml-tiny ./ggml-tiny.bin
 ```
 
 </details>
