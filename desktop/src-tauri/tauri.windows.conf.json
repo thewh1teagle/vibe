@@ -1,7 +1,13 @@
 {
-	"bundle": {
-		"resources": {
-			"ffmpeg\\bin\\x64\\*": "./"
-		}
-	}
+    "bundle": {
+        "windows": {
+            "nsis": {
+                "installerHooks": "vc_redist.nsh"
+            }
+        },
+        "resources": {
+            "ffmpeg\\bin\\x64\\*": "./",
+            "vulkan_runtime\\x64\\*.dll": "./"
+        }
+    }
 }
