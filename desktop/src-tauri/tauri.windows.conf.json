@@ -6,8 +6,7 @@
             }
         },
         "resources": {
-            "ffmpeg\\bin\\x64\\*": "./",
-            "vulkan_runtime\\x64\\*.dll": "./"
+            "ffmpeg\\bin\\x64\\*": "./"
         }
     }
 }
