@@ -158,6 +158,22 @@ export function viewModel() {
 		})
 	}
 
+	async function checkVulkanOk() {
+		try {
+			await invoke('check_vulkan')
+		} catch (error) {
+			console.error(error)
+			await dialog.message(
+				`Your GPU is unsupported in this version of Vibe. Please download vibe_2.4.0_x64-setup.exe. Click OK to open the download page.`,
+				{
+					kind: 'error',
+				}
+			)
+			open(config.latestVersionWithoutVulkan)
+		}
+		
+	}
+
 	async function CheckCpuAndInit() {
 		const features = await getX86Features()
 		if (features) {
@@ -187,6 +203,7 @@ export function viewModel() {
 	}
 
 	useEffect(() => {
+		checkVulkanOk()
 		CheckCpuAndInit()
 	}, [])
 

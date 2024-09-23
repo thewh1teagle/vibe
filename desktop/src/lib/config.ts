@@ -6,6 +6,7 @@ export const unsupportedCpuReadmeURL = 'https://github.com/thewh1teagle/vibe/blo
 export const supportVibeURL = 'https://ko-fi.com/thewh1teagle'
 export const storeFilename = 'app_config.json'
 export const latestReleaseURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
+export const latestVersionWithoutVulkan = 'https://github.com/thewh1teagle/vibe/releases/download/v2.4.0/vibe_2.4.0_x64-setup.exe'
 
 export const embeddingModelFilename = 'wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelFilename = 'segmentation-3.0.onnx'

@@ -403,6 +403,44 @@ pub fn is_portable() -> bool {
 }
 
 #[tauri::command]
+pub fn check_vulkan() -> Result<()> {
+    #[cfg(feature = "vulkan")]
+    {
+        use ash::vk;
+        unsafe {
+            let entry = match ash::Entry::load() {
+                Ok(e) => e,
+                Err(e) => {
+                    tracing::error!("Failed to load Vulkan entry: {:?}", e);
+                    return Err(e.into());
+                }
+            };
+
+            let app_desc = vk::ApplicationInfo::default().api_version(vk::make_api_version(0, 1, 0, 0));
+            let instance_desc = vk::InstanceCreateInfo::default().application_info(&app_desc);
+
+            let instance = match entry.create_instance(&instance_desc, None) {
+                Ok(inst) => inst,
+                Err(e) => {
+                    tracing::error!("Failed to create Vulkan instance: {:?}", e);
+                    return Err(e.into());
+                }
+            };
+
+            instance.destroy_instance(None);
+            tracing::debug!("Vulkan support is successfully checked and working.");
+        }
+        Ok(())
+    }
+
+    #[cfg(not(feature = "vulkan"))]
+    {
+        tracing::debug!("Vulkan check skipped on this platform");
+        Ok(())
+    }
+}
+
+#[tauri::command]
 pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     let config_path = if is_portable() {
         get_current_dir()?

@@ -65,6 +65,8 @@ windows = { version = "0.56.0", features = [
 	"Win32_System_Console",
 	"Win32_Foundation",
 ] }
+# Used to check that vulkan works
+ash = { version = "0.38.0", optional = true }
 # Used to redirect stdout/stderr from c++ to the attached console. otherwise whisper errors won't show
 libc = "0.2.158"
 libc-stdhandle = "0.1.0"
@@ -86,7 +88,7 @@ coreml = ["vibe_core/coreml"]
 metal = ["vibe_core/metal"]
 openblas = ["vibe_core/openblas"]
 rocm = ["vibe_core/rocm"]
-vulkan = ["vibe_core/vulkan"]
+vulkan = ["vibe_core/vulkan", "dep:ash"]
 
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!

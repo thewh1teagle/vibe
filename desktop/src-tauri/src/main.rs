@@ -80,6 +80,7 @@ fn main() -> Result<()> {
             cmd::audio::start_record,
             cmd::get_models_folder,
             cmd::is_portable,
+            cmd::check_vulkan,
             cmd::get_logs_folder,
             #[cfg(windows)]
             cmd::set_high_gpu_preference
