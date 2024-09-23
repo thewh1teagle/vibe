@@ -404,7 +404,7 @@ pub fn is_portable() -> bool {
 
 #[tauri::command]
 pub fn check_vulkan() -> Result<()> {
-    #[cfg(feature = "vulkan")]
+    #[cfg(all(feature = "vulkan", windows))]
     {
         use ash::vk;
         unsafe {
@@ -432,8 +432,7 @@ pub fn check_vulkan() -> Result<()> {
         }
         Ok(())
     }
-
-    #[cfg(not(feature = "vulkan"))]
+    #[cfg(not(all(feature = "vulkan", windows)))]
     {
         tracing::debug!("Vulkan check skipped on this platform");
         Ok(())
