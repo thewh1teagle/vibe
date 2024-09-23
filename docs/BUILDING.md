@@ -103,6 +103,8 @@ bunx tauri build
 
 ## Gotchas
 
+On Windows when run `pre_build` with `--vulkan` you may need to run it with admin rights first time thanks to vulkan recent changes...
+
 On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
 
 ```console
