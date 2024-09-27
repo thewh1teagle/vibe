@@ -45,6 +45,8 @@ export interface Preference {
 	diarizeThreshold: number
 	setDiarizeThreshold: ModifyState<number>
 	setLanguageDirections: () => void
+	homeTabIndex: number
+	setHomeTabIndex: ModifyState<number>
 }
 
 // Create the context
@@ -100,6 +102,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', true)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 	const [highGraphicsPreference, setHighGraphicsPreference] = useLocalStorage<boolean>('prefs_high_graphics_performance', false)
+	const [homeTabIndex, setHomeTabIndex] = useLocalStorage<number>('prefs_home_tab_index', 1)
 
 	useEffect(() => {
 		setIsFirstRun(false)
@@ -171,6 +174,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setTheme,
 		gpuDevice,
 		setGpuDevice,
+		homeTabIndex,
+		setHomeTabIndex,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

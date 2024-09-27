@@ -11,6 +11,7 @@ import { viewModel } from './viewModel'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
 import { ReactComponent as FileIcon } from '~/icons/file.svg'
 import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
+import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
 
@@ -33,14 +34,23 @@ export default function Home() {
 	return (
 		<Layout>
 			<div role="tablist" className="tabs tabs-lifted flex m-auto mt-5">
-				<a role="tab" onClick={() => vm.setTabIndex(0)} className={cx('tab [--tab-border-color:gray]', vm.tabIndex === 0 && 'tab-active')}>
-					<FileIcon className="w-[18px] h-[18px]" />
-				</a>
-				<a role="tab" onClick={() => vm.setTabIndex(1)} className={cx('tab [--tab-border-color:gray]', vm.tabIndex === 1 && 'tab-active')}>
+				<a
+					role="tab"
+					onClick={() => vm.preference.setHomeTabIndex(0)}
+					className={cx('tab [--tab-border-color:gray]', vm.preference.homeTabIndex === 0 && 'tab-active')}>
 					<MicrphoneIcon className="w-[18px] h-[18px]" />
 				</a>
+				<a
+					role="tab"
+					onClick={() => vm.preference.setHomeTabIndex(1)}
+					className={cx('tab [--tab-border-color:gray]', vm.preference.homeTabIndex === 1 && 'tab-active')}>
+					<FileIcon className="w-[18px] h-[18px]" />
+				</a>
+				<a role="tab" onClick={vm.switchToLinkTab} className={cx('tab [--tab-border-color:gray]', vm.preference.homeTabIndex === 2 && 'tab-active')}>
+					<LinkIcon className="w-[18px] h-[18px]" />
+				</a>
 			</div>
-			{vm.tabIndex === 0 && (
+			{vm.preference.homeTabIndex === 0 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
 						<div className="join join-vertical">
@@ -85,7 +95,7 @@ export default function Home() {
 				</>
 			)}
 
-			{vm.tabIndex === 1 && (
+			{vm.preference.homeTabIndex === 1 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
 						<div className="">

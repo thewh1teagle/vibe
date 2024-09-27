@@ -19,6 +19,8 @@ import { ErrorModalContext } from '~/providers/ErrorModal'
 import { useFilesContext } from '~/providers/FilesProvider'
 import { ModelOptions, usePreferenceProvider } from '~/providers/Preference'
 import { UpdaterContext } from '~/providers/Updater'
+import * as ytDlp from '~/lib/ytdlp'
+import { useTranslation } from 'react-i18next'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -37,9 +39,9 @@ export function viewModel() {
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
+	const { t } = useTranslation()
 
 	const { files, setFiles } = useFilesContext()
-	const [tabIndex, setTabIndex] = useState(0)
 	const preference = usePreferenceProvider()
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
@@ -57,6 +59,23 @@ export function viewModel() {
 		onFilesChanged()
 	}, [files])
 
+	async function switchToLinkTab() {
+		const exists = await ytDlp.exists()
+		if (!exists) {
+			const shouldInstall = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
+				title: t('common.ask-for-install-ytdlp-title'),
+				kind: 'info',
+				cancelLabel: t('common.cancel'),
+				okLabel: t('common.install-now'),
+			})
+			if (shouldInstall) {
+				await ytDlp.downloadYtDlp()
+			}
+		} else {
+			preference.setHomeTabIndex(2)
+		}
+	}
+
 	async function handleNewSegment() {
 		await listen('transcribe_progress', (event) => {
 			const value = event.payload as number
@@ -73,7 +92,7 @@ export function viewModel() {
 	async function handleRecordFinish() {
 		await listen<{ path: string; name: string }>('record_finish', (event) => {
 			const { name, path } = event.payload
-			setTabIndex(0)
+			preference.setHomeTabIndex(1)
 			setFiles([{ name, path }])
 			setIsRecording(false)
 		})
@@ -171,7 +190,6 @@ export function viewModel() {
 			)
 			open(config.latestVersionWithoutVulkan)
 		}
-		
 	}
 
 	async function CheckCpuAndInit() {
@@ -300,7 +318,6 @@ export function viewModel() {
 		setSegments,
 		transcribe,
 		onAbort,
-		tabIndex,
-		setTabIndex,
+		switchToLinkTab,
 	}
 }
