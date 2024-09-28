@@ -3,7 +3,6 @@ import { ytDlpConfig } from './config'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as path from '@tauri-apps/api/path'
 import { invoke } from '@tauri-apps/api/core'
-import { Command } from '@tauri-apps/plugin-shell'
 
 const platformName = platform()
 const { url, name } = ytDlpConfig[platformName as keyof typeof ytDlpConfig]
