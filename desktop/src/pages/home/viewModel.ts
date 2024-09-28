@@ -73,11 +73,16 @@ export function viewModel() {
 				okLabel: t('common.install-now'),
 			})
 			if (shouldInstall) {
-				toast.setMessage(t('common.downloading-ytdlp'))
-				toast.setOpen(true)
-				await ytDlp.downloadYtDlp()
-				toast.setOpen(false)
-				preference.setHomeTabIndex(2)
+				try {
+					toast.setMessage(t('common.downloading-ytdlp'))
+					toast.setOpen(true)
+					await ytDlp.downloadYtDlp()
+					toast.setOpen(false)
+					preference.setHomeTabIndex(2)
+				} catch (e) {
+					console.error(e)
+					setErrorModal?.({ log: String(e), open: true })
+				}
 			}
 		} else {
 			preference.setHomeTabIndex(2)
@@ -300,10 +305,16 @@ export function viewModel() {
 	async function downloadAudio() {
 		if (audioUrl) {
 			setDownloadingAudio(true)
-			const outPath = await ytDlp.downloadAudio(audioUrl, preference.storeRecordInDocuments)
-			preference.setHomeTabIndex(1)
-			setFiles([{ name: 'audio.m4a', path: outPath }])
-			setDownloadingAudio(false)
+			try {
+				const outPath = await ytDlp.downloadAudio(audioUrl, preference.storeRecordInDocuments)
+				preference.setHomeTabIndex(1)
+				setFiles([{ name: 'audio.m4a', path: outPath }])
+			} catch (e) {
+				console.error(e)
+				setErrorModal?.({ log: String(e), open: true })
+			} finally {
+				setDownloadingAudio(false)
+			}
 		}
 	}
 

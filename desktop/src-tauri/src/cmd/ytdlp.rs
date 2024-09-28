@@ -1,5 +1,3 @@
-use std::os::unix::fs::PermissionsExt;
-
 use eyre::{bail, Context, Result};
 use tauri::{AppHandle, Manager};
 
@@ -7,7 +5,7 @@ use super::get_ffmpeg_path;
 
 fn get_binary_name() -> &'static str {
     if cfg!(windows) {
-        "yt-dlp_windows.exe"
+        "yt-dlp.exe"
     } else if cfg!(target_os = "linux") {
         "yt-dlp_linux"
     } else {
@@ -22,7 +20,8 @@ pub fn get_temp_path(app_handle: AppHandle, ext: String, in_documents: Option<bo
     } else {
         std::env::temp_dir()
     };
-    base_path.push(format!("temp_file.{}", ext));
+
+    base_path.push(format!("{}.{}", crate::utils::get_local_time(), ext));
     base_path.to_string_lossy().to_string()
 }
 
@@ -32,11 +31,13 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
     let name = get_binary_name();
     let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
     let path = path.join(name);
+    tracing::debug!("path is {}", path.display());
     let ffmpeg_path = get_ffmpeg_path();
 
     // Set permission
     #[cfg(unix)]
     {
+        use std::os::unix::fs::PermissionsExt;
         let meta = std::fs::metadata(path.clone())?;
         let mut perm = meta.permissions();
         // chmod +x
