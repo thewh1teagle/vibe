@@ -140,9 +140,27 @@ export default function Home() {
 							placeholder="https://www.youtube.com/watch?v=aj8-ABRl1Jo"
 							onKeyDown={(event) => (event.key === 'Enter' ? vm.downloadAudio() : null)}
 						/>
-						<button onMouseDown={vm.downloadAudio} className="btn btn-primary mt-0">
-							{t('common.download-file')}
-						</button>
+
+						{vm.downloadingAudio ? (
+							<button className="btn relative btn-success mt-3">
+								<span className="loading loading-spinner"></span>
+							</button>
+						) : (
+							<>
+								<label className="label cursor-pointer mt-2 mb-5">
+									<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
+									<input
+										type="checkbox"
+										className="toggle toggle-primary"
+										onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
+										checked={vm.preference.storeRecordInDocuments}
+									/>
+								</label>
+								<button onMouseDown={vm.downloadAudio} className="btn btn-primary mt-0">
+									{t('common.download-file')}
+								</button>
+							</>
+						)}
 					</div>
 				</div>
 			)}

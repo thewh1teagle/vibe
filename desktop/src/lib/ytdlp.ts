@@ -25,8 +25,10 @@ export async function downloadYtDlp() {
 	await invoke('download_file', { url, path: binaryPath })
 }
 
-export async function downloadAudio(url: string) {
-	const ffmpegPath = await invoke<string>('get_ffmpeg_path')
-	let result = await Command.create('$APPLOCALDATA/yt-dlp_macos', ['--no-playlist', '-x', '--ffmpeg-location', ffmpegPath, url]).execute()
+export async function downloadAudio(url: string, inDocuments?: boolean) {
+	const outPath = await invoke<string>('get_temp_path', { ext: 'm4a', inDocuments })
+	console.log('outPath is ', outPath)
+	let result = await invoke<string>('download_audio', { url, outPath })
 	console.log(result)
+	return outPath
 }

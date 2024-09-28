@@ -21,6 +21,7 @@ import { ModelOptions, usePreferenceProvider } from '~/providers/Preference'
 import { UpdaterContext } from '~/providers/Updater'
 import * as ytDlp from '~/lib/ytdlp'
 import { useTranslation } from 'react-i18next'
+import { useToastProvider } from '~/providers/Toast'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -40,6 +41,7 @@ export function viewModel() {
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
 	const { t } = useTranslation()
+	const toast = useToastProvider()
 
 	const { files, setFiles } = useFilesContext()
 	const preference = usePreferenceProvider()
@@ -47,6 +49,7 @@ export function viewModel() {
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 	const [audioUrl, setAudioUrl] = useState<string>('')
+	const [downloadingAudio, setDownloadingAudio] = useState(false)
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -70,7 +73,11 @@ export function viewModel() {
 				okLabel: t('common.install-now'),
 			})
 			if (shouldInstall) {
+				toast.setMessage(t('common.downloading-ytdlp'))
+				toast.setOpen(true)
 				await ytDlp.downloadYtDlp()
+				toast.setOpen(false)
+				preference.setHomeTabIndex(2)
 			}
 		} else {
 			preference.setHomeTabIndex(2)
@@ -292,7 +299,11 @@ export function viewModel() {
 
 	async function downloadAudio() {
 		if (audioUrl) {
-			ytDlp.downloadAudio(audioUrl)
+			setDownloadingAudio(true)
+			const outPath = await ytDlp.downloadAudio(audioUrl, preference.storeRecordInDocuments)
+			preference.setHomeTabIndex(1)
+			setFiles([{ name: 'audio.m4a', path: outPath }])
+			setDownloadingAudio(false)
 		}
 	}
 
@@ -329,5 +340,7 @@ export function viewModel() {
 		audioUrl,
 		setAudioUrl,
 		downloadAudio,
+		downloadingAudio,
+		setDownloadingAudio,
 	}
 }

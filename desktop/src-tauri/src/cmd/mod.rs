@@ -20,6 +20,7 @@ use tokio::sync::Mutex;
 use vibe_core::transcript::Segment;
 use vibe_core::transcript::Transcript;
 pub mod audio;
+pub mod ytdlp;
 
 /// Return true if there's internet connection
 /// timeout in ms

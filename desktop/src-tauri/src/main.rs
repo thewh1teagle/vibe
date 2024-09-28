@@ -83,6 +83,8 @@ fn main() -> Result<()> {
             cmd::check_vulkan,
             cmd::get_logs_folder,
             cmd::get_ffmpeg_path,
+            cmd::ytdlp::download_audio,
+            cmd::ytdlp::get_temp_path,
             #[cfg(windows)]
             cmd::set_high_gpu_preference
         ])
