@@ -39,6 +39,7 @@
 -   🔒 Ultimate privacy: fully offline transcription, no data ever leaves your device
 -   🎨 User friendly design
 -   🎙️ Transcribe audio / video
+-   🎶 Option to transcribe audio from popular websites (YouTube, Vimeo, Facebook, Twitter and more!)
 -   📂 Batch transcribe multiple files!
 -   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON` formats
 -   👀 Realtime preview
