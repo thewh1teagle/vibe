@@ -40,6 +40,21 @@
         }
       ]
     },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "yt-dlp_macos",
+          "cmd": "$APPLOCALDATA/yt-dlp_macos",
+          "args": [
+            {
+              "validator": "\\S+"
+            }
+          ],
+          "sidecar": false
+        }
+      ]
+    },
     "store:allow-set",
     "store:allow-get",
     "store:allow-has",
@@ -83,6 +98,9 @@
     "core:app:allow-name",
     "updater:default",
     "shell:allow-open",
+    "shell:allow-execute",
+    "shell:allow-kill",
+    "shell:allow-spawn",
     "fs:default",
     "fs:allow-exists",
     "deep-link:allow-get-current",

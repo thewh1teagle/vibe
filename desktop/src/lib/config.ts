@@ -13,6 +13,21 @@ export const segmentModelFilename = 'segmentation-3.0.onnx'
 export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
+export const ytDlpConfig = {
+	windows: {
+		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2024.08.06/yt-dlp.exe',
+		name: 'yt-dlp.exe',
+	},
+	linux: {
+		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2024.08.06/yt-dlp_linux',
+		name: 'yt-dlp_linux',
+	},
+	macos: {
+		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2024.08.06/yt-dlp_macos',
+		name: 'yt-dlp_macos',
+	},
+}
+
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm']
 export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a']
 export const themes = ['light', 'dark']

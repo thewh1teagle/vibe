@@ -20,6 +20,7 @@ use tokio::sync::Mutex;
 use vibe_core::transcript::Segment;
 use vibe_core::transcript::Transcript;
 pub mod audio;
+pub mod ytdlp;
 
 /// Return true if there's internet connection
 /// timeout in ms
@@ -142,6 +143,13 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
         .await?;
     set_progress_bar(&app_handle_c, None)?;
     Ok(model_path.to_str().context("to_str")?.to_string())
+}
+
+#[tauri::command]
+pub fn get_ffmpeg_path() -> String {
+    vibe_core::audio::find_ffmpeg_path()
+        .map(|p| p.to_str().unwrap().to_string())
+        .unwrap_or_default()
 }
 
 #[tauri::command]
