@@ -55,7 +55,7 @@
 	"info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result.",
 	"info-threads": "Increase CPU for faster decoding; balance speed with resource usage. Recommended: 4",
 	"info-translate-to-english": "Translate transcription into English from any language by enabling this option",
-	"info-use-word-timestamps": "Transcript with word timestamps instead of sentence timestamps. Useful in JSON format.",
+	"info-use-word-timestamps": "Transcript with word timestamps instead of sentence timestamps. Useful in JSON format. Disabled when speaker recognition is on.",
 	"install-now": "Install Now",
 	"language": "Language",
 	"leftover": "left",

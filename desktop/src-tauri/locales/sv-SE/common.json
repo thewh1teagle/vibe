@@ -55,7 +55,7 @@
 	"info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result.",
 	"info-threads": "Increase CPU for faster decoding; balance speed with resource usage. Recommended: 4",
 	"info-translate-to-english": "Översätt transkription till engelska från valfritt språk genom att aktivera det här alternativet",
-	"info-use-word-timestamps": "Avskrift med ordtidsstämplar istället för meningstidsstämplar. \nAnvändbar i JSON-format.",
+	"info-use-word-timestamps": "Avskrift med ordtidsstämplar istället för meningstidsstämplar. \nAnvändbar i JSON-format. \nInaktiverad när högtalarigenkänning är på.",
 	"install-now": "Installera nu",
 	"language": "Språk",
 	"leftover": "vänster",

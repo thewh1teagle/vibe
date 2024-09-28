@@ -55,7 +55,7 @@
 	"info-temperature": "Wyższe wartości prowadzą do bardziej unikalnych słów; niższe wartości trzymają się popularnych słów. Zazwyczaj wartość 0,4 zapewnia zrównoważony wynik.",
 	"info-threads": "Zwiększ moc CPU dla szybszego dekodowania; zbalansuj prędkość z wykorzystanymi zasobami. Rekomendowane: 4",
 	"info-translate-to-english": "Włączenie tej opcji umożliwia tłumaczenie transkrypcji na język angielski z dowolnego języka.",
-	"info-use-word-timestamps": "Transkrypcja ze znacznikami czasu słów zamiast znaczników czasu zdań. \nPrzydatne w formacie JSON.",
+	"info-use-word-timestamps": "Transkrypcja ze znacznikami czasu słów zamiast znaczników czasu zdań. \nPrzydatne w formacie JSON. \nWyłączone, gdy włączone jest rozpoznawanie mówiącego.",
 	"install-now": "Zainstaluj teraz",
 	"language": "Język",
 	"leftover": "pozostałości",

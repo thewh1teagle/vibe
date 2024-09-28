@@ -24,6 +24,12 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const { t } = useTranslation()
 	const toast = useToastProvider()
 
+	useEffect(() => {
+		if (preference.recognizeSpeakers) {
+			setOptions({ ...options, word_timestamps: false })
+		}
+	}, [preference.recognizeSpeakers, options.word_timestamps])
+
 	async function handleProgressEvents() {
 		listen<[number, number]>('download_progress', (event) => {
 			// event.event is the event name (useful if you want to use a single callback fn for multiple event types)

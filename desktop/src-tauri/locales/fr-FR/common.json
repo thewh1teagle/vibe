@@ -55,7 +55,7 @@
 	"info-temperature": "Des valeurs plus élevées donnent des mots plus singuliers; des valeurs plus basses orientent vers les mots courants. En général, réglez autour de 0,4 pour un résultat équilibré.",
 	"info-threads": "Augmentez le nombre de fils d'exécution processeur pour un décodage plus rapide ; Veillez à équilibrer la vitesse attendue avec l’utilisation générale des ressources. Recommandé : 4",
 	"info-translate-to-english": "Traduisez la transcription en anglais depuis n’importe quelle langue en activant cette option",
-	"info-use-word-timestamps": "Transcription avec horodatages de mots au lieu d'horodatages de phrases. \nUtile au format JSON.",
+	"info-use-word-timestamps": "Transcription avec horodatages de mots au lieu d'horodatages de phrases. \nUtile au format JSON. \nDésactivé lorsque la reconnaissance du locuteur est activée.",
 	"install-now": "Installer maintenant",
 	"language": "Langue",
 	"leftover": "encore",

@@ -53,7 +53,7 @@
 	"info-temperature": "Valori più alti contirbuiscono a parole di uso più raro; valori bassi a parole di uso più comune. Per un comportamento bilanciato si consiglia il valore di 0.4.",
 	"info-threads": "Utilizza più CPU per accelerare la fase di decoding; bilancia la velocità con l'utilizzo di risorse. Raccomandato: 4",
 	"info-translate-to-english": "Traduci la trascrizione in Inglese a partire da qualsiasi lingua",
-	"info-use-word-timestamps": "Transcrivi indicando i timestamp per ogni parola invece che per ogni frase. Maggiormente utile se abbinato al formato JSON.",
+	"info-use-word-timestamps": "Trascrizione con timestamp delle parole invece che delle frasi. \nUtile nel formato JSON. \nDisabilitato quando il riconoscimento dell'oratore è attivo.",
 	"install-now": "Installa ora",
 	"language": "Lingua",
 	"leftover": "rimanente",

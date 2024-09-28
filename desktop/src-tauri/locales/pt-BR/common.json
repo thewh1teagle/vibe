@@ -55,7 +55,7 @@
 	"info-temperature": "Valores mais altos levam a palavras mais exclusivas; valores mais baixos ficam com as mais comuns. Normalmente, defina em torno de 0,4 para obter um resultado equilibrado.",
 	"info-threads": "Aumente a CPU para obter uma decodificação mais rápida; equilibre a velocidade com o uso de recursos. Recomendado: 4",
 	"info-translate-to-english": "Traduza a transcrição para o inglês de qualquer idioma ativando esta opção",
-	"info-use-word-timestamps": "Transcrição com carimbos de data e hora de palavras em vez de carimbos de data e hora de frases. \nÚtil no formato JSON.",
+	"info-use-word-timestamps": "Transcrição com carimbos de data e hora de palavras em vez de carimbos de data e hora de frases. \nÚtil no formato JSON. \nDesativado quando o reconhecimento de alto-falante está ativado.",
 	"install-now": "Instale agora",
 	"language": "Idioma",
 	"leftover": "Esquerda",

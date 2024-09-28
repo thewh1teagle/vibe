@@ -55,7 +55,7 @@
 	"info-temperature": "较高的值会生成更多新颖的词汇；较低的值会尽量使用常见词汇。通常设为 0.4 左右可获得比较平衡的结果。",
 	"info-threads": "增加 CPU 线程数可加快转录速度，但也会增加资源占用。推荐值：4",
 	"info-translate-to-english": "通过启用此选项，将任何语言的转录翻译成英语",
-	"info-use-word-timestamps": "生成带有单词时间戳而不是句子时间戳的文字记录。在 JSON 格式中很有用。",
+	"info-use-word-timestamps": "带有单词时间戳而不是句子时间戳的文字记录。\n在 JSON 格式中很有用。\n当扬声器识别打开时禁用。",
 	"install-now": "立即安装",
 	"language": "语言",
 	"leftover": "剩余",
