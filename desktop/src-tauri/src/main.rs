@@ -82,6 +82,7 @@ fn main() -> Result<()> {
             cmd::is_portable,
             cmd::check_vulkan,
             cmd::get_logs_folder,
+            cmd::get_ffmpeg_path,
             #[cfg(windows)]
             cmd::set_high_gpu_preference
         ])

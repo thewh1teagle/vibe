@@ -145,6 +145,13 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
 }
 
 #[tauri::command]
+pub fn get_ffmpeg_path() -> String {
+    vibe_core::audio::find_ffmpeg_path()
+        .map(|p| p.to_str().unwrap().to_string())
+        .unwrap_or_default()
+}
+
+#[tauri::command]
 pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: String) -> Result<()> {
     let mut downloader = vibe_core::downloader::Downloader::new();
     tracing::debug!("Download model invoked! with path {}", path);

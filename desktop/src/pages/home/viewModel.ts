@@ -46,6 +46,7 @@ export function viewModel() {
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
+	const [audioUrl, setAudioUrl] = useState<string>('')
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -289,6 +290,12 @@ export function viewModel() {
 		}
 	}
 
+	async function downloadAudio() {
+		if (audioUrl) {
+			ytDlp.downloadAudio(audioUrl)
+		}
+	}
+
 	return {
 		devices,
 		setDevices,
@@ -319,5 +326,8 @@ export function viewModel() {
 		transcribe,
 		onAbort,
 		switchToLinkTab,
+		audioUrl,
+		setAudioUrl,
+		downloadAudio,
 	}
 }

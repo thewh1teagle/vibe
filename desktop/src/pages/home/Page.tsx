@@ -50,7 +50,41 @@ export default function Home() {
 					<LinkIcon className="w-[18px] h-[18px]" />
 				</a>
 			</div>
+
 			{vm.preference.homeTabIndex === 0 && (
+				<>
+					<div className="flex w-[300px] flex-col m-auto">
+						<div className="">
+							<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
+							<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
+							<label className="label cursor-pointer mt-2 mb-5">
+								<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
+								<input
+									type="checkbox"
+									className="toggle toggle-primary"
+									onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
+									checked={vm.preference.storeRecordInDocuments}
+								/>
+							</label>
+						</div>
+						{!vm.isRecording && (
+							<button onMouseDown={() => vm.startRecord()} className="btn btn-primary mt-3">
+								{t('common.start-record')}
+							</button>
+						)}
+
+						{vm.isRecording && (
+							<>
+								<button onMouseDown={vm.stopRecord} className="btn relative btn-success mt-3">
+									<span className="loading loading-spinner"></span>
+									{t('common.stop-and-transcribe')}
+								</button>
+							</>
+						)}
+					</div>
+				</>
+			)}
+			{vm.preference.homeTabIndex === 1 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
 						<div className="join join-vertical">
@@ -95,38 +129,22 @@ export default function Home() {
 				</>
 			)}
 
-			{vm.preference.homeTabIndex === 1 && (
-				<>
-					<div className="flex w-[300px] flex-col m-auto">
-						<div className="">
-							<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
-							<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
-							<label className="label cursor-pointer mt-2 mb-5">
-								<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
-								<input
-									type="checkbox"
-									className="toggle toggle-primary"
-									onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
-									checked={vm.preference.storeRecordInDocuments}
-								/>
-							</label>
-						</div>
-						{!vm.isRecording && (
-							<button onMouseDown={() => vm.startRecord()} className="btn btn-primary mt-3">
-								{t('common.start-record')}
-							</button>
-						)}
-
-						{vm.isRecording && (
-							<>
-								<button onMouseDown={vm.stopRecord} className="btn relative btn-success mt-3">
-									<span className="loading loading-spinner"></span>
-									{t('common.stop-and-transcribe')}
-								</button>
-							</>
-						)}
+			{vm.preference.homeTabIndex === 2 && (
+				<div className="flex w-[300px] flex-col m-auto">
+					<div className="flex flex-col gap-0 mt-5">
+						<input
+							type="text"
+							className="input input-bordered"
+							value={vm.audioUrl}
+							onChange={(event) => vm.setAudioUrl(event.target.value)}
+							placeholder="https://www.youtube.com/watch?v=aj8-ABRl1Jo"
+							onKeyDown={(event) => (event.key === 'Enter' ? vm.downloadAudio() : null)}
+						/>
+						<button onMouseDown={vm.downloadAudio} className="btn btn-primary mt-0">
+							{t('common.download-file')}
+						</button>
 					</div>
-				</>
+				</div>
 			)}
 		</Layout>
 	)

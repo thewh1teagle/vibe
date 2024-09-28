@@ -3,6 +3,7 @@ import { ytDlpConfig } from './config'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as path from '@tauri-apps/api/path'
 import { invoke } from '@tauri-apps/api/core'
+import { Command } from '@tauri-apps/plugin-shell'
 
 const platformName = platform()
 const { url, name } = ytDlpConfig[platformName as keyof typeof ytDlpConfig]
@@ -24,4 +25,8 @@ export async function downloadYtDlp() {
 	await invoke('download_file', { url, path: binaryPath })
 }
 
-export async function downloadAudio(url: string) {}
+export async function downloadAudio(url: string) {
+	const ffmpegPath = await invoke<string>('get_ffmpeg_path')
+	let result = await Command.create('$APPLOCALDATA/yt-dlp_macos', ['--no-playlist', '-x', '--ffmpeg-location', ffmpegPath, url]).execute()
+	console.log(result)
+}
