@@ -216,7 +216,6 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             // choose the second WAV file or fallback to the first one
             wav_paths[1].0.clone()
         };
- 
 
         tracing::debug!("Emitting record_finish event");
         let mut normalized = std::env::temp_dir().join(format!("{}.wav", get_local_time()));
@@ -244,7 +243,6 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 std::fs::remove_file(path).map_err(|e| eyre!("{e:?}")).log_error();
             }
         }
-            
         app_handle_clone.emit(
             "record_finish",
             json!({"path": normalized.to_string_lossy(), "name": normalized.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),

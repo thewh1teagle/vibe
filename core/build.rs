@@ -138,5 +138,5 @@ fn main() {
     // Todo: link correctly in whisper-rs
     if cfg!(windows) {
         println!("cargo:rustc-link-lib=msvcrt");
-    }   
+    }
 }

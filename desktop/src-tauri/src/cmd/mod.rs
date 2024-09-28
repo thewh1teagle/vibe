@@ -406,6 +406,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
 }
 
 #[tauri::command]
+#[allow(clippy::comparison_to_empty)]
 pub fn is_portable() -> bool {
     env!("WINDOWS_PORTABLE") == "1"
 }
