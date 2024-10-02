@@ -320,3 +320,55 @@ pub fn transcribe(
 
     Ok(transcript)
 }
+
+fn setup_v3_turbo_params(options: &TranscribeOptions) -> FullParams {
+    let mut params = FullParams::new(SamplingStrategy::default());
+    tracing::debug!("set language to {:?}", options.lang);
+
+    if let Some(true) = options.word_timestamps {
+        params.set_token_timestamps(true);
+        params.set_split_on_word(true);
+        params.set_max_len(options.max_sentence_len.unwrap_or(1));
+    }
+
+    if let Some(true) = options.translate {
+        params.set_translate(true);
+    }
+    if options.lang.is_some() {
+        params.set_language(options.lang.as_deref());
+    }
+
+    params.set_print_special(false);
+    params.set_print_progress(true);
+    params.set_print_realtime(false);
+    params.set_print_timestamps(false);
+    params.set_suppress_blank(true);
+    params.set_token_timestamps(true);
+
+    if let Some(temperature) = options.temperature {
+        tracing::debug!("setting temperature to {temperature}");
+        params.set_temperature(temperature);
+    }
+
+    if let Some(max_text_ctx) = options.max_text_ctx {
+        tracing::debug!("setting n_max_text_ctx to {}", max_text_ctx);
+        params.set_n_max_text_ctx(max_text_ctx)
+    }
+
+    // handle args
+    if let Some(init_prompt) = options.init_prompt.to_owned() {
+        tracing::debug!("setting init prompt to {init_prompt}");
+        params.set_initial_prompt(&init_prompt);
+    }
+
+    if let Some(n_threads) = options.n_threads {
+        tracing::debug!("setting n threads to {n_threads}");
+        params.set_n_threads(n_threads);
+    }
+
+    // Additional configurations for v3 turbo model
+    params.set_v3_turbo(true);
+    params.set_v3_turbo_speedup_factor(8.0);
+
+    params
+}

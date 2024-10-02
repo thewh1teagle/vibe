@@ -1,5 +1,5 @@
 /*
-wget https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-tiny.bin
+wget https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-large-v3-turbo.bin
 cargo test --features "vulkan" -- --nocapture
 cargo test --release --features "vulkan" -- --nocapture
 */
@@ -13,7 +13,7 @@ use tracing_test::traced_test;
 #[serial]
 #[traced_test]
 fn test_transcribe() {
-    let ctx = create_context(&PathBuf::from("../ggml-tiny.bin"), None).unwrap();
+    let ctx = create_context(&PathBuf::from("../ggml-large-v3-turbo.bin"), None).unwrap();
     let options = &TranscribeOptions {
         init_prompt: None,
         lang: Some("en".into()),
