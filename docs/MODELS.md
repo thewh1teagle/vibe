@@ -1,10 +1,10 @@
-# 🌟 Vibe Models 🌟
+# � Vibe Models �
 
 Welcome to the Vibe Models page! Here you can find a curated list of suggested models to use with Vibe. To install a model, use the "Magic Setup" link to open it in Vibe, or copy and paste the direct download link in Vibe settings.
 
 ## Available Models
 
-### 🌱 Tiny Model
+### � Tiny Model
 
 A compact and efficient version, suitable for quick tasks and limited-resource environments.
 
@@ -44,6 +44,12 @@ Specialized for Hebrew (Ivrit) language data, optimized for high accuracy in Heb
 
 [👉 Magic Setup](https://tinyurl.com/2c3bzj2b)  
 [🔽 Direct Download](https://huggingface.co/ivrit-ai/whisper-v2-d4-ggml/resolve/main/ggml-ivrit-v2-d4.bin?download=true)
+
+### 🚀 Large Model (v3 Turbo)
+
+The latest v3 turbo model offers an 8x speed increase compared to the current medium model, with enhanced accuracy.
+
+[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin?download=true)
 
 Enjoy exploring these models and enhancing your Vibe! 🌐✨
 
