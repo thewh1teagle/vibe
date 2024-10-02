@@ -1,4 +1,3 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod cli;
@@ -32,7 +31,6 @@ use tauri_plugin_window_state::StateFlags;
 use utils::LogError;
 
 fn main() -> Result<()> {
-    // Attach console in Windows:
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
 

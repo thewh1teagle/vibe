@@ -219,6 +219,8 @@ pub async fn transcribe(
     model_context_state: State<'_, Mutex<Option<ModelContext>>>,
     diarize_options: DiarizeOptions,
 ) -> Result<Transcript> {
+    check_vulkan_support(&app_handle)?;
+
     let model_context = model_context_state.lock().await;
     if model_context.is_none() {
         bail!("Please load model first")
@@ -506,4 +508,16 @@ pub fn get_cargo_features() -> Vec<String> {
     }
 
     enabled_features
+}
+
+fn check_vulkan_support(app_handle: &tauri::AppHandle) -> Result<()> {
+    if let Err(e) = check_vulkan() {
+        let error_message = format!(
+            "Vulkan is not supported on this system. Please install the Vulkan runtime from the following link: https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanRT-1.3.290.0-Installer.exe\n\nError: {:?}",
+            e
+        );
+        app_handle.emit_all("vulkan_error", error_message)?;
+        bail!("Vulkan is not supported on this system");
+    }
+    Ok(())
 }
