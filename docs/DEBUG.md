@@ -112,4 +112,17 @@ For `vulkan-1.dll` install [VulkanRT-Installer.exe](https://sdk.lunarg.com/sdk/d
 
 </details>
 
+<details>
+<summary>Check Vulkan support</summary>
+
+To check if Vulkan is supported on your system, run the following command:
+
+```console
+vibe --check-vulkan
+```
+
+If Vulkan is not supported, you will need to install the Vulkan runtime. Follow the instructions provided in the error message to install the Vulkan runtime.
+
+</details>
+
 After you finished, share you results by opening [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=%5BBug%5D%3A+) or just comment in the issue.

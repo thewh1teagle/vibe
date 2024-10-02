@@ -106,6 +106,16 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
     tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
 
+    // Check Vulkan support
+    if let Err(e) = crate::cmd::check_vulkan() {
+        let error_message = format!(
+            "Vulkan is not supported on this system. Please install the Vulkan runtime from the following link: https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanRT-1.3.290.0-Installer.exe\n\nError: {:?}",
+            e
+        );
+        app.handle().emit_all("vulkan_error", error_message)?;
+        return Err(Box::new(e));
+    }
+
     let app_handle = app.app_handle().clone();
     if is_cli_detected() {
         tracing::debug!("CLI mode");
