@@ -65,7 +65,7 @@ pub fn reset_screen_permissions() {
 }
 
 pub fn has_permission() -> bool {
-    ScreenCaptureAccess::default().preflight()
+    ScreenCaptureAccess.preflight()
 }
 
 pub fn init() -> Result<Id<UnsafeSCStream>> {
