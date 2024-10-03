@@ -1,7 +1,7 @@
 {
 	"$schema": "./gen/schemas/desktop-schema.json",
 	"productName": "vibe",
-	"version": "2.5.6",
+	"version": "2.6.0",
 	"identifier": "github.com.thewh1teagle.vibe",
 	"app": {
 		"windows": [],
