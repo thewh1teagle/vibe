@@ -84,6 +84,9 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				{t('common.more-options')}
 			</div>
 			<div className="collapse-content w-full">
+				<div className="label mt-10">
+					<span className="label-text text-lg">{t('common.speaker-recognition')}</span>
+				</div>
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">
@@ -126,6 +129,9 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					/>
 				</label>
 
+				<div className="label mt-10">
+					<span className="label-text text-lg">{t('common.model-options')}</span>
+				</div>
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">
 						<span className="label-text flex items-center gap-1 cursor-default">
