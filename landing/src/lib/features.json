@@ -5,15 +5,21 @@
 		"imageURL": "/feature-languages.png"
 	},
 	{
-		"title": "Batch transcribe multiple files",
-		"description": "Easily transcribe as many files as you want with a single click.",
-		"imageURL": "/feature-batch-transcribe.png",
-		"align": "center"
-	},
-	{
 		"title": "Multiple formats",
 		"description": "Export transcriptions in your preferred format including SRT, VTT, TXT, HTML and many more",
 		"imageURL": "/feature-formats.png"
+	},
+	{
+		"title": "Transcribe from popular websites",
+		"description": "Easily transcribe videos from popular websites like YouTube, Facebook, LinkedIn, and more by simply pasting the URL.",
+		"imageURL": "/feature-url-transcribe.png",
+		"align": "center"
+	},
+	{
+		"title": "Real-time Transcription Preview",
+		"description": "Watch your transcription happen in real-time, with the option to cancel at any moment.",
+		"imageURL": "/feature-realtime-preview.png",
+		"align": "center"
 	},
 	{
 		"title": "Transcribe audio / video",
