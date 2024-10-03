@@ -14,8 +14,8 @@ use tauri::{
     window::{ProgressBarState, ProgressBarStatus},
     Manager,
 };
-use tauri::{Emitter, Listener, State, Wry};
-use tauri_plugin_store::{with_store, StoreCollection};
+use tauri::{Emitter, Listener, State};
+use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
 use vibe_core::transcript::Segment;
 use vibe_core::transcript::Transcript;
@@ -460,11 +460,10 @@ pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
 
 #[tauri::command]
 pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
-    let stores = app_handle.state::<StoreCollection<Wry>>();
-    if let Ok(Some(models_folder)) = with_store(app_handle.clone(), stores, STORE_FILENAME, |store| {
-        tracing::debug!("models folder {:?}", store.get("models_folder"));
-        Ok(store.get("models_folder").and_then(|p| p.as_str().map(PathBuf::from)))
-    }) {
+    let store = app_handle.store_builder(STORE_FILENAME).build();
+
+    let models_folder = store.get("models_folder").and_then(|p| p.as_str().map(PathBuf::from));
+    if let Some(models_folder) = models_folder {
         tracing::debug!("models folder: {:?}", models_folder);
         return Ok(models_folder);
     }

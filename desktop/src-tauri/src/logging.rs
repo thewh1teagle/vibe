@@ -32,7 +32,7 @@ pub fn setup_logging(app: &AppHandle, store: Store<Wry>) -> Result<()> {
 
     if store
         .get("prefs_log_to_file")
-        .unwrap_or(&Value::Bool(false))
+        .unwrap_or(Value::Bool(false))
         .as_bool()
         .unwrap_or_default()
     {
