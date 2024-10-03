@@ -23,6 +23,7 @@ import * as ytDlp from '~/lib/ytdlp'
 import { useTranslation } from 'react-i18next'
 import { useToastProvider } from '~/providers/Toast'
 import { basename } from '@tauri-apps/api/path'
+import { askLlm } from '~/lib/llm'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -279,6 +280,16 @@ export function viewModel() {
 			// Calcualte time
 			const total = Math.round((performance.now() - startTime) / 1000)
 			console.info(`Transcribe took ${total} seconds.`)
+
+			if (preference.llmOptions.enabled) {
+				try {
+					const question = `${preference.llmOptions.prompt.replace('%s', transcript.asText(res.segments))}`
+					const summarizeSegment = await askLlm(preference.llmOptions.apiKey!, question, preference.llmOptions.maxTokens)
+					res.segments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: summarizeSegment }]
+				} catch (e) {
+					console.error(e)
+				}
+			}
 
 			setSegments(res.segments)
 		} catch (error) {

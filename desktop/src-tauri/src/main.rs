@@ -37,6 +37,7 @@ fn main() -> Result<()> {
     cli::attach_console();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::debug!("{}, {argv:?}, {cwd}", app.package_info().name);

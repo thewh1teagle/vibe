@@ -13,6 +13,11 @@ export const segmentModelFilename = 'segmentation-3.0.onnx'
 export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
+export const llmApiKeyUrl = 'https://console.anthropic.com/settings/keys'
+export const llmDefaultMaxTokens = 10000
+export const llmLimitsUrl = 'https://console.anthropic.com/settings/limits'
+export const llmCostUrl = 'https://console.anthropic.com/settings/cost'
+
 export const ytDlpConfig = {
 	windows: {
 		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2024.08.06/yt-dlp.exe',
