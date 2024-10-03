@@ -108,6 +108,10 @@ Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-
 
 You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=%5BBug%5D%3A+) and it's recommend to check [DEBUG.md](docs/DEBUG.md) first.
 
+# Privacy Policy 🔒
+
+Your privacy is important to us. Please review our [Privacy Policy](docs/PRIVACY_POLICY.pdf) to understand how we handle your data.
+
 # Credits
 
 Thanks for [tauri.app](https://tauri.app/) for making the best apps framework I ever seen
