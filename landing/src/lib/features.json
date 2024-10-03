@@ -22,6 +22,12 @@
 		"align": "center"
 	},
 	{
+		"title": "Summarize With AI",
+		"description": "Effortlessly summarize your transcriptions using the Claude API.",
+		"imageURL": "/feature-summarize.png",
+		"align": "center"
+	},
+	{
 		"title": "Transcribe audio / video",
 		"description": "Supports audio and video formats like MP4, MKV, MP3, WAV (there's more)",
 		"imageURL": "/feature-transcribe-audio-video.png",
