@@ -284,8 +284,10 @@ export function viewModel() {
 			if (preference.llmOptions.enabled) {
 				try {
 					const question = `${preference.llmOptions.prompt.replace('%s', transcript.asText(res.segments))}`
-					const summarizeSegment = await askLlm(preference.llmOptions.apiKey!, question, preference.llmOptions.maxTokens)
-					res.segments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: summarizeSegment }]
+					const answer = await askLlm(preference.llmOptions.apiKey!, question, preference.llmOptions.maxTokens)
+					if (answer) {
+						res.segments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
+					}
 				} catch (e) {
 					console.error(e)
 				}
