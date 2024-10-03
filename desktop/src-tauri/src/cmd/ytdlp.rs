@@ -3,6 +3,9 @@ use tauri::{AppHandle, Manager};
 
 use super::get_ffmpeg_path;
 
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
+
 fn get_binary_name() -> &'static str {
     if cfg!(windows) {
         "yt-dlp.exe"
@@ -45,19 +48,23 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
         std::fs::set_permissions(path.clone(), perm)?;
     }
 
-    let output = std::process::Command::new(path)
-        .args([
-            "--no-playlist",
-            "-x",
-            "--audio-format",
-            "m4a",
-            "--ffmpeg-location",
-            &ffmpeg_path,
-            &url,
-            "-o",
-            &out_path,
-        ])
-        .output()?;
+    let cmd = std::process::Command::new(path);
+    let cmd = cmd.args([
+        "--no-playlist",
+        "-x",
+        "--audio-format",
+        "m4a",
+        "--ffmpeg-location",
+        &ffmpeg_path,
+        &url,
+        "-o",
+        &out_path,
+    ]);
+
+    #[cfg(windows)]
+    let cmd = cmd.creation_flags(CREATE_NO_WINDOW);
+
+    let output = cmd.output()?;
     if !output.status.success() {
         let stderr = String::from_utf8(output.stderr)?;
         bail!("Failed to download audio: {}", stderr);
