@@ -22,6 +22,7 @@ import { UpdaterContext } from '~/providers/Updater'
 import * as ytDlp from '~/lib/ytdlp'
 import { useTranslation } from 'react-i18next'
 import { useToastProvider } from '~/providers/Toast'
+import { basename } from '@tauri-apps/api/path'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -142,8 +143,9 @@ export function viewModel() {
 		})
 		if (selected) {
 			const newFiles: NamedPath[] = []
-			for (const file of selected) {
-				newFiles.push({ name: file.name ?? '', path: file.path })
+			for (const path of selected) {
+				const name = await basename(path)
+				newFiles.push({ path, name })
 			}
 			setFiles(newFiles)
 

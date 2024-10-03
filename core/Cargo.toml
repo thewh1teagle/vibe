@@ -53,7 +53,3 @@ openblas = ["whisper-rs/openblas"]
 metal = ["whisper-rs/metal"]
 rocm = ["whisper-rs/hipblas"]
 vulkan = ["whisper-rs/vulkan"]
-
-
-[profile.test]
-inherits = "release"

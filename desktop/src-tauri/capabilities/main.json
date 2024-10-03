@@ -62,6 +62,7 @@
     "store:allow-clear",
     "store:allow-save",
     "store:allow-load",
+    "store:allow-create-store",
     "core:path:default",
     "core:event:default",
     "core:resources:default",
@@ -103,6 +104,7 @@
     "shell:allow-spawn",
     "fs:default",
     "fs:allow-exists",
+    "core:path:allow-basename",
     "deep-link:allow-get-current",
     "clipboard-manager:allow-write-text"
   ]
