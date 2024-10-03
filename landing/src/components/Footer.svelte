@@ -12,6 +12,7 @@
 		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
 		<a class="link link-hover" href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
 		<a class="link link-hover" href="https://ko-fi.com/thewh1teagle" target="_blank">{t('support-vibe')}</a>
+		<a class="link link-hover" href="https://github.com/thewh1teagle/vibe/blob/main/docs/PRIVACY_POLICY.pdf" target="_blank">{t('privacy-policy')}</a>
 	</nav>
 	<nav>
 		<div class="grid grid-flow-col gap-4">
