@@ -14,7 +14,7 @@ export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/
 export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
 export const llmApiKeyUrl = 'https://console.anthropic.com/settings/keys'
-export const llmDefaultMaxTokens = 10000
+export const llmDefaultMaxTokens = 8192 // https://docs.anthropic.com/en/docs/about-claude/models
 export const llmLimitsUrl = 'https://console.anthropic.com/settings/limits'
 export const llmCostUrl = 'https://console.anthropic.com/settings/cost'
 
