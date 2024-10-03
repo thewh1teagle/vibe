@@ -55,6 +55,16 @@
         }
       ]
     },
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "https://*.anthropic.*"
+        }
+      ]
+    },
+    "http:default",
+    "http:allow-fetch",
     "store:allow-set",
     "store:allow-get",
     "store:allow-has",
