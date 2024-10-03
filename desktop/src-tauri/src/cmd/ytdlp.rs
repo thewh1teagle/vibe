@@ -1,9 +1,10 @@
-use std::os::windows::process::CommandExt;
-
 use eyre::{bail, Context, Result};
 use tauri::{AppHandle, Manager};
 
 use super::get_ffmpeg_path;
+
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
 
 #[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
