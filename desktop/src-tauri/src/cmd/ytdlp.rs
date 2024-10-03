@@ -1,3 +1,5 @@
+use std::os::windows::process::CommandExt;
+
 use eyre::{bail, Context, Result};
 use tauri::{AppHandle, Manager};
 
@@ -48,7 +50,7 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
         std::fs::set_permissions(path.clone(), perm)?;
     }
 
-    let cmd = std::process::Command::new(path);
+    let mut cmd = std::process::Command::new(path);
     let cmd = cmd.args([
         "--no-playlist",
         "-x",
