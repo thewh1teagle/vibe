@@ -27,3 +27,4 @@ node_modules/
 venv/
 *.bin
 *.onnx
+*trace*.log
