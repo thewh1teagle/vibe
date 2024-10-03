@@ -43,6 +43,7 @@
 -   📂 Batch transcribe multiple files!
 -   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON` formats
 -   👀 Realtime preview
+-   ✨ Summarize transcripts: Get concise summaries of transcripts via Claude API integration
 -   🌐 Translate to English from any language
 -   🖨️ Print transcript directly to any printer
 -   🔄 Automatic updates
