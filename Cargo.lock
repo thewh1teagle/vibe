@@ -1448,7 +1448,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330c60081dcc4c72131f8eb70510f1ac07223e5d4163db481a04a0befcffa412"
 dependencies = [
- "libloading 0.8.5",
+ "libloading 0.7.4",
 ]
 
 [[package]]
@@ -3003,7 +3003,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4979f22fdb869068da03c9f7528f8297c6fd2606bc3a4affe42e6a823fdb8da4"
 dependencies = [
  "cfg-if",
- "windows-targets 0.52.6",
+ "windows-targets 0.48.5",
 ]
 
 [[package]]
@@ -7135,7 +7135,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs"
 version = "0.13.0"
-source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.3-beta.0#bb6e3fa76f26e5ba14bdf8539ee8e1b9bae4db52"
+source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.3-beta.1#47bdf066db3886fa35705a233001c7087fd12527"
 dependencies = [
  "tracing",
  "whisper-rs-sys",
@@ -7144,7 +7144,7 @@ dependencies = [
 [[package]]
 name = "whisper-rs-sys"
 version = "0.11.0"
-source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.3-beta.0#bb6e3fa76f26e5ba14bdf8539ee8e1b9bae4db52"
+source = "git+https://github.com/thewh1teagle/whisper-rs.git?branch=v1.6.3-beta.1#47bdf066db3886fa35705a233001c7087fd12527"
 dependencies = [
  "bindgen 0.69.4",
  "cfg-if",
