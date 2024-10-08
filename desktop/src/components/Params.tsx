@@ -2,6 +2,7 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
 import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
+import { ReactComponent as ChevronLeft } from '~/icons/chevron-left.svg'
 import { ModifyState, cx } from '~/lib/utils'
 import { InfoTooltip } from './InfoTooltip'
 import { ModelOptions as IModelOptions, usePreferenceProvider } from '~/providers/Preference'
@@ -140,6 +141,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				{t('common.more-options')}
 			</div>
 			<div className="collapse-content w-full">
+				{/* Speaker Recognition */}
 				<div className="label mt-5">
 					<span className="label-text text-2xl font-bold">{t('common.speaker-recognition')}</span>
 				</div>
@@ -185,6 +187,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					/>
 				</label>
 
+				{/* Summarize */}
 				<div className="label mt-10">
 					<span className="label-text text-2xl font-bold">{t('common.process-with-llm')}</span>
 				</div>
@@ -255,6 +258,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					{t('common.llm-current-cost')}
 				</div>
 
+				{/* Model Options */}
 				<div className="label mt-10">
 					<span className="label-text text-2xl font-bold">{t('common.model-options')}</span>
 				</div>
@@ -360,6 +364,47 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						type="number"
 					/>
 				</label>
+
+				{/* Audio Options */}
+				<div className="label mt-10">
+					<span className="label-text text-2xl font-bold">{t('common.audio-options')}</span>
+				</div>
+				<div className="form-control w-full mt-3">
+					<label className="label cursor-pointer">
+						<span className="label-text flex items-center gap-1 cursor-default">
+							<InfoTooltip text={t('common.info-remove-silence')} />
+							{t('common.remove-silence')}
+						</span>
+
+						<input
+							type="checkbox"
+							className="toggle toggle-primary"
+							checked={options.translate}
+							onChange={(e) => preference.setAudioOptions({ ...preference.audioOptions, removeSilence: e.target.checked })}
+						/>
+					</label>
+				</div>
+
+				<div className="form-control w-full mt-3">
+					<label className="label cursor-pointer">
+						<span className="label-text flex items-center gap-1 cursor-default">
+							<InfoTooltip text={t('common.info-select-audio-range')} />
+							{t('common.select-audio-range')}
+						</span>
+
+						<input
+							type="checkbox"
+							className="toggle toggle-primary"
+							checked={options.translate}
+							onChange={(e) => setOptions({ ...options, translate: e.target.checked })}
+						/>
+					</label>
+					<div className="flex flex-row gap-1.5 justify-center items-center mt-2 ltr:rotate-180">
+						<input type="time" value="00:00:00" step={1} className="input input-bordered input-sm w-24 opacity-70" />
+						<ChevronLeft className="h-4 w-4" />
+						<input type="time" value="00:00:00" step={1} className="input input-bordered input-sm w-24 opacity-70" />
+					</div>
+				</div>
 			</div>
 		</div>
 	)
