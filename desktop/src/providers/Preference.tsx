@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import { ReactNode, createContext, useContext, useEffect, useRef } from 'react'
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
 import { ModifyState } from '~/lib/utils'
@@ -11,6 +11,11 @@ import { LlmOptions } from '~/lib/llm'
 import { llmDefaultMaxTokens } from '~/lib/config'
 
 type Direction = 'ltr' | 'rtl'
+
+interface AudioOptions {
+	removeSilence: boolean | null
+	audioRange?: [string, string] | null
+}
 
 // Define the type of preference
 export interface Preference {
@@ -52,6 +57,9 @@ export interface Preference {
 
 	llmOptions: LlmOptions
 	setLlmOptions: ModifyState<LlmOptions>
+
+	audioOptions: AudioOptions
+	setAudioOptions: ModifyState<AudioOptions>
 }
 
 // Create the context
@@ -113,6 +121,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		prompt: i18n.t('common.llm-default-prompt'),
 		maxTokens: llmDefaultMaxTokens,
 	})
+	const [audioOptions, setAudioOptions] = useLocalStorage<AudioOptions>('prefs_audio_options', { removeSilence: false, audioRange: null })
 
 	useEffect(() => {
 		setIsFirstRun(false)
@@ -153,6 +162,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}, [language])
 
 	const preference: Preference = {
+		audioOptions,
+		setAudioOptions,
 		llmOptions,
 		setLlmOptions,
 		setLanguageDirections: setLanguageDefaults,
