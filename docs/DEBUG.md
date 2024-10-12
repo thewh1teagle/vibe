@@ -14,6 +14,7 @@ a. Open `cmd.exe`
 b. Execute:
 
 ```console
+taskkill /IM vibe.exe /F
 set RUST_BACKTRACE=1
 set RUST_LOG=vibe=debug,whisper_rs=debug
 %localappdata%\vibe\vibe.exe
