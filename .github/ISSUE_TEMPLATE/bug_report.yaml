@@ -13,6 +13,8 @@ body:
               This way I'll get all the relevant info required
               When you finished, if possible please check [Debug.md](https://github.com/thewh1teagle/vibe/blob/main/docs/DEBUG.md) and add comments with more info.
 
+              TLDR: is it crash without errors? Please open `cmd.exe` and run `%localappdata%\vibe\vibe.exe`. transcribe and check errors. Don't see anything? try run `set RUST_LOG=debug` before run.
+
     - type: textarea
       id: what-happened
       attributes:
