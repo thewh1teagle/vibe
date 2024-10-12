@@ -40,9 +40,7 @@ export default function HTMLView({ segments, file, preference }: HTMLViewProps) 
 			{segments.map((segment) => (
 				<div key={segment.text} className="segment" style={{ fontSize: '18px', display: 'flex', flexDirection: 'column', paddingTop: '18px' }}>
 					<div style={{ marginBottom: '10px' }}>
-						<div
-							className="timestamp"
-							style={{ fontSize: '13px', paddingBottom: '6px', color: preference.theme === 'dark' ? '#ffffff' : '#000000', opacity: '75%' }}>
+						<div className="timestamp" style={{ fontSize: '13px', paddingBottom: '6px', opacity: 0.7 }}>
 							{formatDuration(segment.start, segment.stop)}
 						</div>
 						{segment.speaker ? formatSpeaker(segment.speaker, t('common.speaker-prefix')) : ''}
