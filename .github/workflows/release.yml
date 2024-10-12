@@ -71,7 +71,9 @@ jobs:
                   tauriScript: bunx tauri
     update-landing:
       runs-on: macos-latest
+      needs: publish-tauri
       steps:
+        - uses: actions/checkout@v4
         - name: Update landing URLs
           run: gh workflow run landing.yml
           env:
