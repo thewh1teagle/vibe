@@ -69,3 +69,10 @@ jobs:
                   args: ${{ matrix.args }}
                   projectPath: "./desktop"
                   tauriScript: bunx tauri
+    update-landing:
+      runs-on: macos-latest
+      steps:
+        - name: Update landing URLs
+          run: gh workflow run landing.yml
+          env:
+            GH_TOKEN: ${{ secrets.GH_TOKEN }}
