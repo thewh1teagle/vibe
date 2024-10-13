@@ -243,6 +243,12 @@ $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
 cargo test --target x86_64-pc-windows-msvc --features "vulkan" -p vibe_core --release -- --nocapture
 ```
 
+## Clear Github actions cache
+
+```console
+gh cache delete -a
+```
+
 ## Notes
 
 -   Always update crates and lock in specific commit so it will be easy to revert!!
