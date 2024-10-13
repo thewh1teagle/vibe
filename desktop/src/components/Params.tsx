@@ -186,7 +186,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				</label>
 
 				<div className="label mt-10">
-					<span className="label-text text-2xl font-bold">{t('common.process-with-llm')}</span>
+					<span className="label-text text-2xl font-bold">{t('common.process-with-llm')} ✨</span>
 				</div>
 				<div className="form-control w-full mt-2">
 					<label className="label cursor-pointer">
