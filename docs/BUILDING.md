@@ -242,3 +242,8 @@ $env:PATH += ";$pwddesktop\src-tauri\clblast\bin"
 $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
 cargo test --target x86_64-pc-windows-msvc --features "vulkan" -p vibe_core --release -- --nocapture
 ```
+
+## Notes
+
+-   Always update crates and lock in specific commit so it will be easy to revert!!
+-   Don't upgrade important crates such as tauri as long as it stable and works and there's no real need!!
