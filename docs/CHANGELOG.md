@@ -1,5 +1,9 @@
 # Changelog
 
+## 2024-10-16
+
+-   Add docx format
+
 ## 2024-10-14
 
 -   Store short git commit in build.rs
