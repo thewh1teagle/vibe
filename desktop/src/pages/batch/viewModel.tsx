@@ -8,13 +8,15 @@ import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
 import successSound from '~/assets/success.mp3'
-import { writeTextFile } from '@tauri-apps/plugin-fs'
+import * as fs from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
 import { usePreferenceProvider } from '~/providers/Preference'
 import { useFilesContext } from '~/providers/FilesProvider'
 import { basename } from '@tauri-apps/api/path'
 import { askLlm } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
+import { path } from '@tauri-apps/api'
+import { toDocx } from '~/lib/docx'
 
 export function viewModel() {
 	const { files, setFiles } = useFilesContext()
@@ -138,9 +140,18 @@ export function viewModel() {
 					}
 				}
 
-				// Write file
 				const dst = await invoke<string>('get_path_dst', { src: file.path, suffix: formatExtensions[format] })
-				await writeTextFile(dst, getText(res.segments, format))
+				// Write file
+				if (format === 'docx') {
+					const fileName = await path.basename(dst)
+					const doc = await toDocx(fileName, res.segments, preference.textAreaDirection)
+					const arrayBuffer = await doc.arrayBuffer()
+					const buffer = new Uint8Array(arrayBuffer)
+					fs.writeFile(dst, buffer)
+				} else {
+					await fs.writeTextFile(dst, getText(res.segments, format))
+				}
+
 				localIndex += 1
 				await new Promise((resolve) => setTimeout(resolve, 100))
 				setCurrentIndex(localIndex)

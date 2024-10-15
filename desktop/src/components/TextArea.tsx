@@ -14,6 +14,8 @@ import HTMLView from './HtmlView'
 import toast from 'react-hot-toast'
 import { invoke } from '@tauri-apps/api/core'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
+import { toDocx } from '~/lib/docx'
+import { path } from '@tauri-apps/api'
 
 function Copy({ text }: { text: string }) {
 	const { t } = useTranslation()
@@ -167,6 +169,7 @@ export default function TextArea({
 			window.print()
 			return
 		}
+
 		const ext = formatExtensions[format].slice(1)
 		const defaultPath = await invoke<NamedPath>('get_save_path', { srcPath: file.path, targetExt: ext })
 		const filePath = await dialog.save({
@@ -179,8 +182,17 @@ export default function TextArea({
 			canCreateDirectories: true,
 			defaultPath: defaultPath.path,
 		})
+
 		if (filePath) {
-			fs.writeTextFile(filePath, text)
+			if (format === 'docx') {
+				const fileName = await path.basename(filePath)
+				const doc = await toDocx(fileName, segments!, preference.textAreaDirection)
+				const arrayBuffer = await doc.arrayBuffer()
+				const buffer = new Uint8Array(arrayBuffer)
+				fs.writeFile(filePath, buffer)
+			} else {
+				fs.writeTextFile(filePath, text)
+			}
 
 			toast(
 				(mytoast) => (
@@ -295,15 +307,16 @@ export default function TextArea({
 						}}
 						className="select select-bordered">
 						<option value="normal">{t('common.mode-text')}</option>
-						<option value="html">HTML</option>
-						<option value="pdf">PDF</option>
-						<option value="srt">SRT</option>
-						<option value="vtt">VTT</option>
-						<option value="json">JSON</option>
+						<option value="html">html</option>
+						<option value="pdf">pdf</option>
+						<option value="docx">docx</option>
+						<option value="srt">srt</option>
+						<option value="vtt">vtt</option>
+						<option value="json">json</option>
 					</select>
 				</div>
 			</div>
-			{['html', 'pdf'].includes(preference.textFormat) ? (
+			{['html', 'pdf', 'docx'].includes(preference.textFormat) ? (
 				<HTMLView preference={preference} segments={segments ?? []} file={file} />
 			) : (
 				<textarea

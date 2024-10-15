@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json'
+export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json' | 'docx'
 export type FormatExtensions = {
 	[name in TextFormat]: string
 }
@@ -12,6 +12,7 @@ export const formatExtensions: FormatExtensions = {
 	html: '.html',
 	pdf: '.pdf',
 	json: '.json',
+	docx: '.docx',
 }
 
 interface FormatSelectProps {
@@ -32,9 +33,10 @@ export default function FormatSelect({ format, setFormat }: FormatSelectProps) {
 				}}
 				className="select select-bordered">
 				<option value="normal">{t('common.mode-text')}</option>
-				<option value="srt">SRT</option>
-				<option value="vtt">VTT</option>
-				<option value="json">JSON</option>
+				<option value="srt">srt</option>
+				<option value="docx">docx</option>
+				<option value="vtt">vtt</option>
+				<option value="json">json</option>
 			</select>
 		</label>
 	)

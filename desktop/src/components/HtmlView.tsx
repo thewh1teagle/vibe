@@ -9,10 +9,15 @@ interface HTMLViewProps {
 	preference: Preference
 }
 
-function formatDuration(start: number, stop: number) {
+export function formatDuration(start: number, stop: number, direction: 'rtl' | 'ltr' = 'ltr') {
 	const startFmt = formatTimestamp(start, false, '', false)
 	const stopFmt = formatTimestamp(stop, false, '', false)
-	return `${startFmt} --> ${stopFmt}`
+	const duration = `${startFmt} --> ${stopFmt}`
+
+	if (direction === 'rtl') {
+		return `\u202B${duration}\u202C` // Use Unicode characters for right-to-left embedding
+	}
+	return duration
 }
 
 export default function HTMLView({ segments, file, preference }: HTMLViewProps) {
