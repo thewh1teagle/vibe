@@ -106,7 +106,7 @@ export default function Home() {
 						)}
 						{vm.audio && !vm.loading && (
 							<>
-								<button onMouseDown={vm.transcribe} className="btn btn-primary mt-3">
+								<button onMouseDown={() => vm.transcribe(vm.files[0].path)} className="btn btn-primary mt-3">
 									{t('common.transcribe')}
 								</button>
 								<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />

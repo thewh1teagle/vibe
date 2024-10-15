@@ -258,7 +258,7 @@ export function viewModel() {
 		emit('stop_record')
 	}
 
-	async function transcribe() {
+	async function transcribe(path: string) {
 		setSegments(null)
 		setLoading(true)
 		abortRef.current = false
@@ -266,7 +266,7 @@ export function viewModel() {
 		try {
 			await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
 			const options = {
-				path: files[0].path,
+				path,
 				...preference.modelOptions,
 			}
 			const startTime = performance.now()
@@ -324,6 +324,7 @@ export function viewModel() {
 				const outPath = await ytDlp.downloadAudio(audioUrl, preference.storeRecordInDocuments)
 				preference.setHomeTabIndex(1)
 				setFiles([{ name: 'audio.m4a', path: outPath }])
+				transcribe(outPath)
 			} catch (e) {
 				console.error(e)
 				setErrorModal?.({ log: String(e), open: true })
