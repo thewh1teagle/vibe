@@ -123,7 +123,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .resizable(true)
             .focused(true)
             .shadow(true)
-            .visible(false)
+            .visible(true) // TODO: hide it again? it shows flicker white on boot. but if we hide it won't show errors
             .build();
         if let Err(error) = result {
             tracing::error!("{:?}", error);
