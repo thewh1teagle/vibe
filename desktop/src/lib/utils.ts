@@ -5,7 +5,7 @@ import * as fs from '@tauri-apps/plugin-fs'
 import * as os from '@tauri-apps/plugin-os'
 import * as config from './config'
 import { Dispatch, SetStateAction } from 'react'
-import { createStore } from '@tauri-apps/plugin-store'
+import { load } from '@tauri-apps/plugin-store'
 
 export interface NamedPath {
 	name: string
@@ -54,7 +54,7 @@ export function validPath(path: string) {
 export async function resetApp() {
 	const modelPath = localStorage.getItem('model_path')
 	try {
-		const store = await createStore(config.storeFilename)
+		const store = await load(config.storeFilename)
 		await store.clear()
 		if (modelPath) {
 			try {

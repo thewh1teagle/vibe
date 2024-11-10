@@ -10,7 +10,7 @@ use std::fs;
 use tauri::{App, Manager};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_shell::ShellExt;
-use tauri_plugin_store::StoreBuilder;
+use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
 use vibe_core::transcribe::WhisperContext;
 
@@ -32,8 +32,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Manage model context
     app.manage(Mutex::new(None::<ModelContext>));
 
-    let store = StoreBuilder::new(&app.handle().clone(), STORE_FILENAME).build();
-    let _ = store.load();
+    let store = app.store(STORE_FILENAME)?;
 
     // Setup logging to terminal
     {

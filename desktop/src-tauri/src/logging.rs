@@ -1,6 +1,7 @@
 use chrono::Local;
 use eyre::{Context, Result};
 use serde_json::Value;
+use std::sync::Arc;
 use std::{fs::OpenOptions, path::PathBuf};
 use tauri::{AppHandle, Manager, Wry};
 use tauri_plugin_store::Store;
@@ -23,7 +24,7 @@ pub fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
     Ok(log_path)
 }
 
-pub fn setup_logging(app: &AppHandle, store: Store<Wry>) -> Result<()> {
+pub fn setup_logging(app: &AppHandle, store: Arc<Store<Wry>>) -> Result<()> {
     let sub = Registry::default().with(
         tracing_subscriber::fmt::layer()
             .with_ansi(true)
