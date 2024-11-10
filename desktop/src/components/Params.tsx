@@ -80,27 +80,12 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		handleProgressEvents()
 	}, [])
 
-	async function validateApiKey() {
-		if (preference.llmOptions.apiKey) {
-			const valid = await llm.apiKeyValid(preference.llmOptions.apiKey)
-			console.log('api key valid', valid)
-			if (!valid) {
-				await dialog.message(t('common.invalid-llm-api-key'), {
-					kind: 'error',
-				})
-			}
-			return valid
-		} else {
-			return false
-		}
-	}
-
 	async function validateLlmPrompt() {
 		let valid = true
-		if (!preference.llmOptions.prompt) {
+		if (!preference.llmConfig?.prompt) {
 			valid = false
 		} else {
-			valid = await llm.promptValid(preference.llmOptions.prompt)
+			valid = preference.llmConfig.prompt.includes('%s')
 		}
 		if (!valid) {
 			await dialog.message(t('common.invalid-llm-prompt'), {
@@ -110,27 +95,11 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		return valid
 	}
 
-	async function onEnableLlm(e: ChangeEvent<HTMLInputElement>) {
-		if (!preference.llmOptions.apiKey) {
-			await dialog.message(t('common.invalid-llm-api-key'), {
-				kind: 'error',
-			})
-		}
-		if (e.target.checked) {
-			let valid = await validateLlmPrompt()
+	const llmConfig = preference.llmConfig
+	const setLlmConfig = preference.setLlmConfig
 
-			if (!valid) {
-				return
-			}
-			valid = await validateApiKey()
-			console.log('valid => ', valid)
-			if (!valid) {
-				return
-			}
-			preference.setLlmOptions({ ...preference.llmOptions, enabled: true })
-		} else {
-			preference.setLlmOptions({ ...preference.llmOptions, enabled: false })
-		}
+	async function onEnableLlm(e: ChangeEvent<HTMLInputElement>) {
+		preference.setLlmConfig({ ...llmConfig!, enabled: !llmConfig?.enabled })
 	}
 
 	return (
@@ -194,29 +163,89 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							<InfoTooltip text={t('common.info-llm-summarize')} />
 							{t('common.process-with-llm')}
 						</span>
-						<input type="checkbox" className="toggle toggle-primary" checked={preference.llmOptions.enabled} onChange={(e) => onEnableLlm(e)} />
+						<input type="checkbox" className="toggle toggle-primary" checked={preference.llmConfig?.enabled} onChange={(e) => onEnableLlm(e)} />
 					</label>
 				</div>
 
 				<label className="form-control w-full">
 					<div className="label">
-						<span className="label-text flex items-center gap-1">
-							<InfoTooltip text={t('common.info-llm-api-key')} />
-							{t('common.llm-api-key')}
-							<div onClick={() => shellOpen(config.llmApiKeyUrl)} className="link link-primary">
-								{t('common.find-here')}
-							</div>
-						</span>
+						<span className="label-text flex items-center gap-1">{t('common.llm-platform')}</span>
 					</div>
-					<input
-						value={preference.llmOptions.apiKey}
-						onChange={(e) => preference.setLlmOptions({ ...preference.llmOptions, apiKey: e.target.value })}
-						onBlur={validateApiKey}
-						className="input input-bordered opacity-50 text-sm"
-						placeholder="Paste here your API key"
-						type="text"
-					/>
+					<select
+						value={llmConfig?.platform}
+						onChange={(e) => {
+							const newPlatform = e.target.value
+							if (newPlatform === 'ollama') {
+								const defaultConfig = llm.defaultOllamaConfig()
+								setLlmConfig({
+									...defaultConfig,
+									ollamaBaseUrl: llmConfig!.ollamaBaseUrl,
+									claudeApiKey: llmConfig!.claudeApiKey,
+									enabled: llmConfig?.enabled ?? false,
+								})
+							} else if (newPlatform === 'claude') {
+								const defaultConfig = llm.defaultClaudeConfig()
+								setLlmConfig({
+									...defaultConfig,
+									ollamaBaseUrl: llmConfig!.ollamaBaseUrl,
+									claudeApiKey: llmConfig!.claudeApiKey,
+									enabled: llmConfig?.enabled ?? false,
+								})
+							}
+						}}
+						className="select select-bordered capitalize">
+						{['claude', 'ollama'].map((name) => (
+							<option key={name} value={name}>
+								{name}
+							</option>
+						))}
+					</select>
 				</label>
+
+				{llmConfig?.platform === 'claude' && (
+					<label className="form-control w-full">
+						<div className="label">
+							<span className="label-text flex items-center gap-1">
+								<InfoTooltip text={t('common.info-llm-api-key')} />
+								{t('common.llm-api-key')}
+								<div onClick={() => shellOpen(config.llmApiKeyUrl)} className="link link-primary">
+									{t('common.find-here')}
+								</div>
+							</span>
+						</div>
+
+						<input
+							value={llmConfig?.claudeApiKey}
+							onChange={(e) => setLlmConfig({ ...preference.llmConfig!, claudeApiKey: e.target.value })}
+							className="input input-bordered opacity-50 text-sm"
+							placeholder="Paste here your API key"
+							type="text"
+						/>
+					</label>
+				)}
+
+				{llmConfig?.platform === 'ollama' && (
+					<>
+						<label className="form-control w-full">
+							<div className="label">
+								<span className="label-text flex items-center gap-1">{t('common.ollama-base-url')}</span>
+							</div>
+							<input
+								value={llmConfig?.ollamaBaseUrl}
+								onChange={(e) => setLlmConfig({ ...preference.llmConfig!, ollamaBaseUrl: e.target.value })}
+								className="input input-bordered opacity-50 text-sm"></input>
+						</label>
+						<label className="form-control w-full">
+							<div className="label">
+								<span className="label-text flex items-center gap-1">{t('common.llm-model')}</span>
+							</div>
+							<input
+								value={llmConfig?.model}
+								onChange={(e) => setLlmConfig({ ...preference.llmConfig!, model: e.target.value })}
+								className="input input-bordered opacity-50 text-sm"></input>
+						</label>
+					</>
+				)}
 
 				<label className="form-control w-full">
 					<div className="label">
@@ -226,8 +255,8 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						</span>
 					</div>
 					<textarea
-						value={preference.llmOptions.prompt}
-						onChange={(e) => preference.setLlmOptions({ ...preference.llmOptions, prompt: e.target.value })}
+						value={llmConfig?.prompt}
+						onChange={(e) => setLlmConfig({ ...preference.llmConfig!, prompt: e.target.value })}
 						onBlur={validateLlmPrompt}
 						className="textarea textarea-bordered w-full"></textarea>
 				</label>
@@ -240,20 +269,24 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						</span>
 					</div>
 					<input
-						onChange={(e) => preference.setLlmOptions({ ...preference.llmOptions, maxTokens: parseInt(e.target.value) })}
-						value={preference.llmOptions.maxTokens}
+						onChange={(e) => setLlmConfig({ ...llmConfig!, maxTokens: parseInt(e.target.value) ?? 1 })}
+						value={llmConfig?.maxTokens}
 						className="input input-bordered"
 						type="number"
 					/>
 				</label>
 
-				<div onClick={() => shellOpen(config.llmLimitsUrl)} className="link link-primary mt-2">
-					{t('common.set-monthly-spend-limit')}
-				</div>
+				{llmConfig?.platform === 'claude' && (
+					<>
+						<div onClick={() => shellOpen(config.llmLimitsUrl)} className="link link-primary mt-2">
+							{t('common.set-monthly-spend-limit')}
+						</div>
 
-				<div onClick={() => shellOpen(config.llmCostUrl)} className="link link-primary mt-2">
-					{t('common.llm-current-cost')}
-				</div>
+						<div onClick={() => shellOpen(config.llmCostUrl)} className="link link-primary mt-2">
+							{t('common.llm-current-cost')}
+						</div>
+					</>
+				)}
 
 				<div className="label mt-10">
 					<span className="label-text text-2xl font-bold">{t('common.model-options')}</span>

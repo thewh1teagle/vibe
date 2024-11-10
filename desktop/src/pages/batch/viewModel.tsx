@@ -13,10 +13,11 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { usePreferenceProvider } from '~/providers/Preference'
 import { useFilesContext } from '~/providers/FilesProvider'
 import { basename } from '@tauri-apps/api/path'
-import { askLlm } from '~/lib/llm'
+import { Claude, Ollama, Llm, LlmConfig } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { path } from '@tauri-apps/api'
 import { toDocx } from '~/lib/docx'
+import toast from 'react-hot-toast'
 
 export function viewModel() {
 	const { files, setFiles } = useFilesContext()
@@ -29,6 +30,7 @@ export function viewModel() {
 	const isAbortingRef = useRef<boolean>(false)
 	const preference = usePreferenceProvider()
 	const navigate = useNavigate()
+	const [llm, setLlm] = useState<Llm | null>(null)
 
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {
@@ -128,14 +130,15 @@ export function viewModel() {
 				let total = Math.round((performance.now() - startTime) / 1000)
 				console.info(`Transcribe ${file.name} took ${total} seconds.`)
 
-				if (preference.llmOptions.enabled) {
+				if (llm && preference.llmConfig?.enabled) {
 					try {
-						const question = `${preference.llmOptions.prompt.replace('%s', transcript.asText(res.segments))}`
-						const answer = await askLlm(preference.llmOptions.apiKey!, question, preference.llmOptions.maxTokens)
+						const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments))}`
+						const answer = await llm.ask(question)
 						if (answer) {
 							res.segments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
 						}
 					} catch (e) {
+						toast.error(String(e))
 						console.error(e)
 					}
 				}
