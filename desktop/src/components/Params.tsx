@@ -13,8 +13,10 @@ import * as config from '~/lib/config'
 import { path } from '@tauri-apps/api'
 import { exists } from '@tauri-apps/plugin-fs'
 import { open as shellOpen } from '@tauri-apps/plugin-shell'
-import * as llm from '~/lib/llm'
+import { toast as hotToast } from 'react-hot-toast'
+
 import * as dialog from '@tauri-apps/plugin-dialog'
+import { Claude, defaultClaudeConfig, defaultOllamaConfig, Llm, Ollama } from '~/lib/llm'
 
 interface ParamsProps {
 	options: IModelOptions
@@ -26,6 +28,17 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const preference = usePreferenceProvider()
 	const { t } = useTranslation()
 	const toast = useToastProvider()
+	const [llm, setLlm] = useState<Llm | null>(null)
+
+	useEffect(() => {
+		if (preference.llmConfig?.platform === 'ollama') {
+			const llmInstance = new Ollama(preference.llmConfig)
+			setLlm(llmInstance)
+		} else {
+			const llmInstance = new Claude(preference.llmConfig)
+			setLlm(llmInstance)
+		}
+	}, [preference.llmConfig])
 
 	useEffect(() => {
 		if (preference.recognizeSpeakers) {
@@ -102,6 +115,15 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		preference.setLlmConfig({ ...llmConfig, enabled: !llmConfig?.enabled })
 	}
 
+	async function checkLlm() {
+		const promise = llm!.ask('Hello, how are you?')
+		hotToast.promise(promise, {
+			error: t('common.check-error') as string,
+			success: t('common.check-success') as string,
+			loading: t('common.check-loading') as string,
+		})
+	}
+
 	return (
 		<div className={cx('collapse !overflow-visible', open && 'collapse-open')}>
 			<div onMouseDown={() => setOpen(!open)} className={cx('mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer')}>
@@ -176,7 +198,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						onChange={(e) => {
 							const newPlatform = e.target.value
 							if (newPlatform === 'ollama') {
-								const defaultConfig = llm.defaultOllamaConfig()
+								const defaultConfig = defaultOllamaConfig()
 								setLlmConfig({
 									...defaultConfig,
 									ollamaBaseUrl: llmConfig.ollamaBaseUrl,
@@ -184,7 +206,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 									enabled: llmConfig?.enabled ?? false,
 								})
 							} else if (newPlatform === 'claude') {
-								const defaultConfig = llm.defaultClaudeConfig()
+								const defaultConfig = defaultClaudeConfig()
 								setLlmConfig({
 									...defaultConfig,
 									ollamaBaseUrl: llmConfig.ollamaBaseUrl,
@@ -237,7 +259,14 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						</label>
 						<label className="form-control w-full">
 							<div className="label">
-								<span className="label-text flex items-center gap-1">{t('common.llm-model')}</span>
+								<span className="label-text flex items-center gap-1">
+									{t('common.llm-model')}{' '}
+									{llmConfig.platform === 'ollama' && (
+										<div className="link link-primary" onClick={() => shellOpen(`https://ollama.com/library/${llmConfig.model}`)}>
+											Find here
+										</div>
+									)}
+								</span>
 							</div>
 							<input
 								value={llmConfig?.model}
@@ -274,6 +303,12 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						className="input input-bordered"
 						type="number"
 					/>
+				</label>
+
+				<label className="form-control w-full mt-5">
+					<button onClick={checkLlm} className="btn btn-primary btn-sm">
+						{t('common.run-llm-check')}
+					</button>
 				</label>
 
 				{llmConfig?.platform === 'claude' && (
