@@ -263,7 +263,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 									{t('common.llm-model')}{' '}
 									{llmConfig.platform === 'ollama' && (
 										<div className="link link-primary" onClick={() => shellOpen(`https://ollama.com/library/${llmConfig.model}`)}>
-											Find here
+											{t('common.find-here')}
 										</div>
 									)}
 								</span>
