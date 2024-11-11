@@ -113,4 +113,4 @@ For `vulkan-1.dll` install [VulkanRT-Installer.exe](https://sdk.lunarg.com/sdk/d
 
 </details>
 
-After you finished, share you results by opening [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=%5BBug%5D%3A+) or just comment in the issue.
+After you finished, share you results by opening [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=[Short+title]) or just comment in the issue.
