@@ -13,7 +13,7 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { usePreferenceProvider } from '~/providers/Preference'
 import { useFilesContext } from '~/providers/FilesProvider'
 import { basename } from '@tauri-apps/api/path'
-import { Claude, Ollama, Llm, LlmConfig } from '~/lib/llm'
+import { Claude, Ollama, Llm } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { path } from '@tauri-apps/api'
 import { toDocx } from '~/lib/docx'
@@ -31,6 +31,16 @@ export function viewModel() {
 	const preference = usePreferenceProvider()
 	const navigate = useNavigate()
 	const [llm, setLlm] = useState<Llm | null>(null)
+
+	useEffect(() => {
+		if (preference.llmConfig?.platform === 'ollama') {
+			const llmInstance = new Ollama(preference.llmConfig)
+			setLlm(llmInstance)
+		} else {
+			const llmInstance = new Claude(preference.llmConfig!)
+			setLlm(llmInstance)
+		}
+	}, [preference.llmConfig])
 
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {

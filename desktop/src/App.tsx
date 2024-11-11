@@ -13,10 +13,9 @@ import { PreferenceProvider } from './providers/Preference'
 import { ErrorBoundary } from 'react-error-boundary'
 import { BoundaryFallback } from './components/BoundaryFallback'
 import ErrorModalWithContext from './components/ErrorModalWithContext'
-import toast, { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { FilesProvider } from './providers/FilesProvider'
 import { ToastProvider } from './providers/Toast'
-import { useEffect } from 'react'
 
 export default function App() {
 	const { i18n } = useTranslation()

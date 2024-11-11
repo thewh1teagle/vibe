@@ -20,10 +20,6 @@ export class Claude implements Llm {
 		this.config = config
 	}
 
-	valid(): boolean {
-		return true
-	}
-
 	async ask(prompt: string): Promise<string> {
 		const body = JSON.stringify({
 			model: this.config.model,

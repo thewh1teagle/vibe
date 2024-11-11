@@ -98,7 +98,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const llmConfig = preference.llmConfig
 	const setLlmConfig = preference.setLlmConfig
 
-	async function onEnableLlm(e: ChangeEvent<HTMLInputElement>) {
+	async function onEnableLlm(_e: ChangeEvent<HTMLInputElement>) {
 		preference.setLlmConfig({ ...llmConfig!, enabled: !llmConfig?.enabled })
 	}
 
