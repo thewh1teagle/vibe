@@ -15,7 +15,7 @@ export interface Segment {
 	start: number
 	stop: number
 	text: string
-	speaker?: number
+	speaker?: string
 }
 
 export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, decimalMarker: string, includeMilliseconds: boolean = true): string {
@@ -45,7 +45,41 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 	return result
 }
 
+function mergeSpeakerSegments(segments: Segment[]) {
+	let currentSpeaker: string | undefined
+	const newSegments: Segment[] = []
+	let currentSegment: Segment = { speaker: '', text: '', start: 0, stop: 0 }
+
+	if (segments?.[0].speaker) {
+		for (const segment of segments) {
+			// First segment or speaker change
+			if (!currentSpeaker || segment.speaker !== currentSpeaker) {
+				// If it's not the first segment, push the previous segment
+				if (currentSpeaker !== undefined) {
+					newSegments.push(currentSegment)
+				}
+
+				// Start a new segment
+				currentSegment = { ...segment } // Start with a copy of the current segment
+			} else {
+				// Continue adding to the current segment if it's the same speaker
+				currentSegment.text += segment.text // Concatenate text
+				currentSegment.stop = segment.stop // Update the stop time
+			}
+
+			currentSpeaker = segment.speaker // Update the current speaker
+		}
+
+		// Push the last segment after the loop
+		newSegments.push(currentSegment)
+		return newSegments
+	} else {
+		return segments
+	}
+}
+
 export function asSrt(segments: Segment[], speakerPrefix = 'Speaker') {
+	segments = mergeSpeakerSegments(segments)
 	return segments.reduce((transcript, segment, i) => {
 		return (
 			transcript +
@@ -57,6 +91,7 @@ export function asSrt(segments: Segment[], speakerPrefix = 'Speaker') {
 }
 
 export function asVtt(segments: Segment[], speakerPrefix = 'Speaker') {
+	segments = mergeSpeakerSegments(segments)
 	return segments.reduce((transcript, segment) => {
 		return (
 			transcript +
@@ -67,6 +102,7 @@ export function asVtt(segments: Segment[], speakerPrefix = 'Speaker') {
 }
 
 export function asText(segments: Segment[], speakerPrefix = 'Speaker') {
+	segments = mergeSpeakerSegments(segments)
 	return segments.reduce((transcript, segment) => {
 		return (
 			transcript + `${segment.speaker ? formatSpeaker(segment.speaker, speakerPrefix) + '\n' : ''}${segment.text.trim()}\n${segment.speaker ? '\n' : ''}`
