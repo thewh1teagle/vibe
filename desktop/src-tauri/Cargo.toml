@@ -25,7 +25,8 @@ tauri-plugin-deep-link = "=2.0.1"
 tauri-plugin-store = "=2.1.0"
 tauri-plugin-single-instance = "=2.0.1"
 tauri-plugin-clipboard-manager = "=2.0.2"
-tauri-plugin-http = "2.0.3"
+# Unsafe headers required for Ollama (to set Origin)
+tauri-plugin-http = { version = "2.0.3", features = ["unsafe-headers"] }
 
 serde_json = { workspace = true }
 eyre = { workspace = true }

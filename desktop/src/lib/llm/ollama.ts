@@ -38,6 +38,9 @@ export class Ollama implements Llm {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				// Ollama allowed origins
+				// Requires unsafe-headers feature
+				Origin: 'http://127.0.0.1',
 			},
 			body,
 		})
