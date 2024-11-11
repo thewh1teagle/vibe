@@ -32,6 +32,14 @@ _Vulkan (Linux)_
 sudo apt-get install -y mesa-vulkan-drivers
 ```
 
+_Vulkan (Windows)_
+
+**Run as admin once!!!**
+
+```console
+bun run scripts\pre_build.js --vulkan
+```
+
 ## Build
 
 Install dependencies from `desktop` folder
@@ -66,7 +74,6 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 		"resources": {
 			"ffmpeg\\bin\\x64\\*.dll": "./",
 			"openblas\\bin\\*.dll": "./",
-			"clblast\\bin\\*.dll": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cudart64_*": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublas64_*": "./",
 			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublasLt64_*": "./"
@@ -130,7 +137,6 @@ Rust analyzer failed to run on windows
 "rust-analyzer.cargo.extraEnv": {
 	"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
 	"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-	"CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast",
 	"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
 }
 ```
@@ -226,7 +232,6 @@ cargo +nightly -Zunstable-options update --breaking
 	"rust-analyzer.runnables.extraEnv": {
 		"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
 		"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-		"CLBlast_DIR": "${workspaceFolder}\\desktop\\src-tauri\\clblast",
 		"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
 	},
 	"rust-analyzer.runnables.extraArgs": ["--release"]
@@ -238,7 +243,6 @@ cargo +nightly -Zunstable-options update --breaking
 ```console
 bun run scripts/pre_build.js
 # Export env
-$env:PATH += ";$pwddesktop\src-tauri\clblast\bin"
 $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
 cargo test --target x86_64-pc-windows-msvc --features "vulkan" -p vibe_core --release -- --nocapture
 ```
