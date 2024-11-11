@@ -123,6 +123,7 @@ export function viewModel() {
 			preference.setHomeTabIndex(1)
 			setFiles([{ name, path }])
 			setIsRecording(false)
+			transcribe(path)
 		})
 	}
 
@@ -293,6 +294,7 @@ export function viewModel() {
 			// Calcualte time
 			const total = Math.round((performance.now() - startTime) / 1000)
 			console.info(`Transcribe took ${total} seconds.`)
+			hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
 
 			if (llm && preference.llmConfig?.enabled) {
 				try {

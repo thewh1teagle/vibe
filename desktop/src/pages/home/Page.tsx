@@ -81,6 +81,8 @@ export default function Home() {
 								</button>
 							</>
 						)}
+
+						<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 					</div>
 				</>
 			)}
@@ -156,9 +158,11 @@ export default function Home() {
 										checked={vm.preference.storeRecordInDocuments}
 									/>
 								</label>
+
 								<button onMouseDown={vm.downloadAudio} className="btn btn-primary mt-0">
 									{t('common.download-file')}
 								</button>
+								<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 							</>
 						)}
 					</div>
