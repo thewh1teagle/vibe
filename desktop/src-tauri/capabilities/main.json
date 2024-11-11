@@ -60,6 +60,9 @@
       "allow": [
         {
           "url": "https://*.anthropic.*"
+        },
+        {
+          "url": "http://localhost:11434"
         }
       ]
     },

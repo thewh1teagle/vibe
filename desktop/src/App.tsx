@@ -24,11 +24,13 @@ export default function App() {
 	return (
 		// Handle errors before first render
 		<ErrorBoundary FallbackComponent={BoundaryFallback}>
+			<div>
+				<Toaster position="bottom-right" />
+			</div>
 			<ErrorModalProvider>
 				<UpdaterProvider>
 					<PreferenceProvider>
 						<ToastProvider>
-							<Toaster />
 							<ErrorModalWithContext />
 							<UpdateProgress />
 							<FilesProvider>

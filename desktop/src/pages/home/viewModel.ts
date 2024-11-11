@@ -23,7 +23,8 @@ import * as ytDlp from '~/lib/ytdlp'
 import { useTranslation } from 'react-i18next'
 import { useToastProvider } from '~/providers/Toast'
 import { basename } from '@tauri-apps/api/path'
-import { askLlm } from '~/lib/llm'
+import { Claude, Llm, Ollama } from '~/lib/llm'
+import { toast as hotToast } from 'react-hot-toast'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -44,6 +45,7 @@ export function viewModel() {
 	const [progress, setProgress] = useState<number | null>(0)
 	const { t } = useTranslation()
 	const toast = useToastProvider()
+	const [llm, setLlm] = useState<Llm | null>(null)
 
 	const { files, setFiles } = useFilesContext()
 	const preference = usePreferenceProvider()
@@ -65,6 +67,16 @@ export function viewModel() {
 		onFilesChanged()
 	}, [files])
 
+	useEffect(() => {
+		if (preference.llmConfig?.platform === 'ollama') {
+			const llmInstance = new Ollama(preference.llmConfig)
+			setLlm(llmInstance)
+		} else {
+			const llmInstance = new Claude(preference.llmConfig)
+			setLlm(llmInstance)
+		}
+	}, [preference.llmConfig])
+
 	async function switchToLinkTab() {
 		const exists = await ytDlp.exists()
 		if (!exists) {
@@ -83,6 +95,7 @@ export function viewModel() {
 					preference.setHomeTabIndex(2)
 				} catch (e) {
 					console.error(e)
+
 					setErrorModal?.({ log: String(e), open: true })
 				}
 			}
@@ -281,14 +294,15 @@ export function viewModel() {
 			const total = Math.round((performance.now() - startTime) / 1000)
 			console.info(`Transcribe took ${total} seconds.`)
 
-			if (preference.llmOptions.enabled) {
+			if (llm && preference.llmConfig?.enabled) {
 				try {
-					const question = `${preference.llmOptions.prompt.replace('%s', transcript.asText(res.segments))}`
-					const answer = await askLlm(preference.llmOptions.apiKey!, question, preference.llmOptions.maxTokens)
+					const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments))}`
+					const answer = await llm.ask(question)
 					if (answer) {
 						res.segments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
 					}
 				} catch (e) {
+					hotToast.error(String(e))
 					console.error(e)
 				}
 			}
