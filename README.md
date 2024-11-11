@@ -43,7 +43,8 @@
 -   📂 Batch transcribe multiple files!
 -   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON`, `DOCX` formats
 -   👀 Realtime preview
--   ✨ Summarize transcripts: Get concise summaries of transcripts via Claude API integration
+-   ✨ Summarize transcripts: Get quick, multilingual summaries using the Claude API
+-   🧠 Ollama support: Do local AI analysis and batch summaries with Ollama
 -   🌐 Translate to English from any language
 -   🖨️ Print transcript directly to any printer
 -   🔄 Automatic updates
