@@ -22,7 +22,7 @@ import toast from 'react-hot-toast'
 export function viewModel() {
 	const { files, setFiles } = useFilesContext()
 
-	const [format, setFormat] = useState<TextFormat>('normal')
+	const [formats, setFormats] = useState<TextFormat[]>(['normal'])
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [progress, setProgress] = useState<number | null>(null)
 	const [inProgress, setInProgress] = useState(false)
@@ -153,18 +153,19 @@ export function viewModel() {
 					}
 				}
 
-				const dst = await invoke<string>('get_path_dst', { src: file.path, suffix: formatExtensions[format] })
-				// Write file
-				if (format === 'docx') {
-					const fileName = await path.basename(dst)
-					const doc = await toDocx(fileName, res.segments, preference.textAreaDirection)
-					const arrayBuffer = await doc.arrayBuffer()
-					const buffer = new Uint8Array(arrayBuffer)
-					fs.writeFile(dst, buffer)
-				} else {
-					await fs.writeTextFile(dst, getText(res.segments, format))
+				for (const format of formats) {
+					const dst = await invoke<string>('get_path_dst', { src: file.path, suffix: formatExtensions[format] })
+					// Write file
+					if (format === 'docx') {
+						const fileName = await path.basename(dst)
+						const doc = await toDocx(fileName, res.segments, preference.textAreaDirection)
+						const arrayBuffer = await doc.arrayBuffer()
+						const buffer = new Uint8Array(arrayBuffer)
+						fs.writeFile(dst, buffer)
+					} else {
+						await fs.writeTextFile(dst, getText(res.segments, format))
+					}
 				}
-
 				localIndex += 1
 				await new Promise((resolve) => setTimeout(resolve, 100))
 				setCurrentIndex(localIndex)
@@ -230,8 +231,8 @@ export function viewModel() {
 		cancel,
 		start,
 		files,
-		format,
-		setFormat,
+		formats,
+		setFormats,
 		preference: preference,
 	}
 }

@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import FormatSelect from '~/components/FormatSelect'
 import LanguageInput from '~/components/LanguageInput'
 import Layout from '~/components/Layout'
 import ModelOptions from '~/components/Params'
 import BatchPanel from './BatchPanel'
 import { viewModel } from './viewModel'
 import { cx } from '~/lib/utils'
+import FormatMultiSelect from '~/components/FormatMultiSelect'
 
 export default function BatchPage() {
 	const vm = viewModel()
@@ -16,7 +16,7 @@ export default function BatchPage() {
 			<div className="m-auto w-[80%] max-w-[300px]">
 				<LanguageInput />
 
-				<FormatSelect setFormat={vm.setFormat} format={vm.format} />
+				<FormatMultiSelect setFormats={vm.setFormats} formats={vm.formats} />
 				<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 
 				<div className="mt-5">
