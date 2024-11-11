@@ -18,7 +18,6 @@ openblas/
 *.7z
 .env
 !samples/*
-clblast/
 vulkan_sdk/
 vulkan_runtime/
 schemas/

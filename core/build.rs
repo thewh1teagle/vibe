@@ -49,9 +49,6 @@ fn main() {
     // ffmpeg
     let ffmpeg_dir = env::var("FFMPEG_DIR").unwrap_or_default();
     let ffmpeg_dir = PathBuf::from(ffmpeg_dir);
-    // clblast
-    let clblast_dir = env::var("CLBlast_DIR").unwrap_or_default();
-    let clblast_dir = PathBuf::from(clblast_dir);
 
     // openblas
     let openblas_dir = env::var("OPENBLAS_PATH").unwrap_or_default();
@@ -94,7 +91,6 @@ fn main() {
                 format!("{}\\*.dll", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
                 format!("{}\\*.exe", ffmpeg_dir.join("bin\\x64").to_str().unwrap()),
                 format!("{}\\*.dll", openblas_dir.join("..\\bin").to_str().unwrap()),
-                format!("{}\\*.dll", clblast_dir.join("..\\..\\..\\bin").to_str().unwrap()),
             ];
             for pattern in patterns {
                 for entry in glob::glob(&pattern).unwrap().flatten() {
