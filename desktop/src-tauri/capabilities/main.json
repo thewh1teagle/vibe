@@ -75,7 +75,7 @@
     "store:allow-clear",
     "store:allow-save",
     "store:allow-load",
-    "store:allow-create-store",
+    "store:allow-get-store",
     "core:path:default",
     "core:event:default",
     "core:resources:default",

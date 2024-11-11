@@ -8,10 +8,10 @@ name = "vibe_core"
 path = "src/lib.rs"
 
 [dependencies]
-
-whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs.git", branch = "v1.6.3-beta.1", features = [
+# Fixed incorrect timestamps, better logs
+whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs.git", features = [
 	"whisper-cpp-tracing",
-], default-features = false }
+], default-features = false, rev = "4585bb" }
 clap = { version = "4.4.13", features = ["derive"] }
 env_logger = "0.10.1"
 serde = { version = "1.0.195", features = ["derive"] }
