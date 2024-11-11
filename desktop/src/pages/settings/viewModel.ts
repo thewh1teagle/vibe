@@ -8,7 +8,7 @@ import { NamedPath, getAppInfo, getIssueUrl, getPrettyVersion, ls, resetApp } fr
 import { usePreferenceProvider } from '~/providers/Preference'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
-import { createStore } from '@tauri-apps/plugin-store'
+import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/useStoreValue'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 
@@ -106,7 +106,7 @@ export function viewModel() {
 	async function changeModelsFolder() {
 		const path = await open({ directory: true, multiple: false })
 		if (path) {
-			const store = await createStore(config.storeFilename)
+			const store = await load(config.storeFilename)
 			await store.set('models_folder', path)
 			await store.save()
 			await loadModels()

@@ -22,7 +22,7 @@ fn get_binary_name() -> &'static str {
 #[tauri::command]
 pub fn get_temp_path(app_handle: AppHandle, ext: String, in_documents: Option<bool>) -> String {
     let mut base_path = if in_documents.unwrap_or_default() {
-        app_handle.path().document_dir().unwrap()
+        app_handle.path().document_dir().unwrap_or(std::env::temp_dir())
     } else {
         std::env::temp_dir()
     };

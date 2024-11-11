@@ -121,7 +121,6 @@ jobs:
               with:
                   path: |
                       desktop/src-tauri/openblas
-                      desktop/src-tauri/clblast
                       desktop/src-tauri/ffmpeg
                   key: ${{ runner.os }}-pre-build
 

@@ -460,7 +460,7 @@ pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
 
 #[tauri::command]
 pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
-    let store = app_handle.store_builder(STORE_FILENAME).build();
+    let store = app_handle.store(STORE_FILENAME)?;
 
     let models_folder = store.get("models_folder").and_then(|p| p.as_str().map(PathBuf::from));
     if let Some(models_folder) = models_folder {
