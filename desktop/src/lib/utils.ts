@@ -145,6 +145,6 @@ export async function openPath(path: NamedPath) {
 
 export async function getModelsFolder() {}
 
-export function formatSpeaker(speaker?: number, prefix = 'Speaker') {
+export function formatSpeaker(speaker?: string, prefix = 'Speaker') {
 	return `${prefix} ${speaker ?? '?'}: `
 }
