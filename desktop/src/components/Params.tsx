@@ -99,7 +99,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const setLlmConfig = preference.setLlmConfig
 
 	async function onEnableLlm(_e: ChangeEvent<HTMLInputElement>) {
-		preference.setLlmConfig({ ...llmConfig!, enabled: !llmConfig?.enabled })
+		preference.setLlmConfig({ ...llmConfig, enabled: !llmConfig?.enabled })
 	}
 
 	return (
@@ -179,16 +179,16 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								const defaultConfig = llm.defaultOllamaConfig()
 								setLlmConfig({
 									...defaultConfig,
-									ollamaBaseUrl: llmConfig!.ollamaBaseUrl,
-									claudeApiKey: llmConfig!.claudeApiKey,
+									ollamaBaseUrl: llmConfig.ollamaBaseUrl,
+									claudeApiKey: llmConfig.claudeApiKey,
 									enabled: llmConfig?.enabled ?? false,
 								})
 							} else if (newPlatform === 'claude') {
 								const defaultConfig = llm.defaultClaudeConfig()
 								setLlmConfig({
 									...defaultConfig,
-									ollamaBaseUrl: llmConfig!.ollamaBaseUrl,
-									claudeApiKey: llmConfig!.claudeApiKey,
+									ollamaBaseUrl: llmConfig.ollamaBaseUrl,
+									claudeApiKey: llmConfig.claudeApiKey,
 									enabled: llmConfig?.enabled ?? false,
 								})
 							}
@@ -216,7 +216,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 
 						<input
 							value={llmConfig?.claudeApiKey}
-							onChange={(e) => setLlmConfig({ ...preference.llmConfig!, claudeApiKey: e.target.value })}
+							onChange={(e) => setLlmConfig({ ...preference.llmConfig, claudeApiKey: e.target.value })}
 							className="input input-bordered opacity-50 text-sm"
 							placeholder="Paste here your API key"
 							type="text"
@@ -232,7 +232,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							</div>
 							<input
 								value={llmConfig?.ollamaBaseUrl}
-								onChange={(e) => setLlmConfig({ ...preference.llmConfig!, ollamaBaseUrl: e.target.value })}
+								onChange={(e) => setLlmConfig({ ...preference.llmConfig, ollamaBaseUrl: e.target.value })}
 								className="input input-bordered opacity-50 text-sm"></input>
 						</label>
 						<label className="form-control w-full">
@@ -241,7 +241,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							</div>
 							<input
 								value={llmConfig?.model}
-								onChange={(e) => setLlmConfig({ ...preference.llmConfig!, model: e.target.value })}
+								onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
 								className="input input-bordered opacity-50 text-sm"></input>
 						</label>
 					</>
@@ -256,7 +256,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					</div>
 					<textarea
 						value={llmConfig?.prompt}
-						onChange={(e) => setLlmConfig({ ...preference.llmConfig!, prompt: e.target.value })}
+						onChange={(e) => setLlmConfig({ ...preference.llmConfig, prompt: e.target.value })}
 						onBlur={validateLlmPrompt}
 						className="textarea textarea-bordered w-full"></textarea>
 				</label>
@@ -269,7 +269,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						</span>
 					</div>
 					<input
-						onChange={(e) => setLlmConfig({ ...llmConfig!, maxTokens: parseInt(e.target.value) ?? 1 })}
+						onChange={(e) => setLlmConfig({ ...llmConfig, maxTokens: parseInt(e.target.value) ?? 1 })}
 						value={llmConfig?.maxTokens}
 						className="input input-bordered"
 						type="number"

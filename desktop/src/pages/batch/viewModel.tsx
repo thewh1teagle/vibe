@@ -37,7 +37,7 @@ export function viewModel() {
 			const llmInstance = new Ollama(preference.llmConfig)
 			setLlm(llmInstance)
 		} else {
-			const llmInstance = new Claude(preference.llmConfig!)
+			const llmInstance = new Claude(preference.llmConfig)
 			setLlm(llmInstance)
 		}
 	}, [preference.llmConfig])

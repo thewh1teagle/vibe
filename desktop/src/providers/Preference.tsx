@@ -49,8 +49,8 @@ export interface Preference {
 	homeTabIndex: number
 	setHomeTabIndex: ModifyState<number>
 
-	llmConfig: LlmConfig | null
-	setLlmConfig: ModifyState<LlmConfig | null>
+	llmConfig: LlmConfig
+	setLlmConfig: ModifyState<LlmConfig>
 }
 
 // Create the context
@@ -107,7 +107,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 	const [highGraphicsPreference, setHighGraphicsPreference] = useLocalStorage<boolean>('prefs_high_graphics_performance', false)
 	const [homeTabIndex, setHomeTabIndex] = useLocalStorage<number>('prefs_home_tab_index', 1)
-	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig | null>('prefs_llm_config', defaultOllamaConfig())
+	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOllamaConfig())
 
 	useEffect(() => {
 		setIsFirstRun(false)
