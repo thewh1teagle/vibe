@@ -62,7 +62,7 @@ pub fn get_app_info() -> String {
 
 pub fn get_issue_url(logs: String) -> String {
     let extra_info = get_app_info();
-    format!("https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=Bug:&logs={}", urlencoding::encode(&format!("{}\n\n{}", extra_info, &logs)))
+    format!("https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=App+reports+bug&logs={}", urlencoding::encode(&format!("{}\n\n{}", extra_info, &logs)))
 }
 
 pub trait LogError<T> {
