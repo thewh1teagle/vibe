@@ -62,7 +62,7 @@
           "url": "https://*.anthropic.*"
         },
         {
-          "url": "http://localhost:11434"
+          "url": "http{s}?://localhost:*/*"
         }
       ]
     },
