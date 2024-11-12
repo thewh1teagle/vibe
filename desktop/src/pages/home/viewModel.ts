@@ -261,6 +261,9 @@ export function viewModel() {
 	async function startRecord() {
 		setSegments(null)
 		setSummarizeSegments(null)
+		if (!preference.llmConfig.enabled) {
+			setTranscriptTab('transcript')
+		}
 		setIsRecording(true)
 		let devices: AudioDevice[] = []
 		if (inputDevice) {
@@ -279,6 +282,10 @@ export function viewModel() {
 	async function transcribe(path: string) {
 		setSegments(null)
 		setSummarizeSegments(null)
+		if (!preference.llmConfig.enabled) {
+			setTranscriptTab('transcript')
+		}
+
 		setLoading(true)
 		abortRef.current = false
 
@@ -306,7 +313,9 @@ export function viewModel() {
 					const answerPromise = llm.ask(question)
 					hotToast.promise(answerPromise, {
 						loading: t('common.summarize-loading'),
-						error: t('common.summarize-error'),
+						error: (error) => {
+							return String(error)
+						},
 						success: t('common.summarize-success'),
 					})
 					const answer = await answerPromise
@@ -314,7 +323,6 @@ export function viewModel() {
 						setSummarizeSegments([{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }])
 					}
 				} catch (e) {
-					hotToast.error(String(e))
 					console.error(e)
 				}
 			} else {
