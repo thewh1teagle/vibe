@@ -3,7 +3,10 @@
         "windows": {
             "nsis": {
                 "installerHooks": "vc_redist.nsh"
-            }
+            },
+            "certificateThumbprint": "45DCFF335BB538C58489BD03BF167D29DDA53110",
+            "digestAlgorithm": "sha256",
+            "timestampUrl": "http://timestamp.digicert.com"
         },
         "resources": {
             "ffmpeg\\bin\\x64\\*": "./",
