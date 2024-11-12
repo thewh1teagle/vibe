@@ -20,7 +20,7 @@ export const llmCostUrl = 'https://console.anthropic.com/settings/cost'
 
 export const ytDlpConfig = {
 	windows: {
-		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2024.08.06/yt-dlp.exe',
+		url: 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/yt-dlp.exe', // signed with self certificate. better than nothing
 		name: 'yt-dlp.exe',
 	},
 	linux: {
