@@ -25,6 +25,7 @@ import { useToastProvider } from '~/providers/Toast'
 import { basename } from '@tauri-apps/api/path'
 import { Claude, Llm, Ollama } from '~/lib/llm'
 import { toast as hotToast } from 'react-hot-toast'
+import { useLocalStorage } from 'usehooks-ts'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -41,11 +42,13 @@ export function viewModel() {
 	const abortRef = useRef<boolean>(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
+	const [summarizeSegments, setSummarizeSegments] = useState<transcript.Segment[] | null>(null)
 	const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
 	const { t } = useTranslation()
 	const toast = useToastProvider()
 	const [llm, setLlm] = useState<Llm | null>(null)
+	const [transcriptTab, setTranscriptTab] = useLocalStorage<'transcript' | 'summary'>('prefs_transcript_tab', 'transcript')
 
 	const { files, setFiles } = useFilesContext()
 	const preference = usePreferenceProvider()
@@ -257,6 +260,7 @@ export function viewModel() {
 
 	async function startRecord() {
 		setSegments(null)
+		setSummarizeSegments(null)
 		setIsRecording(true)
 		let devices: AudioDevice[] = []
 		if (inputDevice) {
@@ -274,6 +278,7 @@ export function viewModel() {
 
 	async function transcribe(path: string) {
 		setSegments(null)
+		setSummarizeSegments(null)
 		setLoading(true)
 		abortRef.current = false
 
@@ -294,19 +299,26 @@ export function viewModel() {
 			// Calcualte time
 			const total = Math.round((performance.now() - startTime) / 1000)
 			console.info(`Transcribe took ${total} seconds.`)
-			hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
 
 			if (llm && preference.llmConfig?.enabled) {
 				try {
 					const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments))}`
-					const answer = await llm.ask(question)
+					const answerPromise = llm.ask(question)
+					hotToast.promise(answerPromise, {
+						loading: t('common.summarize-loading'),
+						error: t('common.summarize-error'),
+						success: t('common.summarize-success'),
+					})
+					const answer = await answerPromise
 					if (answer) {
-						res.segments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
+						setSummarizeSegments([{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }])
 					}
 				} catch (e) {
 					hotToast.error(String(e))
 					console.error(e)
 				}
+			} else {
+				hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
 			}
 
 			setSegments(res.segments)
@@ -351,6 +363,10 @@ export function viewModel() {
 	}
 
 	return {
+		transcriptTab,
+		setTranscriptTab,
+		summarizeSegments,
+		setSummarizeSegments,
 		devices,
 		setDevices,
 		inputDevice,
