@@ -114,7 +114,7 @@ if (platform == 'windows') {
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.vulkanSdkUrl} -O ${config.windows.vulkanSdkName}.exe`
 		let executable = path.join(cwd, `${config.windows.vulkanSdkName}.exe`)
 		let vulkanSdkRoot = path.join(cwd, config.vulkanSdkRealName)
-		await $`${executable} --root ${vulkanSdkRoot} --accept-licenses --default-answer --confirm-command install`
+		await $`${executable} copy_only=1 --root ${vulkanSdkRoot} --accept-licenses --default-answer --confirm-command install` // copy_only=1 to run without admin rights
 
 		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.vulkanRuntimeUrl} -O ${config.windows.vulkanRuntimeName}.zip`
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.vulkanRuntimeName}.zip` // 7z file inside
