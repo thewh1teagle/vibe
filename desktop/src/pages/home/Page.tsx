@@ -117,13 +117,30 @@ export default function Home() {
 					</div>
 					<div className="h-20" />
 					{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
+					{vm.summarizeSegments && (
+						<div role="tablist" className="tabs tabs-lifted tabs-lg self-center">
+							<a
+								onClick={() => vm.setTranscriptTab('transcript')}
+								role="tab"
+								className={cx('tab ', vm.transcriptTab == 'transcript' && 'text-primary font-medium tab-active')}>
+								{t('common.segments-tab')}
+							</a>
+
+							<a
+								onClick={() => vm.setTranscriptTab('summary')}
+								role="tab"
+								className={cx('tab', vm.transcriptTab == 'summary' && 'text-primary font-medium tab-active')}>
+								{t('common.summary-tab')}
+							</a>
+						</div>
+					)}
 					{(vm.segments || vm.loading) && (
 						<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
 							<TextArea
-								setSegments={vm.setSegments}
+								setSegments={vm.transcriptTab == 'transcript' ? vm.setSegments : vm.setSummarizeSegments}
 								file={vm.files?.[0]}
 								placeholder={t('common.transcript-will-displayed-shortly')}
-								segments={vm.segments}
+								segments={vm.transcriptTab == 'transcript' ? vm.segments : vm.summarizeSegments}
 								readonly={vm.loading}
 							/>
 						</div>
