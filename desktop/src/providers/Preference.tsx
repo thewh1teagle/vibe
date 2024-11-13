@@ -88,7 +88,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
-	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'normal')
+	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'pdf')
 	const isMounted = useRef<boolean>()
 	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', {
 		init_prompt: '',
