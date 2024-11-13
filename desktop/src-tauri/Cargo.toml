@@ -89,11 +89,3 @@ metal = ["vibe_core/metal"]
 openblas = ["vibe_core/openblas"]
 rocm = ["vibe_core/rocm"]
 vulkan = ["vibe_core/vulkan", "dep:ash"]
-
-# https://v1.tauri.app/v1/guides/building/app-size/#rust-build-time-optimizations
-[profile.release]
-panic = "abort"   # Strip expensive panic clean-up logic
-codegen-units = 1 # Compile crates one after another so the compiler can optimize better
-lto = true        # Enables link to optimizations
-opt-level = "s"   # Optimize for binary size
-strip = true      # Remove debug symbols
