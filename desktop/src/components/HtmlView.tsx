@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Segment, formatTimestamp } from '~/lib/transcript'
+import { Segment, formatTimestamp, mergeSpeakerSegments } from '~/lib/transcript'
 import { NamedPath, formatSpeaker } from '~/lib/utils'
 import { Preference } from '~/providers/Preference'
 
@@ -21,6 +21,7 @@ export function formatDuration(start: number, stop: number, direction: 'rtl' | '
 }
 
 export default function HTMLView({ segments, file, preference }: HTMLViewProps) {
+	segments = mergeSpeakerSegments(segments)
 	const { t } = useTranslation()
 	return (
 		<div

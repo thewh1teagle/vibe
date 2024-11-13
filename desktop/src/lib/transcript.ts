@@ -45,12 +45,12 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 	return result
 }
 
-function mergeSpeakerSegments(segments: Segment[]) {
+export function mergeSpeakerSegments(segments: Segment[]) {
 	let currentSpeaker: string | undefined
 	const newSegments: Segment[] = []
 	let currentSegment: Segment = { speaker: '', text: '', start: 0, stop: 0 }
 
-	if (segments?.[0].speaker) {
+	if (segments?.[0]?.speaker) {
 		for (const segment of segments) {
 			// First segment or speaker change
 			if (!currentSpeaker || segment.speaker !== currentSpeaker) {
