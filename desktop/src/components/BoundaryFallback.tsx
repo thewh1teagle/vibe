@@ -10,7 +10,7 @@ export function BoundaryFallback({ error }: FallbackProps) {
 		// In case of error in first renders show the window
 		// Tauri API from import won't be available...
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const currentWindow = (window as any).__TAURI__.webviewWindow.getCurrent()
+		const currentWindow = (window as any).__TAURI__.webviewWindow.getCurrentWebviewWindow()
 		currentWindow.show()
 		currentWindow.setFocus()
 	}, [])
