@@ -261,9 +261,8 @@ export function viewModel() {
 	async function startRecord() {
 		setSegments(null)
 		setSummarizeSegments(null)
-		if (!preference.llmConfig.enabled) {
-			setTranscriptTab('transcript')
-		}
+		setTranscriptTab('transcript')
+
 		setIsRecording(true)
 		let devices: AudioDevice[] = []
 		if (inputDevice) {
@@ -282,13 +281,12 @@ export function viewModel() {
 	async function transcribe(path: string) {
 		setSegments(null)
 		setSummarizeSegments(null)
-		if (!preference.llmConfig.enabled) {
-			setTranscriptTab('transcript')
-		}
+		setTranscriptTab('transcript')
 
 		setLoading(true)
 		abortRef.current = false
 
+		var newSegments: transcript.Segment[] = []
 		try {
 			await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
 			const options = {
@@ -307,29 +305,9 @@ export function viewModel() {
 			const total = Math.round((performance.now() - startTime) / 1000)
 			console.info(`Transcribe took ${total} seconds.`)
 
-			if (llm && preference.llmConfig?.enabled) {
-				try {
-					const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments))}`
-					const answerPromise = llm.ask(question)
-					hotToast.promise(answerPromise, {
-						loading: t('common.summarize-loading'),
-						error: (error) => {
-							return String(error)
-						},
-						success: t('common.summarize-success'),
-					})
-					const answer = await answerPromise
-					if (answer) {
-						setSummarizeSegments([{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }])
-					}
-				} catch (e) {
-					console.error(e)
-				}
-			} else {
-				hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
-			}
-
+			newSegments = res.segments
 			setSegments(res.segments)
+			hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
 		} catch (error) {
 			if (!abortRef.current) {
 				console.error('error: ', error)
@@ -349,6 +327,30 @@ export function viewModel() {
 					webview.getCurrentWebviewWindow().unminimize()
 					webview.getCurrentWebviewWindow().setFocus()
 				}
+			}
+		}
+
+		if (newSegments && llm && preference.llmConfig?.enabled) {
+			try {
+				const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(newSegments))}`
+				const answerPromise = llm.ask(question)
+				hotToast.promise(
+					answerPromise,
+					{
+						loading: t('common.summarize-loading'),
+						error: (error) => {
+							return String(error)
+						},
+						success: t('common.summarize-success'),
+					},
+					{ position: 'bottom-center' }
+				)
+				const answer = await answerPromise
+				if (answer) {
+					setSummarizeSegments([{ start: 0, stop: newSegments?.[newSegments?.length - 1].stop ?? 0, text: answer }])
+				}
+			} catch (e) {
+				console.error(e)
 			}
 		}
 	}
