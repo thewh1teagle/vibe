@@ -140,12 +140,13 @@ export function viewModel() {
 				let total = Math.round((performance.now() - startTime) / 1000)
 				console.info(`Transcribe ${file.name} took ${total} seconds.`)
 
+				let llmSegments: Segment[] | null = null
 				if (llm && preference.llmConfig?.enabled) {
 					try {
 						const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments))}`
 						const answer = await llm.ask(question)
 						if (answer) {
-							res.segments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
+							llmSegments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
 						}
 					} catch (e) {
 						toast.error(String(e))
@@ -165,6 +166,10 @@ export function viewModel() {
 					} else {
 						await fs.writeTextFile(dst, getText(res.segments, format))
 					}
+				}
+				if (llmSegments) {
+					const summaryPath = await invoke<string>('get_path_dst', { src: file.path, suffix: '.summary.txt' })
+					await fs.writeTextFile(summaryPath, getText(llmSegments, 'srt'))
 				}
 				localIndex += 1
 				await new Promise((resolve) => setTimeout(resolve, 100))
