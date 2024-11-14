@@ -310,7 +310,7 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
     let mut dst_path = parent.join(format!("{}{}", src_name, suffix));
 
     // Ensure we don't overwrite existing file
-    let mut counter = 0;
+    let mut counter = 1;
     while dst_path.exists() {
         dst_path = parent.join(format!("{} ({}){}", src_name, counter, suffix));
         counter += 1;
