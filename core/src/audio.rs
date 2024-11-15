@@ -51,7 +51,7 @@ pub fn find_ffmpeg_path() -> Option<PathBuf> {
     None
 }
 
-pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
+pub fn normalize(input: PathBuf, output: PathBuf, additional_ffmpeg_args: Option<Vec<String>>) -> Result<()> {
     let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
     tracing::debug!("ffmpeg path is {}", ffmpeg_path.display());
 
@@ -65,14 +65,13 @@ pub fn normalize(input: PathBuf, output: PathBuf) -> Result<()> {
         "1",
         "-c:a",
         "pcm_s16le",
-        "-af", // normalize loudness
-        "loudnorm=I=-16:TP=-1.5:LRA=11",
-        output.to_str().context("tostr")?,
-        "-hide_banner",
-        "-y",
-        "-loglevel",
-        "error",
     ]);
+
+    cmd.args(additional_ffmpeg_args.unwrap_or_default());
+
+    cmd.args([output.to_str().context("tostr")?, "-hide_banner", "-y", "-loglevel", "error"]);
+
+    tracing::debug!("cmd: {:?}", cmd);
 
     let cmd = cmd.stdin(Stdio::null());
 

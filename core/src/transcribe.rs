@@ -3,6 +3,8 @@ use crate::config::TranscribeOptions;
 use crate::transcript::{Segment, Transcript};
 use eyre::{bail, eyre, Context, OptionExt, Result};
 use hound::WavReader;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
@@ -62,15 +64,29 @@ pub fn should_normalize(source: PathBuf) -> bool {
     true
 }
 
-pub fn create_normalized_audio(source: PathBuf) -> Result<PathBuf> {
+fn generate_cache_key(source: &Path, additional_ffmpeg_args: &Option<Vec<String>>) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    source.hash(&mut hasher);
+
+    if let Some(args) = additional_ffmpeg_args {
+        for arg in args {
+            arg.hash(&mut hasher);
+        }
+    }
+
+    hasher.finish()
+}
+
+pub fn create_normalized_audio(source: PathBuf, additional_ffmpeg_args: Option<Vec<String>>) -> Result<PathBuf> {
     tracing::debug!("normalize {:?}", source.display());
 
-    let out_path = tempfile::Builder::new()
-        .suffix(".wav")
-        .tempfile()?
-        .into_temp_path()
-        .to_path_buf();
-    audio::normalize(source, out_path.clone())?;
+    let cache_key = generate_cache_key(&source, &additional_ffmpeg_args);
+    let out_path = std::env::temp_dir().join(format!("{:x}.wav", cache_key));
+    if out_path.exists() {
+        tracing::info!("Using cached normalized audio: {}", out_path.display());
+        return Ok(out_path);
+    }
+    audio::normalize(source, out_path.clone(), additional_ffmpeg_args)?;
     Ok(out_path)
 }
 
@@ -136,6 +152,7 @@ pub fn transcribe(
     new_segment_callback: Option<Box<dyn Fn(Segment)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
     diarize_options: Option<DiarizeOptions>,
+    additional_ffmpeg_args: Option<Vec<String>>,
 ) -> Result<Transcript> {
     tracing::debug!("Transcribe called with {:?}", options);
 
@@ -144,7 +161,7 @@ pub fn transcribe(
     }
 
     let out_path = if should_normalize(options.path.clone().into()) {
-        create_normalized_audio(options.path.clone().into())?
+        create_normalized_audio(options.path.clone().into(), additional_ffmpeg_args)?
     } else {
         tracing::debug!("Skip normalize");
         options.path.clone().into()

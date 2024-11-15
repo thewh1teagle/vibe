@@ -219,7 +219,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 
         tracing::debug!("Emitting record_finish event");
         let mut normalized = std::env::temp_dir().join(format!("{}.wav", get_local_time()));
-        vibe_core::audio::normalize(dst.clone(), normalized.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+        vibe_core::audio::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
 
         if store_in_documents {
             if let Some(file_name) = normalized.file_name() {

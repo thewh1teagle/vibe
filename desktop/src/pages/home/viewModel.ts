@@ -299,6 +299,7 @@ export function viewModel() {
 				options,
 				modelPath: preference.modelPath,
 				diarizeOptions,
+				ffmpegOptions: preference.ffmpegOptions,
 			})
 
 			// Calcualte time

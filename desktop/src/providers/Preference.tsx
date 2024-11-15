@@ -51,6 +51,8 @@ export interface Preference {
 
 	llmConfig: LlmConfig
 	setLlmConfig: ModifyState<LlmConfig>
+	ffmpegOptions: FfmpegOptions
+	setFfmpegOptions: ModifyState<FfmpegOptions>
 }
 
 // Create the context
@@ -59,6 +61,11 @@ const PreferenceContext = createContext<Preference | null>(null)
 // Custom hook to use the preference context
 export function usePreferenceProvider() {
 	return useContext(PreferenceContext) as Preference
+}
+
+export interface FfmpegOptions {
+	normalize_loudness: boolean
+	custom_command: string | null
 }
 
 export interface ModelOptions {
@@ -99,6 +106,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		max_text_ctx: undefined,
 		word_timestamps: false,
 		max_sentence_len: 1,
+	})
+	const [ffmpegOptions, setFfmpegOptions] = useLocalStorage<FfmpegOptions>('prefs_ffmpeg_options', {
+		normalize_loudness: false,
+		custom_command: null,
 	})
 	const [recognizeSpeakers, setRecognizeSpeakers] = useLocalStorage<boolean>('prefs_recognize_speakers', false)
 	const [maxSpeakers, setMaxSpeakers] = useLocalStorage<number>('prefs_max_speakers', 5)
@@ -183,6 +194,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setGpuDevice,
 		homeTabIndex,
 		setHomeTabIndex,
+		ffmpegOptions,
+		setFfmpegOptions,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

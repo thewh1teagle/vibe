@@ -212,12 +212,40 @@ impl Default for DiarizeOptions {
     }
 }
 
+#[derive(Deserialize, Serialize, Clone)]
+pub struct FfmpegOptions {
+    pub normalize_loudness: bool,
+    pub custom_command: Option<String>,
+}
+
+impl Default for FfmpegOptions {
+    fn default() -> Self {
+        Self {
+            normalize_loudness: true,
+            custom_command: None,
+        }
+    }
+}
+
+impl FfmpegOptions {
+    pub fn to_vec(&mut self) -> Vec<String> {
+        let mut cmd = Vec::<String>::new();
+        if let Some(custom_cmd) = &self.custom_command {
+            cmd.extend(custom_cmd.split_whitespace().map(|s| s.to_string()));
+        } else if self.normalize_loudness {
+            cmd.extend(["-af".to_string(), "loudnorm=I=-16:TP=-1.5:LRA=11".to_string()]);
+        }
+        return cmd;
+    }
+}
+
 #[tauri::command]
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
     options: vibe_core::config::TranscribeOptions,
     model_context_state: State<'_, Mutex<Option<ModelContext>>>,
     diarize_options: DiarizeOptions,
+    mut ffmpeg_options: FfmpegOptions,
 ) -> Result<Transcript> {
     let model_context = model_context_state.lock().await;
     if model_context.is_none() {
@@ -274,6 +302,8 @@ pub async fn transcribe(
             threshold: diarize_options.threshold,
         });
     }
+    let ffmpeg_options = ffmpeg_options.to_vec();
+    tracing::debug!("ffmpeg additiona options: {:?}", ffmpeg_options);
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
         vibe_core::transcribe::transcribe(
             &ctx.handle,
@@ -282,6 +312,7 @@ pub async fn transcribe(
             Some(Box::new(new_segment_callback)),
             Some(Box::new(abort_callback)),
             core_diarize_options,
+            Some(ffmpeg_options),
         )
     }));
 

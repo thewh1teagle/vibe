@@ -428,6 +428,40 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						type="number"
 					/>
 				</label>
+				<div className="label mt-10">
+					<span className="label-text text-2xl font-bold">{t('common.ffmpeg-options')}</span>
+				</div>
+				<div className="form-control w-full mt-3">
+					<label className="label cursor-pointer">
+						<span className="label-text flex items-center gap-1 cursor-default">
+							<InfoTooltip text={t('common.info-normalize-loudness')} />
+							{t('common.normalize-loudness')}
+						</span>
+
+						<input
+							type="checkbox"
+							className="toggle toggle-primary"
+							checked={preference.ffmpegOptions.normalize_loudness}
+							onChange={(e) => preference.setFfmpegOptions({ ...preference.ffmpegOptions, normalize_loudness: e.target.checked })}
+						/>
+					</label>
+				</div>
+				<label className="form-control w-full">
+					<div className="label">
+						<span className="label-text flex items-center gap-1">
+							<InfoTooltip text={'ffmpeg -i {input} -ar 16000 -ac 1 -c:a pcm_s16le {custom_command} -hide_banner -y -loglevel error'} />
+							{t('common.custom-ffmpeg-command')}
+						</span>
+					</div>
+
+					<input
+						value={preference.ffmpegOptions.custom_command ?? ''}
+						onChange={(e) => preference.setFfmpegOptions({ ...preference.ffmpegOptions, custom_command: e.target.value ? e.target.value : null })}
+						className="input input-bordered opacity-50 text-sm"
+						placeholder={preference.ffmpegOptions.normalize_loudness ? '-af loudnorm=I=-16:TP=-1.5:LRA=11' : ''}
+						type="text"
+					/>
+				</label>
 			</div>
 		</div>
 	)
