@@ -26,6 +26,7 @@ import { basename } from '@tauri-apps/api/path'
 import { Claude, Llm, Ollama } from '~/lib/llm'
 import { toast as hotToast } from 'react-hot-toast'
 import { useLocalStorage } from 'usehooks-ts'
+import { useConfirmExit } from '~/lib/useConfirmExit'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -49,6 +50,7 @@ export function viewModel() {
 	const toast = useToastProvider()
 	const [llm, setLlm] = useState<Llm | null>(null)
 	const [transcriptTab, setTranscriptTab] = useLocalStorage<'transcript' | 'summary'>('prefs_transcript_tab', 'transcript')
+	useConfirmExit((segments?.length ?? 0) > 0 || loading)
 
 	const { files, setFiles } = useFilesContext()
 	const preference = usePreferenceProvider()

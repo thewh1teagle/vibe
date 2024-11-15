@@ -19,6 +19,7 @@
 	"check-error": "Kontrola nie powiodła się",
 	"check-loading": "Kontrola",
 	"check-success": "Przetestowano pomyślnie",
+	"confirm-exit": "Czy chcesz wyjść? \nNiezapisane zmiany zostaną utracone.",
 	"confirm-relaunch": "Ponownie uruchom teraz",
 	"confirm-update": "Zaaktualizuj teraz",
 	"copied": "Skopiowano!",

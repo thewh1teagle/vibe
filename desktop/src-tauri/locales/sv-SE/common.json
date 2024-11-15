@@ -19,6 +19,7 @@
 	"check-error": "Kontrollen misslyckades",
 	"check-loading": "Kontroll",
 	"check-success": "Testade framgångsrikt",
+	"confirm-exit": "Vill du avsluta? \nOsparade ändringar kommer att gå förlorade.",
 	"confirm-relaunch": "Starta om",
 	"confirm-update": "Updatera Nu",
 	"copied": "Kopierade!",

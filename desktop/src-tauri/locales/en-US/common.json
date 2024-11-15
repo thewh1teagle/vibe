@@ -19,6 +19,7 @@
 	"check-error": "Check failed",
 	"check-loading": "Checking",
 	"check-success": "Tested successfully",
+	"confirm-exit": "Do you want to exit? Unsaved changes will be lost.",
 	"confirm-relaunch": "Relaunch Now",
 	"confirm-update": "Update Now",
 	"copied": "Copied!",

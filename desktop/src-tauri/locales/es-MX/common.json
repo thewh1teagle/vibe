@@ -19,6 +19,7 @@
 	"check-error": "La verificación falló",
 	"check-loading": "Verificando",
 	"check-success": "Probado con éxito",
+	"confirm-exit": "¿Quieres salir? \nLos cambios no guardados se perderán.",
 	"confirm-relaunch": "Relanzar Ahora",
 	"confirm-update": "Actualizar Ahora",
 	"copied": "¡Copiado!",

@@ -19,6 +19,7 @@
 	"check-error": "הבדיקה נכשלה",
 	"check-loading": "בודק",
 	"check-success": "נבדק בהצלחה",
+	"confirm-exit": "האם אתה רוצה לצאת? \nשינויים שלא נשמרו יאבדו.",
 	"confirm-relaunch": "הפעל מחדש עכשיו",
 	"confirm-update": "עדכן עכשיו",
 	"copied": "הועתק!",
