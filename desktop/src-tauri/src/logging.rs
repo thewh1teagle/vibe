@@ -27,6 +27,8 @@ pub fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
 pub fn setup_logging(app: &AppHandle, store: Arc<Store<Wry>>) -> Result<()> {
     let sub = Registry::default().with(
         tracing_subscriber::fmt::layer()
+            .with_file(true)
+            .with_line_number(true)
             .with_ansi(true)
             .with_filter(EnvFilter::from_default_env()),
     );
