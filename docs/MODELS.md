@@ -61,23 +61,37 @@ Find additional models here:
 <summary>Convert transformers to GGML</summary>
 
 ```console
+# Create folder for the process
 mkdir whisper
 cd whisper
 
+# Install dependencies
+sudo apt-get install git-lfs python3.10-venv
 python3 -m venv venv
 source venv/bin/activate
 pip3 install torch torchvision torchaudio transformers
 
+# Prepare OpenAI repository and whisper.cpp
 git clone https://github.com/openai/whisper --depth 1
 git clone https://github.com/ggerganov/whisper.cpp --depth 1
 
 # Prepare whisper-tiny for conversion
 git clone https://huggingface.co/openai/whisper-tiny --depth 1
+cd whisper-tiny
+git-lfs pull
+cd ..
+# Convert safetensors to GGML
 python3 ./whisper.cpp/models/convert-h5-to-ggml.py ./whisper-tiny/ ./whisper .
 mv ggml-model.bin ggml-tiny.bin
 
-# Optional: upload to hugginface
+# Optional: quantize model with Q8_0 method (int8)
+sudo apt install build-essential make 
+cd whisper.cpp
+make -j quantize
+cd ..
+./whisper.cpp/quantize ggml-tiny.bin ggml-tiny.bin-q8_0.bin q8_0
 
+# Optional: upload to hugginface
 pip install -U "huggingface_hub[cli]"
 huggingface-cli login
 huggingface-cli upload thewh1teagle/ggml-tiny ./ggml-tiny.bin
