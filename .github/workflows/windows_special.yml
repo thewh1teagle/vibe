@@ -22,14 +22,14 @@ jobs:
                 include:
                     # Windows no AVX2
                     - platform: "windows-latest"
-                      args: ''
+                      args: '--features "server"'
                       pre-build-args: "--older-cpu"
                       name: "older-cpu"
                       rust-version: "stable"
 
                     # Windows no AVX2
                     - platform: "windows-latest"
-                      args: '--features="vulkan"'
+                      args: '--features="vulkan,server"'
                       pre-build-args: "--older-cpu --vulkan"
                       name: "older-cpu-vulkan"
                       rust-version: "stable"

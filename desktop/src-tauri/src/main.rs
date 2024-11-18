@@ -5,7 +5,10 @@ mod cli;
 mod cmd;
 mod config;
 mod panic_hook;
+
+#[cfg(feature = "server")]
 mod server;
+
 mod setup;
 mod utils;
 use tauri::{Emitter, Manager};

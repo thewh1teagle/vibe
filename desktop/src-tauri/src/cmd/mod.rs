@@ -228,14 +228,14 @@ impl Default for FfmpegOptions {
 }
 
 impl FfmpegOptions {
-    pub fn to_vec(&mut self) -> Vec<String> {
+    pub fn to_vec(&self) -> Vec<String> {
         let mut cmd = Vec::<String>::new();
         if let Some(custom_cmd) = &self.custom_command {
             cmd.extend(custom_cmd.split_whitespace().map(|s| s.to_string()));
         } else if self.normalize_loudness {
             cmd.extend(["-af".to_string(), "loudnorm=I=-16:TP=-1.5:LRA=11".to_string()]);
         }
-        return cmd;
+        cmd
     }
 }
 
@@ -245,7 +245,7 @@ pub async fn transcribe(
     options: vibe_core::config::TranscribeOptions,
     model_context_state: State<'_, Mutex<Option<ModelContext>>>,
     diarize_options: DiarizeOptions,
-    mut ffmpeg_options: FfmpegOptions,
+    ffmpeg_options: FfmpegOptions,
 ) -> Result<Transcript> {
     let model_context = model_context_state.lock().await;
     if model_context.is_none() {

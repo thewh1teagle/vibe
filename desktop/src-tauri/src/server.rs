@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::Manager;
 use tokio::sync::Mutex;
-use utoipa::{OpenApi, ToSchema};
+use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 use vibe_core::config::TranscribeOptions;
 use vibe_core::transcript::{Segment, Transcript};
@@ -39,7 +39,7 @@ pub async fn run(app_handle: tauri::AppHandle, host: String, port: u16) -> eyre:
     Ok(())
 }
 
-#[derive(Deserialize, Serialize, ToSchema)]
+#[derive(Deserialize, Serialize, utoipa::ToSchema)]
 struct LoadPayload {
     pub model_path: String,
     pub gpu_device: Option<i32>,
