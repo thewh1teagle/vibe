@@ -261,3 +261,10 @@ gh cache delete -a
 ## Sign on Windows
 
 See [Self sign tauri on Windows](https://gist.github.com/thewh1teagle/06022cf1ec17a62949377a17c1b590bd)
+
+## Build faster in dev mode (useful in Windows)
+
+```console
+rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+$env:CARGO_PROFILE_DEV_CODEGEN_BACKEND="cranelift" ; cargo +nightly build -Zcodegen-backend
+```
