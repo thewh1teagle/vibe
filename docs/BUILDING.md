@@ -267,5 +267,8 @@ See [Self sign tauri on Windows](https://gist.github.com/thewh1teagle/06022cf1ec
 ```console
 rustup nightly install
 rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+# Unix
+CARGO_PROFILE_DEV_CODEGEN_BACKEND="cranelift" cargo +nightly build -Zcodegen-backend
+# Powershell
 $env:CARGO_PROFILE_DEV_CODEGEN_BACKEND="cranelift" ; cargo +nightly build -Zcodegen-backend
 ```
