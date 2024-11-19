@@ -9,7 +9,6 @@ use vibe_core::config::TranscribeOptions;
 use vibe_core::transcribe;
 
 use crate::cmd::get_models_folder;
-use crate::server;
 
 /// Attach to console if cli detected in Windows
 #[cfg(all(windows, not(debug_assertions)))]
@@ -115,7 +114,7 @@ struct Args {
     diarize_speaker_id_model: Option<String>,
 
     /// Run http server
-    #[arg(long)]
+    #[cfg_attr(feature = "server", clap(long))]
     server: bool,
 
     #[arg(long, default_value = "0.0.0.0")]
@@ -180,8 +179,9 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         args.format = "json".into();
     }
 
+    #[cfg(feature = "server")]
     if args.server {
-        server::run(app_handle.clone(), args.host, args.port).await?;
+        crate::server::run(app_handle.clone(), args.host, args.port).await?;
     }
     let lang = language_name_to_whisper_lang(&args.language)?;
     let options = TranscribeOptions {

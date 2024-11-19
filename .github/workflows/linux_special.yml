@@ -17,7 +17,7 @@ jobs:
                 include:
                     # Ubuntu 22.04
                     - platform: "ubuntu-22.04"
-                      args: '--features "vulkan"'
+                      args: '--features "vulkan" --features "server"'
                       pre-build-args: "--vulkan"
                       rust-version: "stable"
                       name: "ubuntu-22.04"
