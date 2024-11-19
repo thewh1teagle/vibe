@@ -27,6 +27,8 @@ export class Claude implements Llm {
 			messages: [{ role: 'user', content: prompt }],
 		})
 		const headers = {
+			Origin: '',
+			Referer: '',
 			'X-API-Key': this.config.claudeApiKey,
 			'anthropic-version': '2023-06-01',
 			'Content-Type': 'application/json',

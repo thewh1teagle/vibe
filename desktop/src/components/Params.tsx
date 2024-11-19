@@ -116,12 +116,17 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	}
 
 	async function checkLlm() {
-		const promise = llm!.ask('Hello, how are you?')
-		hotToast.promise(promise, {
-			error: t('common.check-error') as string,
-			success: t('common.check-success') as string,
-			loading: t('common.check-loading') as string,
-		})
+		try {
+			const promise = llm!.ask('Hello, how are you?')
+			hotToast.promise(promise, {
+				error: t('common.check-error') as string,
+				success: t('common.check-success') as string,
+				loading: t('common.check-loading') as string,
+			})
+			await promise
+		} catch (e) {
+			console.error(e)
+		}
 	}
 
 	return (
