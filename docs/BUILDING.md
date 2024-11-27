@@ -110,6 +110,11 @@ bunx tauri build
 
 ## Gotchas
 
+### On Linux cmake not find Vulkan
+
+Then install it from [here](https://vulkan.lunarg.com/sdk/home)
+
+
 On Windows when run `pre_build` with `--vulkan` you may need to run it with admin rights first time thanks to vulkan recent changes...
 
 On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
