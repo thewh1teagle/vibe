@@ -274,7 +274,6 @@ if (!process.env.GITHUB_ENV) {
 	}
 	if (platform == 'macos') {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
-		console.log(`export WHISPER_METAL_EMBED_LIBRARY=ON`)
 	}
 	if (!process.env.GITHUB_ENV) {
 		const features = ['openblas', 'vulkan', 'cuda'].filter((f) => hasFeature(f)).join(',')
@@ -295,7 +294,6 @@ if (process.env.GITHUB_ENV) {
 		await fs.appendFile(process.env.GITHUB_ENV, ffmpeg)
 	}
 	if (platform == 'macos') {
-		const embed_metal = 'WHISPER_METAL_EMBED_LIBRARY=ON'
 		await fs.appendFile(process.env.GITHUB_ENV, embed_metal)
 	}
 	if (platform == 'windows') {
@@ -331,9 +329,6 @@ if (action?.includes('--build' || action.includes('--dev'))) {
 		process.env['OPENBLAS_PATH'] = exports.openBlas
 		process.env['LIBCLANG_PATH'] = process.env['LIBCLANG_PATH'] || exports.libClang
 		process.env['PATH'] = `${process.env['PATH']};${exports.cmake}`
-	}
-	if (platform == 'macos') {
-		process.env['WHISPER_METAL_EMBED_LIBRARY'] = 'ON'
 	}
 	await $`bun install`
 	await $`bunx tauri ${action.includes('--dev') ? 'dev' : 'build'}`
