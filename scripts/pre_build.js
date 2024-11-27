@@ -293,9 +293,6 @@ if (process.env.GITHUB_ENV) {
 		console.log('Adding ENV', ffmpeg)
 		await fs.appendFile(process.env.GITHUB_ENV, ffmpeg)
 	}
-	if (platform == 'macos') {
-		await fs.appendFile(process.env.GITHUB_ENV, embed_metal)
-	}
 	if (platform == 'windows') {
 		const openblas = `OPENBLAS_PATH=${exports.openBlas}\n`
 		console.log('Adding ENV', openblas)
