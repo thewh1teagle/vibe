@@ -220,7 +220,8 @@ git push <fork url>
 ## Update packages
 
 ```console
-bunx ncu -u -t newest
+bun i -D
+bunx ncu -u
 cd src-tauri
 cargo install cargo-edit
 rm -rf ../Cargo.lock
