@@ -6590,6 +6590,7 @@ dependencies = [
  "crash-handler",
  "eyre 1.0.0",
  "futures",
+ "glob",
  "hound",
  "libc",
  "libc-stdhandle",

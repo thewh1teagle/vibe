@@ -125,7 +125,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::I8 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        tracing::debug!("Writing input data (I8)");
+                        tracing::trace!("Writing input data (I8)");
                         write_input_data::<i8, i8>(data, &writer_2)
                     },
                     err_fn,
@@ -134,7 +134,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::I16 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        tracing::debug!("Writing input data (I16)");
+                        tracing::trace!("Writing input data (I16)");
                         write_input_data::<i16, i16>(data, &writer_2)
                     },
                     err_fn,
@@ -143,7 +143,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::I32 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        tracing::debug!("Writing input data (I32)");
+                        tracing::trace!("Writing input data (I32)");
                         write_input_data::<i32, i32>(data, &writer_2)
                     },
                     err_fn,
@@ -152,7 +152,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                 cpal::SampleFormat::F32 => device.build_input_stream(
                     &config.into(),
                     move |data, _: &_| {
-                        tracing::debug!("Writing input data (F32)");
+                        tracing::trace!("Writing input data (F32)");
                         write_input_data::<f32, f32>(data, &writer_2)
                     },
                     err_fn,

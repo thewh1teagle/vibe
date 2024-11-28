@@ -52,6 +52,7 @@ utoipa-swagger-ui = { version = "7.1.0", features = ["axum"], optional = true }
 tracing = { version = "0.1.40", features = ["log"] }
 tracing-log = "0.2.0"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json"] }
+glob = "0.3.1"
 
 chrono = "0.4.38"
 crash-handler = "0.6.2"

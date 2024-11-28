@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod cleaner;
 mod cli;
 mod cmd;
 mod config;
@@ -86,6 +87,7 @@ fn main() -> Result<()> {
             cmd::is_portable,
             cmd::check_vulkan,
             cmd::get_logs_folder,
+            cmd::show_log_path,
             cmd::get_ffmpeg_path,
             cmd::ytdlp::download_audio,
             cmd::ytdlp::get_temp_path,

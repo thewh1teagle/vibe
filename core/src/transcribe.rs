@@ -193,7 +193,7 @@ pub fn transcribe(
             }
 
             // whisper compatible. segment indices
-            tracing::debug!("diarize segment: {} - {}", diarize_segment.start, diarize_segment.end);
+            tracing::trace!("diarize segment: {} - {}", diarize_segment.start, diarize_segment.end);
 
             let mut samples = vec![0.0f32; diarize_segment.samples.len()];
 
@@ -210,7 +210,7 @@ pub fn transcribe(
                     Ok(result) => result.collect(),
                     Err(error) => {
                         tracing::error!("error: {:?}", error);
-                        tracing::debug!(
+                        tracing::trace!(
                             "start = {:.2}, end = {:.2}, speaker = ?",
                             diarize_segment.start,
                             diarize_segment.end
@@ -247,9 +247,9 @@ pub fn transcribe(
                     new_segment_callback(segment);
                 }
                 if let Some(ref progress_callback) = progress_callback {
-                    tracing::debug!("progress: {} * {} / 100", i, diarize_segments.len());
+                    tracing::trace!("progress: {} * {} / 100", i, diarize_segments.len());
                     let progress = ((i + 1) as f64 / diarize_segments.len() as f64 * 100.0) as i32;
-                    tracing::debug!("progress diarize: {}", progress);
+                    tracing::trace!("progress diarize: {}", progress);
                     progress_callback(progress);
                 }
             }
@@ -283,7 +283,7 @@ pub fn transcribe(
         if PROGRESS_CALLBACK.lock().map_err(|e| eyre!("{:?}", e))?.as_ref().is_some() {
             params.set_progress_callback_safe(|progress| {
                 // using move here lead to crash
-                tracing::debug!("progress callback {}", progress);
+                tracing::trace!("progress callback {}", progress);
                 match PROGRESS_CALLBACK.lock() {
                     Ok(callback_guard) => {
                         if let Some(progress_callback) = callback_guard.as_ref() {
