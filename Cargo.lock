@@ -6635,6 +6635,7 @@ dependencies = [
 name = "vibe_core"
 version = "0.0.6"
 dependencies = [
+ "chrono",
  "eyre 1.0.0",
  "futures-util",
  "glob",

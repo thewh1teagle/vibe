@@ -21,6 +21,7 @@ eyre = { workspace = true }
 hound = "3.5.1"
 reqwest = { version = "0.11.23", features = ["stream"] }
 tempfile = "3.9.0"
+chrono = "0.4.38"
 tokio = { version = "1.35.1", features = [
 	"tokio-macros",
 	"macros",
