@@ -493,10 +493,8 @@ pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
     let log_path = crate::logging::get_log_path(&app_handle)?;
     if log_path.exists() {
         showfile::show_path_in_file_manager(log_path);
-    } else {
-        if let Some(parent) = log_path.parent() {
-            showfile::show_path_in_file_manager(parent);
-        }
+    } else if let Some(parent) = log_path.parent() {
+        showfile::show_path_in_file_manager(parent);
     }
     Ok(())
 }

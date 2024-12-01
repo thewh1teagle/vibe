@@ -12,7 +12,7 @@ pub fn get_vibe_temp_folder() -> std::path::PathBuf {
     let current_datetime = Local::now();
     let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();
     let dir = std::env::temp_dir().join(format!("vibe_temp_{}", formatted_datetime));
-    if let Ok(_) = std::fs::create_dir_all(&dir) {
+    if std::fs::create_dir_all(&dir).is_ok() {
         return dir;
     }
     std::env::temp_dir()
