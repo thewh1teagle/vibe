@@ -117,7 +117,7 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
             // Update progress in background
             tauri::async_runtime::spawn(async move {
                 let percentage = (current as f64 / total as f64) * 100.0;
-                tracing::debug!("percentage: {}", percentage);
+                tracing::trace!("percentage: {}", percentage);
                 if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
                     tracing::error!("Failed to set progress bar: {}", e);
                 }
@@ -179,7 +179,7 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
             // Update progress in background
             tauri::async_runtime::spawn(async move {
                 let percentage = (current as f64 / total as f64) * 100.0;
-                tracing::debug!("percentage: {}", percentage);
+                tracing::trace!("percentage: {}", percentage);
                 if let Some(window) = app_handle.get_webview_window("main") {
                     if let Err(e) = window.emit("download_progress", (current, total)) {
                         tracing::error!("Failed to emit download progress: {}", e);
@@ -276,7 +276,6 @@ pub async fn transcribe(
     let app_handle_c = app_handle.clone();
     let app_handle_c1 = app_handle.clone();
     let progress_callback = move |progress: i32| {
-        // tracing::debug!("desktop progress is {}", progress);
         let _ = set_progress_bar(&app_handle, Some(progress.into()));
     };
 
@@ -487,6 +486,19 @@ pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
         app_handle.path().app_config_dir()?
     };
     Ok(config_path)
+}
+
+#[tauri::command]
+pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
+    let log_path = crate::logging::get_log_path(&app_handle)?;
+    if log_path.exists() {
+        showfile::show_path_in_file_manager(log_path);
+    } else {
+        if let Some(parent) = log_path.parent() {
+            showfile::show_path_in_file_manager(parent);
+        }
+    }
+    Ok(())
 }
 
 #[tauri::command]

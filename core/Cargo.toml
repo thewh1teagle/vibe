@@ -11,7 +11,7 @@ path = "src/lib.rs"
 # Fixed incorrect timestamps, better logs
 whisper-rs = { git = "https://github.com/thewh1teagle/whisper-rs.git", features = [
 	"whisper-cpp-tracing",
-], default-features = false, rev = "4585bb" }
+], default-features = false, branch = "dev" }
 serde = { version = "1.0.195", features = ["derive"] }
 num = "0.4.1"
 once_cell = "1.19.0"
@@ -21,6 +21,7 @@ eyre = { workspace = true }
 hound = "3.5.1"
 reqwest = { version = "0.11.23", features = ["stream"] }
 tempfile = "3.9.0"
+chrono = "0.4.38"
 tokio = { version = "1.35.1", features = [
 	"tokio-macros",
 	"macros",

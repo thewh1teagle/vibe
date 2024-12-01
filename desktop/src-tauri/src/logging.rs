@@ -1,6 +1,6 @@
 use chrono::Local;
 use eyre::{Context, Result};
-use serde_json::Value;
+use std::env;
 use std::sync::Arc;
 use std::{fs::OpenOptions, path::PathBuf};
 use tauri::{AppHandle, Manager, Wry};
@@ -17,14 +17,19 @@ pub fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
     };
 
     let current_datetime = Local::now();
-    let formatted_datetime = current_datetime.format("%Y-%m").to_string();
-    let log_filename = format!("{}_{}.txt", config::LOG_FILENAME_PREFIX, formatted_datetime);
+    let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();
+    let log_filename = format!(
+        "{}_{}{}",
+        config::LOG_FILENAME_PREFIX,
+        formatted_datetime,
+        config::LOG_FILENAME_SUFFIX
+    );
     let log_path = config_path.join(log_filename);
 
     Ok(log_path)
 }
 
-pub fn setup_logging(app: &AppHandle, store: Arc<Store<Wry>>) -> Result<()> {
+pub fn setup_logging(app: &AppHandle, _store: Arc<Store<Wry>>) -> Result<()> {
     let sub = Registry::default().with(
         tracing_subscriber::fmt::layer()
             .with_file(true)
@@ -33,26 +38,32 @@ pub fn setup_logging(app: &AppHandle, store: Arc<Store<Wry>>) -> Result<()> {
             .with_filter(EnvFilter::from_default_env()),
     );
 
-    if store
-        .get("prefs_log_to_file")
-        .unwrap_or(Value::Bool(false))
-        .as_bool()
-        .unwrap_or_default()
-    {
-        // with log to file
-        let path = get_log_path(app)?;
-        let file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(path.clone())
-            .context(format!("failed to open file at {}", path.display()))?;
+    // if store
+    //     .get("prefs_log_to_file")
+    //     .unwrap_or(Value::Bool(false))
+    //     .as_bool()
+    //     .unwrap_or_default()
 
-        let current_datetime = Local::now();
-        let formatted_datetime = current_datetime.format("%Y-%m-%d-%H-%M-%S").to_string();
-        tracing::debug!("Setup logging to file at {}", formatted_datetime);
-        tracing::subscriber::set_global_default(sub.with(tracing_subscriber::fmt::layer().json().with_writer(file)))?;
-    } else {
-        tracing::subscriber::set_global_default(sub)?;
-    }
+    // Enable logs by default. TODO: remove?
+    let rust_log = env::var("RUST_LOG").unwrap_or_else(|_| config::DEFAULT_LOG_DIRECTIVE.to_owned());
+
+    let path = get_log_path(app)?;
+    let file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path.clone())
+        .context(format!("failed to open file at {}", path.display()))?;
+    tracing::subscriber::set_global_default(
+        sub.with(
+            tracing_subscriber::fmt::layer()
+                .json()
+                .with_writer(file)
+                .with_filter(EnvFilter::new(rust_log.clone())),
+        ),
+    )?;
+
+    tracing::debug!("LEVEL {}", rust_log);
+    tracing::debug!("Setup logging to file at {}", path.display());
+    // tracing::subscriber::set_global_default(sub)?;
     Ok(())
 }

@@ -1,5 +1,6 @@
 use eyre::{bail, Context, Result};
 use tauri::{AppHandle, Manager};
+use vibe_core::get_vibe_temp_folder;
 
 use super::get_ffmpeg_path;
 
@@ -22,9 +23,9 @@ fn get_binary_name() -> &'static str {
 #[tauri::command]
 pub fn get_temp_path(app_handle: AppHandle, ext: String, in_documents: Option<bool>) -> String {
     let mut base_path = if in_documents.unwrap_or_default() {
-        app_handle.path().document_dir().unwrap_or(std::env::temp_dir())
+        app_handle.path().document_dir().unwrap_or(get_vibe_temp_folder())
     } else {
-        std::env::temp_dir()
+        get_vibe_temp_folder()
     };
 
     base_path.push(format!("{}.{}", crate::utils::get_local_time(), ext));

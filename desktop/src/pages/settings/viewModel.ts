@@ -31,9 +31,8 @@ async function reportIssue() {
 	}
 }
 
-async function openLogsFolder() {
-	const dst = await invoke<string>('get_logs_folder')
-	invoke('open_path', { path: dst })
+async function revealLogs() {
+	await invoke<string>('show_log_path')
 }
 
 async function copyLogs() {
@@ -141,7 +140,7 @@ export function viewModel() {
 		askAndReset,
 		openModelPath,
 		openModelsUrl,
-		openLogsFolder,
+		revealLogs,
 		models,
 		appVersion,
 		reportIssue,
