@@ -26,8 +26,14 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Add panic hook
     panic_hook::set_panic_hook(app.app_handle())?;
 
-    let app_data = app.path().app_local_data_dir()?;
-    fs::create_dir_all(app_data).expect("cant create local app data directory");
+    // Create app directories
+    let local_app_data_dir = app.path().app_local_data_dir()?;
+    let app_config_dir = app.path().app_local_data_dir()?;
+    fs::create_dir_all(local_app_data_dir).expect(&format!(
+        "cant create local app data directory at {}",
+        local_app_data_dir.display()
+    ));
+    fs::create_dir_all(app_config_dir).expect(&format!("cant create app config directory at {}", app_config_dir.display()));
 
     // Manage model context
     app.manage(Mutex::new(None::<ModelContext>));
@@ -36,7 +42,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     // Setup logging to terminal
     {
-        let mut app_handle = STATIC_APP.lock().unwrap();
+        let mut app_handle = STATIC_APP.lock().expect("lock");
         *app_handle = Some(app.handle().clone());
     }
     crate::logging::setup_logging(app.handle(), store).unwrap();
@@ -63,7 +69,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             #[cfg(unix)]
             tracing::error!("Crash exception code: {:?}", info);
 
-            if let Some(app_handle) = STATIC_APP.lock().unwrap().as_ref() {
+            if let Some(app_handle) = STATIC_APP.lock().expect("lock").as_ref() {
                 app_handle
                     .dialog()
                     .message("App crashed with error. Please register to Github and then click report.")
