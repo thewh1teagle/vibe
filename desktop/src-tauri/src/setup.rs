@@ -28,7 +28,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     // Create app directories
     let local_app_data_dir = app.path().app_local_data_dir()?;
-    let app_config_dir = app.path().app_local_data_dir()?;
+    let app_config_dir = app.path().app_config_dir()?;
     fs::create_dir_all(&local_app_data_dir)
         .unwrap_or_else(|_| panic!("cant create local app data directory at {}", local_app_data_dir.display()));
     fs::create_dir_all(&app_config_dir)
