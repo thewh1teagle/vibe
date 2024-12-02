@@ -88,6 +88,7 @@ fn main() -> Result<()> {
             cmd::check_vulkan,
             cmd::get_logs_folder,
             cmd::show_log_path,
+            cmd::show_temp_path,
             cmd::get_ffmpeg_path,
             cmd::ytdlp::download_audio,
             cmd::ytdlp::get_temp_path,

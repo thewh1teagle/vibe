@@ -246,6 +246,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					{t('common.logs-folder')}
 					<FolderIcon className="h-4 w-4" />
 				</button>
+				<button onMouseDown={vm.revealTemp} className="btn bg-base-300 text-base-content">
+					{t('common.temp-folder')}
+					<FolderIcon className="h-4 w-4" />
+				</button>
 				<button onClick={vm.askAndReset} className="btn bg-base-300">
 					{t('common.reset-app')}
 					<ResetIcon className="h-5 w-5" />

@@ -35,6 +35,10 @@ async function revealLogs() {
 	await invoke<string>('show_log_path')
 }
 
+async function revealTemp() {
+	await invoke<string>('show_temp_path')
+}
+
 async function copyLogs() {
 	const logs = await invoke<string>('get_logs')
 	const templated = `<details>
@@ -127,7 +131,7 @@ export function viewModel() {
 		}
 	}, [])
 
-	useEffect(() => {}, [preference])
+	useEffect(() => { }, [preference])
 
 	return {
 		copyLogs,
@@ -141,6 +145,7 @@ export function viewModel() {
 		openModelPath,
 		openModelsUrl,
 		revealLogs,
+		revealTemp,
 		models,
 		appVersion,
 		reportIssue,

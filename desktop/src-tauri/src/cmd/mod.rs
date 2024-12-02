@@ -500,6 +500,13 @@ pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
 }
 
 #[tauri::command]
+pub async fn show_temp_path(app_handle: tauri::AppHandle) -> Result<()> {
+    let temp_path = vibe_core::get_vibe_temp_folder();
+    showfile::show_path_in_file_manager(temp_path);
+    Ok(())
+}
+
+#[tauri::command]
 pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     let store = app_handle.store(STORE_FILENAME)?;
 
