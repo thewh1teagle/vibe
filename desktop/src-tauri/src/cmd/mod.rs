@@ -1,4 +1,4 @@
-use crate::config::{DEAFULT_MODEL_FILENAME, DEAFULT_MODEL_URL, STORE_FILENAME};
+use crate::config::{DEAFULT_MODEL_FILENAME, DEFAULT_MODEL_URLS, STORE_FILENAME};
 use crate::setup::ModelContext;
 use crate::utils::{get_current_dir, LogError};
 use eyre::{bail, eyre, Context, ContextCompat, OptionExt, Result};
@@ -132,17 +132,28 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
         }
     };
 
-    let download_url = if let Some(url) = url {
-        url
+    if let Some(url) = url {
+        downloader
+            .download(&url, model_path.to_owned(), download_progress_callback)
+            .await?;
+        set_progress_bar(&app_handle_c, None)?;
+        Ok(model_path.to_str().context("to_str")?.to_string())
     } else {
-        DEAFULT_MODEL_URL.to_string()
-    };
-
-    downloader
-        .download(&download_url, model_path.to_owned(), download_progress_callback)
-        .await?;
-    set_progress_bar(&app_handle_c, None)?;
-    Ok(model_path.to_str().context("to_str")?.to_string())
+        let mut errors = Vec::new();
+        for url in DEFAULT_MODEL_URLS {
+            match downloader
+                .download(url, model_path.to_owned(), download_progress_callback.clone())
+                .await
+            {
+                Err(e) => errors.push(format!("Failed to download from {}: {}", url, e)),
+                _ => {
+                    set_progress_bar(&app_handle_c, None)?;
+                    return Ok(model_path.to_str().context("to_str")?.to_string());
+                }
+            }
+        }
+        bail!("Could not download any model file. Errors: {:?}", errors);
+    }
 }
 
 #[tauri::command]
@@ -500,7 +511,7 @@ pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
 }
 
 #[tauri::command]
-pub async fn show_temp_path(app_handle: tauri::AppHandle) -> Result<()> {
+pub async fn show_temp_path() -> Result<()> {
     let temp_path = vibe_core::get_vibe_temp_folder();
     showfile::show_path_in_file_manager(temp_path);
     Ok(())
