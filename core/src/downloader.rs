@@ -42,6 +42,7 @@ impl Downloader {
     where
         F: Fn(u64, u64) -> bool,
     {
+        tracing::debug!("download from {} to {}", url, path.display());
         let res = self.client.get(url).send().await?;
         let total_size = res
             .content_length()

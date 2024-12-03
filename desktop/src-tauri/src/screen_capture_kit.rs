@@ -55,14 +55,16 @@ impl UnsafeSCStreamOutput for StoreAudioHandler {
     }
 }
 
-pub fn reset_screen_permissions() {
+pub fn reset_screen_permissions() -> Result<()> {
     #[cfg(target_os = "macos")]
     std::process::Command::new("tccutil")
         .arg("reset")
         .arg("ScreenCapture")
         .arg("github.com.thewh1teagle.vibe")
         .spawn()
-        .expect("failed to reset screen permissions");
+        .context("failed to reset screen permissions")?
+        .wait()?;
+    Ok(())
 }
 
 pub fn has_permission() -> bool {
@@ -71,7 +73,7 @@ pub fn has_permission() -> bool {
 
 pub fn init() -> Result<Id<UnsafeSCStream>> {
     if !has_permission() {
-        reset_screen_permissions();
+        reset_screen_permissions()?;
     }
     // Don't record the screen
     let display = UnsafeSCShareableContent::get()
