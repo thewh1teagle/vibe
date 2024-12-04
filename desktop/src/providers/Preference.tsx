@@ -8,6 +8,7 @@ import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
 import { defaultOllamaConfig, LlmConfig } from '~/lib/llm'
+import { message } from '@tauri-apps/plugin-dialog'
 
 type Direction = 'ltr' | 'rtl'
 
@@ -54,6 +55,7 @@ export interface Preference {
 	ffmpegOptions: FfmpegOptions
 	setFfmpegOptions: ModifyState<FfmpegOptions>
 	resetOptions: () => void
+	enableSubtitlesPreset: () => void
 }
 
 // Create the context
@@ -185,9 +187,17 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setDiarizeThreshold(defaultOptions.diarizeThreshold)
 		setStoreRecordInDocuments(defaultOptions.storeRecordInDocuments)
 		setLlmConfig(defaultOptions.llmConfig)
+		message(i18n.t('common.success-action'))
+	}
+
+	function enableSubtitlesPreset() {
+		setModelOptions({ ...preference.modelOptions, word_timestamps: true, max_sentence_len: 32 })
+		setTextFormat('srt')
+		message(i18n.t('common.success-action'))
 	}
 
 	const preference: Preference = {
+		enableSubtitlesPreset,
 		llmConfig,
 		resetOptions,
 		setLlmConfig,
