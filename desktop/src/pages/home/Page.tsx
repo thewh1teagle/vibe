@@ -51,6 +51,7 @@ export default function Home() {
 				</a>
 			</div>
 
+			{/* Record */}
 			{vm.preference.homeTabIndex === 0 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
@@ -86,6 +87,7 @@ export default function Home() {
 					</div>
 				</>
 			)}
+			{/* File */}
 			{vm.preference.homeTabIndex === 1 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
@@ -148,6 +150,7 @@ export default function Home() {
 				</>
 			)}
 
+			{/* URL */}
 			{vm.preference.homeTabIndex === 2 && (
 				<div className="flex w-[300px] flex-col m-auto">
 					<div className="flex flex-col gap-0 mt-5">
