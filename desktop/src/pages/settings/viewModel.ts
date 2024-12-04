@@ -33,7 +33,6 @@ async function reportIssue() {
 			.slice(-10) // Take the last 3 lines
 			.map((line) => {
 				try {
-					console.log('line => ', line)
 					const parsed = JSON.parse(line) // Deserialize JSON
 					return parsed?.fields?.message || 'No message found' // Extract .message or fallback
 				} catch (e) {

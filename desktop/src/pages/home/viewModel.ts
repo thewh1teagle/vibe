@@ -59,6 +59,8 @@ export function viewModel() {
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 	const [audioUrl, setAudioUrl] = useState<string>('')
 	const [downloadingAudio, setDownloadingAudio] = useState(false)
+	const [ytdlpProgress, setYtDlpProgress] = useState<number | null>(null)
+	const cancelYtDlpRef = useRef<boolean>(false)
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -81,6 +83,20 @@ export function viewModel() {
 			setLlm(llmInstance)
 		}
 	}, [preference.llmConfig])
+
+	useEffect(() => {
+		listen<number>('ytdlp-progress', ({ payload }) => {
+			const newProgress = Math.ceil(payload)
+			if (!ytdlpProgress || newProgress > ytdlpProgress) {
+				setYtDlpProgress(newProgress)
+			}
+		})
+	}, [])
+
+	async function cancelYtDlpDownload() {
+		cancelYtDlpRef.current = true
+		event.emit('ytdlp-cancel')
+	}
 
 	async function switchToLinkTab() {
 		const exists = await ytDlp.exists()
@@ -361,9 +377,14 @@ export function viewModel() {
 
 	async function downloadAudio() {
 		if (audioUrl) {
+			setYtDlpProgress(0)
 			setDownloadingAudio(true)
 			try {
 				const outPath = await ytDlp.downloadAudio(audioUrl, preference.storeRecordInDocuments)
+				if (cancelYtDlpRef.current) {
+					cancelYtDlpRef.current = false
+					return
+				}
 				preference.setHomeTabIndex(1)
 				setFiles([{ name: 'audio.m4a', path: outPath }])
 				transcribe(outPath)
@@ -373,10 +394,15 @@ export function viewModel() {
 			} finally {
 				setDownloadingAudio(false)
 			}
+			setYtDlpProgress(null)
 		}
 	}
 
 	return {
+		cancelYtDlpRef,
+		cancelYtDlpDownload,
+		ytdlpProgress,
+		setYtDlpProgress,
 		transcriptTab,
 		setTranscriptTab,
 		summarizeSegments,

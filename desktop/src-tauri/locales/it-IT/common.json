@@ -34,6 +34,7 @@
 	"download-file": "Scarica e trascrivi",
 	"download-model": "Scarica modello",
 	"download-models-link": "Scarica modelli",
+	"downloading": "Download in corso... {{progress}}%",
 	"downloading-ai-models": "Scaricando i modelli AI...",
 	"downloading-model": "Scaricando i modelli di OpenAI...",
 	"downloading-ytdlp": "Scaricando i modelli ytdlp",

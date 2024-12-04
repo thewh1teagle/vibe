@@ -1,11 +1,19 @@
 use eyre::{bail, Context, Result};
-use tauri::{AppHandle, Manager};
+use serde_json::Value;
+use std::{
+    io::{BufRead, BufReader},
+    sync::atomic::{AtomicBool, Ordering},
+};
+use tauri::{AppHandle, Emitter, Listener, Manager};
 use vibe_core::get_vibe_temp_folder;
+
+use crate::utils::LogError;
 
 use super::get_ffmpeg_path;
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
+use std::process::Stdio;
 
 #[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
@@ -33,7 +41,7 @@ pub fn get_temp_path(app_handle: AppHandle, ext: String, in_documents: Option<bo
 }
 
 #[tauri::command]
-pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String) -> Result<String> {
+pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String) -> Result<()> {
     tracing::debug!("download audio {}", url);
     let name = get_binary_name();
     let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
@@ -53,26 +61,75 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
     }
 
     let mut cmd = std::process::Command::new(path);
-    let cmd = cmd.args([
-        "--no-playlist",
-        "-x",
-        "--audio-format",
-        "m4a",
-        "--ffmpeg-location",
-        &ffmpeg_path,
-        &url,
-        "-o",
-        &out_path,
-    ]);
+    let cmd = cmd
+        .args([
+            "--progress-template",
+            "{\"progress\": \"%(progress.percent)s\", \"total_bytes\": \"%(progress.total_bytes)s\", \"progress_str\": \"%(progress._percent_str)s\"}\n",
+            "--no-playlist",
+            "-x",
+            "--audio-format",
+            "m4a",
+            "--ffmpeg-location",
+            &ffmpeg_path,
+            &url,
+            "-o",
+            &out_path,
+        ])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
 
     #[cfg(windows)]
     let cmd = cmd.creation_flags(CREATE_NO_WINDOW);
 
-    let output = cmd.output()?;
-    if !output.status.success() {
-        let stderr = String::from_utf8(output.stderr)?;
-        bail!("Failed to download audio: {}", stderr);
+    let cancel_flag = std::sync::Arc::new(AtomicBool::new(false));
+    let cancel_flag_c = cancel_flag.clone();
+    app_handle.once("ytdlp-cancel", move |_| {
+        cancel_flag_c.store(true, Ordering::Relaxed);
+    });
+
+    let mut child = cmd.spawn()?;
+
+    if let Some(stdout) = child.stdout.take() {
+        let reader = BufReader::new(stdout);
+
+        for line in reader.lines() {
+            if cancel_flag.load(Ordering::Relaxed) {
+                let _ = child.kill();
+                break;
+            }
+
+            let mut line = line?;
+            line = line.replace("\r", "").trim().to_string();
+
+            if line.starts_with("{\"progress") {
+                // try parse progress
+                let result: Result<Value, _> = serde_json::from_str(&line);
+                if let Ok(value) = result {
+                    // remove % and parse to number
+                    let percentage_str = value["progress_str"].as_str().unwrap_or_default().trim().replace("%", "");
+                    if let Ok(percentage_number) = percentage_str.parse::<f32>() {
+                        app_handle
+                            .emit("ytdlp-progress", percentage_number)
+                            .context("failed to emit")
+                            .log_error();
+                    }
+                }
+            }
+        }
     }
-    let output = String::from_utf8(output.stdout)?;
-    Ok(output)
+
+    let ret = child.wait()?;
+    if !ret.success() && !cancel_flag.load(Ordering::Relaxed) {
+        let mut stderr_output: String = "".to_string();
+        if let Some(stderr) = child.stderr.take() {
+            stderr_output = BufReader::new(stderr)
+                .lines()
+                .filter_map(|line| line.ok())
+                .collect::<Vec<_>>()
+                .join("\n");
+            eprintln!("Error: {}", stderr_output);
+        }
+        bail!("Failed to download audio: {}", stderr_output);
+    }
+    Ok(())
 }

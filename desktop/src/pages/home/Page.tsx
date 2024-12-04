@@ -164,9 +164,17 @@ export default function Home() {
 						/>
 
 						{vm.downloadingAudio ? (
-							<button className="btn relative btn-success mt-3">
-								<span className="loading loading-spinner"></span>
-							</button>
+							<>
+								<div className="w-full flex flex-col items-center mt-5">
+									<div className="flex flex-row items-center text-center gap-3 bg-base-200 p-4 rounded-2xl">
+										<span className="loading loading-spinner text-primary"></span>
+										<p>{t('common.downloading', { progress: vm.ytdlpProgress })}</p>
+										<button onClick={() => vm.cancelYtDlpDownload()} className="btn btn-primary btn-ghost btn-sm text-red-500">
+											{t('common.cancel')}
+										</button>
+									</div>
+								</div>
+							</>
 						) : (
 							<>
 								<label className="label cursor-pointer mt-2 mb-5">

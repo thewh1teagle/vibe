@@ -34,6 +34,7 @@
 	"download-file": "Ladda ner och transkribera",
 	"download-model": "Ladda ner modell",
 	"download-models-link": "Hämta Modeller",
+	"downloading": "Laddar ned... {{progress}}%",
 	"downloading-ai-models": "Laddar ner AI-modeller...",
 	"downloading-model": "Hämtar OpenAI Model...",
 	"downloading-ytdlp": "Laddar ner ytdlp",

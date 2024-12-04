@@ -34,6 +34,7 @@
 	"download-file": "डाउनलोड करें और प्रतिलेखित करें",
 	"download-model": "मॉडल डाउनलोड करें",
 	"download-models-link": "मॉडल डाउनलोड करें",
+	"downloading": "डाउनलोड हो रहा है... {{प्रगति}}%",
 	"downloading-ai-models": "AI मॉडल डाउनलोड हो रहा है...",
 	"downloading-model": "OpenAI मॉडल डाउनलोड हो रहा है...",
 	"downloading-ytdlp": "Ytdlp डाउनलोड हो रहा है",

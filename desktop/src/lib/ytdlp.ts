@@ -15,7 +15,6 @@ async function getBinaryPath() {
 
 export async function exists() {
 	const binaryPath = await getBinaryPath()
-	console.log('checking', binaryPath)
 	return await fs.exists(binaryPath)
 }
 
@@ -26,8 +25,6 @@ export async function downloadYtDlp() {
 
 export async function downloadAudio(url: string, inDocuments?: boolean) {
 	const outPath = await invoke<string>('get_temp_path', { ext: 'm4a', inDocuments })
-	console.log('outPath is ', outPath)
-	let result = await invoke<string>('download_audio', { url, outPath })
-	console.log(result)
+	await invoke<string>('download_audio', { url, outPath })
 	return outPath
 }

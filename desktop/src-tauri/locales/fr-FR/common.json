@@ -34,6 +34,7 @@
 	"download-file": "Télécharger l'audio",
 	"download-model": "Télécharger le modèle",
 	"download-models-link": "Télécharger les modèles",
+	"downloading": "Téléchargement... {{progress}} %",
 	"downloading-ai-models": "Téléchargement de modèles d'IA...",
 	"downloading-model": "Téléchargement du modèle OpenAI en cours…",
 	"downloading-ytdlp": "Téléchargement de ytdlp",

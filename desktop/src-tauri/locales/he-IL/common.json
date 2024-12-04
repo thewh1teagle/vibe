@@ -34,6 +34,7 @@
 	"download-file": "הורד ותמלל",
 	"download-model": "הורד מודל",
 	"download-models-link": "הורדת מודלים",
+	"downloading": "מוריד... {{progress}}%",
 	"downloading-ai-models": "מוריד מודלים...",
 	"downloading-model": "מוריד מודל בינה מלאכותית",
 	"downloading-ytdlp": "מוריד ytdlp",

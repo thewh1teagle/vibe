@@ -34,6 +34,7 @@
 	"download-file": "下载并转录",
 	"download-model": "下载模型",
 	"download-models-link": "下载模型",
+	"downloading": "正在下载... {{progress}}%",
 	"downloading-ai-models": "正在下载 AI 模型...",
 	"downloading-model": "正在下载 OpenAI 模型...",
 	"downloading-ytdlp": "下载 ytdlp",
