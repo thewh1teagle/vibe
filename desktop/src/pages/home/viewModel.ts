@@ -94,6 +94,7 @@ export function viewModel() {
 			if (shouldInstall) {
 				try {
 					toast.setMessage(t('common.downloading-ytdlp'))
+					toast.setProgress(0)
 					toast.setOpen(true)
 					await ytDlp.downloadYtDlp()
 					toast.setOpen(false)

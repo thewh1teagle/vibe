@@ -129,6 +129,8 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		}
 	}
 
+	function restoreDefaultOptions() {}
+
 	return (
 		<div className={cx('collapse !overflow-visible', open && 'collapse-open')}>
 			<div onMouseDown={() => setOpen(!open)} className={cx('mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer')}>
@@ -390,7 +392,12 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						</div>
 						<input
 							value={options.max_sentence_len}
-							onChange={(e) => setOptions({ ...options, max_sentence_len: parseInt(e.target.value) ?? 1 })}
+							onChange={(e) => {
+								if (!options.word_timestamps) {
+									dialog.message(t('common.please-enable-word-timestamps'))
+								}
+								setOptions({ ...options, max_sentence_len: parseInt(e.target.value) ?? 1 })
+							}}
 							className="input input-bordered"
 							type="number"
 						/>
@@ -474,6 +481,14 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							placeholder={preference.ffmpegOptions.normalize_loudness ? '-af loudnorm=I=-16:TP=-1.5:LRA=11' : ''}
 							type="text"
 						/>
+					</label>
+					<label className="form-control w-full mt-5">
+						<div className="label">
+							<span className="label-text flex items-center gap-1">{t('common.something-went-wrong')}</span>
+						</div>
+						<button onClick={preference.resetOptions} className="btn btn-md">
+							{t('common.reset-options')}
+						</button>
 					</label>
 				</div>
 			)}

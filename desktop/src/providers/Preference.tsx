@@ -53,6 +53,7 @@ export interface Preference {
 	setLlmConfig: ModifyState<LlmConfig>
 	ffmpegOptions: FfmpegOptions
 	setFfmpegOptions: ModifyState<FfmpegOptions>
+	resetOptions: () => void
 }
 
 // Create the context
@@ -82,22 +83,12 @@ export interface ModelOptions {
 
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
-// Preference provider component
-export function PreferenceProvider({ children }: { children: ReactNode }) {
-	const { i18n } = useTranslation()
-	const previ18Language = useRef(i18n.language)
-	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
-	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
-
-	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
-	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
-	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
-	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
-	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
-	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
-	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'pdf')
-	const isMounted = useRef<boolean>()
-	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', {
+const defaultOptions = {
+	gpuDevice: 0,
+	soundOnFinish: true,
+	focusOnFinish: true,
+	modelPath: null,
+	modelOptions: {
 		init_prompt: '',
 		verbose: false,
 		lang: 'en',
@@ -106,19 +97,45 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		max_text_ctx: undefined,
 		word_timestamps: false,
 		max_sentence_len: 1,
-	})
-	const [ffmpegOptions, setFfmpegOptions] = useLocalStorage<FfmpegOptions>('prefs_ffmpeg_options', {
+	},
+	ffmpegOptions: {
 		normalize_loudness: false,
 		custom_command: null,
-	})
-	const [recognizeSpeakers, setRecognizeSpeakers] = useLocalStorage<boolean>('prefs_recognize_speakers', false)
-	const [maxSpeakers, setMaxSpeakers] = useLocalStorage<number>('prefs_max_speakers', 5)
-	const [diarizeThreshold, setDiarizeThreshold] = useLocalStorage<number>('prefs_diarize_threshold', 0.5)
-	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', true)
+	},
+	recognizeSpeakers: false,
+	maxSpeakers: 5,
+	diarizeThreshold: 0.5,
+	storeRecordInDocuments: true,
+	llmConfig: defaultOllamaConfig(),
+}
+
+// Preference provider component
+export function PreferenceProvider({ children }: { children: ReactNode }) {
+	const { i18n } = useTranslation()
+	const previ18Language = useRef(i18n.language)
+	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
+	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
+
+	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
+
+	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
+	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
+	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
+	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'pdf')
+	const isMounted = useRef<boolean>()
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 	const [highGraphicsPreference, setHighGraphicsPreference] = useLocalStorage<boolean>('prefs_high_graphics_performance', false)
 	const [homeTabIndex, setHomeTabIndex] = useLocalStorage<number>('prefs_home_tab_index', 1)
-	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOllamaConfig())
+
+	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', defaultOptions.soundOnFinish)
+	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', defaultOptions.focusOnFinish)
+	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', defaultOptions.modelOptions)
+	const [ffmpegOptions, setFfmpegOptions] = useLocalStorage<FfmpegOptions>('prefs_ffmpeg_options', defaultOptions.ffmpegOptions)
+	const [recognizeSpeakers, setRecognizeSpeakers] = useLocalStorage<boolean>('prefs_recognize_speakers', defaultOptions.recognizeSpeakers)
+	const [maxSpeakers, setMaxSpeakers] = useLocalStorage<number>('prefs_max_speakers', defaultOptions.maxSpeakers)
+	const [diarizeThreshold, setDiarizeThreshold] = useLocalStorage<number>('prefs_diarize_threshold', defaultOptions.diarizeThreshold)
+	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
+	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
 
 	useEffect(() => {
 		setIsFirstRun(false)
@@ -158,8 +175,21 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		i18n.changeLanguage(language)
 	}, [language])
 
+	function resetOptions() {
+		setSoundOnFinish(defaultOptions.soundOnFinish)
+		setFocusOnFinish(defaultOptions.focusOnFinish)
+		setModelOptions(defaultOptions.modelOptions)
+		setFfmpegOptions(defaultOptions.ffmpegOptions)
+		setRecognizeSpeakers(defaultOptions.recognizeSpeakers)
+		setMaxSpeakers(defaultOptions.maxSpeakers)
+		setDiarizeThreshold(defaultOptions.diarizeThreshold)
+		setStoreRecordInDocuments(defaultOptions.storeRecordInDocuments)
+		setLlmConfig(defaultOptions.llmConfig)
+	}
+
 	const preference: Preference = {
 		llmConfig,
+		resetOptions,
 		setLlmConfig,
 		setLanguageDirections: setLanguageDefaults,
 		diarizeThreshold,
