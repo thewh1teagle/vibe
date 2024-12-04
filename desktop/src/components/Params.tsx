@@ -129,8 +129,6 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		}
 	}
 
-	function restoreDefaultOptions() {}
-
 	return (
 		<div className={cx('collapse !overflow-visible', open && 'collapse-open')}>
 			<div onMouseDown={() => setOpen(!open)} className={cx('mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer')}>
