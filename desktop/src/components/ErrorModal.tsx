@@ -1,9 +1,10 @@
 import * as shell from '@tauri-apps/plugin-shell'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
-import { ModifyState, cx, getAppInfo, getIssueUrl, resetApp } from '~/lib/utils'
+import { ModifyState, cx, getIssueUrl, resetApp } from '~/lib/utils'
 import { ErrorModalState } from '~/providers/ErrorModal'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
+import { collectLogs } from '~/lib/logs'
 
 interface ErrorModalProps {
 	state: ErrorModalState
@@ -20,7 +21,7 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 	async function reportIssue() {
 		let info = ''
 		try {
-			info = await getAppInfo()
+			info = await collectLogs()
 		} catch (e) {
 			console.error(e)
 			info = `Couldn't get info: ${e}`
