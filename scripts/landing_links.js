@@ -47,12 +47,11 @@ async function writeToFile(data) {
 }
 
 async function fetchLatestRelease() {
-	const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`)
-
+	const headers = process.env.GH_TOKEN ? { Authorization: `Bearer ${process.env.GH_TOKEN}` } : {}
+	const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`, { headers })
 	if (!response.ok) {
 		throw new Error(`Failed to fetch latest release. Status: ${response.status} URL: ${response.url} Body: ${await response.text()}`)
 	}
-
 	return await response.json()
 }
 
