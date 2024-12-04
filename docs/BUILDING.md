@@ -114,7 +114,6 @@ bunx tauri build
 
 Then install it from [here](https://vulkan.lunarg.com/sdk/home)
 
-
 On Windows when run `pre_build` with `--vulkan` you may need to run it with admin rights first time thanks to vulkan recent changes...
 
 On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
@@ -215,6 +214,16 @@ ffmpeg -i file.wav -ar 16000 -ac 1 -c:a pcm_s16le normal.wav
 ```console
 gh pr checkout <url>
 git push <fork url>
+```
+
+## Merge dev branch
+
+```console
+gh pr create # Enter defaults
+# After merge reset dev
+git checkout dev
+git reset --hard main
+git push origin dev --force
 ```
 
 ## Update packages
