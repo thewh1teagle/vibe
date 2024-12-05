@@ -67,7 +67,7 @@ jobs:
 
                 # Sign resources
                 $signtoolPath = (Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\" -Filter "signtool.exe" -Recurse | Where-Object FullName -like "*\x64\signtool.exe" | Select-Object -First 1).FullName
-                &$signtoolPath sign /f cert.pfx /p 'Xypie50LRtyAHS' /tr http://timestamp.digicert.com /td sha256 /fd sha256 desktop\src-tauri\ffmpeg\bin\x64\*
+                &$signtoolPath sign /f cert.pfx /p $env:WINDOWS_CERTIFICATE_PASSWORD /tr http://timestamp.digicert.com /td sha256 /fd sha256 desktop\src-tauri\ffmpeg\bin\x64\*
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
