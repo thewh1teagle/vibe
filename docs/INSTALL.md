@@ -56,16 +56,13 @@ There's a potential fix in windows settings.
 </details>
 
 <details>
-<summary>macOS with `coreml` for faster transcribe (2-3x) 🌟</summary>
+<summary>macOS with `coreml` for faster transcriptions (2-3x) 🌟</summary>
 
 1. Download the matching `.mlcmodelc.zip` for your model from https://huggingface.co/ggerganov/whisper.cpp/tree/main
   * e.g. `ggml-medium-encoder.mlmodelc.zip` matches `ggml-medium-encoder.bin`
 2. Open models path from Vibe settings
 3. Drag and drop the `.mlcmodel.c` file into the models folder so that it is alongside the `.bin` file
 3. Transcribe a file, the first time you use the model it will take longer as it is compiling the model. Every subsequent time it will be faster.
-
-Example speedup on a 2:16 long file
-* 36 seconds --> 28 seconds
 
 </details>
 
