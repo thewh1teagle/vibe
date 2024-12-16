@@ -54,10 +54,12 @@ _All models available for manual install. see settings or [Pre built models](htt
 ## Setting Up Summarization with Ollama
 
 1. Install Ollama
+
 Download and install Ollama from https://ollama.com.
 
 2. Install a Model
-Once installed, set up a model for summarization. For example, you can install llama3.1 by running the following command in your terminal:
+
+Once installed, set up a model for summarization. For example, you can install `llama3.1` by running the following command in your terminal:
 
 ```console
 ollama run llama3.1
