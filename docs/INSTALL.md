@@ -51,6 +51,24 @@ _All models available for manual install. see settings or [Pre built models](htt
 3. Drag and drop the `.mlcmodel.c` file into the models folder so that it is alongside the `.bin` file
 4. Transcribe a file, the first time you use the model it will take longer as it is compiling the model. Every subsequent time it will be faster.
 
+## Setting Up Summarization with Ollama
+
+1. Install Ollama
+Download and install Ollama from https://ollama.com.
+
+2. Install a Model
+Once installed, set up a model for summarization. For example, you can install llama3.1 by running the following command in your terminal:
+
+```console
+ollama run llama3.1
+```
+
+3. Enable Summarization
+
+After the model is installed, open the Ollama app. Navigate to More Options and enable Summarize just before the transcription step. You can leave the settings at their default values.
+
+That's it! Summarization will now be active in Ollama.
+
 ## Error of `msvc140.dll` not found ❌
 
 Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
