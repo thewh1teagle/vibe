@@ -69,6 +69,8 @@ ollama run llama3.1
 
 After the model is installed, open the Ollama app. Navigate to More Options and enable Summarize just before the transcription step. You can leave the settings at their default values.
 
+_Make sure to run the 'Run check` to see that it works_
+
 That's it! Summarization will now be active in Ollama.
 
 ## Error of `msvc140.dll` not found ❌
