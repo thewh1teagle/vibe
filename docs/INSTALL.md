@@ -9,14 +9,6 @@ Linux: Tested on `ubuntu-22.04+`
 Hardware:
 No special requirement. resource usage can be customized through advanced settings in main window.
 
-## Ubuntu imstallation 🐧
-
-Download `deb` file and execute
-
-```console
-sudo apt install ./vibe*.deb
-```
-
 Currenly, listening for the audio file isn't supported on `Linux`
 
 In addition you may need to set this environment variable before start it
@@ -24,6 +16,28 @@ In addition you may need to set this environment variable before start it
 ```console
 export WEBKIT_DISABLE_COMPOSITING_MODE=1
 ```
+
+## Setting Up Summarization with Ollama
+
+1. Install Ollama
+
+Download and install Ollama from https://ollama.com.
+
+2. Install a Model
+
+Once installed, set up a model for summarization. For example, you can install `llama3.1` by running the following command in your terminal:
+
+```console
+ollama run llama3.1
+```
+
+3. Enable Summarization
+
+After the model is installed, open the Ollama app. Navigate to More Options and enable Summarize just before the transcription step. You can leave the settings at their default values.
+
+_Make sure to run the 'Run check` to see that it works_
+
+That's it! Summarization will now be active in Ollama.
 
 ## Manual Install 🛠️
 
@@ -52,28 +66,6 @@ _All models available for manual install. see settings or [Pre built models](htt
 2. Open models path from Vibe settings
 3. Drag and drop the `.mlcmodel.c` file into the models folder so that it is alongside the `.bin` file
 4. Transcribe a file, the first time you use the model it will take longer as it is compiling the model. Every subsequent time it will be faster.
-
-## Setting Up Summarization with Ollama
-
-1. Install Ollama
-
-Download and install Ollama from https://ollama.com.
-
-2. Install a Model
-
-Once installed, set up a model for summarization. For example, you can install `llama3.1` by running the following command in your terminal:
-
-```console
-ollama run llama3.1
-```
-
-3. Enable Summarization
-
-After the model is installed, open the Ollama app. Navigate to More Options and enable Summarize just before the transcription step. You can leave the settings at their default values.
-
-_Make sure to run the 'Run check` to see that it works_
-
-That's it! Summarization will now be active in Ollama.
 
 ## Error of `msvc140.dll` not found ❌
 
