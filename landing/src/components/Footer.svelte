@@ -2,6 +2,7 @@
 	import Github from '~/icons/Github.svelte'
 	import { i18n } from '$lib/i18n'
 	import { base } from '$app/paths'
+	import PrivacyPolicy from './PrivacyPolicy.svelte'
 
 	const t = $i18n.t
 </script>
@@ -11,6 +12,7 @@
 		<a class="link link-hover" href={base}>{t('home')}</a>
 		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
 		<a class="link link-hover" href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
+		<PrivacyPolicy />
 		<a
 			on:click={() => {
 				// @ts-ignore
@@ -18,7 +20,12 @@
 			}}
 			class="link link-hover"
 			target="_blank">{t('support-vibe')}</a>
-		<a class="link link-hover" href="https://github.com/thewh1teagle/vibe/blob/main/docs/PRIVACY_POLICY.pdf" target="_blank">{t('privacy-policy')}</a>
+		<button
+			on:click={() => {
+				// @ts-ignore
+				window['privacy-policy-modal']?.showModal()
+			}}
+			class="link link-hover">{t('privacy-policy')}</button>
 	</nav>
 	<nav>
 		<div class="grid grid-flow-col gap-4">
