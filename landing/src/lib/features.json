@@ -28,6 +28,12 @@
 		"align": "center"
 	},
 	{
+		"title": "Ollama Integration",
+		"description": "Do local AI analysis and batch summaries with Ollama",
+		"imageURL": "/feature-ollama.png",
+		"align": "center"
+	},
+	{
 		"title": "Transcribe audio / video",
 		"description": "Supports audio and video formats like MP4, MKV, MP3, WAV (there's more)",
 		"imageURL": "/feature-transcribe-audio-video.png",
