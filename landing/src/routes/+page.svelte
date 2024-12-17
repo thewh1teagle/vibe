@@ -8,9 +8,13 @@
 
 	onMount(() => {
 		const urlParams = new URLSearchParams(window.location.search)
-		if (urlParams.get('action') === 'support-vibe') {
+		const action = urlParams.get('action')
+		if (action === 'support-vibe') {
 			// @ts-ignore
 			window?.['kofi-dialog']?.showModal()
+		} else if (action === 'open-privacy-policy') {
+			// @ts-ignore
+			window?.['privacy-policy-modal']?.showModal()
 		}
 	})
 </script>

@@ -112,7 +112,7 @@ You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assigne
 
 # Privacy Policy 🔒
 
-Your privacy is important to us. Please review our [Privacy Policy](landing/static/privacy_policy.pdf) to understand how we handle your data.
+Your privacy is important to us. Please review our [Privacy Policy](http://thewh1teagle.github.io/vibe/?action=open-privacy-policy) to understand how we handle your data.
 
 # Credits
 
