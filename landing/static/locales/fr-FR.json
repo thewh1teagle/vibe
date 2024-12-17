@@ -7,12 +7,17 @@
 	"download": "Télécharger",
 	"download-for": "Télécharger pour ",
 	"download-on-pc": "Télécharger sur PC",
+	"download-starting-description": "Le téléchargement commencera sous peu. \nVous pouvez ensuite trouver le programme d'installation dans votre dossier Téléchargements.",
 	"features": "Caractéristiques",
 	"home": "Maison",
+	"install-on-linux": "Installer Vibe sur Linux",
 	"intel": "Puce Intel",
 	"open-logs-folder": "Ouvrir le dossier des journaux",
 	"privacy-policy": "politique de confidentialité",
 	"star-on-github": "Mettre une étoile sur Github",
+	"support-project": "Soutenez Vibe !",
 	"support-vibe": "Ambiance de soutien",
-	"title": "Transcription audio locale."
+	"support-while-you-wait": "En attendant, pensez à soutenir le projet Vibe pour nous aider à grandir !",
+	"title": "Transcription audio locale.",
+	"your-download-is-starting": "Votre téléchargement commence..."
 }

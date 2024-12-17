@@ -9,6 +9,7 @@
 	import latestRelease from '$lib/latest_release.json'
 	import linuxInstallOptions from '$lib/linux_install_options.json'
 	import mobile from 'is-mobile'
+	import SupportButton from './SupportButton.svelte'
 
 	let asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === 'macos') // default to macos
 	let ctaClicked = false
@@ -87,7 +88,13 @@
 
 		<!--  windows -->
 	{:else if asset?.platform.toLowerCase() === 'windows'}
-		<a href={asset?.url} class="btn btn-primary hidden md:flex">
+		<a
+			on:click={() => {
+				// @ts-ignore
+				window['post-download-modal']?.showModal()
+			}}
+			href={asset?.url}
+			class="btn btn-primary hidden md:flex">
 			<WindowsIcon />
 
 			{t('download-for')}{asset?.platform}
@@ -107,13 +114,16 @@
 
 		<dialog id="linux_download_model" class="modal">
 			<div class="modal-box w-11/12 max-w-5xl">
-				<h3 class="text-3xl font-bold">Install Vibe on Linux</h3>
+				<h3 class="text-3xl font-bold">{t('install-on-linux')}</h3>
 				{#each linuxInstallOptions as installOption}
-					<div class="mt-5">
+					<div class="mt-5" dir="ltr">
 						<div class="mb-2 text-3xl text-primary opacity-80">{installOption.title}</div>
 						<code class="min-w-[700px] flex bg-[#2b2b2b] p-2 rounded-sm">{installOption.command.replace('{tag}', latestRelease.version)}</code>
 					</div>
 				{/each}
+				<div class="flex items-center justify-center mt-10">
+					<SupportButton />
+				</div>
 			</div>
 			<form method="dialog" class="modal-backdrop">
 				<button>close</button>
@@ -133,11 +143,23 @@
 <!-- macos architectures -->
 {#if asset?.platform.toLocaleLowerCase() == 'macos' && ctaClicked}
 	<div class="flex gap-2 mt-3">
-		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url}>
+		<a
+			on:click={() => {
+				// @ts-ignore
+				window['post-download-modal']?.showModal()
+			}}
+			class="btn btn-sm btn-outline"
+			href={macIntelAsset?.url}>
 			<ChipIcon />
 			{t('intel')}
 		</a>
-		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url}>
+		<a
+			on:click={() => {
+				// @ts-ignore
+				window['post-download-modal']?.showModal()
+			}}
+			class="btn btn-sm btn-outline"
+			href={macSiliconAsset?.url}>
 			<ChipIcon />
 			{t('apple-silicon')}
 		</a>

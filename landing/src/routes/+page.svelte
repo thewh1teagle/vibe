@@ -2,6 +2,7 @@
 	import Cta from '~/components/Cta.svelte'
 	import Meta from '~/components/Meta.svelte'
 	import { i18n } from '$lib/i18n'
+	import PostDownload from '~/components/PostDownload.svelte'
 </script>
 
 <h1 class="text-3xl lg:text-6xl text-center capitalize">{$i18n.t('title')}</h1>
@@ -15,7 +16,22 @@
 	<img class="preview-hover-image rounded-2xl object-cover w-full h-auto" alt="preview" src="preview.png" />
 </div>
 
+<PostDownload />
 <Meta />
+
+<dialog id="kofi-dialog" class="modal border-white">
+	<div class="modal-box !bg-white !border-white">
+		<iframe
+			id="kofiframe"
+			src="https://ko-fi.com/thewh1teagle/?hidefeed=true&widget=true&embed=true&preview=true"
+			style="border:none;width:100%;padding:4px;background:#f9f9f9;"
+			height="712"
+			title="thewh1teagle"></iframe>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
 
 <style lang="postcss">
 	.preview-hover-image {
