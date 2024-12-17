@@ -7,6 +7,7 @@
 	import GithubIcon from '~/icons/Github.svelte'
 	import ChipIcon from '~/icons/Chip.svelte'
 	import latestRelease from '$lib/latest_release.json'
+	import linuxInstallOptions from '$lib/linux_install_options.json'
 	import mobile from 'is-mobile'
 
 	let asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === 'macos') // default to macos
@@ -107,16 +108,12 @@
 		<dialog id="linux_download_model" class="modal">
 			<div class="modal-box w-11/12 max-w-5xl">
 				<h3 class="text-3xl font-bold">Install Vibe on Linux</h3>
-				<div class="mt-5">
-					<div class="mb-2 text-3xl text-primary opacity-80">Quick Install</div>
-					<code class="min-w-[700px] flex bg-[#2b2b2b] p-2 rounded-sm"
-						>curl -sSf https://thewh1teagle.github.io/vibe/installer.sh | sh -s {latestRelease.version}</code>
-				</div>
-
-				<div class="mt-5">
-					<div class="mb-2 text-3xl text-primary">Arch Linux</div>
-					<code class="min-w-[700px] flex bg-[#2b2b2b] p-2 rounded-sm">pacman -S vibe-bin</code>
-				</div>
+				{#each linuxInstallOptions as installOption}
+					<div class="mt-5">
+						<div class="mb-2 text-3xl text-primary opacity-80">{installOption.title}</div>
+						<code class="min-w-[700px] flex bg-[#2b2b2b] p-2 rounded-sm">{installOption.command.replace('{tag}', latestRelease.version)}</code>
+					</div>
+				{/each}
 			</div>
 			<form method="dialog" class="modal-backdrop">
 				<button>close</button>

@@ -1,0 +1,10 @@
+[
+    {
+        "title": "Quick Install",
+        "command": "curl -sSf https://thewh1teagle.github.io/vibe/installer.sh | sh -s {tag}"
+    },
+    {
+        "title": "Arch Linux",
+        "command": "pacman -S vibe-bin"
+    }
+]
