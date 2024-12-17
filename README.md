@@ -20,7 +20,7 @@
     🔗 Download Vibe
   </a>
     &nbsp; | &nbsp; Give it a Star ⭐ | &nbsp;
-    <a target="_blank" href="https://ko-fi.com/thewh1teagle">Support the project 🤝</a>
+    <a target="_blank" href="https://thewh1teagle.github.io/vibe/?action=support-vibe">Support the project 🤝</a>
 </p>
 
 <hr />
