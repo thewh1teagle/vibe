@@ -33,8 +33,6 @@
 <PostDownload />
 <Meta />
 
-<KofiDialog />
-
 <style lang="postcss">
 	.preview-hover-image {
 		transition:

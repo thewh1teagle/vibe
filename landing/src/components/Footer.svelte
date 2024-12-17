@@ -3,6 +3,7 @@
 	import { i18n } from '$lib/i18n'
 	import { base } from '$app/paths'
 	import PrivacyPolicy from './PrivacyPolicy.svelte'
+	import KofiDialog from './KofiDialog.svelte'
 
 	const t = $i18n.t
 </script>
@@ -11,15 +12,14 @@
 	<nav class="grid grid-flow-col gap-4">
 		<a class="link link-hover" href={base}>{t('home')}</a>
 		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
-		<a class="link link-hover" href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
 		<PrivacyPolicy />
-		<a
+		<KofiDialog />
+		<button
 			on:click={() => {
 				// @ts-ignore
 				window?.['kofi-dialog'].showModal()
 			}}
-			class="link link-hover"
-			target="_blank">{t('support-vibe')}</a>
+			class="link link-hover">{t('support-vibe')}</button>
 		<button
 			on:click={() => {
 				// @ts-ignore
