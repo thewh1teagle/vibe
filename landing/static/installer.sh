@@ -22,7 +22,6 @@ echo "Downloading Vibe version $TAG..."
 
 RPM_URL="https://github.com/thewh1teagle/vibe/releases/download/$TAG/vibe-$TAG-1.x86_64.rpm"
 DEB_URL="https://github.com/thewh1teagle/vibe/releases/download/$TAG/vibe-$TAG-1.x86_64.deb"
-ARCH_URL="https://github.com/thewh1teagle/vibe/releases/download/$TAG/vibe-bin-$TAG-x86_64.pkg.tar.zst"
 
 # Create temporary directory for downloading
 TEMP_DIR=$(mktemp -d)
