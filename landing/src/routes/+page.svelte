@@ -3,6 +3,15 @@
 	import Meta from '~/components/Meta.svelte'
 	import { i18n } from '$lib/i18n'
 	import PostDownload from '~/components/PostDownload.svelte'
+	import { onMount } from 'svelte'
+
+	onMount(() => {
+		const urlParams = new URLSearchParams(window.location.search)
+		if (urlParams.get('action') === 'support-vibe') {
+			// @ts-ignore
+			window?.['kofi-dialog']?.showModal()
+		}
+	})
 </script>
 
 <h1 class="text-3xl lg:text-6xl text-center capitalize">{$i18n.t('title')}</h1>

@@ -3,7 +3,7 @@ export const updateVersionURL = 'https://github.com/thewh1teagle/vibe/releases/l
 export const modelsURL = 'https://github.com/thewh1teagle/vibe/blob/main/docs/MODELS.md#vibe-models'
 export const discordURL = 'https://discord.gg/EcxWSstQN8'
 export const unsupportedCpuReadmeURL = 'https://github.com/thewh1teagle/vibe/blob/main/docs/INSTALL.md#unsupported-cpus'
-export const supportVibeURL = 'https://ko-fi.com/thewh1teagle'
+export const supportVibeURL = 'https://thewh1teagle.github.io/vibe/?action=support-vibe'
 export const storeFilename = 'app_config.json'
 export const latestReleaseURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
 export const latestVersionWithoutVulkan = 'https://github.com/thewh1teagle/vibe/releases/download/v2.4.0/vibe_2.4.0_x64-setup.exe'
