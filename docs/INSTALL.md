@@ -2,7 +2,9 @@
 
 ## System Requirements
 
-Windows: Version `8` greater.
+Windows: Version `8` or greater.
+macOS: Version `13.3` or greater.
+Linux: Tested on `ubuntu-22.04+`
 
 Hardware:
 No special requirement. resource usage can be customized through advanced settings in main window.
