@@ -36,6 +36,11 @@
 		}
 	}
 
+	function changePlatform(newPlatform: 'linux' | 'windows' | 'macos') {
+		asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === newPlatform) // default to macos
+		currentURL = location.href
+	}
+
 	function getOS() {
 		const platform = navigator.platform?.toLowerCase()
 		if (platform?.includes('win')) {
@@ -56,8 +61,7 @@
 
 	onMount(async () => {
 		const currentOs = getOS()
-		asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === currentOs) // default to macos
-		currentURL = location.href
+		changePlatform(currentOs)
 	})
 
 	onMount(() => {
@@ -79,16 +83,45 @@
 			<MacIcon />
 			{t('download-for')}{asset?.platform}
 		</button>
-		<!-- linux / windows -->
-	{:else}
+
+		<!--  windows -->
+	{:else if asset?.platform.toLowerCase() === 'windows'}
 		<a href={asset?.url} class="btn btn-primary hidden md:flex">
-			{#if asset?.platform.toLowerCase() === 'linux'}
-				<LinuxIcon />
-			{:else if asset?.platform.toLowerCase() === 'windows'}
-				<WindowsIcon />
-			{/if}
+			<WindowsIcon />
+
 			{t('download-for')}{asset?.platform}
 		</a>
+
+		<!-- linux -->
+	{:else if asset?.platform.toLowerCase() === 'linux'}
+		<button
+			on:click={() => {
+				// @ts-ignore
+				window?.linux_download_model.showModal()
+			}}
+			class="btn btn-primary hidden md:flex">
+			<LinuxIcon />
+			{t('download-for')}{asset?.platform}
+		</button>
+
+		<dialog id="linux_download_model" class="modal">
+			<div class="modal-box w-11/12 max-w-5xl">
+				<h3 class="text-3xl font-bold">Install Vibe on Linux</h3>
+				<div class="mt-5">
+					<div class="mb-2 text-3xl text-primary opacity-80">Quick Install</div>
+					<code class="min-w-[700px] flex bg-[#2b2b2b] p-2 rounded-sm"
+						>curl -sSf https://thewh1teagle.github.io/vibe/installer.sh | sh -s {latestRelease.version}</code>
+				</div>
+
+				<div class="mt-5">
+					<div class="mb-2 text-3xl text-primary">Arch Linux</div>
+					<code class="min-w-[700px] flex bg-[#2b2b2b] p-2 rounded-sm">pacman -S vibe-bin</code>
+				</div>
+			</div>
+			<form method="dialog" class="modal-backdrop">
+				<button>close</button>
+			</form>
+		</dialog>
 	{/if}
 
 	<a class="btn" href="https://github.com/thewh1teagle/vibe" target="_blank">
@@ -116,11 +149,23 @@
 
 <!-- platforms -->
 <div class="flex gap-3 mt-4">
-	<button on:mousedown={onMacLogoClick}><MacIcon /></button>
+	<button on:mousedown={() => changePlatform('macos')}><MacIcon /></button>
 
-	<a aria-label="Windows" rel="noopener" href={windowsAsset?.url} class=""><WindowsIcon /></a>
+	<button
+		aria-label="Windows"
+		on:click={() => {
+			changePlatform('windows')
+		}}
+		class="">
+		<WindowsIcon />
+	</button>
 
-	<a aria-label="Linux" rel="noopener" href={linuxAsset?.url}><LinuxIcon /></a>
+	<button
+		on:click={() => {
+			changePlatform('linux')
+		}}>
+		<LinuxIcon />
+	</button>
 </div>
 
 <dialog class="modal" class:modal-open={mobileModalOpen}>
