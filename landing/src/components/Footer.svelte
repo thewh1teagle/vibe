@@ -9,23 +9,35 @@
 </script>
 
 <footer class="footer footer-center mt-36 p-10 bg-base-200 text-base-content rounded">
+	<PrivacyPolicy />
+	<KofiDialog />
+
 	<nav class="grid grid-flow-col gap-4">
 		<a class="link link-hover" href={base}>{t('home')}</a>
-		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
-		<PrivacyPolicy />
-		<KofiDialog />
-		<button
-			on:click={() => {
-				// @ts-ignore
-				window?.['kofi-dialog'].showModal()
-			}}
-			class="link link-hover">{t('support-vibe')}</button>
-		<button
-			on:click={() => {
-				// @ts-ignore
-				window['privacy-policy-modal']?.showModal()
-			}}
-			class="link link-hover">{t('privacy-policy')}</button>
+
+		<li>
+			<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
+		</li>
+		<li>
+			<a href="/vibe/docs">{t('documentation')}</a>
+		</li>
+
+		<li>
+			<button
+				on:click={() => {
+					// @ts-ignore
+					window?.['kofi-dialog'].showModal()
+				}}
+				class="link link-hover">{t('support-vibe')}</button>
+		</li>
+		<li>
+			<button
+				on:click={() => {
+					// @ts-ignore
+					window['privacy-policy-modal']?.showModal()
+				}}
+				class="link link-hover">{t('privacy-policy')}</button>
+		</li>
 	</nav>
 	<nav>
 		<div class="grid grid-flow-col gap-4">

@@ -17,8 +17,5 @@
 		<li>
 			<a href={`${base}/features`}>{t('features')}</a>
 		</li>
-		<li>
-			<a href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
-		</li>
 	</ul>
 </div>

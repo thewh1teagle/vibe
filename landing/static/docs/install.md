@@ -3,7 +3,9 @@
 ## System Requirements
 
 Windows: Version `8` or greater.
+
 macOS: Version `13.3` or greater.
+
 Linux: Tested on `ubuntu-22.04+`
 
 Hardware:
