@@ -13,12 +13,8 @@
 	<PrivacyPolicy />
 	<KofiDialog />
 
-	<nav class="grid grid-flow-col gap-4">
+	<nav class="flex flex-row flex-wrap gap-4 justify-center">
 		<a class="link link-hover" href={base}>{t('home')}</a>
-
-		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
-		<a href="/vibe/docs">{t('documentation')}</a>
-
 		<button
 			on:click={() => {
 				// @ts-ignore
@@ -31,6 +27,9 @@
 				window['privacy-policy-modal']?.showModal()
 			}}
 			class="link link-hover">{t('privacy-policy')}</button>
+		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
+
+		<a href="/vibe/docs">{t('documentation')}</a>
 	</nav>
 	<nav>
 		<div class="grid grid-flow-col gap-4">
