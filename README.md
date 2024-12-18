@@ -69,7 +69,7 @@
 
 # Install notes
 
-See [Install.md](landing/docs/install.md)
+See [Install.md](landing/static/docs/install.md)
 
 # Contribute 🤝
 
