@@ -4,6 +4,7 @@
 	import { base } from '$app/paths'
 	import PrivacyPolicy from './PrivacyPolicy.svelte'
 	import KofiDialog from './KofiDialog.svelte'
+	import Discord from '~/icons/Discord.svelte'
 
 	const t = $i18n.t
 </script>
@@ -15,26 +16,30 @@
 	<nav class="grid grid-flow-col gap-4">
 		<a class="link link-hover" href={base}>{t('home')}</a>
 
-			<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
-			<a href="/vibe/docs">{t('documentation')}</a>
+		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
+		<a href="/vibe/docs">{t('documentation')}</a>
 
-			<button
-				on:click={() => {
-					// @ts-ignore
-					window?.['kofi-dialog'].showModal()
-				}}
-				class="link link-hover">{t('support-vibe')}</button>
-			<button
-				on:click={() => {
-					// @ts-ignore
-					window['privacy-policy-modal']?.showModal()
-				}}
-				class="link link-hover">{t('privacy-policy')}</button>
+		<button
+			on:click={() => {
+				// @ts-ignore
+				window?.['kofi-dialog'].showModal()
+			}}
+			class="link link-hover">{t('support-vibe')}</button>
+		<button
+			on:click={() => {
+				// @ts-ignore
+				window['privacy-policy-modal']?.showModal()
+			}}
+			class="link link-hover">{t('privacy-policy')}</button>
 	</nav>
 	<nav>
 		<div class="grid grid-flow-col gap-4">
 			<a href="https://github.com/thewh1teagle/vibe" target="_blank">
 				<Github width="24" height="24" />
+			</a>
+			<div class="divider lg:divider-horizontal !p-0 !m-0" />
+			<a href={`https://discord.gg/EcxWSstQN8`} target="_blank">
+				<Discord />
 			</a>
 		</div>
 	</nav>
