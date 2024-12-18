@@ -29,7 +29,7 @@
 			class="link link-hover">{t('privacy-policy')}</button>
 		<a class="link link-hover" href={`${base}/features`}>{t('features')}</a>
 
-		<a href="/vibe/docs">{t('documentation')}</a>
+		<a class="link link-hover" href="/vibe/docs">{t('documentation')}</a>
 	</nav>
 	<nav>
 		<div class="grid grid-flow-col gap-4">
