@@ -141,6 +141,7 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
     } else {
         let mut errors = Vec::new();
         for url in DEFAULT_MODEL_URLS {
+            tracing::debug!("Download default model from URL {}", url);
             match downloader
                 .download(url, model_path.to_owned(), download_progress_callback.clone())
                 .await
@@ -152,7 +153,11 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
                 }
             }
         }
-        bail!("Could not download any model file. Errors: {:?}", errors);
+        bail!(
+            "Could not download any model file. Errors: {:?}\nTried from {:?}",
+            errors,
+            DEFAULT_MODEL_URLS.join(",")
+        );
     }
 }
 
