@@ -39,42 +39,114 @@
 			font-size: 36px !important;
 			font-weight: bold;
 			margin-bottom: 16px;
+
+			@media (max-width: 768px) {
+				font-size: 28px !important;
+				margin-bottom: 14px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 24px !important;
+				margin-bottom: 12px;
+			}
 		}
 
 		:global(h2) {
 			font-size: 30px !important;
 			font-weight: bold;
 			margin-bottom: 14px;
+
+			@media (max-width: 768px) {
+				font-size: 24px !important;
+				margin-bottom: 12px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 20px !important;
+				margin-bottom: 10px;
+			}
 		}
 
 		:global(h3) {
 			font-size: 24px !important;
 			font-weight: bold;
 			margin-bottom: 12px;
+
+			@media (max-width: 768px) {
+				font-size: 20px !important;
+				margin-bottom: 10px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 18px !important;
+				margin-bottom: 8px;
+			}
 		}
 
 		:global(h4) {
 			font-size: 20px !important;
 			font-weight: bold;
 			margin-bottom: 10px;
+
+			@media (max-width: 768px) {
+				font-size: 18px !important;
+				margin-bottom: 8px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 16px !important;
+				margin-bottom: 6px;
+			}
 		}
 
 		:global(h5) {
 			font-size: 16px !important;
 			font-weight: bold;
 			margin-bottom: 8px;
+
+			@media (max-width: 768px) {
+				font-size: 14px !important;
+				margin-bottom: 6px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 13px !important;
+				margin-bottom: 4px;
+			}
 		}
 
 		:global(h6) {
 			font-size: 14px !important;
 			font-weight: bold;
 			margin-bottom: 6px;
+
+			@media (max-width: 768px) {
+				font-size: 13px !important;
+				margin-bottom: 4px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 12px !important;
+				margin-bottom: 2px;
+			}
 		}
 
 		:global(p) {
 			font-size: 16px;
 			line-height: 1.6;
 			margin-bottom: 16px;
+
+			@media (max-width: 768px) {
+				font-size: 14px;
+				line-height: 1.5;
+				margin-bottom: 14px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 13px;
+				line-height: 1.4;
+				margin-bottom: 12px;
+			}
 		}
 
 		:global(ul),
