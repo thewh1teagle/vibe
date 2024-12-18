@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+	import { onMount } from 'svelte'
 	import DocViewer from './DocViewer.svelte'
 
 	// List of available documentation files
@@ -10,15 +11,17 @@
 	]
 
 	// Set default selected document based on hash or default to the first doc
-	let url = window.location.hash ? getDocUrl(window.location.hash) : docs[0].url
-
-	// Watch for hash changes
-	window.addEventListener('hashchange', () => {
-		url = getDocUrl(window.location.hash)
+	let url: string
+	onMount(() => {
+		url = window.location.hash ? getDocUrl(window.location.hash) : docs[0].url
+		// Watch for hash changes
+		window.addEventListener('hashchange', () => {
+			url = getDocUrl(window.location.hash)
+		})
 	})
 
 	// Helper function to get the corresponding URL for a hash
-	function getDocUrl(hash) {
+	function getDocUrl(hash: string) {
 		const docName = hash.replace('#', '') // Remove '#' from the hash
 		const doc = docs.find((d) => d.name.toLowerCase() === docName.toLowerCase())
 		return doc ? doc.url : docs[0].url // Default to the first doc if not found
