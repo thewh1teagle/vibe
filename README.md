@@ -20,7 +20,7 @@
     🔗 Download Vibe
   </a>
     &nbsp; | &nbsp; Give it a Star ⭐ | &nbsp;
-    <a target="_blank" href="https://ko-fi.com/thewh1teagle">Support the project 🤝</a>
+    <a target="_blank" href="https://thewh1teagle.github.io/vibe/?action=support-vibe">Support the project 🤝</a>
 </p>
 
 <hr />
@@ -69,7 +69,7 @@
 
 # Install notes
 
-See [Install.md](docs/INSTALL.md)
+See [Install.md](landing/static/docs/install.md)
 
 # Contribute 🤝
 
@@ -100,7 +100,7 @@ In addition you can add translation to [Vibe website](https://thewh1teagle.githu
 
 # Build 🛠️
 
-see [BUILDING.md](docs/BUILDING.md)
+see [BUILDING.md](landing/static/docs/building.md)
 
 # I want to know more!
 
@@ -112,7 +112,7 @@ You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assigne
 
 # Privacy Policy 🔒
 
-Your privacy is important to us. Please review our [Privacy Policy](docs/PRIVACY_POLICY.pdf) to understand how we handle your data.
+Your privacy is important to us. Please review our [Privacy Policy](http://thewh1teagle.github.io/vibe/?action=open-privacy-policy) to understand how we handle your data.
 
 # Credits
 

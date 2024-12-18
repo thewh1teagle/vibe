@@ -2,6 +2,21 @@
 	import Cta from '~/components/Cta.svelte'
 	import Meta from '~/components/Meta.svelte'
 	import { i18n } from '$lib/i18n'
+	import PostDownload from '~/components/PostDownload.svelte'
+	import { onMount } from 'svelte'
+	import KofiDialog from '~/components/KofiDialog.svelte'
+
+	onMount(() => {
+		const urlParams = new URLSearchParams(window.location.search)
+		const action = urlParams.get('action')
+		if (action === 'support-vibe') {
+			// @ts-ignore
+			window?.['kofi-dialog']?.showModal()
+		} else if (action === 'open-privacy-policy') {
+			// @ts-ignore
+			window?.['privacy-policy-modal']?.showModal()
+		}
+	})
 </script>
 
 <h1 class="text-3xl lg:text-6xl text-center capitalize">{$i18n.t('title')}</h1>
@@ -15,6 +30,7 @@
 	<img class="preview-hover-image rounded-2xl object-cover w-full h-auto" alt="preview" src="preview.png" />
 </div>
 
+<PostDownload />
 <Meta />
 
 <style lang="postcss">

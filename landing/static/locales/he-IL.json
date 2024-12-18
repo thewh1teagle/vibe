@@ -4,15 +4,21 @@
 	"cancel": "סגירה",
 	"copy-download-link": "העתק קישור להורדה",
 	"description": "Vibe זו תוכנה שמאפשרת לתמלל קבצי אודיו או וידאו בכמה לחיצות, בעזרת מודל בינה מלאכותית שרץ על המחשב שלכם. היא תומכת במעל 100 שפות כולל עברית.",
+	"documentation": "תיעוד",
 	"download": "הורדה",
 	"download-for": "הורדה ל",
 	"download-on-pc": "זמין להורדה במחשב",
+	"download-starting-description": "ההורדה תתחיל בקרוב. \nלאחר מכן תוכל למצוא את תוכנית ההתקנה בתיקיית ההורדות שלך.",
 	"features": "פיצ'רים",
 	"home": "למסך הראשי",
+	"install-on-linux": "התקן את Vibe ב-Linux",
 	"intel": "מעבד אינטל",
 	"open-logs-folder": "Open Logs Folder",
 	"privacy-policy": "מדיניות פרטיות",
 	"star-on-github": "סטאר בגיטהאב!",
+	"support-project": "תמכו ב-Vibe!",
 	"support-vibe": "תמיכה בVibe",
-	"title": "תמלל קבצי אודיו או וידאו!"
+	"support-while-you-wait": "בזמן שאתה מחכה, שקול לתמוך בפרויקט Vibe כדי לעזור לנו לצמוח!",
+	"title": "תמלל קבצי אודיו או וידאו!",
+	"your-download-is-starting": "ההורדה שלך מתחילה..."
 }

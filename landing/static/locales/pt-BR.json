@@ -4,15 +4,21 @@
 	"cancel": "Cancelar",
 	"copy-download-link": "Copiar link de download",
 	"description": "Experimente a transcrição de idiomas sem interrupções com o Vibe - sua solução completa para transcrição de áudio e vídeo sem esforço.",
+	"documentation": "Documentação",
 	"download": "Download",
 	"download-for": "Download Para ",
 	"download-on-pc": "Download no PC",
+	"download-starting-description": "O download começará em breve. \nVocê pode então encontrar o instalador na pasta Downloads.",
 	"features": "Recursos",
 	"home": "Inicio",
+	"install-on-linux": "Instale o Vibe no Linux",
 	"intel": "Chip Intel ",
 	"open-logs-folder": "Abrir pasta de registros",
 	"privacy-policy": "política de Privacidade",
 	"star-on-github": "Estrela no Github",
+	"support-project": "Apoie a Vibe!",
 	"support-vibe": "Apoiar Vibe",
-	"title": "Transcreva. por conta própria."
+	"support-while-you-wait": "Enquanto espera, considere apoiar o projeto Vibe para nos ajudar a crescer!",
+	"title": "Transcreva. por conta própria.",
+	"your-download-is-starting": "Seu download está começando..."
 }

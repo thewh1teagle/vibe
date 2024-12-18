@@ -4,15 +4,21 @@
 	"cancel": "Anuluj",
 	"copy-download-link": "Skopiuj link do pobrania",
 	"description": "Doświadcz płynnej transkrypcji językowej dzięki Vibe — uniwersalnemu rozwiązaniu do łatwej transkrypcji audio i wideo.",
+	"documentation": "Dokumenty",
 	"download": "Pobierz",
 	"download-for": "Pobierz dla ",
 	"download-on-pc": "Pobierz na PC",
+	"download-starting-description": "Pobieranie rozpocznie się wkrótce. \nNastępnie możesz znaleźć instalator w folderze Pobrane.",
 	"features": "Funkcje",
 	"home": "Strona główna",
+	"install-on-linux": "Zainstaluj Vibe na Linuksie",
 	"intel": "Układy od Intela",
 	"open-logs-folder": "Otwórz folder logów",
 	"privacy-policy": "Polityka prywatności",
 	"star-on-github": "Daj gwiazdę na Githubie",
+	"support-project": "Wspieraj Vibe!",
 	"support-vibe": "Wspomóż Vibe",
-	"title": "Transkrybuj. po swojemu."
+	"support-while-you-wait": "Czekając, rozważ wsparcie projektu Vibe, który pomoże nam się rozwijać!",
+	"title": "Transkrybuj. po swojemu.",
+	"your-download-is-starting": "Rozpoczyna się pobieranie..."
 }

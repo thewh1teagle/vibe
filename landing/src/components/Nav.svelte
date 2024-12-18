@@ -1,5 +1,7 @@
 <script>
 	import { base } from '$app/paths'
+	import Discord from '~/icons/Discord.svelte'
+	import Github from '~/icons/Github.svelte'
 	import Logo from '~/icons/Logo.svelte'
 	import { i18n } from '~/lib/i18n'
 	const t = $i18n.t
@@ -13,12 +15,9 @@
 		</a>
 	</div>
 	<!-- links -->
-	<ul class="flex-none menu menu-horizontal px-1" dir="ltr">
-		<li>
-			<a href={`${base}/features`}>{t('features')}</a>
-		</li>
-		<li>
-			<a href="https://github.com/thewh1teagle/vibe" target="_blank">Github</a>
-		</li>
+	<ul class="flex-none menu menu-horizontal px-1 gap-4" dir="ltr">
+		<a href={`https://github.com/thewh1teagle/vibe`} target="_blank">
+			<Github width="28" height="28" />
+		</a>
 	</ul>
 </div>

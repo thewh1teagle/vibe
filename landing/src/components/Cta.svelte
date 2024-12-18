@@ -7,7 +7,9 @@
 	import GithubIcon from '~/icons/Github.svelte'
 	import ChipIcon from '~/icons/Chip.svelte'
 	import latestRelease from '$lib/latest_release.json'
+	import linuxInstallOptions from '$lib/linux_install_options.json'
 	import mobile from 'is-mobile'
+	import SupportButton from './SupportButton.svelte'
 
 	let asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === 'macos') // default to macos
 	let ctaClicked = false
@@ -36,6 +38,11 @@
 		}
 	}
 
+	function changePlatform(newPlatform: 'linux' | 'windows' | 'macos') {
+		asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === newPlatform) // default to macos
+		currentURL = location.href
+	}
+
 	function getOS() {
 		const platform = navigator.platform?.toLowerCase()
 		if (platform?.includes('win')) {
@@ -56,8 +63,7 @@
 
 	onMount(async () => {
 		const currentOs = getOS()
-		asset = latestRelease.assets.find((a) => a.platform?.toLowerCase() === currentOs) // default to macos
-		currentURL = location.href
+		changePlatform(currentOs)
 	})
 
 	onMount(() => {
@@ -79,16 +85,50 @@
 			<MacIcon />
 			{t('download-for')}{asset?.platform}
 		</button>
-		<!-- linux / windows -->
-	{:else}
-		<a href={asset?.url} class="btn btn-primary hidden md:flex">
-			{#if asset?.platform.toLowerCase() === 'linux'}
-				<LinuxIcon />
-			{:else if asset?.platform.toLowerCase() === 'windows'}
-				<WindowsIcon />
-			{/if}
+
+		<!--  windows -->
+	{:else if asset?.platform.toLowerCase() === 'windows'}
+		<a
+			on:click={() => {
+				// @ts-ignore
+				window['post-download-modal']?.showModal()
+			}}
+			href={asset?.url}
+			class="btn btn-primary hidden md:flex">
+			<WindowsIcon />
+
 			{t('download-for')}{asset?.platform}
 		</a>
+
+		<!-- linux -->
+	{:else if asset?.platform.toLowerCase() === 'linux'}
+		<button
+			on:click={() => {
+				// @ts-ignore
+				window?.linux_download_model.showModal()
+			}}
+			class="btn btn-primary hidden md:flex">
+			<LinuxIcon />
+			{t('download-for')}{asset?.platform}
+		</button>
+
+		<dialog id="linux_download_model" class="modal">
+			<div class="modal-box w-11/12 max-w-5xl">
+				<h3 class="text-3xl font-bold">{t('install-on-linux')}</h3>
+				{#each linuxInstallOptions as installOption}
+					<div class="mt-5" dir="ltr">
+						<div class="mb-2 text-3xl text-primary opacity-80">{installOption.title}</div>
+						<code class="min-w-[700px] flex bg-[#2b2b2b] p-2 rounded-sm">{installOption.command.replace('{tag}', latestRelease.version)}</code>
+					</div>
+				{/each}
+				<div class="flex items-center justify-center mt-10">
+					<SupportButton />
+				</div>
+			</div>
+			<form method="dialog" class="modal-backdrop">
+				<button>close</button>
+			</form>
+		</dialog>
 	{/if}
 
 	<a class="btn" href="https://github.com/thewh1teagle/vibe" target="_blank">
@@ -103,11 +143,23 @@
 <!-- macos architectures -->
 {#if asset?.platform.toLocaleLowerCase() == 'macos' && ctaClicked}
 	<div class="flex gap-2 mt-3">
-		<a class="btn btn-sm btn-outline" href={macIntelAsset?.url}>
+		<a
+			on:click={() => {
+				// @ts-ignore
+				window['post-download-modal']?.showModal()
+			}}
+			class="btn btn-sm btn-outline"
+			href={macIntelAsset?.url}>
 			<ChipIcon />
 			{t('intel')}
 		</a>
-		<a class="btn btn-sm btn-outline" href={macSiliconAsset?.url}>
+		<a
+			on:click={() => {
+				// @ts-ignore
+				window['post-download-modal']?.showModal()
+			}}
+			class="btn btn-sm btn-outline"
+			href={macSiliconAsset?.url}>
 			<ChipIcon />
 			{t('apple-silicon')}
 		</a>
@@ -116,11 +168,23 @@
 
 <!-- platforms -->
 <div class="flex gap-3 mt-4">
-	<button on:mousedown={onMacLogoClick}><MacIcon /></button>
+	<button on:mousedown={() => changePlatform('macos')}><MacIcon /></button>
 
-	<a aria-label="Windows" rel="noopener" href={windowsAsset?.url} class=""><WindowsIcon /></a>
+	<button
+		aria-label="Windows"
+		on:click={() => {
+			changePlatform('windows')
+		}}
+		class="">
+		<WindowsIcon />
+	</button>
 
-	<a aria-label="Linux" rel="noopener" href={linuxAsset?.url}><LinuxIcon /></a>
+	<button
+		on:click={() => {
+			changePlatform('linux')
+		}}>
+		<LinuxIcon />
+	</button>
 </div>
 
 <dialog class="modal" class:modal-open={mobileModalOpen}>
