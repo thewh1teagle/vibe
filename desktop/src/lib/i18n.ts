@@ -13,6 +13,7 @@ export const supportedLanguages: { [key: string]: string } = {
 	'zh-CN': 'chinese',
 	'fr-FR': 'french',
 	'pl-PL': 'polish',
+	'no-NO': 'norwegian',
 	'it-IT': 'italian',
 	'hi-IN': 'hindi',
 }
