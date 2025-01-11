@@ -90,11 +90,12 @@ objc_id = "0.1"
 core-graphics-helmer-fork = "0.24.0"
 
 [features]
-default = []
+default = ["diarize"]
 cuda = ["vibe_core/cuda"]
 coreml = ["vibe_core/coreml"]
 metal = ["vibe_core/metal"]
 openblas = ["vibe_core/openblas"]
+diarize = ["vibe_core/diarize"]
 rocm = ["vibe_core/rocm"]
 vulkan = ["vibe_core/vulkan", "dep:ash"]
 server = ["dep:utoipa", "dep:utoipa-swagger-ui", "dep:axum", "vibe_core/server"]

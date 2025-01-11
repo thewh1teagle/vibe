@@ -176,6 +176,8 @@ pub fn transcribe(
     let mut segments = Vec::new();
 
     let st = std::time::Instant::now();
+
+    #[cfg(feature = "diarize")]
     if let Some(diarize_options) = diarize_options {
         tracing::debug!("Diarize enabled {:?}", diarize_options);
         params.set_single_segment(true);
