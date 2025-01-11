@@ -287,3 +287,10 @@ CARGO_PROFILE_DEV_CODEGEN_BACKEND="cranelift" cargo +nightly build -Zcodegen-bac
 # Powershell
 $env:CARGO_PROFILE_DEV_CODEGEN_BACKEND="cranelift" ; cargo +nightly build -Zcodegen-backend
 ```
+
+## Build for Windows arm64
+
+```console
+bun run scripts\pre_build.js --vulkan --arm
+bunx tauri build -- --target aarch64-pc-windows-msvc --features "vulkan"
+```

@@ -29,10 +29,24 @@ const config = {
 		openBlasName: 'OpenBLAS-0.3.26-x64',
 		openBlasUrl: 'https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.26/OpenBLAS-0.3.26-x64.zip',
 
-		vulkanRuntimeName: 'VulkanRT-1.3.290.0-Components',
-		vulkanRuntimeUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanRT-1.3.290.0-Components.zip',
-		vulkanSdkName: 'VulkanSDK-1.3.290.0-Installer',
-		vulkanSdkUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe',
+		vulkan: {
+			runtimeRealName: 'vulkan_runtime',
+			sdkRealName: 'vulkan_sdk',
+			arm: {
+				sdkUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe', // Regular, it's just headers
+				sdkName: 'VulkanSDK-1.3.290.0-Installer',
+				runtimeUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/warm/VulkanRT-1.3.290.0-Components.zip', // ARM
+				runtimeName: 'VulkanRT-1.3.290.0-Components',
+				resourcesPattern: 'vulkan_runtime\\*.dll' // Different for ARM
+			},
+			x86: {
+				sdkUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanSDK-1.3.290.0-Installer.exe', // Regular, it's just headers
+				sdkName: 'VulkanSDK-1.3.290.0-Installer',
+				runtimeUrl: 'https://sdk.lunarg.com/sdk/download/1.3.290.0/windows/VulkanRT-1.3.290.0-Components.zip',
+				runtimeName: 'VulkanRT-1.3.290.0-Components',
+				resourcesPattern: 'vulkan_runtime\\x64\\*.dll'
+			}
+		},
 		vcpkgPackages: [],
 	},
 	linux: {
@@ -66,6 +80,9 @@ const config = {
 		segmentModelFilename: 'segmentation-3.0.onnx',
 	},
 }
+
+// Dynamic vulkan config
+const vulkanConfig = hasFeature('arm') ? config.windows.vulkan.arm : config.windows.vulkan.x86
 
 // Export for Github actions
 const exports = {
@@ -111,16 +128,17 @@ if (platform == 'windows') {
 
 	// Setup Vulkan
 	if (!(await fs.exists(config.vulkanSdkRealName)) && hasFeature('vulkan')) {
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.vulkanSdkUrl} -O ${config.windows.vulkanSdkName}.exe`
-		let executable = path.join(cwd, `${config.windows.vulkanSdkName}.exe`)
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${vulkanConfig.sdkUrl} -O ${vulkanConfig.sdkName}.exe`
+		let executable = path.join(cwd, `${vulkanConfig.sdkName}.exe`)
 		let vulkanSdkRoot = path.join(cwd, config.vulkanSdkRealName)
 		await $`${executable} --root ${vulkanSdkRoot} --accept-licenses --default-answer --confirm-command install copy_only=1` // copy_only=1 to run without admin rights
-
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.vulkanRuntimeUrl} -O ${config.windows.vulkanRuntimeName}.zip`
-		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.vulkanRuntimeName}.zip` // 7z file inside
-		await $`mv ${config.windows.vulkanRuntimeName} ${config.vulkanRuntimeRealName}`
-		await $`rm ${config.windows.vulkanSdkName}.exe`
-		await $`rm ${config.windows.vulkanRuntimeName}.zip`
+		await $`rm ${vulkanConfig.sdkName}.exe`
+	}
+	if (!(await fs.exists(config.vulkanRuntimeRealName)) && hasFeature('vulkan')) {
+		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${vulkanConfig.runtimeUrl} -O ${vulkanConfig.runtimeName}.zip`
+		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${vulkanConfig.runtimeName}.zip` // 7z file inside
+		await $`mv ${vulkanConfig.runtimeName} ${config.vulkanRuntimeRealName}`
+		await $`rm ${vulkanConfig.runtimeName}.zip`
 	}
 
 	// Setup vcpkg packages
@@ -194,7 +212,7 @@ if (hasFeature('vulkan')) {
 	if (platform === 'windows') {
 		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
 		const tauriConfig = JSON.parse(tauriConfigContent)
-		tauriConfig.bundle.resources['vulkan_runtime\\x64\\*.dll'] = './'
+		tauriConfig.bundle.resources[vulkanConfig.resourcesPattern] = './'
 		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
 	}
 	if (platform === 'linux') {
