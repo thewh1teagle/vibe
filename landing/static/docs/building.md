@@ -290,7 +290,12 @@ $env:CARGO_PROFILE_DEV_CODEGEN_BACKEND="cranelift" ; cargo +nightly build -Zcode
 
 ## Build for Windows arm64
 
+1. Open visual studio installer -> individual components -> search for `msvc v143 - VS 2022 C++ arm64/arm64ec` -> install latest (~3GB)
+
+2. Add Rust toolchain
+
 ```console
+rustup target add aarch64-pc-windows-msvc
 bun run scripts\pre_build.js --vulkan --arm
 bunx tauri build -- --target aarch64-pc-windows-msvc --features "vulkan"
 ```
