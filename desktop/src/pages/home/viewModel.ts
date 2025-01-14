@@ -299,8 +299,6 @@ export function viewModel() {
 	}
 
 	async function transcribe(path: string) {
-		// Keep system awake
-		console.log('keep awake start')
 		startKeepAwake()
 
 		setSegments(null)
@@ -341,7 +339,6 @@ export function viewModel() {
 				setLoading(false)
 			}
 		} finally {
-			// Stop keepawake
 			stopKeepAwake()
 			setLoading(false)
 			setIsAborting(false)

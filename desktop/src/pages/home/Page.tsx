@@ -79,8 +79,6 @@ export default function Home() {
 							<>
 								<button
 									onMouseDown={() => {
-										// Stop keepawake
-										console.log('stop keepawake')
 										keepAwake.stop()
 										vm.stopRecord()
 									}}
