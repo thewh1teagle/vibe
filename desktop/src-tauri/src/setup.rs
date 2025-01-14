@@ -47,6 +47,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     crate::logging::setup_logging(app.handle(), store).unwrap();
     crate::cleaner::clean_old_logs(app.handle()).log_error();
     crate::cleaner::clean_old_files().log_error();
+    crate::cleaner::clean_updater_files().log_error();
     tracing::debug!("Vibe App Running");
 
     // Crash handler
@@ -111,6 +112,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
     tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
+    tracing::debug!("App Info: {}", cmd::get_app_info());
 
     let app_handle = app.app_handle().clone();
     if is_cli_detected() {
