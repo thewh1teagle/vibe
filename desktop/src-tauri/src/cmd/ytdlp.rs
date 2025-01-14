@@ -124,7 +124,7 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
         if let Some(stderr) = child.stderr.take() {
             stderr_output = BufReader::new(stderr)
                 .lines()
-                .filter_map(|line| line.ok())
+                .map_while(Result::ok)
                 .collect::<Vec<_>>()
                 .join("\n");
             eprintln!("Error: {}", stderr_output);
