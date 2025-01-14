@@ -14,6 +14,7 @@ import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
+import * as keepAwake from 'tauri-plugin-keepawake-api'
 
 export default function Home() {
 	const { t } = useTranslation()
@@ -76,7 +77,12 @@ export default function Home() {
 
 						{vm.isRecording && (
 							<>
-								<button onMouseDown={vm.stopRecord} className="btn relative btn-success mt-3">
+								<button onMouseDown={() => {
+									// Stop keepawake
+									console.log('stop keepawake')
+									keepAwake.stop()
+									vm.stopRecord()
+								}} className="btn relative btn-success mt-3">
 									<span className="loading loading-spinner"></span>
 									{t('common.stop-and-transcribe')}
 								</button>

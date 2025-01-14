@@ -13,7 +13,7 @@ import { TextFormat } from '~/components/FormatSelect'
 import { AudioDevice } from '~/lib/audio'
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
-import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
+import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
 import { getX86Features } from '~/lib/x86Features'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { useFilesContext } from '~/providers/FilesProvider'
@@ -278,6 +278,7 @@ export function viewModel() {
 	}, [])
 
 	async function startRecord() {
+		startKeepAwake()
 		setSegments(null)
 		setSummarizeSegments(null)
 		setTranscriptTab('transcript')
@@ -298,6 +299,10 @@ export function viewModel() {
 	}
 
 	async function transcribe(path: string) {
+		// Keep system awake
+		console.log('keep awake start')
+		startKeepAwake()
+
 		setSegments(null)
 		setSummarizeSegments(null)
 		setTranscriptTab('transcript')
@@ -330,11 +335,14 @@ export function viewModel() {
 			hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
 		} catch (error) {
 			if (!abortRef.current) {
+				stopKeepAwake()
 				console.error('error: ', error)
 				setErrorModal?.({ log: String(error), open: true })
 				setLoading(false)
 			}
 		} finally {
+			// Stop keepawake
+			stopKeepAwake()
 			setLoading(false)
 			setIsAborting(false)
 			setProgress(null)

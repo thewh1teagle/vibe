@@ -4,6 +4,7 @@ import * as fs from '@tauri-apps/plugin-fs'
 import * as config from './config'
 import { Dispatch, SetStateAction } from 'react'
 import { load } from '@tauri-apps/plugin-store'
+import * as keepAwake from 'tauri-plugin-keepawake-api'
 
 export interface NamedPath {
 	name: string
@@ -79,8 +80,27 @@ export async function openPath(path: NamedPath) {
 	await invoke('open_path', { path: path.path })
 }
 
-export async function getModelsFolder() {}
+export async function getModelsFolder() { }
 
 export function formatSpeaker(speaker?: string, prefix = 'Speaker') {
 	return `${prefix} ${speaker ?? '?'}: `
 }
+
+export async function startKeepAwake() {
+	try {
+		console.log('start keepawake')
+		keepAwake.start({ display: true, idle: true, sleep: true })
+	} catch (e) {
+		console.error(`Keep awake failed: ${e}`)
+	}
+}
+
+export async function stopKeepAwake() {
+	console.log('stop keepawake')
+	try {
+		keepAwake.stop()
+	} catch (e) {
+		console.error(`Keep awake failed: ${e}`)
+	}
+}
+
