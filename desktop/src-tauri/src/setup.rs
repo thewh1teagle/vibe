@@ -112,7 +112,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
     tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
-    tracing::debug!("App Info: {}", cmd::get_app_info());
+    tracing::debug!("App Info: {}", crate::utils::get_app_info());
 
     let app_handle = app.app_handle().clone();
     if is_cli_detected() {
