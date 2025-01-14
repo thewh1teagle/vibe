@@ -77,12 +77,14 @@ export default function Home() {
 
 						{vm.isRecording && (
 							<>
-								<button onMouseDown={() => {
-									// Stop keepawake
-									console.log('stop keepawake')
-									keepAwake.stop()
-									vm.stopRecord()
-								}} className="btn relative btn-success mt-3">
+								<button
+									onMouseDown={() => {
+										// Stop keepawake
+										console.log('stop keepawake')
+										keepAwake.stop()
+										vm.stopRecord()
+									}}
+									className="btn relative btn-success mt-3">
 									<span className="loading loading-spinner"></span>
 									{t('common.stop-and-transcribe')}
 								</button>
