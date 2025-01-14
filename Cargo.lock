@@ -6003,9 +6003,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-keepawake"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "284759cf282ed0b42e86e3f5a81e42198c0816edc05a24b23c5bd37f33532ee9"
+checksum = "19695262819df92661139c607c5b5449b21ef5fa9429b8cb556e6c55bf34e5cb"
 dependencies = [
  "keepawake",
  "serde",
