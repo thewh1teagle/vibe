@@ -32,4 +32,15 @@
 		top: 0;
 		height: 100vh;
 	}
+
+	/* remove header and footer */
+	@page {
+		margin: 0;
+	}
+
+	/* keep exact HTML colors! */
+	* {
+		print-color-adjust: exact;
+	}
+
 }
