@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
-import { NamedPath, pathToNamedPath } from '~/lib/utils'
+import { NamedPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
@@ -112,6 +112,9 @@ export function viewModel() {
 		if (inProgress) {
 			return
 		}
+
+		startKeepAwake()
+
 		setInProgress(true)
 		let localIndex = 0
 		await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
@@ -176,6 +179,7 @@ export function viewModel() {
 				await new Promise((resolve) => setTimeout(resolve, 100))
 				setCurrentIndex(localIndex)
 			} catch (error) {
+				stopKeepAwake()
 				if (isAbortingRef.current) {
 					navigate('/')
 				} else {
@@ -185,6 +189,7 @@ export function viewModel() {
 				setCurrentIndex(localIndex)
 			}
 		}
+		stopKeepAwake()
 		setCurrentIndex(files.length + 1)
 		setInProgress(false)
 		setIsAborting(false)

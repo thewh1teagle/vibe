@@ -1,7 +1,7 @@
 {
 	"$schema": "./gen/schemas/desktop-schema.json",
 	"productName": "vibe",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"identifier": "github.com.thewh1teagle.vibe",
 	"app": {
 		"windows": [],
@@ -45,33 +45,7 @@
 		],
 		"resources": {
 			"locales": "locales"
-		},
-		"fileAssociations": [
-			{
-				"description": "Video files",
-				"ext": [
-					"mp4",
-					"mkv",
-					"avi",
-					"mov",
-					"wmv",
-					"webm"
-				]
-			},
-			{
-				"description": "Audio files",
-				"ext": [
-					"mp3",
-					"wav",
-					"aac",
-					"flac",
-					"oga",
-					"ogg",
-					"opic",
-					"opus"
-				]
-			}
-		]
+		}
 	},
 	"plugins": {
 		"updater": {

@@ -11,6 +11,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.1.0",
+    "@formatjs/intl-durationformat": "^0.6.3",
     "@tauri-apps/api": "~2.1.1",
     "@tauri-apps/plugin-clipboard-manager": "~2.0.0",
     "@tauri-apps/plugin-deep-link": "~2.0.0",
@@ -23,8 +25,6 @@
     "@tauri-apps/plugin-store": "~2.1.0",
     "@tauri-apps/plugin-updater": "~2.0.0",
     "@tauri-apps/plugin-window-state": "~2.0.0",
-    "@fontsource/roboto": "^5.1.0",
-    "@formatjs/intl-durationformat": "^0.6.3",
     "docx": "^9.0.3",
     "format-duration": "^3.0.2",
     "i18next": "^23.16.5",
@@ -35,6 +35,7 @@
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^15.1.1",
     "react-router-dom": "^6.28.0",
+    "tauri-plugin-keepawake-api": "^0.1.0",
     "usehooks-ts": "^3.1.0",
     "vite-plugin-svgr": "^4.3.0"
   },
