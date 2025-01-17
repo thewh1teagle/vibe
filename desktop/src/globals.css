@@ -14,7 +14,6 @@
 }
 
 @media print {
-
 	html,
 	body * {
 		visibility: hidden;
@@ -52,20 +51,37 @@
 	/* Prevent blank page */
 	html,
 	body {
+		height: 100vh;
 		margin: 0 !important;
 		padding: 0 !important;
-		width: 100%;
-		height: 100vh !important;
+		overflow: hidden;
 	}
 
-	/* Handle dark or light mode */
+	body:last-child {
+		page-break-after: auto;
+	}
 
-	[data-theme="dark"] .printable {
+	/* Dark mode */
+
+	[data-theme='dark'] * {
 		background: #181818 !important;
-		color: white;
 	}
 
-	[data-theme="light"] .printable {
-		color: black;
+	[data-theme='dark'] .segment {
+		color: white !important;
+	}
+
+	/* Light mode */
+	[data-theme='light'] * {
+		background: white !important;
+	}
+
+	[data-theme='light'] .segment {
+		color: black !important;
+	}
+
+	#footer,
+	#header {
+		all: unset;
 	}
 }
