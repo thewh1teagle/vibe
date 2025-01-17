@@ -55,3 +55,30 @@ pub fn clean_old_files() -> Result<()> {
     }
     Ok(())
 }
+
+pub fn clean_updater_files() -> Result<()> {
+    let current_temp_dir = get_vibe_temp_folder();
+    let temp_dir = std::env::temp_dir();
+    let temp_dir = temp_dir.to_str().unwrap_or_default();
+    // Remove suffix
+    let temp_dir = temp_dir.strip_suffix('/').unwrap_or(temp_dir);
+    let temp_dir = temp_dir.strip_suffix('\\').unwrap_or(temp_dir);
+    let pattern = format!("{}/vibe*-updater*", temp_dir);
+    tracing::debug!("searching old files in {}", pattern);
+    for path in glob::glob(&pattern)? {
+        let path = path?;
+        if path == current_temp_dir {
+            tracing::debug!("Skip deletion of {}", current_temp_dir.display());
+            continue;
+        }
+        if path.is_dir() {
+            tracing::debug!("Clean old folder {}", path.display());
+            std::fs::remove_dir_all(&path)
+                .map_err(|e| eyre!("failed to delete {}: {:?}", path.display(), e))
+                .log_error();
+        } else {
+            tracing::debug!("Skipping non-directory path {}", path.display());
+        }
+    }
+    Ok(())
+}

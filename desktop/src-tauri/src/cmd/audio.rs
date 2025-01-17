@@ -40,11 +40,11 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     tracing::debug!("Devices: ");
     for (device_index, device) in devices.enumerate() {
         let name = device.name()?;
-        let is_default_in = default_in.as_ref().map_or(false, |d| d == &name);
+        let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = if cfg!(target_os = "macos") {
             false
         } else {
-            default_out.as_ref().map_or(false, |d| d == &name)
+            default_out.as_ref().is_ok_and(|d| d == &name)
         };
 
         let is_input = device.default_input_config().is_ok();

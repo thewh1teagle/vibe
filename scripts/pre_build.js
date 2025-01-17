@@ -17,6 +17,14 @@ function hasFeature(name) {
 	return process.argv.includes(`--${name}`) || process.argv.includes(name)
 }
 
+async function wget(url, path) {
+	if (platform === 'windows') {
+		await $`C:\\msys64\\usr\\bin\\wget.exe --show-progress --progress=bar:force:noscroll --tries=10 -nc ${url} -O ${path}`
+	} else {
+		await $`wget --show-progress --progress=bar:force:noscroll --tries=10 -nc ${url} -O ${path}`
+	}
+}
+
 const config = {
 	ffmpegRealname: 'ffmpeg',
 	openblasRealname: 'openblas',
@@ -72,13 +80,7 @@ const config = {
 	macos: {
 		ffmpegName: 'ffmpeg-6.1-macOS-default',
 		ffmpegUrl: 'https://master.dl.sourceforge.net/project/avbuild/macOS/ffmpeg-6.1-macOS-default.tar.xz?viasf=1',
-	},
-	diarization: {
-		embedModelUrl: 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx',
-		embedModelFilename: 'wespeaker_en_voxceleb_CAM++.onnx',
-		segmentModelUrl: 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx',
-		segmentModelFilename: 'segmentation-3.0.onnx',
-	},
+	}
 }
 
 // Dynamic vulkan config
@@ -109,7 +111,7 @@ if (platform == 'linux') {
 if (platform == 'windows') {
 	// Setup FFMPEG
 	if (!(await fs.exists(config.ffmpegRealname))) {
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.ffmpegUrl} -O ${config.windows.ffmpegName}.7z`
+		await wget(config.windows.ffmpegUrl, `${config.windows.ffmpegName}.7z`)
 		await $`'C:\\Program Files\\7-Zip\\7z.exe' x ${config.windows.ffmpegName}.7z`
 		await $`mv ${config.windows.ffmpegName} ${config.ffmpegRealname}`
 		await $`rm -rf ${config.windows.ffmpegName}.7z`
@@ -118,7 +120,7 @@ if (platform == 'windows') {
 
 	// Setup OpenBlas
 	if (!(await fs.exists(config.openblasRealname)) && hasFeature('openblas')) {
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.windows.openBlasUrl} -O ${config.windows.openBlasName}.zip`
+		await wget(config.windows.openBlasUrl, `${config.windows.openBlasName}.zip`)
 		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${config.windows.openBlasName}.zip -o${config.openblasRealname}`
 		await $`rm ${config.windows.openBlasName}.zip`
 		fs.cp(path.join(config.openblasRealname, 'include'), path.join(config.openblasRealname, 'lib'), { recursive: true, force: true })
@@ -128,17 +130,10 @@ if (platform == 'windows') {
 
 	// Setup Vulkan
 	if (!(await fs.exists(config.vulkanSdkRealName)) && hasFeature('vulkan')) {
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${vulkanConfig.sdkUrl} -O ${vulkanConfig.sdkName}.exe`
-		let executable = path.join(cwd, `${vulkanConfig.sdkName}.exe`)
+		await wget(config.windows.vulkanSdkUrl, `${config.windows.vulkanSdkName}.exe`)
+		let executable = path.join(cwd, `${config.windows.vulkanSdkName}.exe`)
 		let vulkanSdkRoot = path.join(cwd, config.vulkanSdkRealName)
 		await $`${executable} --root ${vulkanSdkRoot} --accept-licenses --default-answer --confirm-command install copy_only=1` // copy_only=1 to run without admin rights
-		await $`rm ${vulkanConfig.sdkName}.exe`
-	}
-	if (!(await fs.exists(config.vulkanRuntimeRealName)) && hasFeature('vulkan')) {
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${vulkanConfig.runtimeUrl} -O ${vulkanConfig.runtimeName}.zip`
-		await $`"C:\\Program Files\\7-Zip\\7z.exe" x ${vulkanConfig.runtimeName}.zip` // 7z file inside
-		await $`mv ${vulkanConfig.runtimeName} ${config.vulkanRuntimeRealName}`
-		await $`rm ${vulkanConfig.runtimeName}.zip`
 	}
 
 	// Setup vcpkg packages
@@ -151,7 +146,7 @@ if (platform == 'windows') {
 if (platform == 'macos') {
 	// Setup FFMPEG
 	if (!(await fs.exists(config.ffmpegRealname))) {
-		await $`wget -nc --show-progress ${config.macos.ffmpegUrl} -O ${config.macos.ffmpegName}.tar.xz`
+		await wget(config.macos.ffmpegUrl, `${config.macos.ffmpegName}.tar.xz`)
 		await $`tar xf ${config.macos.ffmpegName}.tar.xz`
 		await $`mv ${config.macos.ffmpegName} ${config.ffmpegRealname}`
 		await $`rm ${config.macos.ffmpegName}.tar.xz`
@@ -237,17 +232,6 @@ if (hasFeature('rocm')) {
 		const tauriConfig = JSON.parse(tauriConfigContent)
 		tauriConfig.bundle.linux.deb.depends.push('rocm')
 		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
-	}
-}
-
-// Diarization
-if (!(await fs.exists(config.diarization.embedModelFilename))) {
-	if (platform == 'windows') {
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
-		await $`C:\\msys64\\usr\\bin\\wget.exe -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
-	} else {
-		await $`wget -nc --show-progress ${config.diarization.embedModelUrl} -O ${config.diarization.embedModelFilename}`
-		await $`wget -nc --show-progress ${config.diarization.segmentModelUrl} -O ${config.diarization.segmentModelFilename}`
 	}
 }
 
