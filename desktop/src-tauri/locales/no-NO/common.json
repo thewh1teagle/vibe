@@ -9,6 +9,8 @@
 	"ask-for-relaunch-title": "Oppdatering fullført",
 	"ask-for-update-body": "Vil du oppdatere Vibe til versjon {{version}}?",
 	"ask-for-update-title": "Bekreft oppdatering",
+	"ask-for-update-ytdlp-message": "Ny YTDLP -versjon funnet. \nVil du oppdatere YTDLP?",
+	"ask-for-update-ytdlp-title": "Oppdater ytdlp",
 	"cancel": "Avbryt",
 	"cancel-relaunch": "Senere",
 	"cancel-update": "Senere",
@@ -19,6 +21,7 @@
 	"check-error": "Kontroll mislyktes",
 	"check-loading": "Kontrollerer",
 	"check-success": "Testet vellykket",
+	"check-ytdlp-updates": "Sjekk YTDLP for oppdateringer",
 	"confirm-exit": "Vil du avslutte? \nUlagrede endringer vil gå tapt.",
 	"confirm-relaunch": "Start på nytt nå",
 	"confirm-update": "Oppdater nå",
@@ -74,6 +77,7 @@
 	"install-now": "Installer nå",
 	"invalid-llm-prompt": "Ugyldig prompt. \nMå inneholde mønsteret %s som vil bli erstattet med transkripsjonen.",
 	"language": "Språk",
+	"later": "Seinere",
 	"leftover": "rester",
 	"light": "Lys",
 	"llm-api-key": "Claude API-nøkkel",
@@ -149,9 +153,12 @@
 	"transcript-will-displayed-shortly": "Transkripsjonen vil vises her snart…",
 	"translate-to-english": "Oversett til engelsk",
 	"try-again": "Prøv igjen",
+	"update-now": "oppdatering nå",
 	"update-version": "Oppdater Vibe",
 	"updating-modal-body": "Oppdaterer Vibe til versjon {{version}}",
 	"updating-modal-title": "Oppdaterer...",
 	"use-word-timestamps": "Ord-tidsstempler",
-	"when-completing-transcription": "Ved fullføring av transkripsjonen"
+	"when-completing-transcription": "Ved fullføring av transkripsjonen",
+	"ytdlp-options": "Alternativer for URL-transkripsjon",
+	"ytdlp-options-info": "Vibe bruker YTDLP for URL -transkripsjon."
 }

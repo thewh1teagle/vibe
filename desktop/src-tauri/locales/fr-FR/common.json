@@ -9,6 +9,8 @@
 	"ask-for-relaunch-title": "Mise à jour terminée",
 	"ask-for-update-body": "Voulez-vous mettre à jour Vibe vers la version {{version}} ?",
 	"ask-for-update-title": "Confirmer la mise à jour",
+	"ask-for-update-ytdlp-message": "Nouvelle version YTDLP trouvée. \nVoulez-vous mettre à jour YTDLP?",
+	"ask-for-update-ytdlp-title": "Mettre à jour ytdlp",
 	"cancel": "Annuler",
 	"cancel-relaunch": "Plus tard",
 	"cancel-update": "Plus tard",
@@ -19,6 +21,7 @@
 	"check-error": "La vérification a échoué",
 	"check-loading": "Vérification",
 	"check-success": "Testé avec succès",
+	"check-ytdlp-updates": "Vérifiez ytdlp pour les mises à jour",
 	"confirm-exit": "Voulez-vous sortir ? \nLes modifications non enregistrées seront perdues.",
 	"confirm-relaunch": "Relancer maintenant",
 	"confirm-update": "Mettre à jour maintenant",
@@ -74,6 +77,7 @@
 	"install-now": "Installer maintenant",
 	"invalid-llm-prompt": "Invite invalide. \nil doit inclure le modèle suivant %s qui sera remplacé par la transcription.",
 	"language": "Langue",
+	"later": "Plus tard",
 	"leftover": "encore",
 	"light": "Lumière",
 	"llm-api-key": "Clé API Claude",
@@ -149,9 +153,12 @@
 	"transcript-will-displayed-shortly": "La transcription s’affichera ici sous peu…",
 	"translate-to-english": "Traduire en anglais",
 	"try-again": "Réessayer",
+	"update-now": "mettre à jour maintenant",
 	"update-version": "Mettre à jour Vibe",
 	"updating-modal-body": "Mise à jour de Vibe vers la version {{version}}",
 	"updating-modal-title": "Mise à jour en cours…",
 	"use-word-timestamps": "Horodatages pour chaque mot",
-	"when-completing-transcription": "Quand la transcription est terminée"
+	"when-completing-transcription": "Quand la transcription est terminée",
+	"ytdlp-options": "Options de transcription URL",
+	"ytdlp-options-info": "VIBE utilise YTDLP pour la transcription d'URL."
 }

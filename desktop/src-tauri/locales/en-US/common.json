@@ -9,6 +9,8 @@
 	"ask-for-relaunch-title": "Update Finished",
 	"ask-for-update-body": "Do you want to update vibe into version {{version}}?",
 	"ask-for-update-title": "Confirm update",
+	"ask-for-update-ytdlp-message": "New ytdlp version found. Do you want to update ytdlp?",
+	"ask-for-update-ytdlp-title": "Update ytdlp",
 	"cancel": "Cancel",
 	"cancel-relaunch": "Later",
 	"cancel-update": "Later",
@@ -19,6 +21,7 @@
 	"check-error": "Check failed",
 	"check-loading": "Checking",
 	"check-success": "Tested successfully",
+	"check-ytdlp-updates": "Check ytdlp for updates",
 	"confirm-exit": "Do you want to exit? Unsaved changes will be lost.",
 	"confirm-relaunch": "Relaunch Now",
 	"confirm-update": "Update Now",
@@ -74,6 +77,7 @@
 	"install-now": "Install Now",
 	"invalid-llm-prompt": "Invalid prompt. It must include the following pattern %s which will be replaced with the transcription.",
 	"language": "Language",
+	"later": "Later",
 	"leftover": "Left",
 	"light": "Light",
 	"llm-api-key": "Claude API key",
@@ -149,9 +153,12 @@
 	"transcript-will-displayed-shortly": "Transcript will be displayed here shortly...",
 	"translate-to-english": "Translate To English",
 	"try-again": "Try Again",
+	"update-now": "update now",
 	"update-version": "Update Vibe",
 	"updating-modal-body": "Updating Vibe to version {{version}}",
 	"updating-modal-title": "Updating...",
 	"use-word-timestamps": "Timestamps per each word",
-	"when-completing-transcription": "When completing transcription"
+	"when-completing-transcription": "When completing transcription",
+	"ytdlp-options": "URL Transcription Options",
+	"ytdlp-options-info": "Vibe uses ytdlp for URL transcription."
 }

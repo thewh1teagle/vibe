@@ -9,6 +9,8 @@
 	"ask-for-relaunch-title": "更新完成",
 	"ask-for-update-body": "您想將 Vibe 更新至 {{version}} 版本嗎？",
 	"ask-for-update-title": "確認更新",
+	"ask-for-update-ytdlp-message": "找到新的 ytdlp 版本。\n您想更新 ytdlp 嗎？",
+	"ask-for-update-ytdlp-title": "更新YTDLP",
 	"cancel": "取消",
 	"cancel-relaunch": "稍後重啟",
 	"cancel-update": "稍後更新",
@@ -19,6 +21,7 @@
 	"check-error": "檢查失敗",
 	"check-loading": "檢查中",
 	"check-success": "測試成功",
+	"check-ytdlp-updates": "檢查YTDLP以獲取更新",
 	"confirm-exit": "你想退出嗎？\n未儲存的更改將會遺失。",
 	"confirm-relaunch": "立即重啟",
 	"confirm-update": "立即更新",
@@ -74,6 +77,7 @@
 	"install-now": "立即安裝",
 	"invalid-llm-prompt": "提示無效。\n它必須包含以下模式 %s，該模式將被轉錄替換。",
 	"language": "語言",
+	"later": "之後",
 	"leftover": "剩餘",
 	"light": "淺色",
 	"llm-api-key": "Claude API 金鑰",
@@ -149,9 +153,12 @@
 	"transcript-will-displayed-shortly": "轉錄結果馬上就會顯示在這裡...",
 	"translate-to-english": "翻譯成英語",
 	"try-again": "重試",
+	"update-now": "立即更新",
 	"update-version": "更新 Vibe",
 	"updating-modal-body": "正在將 Vibe 更新至 {{version}} 版本",
 	"updating-modal-title": "正在更新...",
 	"use-word-timestamps": "使用單詞級時間戳",
-	"when-completing-transcription": "完成轉錄時"
+	"when-completing-transcription": "完成轉錄時",
+	"ytdlp-options": "URL轉錄選項",
+	"ytdlp-options-info": "Vibe 使用 ytdlp 進行 URL 轉錄。"
 }
