@@ -18,17 +18,19 @@ export const llmDefaultMaxTokens = 8192 // https://docs.anthropic.com/en/docs/ab
 export const llmLimitsUrl = 'https://console.anthropic.com/settings/limits'
 export const llmCostUrl = 'https://console.anthropic.com/settings/cost'
 
+export const ytDlpVersion = '2025.01.150'
 export const ytDlpConfig = {
 	windows: {
-		url: 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/yt-dlp.exe', // signed with self certificate. better than nothing
+		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.15/yt-dlp.exe', // signed with self certificate. better than nothing
 		name: 'yt-dlp.exe',
 	},
 	linux: {
-		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2024.08.06/yt-dlp_linux',
+		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.15/yt-dlp_linux',
 		name: 'yt-dlp_linux',
 	},
 	macos: {
-		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2024.08.06/yt-dlp_macos',
+		// Universal binary
+		url: 'https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.15/yt-dlp_macos',
 		name: 'yt-dlp_macos',
 	},
 }

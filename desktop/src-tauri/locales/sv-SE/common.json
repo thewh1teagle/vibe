@@ -9,6 +9,7 @@
 	"ask-for-relaunch-title": "Updatering klar",
 	"ask-for-update-body": "Vill du uppdatera Vibe till version {{version}}?",
 	"ask-for-update-title": "Bekräfta uppdatering",
+	"ask-for-update-ytdlp-message": "Ny YTDLP -version hittades. \nVill du uppdatera YTDLP?",
 	"cancel": "Avbryt",
 	"cancel-relaunch": "Senare",
 	"cancel-update": "Senare",
@@ -153,5 +154,6 @@
 	"updating-modal-body": "Updaterar Vibe till version {{version}}",
 	"updating-modal-title": "Uppdaterar...",
 	"use-word-timestamps": "Tidsstämplar per ord",
-	"when-completing-transcription": "När du slutför transkriptionen"
+	"when-completing-transcription": "När du slutför transkriptionen",
+	"ytdlp-options": "URL -transkriptionsalternativ"
 }

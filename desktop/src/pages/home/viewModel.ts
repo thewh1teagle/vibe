@@ -99,20 +99,33 @@ export function viewModel() {
 	}
 
 	async function switchToLinkTab() {
+		const isUpToDate = config.ytDlpVersion === preference.ytDlpVersion
 		const exists = await ytDlp.exists()
-		if (!exists) {
-			const shouldInstall = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
-				title: t('common.ask-for-install-ytdlp-title'),
-				kind: 'info',
-				cancelLabel: t('common.cancel'),
-				okLabel: t('common.install-now'),
-			})
+		if (!exists || (!isUpToDate && preference.shouldCheckYtDlpVersion)) {
+			let shouldInstall = false
+			if (!isUpToDate) {
+				shouldInstall = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
+					title: t('common.ask-for-update-ytdlp-title'),
+					kind: 'info',
+					cancelLabel: t('common.later'),
+					okLabel: t('common.update-now'),
+				})
+			} else {
+				shouldInstall = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
+					title: t('common.ask-for-install-ytdlp-title'),
+					kind: 'info',
+					cancelLabel: t('common.cancel'),
+					okLabel: t('common.install-now'),
+				})
+			}
+
 			if (shouldInstall) {
 				try {
 					toast.setMessage(t('common.downloading-ytdlp'))
 					toast.setProgress(0)
 					toast.setOpen(true)
 					await ytDlp.downloadYtDlp()
+					preference.setYtDlpVersion(config.ytDlpVersion)
 					toast.setOpen(false)
 					preference.setHomeTabIndex(2)
 				} catch (e) {

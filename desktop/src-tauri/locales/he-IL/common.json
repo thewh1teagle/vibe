@@ -9,6 +9,7 @@
 	"ask-for-relaunch-title": "העדכון הסתיים",
 	"ask-for-update-body": "האם ברצונך לבצע עדכון לגרסה {{version}}?",
 	"ask-for-update-title": "ביצוע עדכון",
+	"ask-for-update-ytdlp-message": "נמצאה גרסת ytdlp חדשה. \nהאם אתה רוצה לעדכן את ytdlp?",
 	"cancel": "ביטול",
 	"cancel-relaunch": "מאוחר יותר",
 	"cancel-update": "מאוחר יותר",
@@ -153,5 +154,6 @@
 	"updating-modal-body": "מעדכן את vibe לגרסה {{version}}",
 	"updating-modal-title": "מעדכן...",
 	"use-word-timestamps": "חותמות זמן לכל מילה",
-	"when-completing-transcription": "בעת השלמת התמלול"
+	"when-completing-transcription": "בעת השלמת התמלול",
+	"ytdlp-options": "אפשרויות תמלול מאתרים"
 }

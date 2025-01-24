@@ -56,6 +56,10 @@ export interface Preference {
 	setFfmpegOptions: ModifyState<FfmpegOptions>
 	resetOptions: () => void
 	enableSubtitlesPreset: () => void
+	ytDlpVersion: string | null
+	setYtDlpVersion: ModifyState<string | null>
+	shouldCheckYtDlpVersion: boolean
+	setShouldCheckYtDlpVersion: ModifyState<boolean>
 }
 
 // Create the context
@@ -109,6 +113,8 @@ const defaultOptions = {
 	diarizeThreshold: 0.5,
 	storeRecordInDocuments: true,
 	llmConfig: defaultOllamaConfig(),
+	ytDlpVersion: null,
+	shouldCheckYtDlpVersion: true,
 }
 
 // Preference provider component
@@ -138,6 +144,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [diarizeThreshold, setDiarizeThreshold] = useLocalStorage<number>('prefs_diarize_threshold', defaultOptions.diarizeThreshold)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
 	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
+	const [ytDlpVersion, setYtDlpVersion] = useLocalStorage<string | null>('prefs_ytdlp_version', null)
+	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = useLocalStorage<boolean>('prefs_should_check_ytdlp_version', true)
 
 	useEffect(() => {
 		setIsFirstRun(false)
@@ -236,6 +244,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setHomeTabIndex,
 		ffmpegOptions,
 		setFfmpegOptions,
+		ytDlpVersion,
+		setYtDlpVersion,
+		shouldCheckYtDlpVersion,
+		setShouldCheckYtDlpVersion,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

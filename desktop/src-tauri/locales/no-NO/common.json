@@ -9,6 +9,7 @@
 	"ask-for-relaunch-title": "Oppdatering fullført",
 	"ask-for-update-body": "Vil du oppdatere Vibe til versjon {{version}}?",
 	"ask-for-update-title": "Bekreft oppdatering",
+	"ask-for-update-ytdlp-message": "Ny YTDLP -versjon funnet. \nVil du oppdatere YTDLP?",
 	"cancel": "Avbryt",
 	"cancel-relaunch": "Senere",
 	"cancel-update": "Senere",
@@ -153,5 +154,6 @@
 	"updating-modal-body": "Oppdaterer Vibe til versjon {{version}}",
 	"updating-modal-title": "Oppdaterer...",
 	"use-word-timestamps": "Ord-tidsstempler",
-	"when-completing-transcription": "Ved fullføring av transkripsjonen"
+	"when-completing-transcription": "Ved fullføring av transkripsjonen",
+	"ytdlp-options": "Alternativer for URL-transkripsjon"
 }

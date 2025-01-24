@@ -165,6 +165,25 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			</div>
 
 			<div className="label mt-10">
+				<span className="label-text flex items-center gap-1">
+					<InfoTooltip text={t('common.ytdlp-options-info')} />
+					{t('common.ytdlp-options')}
+				</span>
+			</div>
+
+			<div className="form-control">
+				<label className="label cursor-pointer">
+					<span className="label-text">{t('common.check-ytdlp-updates')}</span>
+					<input
+						type="checkbox"
+						className="toggle toggle-primary"
+						onChange={(e) => vm.preference.setShouldCheckYtDlpVersion(e.target.checked)}
+						checked={vm.preference.shouldCheckYtDlpVersion}
+					/>
+				</label>
+			</div>
+
+			<div className="label mt-10">
 				<span className="label-text">{t('common.general')}</span>
 			</div>
 

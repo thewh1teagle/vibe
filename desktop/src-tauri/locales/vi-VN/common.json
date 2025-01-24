@@ -9,6 +9,7 @@
 	"ask-for-relaunch-title": "Cập nhật hoàn tất",
 	"ask-for-update-body": "Bạn có muốn cập nhật Vibe lên phiên bản {{version}} không?",
 	"ask-for-update-title": "Xác nhận cập nhật",
+	"ask-for-update-ytdlp-message": "Đã tìm thấy phiên bản ytdlp mới. \nBạn có muốn cập nhật ytdlp không?",
 	"cancel": "Hủy bỏ",
 	"cancel-relaunch": "Để sau",
 	"cancel-update": "Để sau",
@@ -153,5 +154,6 @@
 	"updating-modal-body": "Đang cập nhật Vibe lên phiên bản {{version}}",
 	"updating-modal-title": "Đang cập nhật...",
 	"use-word-timestamps": "Dấu thời gian cho mỗi từ",
-	"when-completing-transcription": "Khi hoàn thành việc chép lại"
+	"when-completing-transcription": "Khi hoàn thành việc chép lại",
+	"ytdlp-options": "Tùy chọn phiên âm URL"
 }

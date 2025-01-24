@@ -9,6 +9,7 @@
 	"ask-for-relaunch-title": "Atualização concluída",
 	"ask-for-update-body": "Deseja atualizar o vibe para a versão {{version}}?",
 	"ask-for-update-title": "Confirmar atualização",
+	"ask-for-update-ytdlp-message": "Nova versão YTDLP encontrada. \nDeseja atualizar o YTDLP?",
 	"cancel": "Cancelar",
 	"cancel-relaunch": "Mais tarde",
 	"cancel-update": "Mais tarde",
@@ -153,5 +154,6 @@
 	"updating-modal-body": "Atualizando o Vibe para a versão {{version}}",
 	"updating-modal-title": "Atualizando....",
 	"use-word-timestamps": "Carimbos de data e hora por cada palavra",
-	"when-completing-transcription": "Ao completar a transcrição"
+	"when-completing-transcription": "Ao completar a transcrição",
+	"ytdlp-options": "Opções de transcrição de URL"
 }

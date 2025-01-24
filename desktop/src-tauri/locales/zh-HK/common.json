@@ -9,6 +9,7 @@
 	"ask-for-relaunch-title": "更新完成",
 	"ask-for-update-body": "您想將 Vibe 更新至 {{version}} 版本嗎？",
 	"ask-for-update-title": "確認更新",
+	"ask-for-update-ytdlp-message": "找到新的 ytdlp 版本。\n您想更新 ytdlp 嗎？",
 	"cancel": "取消",
 	"cancel-relaunch": "稍後重啟",
 	"cancel-update": "稍後更新",
@@ -153,5 +154,6 @@
 	"updating-modal-body": "正在將 Vibe 更新至 {{version}} 版本",
 	"updating-modal-title": "正在更新...",
 	"use-word-timestamps": "使用單詞級時間戳",
-	"when-completing-transcription": "完成轉錄時"
+	"when-completing-transcription": "完成轉錄時",
+	"ytdlp-options": "URL轉錄選項"
 }

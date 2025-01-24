@@ -9,6 +9,7 @@
 	"ask-for-relaunch-title": "अपडेट समाप्त",
 	"ask-for-update-body": "क्या आप वाइब को संस्करण {{version}} में अपडेट करना चाहेंगे?",
 	"ask-for-update-title": "अपडेट की पुष्टि करें",
+	"ask-for-update-ytdlp-message": "नया ytdlp संस्करण मिला. \nक्या आप ytdlp को अपडेट करना चाहते हैं?",
 	"cancel": "रद्द करें",
 	"cancel-relaunch": "बाद में",
 	"cancel-update": "बाद में",
@@ -153,5 +154,6 @@
 	"updating-modal-body": "वाइब को संस्करण {{version}} में अपडेट किया जा रहा है",
 	"updating-modal-title": "अपडेट हो रहा है...",
 	"use-word-timestamps": "प्रत्येक शब्द के टाइमस्टैम्प",
-	"when-completing-transcription": "लेखन पूरा होने पर"
+	"when-completing-transcription": "लेखन पूरा होने पर",
+	"ytdlp-options": "URL प्रतिलेखन विकल्प"
 }
