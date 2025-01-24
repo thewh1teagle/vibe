@@ -10,6 +10,7 @@
 	"ask-for-update-body": "क्या आप वाइब को संस्करण {{version}} में अपडेट करना चाहेंगे?",
 	"ask-for-update-title": "अपडेट की पुष्टि करें",
 	"ask-for-update-ytdlp-message": "नया ytdlp संस्करण मिला. \nक्या आप ytdlp को अपडेट करना चाहते हैं?",
+	"ask-for-update-ytdlp-title": "Ytdlp अद्यतन करें",
 	"cancel": "रद्द करें",
 	"cancel-relaunch": "बाद में",
 	"cancel-update": "बाद में",
@@ -20,6 +21,7 @@
 	"check-error": "जाँच विफल रही",
 	"check-loading": "चेकिंग",
 	"check-success": "सफलतापूर्वक परीक्षण किया गया",
+	"check-ytdlp-updates": "अपडेट के लिए ytdlp की जाँच करें",
 	"confirm-exit": "क्या आपको बाहर निकलना है? \nसहेजे न गए परिवर्तन खो जाएंगे.",
 	"confirm-relaunch": "अब फिर से चालू करें",
 	"confirm-update": "अब अपडेट करें",
@@ -75,6 +77,7 @@
 	"install-now": "अब स्थापित करें",
 	"invalid-llm-prompt": "अमान्य संकेत. \nइसमें निम्नलिखित पैटर्न %s शामिल होना चाहिए जिसे ट्रांसक्रिप्शन के साथ बदल दिया जाएगा।",
 	"language": "भाषा",
+	"later": "बाद में",
 	"leftover": "शेष",
 	"light": "रोशनी",
 	"llm-api-key": "क्लाउड एपीआई कुंजी",
@@ -150,10 +153,12 @@
 	"transcript-will-displayed-shortly": "प्रतिलेख शीघ्र ही यहाँ प्रदर्शित होगा...",
 	"translate-to-english": "अंग्रेजी में अनुवाद करें",
 	"try-again": "फिर से कोशिश करें",
+	"update-now": "अभी अद्यतन करें",
 	"update-version": "वाइब अपडेट करें",
 	"updating-modal-body": "वाइब को संस्करण {{version}} में अपडेट किया जा रहा है",
 	"updating-modal-title": "अपडेट हो रहा है...",
 	"use-word-timestamps": "प्रत्येक शब्द के टाइमस्टैम्प",
 	"when-completing-transcription": "लेखन पूरा होने पर",
-	"ytdlp-options": "URL प्रतिलेखन विकल्प"
+	"ytdlp-options": "URL प्रतिलेखन विकल्प",
+	"ytdlp-options-info": "Vibe URL प्रतिलेखन के लिए YTDLP का उपयोग करता है।"
 }
