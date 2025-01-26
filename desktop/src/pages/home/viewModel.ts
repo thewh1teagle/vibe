@@ -102,16 +102,16 @@ export function viewModel() {
 		const isUpToDate = config.ytDlpVersion === preference.ytDlpVersion
 		const exists = await ytDlp.exists()
 		if (!exists || (!isUpToDate && preference.shouldCheckYtDlpVersion)) {
-			let shouldInstall = false
+			let shouldInstallOrUpdate = false
 			if (!isUpToDate) {
-				shouldInstall = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
+				shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
 					title: t('common.ask-for-update-ytdlp-title'),
 					kind: 'info',
 					cancelLabel: t('common.later'),
 					okLabel: t('common.update-now'),
 				})
 			} else {
-				shouldInstall = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
+				shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
 					title: t('common.ask-for-install-ytdlp-title'),
 					kind: 'info',
 					cancelLabel: t('common.cancel'),
@@ -119,7 +119,7 @@ export function viewModel() {
 				})
 			}
 
-			if (shouldInstall) {
+			if (shouldInstallOrUpdate) {
 				try {
 					toast.setMessage(t('common.downloading-ytdlp'))
 					toast.setProgress(0)
@@ -130,9 +130,10 @@ export function viewModel() {
 					preference.setHomeTabIndex(2)
 				} catch (e) {
 					console.error(e)
-
 					setErrorModal?.({ log: String(e), open: true })
 				}
+			} else if (exists) {
+				preference.setHomeTabIndex(2)
 			}
 		} else {
 			preference.setHomeTabIndex(2)
