@@ -36,6 +36,8 @@ export interface Preference {
 	setStoreRecordInDocuments: ModifyState<boolean>
 	gpuDevice: number
 	setGpuDevice: ModifyState<number>
+	useGpu: boolean | null
+	setUseGpu: ModifyState<boolean | null>
 
 	highGraphicsPreference: boolean
 	setHighGraphicsPreference: ModifyState<boolean>
@@ -125,6 +127,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
+	const [useGpu, setUseGpu] = useLocalStorage<boolean | null>('prefs_use_gpu', true)
 
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
@@ -205,6 +208,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}
 
 	const preference: Preference = {
+		useGpu,
+		setUseGpu,
 		enableSubtitlesPreset,
 		llmConfig,
 		resetOptions,

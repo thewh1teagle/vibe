@@ -200,7 +200,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
-    let ctx = transcribe::create_context(&model_path, None)?;
+    let ctx = transcribe::create_context(&model_path, None, None)?;
     #[allow(unused_mut)]
     let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None, None)?;
 

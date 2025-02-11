@@ -1,6 +1,7 @@
 use eyre::Result;
-use std::{panic, sync::Arc};
+use std::{fs, panic, sync::Arc};
 use tauri::AppHandle;
+use vibe_core::get_vibe_temp_folder;
 
 pub fn set_panic_hook(app: &AppHandle) -> Result<()> {
     let log_path = crate::logging::get_log_path(app)?;
@@ -20,6 +21,10 @@ pub fn set_panic_hook(app: &AppHandle) -> Result<()> {
         eprintln!("{}", message);
         // do whatever with the message
         tracing::error!(message);
+
+        // Write to panic.txt
+        let _ = fs::write(get_vibe_temp_folder().join("crash.txt"), message);
+
         // Open the log path in release mode
         if !cfg!(debug_assertions) && !crate::cli::is_cli_detected() {
             showfile::show_path_in_file_manager(log_path.as_path());

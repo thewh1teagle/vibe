@@ -17,6 +17,7 @@ use tauri::{
 use tauri::{Emitter, Listener, State};
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
+use vibe_core::get_vibe_temp_folder;
 use vibe_core::transcript::Segment;
 use vibe_core::transcript::Transcript;
 pub mod audio;
@@ -424,28 +425,35 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
+pub async fn load_model(
+    app_handle: tauri::AppHandle,
+    model_path: String,
+    gpu_device: Option<i32>,
+    use_gpu: Option<bool>,
+) -> Result<String> {
     let model_context_state: State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
     let mut state_guard = model_context_state.lock().await;
     if let Some(state) = state_guard.as_ref() {
         // check if new path is different
-        if model_path != state.path || gpu_device != state.gpu_device {
+        if model_path != state.path || gpu_device != state.gpu_device || use_gpu != state.use_gpu {
             tracing::debug!("model path or gpu device changed. reloading");
             // reload
-            let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device)?;
+            let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
             *state_guard = Some(ModelContext {
                 path: model_path.clone(),
                 handle: context,
                 gpu_device,
+                use_gpu,
             });
         }
     } else {
         tracing::debug!("loading model first time");
-        let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device)?;
+        let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
         *state_guard = Some(ModelContext {
             path: model_path.clone(),
             handle: context,
             gpu_device,
+            use_gpu,
         });
     }
     Ok(model_path)
@@ -543,6 +551,22 @@ pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
     let path = crate::logging::get_log_path(&app_handle)?;
     let content = std::fs::read_to_string(path)?;
     Ok(content)
+}
+
+#[tauri::command]
+pub fn is_crashed_recently() -> bool {
+    tracing::debug!("checking path {}", get_vibe_temp_folder().join("crash.txt").display());
+    get_vibe_temp_folder().join("crash.txt").exists()
+}
+
+#[tauri::command]
+pub fn rename_crash_file() -> Result<()> {
+    std::fs::rename(
+        get_vibe_temp_folder().join("crash.txt"),
+        // TODO: save all crashed?
+        get_vibe_temp_folder().join("crash.1.txt"),
+    )
+    .context("Can't delete file")
 }
 
 #[tauri::command]
