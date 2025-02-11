@@ -31,34 +31,27 @@ jobs:
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
 
-            - name: Install dependencies
-              run: bun install
-              working-directory: landing
-
-            - name: Update downloads manifest
-              run: bun run scripts/landing_links.js
-              env:
-                GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-            - name: Setup Pages
-              uses: actions/configure-pages@v3
-              with:
-                  static_site_generator: sveltekit
-                  working-directory: landing
-
             - name: Build
               run: |
+                bun install
+                bun run scripts/landing_links.js
                 cp -rf ../docs static/
                 bun run build
               working-directory: landing
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+            - name: Setup Pages
+              uses: actions/configure-pages@v5
+              with:
+                  static_site_generator: sveltekit
+                  working-directory: landing
+
             - name: Upload Artifacts
               uses: actions/upload-pages-artifact@v3
               with:
                   # this should match the `pages` option in your adapter-static options
-                  path: "landing/build/"
+                  path: landing/build
 
     deploy:
         needs: build
@@ -71,4 +64,4 @@ jobs:
         steps:
             - name: Deploy
               id: deployment
-              uses: actions/deploy-pages@v3
+              uses: actions/deploy-pages@v4
