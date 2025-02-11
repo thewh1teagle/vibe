@@ -54,7 +54,7 @@ struct LoadPayload {
 	),
 )]
 async fn load(State(app_handle): State<tauri::AppHandle>, Json(payload): Json<LoadPayload>) -> Result<String, String> {
-    cmd::load_model(app_handle, payload.model_path, payload.gpu_device)
+    cmd::load_model(app_handle, payload.model_path, payload.gpu_device, None)
         .await
         .map_err(|e| e.to_string())
 }
