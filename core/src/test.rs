@@ -13,7 +13,7 @@ use tracing_test::traced_test;
 #[serial]
 #[traced_test]
 fn test_transcribe() {
-    let ctx = create_context(&PathBuf::from("../ggml-tiny.bin"), None).unwrap();
+    let ctx = create_context(&PathBuf::from("../ggml-tiny.bin"), None, None).unwrap();
     let options = &TranscribeOptions {
         init_prompt: None,
         lang: Some("en".into()),

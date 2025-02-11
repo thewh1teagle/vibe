@@ -16,16 +16,15 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContextParameters};
 type ProgressCallbackType = once_cell::sync::Lazy<Mutex<Option<Box<dyn Fn(i32) + Send + Sync>>>>;
 static PROGRESS_CALLBACK: ProgressCallbackType = once_cell::sync::Lazy::new(|| Mutex::new(None));
 
-pub fn create_context(model_path: &Path, gpu_device: Option<i32>) -> Result<WhisperContext> {
+pub fn create_context(model_path: &Path, gpu_device: Option<i32>, use_gpu: Option<bool>) -> Result<WhisperContext> {
     whisper_rs::install_whisper_tracing_trampoline();
     tracing::debug!("open model...");
     if !model_path.exists() {
         bail!("whisper file doesn't exist")
     }
     let mut ctx_params = WhisperContextParameters::default();
-    if !env!("CUDA_VERSION").is_empty() || !env!("ROCM_VERSION").is_empty() {
-        // Nvidia or AMD
-        ctx_params.use_gpu = true;
+    if let Some(use_gpu) = use_gpu {
+        ctx_params.use_gpu = use_gpu;
     }
     // set GPU device number from preference
     if let Some(gpu_device) = gpu_device {

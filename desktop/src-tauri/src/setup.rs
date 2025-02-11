@@ -19,6 +19,7 @@ pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::
 pub struct ModelContext {
     pub path: String,
     pub gpu_device: Option<i32>,
+    pub use_gpu: Option<bool>,
     pub handle: WhisperContext,
 }
 

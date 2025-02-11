@@ -70,6 +70,21 @@ export function viewModel() {
 			setAudio(new Audio(convertFileSrc(files[0].path)))
 		}
 	}
+
+	async function checkIfCrashedRecently() {
+		const isCrashed = await invoke<boolean>('is_crashed_recently')
+		console.log('is crashed', isCrashed)
+		if (isCrashed) {
+			preference.setUseGpu(false)
+			dialog.message(t('common.crashed-recently'))
+			await invoke('rename_crash_file')
+		}
+	}
+
+	useEffect(() => {
+		checkIfCrashedRecently()
+	}, [])
+
 	useEffect(() => {
 		onFilesChanged()
 	}, [files])
@@ -324,7 +339,7 @@ export function viewModel() {
 
 		var newSegments: transcript.Segment[] = []
 		try {
-			await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
+			await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice, useGpu: preference.useGpu })
 			const options = {
 				path,
 				...preference.modelOptions,

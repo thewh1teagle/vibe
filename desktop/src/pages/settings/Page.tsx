@@ -221,6 +221,17 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					type="number"
 				/>
 			</label>
+			<div className="form-control">
+				<label className="label cursor-pointer">
+					<span className="label-text">{t('common.use-gpu')}</span>
+					<input
+						type="checkbox"
+						className="toggle toggle-primary"
+						onChange={(e) => vm.preference.setUseGpu(e.target.checked)}
+						checked={Boolean(vm.preference.useGpu)}
+					/>
+				</label>
+			</div>
 			{platform === 'windows' && (
 				<div className="form-control w-full mt-3">
 					<label className="label cursor-pointer">

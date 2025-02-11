@@ -93,6 +93,8 @@ fn main() -> Result<()> {
             cmd::get_ffmpeg_path,
             cmd::ytdlp::download_audio,
             cmd::ytdlp::get_temp_path,
+            cmd::is_crashed_recently,
+            cmd::rename_crash_file,
             #[cfg(windows)]
             cmd::set_high_gpu_preference
         ])
