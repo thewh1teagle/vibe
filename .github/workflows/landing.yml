@@ -47,13 +47,15 @@ jobs:
                   working-directory: landing
 
             - name: Build
-              run: bun run build
+              run: |
+                cp -rf ../docs static/
+                bun run build
               working-directory: landing
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
             - name: Upload Artifacts
-              uses: actions/upload-pages-artifact@v1
+              uses: actions/upload-pages-artifact@v4
               with:
                   # this should match the `pages` option in your adapter-static options
                   path: "landing/build/"

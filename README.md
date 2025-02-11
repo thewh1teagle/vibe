@@ -69,7 +69,7 @@
 
 # Install notes
 
-See [Install.md](landing/static/docs/install.md)
+See [Install.md](docs/install.md)
 
 # Contribute 🤝
 
@@ -100,7 +100,7 @@ In addition you can add translation to [Vibe website](https://thewh1teagle.githu
 
 # Build 🛠️
 
-see [BUILDING.md](landing/static/docs/building.md)
+see [BUILDING.md](docs/building.md)
 
 # I want to know more!
 
