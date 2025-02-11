@@ -67,10 +67,6 @@
 `Windows`
 `Linux`
 
-# Install notes
-
-See [Install.md](docs/install.md)
-
 # Contribute 🤝
 
 PRs are welcomed!
@@ -98,9 +94,9 @@ You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/
 
 In addition you can add translation to [Vibe website](https://thewh1teagle.github.io/vibe/) by creating new files in the `landing/static/locales`.
 
-# Build 🛠️
+# Docs 📄
 
-see [BUILDING.md](docs/building.md)
+see [Vibe Docs](https://github.com/thewh1teagle/vibe/tree/main/docs)
 
 # I want to know more!
 
