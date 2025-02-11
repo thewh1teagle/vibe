@@ -34,7 +34,7 @@ jobs:
             - name: Build
               run: |
                 bun install
-                bun run scripts/landing_links.js
+                bun run ../scripts/landing_links.js
                 cp -rf ../docs static/
                 bun run build
               working-directory: landing
