@@ -1,18 +1,22 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{FromSample, Sample, Stream};
 use eyre::{bail, eyre, Context, ContextCompat, Result};
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Listener, Manager};
+use vibe_core::config::TranscribeOptions;
 use vibe_core::get_vibe_temp_folder;
 
 #[cfg(target_os = "macos")]
 use crate::screen_capture_kit;
 
+use crate::setup::STATIC_APP;
 use crate::utils::{get_local_time, random_string, LogError};
 
 type WavWriterHandle = Arc<Mutex<Option<hound::WavWriter<BufWriter<File>>>>>;
@@ -73,10 +77,101 @@ struct StreamHandle(Stream);
 unsafe impl Send for StreamHandle {}
 unsafe impl Sync for StreamHandle {}
 
+static SPEECH_BUF: Lazy<Mutex<Vec<f32>>> = Lazy::new(|| Mutex::new(Vec::new()));
+static IS_TRANSCRIBE: Lazy<Arc<AtomicBool>> = Lazy::new(|| Arc::new(AtomicBool::new(false)));
+
+pub fn audio_resample(data: &[f32], sample_rate0: u32, sample_rate: u32, channels: u16) -> Vec<f32> {
+    use samplerate::{convert, ConverterType};
+    convert(
+        sample_rate0 as _,
+        sample_rate as _,
+        channels as _,
+        ConverterType::SincBestQuality,
+        data,
+    )
+    .unwrap_or_default()
+}
+
+pub fn stereo_to_mono(stereo_data: &mut [f32]) -> Result<()> {
+    if stereo_data.len() % 2 != 0 {
+        bail!("Stereo data length should be even.");
+    }
+
+    let half_len = stereo_data.len() / 2;
+    for i in 0..half_len {
+        let left = stereo_data[i * 2]; // Left channel
+        let right = stereo_data[i * 2 + 1]; // Right channel
+        stereo_data[i] = (left + right) / 2.0; // Store the mono value in place
+    }
+
+    Ok(())
+}
+
+const COLLECT_DURATION: usize = 16000 * 5;
+
+static RECORD_OFFSET: AtomicI64 = AtomicI64::new(0);
+
+fn collect_audio_and_transcribe<T, U>(input: &[T], sample_rate: u32, channels: u16, transcribe_options: &TranscribeOptions)
+where
+    T: Sample,
+{
+    let ctx = crate::setup::MODEL_CONTEXT.lock().unwrap();
+    let ctx = ctx.as_ref().unwrap();
+    let samples: Vec<f32> = input.iter().map(|s| s.to_float_sample().to_sample()).collect();
+    let mut speech_buf = SPEECH_BUF.lock().unwrap();
+    let speech_buf: &mut Vec<f32> = &mut *speech_buf;
+    speech_buf.extend(samples.clone());
+
+    if IS_TRANSCRIBE.load(Ordering::SeqCst) || speech_buf.len() < COLLECT_DURATION {
+        return;
+    }
+
+    // Start
+    let samples = &mut speech_buf.as_mut();
+    if channels != 1 {
+        stereo_to_mono(samples).unwrap();
+    }
+
+    let samples = audio_resample(&samples, sample_rate, 16000, 1);
+    let samples: Vec<i16> = samples
+        .iter()
+        .map(|&s| (s * i16::MAX as f32).round() as i16) // Scale, round, and convert to i16
+        .collect();
+
+    IS_TRANSCRIBE.store(true, Ordering::SeqCst);
+
+    let mut segments =
+        vibe_core::transcribe::transcribe_samples(&ctx.handle, transcribe_options, None, None, None, None, &samples, true)
+            .unwrap();
+
+    let record_offset = RECORD_OFFSET.load(Ordering::SeqCst);
+    for s in &mut segments {
+        s.start += record_offset;
+        s.stop += record_offset;
+    }
+    // tracing::debug!("segments: {:?}", segments);
+    let app_handle = STATIC_APP.lock().unwrap();
+    let app_handle = app_handle.as_ref().unwrap();
+    app_handle
+        .clone()
+        .emit_to("main", "new_segment", segments)
+        .map_err(|e| eyre!("{:?}", e))
+        .log_error();
+    let transcribed_len = samples.len();
+    RECORD_OFFSET.store(record_offset + (transcribed_len as i64), Ordering::SeqCst);
+    speech_buf.drain(0..transcribed_len);
+    IS_TRANSCRIBE.store(false, Ordering::SeqCst);
+}
+
 #[tauri::command]
-/// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-/// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, store_in_documents: bool) -> Result<()> {
+pub async fn start_record(
+    app_handle: AppHandle,
+    devices: Vec<AudioDevice>,
+    store_in_documents: bool,
+    instant_transcribe: bool,
+    options: vibe_core::config::TranscribeOptions,
+) -> Result<()> {
+    RECORD_OFFSET.store(0, Ordering::SeqCst);
     let host = cpal::default_host();
 
     let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();
@@ -87,6 +182,10 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
     let mut screencapture_stream: Option<_> = None;
 
     for device in devices {
+        let options = options.clone();
+        if !device.is_input == true && instant_transcribe {
+            continue;
+        }
         tracing::debug!("Recording from device: {}", device.name);
         tracing::debug!("Device ID: {}", device.id);
 
@@ -107,6 +206,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
             } else {
                 device.default_output_config().context("Failed to get default input config")?
             };
+            tracing::debug!("recording config: {:?} {:?}", config.channels(), config.sample_rate());
+            let sample_rate = config.sample_rate().0;
+            let channels = config.channels();
             let spec = wav_spec_from_config(&config);
 
             let path = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
@@ -127,6 +229,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                     &config.into(),
                     move |data, _: &_| {
                         tracing::trace!("Writing input data (I8)");
+                        if instant_transcribe {
+                            collect_audio_and_transcribe::<i8, i8>(data, sample_rate, channels, &options);
+                        }
                         write_input_data::<i8, i8>(data, &writer_2)
                     },
                     err_fn,
@@ -136,6 +241,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                     &config.into(),
                     move |data, _: &_| {
                         tracing::trace!("Writing input data (I16)");
+                        if instant_transcribe {
+                            collect_audio_and_transcribe::<i16, i16>(data, sample_rate, channels, &options);
+                        }
                         write_input_data::<i16, i16>(data, &writer_2)
                     },
                     err_fn,
@@ -145,6 +253,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                     &config.into(),
                     move |data, _: &_| {
                         tracing::trace!("Writing input data (I32)");
+                        if instant_transcribe {
+                            collect_audio_and_transcribe::<i32, i32>(data, sample_rate, channels, &options);
+                        }
                         write_input_data::<i32, i32>(data, &writer_2)
                     },
                     err_fn,
@@ -154,6 +265,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
                     &config.into(),
                     move |data, _: &_| {
                         tracing::trace!("Writing input data (F32)");
+                        if instant_transcribe {
+                            collect_audio_and_transcribe::<f32, f32>(data, sample_rate, channels, &options);
+                        }
                         write_input_data::<f32, f32>(data, &writer_2)
                     },
                     err_fn,
@@ -173,7 +287,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
     }
 
     let app_handle_clone = app_handle.clone();
+    tracing::debug!("listen on stop record");
     app_handle.once("stop_record", move |_event| {
+        tracing::debug!("stop record");
         for (i, stream_handle) in stream_handles.iter().enumerate() {
             let stream_handle = stream_handle.lock().map_err(|e| eyre!("{:?}", e)).log_error();
             if let Some(mut stream_handle) = stream_handle {

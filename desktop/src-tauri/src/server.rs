@@ -102,11 +102,11 @@ async fn transcribe(
     State(app_handle): State<tauri::AppHandle>,
     Json(payload): Json<TranscribeOptions>,
 ) -> Result<Json<Transcript>, (StatusCode, String)> {
-    let model_context_state: tauri::State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
+    let model_context = crate::setup::MODEL_CONTEXT;
     let transcript = cmd::transcribe(
         app_handle.clone(),
         payload,
-        model_context_state,
+        model_context,
         DiarizeOptions::default(),
         FfmpegOptions::default(),
     )

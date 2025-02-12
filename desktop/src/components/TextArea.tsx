@@ -135,6 +135,7 @@ export default function TextArea({
 	placeholder?: string
 	file: NamedPath
 }) {
+	console.log('textarea segments => ', segments)
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const [text, setText] = useState('')

@@ -1,5 +1,5 @@
 use crate::config::{DEAFULT_MODEL_FILENAME, DEFAULT_MODEL_URLS, STORE_FILENAME};
-use crate::setup::ModelContext;
+use crate::setup::{ModelContext, MODEL_CONTEXT};
 use crate::utils::{get_current_dir, LogError};
 use eyre::{bail, eyre, Context, ContextCompat, OptionExt, Result};
 use serde::{Deserialize, Serialize};
@@ -14,9 +14,8 @@ use tauri::{
     window::{ProgressBarState, ProgressBarStatus},
     Manager,
 };
-use tauri::{Emitter, Listener, State};
+use tauri::{Emitter, Listener};
 use tauri_plugin_store::StoreExt;
-use tokio::sync::Mutex;
 use vibe_core::get_vibe_temp_folder;
 use vibe_core::transcript::Segment;
 use vibe_core::transcript::Transcript;
@@ -260,21 +259,20 @@ impl FfmpegOptions {
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
     options: vibe_core::config::TranscribeOptions,
-    model_context_state: State<'_, Mutex<Option<ModelContext>>>,
     diarize_options: DiarizeOptions,
     ffmpeg_options: FfmpegOptions,
 ) -> Result<Transcript> {
-    let model_context = model_context_state.lock().await;
-    if model_context.is_none() {
+    let ctx = MODEL_CONTEXT.lock().unwrap();
+    if ctx.is_none() {
         bail!("Please load model first")
     }
-    let ctx = model_context.as_ref().context("as ref")?;
+    let ctx = ctx.as_ref().context("as ref")?;
     let app_handle_c = app_handle.clone();
 
     let new_segment_callback = move |segment: Segment| {
         app_handle_c
             .clone()
-            .emit_to("main", "new_segment", segment)
+            .emit_to("main", "new_segment", vec![segment])
             .map_err(|e| eyre!("{:?}", e))
             .log_error();
     };
@@ -321,7 +319,7 @@ pub async fn transcribe(
     let ffmpeg_options = ffmpeg_options.to_vec();
     tracing::debug!("ffmpeg additiona options: {:?}", ffmpeg_options);
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
-        vibe_core::transcribe::transcribe(
+        vibe_core::transcribe::transcribe_file(
             &ctx.handle,
             &options,
             Some(Box::new(progress_callback)),
@@ -425,21 +423,15 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub async fn load_model(
-    app_handle: tauri::AppHandle,
-    model_path: String,
-    gpu_device: Option<i32>,
-    use_gpu: Option<bool>,
-) -> Result<String> {
-    let model_context_state: State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
-    let mut state_guard = model_context_state.lock().await;
-    if let Some(state) = state_guard.as_ref() {
+pub async fn load_model(model_path: String, gpu_device: Option<i32>, use_gpu: Option<bool>) -> Result<String> {
+    let mut ctx_guard = crate::setup::MODEL_CONTEXT.lock().unwrap();
+    if let Some(state) = ctx_guard.as_ref() {
         // check if new path is different
         if model_path != state.path || gpu_device != state.gpu_device || use_gpu != state.use_gpu {
             tracing::debug!("model path or gpu device changed. reloading");
             // reload
             let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
-            *state_guard = Some(ModelContext {
+            *ctx_guard = Some(ModelContext {
                 path: model_path.clone(),
                 handle: context,
                 gpu_device,
@@ -449,7 +441,7 @@ pub async fn load_model(
     } else {
         tracing::debug!("loading model first time");
         let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
-        *state_guard = Some(ModelContext {
+        *ctx_guard = Some(ModelContext {
             path: model_path.clone(),
             handle: context,
             gpu_device,

@@ -34,6 +34,8 @@ export interface Preference {
 	setTheme: ModifyState<'light' | 'dark'>
 	storeRecordInDocuments: boolean
 	setStoreRecordInDocuments: ModifyState<boolean>
+	recordInstantTranscribe: boolean
+	setRecordInstantTranscribe: ModifyState<boolean>
 	gpuDevice: number
 	setGpuDevice: ModifyState<number>
 	useGpu: boolean | null
@@ -114,6 +116,7 @@ const defaultOptions = {
 	maxSpeakers: 5,
 	diarizeThreshold: 0.5,
 	storeRecordInDocuments: true,
+	recordInstantTranscribe: false,
 	llmConfig: defaultOllamaConfig(),
 	ytDlpVersion: null,
 	shouldCheckYtDlpVersion: true,
@@ -146,6 +149,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [maxSpeakers, setMaxSpeakers] = useLocalStorage<number>('prefs_max_speakers', defaultOptions.maxSpeakers)
 	const [diarizeThreshold, setDiarizeThreshold] = useLocalStorage<number>('prefs_diarize_threshold', defaultOptions.diarizeThreshold)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
+	const [recordInstantTranscribe, setRecordInstantTranscribe] = useLocalStorage('prefs_record_instant_transcribe', defaultOptions.recordInstantTranscribe)
 	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
 	const [ytDlpVersion, setYtDlpVersion] = useLocalStorage<string | null>('prefs_ytdlp_version', null)
 	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = useLocalStorage<boolean>('prefs_should_check_ytdlp_version', true)
@@ -208,6 +212,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}
 
 	const preference: Preference = {
+		recordInstantTranscribe,
+		setRecordInstantTranscribe,
 		useGpu,
 		setUseGpu,
 		enableSubtitlesPreset,

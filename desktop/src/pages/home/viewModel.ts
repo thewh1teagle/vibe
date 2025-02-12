@@ -40,6 +40,7 @@ export function viewModel() {
 	const navigate = useNavigate()
 	const [loading, setLoading] = useState(false)
 	const [isRecording, setIsRecording] = useState(false)
+	const isRecordingRef = useRef<boolean>(false)
 	const abortRef = useRef<boolean>(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
@@ -162,9 +163,15 @@ export function viewModel() {
 				setProgress(value)
 			}
 		})
-		await listen<transcript.Segment>('new_segment', (event) => {
-			const { payload } = event
-			setSegments((prev) => (prev ? [...prev, payload] : [payload]))
+		await listen<transcript.Segment[]>('new_segment', (event) => {
+			let { payload } = event
+			console.log(isRecordingRef.current, preference.recordInstantTranscribe)
+			if (isRecordingRef.current && preference.recordInstantTranscribe) {
+				// filter blank
+
+				payload = payload.filter((s) => !s.text.trim().startsWith('[BLANK'))
+			}
+			setSegments((prev) => [...(prev ?? []), ...payload])
 		})
 	}
 
@@ -174,7 +181,10 @@ export function viewModel() {
 			preference.setHomeTabIndex(1)
 			setFiles([{ name, path }])
 			setIsRecording(false)
-			transcribe(path)
+			isRecordingRef.current = false
+			if (!preference.recordInstantTranscribe) {
+				transcribe(path)
+			}
 		})
 	}
 
@@ -308,11 +318,10 @@ export function viewModel() {
 
 	async function startRecord() {
 		startKeepAwake()
-		setSegments(null)
+		setSegments(preference.recordInstantTranscribe ? [] : null)
 		setSummarizeSegments(null)
 		setTranscriptTab('transcript')
 
-		setIsRecording(true)
 		let devices: AudioDevice[] = []
 		if (inputDevice) {
 			devices.push(inputDevice)
@@ -320,7 +329,22 @@ export function viewModel() {
 		if (outputDevice) {
 			devices.push(outputDevice)
 		}
-		invoke('start_record', { devices, storeInDocuments: preference.storeRecordInDocuments })
+		await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice, useGpu: preference.useGpu })
+		console.log('set is recording to true', isRecording)
+		setIsRecording(true)
+		isRecordingRef.current = true
+
+		const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
+		const options = {
+			path: '',
+			...preference.modelOptions,
+		}
+		invoke('start_record', {
+			devices,
+			storeInDocuments: preference.storeRecordInDocuments,
+			instantTranscribe: preference.recordInstantTranscribe,
+			options,
+		})
 	}
 
 	async function stopRecord() {

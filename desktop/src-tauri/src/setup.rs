@@ -15,6 +15,7 @@ use tokio::sync::Mutex;
 use vibe_core::transcribe::WhisperContext;
 
 pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
+pub static MODEL_CONTEXT: Lazy<std::sync::Mutex<Option<ModelContext>>> = Lazy::new(|| std::sync::Mutex::new(None));
 
 pub struct ModelContext {
     pub path: String,

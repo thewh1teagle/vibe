@@ -1,7 +1,7 @@
 use core::fmt;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 #[cfg_attr(feature = "server", derive(utoipa::ToSchema))]
 
 pub struct TranscribeOptions {

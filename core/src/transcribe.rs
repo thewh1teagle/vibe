@@ -144,37 +144,25 @@ pub struct DiarizeOptions {
     pub max_speakers: usize,
 }
 
-pub fn transcribe(
+pub fn transcribe_samples(
     ctx: &WhisperContext,
     options: &TranscribeOptions,
     progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
     new_segment_callback: Option<Box<dyn Fn(Segment)>>,
     abort_callback: Option<Box<dyn Fn() -> bool>>,
     diarize_options: Option<DiarizeOptions>,
-    additional_ffmpeg_args: Option<Vec<String>>,
-) -> Result<Transcript> {
+    original_samples: &[i16],
+    is_streaming: bool,
+) -> Result<Vec<Segment>> {
     tracing::debug!("Transcribe called with {:?}", options);
-
-    if !PathBuf::from(options.path.clone()).exists() {
-        bail!("audio file doesn't exist")
-    }
-
-    let out_path = if should_normalize(options.path.clone().into()) {
-        create_normalized_audio(options.path.clone().into(), additional_ffmpeg_args)?
-    } else {
-        tracing::debug!("Skip normalize");
-        options.path.clone().into()
-    };
-    tracing::debug!("out path is {}", out_path.display());
-    let original_samples = audio::parse_wav_file(&out_path)?;
 
     let mut state = ctx.create_state().context("failed to create key")?;
 
     let mut params = setup_params(options);
+    params.set_single_segment(is_streaming);
 
     let mut segments = Vec::new();
 
-    let st = std::time::Instant::now();
     if let Some(diarize_options) = diarize_options {
         tracing::debug!("Diarize enabled {:?}", diarize_options);
         params.set_single_segment(true);
@@ -322,6 +310,45 @@ pub fn transcribe(
             });
         }
     }
+
+    Ok(segments)
+}
+
+pub fn transcribe_file(
+    ctx: &WhisperContext,
+    options: &TranscribeOptions,
+    progress_callback: Option<Box<dyn Fn(i32) + Send + Sync>>,
+    new_segment_callback: Option<Box<dyn Fn(Segment)>>,
+    abort_callback: Option<Box<dyn Fn() -> bool>>,
+    diarize_options: Option<DiarizeOptions>,
+    additional_ffmpeg_args: Option<Vec<String>>,
+) -> Result<Transcript> {
+    tracing::debug!("Transcribe called with {:?}", options);
+
+    if !PathBuf::from(options.path.clone()).exists() {
+        bail!("audio file doesn't exist")
+    }
+
+    let out_path = if should_normalize(options.path.clone().into()) {
+        create_normalized_audio(options.path.clone().into(), additional_ffmpeg_args)?
+    } else {
+        tracing::debug!("Skip normalize");
+        options.path.clone().into()
+    };
+    tracing::debug!("out path is {}", out_path.display());
+    let original_samples = audio::parse_wav_file(&out_path)?;
+
+    let st = std::time::Instant::now();
+    let segments = transcribe_samples(
+        ctx,
+        options,
+        progress_callback,
+        new_segment_callback,
+        abort_callback,
+        diarize_options,
+        &original_samples,
+        false,
+    )?;
 
     #[allow(unused_mut)]
     let mut transcript = Transcript {
