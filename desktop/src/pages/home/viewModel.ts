@@ -334,7 +334,6 @@ export function viewModel() {
 		setIsRecording(true)
 		isRecordingRef.current = true
 
-		const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
 		const options = {
 			path: '',
 			...preference.modelOptions,
