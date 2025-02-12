@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 pub struct TranscribeOptions {
     pub path: String,
+    pub instant_transcribe_frequency: Option<i64>,
     pub lang: Option<String>,
     pub verbose: Option<bool>,
 

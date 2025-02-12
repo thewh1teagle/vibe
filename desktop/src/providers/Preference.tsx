@@ -38,6 +38,8 @@ export interface Preference {
 	setRecordInstantTranscribe: ModifyState<boolean>
 	gpuDevice: number
 	setGpuDevice: ModifyState<number>
+	instantTranscribeFrequency: number
+	setInstantTranscribeFrequency: ModifyState<number>
 	useGpu: boolean | null
 	setUseGpu: ModifyState<boolean | null>
 
@@ -94,6 +96,7 @@ export interface ModelOptions {
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
 const defaultOptions = {
+	instantTranscribeFrequency: 30,
 	gpuDevice: 0,
 	soundOnFinish: true,
 	focusOnFinish: true,
@@ -130,6 +133,11 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
+	const [instantTranscribeFrequency, setInstantTranscribeFrequency] = useLocalStorage<number>(
+		'prefs_instant_transcribe_frequency',
+		defaultOptions.instantTranscribeFrequency
+	)
+
 	const [useGpu, setUseGpu] = useLocalStorage<boolean | null>('prefs_use_gpu', true)
 
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
@@ -212,6 +220,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}
 
 	const preference: Preference = {
+		instantTranscribeFrequency,
+		setInstantTranscribeFrequency,
 		recordInstantTranscribe,
 		setRecordInstantTranscribe,
 		useGpu,

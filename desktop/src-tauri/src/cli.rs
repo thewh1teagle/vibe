@@ -195,6 +195,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         max_text_ctx: args.max_text_ctx,
         word_timestamps: Some(args.word_timestamps),
         max_sentence_len: args.max_sentence_len,
+        instant_transcribe_frequency: None,
     };
     let model_path = prepare_model_path(&args.model.context("model")?, app_handle)?;
 

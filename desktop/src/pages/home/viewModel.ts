@@ -336,11 +336,13 @@ export function viewModel() {
 
 		const options = {
 			path: '',
+			instant_transcribe_frequency: preference.instantTranscribeFrequency,
 			...preference.modelOptions,
 		}
 		invoke('start_record', {
 			devices,
 			storeInDocuments: preference.storeRecordInDocuments,
+
 			instantTranscribe: preference.recordInstantTranscribe,
 			options,
 		})

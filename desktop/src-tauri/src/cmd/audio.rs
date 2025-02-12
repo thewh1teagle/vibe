@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Listener, Manager};
+use tracing_log::log;
 use vibe_core::config::TranscribeOptions;
 use vibe_core::get_vibe_temp_folder;
 
@@ -107,14 +108,13 @@ pub fn stereo_to_mono(stereo_data: &mut [f32]) -> Result<()> {
     Ok(())
 }
 
-const COLLECT_DURATION: usize = 16000 * 5;
-
 static RECORD_OFFSET: AtomicI64 = AtomicI64::new(0);
 
 fn collect_audio_and_transcribe<T, U>(input: &[T], sample_rate: u32, channels: u16, transcribe_options: &TranscribeOptions)
 where
     T: Sample,
 {
+    log::debug!("{:?}", transcribe_options);
     let ctx = crate::setup::MODEL_CONTEXT.lock().unwrap();
     let ctx = ctx.as_ref().unwrap();
     let samples: Vec<f32> = input.iter().map(|s| s.to_float_sample().to_sample()).collect();
@@ -122,7 +122,14 @@ where
     let speech_buf: &mut Vec<f32> = &mut *speech_buf;
     speech_buf.extend(samples.clone());
 
-    if IS_TRANSCRIBE.load(Ordering::SeqCst) || speech_buf.len() < COLLECT_DURATION {
+    // Already in progress
+    if IS_TRANSCRIBE.load(Ordering::SeqCst) {
+        return;
+    }
+
+    // Wait until the buffer is filled for normal transcription
+
+    if speech_buf.len() < transcribe_options.instant_transcribe_frequency.unwrap_or(30) as usize * 16000 {
         return;
     }
 
@@ -142,7 +149,7 @@ where
 
     let mut segments =
         vibe_core::transcribe::transcribe_samples(&ctx.handle, transcribe_options, None, None, None, None, &samples, true)
-            .unwrap();
+            .unwrap_or_default();
 
     let record_offset = RECORD_OFFSET.load(Ordering::SeqCst);
     for s in &mut segments {
@@ -172,6 +179,7 @@ pub async fn start_record(
     options: vibe_core::config::TranscribeOptions,
 ) -> Result<()> {
     RECORD_OFFSET.store(0, Ordering::SeqCst);
+
     let host = cpal::default_host();
 
     let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();
