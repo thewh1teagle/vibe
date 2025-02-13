@@ -34,8 +34,12 @@ export interface Preference {
 	setTheme: ModifyState<'light' | 'dark'>
 	storeRecordInDocuments: boolean
 	setStoreRecordInDocuments: ModifyState<boolean>
+	recordInstantTranscribe: boolean
+	setRecordInstantTranscribe: ModifyState<boolean>
 	gpuDevice: number
 	setGpuDevice: ModifyState<number>
+	instantTranscribeFrequency: number
+	setInstantTranscribeFrequency: ModifyState<number>
 	useGpu: boolean | null
 	setUseGpu: ModifyState<boolean | null>
 
@@ -92,6 +96,7 @@ export interface ModelOptions {
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
 const defaultOptions = {
+	instantTranscribeFrequency: 30,
 	gpuDevice: 0,
 	soundOnFinish: true,
 	focusOnFinish: true,
@@ -114,6 +119,7 @@ const defaultOptions = {
 	maxSpeakers: 5,
 	diarizeThreshold: 0.5,
 	storeRecordInDocuments: true,
+	recordInstantTranscribe: false,
 	llmConfig: defaultOllamaConfig(),
 	ytDlpVersion: null,
 	shouldCheckYtDlpVersion: true,
@@ -127,6 +133,11 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
+	const [instantTranscribeFrequency, setInstantTranscribeFrequency] = useLocalStorage<number>(
+		'prefs_instant_transcribe_frequency',
+		defaultOptions.instantTranscribeFrequency
+	)
+
 	const [useGpu, setUseGpu] = useLocalStorage<boolean | null>('prefs_use_gpu', true)
 
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
@@ -146,6 +157,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [maxSpeakers, setMaxSpeakers] = useLocalStorage<number>('prefs_max_speakers', defaultOptions.maxSpeakers)
 	const [diarizeThreshold, setDiarizeThreshold] = useLocalStorage<number>('prefs_diarize_threshold', defaultOptions.diarizeThreshold)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
+	const [recordInstantTranscribe, setRecordInstantTranscribe] = useLocalStorage('prefs_record_instant_transcribe', defaultOptions.recordInstantTranscribe)
 	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
 	const [ytDlpVersion, setYtDlpVersion] = useLocalStorage<string | null>('prefs_ytdlp_version', null)
 	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = useLocalStorage<boolean>('prefs_should_check_ytdlp_version', true)
@@ -208,6 +220,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}
 
 	const preference: Preference = {
+		instantTranscribeFrequency,
+		setInstantTranscribeFrequency,
+		recordInstantTranscribe,
+		setRecordInstantTranscribe,
 		useGpu,
 		setUseGpu,
 		enableSubtitlesPreset,
