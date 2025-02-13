@@ -1,5 +1,4 @@
 use crate::cmd::{self, DiarizeOptions, FfmpegOptions};
-use crate::setup::ModelContext;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::Result;
@@ -9,8 +8,6 @@ use axum::{routing::get, Router};
 use eyre::eyre;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tauri::Manager;
-use tokio::sync::Mutex;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 use vibe_core::config::TranscribeOptions;
@@ -53,8 +50,8 @@ struct LoadPayload {
 		(status = 200, description = "Load model", body = LoadPayload)
 	),
 )]
-async fn load(State(app_handle): State<tauri::AppHandle>, Json(payload): Json<LoadPayload>) -> Result<String, String> {
-    cmd::load_model(app_handle, payload.model_path, payload.gpu_device, None)
+async fn load(State(_app_handle): State<tauri::AppHandle>, Json(payload): Json<LoadPayload>) -> Result<String, String> {
+    cmd::load_model(payload.model_path, payload.gpu_device, None)
         .await
         .map_err(|e| e.to_string())
 }
@@ -102,16 +99,9 @@ async fn transcribe(
     State(app_handle): State<tauri::AppHandle>,
     Json(payload): Json<TranscribeOptions>,
 ) -> Result<Json<Transcript>, (StatusCode, String)> {
-    let model_context = crate::setup::MODEL_CONTEXT;
-    let transcript = cmd::transcribe(
-        app_handle.clone(),
-        payload,
-        model_context,
-        DiarizeOptions::default(),
-        FfmpegOptions::default(),
-    )
-    .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let transcript = cmd::transcribe(app_handle, payload, DiarizeOptions::default(), FfmpegOptions::default())
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     Ok(Json(transcript))
 }
