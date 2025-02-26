@@ -23,7 +23,8 @@ i18next
 			'pt-BR',
 			'zh-CN',
 			'zh-HK',
-      'no-NO',
+			'no-NO',
+			'ru-RU',
 		],
 		ns: 'translation',
 		backend: {

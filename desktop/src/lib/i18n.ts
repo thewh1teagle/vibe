@@ -17,6 +17,7 @@ export const supportedLanguages: { [key: string]: string } = {
 	'no-NO': 'norwegian',
 	'it-IT': 'italian',
 	'hi-IN': 'hindi',
+	'ru-RU': 'russian',
 }
 export const supportedLanguageKeys = Object.keys(supportedLanguages)
 export const supportedLanguageValues = Object.values(supportedLanguages)
