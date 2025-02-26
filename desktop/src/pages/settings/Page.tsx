@@ -211,6 +211,18 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 			</div>
 			<label className="form-control w-full py-2">
 				<span className="label-text flex items-center gap-1 cursor-default">
+					<InfoTooltip text={t('common.info-instant-transcribe-frequency')} />
+					{t('common.instant-transcribe-frequency')}
+				</span>
+				<input
+					value={vm.preference.instantTranscribeFrequency}
+					onChange={(e) => vm.preference.setInstantTranscribeFrequency(parseInt(e.target.value) ?? 30)}
+					className="input input-bordered"
+					type="number"
+				/>
+			</label>
+			<label className="form-control w-full py-2">
+				<span className="label-text flex items-center gap-1 cursor-default">
 					<InfoTooltip text={t('common.info-gpu-device')} />
 					{t('common.gpu-device')}
 				</span>

@@ -27,7 +27,7 @@ fn test_transcribe() {
         word_timestamps: None,
     };
     let start = Instant::now();
-    let result = crate::transcribe::transcribe(&ctx, options, None, None, None, None, None);
+    let result = crate::transcribe::transcribe_file(&ctx, options, None, None, None, None, None);
     println!("{:?}", result);
     println!(
         "Elapsed time: {:.2} seconds",
