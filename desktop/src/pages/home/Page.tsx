@@ -59,15 +59,27 @@ export default function Home() {
 						<div className="">
 							<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
 							<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
-							<label className="label cursor-pointer mt-2 mb-5">
-								<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
-								<input
-									type="checkbox"
-									className="toggle toggle-primary"
-									onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
-									checked={vm.preference.storeRecordInDocuments}
-								/>
-							</label>
+							<div className="flex items-center gap-2 mt-5 p-1">
+								<div className="flex items-center gap-1">
+									<input
+										type="checkbox"
+										className="checkbox checkbox-primary"
+										onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
+										checked={vm.preference.storeRecordInDocuments}
+									/>
+									<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
+								</div>
+
+								<div className="flex items-center gap-1">
+									<input
+										type="checkbox"
+										className="checkbox checkbox-primary"
+										onChange={(e) => vm.preference.setRecordInstantTranscribe(e.target.checked)}
+										checked={vm.preference.recordInstantTranscribe}
+									/>
+									<span className="label-text">{t('common.instant-transcribe')}</span>
+								</div>
+							</div>
 						</div>
 						{!vm.isRecording && (
 							<button onMouseDown={() => vm.startRecord()} className="btn btn-primary mt-3">
@@ -91,6 +103,19 @@ export default function Home() {
 
 						<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 					</div>
+					{vm.preference.recordInstantTranscribe && (
+						<div>
+							<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
+								<TextArea
+									setSegments={vm.transcriptTab == 'transcript' ? vm.setSegments : vm.setSummarizeSegments}
+									file={vm.files?.[0]}
+									placeholder={t('common.transcript-will-displayed-shortly')}
+									segments={vm.transcriptTab == 'transcript' ? vm.segments ?? [] : vm.summarizeSegments}
+									readonly={vm.loading || vm.isRecording}
+								/>
+							</div>
+						</div>
+					)}
 				</>
 			)}
 			{/* File */}
@@ -142,7 +167,7 @@ export default function Home() {
 							</a>
 						</div>
 					)}
-					{(vm.segments || vm.loading) && (
+					{(vm.segments || vm.loading) && !vm.isRecording && (
 						<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
 							<TextArea
 								setSegments={vm.transcriptTab == 'transcript' ? vm.setSegments : vm.setSummarizeSegments}

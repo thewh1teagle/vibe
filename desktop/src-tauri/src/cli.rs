@@ -195,6 +195,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         max_text_ctx: args.max_text_ctx,
         word_timestamps: Some(args.word_timestamps),
         max_sentence_len: args.max_sentence_len,
+        instant_transcribe_frequency: None,
     };
     let model_path = prepare_model_path(&args.model.context("model")?, app_handle)?;
 
@@ -202,7 +203,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     let start = Instant::now(); // Measure start time
     let ctx = transcribe::create_context(&model_path, None, None)?;
     #[allow(unused_mut)]
-    let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None, None)?;
+    let mut transcript = transcribe::transcribe_file(&ctx, &options, None, None, None, None, None)?;
 
     let elapsed = start.elapsed();
     println!(
