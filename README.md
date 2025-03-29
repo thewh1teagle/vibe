@@ -120,6 +120,6 @@ Thanks for [github.com/whisper.cpp](https://github.com/ggerganov/whisper.cpp) fo
 
 Thanks for [openai.com](https://openai.com/) for their amazing [Whisper model](https://openai.com/research/whisper)
 
-Thanks for [github.com](https://github.com/) for their support in open source projects, providing infastructure completly free.
+Thanks for [github.com](https://github.com/) for their support in open source projects, providing infastructure completely free.
 
 And for all the amazing open source frameworks and libraries which this project uses...
