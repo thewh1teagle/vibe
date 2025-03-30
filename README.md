@@ -123,3 +123,4 @@ Thanks for [openai.com](https://openai.com/) for their amazing [Whisper model](h
 Thanks for [github.com](https://github.com/) for their support in open source projects, providing infastructure completely free.
 
 And for all the amazing open source frameworks and libraries which this project uses...
+
