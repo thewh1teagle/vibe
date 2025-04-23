@@ -45,14 +45,6 @@ Specialized for Hebrew (Ivrit) language data, optimized for high speed and accur
 [👉 Magic Setup](https://tinyurl.com/t9r3tyxk)  
 [🔽 Direct Download](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
 
-### ✡️ Ivrit Model (v2 d4)
-
-Specialized for Hebrew (Ivrit) language data, optimized for high accuracy in Hebrew tasks.
-
-[👉 Magic Setup](https://tinyurl.com/2c3bzj2b)  
-[🔽 Direct Download](https://huggingface.co/ivrit-ai/whisper-v2-d4-ggml/resolve/main/ggml-ivrit-v2-d4.bin?download=true)
-
-
 Enjoy exploring these models and enhancing your Vibe! 🌐✨
 
 ### Want More?
