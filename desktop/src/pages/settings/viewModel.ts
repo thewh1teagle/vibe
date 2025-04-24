@@ -19,7 +19,7 @@ async function openModelPath() {
 }
 
 async function openModelsUrl() {
-	shell.open(config.modelsURL)
+	shell.open(config.modelsDocURL)
 }
 
 async function reportIssue() {

@@ -7,7 +7,7 @@ function App() {
 
 	return (
 		<div className="w-[100vw] h-[100vh] flex flex-col justify-center items-center">
-			<div className="text-3xl m-5 font-bold">{t('common.downloading-model')}</div>
+			<div className="text-3xl m-5 font-bold">{t('common.downloading-model', { company: vm.modelCompany })}</div>
 			{vm.downloadProgress > 0 && (
 				<>
 					<progress className="progress progress-primary w-56 my-2" value={vm.downloadProgress} max="100"></progress>

@@ -1,12 +1,20 @@
 export const aboutURL = 'https://thewh1teagle.github.io/vibe/'
 export const updateVersionURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
-export const modelsURL = 'https://thewh1teagle.github.io/vibe/docs#models'
+export const modelsDocURL = 'https://thewh1teagle.github.io/vibe/docs#models'
 export const discordURL = 'https://discord.gg/EcxWSstQN8'
 export const unsupportedCpuReadmeURL = 'https://thewh1teagle.github.io/vibe/docs#install'
 export const supportVibeURL = 'https://thewh1teagle.github.io/vibe/?action=support-vibe'
 export const storeFilename = 'app_config.json'
 export const latestReleaseURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
 export const latestVersionWithoutVulkan = 'https://github.com/thewh1teagle/vibe/releases/download/v2.4.0/vibe_2.4.0_x64-setup.exe'
+
+export const modelUrls = {
+	default: [
+		'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q8_0.bin',
+		'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-medium-q8_0.bin', // Fallback
+	],
+	hebrew: ['https://huggingface.co/thewh1teagle/whisper-large-v3-turbo-ivrit/resolve/main/ggml-model.int8.bin'],
+}
 
 export const embeddingModelFilename = 'wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelFilename = 'segmentation-3.0.onnx'
