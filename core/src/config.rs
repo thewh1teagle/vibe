@@ -16,6 +16,8 @@ pub struct TranscribeOptions {
     pub max_text_ctx: Option<i32>,
     pub word_timestamps: Option<bool>,
     pub max_sentence_len: Option<i32>,
+    pub sampling_strategy: Option<String>,
+    pub sampling_bestof_or_beam_size: Option<i32>,
 }
 
 impl fmt::Debug for TranscribeOptions {

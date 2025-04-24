@@ -444,6 +444,43 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							type="number"
 						/>
 					</label>
+					<label className="form-control w-full">
+						<div className="label">
+							<span className="label-text flex items-center gap-1">
+								<InfoTooltip text="Greedy vs Beam Search: Default is Beam Search (Size 5, Patience -1), which evaluates 5 possible sequences at each step for more accurate results, but is slower. Greedy, on the other hand, selects the best token from the top 5 at each step, making it faster but potentially less accurate." />
+								{t('common.sampling-strategy')}
+							</span>
+						</div>
+
+						<select
+							value={preference.modelOptions.sampling_strategy}
+							onChange={(e) => {
+								const newStrategy = e.target.value
+								preference.setModelOptions({ ...preference.modelOptions, sampling_strategy: newStrategy as 'greedy' | 'beam search' })
+							}}
+							className="select select-bordered capitalize">
+							{['beam search', 'greedy'].map((name) => (
+								<option key={name} value={name}>
+									{name}
+								</option>
+							))}
+						</select>
+					</label>
+					<label className="form-control w-full">
+						<div className="label">
+							<span className="label-text flex items-center gap-1">
+								<InfoTooltip text="best_of: Top candidates in Greedy mode (default: 5) — higher = better accuracy, slower. beam_size: Paths explored in Beam Search (default: 5) — higher = better accuracy, slower." />
+								{preference.modelOptions.sampling_strategy === 'greedy' ? 'Besf of' : 'Beam size'}
+							</span>
+						</div>
+						<input
+							step={1}
+							value={preference.modelOptions.sampling_bestof_or_beam_size ?? 5}
+							onChange={(e) => setOptions({ ...options, sampling_bestof_or_beam_size: parseInt(e.target.value) })}
+							className="input input-bordered"
+							type="number"
+						/>
+					</label>
 					<div className="label mt-10">
 						<span className="label-text text-2xl font-bold">{t('common.ffmpeg-options')}</span>
 					</div>

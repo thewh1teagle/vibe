@@ -90,7 +90,25 @@ pub fn create_normalized_audio(source: PathBuf, additional_ffmpeg_args: Option<V
 }
 
 fn setup_params(options: &TranscribeOptions) -> FullParams {
-    let mut params = FullParams::new(SamplingStrategy::default());
+    let mut beam_size_or_best_of = options.sampling_bestof_or_beam_size.unwrap_or(5);
+    if beam_size_or_best_of < 1 {
+        beam_size_or_best_of = 5;
+    }
+
+    // Beam search by default
+    let mut sampling_strategy = SamplingStrategy::BeamSearch {
+        beam_size: beam_size_or_best_of,
+        patience: -1.0,
+    };
+    // ^ Experimental, idk if it will be slower/faster/accurate https://github.com/ggml-org/whisper.cpp/blob/8b92060a10a89cd3e8ec6b4bb22cdc1af67c5667/src/whisper.cpp#L4867-L4882
+    if options.sampling_strategy == Some("greedy".to_string()) {
+        sampling_strategy = SamplingStrategy::Greedy {
+            best_of: beam_size_or_best_of,
+        };
+    }
+    tracing::debug!("sampling strategy: {:?}", sampling_strategy);
+
+    let mut params = FullParams::new(sampling_strategy);
     tracing::debug!("set language to {:?}", options.lang);
 
     if let Some(true) = options.word_timestamps {
