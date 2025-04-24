@@ -76,7 +76,7 @@ uv run ./whisper.cpp/models/convert-h5-to-ggml.py ./whisper-large-v3-turbo/ ./wh
 uv run huggingface-cli upload --repo-type model whisper-large-v3-turbo-ivrit ./ggml-model.bin ./ggml-model.bin
 
 # Quantize
-sudo apt install cmake build-essntial -y 
+sudo apt install cmake build-essential -y 
 cd whisper.cpp
 cmake -B build
 cmake --build build --config Release
