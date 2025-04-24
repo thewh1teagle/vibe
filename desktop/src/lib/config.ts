@@ -10,10 +10,10 @@ export const latestVersionWithoutVulkan = 'https://github.com/thewh1teagle/vibe/
 
 export const modelUrls = {
 	default: [
-		'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q8_0.bin',
-		'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-medium-q8_0.bin', // Fallback
+		'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
+		'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin', // Fallback
 	],
-	hebrew: ['https://huggingface.co/thewh1teagle/whisper-large-v3-turbo-ivrit/resolve/main/ggml-model.int8.bin'],
+	hebrew: ['https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin'],
 }
 
 export const embeddingModelFilename = 'wespeaker_en_voxceleb_CAM++.onnx'
