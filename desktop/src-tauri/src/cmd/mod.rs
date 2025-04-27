@@ -227,6 +227,39 @@ impl FfmpegOptions {
 }
 
 #[tauri::command]
+pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) -> Vec<String> {
+    let mut files = Vec::new();
+
+    // Construct the search pattern based on the recursive flag
+    let search_pattern = if recursive {
+        format!("{}/**/*", folder) // Recursive search
+    } else {
+        format!("{}/*", folder) // Non-recursive search (only in the folder)
+    };
+
+    match glob::glob(&search_pattern) {
+        Ok(paths) => {
+            for entry in paths.filter_map(Result::ok) {
+                if entry.is_file() {
+                    if let Some(file_name) = entry.file_name().and_then(|n| n.to_str()) {
+                        if patterns.iter().any(|p| file_name.ends_with(p)) {
+                            if let Ok(path_str) = entry.into_os_string().into_string() {
+                                files.push(path_str);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Err(e) => {
+            eprintln!("Failed to read pattern {}: {}", search_pattern, e);
+        }
+    }
+
+    files
+}
+
+#[tauri::command]
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
     options: vibe_core::config::TranscribeOptions,

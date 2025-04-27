@@ -19,7 +19,7 @@ interface BatchPanelProps {
 
 export default function BatchPanel({ files, onStart, onCancel, progress, index, inProgress, isAborting }: BatchPanelProps) {
 	const { t } = useTranslation()
-	const [open, setOpen] = useState(true)
+	const [open, setOpen] = useState(false)
 	return (
 		<div className={cx('collapse border border-base-300 bg-base-200', open && 'collapse-open')}>
 			<div className="collapse-title !cursor-default text-xl font-medium flex p-3 flex-row items-center">
