@@ -32,9 +32,6 @@ serde_json = { workspace = true }
 futures-util = "0.3.30"
 pyannote-rs = "0.2.7"
 
-# Server
-utoipa = { version = "4.2.3", features = ["axum_extras"], optional = true }
-
 [dev-dependencies]
 
 serial_test = "3.1.1"
@@ -47,9 +44,6 @@ glob = "0.3.1"
 default = []
 coreml = ["whisper-rs/coreml", "pyannote-rs/coreml"]
 directml = ["pyannote-rs/directml"]
-cuda = ["whisper-rs/cuda", "pyannote-rs/load-dynamic"]
 openblas = ["whisper-rs/openblas"]
 metal = ["whisper-rs/metal"]
-rocm = ["whisper-rs/hipblas"]
 vulkan = ["whisper-rs/vulkan"]
-server = ["dep:utoipa"]

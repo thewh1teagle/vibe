@@ -1,4 +1,4 @@
-name: Windows Non avx2 and portable
+name: Windows portable
 
 on:
     workflow_dispatch:
@@ -19,36 +19,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                include:
-                    # Windows no AVX2
-                    - platform: "windows-latest"
-                      args: '--features "server"'
-                      pre-build-args: "--older-cpu"
-                      name: "older-cpu"
-                      rust-version: "stable"
-
-                    # Windows no AVX2
-                    - platform: "windows-latest"
-                      args: '--features="vulkan,server"'
-                      pre-build-args: "--older-cpu --vulkan"
-                      name: "older-cpu-vulkan"
-                      rust-version: "stable"
-                    
-                    # # Windows cuda 12.5.0
-                    # - platform: "windows-latest"
-                    #   args: '--features="cuda"'
-                    #   pre-build-args: "--cuda"
-                    #   name: 'nvidia-12.5.0'
-                    #   cuda-verison: '12.5.0'
-                    #   rust-version: "stable"
-
-                    # Windows cuda 11.8.0
-                    # - platform: "windows-latest"
-                    #   args: '--features="cuda"'
-                    #   pre-build-args: "--cuda" 
-                    #   name: 'nvidia-11.8.0'
-                    #   cuda-verison: '11.8.0'
-                    #   rust-version: "stable"                      
+                include:               
 
                     # Windows portable
                     - platform: "windows-latest" # Windows x86_64
@@ -72,14 +43,6 @@ jobs:
                 sudo apt install vulkan-sdk -y
                 sudo apt-get install -y mesa-vulkan-drivers
               if: ${{ contains(matrix.platform, 'ubuntu') && contains(matrix.args, 'vulkan') }}
-
-            - name: Setup CUDA Toolkit
-              if: contains(matrix.args, 'cuda')
-              id: cuda-toolkit
-              shell: pwsh
-              run: scripts/setup_cuda.ps1
-              env:
-                  INPUT_CUDA_VERSION: ${{ matrix.cuda-verison }}
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1

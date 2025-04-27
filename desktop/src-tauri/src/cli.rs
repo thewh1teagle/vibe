@@ -113,10 +113,6 @@ struct Args {
     #[arg(long)]
     diarize_speaker_id_model: Option<String>,
 
-    /// Run http server
-    #[cfg_attr(feature = "server", clap(long))]
-    server: bool,
-
     #[arg(long, default_value = "0.0.0.0")]
     host: String,
 
@@ -179,10 +175,6 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         args.format = "json".into();
     }
 
-    #[cfg(feature = "server")]
-    if args.server {
-        crate::server::run(app_handle.clone(), args.host, args.port).await?;
-    }
     let lang = language_name_to_whisper_lang(&args.language)?;
     let options = TranscribeOptions {
         path: args.file.context("file")?,

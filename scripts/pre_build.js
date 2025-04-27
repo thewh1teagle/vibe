@@ -60,7 +60,7 @@ const config = {
 			'libavdevice-dev', // FFMPEG
 			'libasound2-dev', // cpal
 			'libomp-dev', // OpenMP in ggml.ai
-			'libstdc++-12-dev', //ROCm
+			'libstdc++-12-dev',
 		],
 	},
 	macos: {
@@ -142,43 +142,6 @@ if (platform == 'macos') {
 	}
 }
 
-// Nvidia
-let cudaPath
-if (hasFeature('cuda')) {
-	if (process.env['CUDA_PATH']) {
-		cudaPath = process.env['CUDA_PATH']
-	} else if (platform === 'windows') {
-		const cudaRoot = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\'
-		cudaPath = 'C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5'
-		if (await fs.exists(cudaRoot)) {
-			const folders = await fs.readdir(cudaRoot)
-			if (folders.length > 0) {
-				cudaPath = cudaPath.replace('v12.5', folders[0])
-			}
-		}
-	}
-
-	if (process.env.GITHUB_ENV) {
-		console.log('CUDA_PATH', cudaPath)
-	}
-
-	if (platform === 'windows') {
-		const tauriConfigContent = await fs.readFile('tauri.windows.conf.json', { encoding: 'utf-8' })
-		const tauriConfig = JSON.parse(tauriConfigContent)
-		tauriConfig.bundle.resources[`${cudaPath}\\bin\\cudart64_*`] = './'
-		tauriConfig.bundle.resources[`${cudaPath}\\bin\\cublas64_*`] = './'
-		tauriConfig.bundle.resources[`${cudaPath}\\bin\\cublasLt64_*`] = './'
-		await fs.writeFile('tauri.windows.conf.json', JSON.stringify(tauriConfig, null, 4))
-	}
-	if (platform === 'linux') {
-		// Add cuda toolkit depends package
-		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
-		const tauriConfig = JSON.parse(tauriConfigContent)
-		tauriConfig.bundle.linux.deb.depends.push('nvidia-cuda-toolkit')
-		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
-	}
-}
-
 // OpenBlas
 if (hasFeature('openblas')) {
 	if (platform === 'windows') {
@@ -209,21 +172,6 @@ if (hasFeature('vulkan')) {
 	}
 }
 
-// ROCM
-let rocmPath = '/opt/rocm'
-if (hasFeature('rocm')) {
-	if (process.env.GITHUB_ENV) {
-		console.log('ROCM_PATH', rocmPath)
-	}
-	if (platform === 'linux') {
-		// Add rocm toolkit depends package
-		const tauriConfigContent = await fs.readFile('tauri.linux.conf.json', { encoding: 'utf-8' })
-		const tauriConfig = JSON.parse(tauriConfigContent)
-		tauriConfig.bundle.linux.deb.depends.push('rocm')
-		await fs.writeFile('tauri.linux.conf.json', JSON.stringify(tauriConfig, null, 4))
-	}
-}
-
 // Development hints
 if (!process.env.GITHUB_ENV) {
 	console.log('\nCommands to build 🔨:')
@@ -244,15 +192,6 @@ if (!process.env.GITHUB_ENV) {
 			console.log(`$env:WHISPER_NO_FMA = "ON"`)
 			console.log(`$env:WHISPER_NO_F16C = "ON"`)
 		}
-		if (hasFeature('cuda')) {
-			console.log(`$env:CUDA_PATH = "${cudaPath}"`)
-			console.log(`$env:KNF_STATIC_CRT = "0"`)
-			console.log('$env:WHISPER_USE_STATIC_MSVC= "0"')
-		}
-		if (hasFeature('rocm')) {
-			console.log(`$env:ROCM_VERSION = "6.1.2"`)
-			console.log(`$env:ROCM_PATH = "${rocmPath}"`)
-		}
 
 		if (hasFeature('portable')) {
 			console.log('$env:WINDOWS_PORTABLE=1')
@@ -267,7 +206,7 @@ if (!process.env.GITHUB_ENV) {
 		console.log(`export FFMPEG_DIR="${exports.ffmpeg}"`)
 	}
 	if (!process.env.GITHUB_ENV) {
-		const features = ['openblas', 'vulkan', 'cuda'].filter((f) => hasFeature(f)).join(',')
+		const features = ['openblas', 'vulkan'].filter((f) => hasFeature(f)).join(',')
 		if (features) {
 			console.log(`bunx tauri build --features "${features}"`)
 		} else {

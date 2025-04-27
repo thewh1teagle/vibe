@@ -12,14 +12,14 @@ jobs:
             matrix:
                 include:
                     - platform: "macos-latest" # for Arm based macs (M1 and above).
-                      args: '--target aarch64-apple-darwin --features "server"'
+                      args: '--target aarch64-apple-darwin'
                     - platform: "macos-latest" # for Intel based macs.
-                      args: '--target x86_64-apple-darwin --features "server"'
+                      args: '--target x86_64-apple-darwin'
                     - platform: "ubuntu-22.04" # Ubuntu 22.04 x86_64 (Works on 24.04 as well)
-                      args: '--features "vulkan,server"'
+                      args: '--features "vulkan"'
                       pre-build-args: "--vulkan"
                     - platform: "windows-latest" # Windows x86_64
-                      args: '--target x86_64-pc-windows-msvc --features "vulkan,server"'
+                      args: '--target x86_64-pc-windows-msvc --features "vulkan"'
                       pre-build-args: "--vulkan"
 
         runs-on: ${{ matrix.platform }}

@@ -5,6 +5,7 @@ const RELEASES_PATH = path.resolve(__dirname, '../landing/src/lib/latest_release
 const OWNER = 'thewh1teagle'
 const REPO = 'vibe'
 const BLACKLIST_PATTERNS = ['opencl', 'nvidia', 'older', '.rpm', 'portable', 'cuda', 'ubuntu', 'setup_']
+// ^ Keep old extensions from previous releases
 
 function getAssetInfo(name) {
 	const platformMap = {

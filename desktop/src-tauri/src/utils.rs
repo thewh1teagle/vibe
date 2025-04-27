@@ -5,7 +5,7 @@ use rand::Rng;
 use std::env;
 use std::path::PathBuf;
 
-use crate::cmd::{get_commit_hash, get_cuda_version, get_x86_features};
+use crate::cmd::get_commit_hash;
 
 pub fn get_local_time() -> String {
     let now = Local::now();
@@ -28,7 +28,6 @@ pub fn get_current_dir() -> Result<PathBuf> {
 
 pub fn get_app_info() -> String {
     use tauri_plugin_os::{arch, platform, type_, version};
-    let cuda_version = get_cuda_version();
     let commit = get_commit_hash();
 
     let arch = arch();
@@ -36,7 +35,6 @@ pub fn get_app_info() -> String {
     let os_ver = version();
     let os_type = type_();
     let models = "List of models"; // Replace with actual models fetching logic
-    let x86_features = get_x86_features(); // Replace with actual x86 features fetching logic
 
     let info = format!(
         "Commit Hash: {}\n\
@@ -44,17 +42,8 @@ pub fn get_app_info() -> String {
          Platform: {}\n\
          OS: {}\n\
          OS Version: {}\n\
-         Cuda Version: {}\n\
-         Models: {}\n\
-         X86 Features: {}",
-        commit,
-        arch,
-        platform,
-        os_type,
-        os_ver,
-        cuda_version,
-        models,
-        x86_features.unwrap_or_default()
+         Models: {}",
+        commit, arch, platform, os_type, os_ver, models,
     );
 
     info

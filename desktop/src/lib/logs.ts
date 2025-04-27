@@ -7,21 +7,9 @@ export async function getPrettyVersion() {
 	const appVersion = await app.getVersion()
 	const appName = await app.getName()
 	let version = `${appName} ${appVersion}`
-	const cudaVersion = await invoke('get_cuda_version')
-	const rocmVersion = await invoke('get_rocm_version')
-	const avx2Enabled = await invoke('is_avx2_enabled')
 	const isPortable = await invoke('is_portable')
-	if (cudaVersion) {
-		version += ` (cuda ${cudaVersion})`
-	}
-	if (!avx2Enabled) {
-		version += ` (older cpu)`
-	}
 	if (isPortable) {
 		version += ` (portable)`
-	}
-	if (rocmVersion) {
-		version += ` (rocm ${rocmVersion})`
 	}
 	return version
 }
@@ -42,7 +30,6 @@ export async function getAppInfo() {
 	const osVer = os.version()
 	const configPath = await invoke<string>('get_models_folder')
 	const entries = await ls(configPath)
-	const cudaVersion = await invoke('get_cuda_version')
 	const models = entries
 		.filter((e) => e.name?.endsWith('.bin'))
 		.map((e) => e.name)
@@ -57,7 +44,6 @@ export async function getAppInfo() {
 		`Kernel Version: ${kVer}`,
 		`OS: ${osType}`,
 		`OS Version: ${osVer}`,
-		`Cuda Version: ${cudaVersion || 'n/a'}`,
 		`Models: ${models}`,
 		`Default Model: ${defaultModel}`,
 		`Cargo features: ${cargoFeatures.join(', ')}`,

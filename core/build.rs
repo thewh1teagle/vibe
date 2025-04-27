@@ -54,13 +54,6 @@ fn main() {
     let openblas_dir = env::var("OPENBLAS_PATH").unwrap_or_default();
     let openblas_dir = PathBuf::from(openblas_dir);
 
-    // Sometimes it doesn't find the libs files after restring Github cache
-    if cfg!(all(feature = "cuda", windows)) {
-        let cuda_path = env::var("CUDA_PATH").unwrap_or_default();
-        let cuda_path = PathBuf::from(cuda_path);
-        println!("cargo:rustc-link-search={}", cuda_path.join("lib\\x64").display());
-    }
-
     if ffmpeg_dir.exists() {
         if !ffmpeg_dir.exists() {
             panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
@@ -118,19 +111,6 @@ fn main() {
         }
     }
 
-    // Passed from Github action
-    println!("cargo:rerun-if-env-changed=CUDA_VERSION");
-    println!(
-        "cargo:rustc-env=CUDA_VERSION={}",
-        std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()
-    );
-
-    // Passed from Github action
-    println!("cargo:rerun-if-env-changed=ROCM_VERSION");
-    println!(
-        "cargo:rustc-env=ROCM_VERSION={}",
-        std::env::var("INPUT_ROCM_VERSION").unwrap_or_default()
-    );
     // Todo: link correctly in whisper-rs
     if cfg!(windows) {
         println!("cargo:rustc-link-lib=msvcrt");

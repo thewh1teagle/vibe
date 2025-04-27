@@ -69,20 +69,6 @@ fn main() {
     println!("cargo:rerun-if-env-changed=COMMIT_HASH");
     println!("cargo:rustc-env=COMMIT_HASH={}", hash);
 
-    // Passed from Github action
-    println!("cargo:rerun-if-env-changed=CUDA_VERSION");
-    println!(
-        "cargo:rustc-env=CUDA_VERSION={}",
-        std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()
-    );
-
-    // Passed from Github action
-    println!("cargo:rerun-if-env-changed=ROCM_VERSION");
-    println!(
-        "cargo:rustc-env=ROCM_VERSION={}",
-        std::env::var("INPUT_ROCM_VERSION").unwrap_or_default()
-    );
-
     // Windows portable
     println!("cargo:rerun-if-env-changed=WINDOWS_PORTABLE");
     println!(

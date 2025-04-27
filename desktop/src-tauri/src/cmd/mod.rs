@@ -379,22 +379,6 @@ pub async fn open_path(path: PathBuf) -> Result<()> {
 }
 
 #[tauri::command]
-pub fn get_cuda_version() -> String {
-    env!("CUDA_VERSION").to_string()
-}
-
-#[tauri::command]
-pub fn get_rocm_version() -> String {
-    env!("ROCM_VERSION").to_string()
-}
-
-#[tauri::command]
-pub fn is_avx2_enabled() -> bool {
-    #[allow(clippy::comparison_to_empty)]
-    return env!("WHISPER_NO_AVX") != "ON";
-}
-
-#[tauri::command]
 pub async fn load_model(
     app_handle: tauri::AppHandle,
     model_path: String,
@@ -543,9 +527,6 @@ pub fn rename_crash_file() -> Result<()> {
 pub fn get_cargo_features() -> Vec<String> {
     let mut enabled_features = Vec::new();
 
-    if cfg!(feature = "cuda") {
-        enabled_features.push("cuda".to_string());
-    }
     if cfg!(feature = "coreml") {
         enabled_features.push("coreml".to_string());
     }
@@ -557,9 +538,6 @@ pub fn get_cargo_features() -> Vec<String> {
     }
     if cfg!(feature = "vulkan") {
         enabled_features.push("vulkan".to_string());
-    }
-    if cfg!(feature = "rocm") {
-        enabled_features.push("rocm".to_string());
     }
 
     enabled_features

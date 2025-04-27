@@ -25,14 +25,12 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "server", derive(utoipa::ToSchema))]
 pub struct Transcript {
     pub processing_time_sec: u64,
     pub segments: Vec<Segment>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "server", derive(utoipa::ToSchema))]
 pub struct Segment {
     pub start: i64,
     pub stop: i64,

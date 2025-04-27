@@ -7,9 +7,6 @@ mod cmd;
 mod config;
 mod panic_hook;
 
-#[cfg(feature = "server")]
-mod server;
-
 mod setup;
 mod utils;
 use tauri::{Emitter, Manager};
@@ -72,9 +69,6 @@ fn main() -> Result<()> {
             cmd::download_model,
             cmd::load_model,
             cmd::get_commit_hash,
-            cmd::get_cuda_version,
-            cmd::get_rocm_version,
-            cmd::is_avx2_enabled,
             cmd::is_online,
             cmd::get_path_dst,
             cmd::get_logs,

@@ -14,7 +14,6 @@ import { AudioDevice } from '~/lib/audio'
 import * as config from '~/lib/config'
 import * as transcript from '~/lib/transcript'
 import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
-import { getX86Features } from '~/lib/x86Features'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { useFilesContext } from '~/providers/FilesProvider'
 import { ModelOptions, usePreferenceProvider } from '~/providers/Preference'
@@ -274,26 +273,6 @@ export function viewModel() {
 	}
 
 	async function CheckCpuAndInit() {
-		const features = await getX86Features()
-		if (features) {
-			const unsupported = Object.entries(features || {})
-				.filter(([_, feature]) => feature.enabled && !feature.support)
-				.map(([name]) => name)
-			if (unsupported.length > 0) {
-				// Found unsupported features
-				await dialog.message(
-					`Your CPU is old and doesn't support some features (${unsupported.join(
-						','
-					)}). Please click OK and read the readme that will open for more information.`,
-					{
-						kind: 'error',
-					}
-				)
-				open(config.unsupportedCpuReadmeURL)
-				return // Don't run anything
-			}
-		}
-
 		handleDrop()
 		checkModelExists()
 		handleNewSegment()

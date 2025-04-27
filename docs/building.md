@@ -54,16 +54,6 @@ Execute pre build scripts and follow the instructions it provide
 bun scripts/pre_build.js
 ```
 
-## Build with `Nvidia` support
-
-See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=readme-ov-file#nvidia-gpu-support)
-
-1. Enable `cuda` feature in `Cargo.toml`
-
-2. Install [`cuda`](https://developer.nvidia.com/cuda-downloads)
-
-3. Add to `tauri.windows.conf.json`
-
 <details>
 
 <summary>tauri.windows.conf.json</summary>
@@ -73,10 +63,7 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 	"bundle": {
 		"resources": {
 			"ffmpeg\\bin\\x64\\*.dll": "./",
-			"openblas\\bin\\*.dll": "./",
-			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cudart64_*": "./",
-			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublas64_*": "./",
-			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublasLt64_*": "./"
+			"openblas\\bin\\*.dll": "./"
 		}
 	}
 }
@@ -84,28 +71,10 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 
 </details>
 
-4. Build in `Powershell`
+1. Build in `Powershell`
 
 ```console
-$env:CUDA_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
-$env:CudaToolkitDir = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
 bun run scripts/pre_build.js --openblas --build
-```
-
-## Build with `AMD` support
-
-AMD support is only available under linux environment
-
-1. Install [`rocm toolkit`](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/)
-
-2. Run `bun scripts/pre_build.js --amd`
-
-3. Run
-
-```console
-export ROCM_VERSION="your rocm version"
-cd desktop
-bunx tauri build
 ```
 
 ## Gotchas

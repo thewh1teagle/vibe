@@ -45,34 +45,9 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Free Disk Space (Ubuntu) for Rocm
-              if: contains(matrix.args, 'rocm')
-              uses: jlumbroso/free-disk-space@main
-              with:
-                # this might remove tools that are actually needed,
-                # if set to "true" but frees about 6 GB
-                tool-cache: false
-                
-                # all of these default to true, but feel free to set to
-                # "false" if necessary for your workflow
-                android: true
-                dotnet: true
-                haskell: true
-                large-packages: true
-                docker-images: true
-                swap-storage: true
-
             - name: Install mesa-vulkan-drivers
               run: sudo apt-get update && sudo apt-get install -y mesa-vulkan-drivers
               if: ${{ contains(matrix.platform, 'ubuntu') && contains(matrix.args, 'vulkan') }}
-
-            - name: Install rocm 
-              if: contains(matrix.args, 'rocm')
-              run: |
-                wget https://repo.radeon.com/amdgpu-install/${{ matrix.rocm-version }}/ubuntu/jammy/amdgpu-install_6.1.60102-1_all.deb
-                sudo apt install -y ./amdgpu-install_6.1.60102-1_all.deb
-                sudo apt update
-                sudo apt install -y rocm
 
             - name: Prepare Vulkan SDK for Linux
               run: |

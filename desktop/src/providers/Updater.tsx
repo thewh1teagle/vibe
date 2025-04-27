@@ -104,13 +104,10 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	async function updateApp() {
-		const cudaVersion = await invoke('get_cuda_version')
-		const rocmVersion = await invoke('get_rocm_version')
-		const avx2Enabled = await invoke('is_avx2_enabled')
 		const isPortable = await invoke<string>('is_portable')
 
 		// Nvidia / Older CPU / Portabl - No updates available
-		if (cudaVersion || !avx2Enabled || isPortable || rocmVersion) {
+		if (isPortable) {
 			await open(latestReleaseURL)
 			return
 		}
