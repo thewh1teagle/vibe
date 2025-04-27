@@ -32,13 +32,12 @@ For high accuracy and more computational resources, excels in complex scenarios.
 [👉 Magic Setup](https://tinyurl.com/3cn846h8)  
 [🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
 
-### 🚀 Distil Large Model (v3)
+### 🚀 Large v3 Turbo (Recommended)
 
-A highly optimized version of the large model, designed for English. It offers 2-3x faster performance compared to the standard large model while maintaining high accuracy.
+[👉 Magic Setup](https://tinyurl.com/yphwban5)  
+[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
 
-[🔽 Direct Download](https://huggingface.co/distil-whisper/distil-large-v3-ggml/resolve/main/ggml-distil-large-v3.bin?download=true)
-
-### ✡️ Ivrit Model (v3 Trubo)
+### ✡️ Ivrit Model v3 Trubo (Recommended)
 
 Specialized for Hebrew (Ivrit) language data, optimized for high speed and accuracy in Hebrew tasks.
 
