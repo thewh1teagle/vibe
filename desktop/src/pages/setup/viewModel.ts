@@ -85,12 +85,6 @@ export function viewModel() {
 	}
 
 	async function downloadIfOnline() {
-		// Set company name based on locale
-		const locale = await osExt.locale()
-		if (locale?.endsWith('-IL')) {
-			setModelCompany('Ivrit-AI')
-		}
-
 		// Check if online
 		const isOnlineResponse = await invoke<boolean>('is_online')
 		// If online download model
