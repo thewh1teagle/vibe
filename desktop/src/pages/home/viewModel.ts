@@ -82,7 +82,9 @@ export function viewModel() {
 
 	useEffect(() => {
 		setFiles([])
-		setAudio(null)
+		if (!(files.length === 1)) {
+			setAudio(null)
+		}
 	}, [location])
 
 	useEffect(() => {
