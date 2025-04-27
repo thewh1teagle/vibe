@@ -25,6 +25,8 @@ fn test_transcribe() {
         temperature: None,
         translate: None,
         word_timestamps: None,
+        sampling_bestof_or_beam_size: None,
+        sampling_strategy: None,
     };
     let start = Instant::now();
     let result = crate::transcribe::transcribe(&ctx, options, None, None, None, None, None);
