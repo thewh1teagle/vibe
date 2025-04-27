@@ -48,7 +48,7 @@ export default function AdvancedTranscribe() {
 					<div className="label mt-5">
 						<span className="label-text text-2xl font-bold">
 							{t('common.transcribe-folder')}
-							<span className="text-primary text-sm ml-2">(beta)</span>
+							<span className="text-primary text-sm ms-2 pb-2">(beta)</span>
 						</span>
 					</div>
 					<div className="form-control w-full mt-3">
