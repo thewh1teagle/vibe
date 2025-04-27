@@ -28,3 +28,4 @@ venv/
 *.onnx
 *.pfx
 *trace*.log
+samples/**/*.txt

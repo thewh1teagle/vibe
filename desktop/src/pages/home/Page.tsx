@@ -32,7 +32,6 @@ export default function Home() {
 	useEffect(() => {
 		showWindow()
 	}, [])
-
 	return (
 		<Layout>
 			<div role="tablist" className="tabs tabs-lifted flex m-auto mt-5">

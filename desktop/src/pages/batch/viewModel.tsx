@@ -74,7 +74,6 @@ export function viewModel() {
 				setOutputFolder(location.state?.outputFolder)
 			}
 		}
-		console.log('check output')
 	}
 
 	useEffect(() => {
@@ -83,7 +82,7 @@ export function viewModel() {
 
 	useEffect(() => {
 		checkFilesState()
-	}, [files])
+	}, [])
 
 	async function selectFiles() {
 		const selected = await dialog.open({
@@ -169,7 +168,6 @@ export function viewModel() {
 
 				if (preference.advancedTranscribeOptions.skipIfExists && !outputFolder && (await fs.exists(dst))) {
 					// ^ We can't know if it's not next to the audio file, multiple files can have the same names
-					console.log('skipping existing')
 					localIndex += 1
 					setCurrentIndex(localIndex)
 					continue

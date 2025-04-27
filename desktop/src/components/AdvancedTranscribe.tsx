@@ -31,7 +31,6 @@ export default function AdvancedTranscribe() {
 			patterns: [...config.audioExtensions, ...config.videoExtensions],
 			recursive: preference.advancedTranscribeOptions.includeSubFolders,
 		})
-		console.log('files', files)
 		setCollecting(false)
 		navigate('/batch', { state: { files, outputFolder: selectedFolder } })
 	}

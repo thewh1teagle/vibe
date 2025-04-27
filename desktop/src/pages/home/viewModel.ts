@@ -73,13 +73,17 @@ export function viewModel() {
 
 	async function checkIfCrashedRecently() {
 		const isCrashed = await invoke<boolean>('is_crashed_recently')
-		console.log('is crashed', isCrashed)
 		if (isCrashed) {
 			preference.setUseGpu(false)
 			dialog.message(t('common.crashed-recently'))
 			await invoke('rename_crash_file')
 		}
 	}
+
+	useEffect(() => {
+		setFiles([])
+		setAudio(null)
+	}, [location])
 
 	useEffect(() => {
 		checkIfCrashedRecently()
