@@ -46,7 +46,7 @@ export function viewModel() {
 				urls = [location.state.downloadURL]
 				console.log(`[model] Using provided model URL: ${urls[0]}`)
 				if (urls[0].includes('ivrit')) {
-					setModelCompany('Ivrit-AI')
+					setModelCompany('ivrit.ai')
 				}
 			} else {
 				urls = [...config.modelUrls.default]
@@ -56,7 +56,7 @@ export function viewModel() {
 				if (locale?.endsWith('-IL')) {
 					console.log(`[model] Prioritizing Hebrew models`)
 					urls.unshift(...config.modelUrls.hebrew)
-					setModelCompany('Ivrit-AI')
+					setModelCompany('ivrit.ai')
 				}
 			}
 
