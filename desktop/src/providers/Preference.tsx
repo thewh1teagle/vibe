@@ -12,6 +12,12 @@ import { message } from '@tauri-apps/plugin-dialog'
 
 type Direction = 'ltr' | 'rtl'
 
+export interface AdvancedTranscribeOptions {
+	includeSubFolders: boolean
+	skipIfExists: boolean
+	saveNextToAudioFile: boolean
+}
+
 // Define the type of preference
 export interface Preference {
 	displayLanguage: string
@@ -62,6 +68,9 @@ export interface Preference {
 	setYtDlpVersion: ModifyState<string | null>
 	shouldCheckYtDlpVersion: boolean
 	setShouldCheckYtDlpVersion: ModifyState<boolean>
+
+	advancedTranscribeOptions: AdvancedTranscribeOptions
+	setAdvancedTranscribeOptions: ModifyState<AdvancedTranscribeOptions>
 }
 
 // Create the context
@@ -153,6 +162,11 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
 	const [ytDlpVersion, setYtDlpVersion] = useLocalStorage<string | null>('prefs_ytdlp_version', null)
 	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = useLocalStorage<boolean>('prefs_should_check_ytdlp_version', true)
+	const [advancedTranscribeOptions, setAdvancedTranscribeOptions] = useLocalStorage<AdvancedTranscribeOptions>('prefs_advanced_transcribe_options', {
+		includeSubFolders: false,
+		saveNextToAudioFile: true,
+		skipIfExists: true,
+	})
 
 	useEffect(() => {
 		setIsFirstRun(false)
@@ -257,6 +271,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setYtDlpVersion,
 		shouldCheckYtDlpVersion,
 		setShouldCheckYtDlpVersion,
+		advancedTranscribeOptions,
+		setAdvancedTranscribeOptions,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

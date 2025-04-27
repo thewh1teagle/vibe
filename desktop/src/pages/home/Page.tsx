@@ -15,6 +15,7 @@ import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
 import * as keepAwake from 'tauri-plugin-keepawake-api'
+import AdvancedTranscribe from '~/components/AdvancedTranscribe'
 
 export default function Home() {
 	const { t } = useTranslation()
@@ -100,6 +101,7 @@ export default function Home() {
 						<div className="join join-vertical">
 							<LanguageInput />
 							{!vm.files.length && <AudioInput onClick={vm.selectFiles} />}
+							<AdvancedTranscribe />
 						</div>
 						{vm.audio && (
 							<div>

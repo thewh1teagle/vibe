@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
@@ -31,6 +31,8 @@ export function viewModel() {
 	const preference = usePreferenceProvider()
 	const navigate = useNavigate()
 	const [llm, setLlm] = useState<Llm | null>(null)
+	const location = useLocation()
+	const [outputFolder, setOutputFolder] = useState('')
 
 	useEffect(() => {
 		if (preference.llmConfig?.platform === 'ollama') {
@@ -55,8 +57,32 @@ export function viewModel() {
 		return asText(segments)
 	}
 
+	async function checkFilesState() {
+		if (location?.state?.files) {
+			const newFiles: NamedPath[] = []
+			for (const path of location.state.files) {
+				const name = await basename(path)
+				newFiles.push({ name, path })
+			}
+			setFiles(newFiles)
+		}
+	}
+
+	async function checkOutputFolderState() {
+		if (location.state?.outputFolder && !outputFolder) {
+			if (await fs.exists(location.state?.outputFolder)) {
+				setOutputFolder(location.state?.outputFolder)
+			}
+		}
+		console.log('check output')
+	}
+
 	useEffect(() => {
-		setInProgress(false)
+		checkOutputFolderState()
+	}, [])
+
+	useEffect(() => {
+		checkFilesState()
 		setCurrentIndex(0)
 	}, [files])
 
@@ -112,10 +138,10 @@ export function viewModel() {
 		if (inProgress) {
 			return
 		}
+		setInProgress(true)
 
 		startKeepAwake()
 
-		setInProgress(true)
 		let localIndex = 0
 		await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice, useGpu: preference.useGpu })
 		setCurrentIndex(localIndex)
@@ -131,6 +157,22 @@ export function viewModel() {
 					...preference.modelOptions,
 				}
 				const startTime = performance.now()
+
+				// Check if exists
+				const someFormat = formatExtensions[formats[0]]
+				const ext = await path.extname(file.path)
+				let dst = file.path.slice(0, -ext.length - 1) + someFormat
+				const baseName = await path.basename(dst)
+				if (!preference.advancedTranscribeOptions.saveNextToAudioFile && outputFolder) {
+					dst = await path.join(outputFolder, baseName)
+				}
+				file.path = dst
+
+				if (preference.advancedTranscribeOptions.skipIfExists && !outputFolder && (await fs.exists(dst))) {
+					// ^ We can't know if it's not next to the audio file, multiple files can have the same names
+					console.log('skipping existing')
+					continue
+				}
 
 				const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
 				const res: Transcript = await invoke('transcribe', {

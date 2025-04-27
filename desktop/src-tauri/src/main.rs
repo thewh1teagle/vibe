@@ -69,6 +69,7 @@ fn main() -> Result<()> {
             cmd::download_file,
             cmd::get_cargo_features,
             cmd::transcribe,
+            cmd::glob_files,
             cmd::download_model,
             cmd::load_model,
             cmd::get_commit_hash,
