@@ -83,7 +83,6 @@ export function viewModel() {
 
 	useEffect(() => {
 		checkFilesState()
-		setCurrentIndex(0)
 	}, [files])
 
 	async function selectFiles() {
@@ -171,6 +170,8 @@ export function viewModel() {
 				if (preference.advancedTranscribeOptions.skipIfExists && !outputFolder && (await fs.exists(dst))) {
 					// ^ We can't know if it's not next to the audio file, multiple files can have the same names
 					console.log('skipping existing')
+					localIndex += 1
+					setCurrentIndex(localIndex)
 					continue
 				}
 
