@@ -87,6 +87,8 @@ export interface ModelOptions {
 	max_text_ctx?: number
 	word_timestamps?: boolean
 	max_sentence_len?: number
+	sampling_strategy: 'greedy' | 'beam search'
+	sampling_bestof_or_beam_size?: number
 }
 
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -105,6 +107,8 @@ const defaultOptions = {
 		max_text_ctx: undefined,
 		word_timestamps: false,
 		max_sentence_len: 1,
+		sampling_strategy: 'beam search' as 'greedy' | 'beam search',
+		sampling_bestof_or_beam_size: 5,
 	},
 	ffmpegOptions: {
 		normalize_loudness: false,

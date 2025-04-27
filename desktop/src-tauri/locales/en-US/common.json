@@ -40,7 +40,7 @@
 	"download-models-link": "Download Models",
 	"downloading": "Downloading... {{progress}}%",
 	"downloading-ai-models": "Downloading AI models...",
-	"downloading-model": "Downloading OpenAI Model...",
+	"downloading-model": "Downloading {{company}} Model...",
 	"downloading-ytdlp": "Downloading ytdlp",
 	"enable-logs": "Enable Logs",
 	"error": "Error",

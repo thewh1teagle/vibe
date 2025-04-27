@@ -1,4 +1,4 @@
-use crate::config::{DEAFULT_MODEL_FILENAME, DEFAULT_MODEL_URLS, STORE_FILENAME};
+use crate::config::STORE_FILENAME;
 use crate::setup::ModelContext;
 use crate::utils::{get_current_dir, LogError};
 use eyre::{bail, eyre, Context, ContextCompat, OptionExt, Result};
@@ -84,17 +84,9 @@ pub fn get_x86_features() -> Option<Value> {
     }
 }
 #[tauri::command]
-pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -> Result<String> {
-    let model_path = if let Some(url) = url.clone() {
-        let filename = vibe_core::downloader::get_filename(&url).await?;
-        tracing::debug!("url filename is {}", filename);
-        get_models_folder(app_handle.clone())?.join(filename)
-    } else {
-        get_models_folder(app_handle.clone())?.join(DEAFULT_MODEL_FILENAME)
-    };
-
+pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: String) -> Result<String> {
     let mut downloader = vibe_core::downloader::Downloader::new();
-    tracing::debug!("Download model invoked! with path {}", model_path.display());
+    tracing::debug!("Download model invoked! with path {}", path);
 
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
@@ -133,33 +125,11 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: Option<String>) -
         }
     };
 
-    if let Some(url) = url {
-        downloader
-            .download(&url, model_path.to_owned(), download_progress_callback)
-            .await?;
-        set_progress_bar(&app_handle_c, None)?;
-        Ok(model_path.to_str().context("to_str")?.to_string())
-    } else {
-        let mut errors = Vec::new();
-        for url in DEFAULT_MODEL_URLS {
-            tracing::debug!("Download default model from URL {}", url);
-            match downloader
-                .download(url, model_path.to_owned(), download_progress_callback.clone())
-                .await
-            {
-                Err(e) => errors.push(format!("Failed to download from {}: {}", url, e)),
-                _ => {
-                    set_progress_bar(&app_handle_c, None)?;
-                    return Ok(model_path.to_str().context("to_str")?.to_string());
-                }
-            }
-        }
-        bail!(
-            "Could not download any model file. Errors: {:?}\nTried from {:?}",
-            errors,
-            DEFAULT_MODEL_URLS.join(",")
-        );
-    }
+    downloader
+        .download(&url, path.clone().into(), download_progress_callback)
+        .await?;
+    set_progress_bar(&app_handle_c, None)?;
+    Ok(path.to_string())
 }
 
 #[tauri::command]

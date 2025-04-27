@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
-import * as path from '@tauri-apps/api/path'
-import * as fs from '@tauri-apps/plugin-fs'
+import * as pathExt from '@tauri-apps/api/path'
+import * as fsExt from '@tauri-apps/plugin-fs'
 import * as config from './config'
 import { Dispatch, SetStateAction } from 'react'
 import { load } from '@tauri-apps/plugin-store'
@@ -14,15 +14,15 @@ export interface NamedPath {
 export type ModifyState<T> = Dispatch<SetStateAction<T>>
 
 export async function pathToNamedPath(pathString: string) {
-	const name = await path.basename(pathString)
+	const name = await pathExt.basename(pathString)
 	return { name, path: pathString }
 }
 
 export async function ls(where: string) {
-	const entries = await fs.readDir(where)
+	const entries = await fsExt.readDir(where)
 	const paths: NamedPath[] = []
 	for (const entry of entries) {
-		const abs = await path.join(where, entry.name)
+		const abs = await pathExt.join(where, entry.name)
 		paths.push({ name: entry.name, path: abs })
 	}
 	return paths
@@ -57,7 +57,7 @@ export async function resetApp() {
 		await store.clear()
 		if (modelPath) {
 			try {
-				await fs.remove(modelPath)
+				await fsExt.remove(modelPath)
 			} catch (e) {
 				console.error(e)
 			}
@@ -100,4 +100,35 @@ export async function stopKeepAwake() {
 	} catch (e) {
 		console.error(`Keep awake failed: ${e}`)
 	}
+}
+
+export async function downloadModel(url: string) {
+	let filename = await getFilenameFromUrl(url)
+	if (!filename.endsWith('.bin')) {
+		filename = 'ggml-model.bin'
+	}
+	const modelsFolder = await invoke<string>('get_models_folder')
+	let modelPath = await pathExt.join(modelsFolder, filename)
+	if (await fsExt.exists(modelPath)) {
+		filename = randomString(8, 'ggml-model_', '.bin')
+		modelPath = await pathExt.join(modelsFolder, filename)
+	}
+	await invoke('download_model', { url, path: modelPath })
+	return modelPath
+}
+
+export function randomString(length: number, prefix: string, suffix: string) {
+	const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+	let result = prefix
+	for (let i = 0; i < length; i++) {
+		result += chars.charAt(Math.floor(Math.random() * chars.length))
+	}
+	return result + suffix
+}
+
+export async function getFilenameFromUrl(url: string) {
+	// Get it from the url itself parse as url object and get last part
+	const urlObj = new URL(url)
+	const fileName = urlObj.pathname.split('/').pop() || ''
+	return fileName
 }

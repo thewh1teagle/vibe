@@ -4,6 +4,9 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { usePreferenceProvider } from '~/providers/Preference'
+import * as utils from '~/lib/utils'
+import * as osExt from '@tauri-apps/plugin-os'
+import * as config from '~/lib/config'
 
 export function viewModel() {
 	const location = useLocation()
@@ -13,6 +16,7 @@ export function viewModel() {
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
+	const [modelCompany, setModelCompany] = useState('OpenAI')
 
 	function handleProgressEvenets() {
 		listen('download_progress', (event) => {
@@ -31,23 +35,63 @@ export function viewModel() {
 
 	async function downloadModel() {
 		handleProgressEvenets()
+
+		let lastError = null
+
 		try {
+			let urls = []
+
+			// Determine model URLs
 			if (location?.state?.downloadURL) {
-				const path = await invoke('download_model', { url: location?.state?.downloadURL })
-				preference.setModelPath(path as string)
-				navigate('/')
+				urls = [location.state.downloadURL]
+				console.log(`[model] Using provided model URL: ${urls[0]}`)
+				if (urls[0].includes('ivrit')) {
+					setModelCompany('Ivrit-AI')
+				}
 			} else {
-				const path = await invoke('download_model')
-				preference.setModelPath(path as string)
-				navigate('/')
+				urls = [...config.modelUrls.default]
+				const locale = await osExt.locale()
+				console.log(`[locale] Detected locale: ${locale}`)
+
+				if (locale?.endsWith('-IL')) {
+					console.log(`[model] Prioritizing Hebrew models`)
+					urls.unshift(...config.modelUrls.hebrew)
+					setModelCompany('Ivrit-AI')
+				}
 			}
-		} catch (error) {
-			console.error(error)
-			setErrorModal?.({ open: true, log: String(error) })
+
+			// Try downloading from each URL
+			for (const url of urls) {
+				try {
+					console.log(`[model] Attempting to download from: ${url}`)
+					const path = await utils.downloadModel(url)
+					if (path) {
+						console.log(`[model] Download succeeded: ${path}`)
+						preference.setModelPath(path)
+						navigate('/')
+						return
+					}
+				} catch (err) {
+					console.error(`[model] Failed to download from ${url}:`, err)
+					lastError = err
+				}
+			}
+
+			throw new Error(`All model downloads failed. Last error: ${lastError}`)
+		} catch (err) {
+			console.error(`[model] Unhandled error:`, err)
+			setErrorModal?.({ open: true, log: String(err) })
 		}
 	}
 
 	async function downloadIfOnline() {
+		// Set company name based on locale
+		const locale = await osExt.locale()
+		if (locale?.endsWith('-IL')) {
+			setModelCompany('Ivrit-AI')
+		}
+
+		// Check if online
 		const isOnlineResponse = await invoke<boolean>('is_online')
 		// If online download model
 		if (isOnlineResponse) {
@@ -69,6 +113,7 @@ export function viewModel() {
 	}, [])
 
 	return {
+		modelCompany,
 		navigate,
 		cancelSetup,
 		setErrorModal,
