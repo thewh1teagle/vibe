@@ -351,18 +351,18 @@ export function viewModel() {
 		var newSegments: transcript.Segment[] = []
 		try {
 			const modelPath = preferenceRef.current.modelPath
-			await invoke('load_model', { modelPath, gpuDevice: preference.gpuDevice, useGpu: preference.useGpu })
+			await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice, useGpu: preferenceRef.current.useGpu })
 			const options = {
 				path,
-				...preference.modelOptions,
+				...preferenceRef.current.modelOptions,
 			}
 			const startTime = performance.now()
-			const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
+			const diarizeOptions = { threshold: preferenceRef.current.diarizeThreshold, max_speakers: preferenceRef.current.maxSpeakers, enabled: preferenceRef.current.recognizeSpeakers }
 			const res: transcript.Transcript = await invoke('transcribe', {
 				options,
 				modelPath,
 				diarizeOptions,
-				ffmpegOptions: preference.ffmpegOptions,
+				ffmpegOptions: preferenceRef.current.ffmpegOptions,
 			})
 
 			// Calcualte time
@@ -386,19 +386,19 @@ export function viewModel() {
 			setProgress(null)
 			if (!abortRef.current) {
 				// Focus back the window and play sound
-				if (preference.soundOnFinish) {
+				if (preferenceRef.current.soundOnFinish) {
 					new Audio(successSound).play()
 				}
-				if (preference.focusOnFinish) {
+				if (preferenceRef.current.focusOnFinish) {
 					webview.getCurrentWebviewWindow().unminimize()
 					webview.getCurrentWebviewWindow().setFocus()
 				}
 			}
 		}
 
-		if (newSegments && llm && preference.llmConfig?.enabled) {
+		if (newSegments && llm && preferenceRef.current.llmConfig?.enabled) {
 			try {
-				const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(newSegments))}`
+				const question = `${preferenceRef.current.llmConfig.prompt.replace('%s', transcript.asText(newSegments))}`
 				const answerPromise = llm.ask(question)
 				hotToast.promise(
 					answerPromise,
