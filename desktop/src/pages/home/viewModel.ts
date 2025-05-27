@@ -2,31 +2,31 @@ import '@fontsource/roboto'
 import { event, path } from '@tauri-apps/api'
 import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
+import { basename } from '@tauri-apps/api/path'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { open } from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
+import { toast as hotToast } from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocalStorage } from 'usehooks-ts'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
 import { AudioDevice } from '~/lib/audio'
 import * as config from '~/lib/config'
+import { Claude, Llm, Ollama } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
+import { useConfirmExit } from '~/lib/useConfirmExit'
 import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
 import { getX86Features } from '~/lib/x86Features'
+import * as ytDlp from '~/lib/ytdlp'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { useFilesContext } from '~/providers/FilesProvider'
 import { ModelOptions, usePreferenceProvider } from '~/providers/Preference'
-import { UpdaterContext } from '~/providers/Updater'
-import * as ytDlp from '~/lib/ytdlp'
-import { useTranslation } from 'react-i18next'
 import { useToastProvider } from '~/providers/Toast'
-import { basename } from '@tauri-apps/api/path'
-import { Claude, Llm, Ollama } from '~/lib/llm'
-import { toast as hotToast } from 'react-hot-toast'
-import { useLocalStorage } from 'usehooks-ts'
-import { useConfirmExit } from '~/lib/useConfirmExit'
+import { UpdaterContext } from '~/providers/Updater'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -54,6 +54,7 @@ export function viewModel() {
 
 	const { files, setFiles } = useFilesContext()
 	const preference = usePreferenceProvider()
+	const preferenceRef = useRef(preference)
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
@@ -113,6 +114,10 @@ export function viewModel() {
 			}
 		})
 	}, [])
+
+	useEffect(() => {
+		preferenceRef.current = preference
+	}, [preference])
 
 	async function cancelYtDlpDownload() {
 		cancelYtDlpRef.current = true
@@ -345,18 +350,19 @@ export function viewModel() {
 
 		var newSegments: transcript.Segment[] = []
 		try {
-			await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice, useGpu: preference.useGpu })
+			const modelPath = preferenceRef.current.modelPath
+			await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice, useGpu: preferenceRef.current.useGpu })
 			const options = {
 				path,
-				...preference.modelOptions,
+				...preferenceRef.current.modelOptions,
 			}
 			const startTime = performance.now()
-			const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
+			const diarizeOptions = { threshold: preferenceRef.current.diarizeThreshold, max_speakers: preferenceRef.current.maxSpeakers, enabled: preferenceRef.current.recognizeSpeakers }
 			const res: transcript.Transcript = await invoke('transcribe', {
 				options,
-				modelPath: preference.modelPath,
+				modelPath,
 				diarizeOptions,
-				ffmpegOptions: preference.ffmpegOptions,
+				ffmpegOptions: preferenceRef.current.ffmpegOptions,
 			})
 
 			// Calcualte time
@@ -380,19 +386,19 @@ export function viewModel() {
 			setProgress(null)
 			if (!abortRef.current) {
 				// Focus back the window and play sound
-				if (preference.soundOnFinish) {
+				if (preferenceRef.current.soundOnFinish) {
 					new Audio(successSound).play()
 				}
-				if (preference.focusOnFinish) {
+				if (preferenceRef.current.focusOnFinish) {
 					webview.getCurrentWebviewWindow().unminimize()
 					webview.getCurrentWebviewWindow().setFocus()
 				}
 			}
 		}
 
-		if (newSegments && llm && preference.llmConfig?.enabled) {
+		if (newSegments && llm && preferenceRef.current.llmConfig?.enabled) {
 			try {
-				const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(newSegments))}`
+				const question = `${preferenceRef.current.llmConfig.prompt.replace('%s', transcript.asText(newSegments))}`
 				const answerPromise = llm.ask(question)
 				hotToast.promise(
 					answerPromise,
