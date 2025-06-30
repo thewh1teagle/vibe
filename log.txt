@@ -1,0 +1,341 @@
+    Checking vibe v0.0.6 (/Volumes/Internal/audio/vibe/desktop/src-tauri)
+error[E0432]: unresolved import `eyre::anyhow`
+ --> desktop/src-tauri/src/utils.rs:2:11
+  |
+2 | use eyre::anyhow::Context;
+  |           ^^^^^^ could not find `anyhow` in `eyre`
+
+error[E0432]: unresolved import `vibe_core`
+ --> desktop/src-tauri/src/cmd/ytdlp.rs:8:5
+  |
+8 | use vibe_core::get_vibe_temp_folder;
+  |     ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0432]: unresolved import `crate::cmd::get_cuda_version`
+ --> desktop/src-tauri/src/utils.rs:9:35
+  |
+9 | use crate::cmd::{get_commit_hash, get_cuda_version, get_x86_features};
+  |                                   ^^^^^^^^^^^^^^^^ no `get_cuda_version` in `cmd`
+
+error[E0433]: failed to resolve: could not find `__cmd__is_online` in `cmd`
+  --> desktop/src-tauri/src/main.rs:60:18
+   |
+60 |             cmd::is_online,
+   |                  ^^^^^^^^^ could not find `__cmd__is_online` in `cmd`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+  --> desktop/src-tauri/src/cmd/mod.rs:49:26
+   |
+49 |     let mut downloader = vibe_core::downloader::Downloader::new();
+   |                          ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+  --> desktop/src-tauri/src/cmd/mod.rs:98:5
+   |
+98 |     vibe_core::audio::find_ffmpeg_path()
+   |     ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+   --> desktop/src-tauri/src/cmd/mod.rs:105:26
+    |
+105 |     let mut downloader = vibe_core::downloader::Downloader::new();
+    |                          ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+   --> desktop/src-tauri/src/cmd/mod.rs:226:14
+    |
+226 |     options: vibe_core::config::TranscribeOptions,
+    |              ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+   --> desktop/src-tauri/src/cmd/mod.rs:278:37
+    |
+278 |         core_diarize_options = Some(vibe_core::transcribe::DiarizeOptions {
+    |                                     ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+   --> desktop/src-tauri/src/cmd/mod.rs:288:9
+    |
+288 |         vibe_core::transcribe::transcribe(
+    |         ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+   --> desktop/src-tauri/src/cmd/mod.rs:378:27
+    |
+378 |             let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
+    |                           ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+   --> desktop/src-tauri/src/cmd/mod.rs:388:23
+    |
+388 |         let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
+    |                       ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0425]: cannot find function `get_vibe_temp_folder` in this scope
+   --> desktop/src-tauri/src/cmd/audio.rs:119:24
+    |
+119 |             let path = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
+    |                        ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+1   + use crate::cleaner::get_vibe_temp_folder;
+    |
+
+error[E0425]: cannot find function `get_vibe_temp_folder` in this scope
+   --> desktop/src-tauri/src/cmd/audio.rs:205:35
+    |
+205 |                 let output_path = get_vibe_temp_folder().join(format!("{}.wav", random_string(5)));
+    |                                   ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+1   + use crate::cleaner::get_vibe_temp_folder;
+    |
+
+error[E0425]: cannot find function `screencapturekit_to_wav` in module `screen_capture_kit`
+   --> desktop/src-tauri/src/cmd/audio.rs:206:37
+    |
+206 |                 screen_capture_kit::screencapturekit_to_wav(output_path.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^ not found in `screen_capture_kit`
+
+error[E0425]: cannot find function `get_vibe_temp_folder` in this scope
+   --> desktop/src-tauri/src/cmd/audio.rs:215:23
+    |
+215 |             let dst = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
+    |                       ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+1   + use crate::cleaner::get_vibe_temp_folder;
+    |
+
+error[E0425]: cannot find function `get_vibe_temp_folder` in this scope
+   --> desktop/src-tauri/src/cmd/audio.rs:229:30
+    |
+229 |         let mut normalized = get_vibe_temp_folder().join(format!("{}.wav", get_local_time()));
+    |                              ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+1   + use crate::cleaner::get_vibe_temp_folder;
+    |
+
+error[E0412]: cannot find type `Transcript` in this scope
+   --> desktop/src-tauri/src/cmd/mod.rs:230:13
+    |
+230 | ) -> Result<Transcript> {
+    |             ^^^^^^^^^^ not found in this scope
+    |
+help: you might be missing a type parameter
+    |
+230 | ) -> Result<Transcript><Transcript> {
+    |            ++++++++++++
+
+error[E0412]: cannot find type `Transcript` in this scope
+   --> desktop/src-tauri/src/cmd/mod.rs:230:13
+    |
+230 | ) -> Result<Transcript> {
+    |             ^^^^^^^^^^ not found in this scope
+    |
+help: you might be missing a type parameter
+    |
+224 | pub async fn transcribe<Transcript>(
+    |                        ++++++++++++
+
+error[E0412]: cannot find type `Segment` in this scope
+   --> desktop/src-tauri/src/cmd/mod.rs:238:47
+    |
+238 |     let new_segment_callback = move |segment: Segment| {
+    |                                               ^^^^^^^ not found in this scope
+
+error[E0412]: cannot find type `WhisperContext` in this scope
+  --> desktop/src-tauri/src/setup.rs:20:17
+   |
+20 |     pub handle: WhisperContext,
+   |                 ^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find function `get_vibe_temp_folder` in this scope
+  --> desktop/src-tauri/src/screen_capture_kit.rs:33:25
+   |
+33 |         let base_path = get_vibe_temp_folder();
+   |                         ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+   |
+help: consider importing this function
+   |
+1  + use crate::cleaner::get_vibe_temp_folder;
+   |
+
+error[E0425]: cannot find function `get_vibe_temp_folder` in this scope
+   --> desktop/src-tauri/src/screen_capture_kit.rs:101:21
+    |
+101 |     let base_path = get_vibe_temp_folder();
+    |                     ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this function
+    |
+1   + use crate::cleaner::get_vibe_temp_folder;
+    |
+
+warning: unused import: `eyre::eyre`
+ --> desktop/src-tauri/src/setup.rs:5:5
+  |
+5 | use eyre::eyre;
+  |     ^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `bail`
+ --> desktop/src-tauri/src/screen_capture_kit.rs:2:12
+  |
+2 | use eyre::{bail, eyre, Context, ContextCompat, Result};
+  |            ^^^^
+
+warning: unused imports: `Command` and `Stdio`
+  --> desktop/src-tauri/src/screen_capture_kit.rs:14:20
+   |
+14 | use std::process::{Command, Stdio};
+   |                    ^^^^^^^  ^^^^^
+
+error[E0599]: the method `is_none` exists for struct `MutexGuard<'_, Option<ModelContext>>`, but its trait bounds were not satisfied
+   --> desktop/src-tauri/src/cmd/mod.rs:232:22
+    |
+232 |     if model_context.is_none() {
+    |                      ^^^^^^^ method cannot be called on `MutexGuard<'_, Option<ModelContext>>` due to unsatisfied trait bounds
+    |
+   ::: desktop/src-tauri/src/setup.rs:16:1
+    |
+16  | pub struct ModelContext {
+    | ----------------------- doesn't satisfy `ModelContext: Sized`
+    |
+    = note: the following trait bounds were not satisfied:
+            `{type error}: Sized`
+            which is required by `ModelContext: Sized`
+
+error[E0599]: the method `as_ref` exists for struct `MutexGuard<'_, Option<ModelContext>>`, but its trait bounds were not satisfied
+   --> desktop/src-tauri/src/cmd/mod.rs:235:29
+    |
+235 |     let ctx = model_context.as_ref().context("as ref")?;
+    |                             ^^^^^^ method cannot be called on `MutexGuard<'_, Option<ModelContext>>` due to unsatisfied trait bounds
+    |
+   ::: desktop/src-tauri/src/setup.rs:16:1
+    |
+16  | pub struct ModelContext {
+    | ----------------------- doesn't satisfy `ModelContext: Sized`
+    |
+    = note: the following trait bounds were not satisfied:
+            `{type error}: Sized`
+            which is required by `ModelContext: Sized`
+
+error[E0599]: the method `as_ref` exists for struct `MutexGuard<'_, Option<ModelContext>>`, but its trait bounds were not satisfied
+   --> desktop/src-tauri/src/cmd/mod.rs:373:38
+    |
+373 |     if let Some(state) = state_guard.as_ref() {
+    |                                      ^^^^^^ method cannot be called on `MutexGuard<'_, Option<ModelContext>>` due to unsatisfied trait bounds
+    |
+   ::: desktop/src-tauri/src/setup.rs:16:1
+    |
+16  | pub struct ModelContext {
+    | ----------------------- doesn't satisfy `ModelContext: Sized`
+    |
+    = note: the following trait bounds were not satisfied:
+            `{type error}: Sized`
+            which is required by `ModelContext: Sized`
+
+error[E0433]: failed to resolve: use of undeclared crate or module `vibe_core`
+   --> desktop/src-tauri/src/cmd/mod.rs:428:21
+    |
+428 |     let temp_path = vibe_core::get_vibe_temp_folder();
+    |                     ^^^^^^^^^ use of undeclared crate or module `vibe_core`
+
+error[E0308]: mismatched types
+   --> desktop/src-tauri/src/cmd/audio.rs:230:52
+    |
+230 |         normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
+    |         ---------                                  ^^^^ expected `AppHandle`, found `Option<_>`
+    |         |
+    |         arguments to this function are incorrect
+    |
+    = note: expected struct `AppHandle`
+                 found enum `std::option::Option<_>`
+note: function defined here
+   --> desktop/src-tauri/src/cmd/audio.rs:79:8
+    |
+79  | pub fn normalize(src: PathBuf, dst: PathBuf, app_handle: AppHandle) -> Result<()> {
+    |        ^^^^^^^^^                             ---------------------
+
+error[E0433]: failed to resolve: use of undeclared crate or module `panic_hook`
+  --> desktop/src-tauri/src/setup.rs:25:5
+   |
+25 |     panic_hook::set_panic_hook(app.app_handle())?;
+   |     ^^^^^^^^^^ use of undeclared crate or module `panic_hook`
+
+error[E0599]: the method `async_kind` exists for reference `&impl Future<Output = Result<{type error}, {type error}>>`, but its trait bounds were not satisfied
+   --> desktop/src-tauri/src/cmd/mod.rs:223:1
+    |
+223 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called due to unsatisfied trait bounds
+    |
+   ::: desktop/src-tauri/src/main.rs:53:25
+    |
+53  |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+54  | |             cmd::download_file,
+55  | |             cmd::transcribe,
+56  | |             cmd::glob_files,
+...   |
+76  | |             cmd::ytdlp::get_temp_path,
+77  | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `impl Future<Output = Result<{type error}, {type error}>>: IpcResponse`
+            which is required by `&impl Future<Output = Result<{type error}, {type error}>>: tauri::ipc::private::ResponseKind`
+            `<&impl Future<Output = Result<{type error}, {type error}>> as Future>::Output = Result<_, _>`
+            which is required by `&impl Future<Output = Result<{type error}, {type error}>>: tauri::ipc::private::ResultFutureKind`
+            `&impl Future<Output = Result<{type error}, {type error}>>: Future`
+            which is required by `&impl Future<Output = Result<{type error}, {type error}>>: tauri::ipc::private::ResultFutureKind`
+    = note: this error originates in the macro `cmd::__cmd__transcribe` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused variable: `a`
+  --> desktop/src-tauri/src/cmd/audio.rs:75:24
+   |
+75 | pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
+   |                        ^ help: if this is intentional, prefix it with an underscore: `_a`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `b`
+  --> desktop/src-tauri/src/cmd/audio.rs:75:36
+   |
+75 | pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
+   |                                    ^ help: if this is intentional, prefix it with an underscore: `_b`
+
+warning: unused variable: `dst`
+  --> desktop/src-tauri/src/cmd/audio.rs:75:48
+   |
+75 | pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
+   |                                                ^^^ help: if this is intentional, prefix it with an underscore: `_dst`
+
+warning: unused variable: `src`
+  --> desktop/src-tauri/src/cmd/audio.rs:79:18
+   |
+79 | pub fn normalize(src: PathBuf, dst: PathBuf, app_handle: AppHandle) -> Result<()> {
+   |                  ^^^ help: if this is intentional, prefix it with an underscore: `_src`
+
+warning: unused variable: `dst`
+  --> desktop/src-tauri/src/cmd/audio.rs:79:32
+   |
+79 | pub fn normalize(src: PathBuf, dst: PathBuf, app_handle: AppHandle) -> Result<()> {
+   |                                ^^^ help: if this is intentional, prefix it with an underscore: `_dst`
+
+warning: unused variable: `app_handle`
+  --> desktop/src-tauri/src/cmd/audio.rs:79:46
+   |
+79 | pub fn normalize(src: PathBuf, dst: PathBuf, app_handle: AppHandle) -> Result<()> {
+   |                                              ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_app_handle`
+
+Some errors have detailed explanations: E0308, E0412, E0425, E0432, E0433, E0599.
+For more information about an error, try `rustc --explain E0308`.
+warning: `vibe` (bin "vibe") generated 9 warnings
+error: could not compile `vibe` (bin "vibe") due to 30 previous errors; 9 warnings emitted

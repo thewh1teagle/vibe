@@ -1,7 +1,17 @@
 use crate::utils::LogError;
 use crate::{cmd::get_logs_folder, config, logging::get_log_path};
 use eyre::{eyre, ContextCompat, Result};
-use vibe_core::get_vibe_temp_folder;
+
+pub fn get_vibe_temp_folder() -> std::path::PathBuf {
+    use chrono::Local;
+    let current_datetime = Local::now();
+    let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();
+    let dir = std::env::temp_dir().join(format!("vibe_temp_{}", formatted_datetime));
+    if std::fs::create_dir_all(&dir).is_ok() {
+        return dir;
+    }
+    std::env::temp_dir()
+}
 
 pub fn clean_old_logs(app: &tauri::AppHandle) -> Result<()> {
     tracing::debug!("clean old logs");
