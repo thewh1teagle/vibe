@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+serde = { version = "1.0.195", features = ["derive"] }
+num = "0.4.1"
+eyre = { workspace = true }
+utoipa = { version = "4.2.3", features = ["axum_extras"] }

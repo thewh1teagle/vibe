@@ -14,7 +14,6 @@ use tauri::Manager;
 use tauri::{Emitter, Listener, State};
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
-use vibe_core::transcript::Transcript;
 pub mod audio;
 pub mod ytdlp;
 

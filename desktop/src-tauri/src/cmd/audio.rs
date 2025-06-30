@@ -8,7 +8,6 @@ use std::io::BufWriter;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Listener, Manager};
-use vibe_core::get_vibe_temp_folder;
 
 #[cfg(target_os = "macos")]
 use crate::screen_capture_kit;
@@ -72,6 +71,14 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
 struct StreamHandle(Stream);
 unsafe impl Send for StreamHandle {}
 unsafe impl Sync for StreamHandle {}
+
+pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
+    Ok(())
+}
+
+pub fn normalize(src: PathBuf, dst: PathBuf, app_handle: AppHandle) -> Result<()> {
+    Ok(())
+}
 
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
@@ -207,7 +214,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
             tracing::debug!("Merging WAV files");
-            vibe_core::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+            merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
             dst
         } else if wav_paths[0].1 > wav_paths[1].1 {
             // First WAV file has a larger sample count, choose it
@@ -220,7 +227,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 
         tracing::debug!("Emitting record_finish event");
         let mut normalized = get_vibe_temp_folder().join(format!("{}.wav", get_local_time()));
-        vibe_core::audio::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
+        normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
 
         if store_in_documents {
             if let Some(file_name) = normalized.file_name() {
