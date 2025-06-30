@@ -94,20 +94,6 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    tracing::debug!("Cargo features: {}", crate::cmd::get_cargo_features().join(", "));
-
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
-    tracing::debug!(
-        "CPU Features\n{}",
-        crate::cmd::get_x86_features()
-            .map(|v| serde_json::to_string(&v).unwrap_or_default())
-            .unwrap_or_default()
-    );
-
-    #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows")))]
-    tracing::debug!("CPU feature detection is not supported on this architecture.");
-    tracing::debug!("Executable Architecture: {}", std::env::consts::ARCH);
-
     tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
     tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
     tracing::debug!("App Info: {}", crate::utils::get_app_info());
