@@ -1,7 +1,5 @@
 use crate::{
-    cli::{self, is_cli_detected},
     config::STORE_FILENAME,
-    panic_hook,
     utils::{get_issue_url, LogError},
 };
 use eyre::eyre;
@@ -12,7 +10,6 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_shell::ShellExt;
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
-use vibe_core::transcribe::WhisperContext;
 
 pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
 
@@ -115,28 +112,19 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
     tracing::debug!("App Info: {}", crate::utils::get_app_info());
 
-    let app_handle = app.app_handle().clone();
-    if is_cli_detected() {
-        tracing::debug!("CLI mode");
-        tauri::async_runtime::spawn(async move {
-            cli::run(&app_handle).await.map_err(|e| eyre!("{:?}", e)).log_error();
-        });
-    } else {
-        tracing::debug!("Non CLI mode");
-        // Create main window
-        let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
-            .inner_size(800.0, 700.0)
-            .min_inner_size(800.0, 700.0)
-            .center()
-            .title("Vibe")
-            .resizable(true)
-            .focused(true)
-            .shadow(true)
-            .visible(true) // TODO: hide it again? it shows flicker white on boot. but if we hide it won't show errors
-            .build();
-        if let Err(error) = result {
-            tracing::error!("{:?}", error);
-        }
+    // Create main window
+    let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+        .inner_size(800.0, 700.0)
+        .min_inner_size(800.0, 700.0)
+        .center()
+        .title("Vibe")
+        .resizable(true)
+        .focused(true)
+        .shadow(true)
+        .visible(true) // TODO: hide it again? it shows flicker white on boot. but if we hide it won't show errors
+        .build();
+    if let Err(error) = result {
+        tracing::error!("{:?}", error);
     }
     Ok(())
 }

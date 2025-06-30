@@ -9,6 +9,29 @@ fn copy_file(src: &Path, dst: &Path) {
     std::fs::copy(src, dst).unwrap();
 }
 
+fn extract_whisper_env() {
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_AVX");
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_AVX2");
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_FMA");
+    println!("cargo:rerun-if-env-changed=WHISPER_NO_F16C");
+    println!(
+        "cargo:rustc-env=WHISPER_NO_AVX={}",
+        std::env::var("WHISPER_NO_AVX").unwrap_or_default().trim()
+    );
+    println!(
+        "cargo:rustc-env=WHISPER_NO_AVX2={}",
+        std::env::var("WHISPER_NO_AVX2").unwrap_or_default().trim()
+    );
+    println!(
+        "cargo:rustc-env=WHISPER_NO_FMA={}",
+        std::env::var("WHISPER_NO_FMA").unwrap_or_default().trim()
+    );
+    println!(
+        "cargo:rustc-env=WHISPER_NO_F16C={}",
+        std::env::var("WHISPER_NO_F16C").unwrap_or_default().trim()
+    );
+}
+
 fn get_cargo_target_dir() -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
     let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR")?);
     let profile = std::env::var("PROFILE")?;

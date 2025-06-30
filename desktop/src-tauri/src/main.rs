@@ -2,13 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod cleaner;
-mod cli;
 mod cmd;
 mod config;
-mod panic_hook;
-
-#[cfg(feature = "server")]
-mod server;
 
 mod setup;
 mod utils;
@@ -18,14 +13,8 @@ mod logging;
 #[cfg(target_os = "macos")]
 mod dock;
 
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
-mod x86_features;
-
 #[cfg(windows)]
 mod custom_protocol;
-
-#[cfg(windows)]
-mod gpu_preference;
 
 #[cfg(target_os = "macos")]
 mod screen_capture_kit;
@@ -36,10 +25,6 @@ use tauri_plugin_window_state::StateFlags;
 use utils::LogError;
 
 fn main() -> Result<()> {
-    // Attach console in Windows:
-    #[cfg(all(windows, not(debug_assertions)))]
-    cli::attach_console();
-
     tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -67,15 +52,11 @@ fn main() -> Result<()> {
         .plugin(tauri_plugin_keepawake::init())
         .invoke_handler(tauri::generate_handler![
             cmd::download_file,
-            cmd::get_cargo_features,
             cmd::transcribe,
             cmd::glob_files,
             cmd::download_model,
             cmd::load_model,
             cmd::get_commit_hash,
-            cmd::get_cuda_version,
-            cmd::get_rocm_version,
-            cmd::is_avx2_enabled,
             cmd::is_online,
             cmd::get_path_dst,
             cmd::get_logs,
@@ -87,17 +68,12 @@ fn main() -> Result<()> {
             cmd::audio::start_record,
             cmd::get_models_folder,
             cmd::is_portable,
-            cmd::check_vulkan,
             cmd::get_logs_folder,
             cmd::show_log_path,
             cmd::show_temp_path,
             cmd::get_ffmpeg_path,
             cmd::ytdlp::download_audio,
             cmd::ytdlp::get_temp_path,
-            cmd::is_crashed_recently,
-            cmd::rename_crash_file,
-            #[cfg(windows)]
-            cmd::set_high_gpu_preference
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
