@@ -322,7 +322,7 @@ pub async fn transcribe(
         });
     }
     let ffmpeg_options = ffmpeg_options.to_vec();
-    tracing::debug!("ffmpeg additiona options: {:?}", ffmpeg_options);
+    tracing::debug!("ffmpeg additional options: {:?}", ffmpeg_options);
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
         vibe_core::transcribe::transcribe(
             &ctx.handle,

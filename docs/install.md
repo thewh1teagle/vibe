@@ -11,7 +11,7 @@ Linux: Tested on `ubuntu-22.04+`
 Hardware:
 No special requirement. resource usage can be customized through advanced settings in main window.
 
-Currenly, listening for the audio file isn't supported on `Linux`
+Currently, listening for the audio file isn't supported on `Linux`
 
 In addition you may need to set this environment variable before start it
 

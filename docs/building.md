@@ -171,7 +171,7 @@ cargo clippy
 
 # Create new release
 
-1. Increment verison in `tauri.conf.json` and commit
+1. Increment version in `tauri.conf.json` and commit
 2. Create new git tag and push
 
 ```console

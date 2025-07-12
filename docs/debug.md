@@ -56,7 +56,7 @@ main.exe -m "%localappdata%\github.com.thewh1teagle.vibe\ggml-medium.bin" -f "sa
 <details>
 <summary>App crashing and no even errors!</summary>
 
-In windows, open search menu and search for `Event Viewr`, choose `Windows Logs` -> `Application` and check if there's some error there
+In windows, open search menu and search for `Event Viewer`, choose `Windows Logs` -> `Application` and check if there's some error there
 
 </details>
 

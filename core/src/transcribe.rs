@@ -43,7 +43,7 @@ pub fn create_context(model_path: &Path, gpu_device: Option<i32>, use_gpu: Optio
         }
         Ok(ctx_result) => {
             let ctx = ctx_result?;
-            tracing::debug!("created context successfuly");
+            tracing::debug!("created context successfully");
             Ok(ctx)
         }
     }
@@ -249,7 +249,7 @@ pub fn transcribe(
                         .unwrap_or("?".into())
                 };
 
-                // convert to whisper comptible timestamps
+                // convert to whisper compatible timestamps
                 let start = 100 * (diarize_segment.start as i64);
                 let stop = 100 * (diarize_segment.end as i64);
                 let text = state.full_get_segment_text_lossy(0).context("failed to get segment")?;
@@ -283,7 +283,7 @@ pub fn transcribe(
         whisper_rs::convert_integer_to_float_audio(&original_samples, &mut samples)?;
 
         if let Some(new_segment_callback) = new_segment_callback {
-            let internal_new_segmet_callback = move |segment: SegmentCallbackData| {
+            let internal_new_segment_callback = move |segment: SegmentCallbackData| {
                 new_segment_callback(Segment {
                     start: segment.start_timestamp,
                     stop: segment.end_timestamp,
@@ -291,7 +291,7 @@ pub fn transcribe(
                     text: segment.text,
                 })
             };
-            params.set_segment_callback_safe_lossy(internal_new_segmet_callback);
+            params.set_segment_callback_safe_lossy(internal_new_segment_callback);
         }
 
         if let Some(abort_callback) = abort_callback {
@@ -324,7 +324,7 @@ pub fn transcribe(
         tracing::debug!("getting segments count...");
         let num_segments = state.full_n_segments().context("failed to get number of segments")?;
         if num_segments == 0 {
-            bail!("no segements found!")
+            bail!("no segments found!")
         }
         tracing::debug!("found {} sentence segments", num_segments);
 

@@ -37,7 +37,7 @@ For high accuracy and more computational resources, excels in complex scenarios.
 [👉 Magic Setup](https://tinyurl.com/yphwban5)  
 [🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
 
-### ✡️ Ivrit Model v3 Trubo (Recommended)
+### ✡️ Ivrit Model v3 Turbo (Recommended)
 
 Specialized for Hebrew (Ivrit) language data, optimized for high speed and accuracy in Hebrew tasks.
 
