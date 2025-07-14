@@ -27,7 +27,7 @@ pub fn attach_console() {
             libc::freopen(conout.as_ptr(), mode.as_ptr(), stdout);
             libc::freopen(conout.as_ptr(), mode.as_ptr(), stderr);
         }
-        tracing::debug!("CLI detected. attached console successfuly");
+        tracing::debug!("CLI detected. attached console successfully");
     } else {
         tracing::debug!("No CLI detected.");
     }
@@ -130,7 +130,7 @@ fn get_possible_languages() -> Vec<String> {
     let languages: Value = serde_json::from_str(languages).expect("whisper languages");
     let languages = languages
         .as_object()
-        .expect("whisper languages deserialize erroo")
+        .expect("whisper languages deserialize error")
         .keys()
         .cloned()
         .collect::<Vec<String>>();
