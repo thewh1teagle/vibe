@@ -8,6 +8,8 @@ import { initReactI18next } from 'react-i18next/initReactI18next'
 export const supportedLanguages: { [key: string]: string } = {
 	'he-IL': 'hebrew',
 	'en-US': 'english',
+	'es-ES': 'spanish (ES)',
+	'es-MX': 'spanish (MX)',
 	'pt-BR': 'portuguese',
 	'sv-SE': 'swedish',
 	'zh-CN': 'chinese',
