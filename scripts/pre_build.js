@@ -19,7 +19,7 @@ function hasFeature(name) {
 
 async function wget(url, path) {
 	if (platform === 'windows') {
-		await $`C:\\msys64\\usr\\bin\\wget.exe --show-progress --progress=bar:force:noscroll --tries=10 -nc ${url} -O ${path}`
+		await $`wget.exe --show-progress --progress=bar:force:noscroll --tries=10 -nc ${url} -O ${path}`
 	} else {
 		await $`wget --show-progress --progress=bar:force:noscroll --tries=10 -nc ${url} -O ${path}`
 	}
