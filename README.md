@@ -8,6 +8,10 @@
   </a>
 </p>
 
+<p align="center">
+  This document is also available in: <a href="README_zh.md">简体中文</a>
+</p>
+
 <h1 align="center">Vibe - Transcribe on your own!</h1>
 
 <p align="center">
