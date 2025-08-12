@@ -267,6 +267,11 @@ pub async fn transcribe(
     diarize_options: DiarizeOptions,
     ffmpeg_options: FfmpegOptions,
 ) -> Result<Transcript> {
+    // Check if pyannote is available when diarize is requested
+    if diarize_options.enabled && !cfg!(feature = "pyannote") {
+        bail!("Diarize is not available - pyannote feature not enabled");
+    }
+
     let model_context = model_context_state.lock().await;
     if model_context.is_none() {
         bail!("Please load model first")
@@ -398,6 +403,11 @@ pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
 #[tauri::command]
 pub fn get_argv() -> Vec<String> {
     std::env::args().collect()
+}
+
+#[tauri::command]
+pub fn is_pyannote_available() -> bool {
+    cfg!(feature = "pyannote")
 }
 
 #[tauri::command]

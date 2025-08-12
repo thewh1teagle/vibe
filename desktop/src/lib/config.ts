@@ -46,3 +46,13 @@ export const ytDlpConfig = {
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm']
 export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a']
 export const themes = ['light', 'dark']
+
+// Check if pyannote feature is available
+export const isPyannoteAvailable = async (): Promise<boolean> => {
+    try {
+        const { invoke } = await import('@tauri-apps/api/core')
+        return await invoke('is_pyannote_available')
+    } catch {
+        return false
+    }
+}

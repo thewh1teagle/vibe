@@ -173,6 +173,12 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     if args.diarize && args.diarize_vad_model.is_none() {
         panic!("Please provide model path with --diarize-vad-model")
     }
+    
+    // Check if pyannote is available when diarize is requested
+    if args.diarize && !cfg!(feature = "pyannote") {
+        panic!("Diarize is not available - pyannote feature not enabled")
+    }
+    
     if args.diarize {
         args.word_timestamps = true;
         args.max_sentence_len = Some(24);

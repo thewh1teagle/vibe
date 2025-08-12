@@ -108,6 +108,32 @@ cd desktop
 bunx tauri build
 ```
 
+## Build with `pyannote` support
+
+The pyannote feature enables speaker diarization (speaker recognition) functionality. This feature is optional and can be enabled by adding the `pyannote` feature flag.
+
+1. Enable `pyannote` feature in `desktop/src-tauri/Cargo.toml`:
+
+```toml
+[features]
+default = []
+pyannote = ["vibe_core/pyannote"]
+# ... other features
+```
+
+2. Build with the pyannote feature:
+
+```console
+cargo build --features "pyannote"
+# or for release
+cargo build --release --features "pyannote"
+```
+
+**Note**: When the pyannote feature is not enabled:
+- Speaker recognition UI elements will not be displayed
+- Diarize-related functions will return an error if called
+- The application will function normally for basic transcription without speaker recognition
+
 ## Gotchas
 
 ### On Linux cmake not find Vulkan

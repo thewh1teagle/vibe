@@ -103,6 +103,12 @@ async fn transcribe(
     Json(payload): Json<TranscribeOptions>,
 ) -> Result<Json<Transcript>, (StatusCode, String)> {
     let model_context_state: tauri::State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
+    
+    // Check if pyannote is available for server transcribe
+    if !cfg!(feature = "pyannote") {
+        return Err((StatusCode::BAD_REQUEST, "Diarize is not available - pyannote feature not enabled".to_string()));
+    }
+    
     let transcript = cmd::transcribe(
         app_handle.clone(),
         payload,

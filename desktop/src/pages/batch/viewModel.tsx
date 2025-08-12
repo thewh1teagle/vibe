@@ -173,7 +173,14 @@ export function viewModel() {
 					continue
 				}
 
-				const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
+				// Check if pyannote is available before setting diarize options
+				const pyannoteAvailable = await config.isPyannoteAvailable()
+				const diarizeOptions = { 
+					threshold: preference.diarizeThreshold, 
+					max_speakers: preference.maxSpeakers, 
+					enabled: preference.recognizeSpeakers && pyannoteAvailable 
+				}
+				
 				const res: Transcript = await invoke('transcribe', {
 					options,
 					modelPath: preference.modelPath,
