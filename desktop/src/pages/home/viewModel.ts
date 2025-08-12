@@ -357,7 +357,15 @@ export function viewModel() {
 				...preferenceRef.current.modelOptions,
 			}
 			const startTime = performance.now()
-			const diarizeOptions = { threshold: preferenceRef.current.diarizeThreshold, max_speakers: preferenceRef.current.maxSpeakers, enabled: preferenceRef.current.recognizeSpeakers }
+			
+			// Check if pyannote is available before setting diarize options
+			const pyannoteAvailable = await config.isPyannoteAvailable()
+			const diarizeOptions = { 
+				threshold: preferenceRef.current.diarizeThreshold, 
+				max_speakers: preferenceRef.current.maxSpeakers, 
+				enabled: preferenceRef.current.recognizeSpeakers && pyannoteAvailable 
+			}
+			
 			const res: transcript.Transcript = await invoke('transcribe', {
 				options,
 				modelPath,

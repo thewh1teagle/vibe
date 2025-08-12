@@ -40,16 +40,24 @@ fn main() -> Result<()> {
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
 
-    tauri::Builder::default()
+    // start the builder
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_clipboard_manager::init())
-        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+        .plugin(tauri_plugin_clipboard_manager::init());
+
+    // disable single instance on aarch64 windows (null pointer deref)
+    #[cfg(not(all(target_os = "windows", target_arch = "aarch64")))]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
             if let Some(webview) = app.get_webview_window("main") {
                 webview.set_focus().map_err(|e| eyre!("{:?}", e)).log_error();
             }
             app.emit("single-instance", argv).map_err(|e| eyre!("{:?}", e)).log_error();
-        }))
+        }));
+    }
+
+    builder
         .setup(|app| setup::setup(app))
         .plugin(
             tauri_plugin_window_state::Builder::default()
@@ -101,5 +109,6 @@ fn main() -> Result<()> {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
     Ok(())
 }
