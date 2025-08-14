@@ -16,7 +16,7 @@ import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
 import { AudioDevice } from '~/lib/audio'
 import * as config from '~/lib/config'
-import { Claude, Llm, Ollama } from '~/lib/llm'
+import { Claude, Llm, Ollama, OpenAI } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { useConfirmExit } from '~/lib/useConfirmExit'
 import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
@@ -100,8 +100,11 @@ export function viewModel() {
 		if (preference.llmConfig?.platform === 'ollama') {
 			const llmInstance = new Ollama(preference.llmConfig)
 			setLlm(llmInstance)
-		} else {
+		} else if (preference.llmConfig?.platform === 'claude') {
 			const llmInstance = new Claude(preference.llmConfig)
+			setLlm(llmInstance)
+		} else if (preference.llmConfig?.platform === 'openai') {
+			const llmInstance = new OpenAI(preference.llmConfig)
 			setLlm(llmInstance)
 		}
 	}, [preference.llmConfig])
