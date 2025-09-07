@@ -29,6 +29,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const { t } = useTranslation()
 	const toast = useToastProvider()
 	const [llm, setLlm] = useState<Llm | null>(null)
+	const [pyannoteAvailable, setPyannoteAvailable] = useState(false)
 
 	useEffect(() => {
 		if (preference.llmConfig?.platform === 'ollama') {
@@ -39,6 +40,11 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 			setLlm(llmInstance)
 		}
 	}, [preference.llmConfig])
+
+	useEffect(() => {
+		// Check if pyannote is available
+		config.isPyannoteAvailable().then(setPyannoteAvailable)
+	}, [])
 
 	useEffect(() => {
 		if (preference.recognizeSpeakers) {
@@ -137,55 +143,59 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 			</div>
 			{open && (
 				<div className={cx(`collapse-content w-full`)}>
-					<div className="label mt-5">
-						<span className="label-text text-2xl font-bold">{t('common.speaker-recognition')}</span>
-					</div>
-					<div className="form-control w-full mt-3">
-						<label className="label cursor-pointer">
-							<span className="label-text flex items-center gap-1 cursor-default">
-								<InfoTooltip text={t('common.info-recognize-speakers')} />
-								{t('common.recognize-speakers')}
-							</span>
-							<input
-								type="checkbox"
-								className="toggle toggle-primary"
-								checked={preference.recognizeSpeakers}
-								onChange={onRecognizeSpeakerChange}
-							/>
-						</label>
-					</div>
-					<label className="form-control w-full">
-						<div className="label">
-							<span className="label-text flex items-center gap-1">
-								<InfoTooltip text={t('common.info-max-speakers')} />
-								{t('common.max-speakers')}
-							</span>
-						</div>
-						<input
-							onChange={(e) => preference.setMaxSpeakers(parseInt(e.target.value) || 5)}
-							value={preference.maxSpeakers}
-							className="input input-bordered"
-							type="number"
-						/>
-					</label>
+					{pyannoteAvailable && (
+						<>
+							<div className="label mt-5">
+								<span className="label-text text-2xl font-bold">{t('common.speaker-recognition')}</span>
+							</div>
+							<div className="form-control w-full mt-3">
+								<label className="label cursor-pointer">
+									<span className="label-text flex items-center gap-1 cursor-default">
+										<InfoTooltip text={t('common.info-recognize-speakers')} />
+										{t('common.recognize-speakers')}
+									</span>
+									<input
+										type="checkbox"
+										className="toggle toggle-primary"
+										checked={preference.recognizeSpeakers}
+										onChange={onRecognizeSpeakerChange}
+									/>
+								</label>
+							</div>
+							<label className="form-control w-full">
+								<div className="label">
+									<span className="label-text flex items-center gap-1">
+										<InfoTooltip text={t('common.info-max-speakers')} />
+										{t('common.max-speakers')}
+									</span>
+								</div>
+								<input
+									onChange={(e) => preference.setMaxSpeakers(parseInt(e.target.value) || 5)}
+									value={preference.maxSpeakers}
+									className="input input-bordered"
+									type="number"
+								/>
+							</label>
 
-					<label className="form-control w-full">
-						<div className="label">
-							<span className="label-text flex items-center gap-1">
-								<InfoTooltip text={t('common.info-diarize-threshold')} />
-								{t('common.diarize-threshold')}
-							</span>
-						</div>
-						<input
-							onChange={(e) => preference.setDiarizeThreshold(parseFloat(e.target.value))}
-							value={preference.diarizeThreshold}
-							className="input input-bordered"
-							type="number"
-							step={0.1}
-							min={0.0}
-							max={1.0}
-						/>
-					</label>
+							<label className="form-control w-full">
+								<div className="label">
+									<span className="label-text flex items-center gap-1">
+										<InfoTooltip text={t('common.info-diarize-threshold')} />
+										{t('common.diarize-threshold')}
+									</span>
+								</div>
+								<input
+									onChange={(e) => preference.setDiarizeThreshold(parseFloat(e.target.value))}
+									value={preference.diarizeThreshold}
+									className="input input-bordered"
+									type="number"
+									step={0.1}
+									min={0.0}
+									max={1.0}
+								/>
+							</label>
+						</>
+					)}
 
 					<div className="label mt-10">
 						<span className="label-text text-2xl font-bold">{t('common.process-with-llm')} ✨</span>
