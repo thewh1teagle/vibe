@@ -13,18 +13,21 @@ i18next
 			lookupQuerystring: 'lng',
 			lookupLocalStorage: 'locale',
 		},
-		fallbackLng: 'en-US',
+		fallbackLng: 'en-US', // English
 		// lng: 'en', // testing in dev mode
 		supportedLngs: [
-			'en-US',
-			'he-IL',
-			'fr-FR',
-			'pl-PL',
-			'pt-BR',
-			'zh-CN',
-			'zh-HK',
-			'no-NO',
-			'ru-RU',
+			'en-US', // English
+			'es-MX', // Spanish (MX)
+			'fr-FR', // French
+			'he-IL', // Hebrew
+			'ja-JP', // Japanese
+			'ko-KR', // Korean
+			'no-NO', // Norwegian
+			'pl-PL', // Polish
+			'pt-BR', // Portuguese (BR)
+			'ru-RU', // Russian
+			'zh-CN', // Chinese (Simplified)
+			'zh-HK', // Chinese (Traditional)
 		],
 		ns: 'translation',
 		backend: {

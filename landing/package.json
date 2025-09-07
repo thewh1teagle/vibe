@@ -38,6 +38,7 @@
   "type": "module",
   "dependencies": {
     "carta-md": "^4.6.7",
+    "i18next": "^25.5.2",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-http-backend": "^2.5.2",
     "is-mobile": "^4.0.0",
