@@ -15,6 +15,8 @@ i18next
 		},
 		fallbackLng: 'en-US', // English
 		// lng: 'en', // testing in dev mode
+		// See landing/static/locales/ for the list of supported languages
+		// Please keep the list sorted alphabetically
 		supportedLngs: [
 			'en-US', // English
 			'es-MX', // Spanish (MX)

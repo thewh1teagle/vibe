@@ -40,6 +40,19 @@ _Vulkan (Windows)_
 bun run scripts\pre_build.js --vulkan
 ```
 
+**macOS**:
+
+Make sure to install XCode from the AppStore and open it once so it will download essential macOS libraries.
+You might need to run `export SDKROOT=$(xcrun --show-sdk-path)` as well.
+You might need `llvm` from `brew` as well with
+
+```console
+export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
+export CC="$(brew --prefix llvm)/bin/clang"
+export CXX="$(brew --prefix llvm)/bin/clang++"
+export LIBCLANG_PATH="$(brew --prefix llvm)/lib"
+```
+
 ## Build
 
 Install dependencies from `desktop` folder

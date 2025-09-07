@@ -30,7 +30,7 @@ tokio = { version = "1.35.1", features = [
 ] }
 serde_json = { workspace = true }
 futures-util = "0.3.30"
-pyannote-rs = "0.2.7"
+pyannote-rs = "0.3.4"
 
 # Server
 utoipa = { version = "4.2.3", features = ["axum_extras"], optional = true }

@@ -198,8 +198,12 @@ pub fn transcribe(
         tracing::debug!("Diarize enabled {:?}", diarize_options);
         params.set_single_segment(true);
 
-        let diarize_segments =
-            pyannote_rs::segment(&original_samples, 16000, diarize_options.segment_model_path).map_err(|e| eyre!("{:?}", e))?;
+        let diarize_segments_iter =
+            pyannote_rs::get_segments(&original_samples, 16000, diarize_options.segment_model_path).map_err(|e| eyre!("{:?}", e))?;
+        
+        // Collect segments to enable progress tracking and error handling
+        let diarize_segments: Vec<_> = diarize_segments_iter.collect::<Result<Vec<_>, _>>().map_err(|e| eyre!("Failed to collect segments: {:?}", e))?;
+        
         let mut embedding_manager = pyannote_rs::EmbeddingManager::new(diarize_options.max_speakers);
         let mut extractor =
             pyannote_rs::EmbeddingExtractor::new(diarize_options.embedding_model_path).map_err(|e| eyre!("{:?}", e))?;

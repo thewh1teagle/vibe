@@ -5,21 +5,27 @@ import i18n, { LanguageDetectorAsyncModule } from 'i18next'
 import resourcesToBackend from 'i18next-resources-to-backend'
 import { initReactI18next } from 'react-i18next/initReactI18next'
 
+// See src-tauri/locales/ for the list of supported languages
+// Please keep the list sorted alphabetically
 export const supportedLanguages: { [key: string]: string } = {
-	'he-IL': 'hebrew',
-	'en-US': 'english',
-	'es-ES': 'spanish (ES)',
-	'es-MX': 'spanish (MX)',
-	'pt-BR': 'portuguese',
-	'sv-SE': 'swedish',
-	'zh-CN': 'chinese',
-	'zh-HK': 'chinese (HK)',
-	'fr-FR': 'french',
-	'pl-PL': 'polish',
-	'no-NO': 'norwegian',
-	'it-IT': 'italian',
-	'hi-IN': 'hindi',
-	'ru-RU': 'russian',
+	'en-US': 'english', // English
+	'es-ES': 'spanish (ES)', // Spanish (ES)
+	'es-MX': 'spanish (MX)', // Spanish (MX)
+	'fr-FR': 'french', // French
+	'he-IL': 'hebrew', // Hebrew
+	'hi-IN': 'hindi', // Hindi
+	'it-IT': 'italian', // Italian
+	'ja-JP': 'japanese', // Japanese
+	'ko-KR': 'korean', // Korean
+	'no-NO': 'norwegian', // Norwegian
+	'pl-PL': 'polish', // Polish
+	'pt-BR': 'portuguese', // Portuguese (BR)
+	'ru-RU': 'russian', // Russian
+	'sv-SE': 'swedish', // Swedish
+	'ta-IN': 'tamil', // Tamil
+	'vi-VN': 'vietnamese', // Vietnamese
+	'zh-CN': 'chinese', // Chinese (Simplified)
+	'zh-HK': 'chinese (HK)', // Chinese (Traditional)
 }
 export const supportedLanguageKeys = Object.keys(supportedLanguages)
 export const supportedLanguageValues = Object.values(supportedLanguages)
