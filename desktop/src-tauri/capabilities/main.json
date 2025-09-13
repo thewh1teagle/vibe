@@ -7,8 +7,7 @@
     "main"
   ],
   "permissions": [
-    "keepawake:allow-start",
-    "keepawake:allow-stop",
+    
     "http:default",
     "http:allow-fetch",
     "store:allow-set",

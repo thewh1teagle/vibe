@@ -19,7 +19,7 @@ import * as config from '~/lib/config'
 import { Claude, Llm, Ollama } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { useConfirmExit } from '~/lib/useConfirmExit'
-import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
+import { NamedPath, ls, openPath, pathToNamedPath } from '~/lib/utils'
 import { getX86Features } from '~/lib/x86Features'
 import * as ytDlp from '~/lib/ytdlp'
 import { ErrorModalContext } from '~/providers/ErrorModal'
@@ -318,7 +318,7 @@ export function viewModel() {
 	}, [])
 
 	async function startRecord() {
-		startKeepAwake()
+		
 		setSegments(null)
 		setSummarizeSegments(null)
 		setTranscriptTab('transcript')
@@ -339,7 +339,6 @@ export function viewModel() {
 	}
 
 	async function transcribe(path: string) {
-		startKeepAwake()
 
 		setSegments(null)
 		setSummarizeSegments(null)
@@ -374,13 +373,11 @@ export function viewModel() {
 			hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
 		} catch (error) {
 			if (!abortRef.current) {
-				stopKeepAwake()
 				console.error('error: ', error)
 				setErrorModal?.({ log: String(error), open: true })
 				setLoading(false)
 			}
 		} finally {
-			stopKeepAwake()
 			setLoading(false)
 			setIsAborting(false)
 			setProgress(null)

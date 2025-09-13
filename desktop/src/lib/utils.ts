@@ -4,7 +4,6 @@ import * as fsExt from '@tauri-apps/plugin-fs'
 import * as config from './config'
 import { Dispatch, SetStateAction } from 'react'
 import { load } from '@tauri-apps/plugin-store'
-import * as keepAwake from 'tauri-plugin-keepawake-api'
 
 export interface NamedPath {
 	name: string
@@ -86,21 +85,8 @@ export function formatSpeaker(speaker?: string, prefix = 'Speaker') {
 	return `${prefix} ${speaker ?? '?'}: `
 }
 
-export async function startKeepAwake() {
-	try {
-		keepAwake.start({ display: true, idle: true, sleep: true })
-	} catch (e) {
-		console.error(`Keep awake failed: ${e}`)
-	}
-}
 
-export async function stopKeepAwake() {
-	try {
-		keepAwake.stop()
-	} catch (e) {
-		console.error(`Keep awake failed: ${e}`)
-	}
-}
+
 
 export async function downloadModel(url: string) {
 	let filename = await getFilenameFromUrl(url)
