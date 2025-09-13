@@ -14,7 +14,6 @@ import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
-import * as keepAwake from 'tauri-plugin-keepawake-api'
 import AdvancedTranscribe from '~/components/AdvancedTranscribe'
 
 export default function Home() {
@@ -79,7 +78,6 @@ export default function Home() {
 							<>
 								<button
 									onMouseDown={() => {
-										keepAwake.stop()
 										vm.stopRecord()
 									}}
 									className="btn relative btn-success mt-3">
