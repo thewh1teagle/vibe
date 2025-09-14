@@ -40,7 +40,7 @@ fn main() -> Result<()> {
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
 
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
@@ -63,8 +63,9 @@ fn main() -> Result<()> {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_keepawake::init())
+        .plugin(tauri_plugin_shell::init());
+
+    builder
         .invoke_handler(tauri::generate_handler![
             cmd::download_file,
             cmd::get_cargo_features,
