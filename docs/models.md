@@ -44,35 +44,37 @@ For high accuracy and more computational resources, excels in complex scenarios.
 
 Specialized for Hebrew (Ivrit) language data, optimized for high speed and accuracy in Hebrew tasks.
 
-[👉 Magic Setup (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)
+[👉 Magic Setup (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
 [🔽 Direct Download (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)	
 </details>
 
 <details>
 <summary>🇳🇴 Norwegian</summary>
+	
 Optimised for Norwegian by the [AI Lab at the National Library of Norway](https://huggingface.co/NbAiLab).
 
-[👉 Magic Setup (medium)](https://tinyurl.com/5wzb9ux8)
+[👉 Magic Setup (medium)](https://tinyurl.com/5wzb9ux8)  
 [🔽 Direct Download (medium)](https://huggingface.co/NbAiLab/nb-whisper-medium/blob/main/ggml-model.bin?download=true)
 
-[👉 Magic Setup (large)](https://tinyurl.com/f228efbu)
+[👉 Magic Setup (large)](https://tinyurl.com/f228efbu)  
 [🔽 Direct Download (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
 
-More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/NbAiLab/nb-whisper-large).
+More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/NbAiLab/nb-whisper-large).  
 Find the size you want, download the *ggml-model.bin* file, rename the file, and palce it in vibe's model folder.
 </details>
 
 <details>
 <summary>🇸🇪 Swedish</summary>
+
 Optimised for Swedish by the [Data Lab at the National Library of Sweden](https://huggingface.co/KBLab).
 
-[👉 Magic Setup (medium)](https://tinyurl.com/ynawnc33)
+[👉 Magic Setup (medium)](https://tinyurl.com/ynawnc33)  
 [🔽 Direct Download (medium)](https://huggingface.co/KBLab/kb-whisper-medium/blob/main/ggml-model.bin?download=true)
 
-[👉 Magic Setup (large v3)](https://tinyurl.com/46dvpeky)
+[👉 Magic Setup (large v3)](https://tinyurl.com/46dvpeky)  
 [🔽 Direct Download (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
 
-More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/KBLab/kb-whisper-large).
+More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/KBLab/kb-whisper-large).  
 Find the size you want, download the *ggml-model.bin* file, rename the file, and palce it in vibe's model folder.
 </details>
 </details>
