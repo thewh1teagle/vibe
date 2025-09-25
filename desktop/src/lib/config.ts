@@ -44,5 +44,5 @@ export const ytDlpConfig = {
 }
 
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm']
-export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a']
+export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a', 'wma']
 export const themes = ['light', 'dark']
