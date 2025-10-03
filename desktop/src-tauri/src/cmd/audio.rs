@@ -83,6 +83,11 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
     let mut stream_handles = Vec::new();
     let mut stream_writers = Vec::new();
 
+    // For macOS screen capture
+    let mut screencapture_wav_writer: Arc<Mutex<Option<hound::WavWriter<std::io::BufWriter<std::fs::File>>>>> =
+        Arc::new(Mutex::new(None));
+    let mut screencapture_wav_path: PathBuf = PathBuf::new();
+
     #[cfg(target_os = "macos")]
     let mut screencapture_stream: Option<_> = None;
 
@@ -94,7 +99,21 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         if device.id == "screencapturekit" {
             #[cfg(target_os = "macos")]
             {
-                let stream = screen_capture_kit::init()?;
+                let path = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
+                screencapture_wav_path = path.clone();
+                let writer = hound::WavWriter::create(
+                    path.clone(),
+                    hound::WavSpec {
+                        // fixeds spec due to UnsafeSCStreamOutput handler hardcoded 48kHz stereo and reformat from f32 to i16
+                        channels: 2,
+                        sample_rate: 48000,
+                        bits_per_sample: 16,
+                        sample_format: hound::SampleFormat::Int,
+                    },
+                )?;
+                screencapture_wav_writer = Arc::new(Mutex::new(Some(writer)));
+
+                let stream = screen_capture_kit::init(screencapture_wav_writer.clone())?;
                 let stream = Arc::new(stream);
                 screencapture_stream = Some(stream.clone());
                 screen_capture_kit::start_capture(&stream)?;
@@ -195,10 +214,14 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         {
             if let Some(stream) = screencapture_stream {
                 screen_capture_kit::stop_capture(&stream).map_err(|e| eyre!("{:?}", e)).log_error();
-                let output_path = get_vibe_temp_folder().join(format!("{}.wav", random_string(5)));
-                screen_capture_kit::screencapturekit_to_wav(output_path.clone()).map_err(|e| eyre!("{e:?}")).log_error();
-                tracing::debug!("output path is {}", output_path.display());
-                wav_paths.push((output_path, 1));
+
+                if let Ok(mut guard) = screencapture_wav_writer.clone().lock() {
+                    if let Some(w) = guard.take() {
+                        w.finalize().map_err(|e| eyre!("{:?}", e)).log_error();
+                        tracing::debug!("Finalized screencapture wav writer");
+                    }
+                }
+                wav_paths.push((screencapture_wav_path, 1));
             }
         }
 
