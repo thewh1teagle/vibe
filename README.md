@@ -11,7 +11,7 @@
 <h1 align="center">Vibe - Transcribe on your own!</h1>
 
 <p align="center">
-  <strong>⌨️ Transcribe audio / video offline using OpenAI Whisper</strong>
+  <strong>⌨️ Transcribe audio offline in real-time using OpenAI Whisper</strong>
   <br/>
 </p>
 
@@ -109,6 +109,10 @@ You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assigne
 # Privacy Policy 🔒
 
 Your privacy is important to us. Please review our [Privacy Policy](http://thewh1teagle.github.io/vibe/?action=open-privacy-policy) to understand how we handle your data.
+
+# Constitution
+
+See [.specify/memory/constitution.md](.specify/memory/constitution.md) for the project constitution.
 
 # Credits
 

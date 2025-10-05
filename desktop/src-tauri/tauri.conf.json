@@ -21,7 +21,7 @@
 		}
 	},
 	"build": {
-		"beforeDevCommand": "bun run dev",
+		"beforeDevCommand": "npm run dev",
 		"beforeBuildCommand": "bun run build",
 		"frontendDist": "../dist",
 		"devUrl": "http://localhost:1420"

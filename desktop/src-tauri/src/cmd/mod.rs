@@ -271,7 +271,6 @@ pub async fn transcribe(
     if model_context.is_none() {
         bail!("Please load model first")
     }
-    let ctx = model_context.as_ref().context("as ref")?;
     let app_handle_c = app_handle.clone();
 
     let new_segment_callback = move |segment: Segment| {
@@ -325,7 +324,6 @@ pub async fn transcribe(
     tracing::debug!("ffmpeg additional options: {:?}", ffmpeg_options);
     let unwind_result = catch_unwind(AssertUnwindSafe(|| {
         vibe_core::transcribe::transcribe(
-            &ctx.handle,
             &options,
             Some(Box::new(progress_callback)),
             Some(Box::new(new_segment_callback)),
@@ -439,22 +437,18 @@ pub async fn load_model(
     if let Some(state) = state_guard.as_ref() {
         // check if new path is different
         if model_path != state.path || gpu_device != state.gpu_device || use_gpu != state.use_gpu {
-            tracing::debug!("model path or gpu device changed. reloading");
-            // reload
-            let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
+            tracing::debug!("model path or gpu device changed. updating");
+            // update
             *state_guard = Some(ModelContext {
                 path: model_path.clone(),
-                handle: context,
                 gpu_device,
                 use_gpu,
             });
         }
     } else {
-        tracing::debug!("loading model first time");
-        let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
+        tracing::debug!("setting model first time");
         *state_guard = Some(ModelContext {
             path: model_path.clone(),
-            handle: context,
             gpu_device,
             use_gpu,
         });

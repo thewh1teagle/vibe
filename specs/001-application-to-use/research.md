@@ -1,0 +1,6 @@
+-   Decision: Integrate faster-whisper via subprocess call from Rust to Python script.
+-   Rationale: Allows leveraging existing Python faster-whisper library without complex Rust bindings, ensures offline operation, and simplifies updates.
+-   Alternatives considered:
+    -   pyo3 embedding: More performant but increases complexity and binary size.
+    -   Modify whisper_rs: Not feasible as it's for base Whisper.
+    -   Direct C++ integration: Requires more low-level work.

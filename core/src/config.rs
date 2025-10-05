@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct TranscribeOptions {
     pub path: String,
     pub lang: Option<String>,
+    pub model: Option<String>,
     pub verbose: Option<bool>,
 
     pub n_threads: Option<i32>,
