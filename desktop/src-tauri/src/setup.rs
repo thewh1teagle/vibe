@@ -12,7 +12,6 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_shell::ShellExt;
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
-use vibe_core::transcribe::WhisperContext;
 
 pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
 
@@ -20,7 +19,6 @@ pub struct ModelContext {
     pub path: String,
     pub gpu_device: Option<i32>,
     pub use_gpu: Option<bool>,
-    pub handle: WhisperContext,
 }
 
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {

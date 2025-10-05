@@ -66,23 +66,7 @@ fn main() {
             panic!("Cant find ffmpeg at {}", ffmpeg_dir.canonicalize().unwrap().display());
         }
         if cfg!(target_os = "macos") {
-            let target_dir = get_cargo_target_dir().unwrap();
-
-            for entry in glob::glob(&format!("{}/*.dylib", ffmpeg_dir.join("lib").to_str().unwrap()))
-                .unwrap()
-                .flatten()
-            {
-                let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
-                copy_file(&entry, &dst);
-            }
-
-            for entry in glob::glob(&format!("{}/*", ffmpeg_dir.join("bin").to_str().unwrap()))
-                .unwrap()
-                .flatten()
-            {
-                let dst = Path::new(&target_dir).join(Path::new(entry.file_name().unwrap()));
-                copy_file(&entry, &dst);
-            }
+            // Skip copying ffmpeg binaries on macOS as they are available via homebrew
         }
 
         if cfg!(target_os = "windows") {

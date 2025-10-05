@@ -2,6 +2,21 @@ use eyre::Result;
 use num::integer::div_floor;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AudioFile {
+    pub path: String,
+    pub format: String,
+    pub duration: f64,
+    pub size: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TranscriptionResult {
+    pub text: String,
+    pub segments: Vec<Segment>,
+    pub duration: f64,
+}
+
 pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker: &str) -> String {
     assert!(seconds >= 0, "non-negative timestamp expected");
     let mut milliseconds = seconds * 10;

@@ -6,7 +6,6 @@ use std::process;
 use std::time::Instant;
 use tauri::AppHandle;
 use vibe_core::config::TranscribeOptions;
-use vibe_core::transcribe;
 
 use crate::cmd::get_models_folder;
 
@@ -187,6 +186,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     let options = TranscribeOptions {
         path: args.file.context("file")?,
         lang: Some(lang),
+        model: Some(args.model.context("model")?.to_string_lossy().to_string()),
         init_prompt: args.init_prompt,
         n_threads: args.n_threads,
         temperature: args.temperature,
@@ -198,13 +198,10 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         sampling_strategy: None,
         sampling_bestof_or_beam_size: None,
     };
-    let model_path = prepare_model_path(&args.model.context("model")?, app_handle)?;
 
     eprintln!("Transcribe... 🔄");
     let start = Instant::now(); // Measure start time
-    let ctx = transcribe::create_context(&model_path, None, None)?;
-    #[allow(unused_mut)]
-    let mut transcript = transcribe::transcribe(&ctx, &options, None, None, None, None, None)?;
+    let transcript = vibe_core::transcribe::transcribe(&options, None, None, None, None, None)?;
 
     let elapsed = start.elapsed();
     println!(

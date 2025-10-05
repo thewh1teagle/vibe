@@ -1,11 +1,5 @@
-/*
-wget https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-tiny.bin
-cargo test --features "vulkan" -- --nocapture
-cargo test --release --features "vulkan" -- --nocapture
-*/
-use crate::{config::TranscribeOptions, transcribe::create_context};
+use crate::config::TranscribeOptions;
 use serial_test::serial;
-use std::path::PathBuf;
 use std::time::Instant;
 use tracing_test::traced_test;
 
@@ -13,12 +7,12 @@ use tracing_test::traced_test;
 #[serial]
 #[traced_test]
 fn test_transcribe() {
-    let ctx = create_context(&PathBuf::from("../ggml-tiny.bin"), None, None).unwrap();
     let options = &TranscribeOptions {
         init_prompt: None,
         lang: Some("en".into()),
+        model: Some("base".to_string()),
         max_sentence_len: None,
-        path: "../samples/short.wav".into(),
+        path: "../../samples/short.wav".into(),
         verbose: None,
         max_text_ctx: None,
         n_threads: None,
@@ -29,7 +23,7 @@ fn test_transcribe() {
         sampling_strategy: None,
     };
     let start = Instant::now();
-    let result = crate::transcribe::transcribe(&ctx, options, None, None, None, None, None);
+    let result = crate::transcribe::transcribe(options, None, None, None, None, None);
     println!("{:?}", result);
     println!(
         "Elapsed time: {:.2} seconds",
