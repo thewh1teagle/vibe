@@ -104,6 +104,7 @@
 	"no-record": "Ninguno",
 	"normalize-loudness": "Normalizar el volumen",
 	"ollama-base-url": "URL de Ollama",
+	"openai-api-url": "API URL",
 	"others": "Otros",
 	"paste-model-link": "Pegar enlace del modelo",
 	"place-transcript-next-to-files": "Colocar la transcripción junto a los archivos",

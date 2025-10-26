@@ -119,6 +119,9 @@
         },
         {
           "url": "http{s}?://localhost:*/*"
+        },
+        {
+          "url": "http{s}?://*"
         }
       ]
     }

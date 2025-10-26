@@ -104,6 +104,7 @@
 	"no-record": "Ingen",
 	"normalize-loudness": "Normaliser lydstyrke",
 	"ollama-base-url": "Grunnleggende URL for Ollama",
+	"openai-api-url": "API URL",
 	"others": "Andre",
 	"paste-model-link": "Lim inn modelllenke",
 	"place-transcript-next-to-files": "Plasser transkripsjon ved siden av filer",

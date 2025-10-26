@@ -104,6 +104,7 @@
 	"no-record": "Ingen",
 	"normalize-loudness": "Normalisera ljudstyrkan",
 	"ollama-base-url": "Ollama bas-URL",
+	"openai-api-url": "API URL",
 	"others": "Andra",
 	"paste-model-link": "Klistra in Model Link",
 	"place-transcript-next-to-files": "Placera transkriptet bredvid filer",

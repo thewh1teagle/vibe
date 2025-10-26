@@ -104,6 +104,7 @@
 	"no-record": "없음",
 	"normalize-loudness": "음량 정규화",
 	"ollama-base-url": "Ollama URL",
+	"openai-api-url": "API URL",
 	"others": "기타",
 	"paste-model-link": "모델 링크 붙여넣기",
 	"place-transcript-next-to-files": "파일 옆에 받아쓰기 결과 저장",

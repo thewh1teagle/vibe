@@ -104,6 +104,7 @@
 	"no-record": "無記錄",
 	"normalize-loudness": "響度標準化",
 	"ollama-base-url": "Ollama 基本網址",
+	"openai-api-url": "API URL",
 	"others": "其他",
 	"paste-model-link": "貼上模型連結",
 	"place-transcript-next-to-files": "將筆錄放在文件旁邊",

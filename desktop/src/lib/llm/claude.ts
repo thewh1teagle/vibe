@@ -8,6 +8,7 @@ export function deafultConfig(): LlmConfig {
 		maxTokens: 8192,
 		enabled: false,
 		ollamaBaseUrl: '',
+		openaiApiUrl: '',
 		platform: 'claude',
 		prompt: `Please summarize the following transcription: \n\n"""\n%s\n"""\n`,
 	}

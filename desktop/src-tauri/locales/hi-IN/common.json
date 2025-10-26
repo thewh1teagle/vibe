@@ -104,6 +104,7 @@
 	"no-record": "कोई रिकॉर्ड नहीं",
 	"normalize-loudness": "तीव्रता को सामान्य करें",
 	"ollama-base-url": "ओलामा बेस यूआरएल",
+	"openai-api-url": "API URL",
 	"others": "अन्य",
 	"paste-model-link": "मॉडल लिंक पेस्ट करें",
 	"place-transcript-next-to-files": "फ़ाइलों के बगल में प्रतिलेख रखें",

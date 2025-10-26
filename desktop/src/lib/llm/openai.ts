@@ -1,28 +1,20 @@
-/*
-ollama run llama3.2
-curl http://localhost:11434/api/generate -d '{
-  "model": "llama3.2",
-  "prompt": "How are you?",
-  "stream": false
-}'
-*/
 import { fetch } from '@tauri-apps/plugin-http'
 import { Llm, type LlmConfig } from './index'
 
 export function defaultConfig() {
 	return {
 		enabled: false,
-		model: 'llama3.2',
-		ollamaBaseUrl: 'http://localhost:11434',
-		platform: 'ollama',
+		model: 'qwen3-next-80b-a3b-instruct',
+		openaiApiUrl: 'http://localhost:1234/v1',
+		platform: 'openai',
 		prompt: `Please summarize the following transcription: \n\n"""\n%s\n"""\n`,
 
 		claudeApiKey: '',
-		openaiApiUrl: '',
+		ollamaBaseUrl: '',
 	} satisfies LlmConfig
 }
 
-export class Ollama implements Llm {
+export class OpenAI implements Llm {
 	private config: LlmConfig
 
 	constructor(config: LlmConfig) {
@@ -30,28 +22,28 @@ export class Ollama implements Llm {
 	}
 
 	async ask(prompt: string): Promise<string> {
+		const baseUrl = this.config.openaiApiUrl.replace(/\/$/, '')
+		const url = `${baseUrl}/completions`
 		const body = JSON.stringify({
 			model: this.config.model,
-			prompt,
+			prompt: prompt,
 			stream: false,
 		})
-		const response = await fetch(`${this.config.ollamaBaseUrl}/api/generate`, {
+
+		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				// Ollama allowed origins
-				// Requires unsafe-headers feature
-				Origin: 'http://127.0.0.1',
 			},
 			body,
 		})
 
 		if (!response.ok) {
 			console.error(`request details: `, body)
-			throw new Error(`Claude: ${response.status} - ${response.statusText}`)
+			throw new Error(`OpenAI: ${response.status} - ${response.statusText}`)
 		}
 
 		const data = await response.json()
-		return data?.response
+		return data?.choices?.[0]?.text || data?.choices?.[0]?.message?.content
 	}
 }

@@ -104,6 +104,7 @@
 	"no-record": "なし",
 	"normalize-loudness": "ラウドネス正規化",
 	"ollama-base-url": "Ollama URL",
+	"openai-api-url": "API URL",
 	"others": "その他",
 	"paste-model-link": "モデルリンクを貼り付け",
 	"place-transcript-next-to-files": "文字起こしをファイルの隣に配置",

@@ -13,7 +13,7 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { usePreferenceProvider } from '~/providers/Preference'
 import { useFilesContext } from '~/providers/FilesProvider'
 import { basename } from '@tauri-apps/api/path'
-import { Claude, Ollama, Llm } from '~/lib/llm'
+import { Claude, Ollama, Llm, OpenAI } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { path } from '@tauri-apps/api'
 import { toDocx } from '~/lib/docx'
@@ -37,6 +37,9 @@ export function viewModel() {
 	useEffect(() => {
 		if (preference.llmConfig?.platform === 'ollama') {
 			const llmInstance = new Ollama(preference.llmConfig)
+			setLlm(llmInstance)
+		} else if (preference.llmConfig?.platform === 'openai') {
+			const llmInstance = new OpenAI(preference.llmConfig)
 			setLlm(llmInstance)
 		} else {
 			const llmInstance = new Claude(preference.llmConfig)

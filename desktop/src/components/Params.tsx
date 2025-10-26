@@ -16,7 +16,7 @@ import { open as shellOpen } from '@tauri-apps/plugin-shell'
 import { toast as hotToast } from 'react-hot-toast'
 
 import * as dialog from '@tauri-apps/plugin-dialog'
-import { Claude, defaultClaudeConfig, defaultOllamaConfig, Llm, Ollama } from '~/lib/llm'
+import { Claude, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig, Llm, Ollama, OpenAI } from '~/lib/llm'
 
 interface ParamsProps {
 	options: IModelOptions
@@ -33,6 +33,9 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	useEffect(() => {
 		if (preference.llmConfig?.platform === 'ollama') {
 			const llmInstance = new Ollama(preference.llmConfig)
+			setLlm(llmInstance)
+		} else if (preference.llmConfig?.platform === 'openai') {
+			const llmInstance = new OpenAI(preference.llmConfig)
 			setLlm(llmInstance)
 		} else {
 			const llmInstance = new Claude(preference.llmConfig)
@@ -214,6 +217,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 										...defaultConfig,
 										ollamaBaseUrl: llmConfig.ollamaBaseUrl,
 										claudeApiKey: llmConfig.claudeApiKey,
+										openaiApiUrl: llmConfig.openaiApiUrl,
 										enabled: llmConfig?.enabled ?? false,
 									})
 								} else if (newPlatform === 'claude') {
@@ -222,16 +226,24 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 										...defaultConfig,
 										ollamaBaseUrl: llmConfig.ollamaBaseUrl,
 										claudeApiKey: llmConfig.claudeApiKey,
+										openaiApiUrl: llmConfig.openaiApiUrl,
+										enabled: llmConfig?.enabled ?? false,
+									})
+								} else if (newPlatform === 'openai') {
+									const defaultConfig = defaultOpenAIConfig()
+									setLlmConfig({
+										...defaultConfig,
+										ollamaBaseUrl: llmConfig.ollamaBaseUrl,
+										claudeApiKey: llmConfig.claudeApiKey,
+										openaiApiUrl: llmConfig.openaiApiUrl,
 										enabled: llmConfig?.enabled ?? false,
 									})
 								}
 							}}
-							className="select select-bordered capitalize">
-							{['claude', 'ollama'].map((name) => (
-								<option key={name} value={name}>
-									{name}
-								</option>
-							))}
+							className="select select-bordered">
+							<option value="claude">Claude</option>
+							<option value="ollama">Ollama</option>
+							<option value="openai">OpenAI Compatible</option>
 						</select>
 					</label>
 
@@ -283,6 +295,31 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 									value={llmConfig?.model}
 									onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
 									className="input input-bordered opacity-50 text-sm"></input>
+							</label>
+						</>
+					)}
+
+					{llmConfig?.platform === 'openai' && (
+						<>
+							<label className="form-control w-full">
+								<div className="label">
+									<span className="label-text flex items-center gap-1">{t('common.openai-api-url')}</span>
+								</div>
+								<input
+									value={llmConfig?.openaiApiUrl}
+									onChange={(e) => setLlmConfig({ ...preference.llmConfig, openaiApiUrl: e.target.value })}
+									className="input input-bordered opacity-50 text-sm"
+									placeholder="http://localhost:1234/v1"></input>
+							</label>
+							<label className="form-control w-full">
+								<div className="label">
+									<span className="label-text flex items-center gap-1">{t('common.llm-model')}</span>
+								</div>
+								<input
+									value={llmConfig?.model}
+									onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
+									className="input input-bordered opacity-50 text-sm"
+									placeholder="qwen3-next-80b-a3b-instruct"></input>
 							</label>
 						</>
 					)}

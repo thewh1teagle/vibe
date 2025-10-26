@@ -104,6 +104,7 @@
 	"no-record": "Không có",
 	"normalize-loudness": "Chuẩn hóa độ to",
 	"ollama-base-url": "URL Ollama",
+	"openai-api-url": "API URL",
 	"others": "Khác",
 	"paste-model-link": "Dán Liên Kết Mô Hình",
 	"place-transcript-next-to-files": "Đặt bảng điểm bên cạnh các tệp",

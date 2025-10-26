@@ -104,6 +104,7 @@
 	"no-record": "None",
 	"normalize-loudness": "Normalize loudness",
 	"ollama-base-url": "Ollama URL",
+	"openai-api-url": "API URL",
 	"others": "Others",
 	"paste-model-link": "Paste Model Link",
 	"place-transcript-next-to-files": "Place transcript next to files",

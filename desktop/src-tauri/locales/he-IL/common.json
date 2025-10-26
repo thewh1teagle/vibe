@@ -104,6 +104,7 @@
 	"no-record": "ללא",
 	"normalize-loudness": "לנרמל את עוצמת הקול",
 	"ollama-base-url": "כתובת URL",
+	"openai-api-url": "API URL",
 	"others": "אחרים",
 	"paste-model-link": "הדבק קישור מודל",
 	"place-transcript-next-to-files": "מקם את התמלול ליד הקבצים",

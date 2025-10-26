@@ -104,6 +104,7 @@
 	"no-record": "Hiçbiri",
 	"normalize-loudness": "Ses yüksekliğini normalleştir",
 	"ollama-base-url": "Ollama URL'i",
+	"openai-api-url": "API URL",
 	"others": "Diğerleri",
 	"paste-model-link": "Model Bağlantısını Yapıştır",
 	"place-transcript-next-to-files": "Transkripti dosyaların yanına yerleştirin",
