@@ -14,6 +14,7 @@ import { path } from '@tauri-apps/api'
 import { exists } from '@tauri-apps/plugin-fs'
 import { open as shellOpen } from '@tauri-apps/plugin-shell'
 import { toast as hotToast } from 'react-hot-toast'
+import { fetch } from '@tauri-apps/plugin-http'
 
 import * as dialog from '@tauri-apps/plugin-dialog'
 import { Claude, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig, Llm, Ollama, OpenAI } from '~/lib/llm'
@@ -29,6 +30,54 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const { t } = useTranslation()
 	const toast = useToastProvider()
 	const [llm, setLlm] = useState<Llm | null>(null)
+	const [availableModels, setAvailableModels] = useState<string[]>([])
+	const [fetchingModels, setFetchingModels] = useState(false)
+
+	async function fetchAvailableModels(apiUrl: string, maxRetries = 2) {
+		if (!apiUrl || fetchingModels) return
+
+		setFetchingModels(true)
+		setAvailableModels([])
+
+		for (let attempt = 0; attempt < maxRetries; attempt++) {
+			try {
+				const baseUrl = apiUrl.replace(/\/$/, '')
+				const modelsUrl = `${baseUrl}/models`
+
+				const response = await fetch(modelsUrl, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				})
+
+				if (!response.ok) {
+					throw new Error(`Failed to fetch models: ${response.status}`)
+				}
+
+				const data = await response.json()
+				const models = data?.data?.map((model: any) => model.id) || []
+
+				if (models.length > 0) {
+					setAvailableModels(models)
+					setFetchingModels(false)
+					return
+				}
+			} catch (error) {
+				console.error(`Attempt ${attempt + 1} to fetch models failed:`, error)
+			}
+		}
+
+		setFetchingModels(false)
+	}
+
+	useEffect(() => {
+		if (preference.llmConfig?.platform === 'openai' && preference.llmConfig?.openaiApiUrl) {
+			fetchAvailableModels(preference.llmConfig.openaiApiUrl)
+		} else {
+			setAvailableModels([])
+		}
+	}, [preference.llmConfig?.platform, preference.llmConfig?.openaiApiUrl])
 
 	useEffect(() => {
 		if (preference.llmConfig?.platform === 'ollama') {
@@ -313,13 +362,33 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							</label>
 							<label className="form-control w-full">
 								<div className="label">
-									<span className="label-text flex items-center gap-1">{t('common.llm-model')}</span>
+									<span className="label-text flex items-center gap-1">
+										{t('common.llm-model')}
+										{fetchingModels && <span className="loading loading-spinner loading-xs"></span>}
+									</span>
 								</div>
-								<input
-									value={llmConfig?.model}
-									onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
-									className="input input-bordered opacity-50 text-sm"
-									placeholder="qwen3-next-80b-a3b-instruct"></input>
+								{availableModels.length > 0 ? (
+									<select
+										value={llmConfig?.model}
+										onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
+										className="select select-bordered opacity-50 text-sm">
+										<option value="" disabled>
+											Select a model
+										</option>
+										{availableModels.map((model) => (
+											<option key={model} value={model}>
+												{model}
+											</option>
+										))}
+									</select>
+								) : (
+										<input
+											value={llmConfig?.model}
+											onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
+											className="input input-bordered opacity-50 text-sm"
+										placeholder="qwen3-next-80b-a3b-instruct"
+										disabled={fetchingModels}></input>
+								)}
 							</label>
 						</>
 					)}
