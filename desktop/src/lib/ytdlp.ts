@@ -24,6 +24,9 @@ export async function downloadYtDlp() {
 }
 
 export async function downloadAudio(url: string, inDocuments?: boolean) {
+	if (!(await exists())) {
+		await downloadYtDlp()
+	}
 	const outPath = await invoke<string>('get_temp_path', { ext: 'm4a', inDocuments })
 	await invoke<string>('download_audio', { url, outPath })
 	return outPath

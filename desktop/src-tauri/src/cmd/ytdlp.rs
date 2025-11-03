@@ -63,6 +63,7 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
     let mut cmd = std::process::Command::new(path);
     let cmd = cmd
         .args([
+            "--no-warnings",
             "--progress-template",
             "{\"progress\": \"%(progress.percent)s\", \"total_bytes\": \"%(progress.total_bytes)s\", \"progress_str\": \"%(progress._percent_str)s\"}\n",
             "--no-playlist",
