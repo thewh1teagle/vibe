@@ -32,6 +32,8 @@ mod screen_capture_kit;
 
 use eyre::{eyre, Result};
 use tauri_plugin_window_state::StateFlags;
+use std::fs;
+use std::path::PathBuf;
 
 use utils::LogError;
 
@@ -96,6 +98,7 @@ fn main() -> Result<()> {
             cmd::ytdlp::get_temp_path,
             cmd::is_crashed_recently,
             cmd::rename_crash_file,
+            cmd::read_translation_file,
             #[cfg(windows)]
             cmd::set_high_gpu_preference
         ])

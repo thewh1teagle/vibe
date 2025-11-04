@@ -1,5 +1,4 @@
-import { resolveResource } from '@tauri-apps/api/path'
-import * as fs from '@tauri-apps/plugin-fs'
+import { invoke } from '@tauri-apps/api/core'
 import { locale } from '@tauri-apps/plugin-os'
 import i18n, { LanguageDetectorAsyncModule } from 'i18next'
 import resourcesToBackend from 'i18next-resources-to-backend'
@@ -40,11 +39,15 @@ const LanguageDetector: LanguageDetectorAsyncModule = {
 	async: true, // If this is set to true, your detect function receives a callback function that you should call with your language, useful to retrieve your language stored in AsyncStorage for example
 	detect: (callback) => {
 		locale().then((detectedLocale) => {
+			console.log('Detected system locale:', detectedLocale)
 			const prefs_language = localStorage.getItem('prefs_display_language')
+			console.log('Stored language preference:', prefs_language)
 			if (prefs_language) {
 				const locale = JSON.parse(prefs_language)
+				console.log('Using stored preference:', locale)
 				callback(locale)
 			} else {
+				console.log('Using detected locale:', detectedLocale)
 				if (detectedLocale) {
 					callback(detectedLocale)
 				}
@@ -60,20 +63,28 @@ i18n.use(LanguageDetector)
 			if (!supportedLanguageKeys.includes(language)) {
 				return
 			}
-			const resourcePath = `./locales/${language}`
-			const languageDirectory = await resolveResource(resourcePath)
-			const files = await fs.readDir(languageDirectory)
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const translations: any = {}
-			await Promise.all(
-				files.map(async (file) => {
-					const filePath = `${languageDirectory}/${file.name}`
-					const namespace = file.name.replace('.json', '')
-					const content = await fs.readTextFile(filePath)
-					translations[namespace] = JSON.parse(content)
-				})
-			)
-			return translations
+			try {
+				// Use invoke to read translation files from Rust side
+				const translations: any = {}
+
+				// Read common.json and language.json
+				const namespaces = ['common', 'language']
+				await Promise.all(
+					namespaces.map(async (namespace) => {
+						try {
+							const content = await invoke('read_translation_file', { language, namespace })
+							translations[namespace] = JSON.parse(content as string)
+						} catch (error) {
+							console.warn(`Failed to load ${namespace} translations:`, error)
+						}
+					})
+				)
+
+				return translations
+			} catch (error) {
+				console.error('i18n resource loading failed:', error)
+				return {}
+			}
 		})
 	)
 	.init({

@@ -597,3 +597,30 @@ pub fn get_cargo_features() -> Vec<String> {
 
     enabled_features
 }
+
+#[tauri::command]
+pub async fn read_translation_file(language: String, namespace: String) -> Result<String> {
+    let exe_path = std::env::current_exe()?;
+    tracing::debug!("Executable path: {:?}", exe_path);
+
+    let resource_dir = exe_path
+        .parent() // Contents/MacOS
+        .and_then(|p| p.parent()) // Contents
+        .ok_or_else(|| eyre!("Could not find Contents directory"))?
+        .join("Resources")
+        .join("locales")
+        .join(language)
+        .join(format!("{}.json", namespace));
+
+    tracing::debug!("Looking for translation file at: {:?}", resource_dir);
+
+    if !resource_dir.exists() {
+        tracing::error!("Translation file not found: {:?}", resource_dir);
+        return Err(eyre!("Translation file not found: {:?}", resource_dir));
+    }
+
+    tracing::debug!("Reading translation file: {:?}", resource_dir);
+    let content = std::fs::read_to_string(&resource_dir)?;
+    tracing::debug!("Successfully read {} bytes", content.len());
+    Ok(content)
+}
