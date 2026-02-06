@@ -48,7 +48,7 @@ jobs:
               uses: actions/configure-pages@v5
               with:
                   static_site_generator: sveltekit
-                  working-directory: landing
+                  working-directory: ./landing
 
             - name: Upload Artifacts
               uses: actions/upload-pages-artifact@v3

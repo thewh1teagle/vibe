@@ -1,6 +1,6 @@
 use chrono::Local;
 use eyre::{Context, ContextCompat, Result};
-use rand::distributions::Alphanumeric;
+use rand::distr::Alphanumeric;
 use rand::Rng;
 use std::env;
 use std::path::PathBuf;
@@ -13,7 +13,7 @@ pub fn get_local_time() -> String {
 }
 
 pub fn random_string(length: usize) -> String {
-    rand::thread_rng()
+    rand::rng()
         .sample_iter(&Alphanumeric)
         .take(length)
         .map(char::from)

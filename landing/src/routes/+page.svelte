@@ -20,7 +20,7 @@
 </script>
 
 <h1 class="text-3xl lg:text-6xl text-center capitalize">{$i18n.t('title')}</h1>
-<p class="mt-5 m-auto text-center max-w-[78%] lg:max-w-[600px] text-md leading-8 text-content opacity-50">
+<p class="mt-5 m-auto max-w-[78%] text-center text-base leading-8 text-muted-foreground lg:max-w-[600px]">
 	{$i18n.t('description')}
 </p>
 <div class="flex flex-col items-center mt-10">
