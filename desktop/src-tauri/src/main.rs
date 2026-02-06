@@ -1,16 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod audio_utils;
 mod cleaner;
 mod cli;
 mod cmd;
 mod config;
-mod panic_hook;
-
-#[cfg(feature = "server")]
-mod server;
-
 mod setup;
+mod sona;
+mod types;
 mod utils;
 use tauri::{Emitter, Manager};
 mod logging;
@@ -23,9 +21,6 @@ mod x86_features;
 
 #[cfg(windows)]
 mod custom_protocol;
-
-#[cfg(windows)]
-mod gpu_preference;
 
 #[cfg(target_os = "macos")]
 mod screen_capture_kit;
@@ -40,7 +35,7 @@ fn main() -> Result<()> {
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
 
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
@@ -63,8 +58,14 @@ fn main() -> Result<()> {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_keepawake::init())
+        .plugin(tauri_plugin_shell::init());
+
+    #[cfg(feature = "keepawake")]
+    {
+        builder = builder.plugin(tauri_plugin_keepawake::init());
+    }
+
+    let app = builder
         .invoke_handler(tauri::generate_handler![
             cmd::download_file,
             cmd::get_cargo_features,
@@ -87,7 +88,6 @@ fn main() -> Result<()> {
             cmd::audio::start_record,
             cmd::get_models_folder,
             cmd::is_portable,
-            cmd::check_vulkan,
             cmd::get_logs_folder,
             cmd::show_log_path,
             cmd::show_temp_path,
@@ -95,11 +95,23 @@ fn main() -> Result<()> {
             cmd::ytdlp::download_audio,
             cmd::ytdlp::get_temp_path,
             cmd::is_crashed_recently,
-            cmd::rename_crash_file,
-            #[cfg(windows)]
-            cmd::set_high_gpu_preference
+            cmd::rename_crash_file
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+
+    app.run(|app, event| {
+        if let tauri::RunEvent::ExitRequested { .. } = event {
+            // Kill sona process on app exit
+            let state: tauri::State<'_, tokio::sync::Mutex<setup::SonaState>> = app.state();
+            let mut guard = match state.try_lock() {
+                Ok(guard) => guard,
+                Err(_) => return,
+            };
+            if let Some(ref mut process) = guard.process {
+                process.kill();
+            }
+        }
+    });
     Ok(())
 }

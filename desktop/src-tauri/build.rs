@@ -35,53 +35,15 @@ fn copy_locales() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let target_dir = out_dir.parent().unwrap().parent().unwrap().parent().unwrap();
 
-    // Construct the source and target paths for the locales folder
     let src_locales = src_tauri.join("locales");
     let target_locales = target_dir.join("locales");
     copy_folder(src_locales.as_path(), &target_locales);
-}
-
-fn extract_whisper_env() {
-    println!("cargo:rerun-if-env-changed=WHISPER_NO_AVX");
-    println!("cargo:rerun-if-env-changed=WHISPER_NO_AVX2");
-    println!("cargo:rerun-if-env-changed=WHISPER_NO_FMA");
-    println!("cargo:rerun-if-env-changed=WHISPER_NO_F16C");
-    println!(
-        "cargo:rustc-env=WHISPER_NO_AVX={}",
-        std::env::var("WHISPER_NO_AVX").unwrap_or_default().trim()
-    );
-    println!(
-        "cargo:rustc-env=WHISPER_NO_AVX2={}",
-        std::env::var("WHISPER_NO_AVX2").unwrap_or_default().trim()
-    );
-    println!(
-        "cargo:rustc-env=WHISPER_NO_FMA={}",
-        std::env::var("WHISPER_NO_FMA").unwrap_or_default().trim()
-    );
-    println!(
-        "cargo:rustc-env=WHISPER_NO_F16C={}",
-        std::env::var("WHISPER_NO_F16C").unwrap_or_default().trim()
-    );
 }
 
 fn main() {
     let hash = commit_hash();
     println!("cargo:rerun-if-env-changed=COMMIT_HASH");
     println!("cargo:rustc-env=COMMIT_HASH={}", hash);
-
-    // Passed from Github action
-    println!("cargo:rerun-if-env-changed=CUDA_VERSION");
-    println!(
-        "cargo:rustc-env=CUDA_VERSION={}",
-        std::env::var("INPUT_CUDA_VERSION").unwrap_or_default()
-    );
-
-    // Passed from Github action
-    println!("cargo:rerun-if-env-changed=ROCM_VERSION");
-    println!(
-        "cargo:rustc-env=ROCM_VERSION={}",
-        std::env::var("INPUT_ROCM_VERSION").unwrap_or_default()
-    );
 
     // Windows portable
     println!("cargo:rerun-if-env-changed=WINDOWS_PORTABLE");
@@ -91,6 +53,5 @@ fn main() {
     );
 
     copy_locales();
-    extract_whisper_env();
     tauri_build::build();
 }

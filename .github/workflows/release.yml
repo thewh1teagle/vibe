@@ -11,16 +11,22 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - platform: "macos-latest" # for Arm based macs (M1 and above).
-                      args: '--target aarch64-apple-darwin --features "server"'
-                    - platform: "macos-latest" # for Intel based macs.
-                      args: '--target x86_64-apple-darwin --features "server"'
-                    - platform: "ubuntu-22.04" # Ubuntu 22.04 x86_64 (Works on 24.04 as well)
-                      args: '--features "vulkan,server"'
-                      pre-build-args: "--vulkan"
-                    - platform: "windows-latest" # Windows x86_64
-                      args: '--target x86_64-pc-windows-msvc --features "vulkan,server"'
-                      pre-build-args: "--vulkan"
+                    - platform: "macos-latest"
+                      args: "--target aarch64-apple-darwin"
+                      sona_asset: "sona-darwin-arm64"
+                      sidecar_name: "sona-aarch64-apple-darwin"
+                    - platform: "macos-latest"
+                      args: "--target x86_64-apple-darwin"
+                      sona_asset: "sona-darwin-amd64"
+                      sidecar_name: "sona-x86_64-apple-darwin"
+                    - platform: "ubuntu-22.04"
+                      args: "--target x86_64-unknown-linux-gnu"
+                      sona_asset: "sona-linux-amd64"
+                      sidecar_name: "sona-x86_64-unknown-linux-gnu"
+                    - platform: "windows-latest"
+                      args: "--target x86_64-pc-windows-msvc"
+                      sona_asset: "sona-windows-amd64.exe"
+                      sidecar_name: "sona-x86_64-pc-windows-msvc.exe"
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -28,6 +34,9 @@ jobs:
 
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
+
+            - name: setup uv
+              uses: astral-sh/setup-uv@v5
 
             - name: Rust cache
               uses: swatinem/rust-cache@v2
@@ -42,18 +51,21 @@ jobs:
               run: bun install
               working-directory: ./desktop
 
-            - name: Prepare Vulkan SDK for Ubuntu 22.04
+            - name: Download Sona sidecar binary
+              env:
+                GH_TOKEN: ${{ github.token }}
+              shell: bash
               run: |
-                wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-                sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.290-jammy.list https://packages.lunarg.com/vulkan/1.3.290/lunarg-vulkan-1.3.290-jammy.list
-                sudo apt update
-                sudo apt install vulkan-sdk -y
-                sudo apt-get install -y mesa-vulkan-drivers
-              if: ${{ contains(matrix.platform, 'ubuntu-22.04') && contains(matrix.args, 'vulkan') }}
+                mkdir -p desktop/src-tauri/binaries
+                gh release download --repo thewh1teagle/sona --pattern "${{ matrix.sona_asset }}" --dir desktop/src-tauri/binaries
+                mv "desktop/src-tauri/binaries/${{ matrix.sona_asset }}" "desktop/src-tauri/binaries/${{ matrix.sidecar_name }}"
 
-            # Run pre build
-            - name: Run pre_build.js on ${{ matrix.platform }}
-              run: bun scripts/pre_build.js ${{ matrix.pre-build-args }}
+            - name: Run pre_build.py on ${{ matrix.platform }}
+              run: uv run scripts/pre_build.py
+
+            - name: Mark sidecar executable (non-Windows)
+              if: matrix.platform != 'windows-latest'
+              run: chmod +x "desktop/src-tauri/binaries/${{ matrix.sidecar_name }}"
 
             - name: Import Windows certificate
               if: matrix.platform == 'windows-latest'

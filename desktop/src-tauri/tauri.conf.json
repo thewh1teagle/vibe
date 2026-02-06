@@ -1,7 +1,7 @@
 {
 	"$schema": "./gen/schemas/desktop-schema.json",
 	"productName": "vibe",
-	"version": "3.0.5",
+	"version": "3.0.6",
 	"identifier": "github.com.thewh1teagle.vibe",
 	"app": {
 		"windows": [],
@@ -42,6 +42,9 @@
 			"icons/128x128@2x.png",
 			"icons/icon.icns",
 			"icons/icon.ico"
+		],
+		"externalBin": [
+			"binaries/sona"
 		],
 		"resources": {
 			"locales": "locales"

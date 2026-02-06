@@ -1,11 +1,14 @@
+use crate::audio_utils;
 use crate::config::STORE_FILENAME;
-use crate::setup::ModelContext;
+use crate::setup::SonaState;
+use crate::sona::SonaEvent;
+use crate::types::{Segment, Transcript};
 use crate::utils::{get_current_dir, LogError};
-use eyre::{bail, eyre, Context, ContextCompat, OptionExt, Result};
+use eyre::{bail, Context, ContextCompat, Result};
+use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::panic::{catch_unwind, AssertUnwindSafe};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -17,9 +20,6 @@ use tauri::{
 use tauri::{Emitter, Listener, State};
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
-use vibe_core::get_vibe_temp_folder;
-use vibe_core::transcript::Segment;
-use vibe_core::transcript::Transcript;
 pub mod audio;
 pub mod ytdlp;
 
@@ -49,7 +49,6 @@ fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Res
             window.set_progress_bar(ProgressBarState {
                 progress: Some(progress as u64),
                 status: if cfg!(target_os = "windows") {
-                    // It works in Windows without it, and setting it causes it to jump every time.
                     None
                 } else {
                     Some(ProgressBarStatus::Indeterminate)
@@ -83,9 +82,9 @@ pub fn get_x86_features() -> Option<Value> {
         None
     }
 }
+
 #[tauri::command]
 pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: String) -> Result<String> {
-    let mut downloader = vibe_core::downloader::Downloader::new();
     tracing::debug!("Download model invoked! with path {}", path);
 
     let abort_atomic = Arc::new(AtomicBool::new(false));
@@ -93,110 +92,92 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: Str
 
     let app_handle_c = app_handle.clone();
 
-    // allow abort transcription
     let app_handle_d = app_handle_c.clone();
     app_handle.listen("abort_download", move |_| {
         set_progress_bar(&app_handle_d, None).log_error();
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
-    let download_progress_callback = {
-        let app_handle = app_handle.clone();
-        let abort_atomic = abort_atomic.clone();
+    let client = reqwest::Client::new();
+    let res = client.get(&url).send().await?.error_for_status()?;
+    let total_size = res.content_length().unwrap_or(0);
+    let mut file = std::fs::File::create(&path).context(format!("Failed to create file {}", path))?;
+    let mut downloaded: u64 = 0;
+    let callback_limit: u64 = 1024 * 1024 * 2;
+    let mut callback_offset: u64 = 0;
+    let mut stream = res.bytes_stream();
 
-        move |current: u64, total: u64| {
-            let app_handle = app_handle.clone();
-
-            // Update progress in background
-            tauri::async_runtime::spawn(async move {
-                let percentage = (current as f64 / total as f64) * 100.0;
-                tracing::trace!("percentage: {}", percentage);
-                if let Err(e) = set_progress_bar(&app_handle, Some(percentage)) {
-                    tracing::error!("Failed to set progress bar: {}", e);
-                }
-                if let Some(window) = app_handle.get_webview_window("main") {
-                    if let Err(e) = window.emit("download_progress", (current, total)) {
-                        tracing::error!("Failed to emit download progress: {}", e);
-                    }
-                }
-            });
-            // Return the abort signal immediately
-            abort_atomic.load(Ordering::Relaxed)
+    while let Some(item) = stream.next().await {
+        if abort_atomic.load(Ordering::Relaxed) {
+            break;
         }
-    };
-
-    downloader
-        .download(&url, path.clone().into(), download_progress_callback)
-        .await?;
-    set_progress_bar(&app_handle_c, None)?;
-    Ok(path.to_string())
+        let chunk = item.context("Error while downloading file")?;
+        use std::io::Write;
+        file.write_all(&chunk).context(format!("Error while writing to file {}", path))?;
+        downloaded += chunk.len() as u64;
+        if total_size > 0 && downloaded > callback_offset + callback_limit {
+            let percentage = (downloaded as f64 / total_size as f64) * 100.0;
+            tracing::trace!("percentage: {}", percentage);
+            set_progress_bar(&app_handle_c, Some(percentage)).log_error();
+            if let Some(window) = app_handle_c.get_webview_window("main") {
+                window.emit("download_progress", (downloaded, total_size)).log_error();
+            }
+            callback_offset = downloaded;
+        }
+    }
+    set_progress_bar(&app_handle, None)?;
+    Ok(path)
 }
 
 #[tauri::command]
 pub fn get_ffmpeg_path() -> String {
-    vibe_core::audio::find_ffmpeg_path()
+    audio_utils::find_ffmpeg_path()
         .map(|p| p.to_str().unwrap().to_string())
         .unwrap_or_default()
 }
 
 #[tauri::command]
 pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: String) -> Result<()> {
-    let mut downloader = vibe_core::downloader::Downloader::new();
-    tracing::debug!("Download model invoked! with path {}", path);
+    tracing::debug!("Download file invoked! with path {}", path);
 
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
 
     let app_handle_c = app_handle.clone();
 
-    // allow abort transcription
     let app_handle_d = app_handle_c.clone();
     app_handle.listen("abort_download", move |_| {
         set_progress_bar(&app_handle_d, None).log_error();
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
-    let download_progress_callback = {
-        let app_handle = app_handle.clone();
-        let abort_atomic = abort_atomic.clone();
+    let client = reqwest::Client::new();
+    let res = client.get(&url).send().await?.error_for_status()?;
+    let total_size = res.content_length().unwrap_or(0);
+    let mut file = std::fs::File::create(&path).context(format!("Failed to create file {}", path))?;
+    let mut downloaded: u64 = 0;
+    let callback_limit: u64 = 1024 * 1024 * 2;
+    let mut callback_offset: u64 = 0;
+    let mut stream = res.bytes_stream();
 
-        move |current: u64, total: u64| {
-            let app_handle = app_handle.clone();
-
-            // Update progress in background
-            tauri::async_runtime::spawn(async move {
-                let percentage = (current as f64 / total as f64) * 100.0;
-                tracing::trace!("percentage: {}", percentage);
-                if let Some(window) = app_handle.get_webview_window("main") {
-                    if let Err(e) = window.emit("download_progress", (current, total)) {
-                        tracing::error!("Failed to emit download progress: {}", e);
-                    }
-                }
-            });
-            // Return the abort signal immediately
-            abort_atomic.load(Ordering::Relaxed)
+    while let Some(item) = stream.next().await {
+        if abort_atomic.load(Ordering::Relaxed) {
+            break;
         }
-    };
-
-    downloader.download(&url, path.into(), download_progress_callback).await?;
-    Ok(())
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DiarizeOptions {
-    threshold: f32,
-    max_speakers: usize,
-    enabled: bool,
-}
-
-impl Default for DiarizeOptions {
-    fn default() -> Self {
-        DiarizeOptions {
-            enabled: false,
-            threshold: 0.0,
-            max_speakers: 0,
+        let chunk = item.context("Error while downloading file")?;
+        use std::io::Write;
+        file.write_all(&chunk).context(format!("Error while writing to file {}", path))?;
+        downloaded += chunk.len() as u64;
+        if total_size > 0 && downloaded > callback_offset + callback_limit {
+            let percentage = (downloaded as f64 / total_size as f64) * 100.0;
+            tracing::trace!("percentage: {}", percentage);
+            if let Some(window) = app_handle_c.get_webview_window("main") {
+                window.emit("download_progress", (downloaded, total_size)).log_error();
+            }
+            callback_offset = downloaded;
         }
     }
+    Ok(())
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -214,27 +195,30 @@ impl Default for FfmpegOptions {
     }
 }
 
-impl FfmpegOptions {
-    pub fn to_vec(&self) -> Vec<String> {
-        let mut cmd = Vec::<String>::new();
-        if let Some(custom_cmd) = &self.custom_command {
-            cmd.extend(custom_cmd.split_whitespace().map(|s| s.to_string()));
-        } else if self.normalize_loudness {
-            cmd.extend(["-af".to_string(), "loudnorm=I=-16:TP=-1.5:LRA=11".to_string()]);
-        }
-        cmd
-    }
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct TranscribeOptions {
+    pub path: String,
+    pub lang: Option<String>,
+    pub verbose: Option<bool>,
+    pub n_threads: Option<i32>,
+    pub init_prompt: Option<String>,
+    pub temperature: Option<f32>,
+    pub translate: Option<bool>,
+    pub max_text_ctx: Option<i32>,
+    pub word_timestamps: Option<bool>,
+    pub max_sentence_len: Option<i32>,
+    pub sampling_strategy: Option<String>,
+    pub sampling_bestof_or_beam_size: Option<i32>,
 }
 
 #[tauri::command]
 pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) -> Vec<String> {
     let mut files = Vec::new();
 
-    // Construct the search pattern based on the recursive flag
     let search_pattern = if recursive {
-        format!("{}/**/*", folder) // Recursive search
+        format!("{}/**/*", folder)
     } else {
-        format!("{}/*", folder) // Non-recursive search (only in the folder)
+        format!("{}/*", folder)
     };
 
     match glob::glob(&search_pattern) {
@@ -259,92 +243,120 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
     files
 }
 
+fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
+    // Try to find sona binary in the app's resource directory (sidecar)
+    let resource_dir = app_handle.path().resource_dir().context("get resource dir")?;
+
+    #[cfg(target_os = "windows")]
+    let binary_name = "sona.exe";
+    #[cfg(not(target_os = "windows"))]
+    let binary_name = "sona";
+
+    // Check in binaries/ subdirectory (Tauri externalBin places them here)
+    let sidecar_path = resource_dir.join(binary_name);
+    if sidecar_path.exists() {
+        return Ok(sidecar_path);
+    }
+
+    // Check in same directory as the executable
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            let path = exe_dir.join(binary_name);
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+    }
+
+    // Fallback: check PATH
+    if let Ok(path) = which::which(binary_name) {
+        return Ok(path);
+    }
+
+    bail!("sona binary not found")
+}
+
 #[tauri::command]
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
-    options: vibe_core::config::TranscribeOptions,
-    model_context_state: State<'_, Mutex<Option<ModelContext>>>,
-    diarize_options: DiarizeOptions,
-    ffmpeg_options: FfmpegOptions,
+    options: TranscribeOptions,
+    sona_state: State<'_, Mutex<SonaState>>,
 ) -> Result<Transcript> {
-    let model_context = model_context_state.lock().await;
-    if model_context.is_none() {
+    let state = sona_state.lock().await;
+    let process = state.process.as_ref();
+    if process.is_none() {
         bail!("Please load model first")
     }
-    let ctx = model_context.as_ref().context("as ref")?;
-    let app_handle_c = app_handle.clone();
+    let sona = process.unwrap();
 
-    let new_segment_callback = move |segment: Segment| {
-        app_handle_c
-            .clone()
-            .emit_to("main", "new_segment", segment)
-            .map_err(|e| eyre!("{:?}", e))
-            .log_error();
-    };
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
 
-    // allow abort transcription
     let app_handle_c = app_handle.clone();
     app_handle.listen("abort_transcribe", move |_| {
         let _ = set_progress_bar(&app_handle_c, None);
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
-    let abort_callback = move || abort_atomic.load(Ordering::Relaxed);
+    let start = std::time::Instant::now();
 
-    let app_handle_c = app_handle.clone();
-    let app_handle_c1 = app_handle.clone();
-    let progress_callback = move |progress: i32| {
-        let _ = set_progress_bar(&app_handle, Some(progress.into()));
+    let language = options.lang.as_deref();
+    let translate = options.translate.unwrap_or(false);
+    let prompt = options.init_prompt.as_deref();
+
+    let stream = sona
+        .transcribe_stream(&options.path, language, translate, prompt)
+        .await?;
+
+    tokio::pin!(stream);
+
+    let mut segments = Vec::new();
+
+    while let Some(event_result) = stream.next().await {
+        if abort_atomic.load(Ordering::Relaxed) {
+            tracing::debug!("transcription aborted by user");
+            break;
+        }
+
+        match event_result {
+            Ok(event) => match event {
+                SonaEvent::Progress { progress } => {
+                    let _ = set_progress_bar(&app_handle, Some(progress.into()));
+                }
+                SonaEvent::Segment { start, end, text } => {
+                    let segment = Segment {
+                        start: (start * 100.0) as i64,
+                        stop: (end * 100.0) as i64,
+                        text,
+                    };
+                    app_handle
+                        .emit_to("main", "new_segment", segment.clone())
+                        .log_error();
+                    segments.push(segment);
+                }
+                SonaEvent::Result { .. } => {
+                    tracing::debug!("transcription complete");
+                }
+                SonaEvent::Error { message } => {
+                    tracing::error!("sona transcription error: {}", message);
+                    bail!("transcription error: {}", message);
+                }
+            },
+            Err(e) => {
+                tracing::error!("stream error: {:?}", e);
+            }
+        }
+    }
+
+    let _ = set_progress_bar(&app_handle, None);
+
+    let elapsed = start.elapsed();
+    let transcript = Transcript {
+        processing_time_sec: elapsed.as_secs(),
+        segments,
     };
 
-    // prevent panic crash. sometimes whisper.cpp crash without nice errors.
-
-    let mut core_diarize_options = None;
-    if diarize_options.enabled {
-        let embedding_model_path = get_models_folder(app_handle_c1.clone())?
-            .join(crate::config::EMBEDDING_MODEL_FILENAME)
-            .to_str()
-            .ok_or_eyre("tostr")?
-            .to_string();
-
-        let segment_model_path = get_models_folder(app_handle_c1.clone())?
-            .join(crate::config::SEGMENT_MODEL_FILENAME)
-            .to_str()
-            .ok_or_eyre("tostr")?
-            .to_string();
-        core_diarize_options = Some(vibe_core::transcribe::DiarizeOptions {
-            embedding_model_path,
-            segment_model_path,
-            max_speakers: diarize_options.max_speakers,
-            threshold: diarize_options.threshold,
-        });
-    }
-    let ffmpeg_options = ffmpeg_options.to_vec();
-    tracing::debug!("ffmpeg additional options: {:?}", ffmpeg_options);
-    let unwind_result = catch_unwind(AssertUnwindSafe(|| {
-        vibe_core::transcribe::transcribe(
-            &ctx.handle,
-            &options,
-            Some(Box::new(progress_callback)),
-            Some(Box::new(new_segment_callback)),
-            Some(Box::new(abort_callback)),
-            core_diarize_options,
-            Some(ffmpeg_options),
-        )
-    }));
-
-    let _ = set_progress_bar(&app_handle_c, None);
-    match unwind_result {
-        Err(error) => {
-            bail!("transcribe crash: {:?}", error)
-        }
-        Ok(transcribe_result) => {
-            let transcript = transcribe_result.with_context(|| format!("options: {:?}", options))?;
-            Ok(transcript)
-        }
-    }
+    Ok(transcript)
 }
 
 #[tauri::command]
@@ -359,7 +371,6 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
     let parent = src.parent().context("parent")?;
     let mut dst_path = parent.join(format!("{}{}", src_name, suffix));
 
-    // Ensure we don't overwrite existing file
     let mut counter = 1;
     while dst_path.exists() {
         dst_path = parent.join(format!("{} ({}){}", src_name, counter, suffix));
@@ -369,27 +380,12 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
 }
 
 #[tauri::command]
-#[cfg(windows)]
-pub fn set_high_gpu_preference(mode: bool) -> Result<()> {
-    if mode {
-        crate::gpu_preference::set_gpu_preference_high()?;
-    } else {
-        crate::gpu_preference::remove_gpu_preference()?;
-    }
-    Ok(())
-}
-
-#[tauri::command]
 pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
-    // Get the file stem (filename without extension)
     let stem = src_path.file_stem().and_then(|s| s.to_str()).unwrap_or_default();
-
-    // Create a new path with the same directory and the new extension
     let mut new_path = src_path.clone();
     new_path.set_file_name(stem);
     new_path.set_extension(target_ext);
     let new_filename = new_path.file_name().map(|s| s.to_str()).unwrap_or(Some("Untitled"));
-    // Convert the new path to a string
     let new_path = new_path.to_str().context("to_str")?;
     let named_path = json!({"name": new_filename, "path": new_path});
     Ok(named_path)
@@ -401,64 +397,54 @@ pub fn get_argv() -> Vec<String> {
 }
 
 #[tauri::command]
-/// Opens folder or open folder of a file
 pub async fn open_path(path: PathBuf) -> Result<()> {
-    if path.is_file() {
-        showfile::show_path_in_file_manager(path);
-    } else {
-        open::that(path)?;
-    }
+    showfile::show_path_in_file_manager(path);
     Ok(())
 }
 
 #[tauri::command]
 pub fn get_cuda_version() -> String {
-    env!("CUDA_VERSION").to_string()
+    String::new()
 }
 
 #[tauri::command]
 pub fn get_rocm_version() -> String {
-    env!("ROCM_VERSION").to_string()
+    String::new()
 }
 
 #[tauri::command]
 pub fn is_avx2_enabled() -> bool {
-    #[allow(clippy::comparison_to_empty)]
-    return env!("WHISPER_NO_AVX") != "ON";
+    true
 }
 
 #[tauri::command]
 pub async fn load_model(
     app_handle: tauri::AppHandle,
     model_path: String,
-    gpu_device: Option<i32>,
-    use_gpu: Option<bool>,
 ) -> Result<String> {
-    let model_context_state: State<'_, Mutex<Option<ModelContext>>> = app_handle.state();
-    let mut state_guard = model_context_state.lock().await;
-    if let Some(state) = state_guard.as_ref() {
-        // check if new path is different
-        if model_path != state.path || gpu_device != state.gpu_device || use_gpu != state.use_gpu {
-            tracing::debug!("model path or gpu device changed. reloading");
-            // reload
-            let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
-            *state_guard = Some(ModelContext {
-                path: model_path.clone(),
-                handle: context,
-                gpu_device,
-                use_gpu,
-            });
+    let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
+    let mut state_guard = sona_state.lock().await;
+
+    // Check if model already loaded
+    if let Some(ref loaded_path) = state_guard.loaded_model_path {
+        if *loaded_path == model_path {
+            tracing::debug!("model already loaded, skipping");
+            return Ok(model_path);
         }
-    } else {
-        tracing::debug!("loading model first time");
-        let context = vibe_core::transcribe::create_context(Path::new(&model_path), gpu_device, use_gpu)?;
-        *state_guard = Some(ModelContext {
-            path: model_path.clone(),
-            handle: context,
-            gpu_device,
-            use_gpu,
-        });
     }
+
+    // Spawn sona if not running
+    if state_guard.process.is_none() {
+        let binary_path = resolve_sona_binary(&app_handle)?;
+        let process = crate::sona::SonaProcess::spawn(&binary_path)?;
+        state_guard.process = Some(process);
+    }
+
+    // Load model via HTTP
+    let sona = state_guard.process.as_ref().unwrap();
+    sona.load_model(&model_path).await?;
+    state_guard.loaded_model_path = Some(model_path.clone());
+
     Ok(model_path)
 }
 
@@ -466,43 +452,6 @@ pub async fn load_model(
 #[allow(clippy::comparison_to_empty)]
 pub fn is_portable() -> bool {
     env!("WINDOWS_PORTABLE") == "1"
-}
-
-#[tauri::command]
-pub fn check_vulkan() -> Result<()> {
-    #[cfg(all(feature = "vulkan", windows))]
-    {
-        use ash::vk;
-        unsafe {
-            let entry = match ash::Entry::load() {
-                Ok(e) => e,
-                Err(e) => {
-                    tracing::error!("Failed to load Vulkan entry: {:?}", e);
-                    return Err(e.into());
-                }
-            };
-
-            let app_desc = vk::ApplicationInfo::default().api_version(vk::make_api_version(0, 1, 0, 0));
-            let instance_desc = vk::InstanceCreateInfo::default().application_info(&app_desc);
-
-            let instance = match entry.create_instance(&instance_desc, None) {
-                Ok(inst) => inst,
-                Err(e) => {
-                    tracing::error!("Failed to create Vulkan instance: {:?}", e);
-                    return Err(e.into());
-                }
-            };
-
-            instance.destroy_instance(None);
-            tracing::debug!("Vulkan support is successfully checked and working.");
-        }
-        Ok(())
-    }
-    #[cfg(not(all(feature = "vulkan", windows)))]
-    {
-        tracing::debug!("Vulkan check skipped on this platform");
-        Ok(())
-    }
 }
 
 #[tauri::command]
@@ -528,7 +477,7 @@ pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
 
 #[tauri::command]
 pub async fn show_temp_path() -> Result<()> {
-    let temp_path = vibe_core::get_vibe_temp_folder();
+    let temp_path = audio_utils::get_vibe_temp_folder();
     showfile::show_path_in_file_manager(temp_path);
     Ok(())
 }
@@ -558,42 +507,20 @@ pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
 
 #[tauri::command]
 pub fn is_crashed_recently() -> bool {
-    tracing::debug!("checking path {}", get_vibe_temp_folder().join("crash.txt").display());
-    get_vibe_temp_folder().join("crash.txt").exists()
+    tracing::debug!("checking path {}", audio_utils::get_vibe_temp_folder().join("crash.txt").display());
+    audio_utils::get_vibe_temp_folder().join("crash.txt").exists()
 }
 
 #[tauri::command]
 pub fn rename_crash_file() -> Result<()> {
     std::fs::rename(
-        get_vibe_temp_folder().join("crash.txt"),
-        // TODO: save all crashed?
-        get_vibe_temp_folder().join("crash.1.txt"),
+        audio_utils::get_vibe_temp_folder().join("crash.txt"),
+        audio_utils::get_vibe_temp_folder().join("crash.1.txt"),
     )
     .context("Can't delete file")
 }
 
 #[tauri::command]
 pub fn get_cargo_features() -> Vec<String> {
-    let mut enabled_features = Vec::new();
-
-    if cfg!(feature = "cuda") {
-        enabled_features.push("cuda".to_string());
-    }
-    if cfg!(feature = "coreml") {
-        enabled_features.push("coreml".to_string());
-    }
-    if cfg!(feature = "metal") {
-        enabled_features.push("metal".to_string());
-    }
-    if cfg!(feature = "openblas") {
-        enabled_features.push("openblas".to_string());
-    }
-    if cfg!(feature = "vulkan") {
-        enabled_features.push("vulkan".to_string());
-    }
-    if cfg!(feature = "rocm") {
-        enabled_features.push("rocm".to_string());
-    }
-
-    enabled_features
+    Vec::new()
 }

@@ -1,18 +1,17 @@
 use eyre::Result;
-use num::integer::div_floor;
 use serde::{Deserialize, Serialize};
 
-pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker: &str) -> String {
-    assert!(seconds >= 0, "non-negative timestamp expected");
-    let mut milliseconds = seconds * 10;
+pub fn format_timestamp(centiseconds: i64, always_include_hours: bool, decimal_marker: &str) -> String {
+    assert!(centiseconds >= 0, "non-negative timestamp expected");
+    let mut milliseconds = centiseconds * 10;
 
-    let hours = div_floor(milliseconds, 3_600_000);
+    let hours = milliseconds / 3_600_000;
     milliseconds -= hours * 3_600_000;
 
-    let minutes = div_floor(milliseconds, 60_000);
+    let minutes = milliseconds / 60_000;
     milliseconds -= minutes * 60_000;
 
-    let seconds = div_floor(milliseconds, 1_000);
+    let seconds = milliseconds / 1_000;
     milliseconds -= seconds * 1_000;
 
     let hours_marker = if always_include_hours || hours != 0 {
@@ -25,20 +24,16 @@ pub fn format_timestamp(seconds: i64, always_include_hours: bool, decimal_marker
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "server", derive(utoipa::ToSchema))]
 pub struct Transcript {
     pub processing_time_sec: u64,
     pub segments: Vec<Segment>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "server", derive(utoipa::ToSchema))]
 pub struct Segment {
     pub start: i64,
     pub stop: i64,
     pub text: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub speaker: Option<String>,
 }
 
 impl Segment {

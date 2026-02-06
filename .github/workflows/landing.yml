@@ -6,7 +6,7 @@ on:
             - main
         paths:
             - "landing/**"
-            - "scripts/landing_links.js"
+            - "scripts/landing_links.py"
     workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
@@ -31,10 +31,13 @@ jobs:
             - name: setup Bun
               uses: oven-sh/setup-bun@v1
 
+            - name: setup uv
+              uses: astral-sh/setup-uv@v5
+
             - name: Build
               run: |
                 bun install
-                bun run ../scripts/landing_links.js
+                uv run ../scripts/landing_links.py
                 cp -rf ../docs static/
                 bun run build
               working-directory: landing
