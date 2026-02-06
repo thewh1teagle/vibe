@@ -1,6 +1,60 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@plugin "daisyui" {
+	themes: light --default, dark --prefersdark;
+}
+@plugin "daisyui/theme" {
+	name: "dark";
+	default: false;
+	prefersdark: true;
+	color-scheme: dark;
+	--color-primary: #1565c0;
+	--color-primary-content: #fff;
+	--color-secondary: #7b1fa2;
+	--color-secondary-content: #fff;
+	--color-accent: #1f262e;
+	--color-accent-content: #fff;
+	--color-neutral: #556474;
+	--color-neutral-content: #b0b8c4;
+	--color-base-100: #111419;
+	--color-base-200: #1e272e;
+	--color-base-300: #1f272a;
+	--color-base-content: #ffffff;
+	--color-info: #01579b;
+	--color-info-content: #ffffff;
+	--color-success: #1b5e20;
+	--color-success-content: #ffffff;
+	--color-warning: #e65100;
+	--color-warning-content: #ffffff;
+	--color-error: #c62828;
+	--color-error-content: #ffffff;
+}
+@plugin "daisyui/theme" {
+	name: "light";
+	default: true;
+	prefersdark: false;
+	color-scheme: light;
+	--color-primary: #2a8df1;
+	--color-primary-content: #d9e9f8;
+	--color-secondary: #7b1fa2;
+	--color-secondary-content: #d9e9f8;
+	--color-accent: #0b6bcb;
+	--color-accent-content: #d9e9f8;
+	--color-neutral: #303740;
+	--color-neutral-content: #ffffff;
+	--color-base-100: #fefeff;
+	--color-base-200: #f5faff;
+	--color-base-300: #e5f6fd;
+	--color-base-content: #111419;
+	--color-info: #03a9f4;
+	--color-info-content: #ffffff;
+	--color-success: #4caf50;
+	--color-success-content: #ffffff;
+	--color-warning: #ff9800;
+	--color-warning-content: #ffffff;
+	--color-error: #ef5350;
+	--color-error-content: #ffffff;
+}
 
 @layer base {
 	html {

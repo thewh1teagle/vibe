@@ -7,15 +7,15 @@
 	const t = $i18n.t
 </script>
 
-<div class="navbar bg-base-100 lg:flex lg:max-w-[1065px] mt-3 m-auto">
+<div class="mx-auto mt-3 flex w-full items-center justify-between rounded-xl border border-border bg-card/70 px-3 py-2 lg:max-w-[1065px]">
 	<div class="flex-1">
-		<a href={base} class="btn btn-ghost text-sm sm:btn-xs lg:btn-md lg:text-xl">
+		<a href={base} class="v-btn v-btn-ghost text-sm lg:text-xl">
 			<Logo />
 			<span class="opacity-95">Vibe</span>
 		</a>
 	</div>
 	<!-- links -->
-	<ul class="flex-none menu menu-horizontal px-1 gap-4" dir="ltr">
+	<ul class="flex-none px-1" dir="ltr">
 		<a href={`https://github.com/thewh1teagle/vibe`} target="_blank">
 			<Github width="28" height="28" />
 		</a>
