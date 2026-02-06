@@ -75,7 +75,6 @@ export function viewModel() {
 	async function checkIfCrashedRecently() {
 		const isCrashed = await invoke<boolean>('is_crashed_recently')
 		if (isCrashed) {
-			preference.setUseGpu(false)
 			dialog.message(t('common.crashed-recently'))
 			await invoke('rename_crash_file')
 		}
@@ -269,21 +268,6 @@ export function viewModel() {
 		})
 	}
 
-	async function checkVulkanOk() {
-		try {
-			await invoke('check_vulkan')
-		} catch (error) {
-			console.error(error)
-			await dialog.message(
-				`Your GPU is unsupported in this version of Vibe. Please download vibe_2.4.0_x64-setup.exe. Click OK to open the download page.`,
-				{
-					kind: 'error',
-				}
-			)
-			open(config.latestVersionWithoutVulkan)
-		}
-	}
-
 	async function CheckCpuAndInit() {
 		const features = await getX86Features()
 		if (features) {
@@ -313,7 +297,6 @@ export function viewModel() {
 	}
 
 	useEffect(() => {
-		checkVulkanOk()
 		CheckCpuAndInit()
 	}, [])
 
@@ -351,18 +334,14 @@ export function viewModel() {
 		var newSegments: transcript.Segment[] = []
 		try {
 			const modelPath = preferenceRef.current.modelPath
-			await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice, useGpu: preferenceRef.current.useGpu })
+			await invoke('load_model', { modelPath })
 			const options = {
 				path,
 				...preferenceRef.current.modelOptions,
 			}
 			const startTime = performance.now()
-			const diarizeOptions = { threshold: preferenceRef.current.diarizeThreshold, max_speakers: preferenceRef.current.maxSpeakers, enabled: preferenceRef.current.recognizeSpeakers }
 			const res: transcript.Transcript = await invoke('transcribe', {
 				options,
-				modelPath,
-				diarizeOptions,
-				ffmpegOptions: preferenceRef.current.ffmpegOptions,
 			})
 
 			// Calcualte time

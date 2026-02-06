@@ -13,8 +13,7 @@ use std::ops::Deref;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
-use vibe_core::audio::find_ffmpeg_path;
-use vibe_core::get_vibe_temp_folder;
+use crate::audio_utils::{find_ffmpeg_path, get_vibe_temp_folder};
 
 use crate::utils::LogError;
 

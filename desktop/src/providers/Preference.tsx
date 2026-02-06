@@ -1,9 +1,7 @@
-import { invoke } from '@tauri-apps/api/core'
 import { ReactNode, createContext, useContext, useEffect, useRef } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { TextFormat } from '~/components/FormatSelect'
 import { ModifyState } from '~/lib/utils'
-import * as os from '@tauri-apps/plugin-os'
 import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
@@ -40,20 +38,6 @@ export interface Preference {
 	setTheme: ModifyState<'light' | 'dark'>
 	storeRecordInDocuments: boolean
 	setStoreRecordInDocuments: ModifyState<boolean>
-	gpuDevice: number
-	setGpuDevice: ModifyState<number>
-	useGpu: boolean | null
-	setUseGpu: ModifyState<boolean | null>
-
-	highGraphicsPreference: boolean
-	setHighGraphicsPreference: ModifyState<boolean>
-
-	recognizeSpeakers: boolean
-	setRecognizeSpeakers: ModifyState<boolean>
-	maxSpeakers: number
-	setMaxSpeakers: ModifyState<number>
-	diarizeThreshold: number
-	setDiarizeThreshold: ModifyState<number>
 	setLanguageDirections: () => void
 	homeTabIndex: number
 	setHomeTabIndex: ModifyState<number>
@@ -103,7 +87,6 @@ export interface ModelOptions {
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
 const defaultOptions = {
-	gpuDevice: 0,
 	soundOnFinish: true,
 	focusOnFinish: true,
 	modelPath: null,
@@ -123,9 +106,6 @@ const defaultOptions = {
 		normalize_loudness: false,
 		custom_command: null,
 	},
-	recognizeSpeakers: false,
-	maxSpeakers: 5,
-	diarizeThreshold: 0.5,
 	storeRecordInDocuments: true,
 	llmConfig: defaultOllamaConfig(),
 	ytDlpVersion: null,
@@ -139,25 +119,18 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
-	const [gpuDevice, setGpuDevice] = useLocalStorage<number>('prefs_gpu_device', 0)
-	const [useGpu, setUseGpu] = useLocalStorage<boolean | null>('prefs_use_gpu', true)
-
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
 	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'pdf')
 	const isMounted = useRef<boolean>()
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
-	const [highGraphicsPreference, setHighGraphicsPreference] = useLocalStorage<boolean>('prefs_high_graphics_performance', false)
 	const [homeTabIndex, setHomeTabIndex] = useLocalStorage<number>('prefs_home_tab_index', 1)
 
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', defaultOptions.soundOnFinish)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', defaultOptions.focusOnFinish)
 	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', defaultOptions.modelOptions)
 	const [ffmpegOptions, setFfmpegOptions] = useLocalStorage<FfmpegOptions>('prefs_ffmpeg_options', defaultOptions.ffmpegOptions)
-	const [recognizeSpeakers, setRecognizeSpeakers] = useLocalStorage<boolean>('prefs_recognize_speakers', defaultOptions.recognizeSpeakers)
-	const [maxSpeakers, setMaxSpeakers] = useLocalStorage<number>('prefs_max_speakers', defaultOptions.maxSpeakers)
-	const [diarizeThreshold, setDiarizeThreshold] = useLocalStorage<number>('prefs_diarize_threshold', defaultOptions.diarizeThreshold)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
 	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
 	const [ytDlpVersion, setYtDlpVersion] = useLocalStorage<string | null>('prefs_ytdlp_version', null)
@@ -171,14 +144,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		setIsFirstRun(false)
 	}, [])
-
-	useEffect(() => {
-		if (!isMounted.current || os.platform() !== 'windows') {
-			isMounted.current = true
-			return
-		}
-		invoke('set_high_gpu_preference', { mode: highGraphicsPreference })
-	}, [highGraphicsPreference])
 
 	useEffect(() => {
 		document.documentElement.setAttribute('data-theme', theme)
@@ -211,9 +176,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setFocusOnFinish(defaultOptions.focusOnFinish)
 		setModelOptions(defaultOptions.modelOptions)
 		setFfmpegOptions(defaultOptions.ffmpegOptions)
-		setRecognizeSpeakers(defaultOptions.recognizeSpeakers)
-		setMaxSpeakers(defaultOptions.maxSpeakers)
-		setDiarizeThreshold(defaultOptions.diarizeThreshold)
 		setStoreRecordInDocuments(defaultOptions.storeRecordInDocuments)
 		setLlmConfig(defaultOptions.llmConfig)
 		message(i18n.t('common.success-action'))
@@ -226,21 +188,11 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}
 
 	const preference: Preference = {
-		useGpu,
-		setUseGpu,
 		enableSubtitlesPreset,
 		llmConfig,
 		resetOptions,
 		setLlmConfig,
 		setLanguageDirections: setLanguageDefaults,
-		diarizeThreshold,
-		setDiarizeThreshold,
-		maxSpeakers,
-		setMaxSpeakers,
-		highGraphicsPreference,
-		setHighGraphicsPreference,
-		recognizeSpeakers,
-		setRecognizeSpeakers,
 		modelOptions,
 		setModelOptions,
 		storeRecordInDocuments,
@@ -261,8 +213,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setModelPath,
 		theme,
 		setTheme,
-		gpuDevice,
-		setGpuDevice,
 		homeTabIndex,
 		setHomeTabIndex,
 		ffmpegOptions,

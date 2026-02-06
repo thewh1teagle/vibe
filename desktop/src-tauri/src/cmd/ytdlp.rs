@@ -5,7 +5,7 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
 };
 use tauri::{AppHandle, Emitter, Listener, Manager};
-use vibe_core::get_vibe_temp_folder;
+use crate::audio_utils::get_vibe_temp_folder;
 
 use crate::utils::LogError;
 

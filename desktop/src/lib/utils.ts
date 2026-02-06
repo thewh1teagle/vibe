@@ -82,10 +82,6 @@ export async function openPath(path: NamedPath) {
 
 export async function getModelsFolder() {}
 
-export function formatSpeaker(speaker?: string, prefix = 'Speaker') {
-	return `${prefix} ${speaker ?? '?'}: `
-}
-
 export async function startKeepAwake() {
 	try {
 		keepAwake.start({ display: true, idle: true, sleep: true })
