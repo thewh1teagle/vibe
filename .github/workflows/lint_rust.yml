@@ -43,8 +43,15 @@ jobs:
               uses: dtolnay/rust-toolchain@stable
               with:
                   components: clippy
-            - name: setup Bun
-              uses: oven-sh/setup-bun@v1
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: desktop/pnpm-lock.yaml
 
             - name: setup uv
               uses: astral-sh/setup-uv@v5
@@ -53,10 +60,10 @@ jobs:
               run: uv run scripts/pre_build.py
 
             - name: install node deps
-              run: bun install
+              run: pnpm install
               working-directory: ./desktop
             - name: build react
-              run: bun run build
+              run: pnpm build
               working-directory: ./desktop
 
             - uses: Swatinem/rust-cache@v2
