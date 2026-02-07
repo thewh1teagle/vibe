@@ -59,14 +59,14 @@ jobs:
             - name: Run pre_build.py on ${{ matrix.platform }}
               run: uv run scripts/pre_build.py --target ${{ matrix.target_triple }}
 
-            - name: Sign Windows artifacts
-              if: matrix.platform == 'windows-latest'
-              continue-on-error: true
-              env:
-                WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
-                WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
-              shell: pwsh
-              run: ./scripts/windows_sign.ps1
+            # TODO: re-enable once WINDOWS_CERTIFICATE secret is renewed (expired)
+            # - name: Sign Windows artifacts
+            #   if: matrix.platform == 'windows-latest'
+            #   env:
+            #     WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+            #     WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+            #   shell: pwsh
+            #   run: ./scripts/windows_sign.ps1
 
 
             - name: Build
