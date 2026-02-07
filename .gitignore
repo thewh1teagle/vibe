@@ -33,3 +33,4 @@ pnpm-workspace.yaml
 desktop/src-tauri/binaries/sona-*
 github-issues/
 dedup_report.json
+ISSUES-REPORT.md
