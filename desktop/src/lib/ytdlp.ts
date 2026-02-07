@@ -1,16 +1,15 @@
 import { platform } from '@tauri-apps/plugin-os'
-import { ytDlpConfig } from './config'
+import { invoke } from '@tauri-apps/api/core'
 import * as fs from '@tauri-apps/plugin-fs'
 import * as path from '@tauri-apps/api/path'
-import { invoke } from '@tauri-apps/api/core'
+import { ytDlpAssetNames, ytDlpDownloadUrl } from './config'
 
 const platformName = platform()
-const { url, name } = ytDlpConfig[platformName as keyof typeof ytDlpConfig]
+const assetName = ytDlpAssetNames[platformName as keyof typeof ytDlpAssetNames]
 
 async function getBinaryPath() {
 	const localDataPath = await path.appLocalDataDir()
-	const binaryPath = await path.join(localDataPath, name)
-	return binaryPath
+	return await path.join(localDataPath, assetName)
 }
 
 export async function exists() {
@@ -18,7 +17,12 @@ export async function exists() {
 	return await fs.exists(binaryPath)
 }
 
-export async function downloadYtDlp() {
+export async function getLatestVersion(): Promise<string> {
+	return await invoke<string>('get_latest_ytdlp_version')
+}
+
+export async function downloadYtDlp(version: string) {
+	const url = ytDlpDownloadUrl(version, platformName as keyof typeof ytDlpAssetNames)
 	const binaryPath = await getBinaryPath()
 	await invoke('download_file', { url, path: binaryPath })
 }

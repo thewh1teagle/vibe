@@ -130,17 +130,30 @@ export function viewModel() {
 		switchingToLinkRef.current = true
 
 		try {
-			const isUpToDate = config.ytDlpVersion === preference.ytDlpVersion
-			const exists = await ytDlp.exists()
+			const binaryExists = await ytDlp.exists()
+			let latestVersion: string | null = null
 
-			if (!isUpToDate && preference.shouldCheckYtDlpVersion && skippedYtDlpUpdatePromptRef.current) {
+			try {
+				latestVersion = await ytDlp.getLatestVersion()
+			} catch (e) {
+				console.error('Failed to fetch latest yt-dlp version', e)
+				if (binaryExists) {
+					preference.setHomeTabIndex(2)
+					return
+				}
+			}
+
+			const needsInstall = !binaryExists
+			const needsUpdate = !needsInstall && preference.shouldCheckYtDlpVersion && latestVersion !== null && latestVersion !== preference.ytDlpVersion
+
+			if (needsUpdate && skippedYtDlpUpdatePromptRef.current) {
 				preference.setHomeTabIndex(2)
 				return
 			}
 
-			if (!exists || (!isUpToDate && preference.shouldCheckYtDlpVersion)) {
+			if (needsInstall || needsUpdate) {
 				let shouldInstallOrUpdate = false
-				if (!isUpToDate) {
+				if (needsUpdate) {
 					shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
 						title: t('common.ask-for-update-ytdlp-title'),
 						kind: 'info',
@@ -158,11 +171,12 @@ export function viewModel() {
 
 				if (shouldInstallOrUpdate) {
 					try {
+						const versionToDownload = latestVersion ?? preference.ytDlpVersion ?? '2026.02.04'
 						toast.setMessage(t('common.downloading-ytdlp'))
 						toast.setProgress(0)
 						toast.setOpen(true)
-						await ytDlp.downloadYtDlp()
-						preference.setYtDlpVersion(config.ytDlpVersion)
+						await ytDlp.downloadYtDlp(versionToDownload)
+						preference.setYtDlpVersion(versionToDownload)
 						skippedYtDlpUpdatePromptRef.current = false
 						toast.setOpen(false)
 						preference.setHomeTabIndex(2)
@@ -170,8 +184,8 @@ export function viewModel() {
 						console.error(e)
 						setErrorModal?.({ log: String(e), open: true })
 					}
-				} else if (exists) {
-					if (!isUpToDate) {
+				} else if (binaryExists) {
+					if (needsUpdate) {
 						skippedYtDlpUpdatePromptRef.current = true
 					}
 					preference.setHomeTabIndex(2)
