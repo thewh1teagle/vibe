@@ -28,18 +28,25 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
-            - name: setup Bun
-              uses: oven-sh/setup-bun@v1
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: landing/pnpm-lock.yaml
 
             - name: setup uv
               uses: astral-sh/setup-uv@v5
 
             - name: Build
               run: |
-                bun install
+                pnpm install
                 uv run ../scripts/landing_links.py
                 cp -rf ../docs static/
-                bun run build
+                pnpm build
               working-directory: landing
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}

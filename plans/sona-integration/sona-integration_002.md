@@ -198,7 +198,7 @@ Keep the existing `.gitkeep` so the directory is tracked.
 
 ```bash
 uv run scripts/pre_build.py        # auto-detects platform, downloads sona
-cd desktop && bun install && bunx tauri dev
+cd desktop && pnpm install && pnpm exec tauri dev
 
 # Or all-in-one:
 uv run scripts/pre_build.py --dev

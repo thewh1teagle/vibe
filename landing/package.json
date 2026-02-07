@@ -2,6 +2,7 @@
   "name": "landing",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "pnpm@10.4.1",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",

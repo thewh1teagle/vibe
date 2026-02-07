@@ -149,13 +149,13 @@ def main() -> int:
         if original_cwd != cwd:
             relative_path = os.path.relpath(cwd.parent, original_cwd)
             print(f"cd {relative_path}")
-        print("bun install")
+        print("pnpm install")
         if current_platform == "windows":
             print(r'$env:LIBCLANG_PATH = "C:\Program Files\LLVM\bin"')
             print(r'$env:PATH += ";C:\Program Files\CMake\bin"')
             if has_feature("portable", argv):
                 print("$env:WINDOWS_PORTABLE=1")
-        print("bunx tauri build")
+        print("pnpm exec tauri build")
 
     if github_env and current_platform == "windows" and has_feature("portable", argv):
         print("Adding ENV WINDOWS_PORTABLE=1")
@@ -171,8 +171,8 @@ def main() -> int:
             if has_feature("portable", argv):
                 os.environ["WINDOWS_PORTABLE"] = "1"
 
-        run_cmd("bun", "install")
-        run_cmd("bunx", "tauri", "dev" if "--dev" in action_arg else "build")
+        run_cmd("pnpm", "install")
+        run_cmd("pnpm", "exec", "tauri", "dev" if "--dev" in action_arg else "build")
 
     return 0
 

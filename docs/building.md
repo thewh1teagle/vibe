@@ -2,7 +2,7 @@
 
 ### Prerequisites
 
-[Bun](https://bun.sh/) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [Cmake](https://cmake.org/download/)
+[pnpm](https://pnpm.io/) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [Cmake](https://cmake.org/download/)
 
 **Windows**:
 
@@ -37,7 +37,7 @@ _Vulkan (Windows)_
 **Run as admin once!!!**
 
 ```console
-bun run scripts\pre_build.js --vulkan
+pnpm exec scripts\pre_build.js --vulkan
 ```
 
 **macOS**:
@@ -58,13 +58,13 @@ export LIBCLANG_PATH="$(brew --prefix llvm)/lib"
 Install dependencies from `desktop` folder
 
 ```console
-bun install
+pnpm install
 ```
 
 Execute pre build scripts and follow the instructions it provide
 
 ```console
-bun scripts/pre_build.js
+pnpm exec scripts/pre_build.js
 ```
 
 ## Build with `Nvidia` support
@@ -102,7 +102,7 @@ See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=re
 ```console
 $env:CUDA_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
 $env:CudaToolkitDir = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
-bun run scripts/pre_build.js --openblas --build
+pnpm exec scripts/pre_build.js --openblas --build
 ```
 
 ## Build with `AMD` support
@@ -111,14 +111,14 @@ AMD support is only available under linux environment
 
 1. Install [`rocm toolkit`](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/)
 
-2. Run `bun scripts/pre_build.js --amd`
+2. Run `pnpm exec scripts/pre_build.js --amd`
 
 3. Run
 
 ```console
 export ROCM_VERSION="your rocm version"
 cd desktop
-bunx tauri build
+pnpm exec tauri build
 ```
 
 ## Gotchas
@@ -204,7 +204,7 @@ and update downloads links in landing page.
 ## Compress images
 
 ```console
-bunx tinypng-go static/*.png
+pnpx tinypng-go static/*.png
 ```
 
 ## Convert markdown to PDF
@@ -242,8 +242,8 @@ git push origin dev --force
 ## Update packages
 
 ```console
-bun i -D
-bunx ncu -u
+pnpm install
+pnpx ncu -u
 cd src-tauri
 cargo install cargo-edit
 rm -rf ../Cargo.lock
@@ -269,7 +269,7 @@ cargo +nightly -Zunstable-options update --breaking
 ## Test core
 
 ```console
-bun run scripts/pre_build.js
+pnpm exec scripts/pre_build.js
 # Export env
 $env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
 cargo test --target x86_64-pc-windows-msvc --features "vulkan" -p vibe_core --release -- --nocapture

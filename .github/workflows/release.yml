@@ -28,8 +28,15 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: setup Bun
-              uses: oven-sh/setup-bun@v1
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: desktop/pnpm-lock.yaml
 
             - name: setup uv
               uses: astral-sh/setup-uv@v5
@@ -44,7 +51,7 @@ jobs:
                   targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
             - name: Install frontend dependencies
-              run: bun install
+              run: pnpm install
               working-directory: ./desktop
 
             - name: Run pre_build.py on ${{ matrix.platform }}
@@ -87,7 +94,7 @@ jobs:
                   prerelease: true
                   args: ${{ matrix.args }}
                   projectPath: "./desktop"
-                  tauriScript: bunx tauri
+                  tauriScript: pnpm exec tauri
     update-landing:
       runs-on: macos-latest
       needs: publish-tauri

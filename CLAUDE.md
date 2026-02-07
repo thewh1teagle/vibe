@@ -2,6 +2,10 @@
 
 ## Package Managers
 - JavaScript/Node.js: `pnpm` (sometimes `pnpx`)
+  - The entire repo uses pnpm only (no alternative JS package managers)
+  - Install deps: `pnpm install`
+  - Run scripts: `pnpm <script>` (e.g. `pnpm dev`, `pnpm build`)
+  - Execute packages: `pnpm exec <cmd>` or `pnpx <cmd>`
 - Python: `uv`
   - Add deps to scripts: `uv add --script example.py <packages> --bounds exact`
   - Run scripts: `uv run example.py`
