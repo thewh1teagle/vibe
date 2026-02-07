@@ -1,4 +1,4 @@
-use eyre::{bail, Context, Result};
+use eyre::{bail, Context, ContextCompat, Result};
 use serde_json::Value;
 use std::{
     io::{BufRead, BufReader},
@@ -26,6 +26,22 @@ fn get_binary_name() -> &'static str {
     } else {
         "yt-dlp_macos"
     }
+}
+
+#[tauri::command]
+pub async fn get_latest_ytdlp_version() -> Result<String> {
+    let client = reqwest::Client::builder().user_agent("vibe-app").build()?;
+    let resp = client
+        .get("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+        .send()
+        .await?
+        .error_for_status()?;
+    let json: Value = resp.json().await?;
+    let tag = json["tag_name"]
+        .as_str()
+        .context("missing tag_name in latest release response")?
+        .to_string();
+    Ok(tag)
 }
 
 #[tauri::command]
