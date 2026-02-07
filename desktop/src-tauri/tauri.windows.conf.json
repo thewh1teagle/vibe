@@ -4,7 +4,7 @@
 			"nsis": {
 				"installerHooks": "vc_redist.nsh"
 			},
-			"certificateThumbprint": "45DCFF335BB538C58489BD03BF167D29DDA53110",
+			"certificateThumbprint": "B62EBBA228708C937A2DA3B6718A0F75AEF7B172",
 			"digestAlgorithm": "sha256",
 			"timestampUrl": "http://timestamp.digicert.com"
 		}
