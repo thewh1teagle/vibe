@@ -24,8 +24,7 @@ export default function AudioDeviceInput({ type, devices, device, setDevice }: A
 				onChange={(event) => {
 					const next = filtered.find((d) => d.id === event.target.value)
 					setDevice(next ?? null)
-				}}
-			>
+				}}>
 				<option>{t('common.no-record')}</option>
 				{filtered.map(({ id, name }) => (
 					<option key={id} value={id}>

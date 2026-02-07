@@ -7,23 +7,23 @@ import Nav from './Nav'
 import PrivacyPolicy from './PrivacyPolicy'
 
 export default function Layout() {
-  const { i18n } = useTranslation()
-  const [kofiOpen, setKofiOpen] = useState(false)
-  const [privacyOpen, setPrivacyOpen] = useState(false)
-  const direction = i18n.dir()
+	const { i18n } = useTranslation()
+	const [kofiOpen, setKofiOpen] = useState(false)
+	const [privacyOpen, setPrivacyOpen] = useState(false)
+	const direction = i18n.dir()
 
-  useEffect(() => {
-    document.documentElement.setAttribute('dir', direction)
-    document.body.setAttribute('dir', direction)
-  }, [direction])
+	useEffect(() => {
+		document.documentElement.setAttribute('dir', direction)
+		document.body.setAttribute('dir', direction)
+	}, [direction])
 
-  return (
-    <div dir={direction}>
-      <Nav />
-      <Outlet context={{ onOpenKofi: () => setKofiOpen(true) }} />
-      <Footer onOpenKofi={() => setKofiOpen(true)} onOpenPrivacyPolicy={() => setPrivacyOpen(true)} />
-      <KofiDialog open={kofiOpen} onOpenChange={setKofiOpen} />
-      <PrivacyPolicy open={privacyOpen} onOpenChange={setPrivacyOpen} />
-    </div>
-  )
+	return (
+		<div dir={direction}>
+			<Nav />
+			<Outlet context={{ onOpenKofi: () => setKofiOpen(true) }} />
+			<Footer onOpenKofi={() => setKofiOpen(true)} onOpenPrivacyPolicy={() => setPrivacyOpen(true)} />
+			<KofiDialog open={kofiOpen} onOpenChange={setKofiOpen} />
+			<PrivacyPolicy open={privacyOpen} onOpenChange={setPrivacyOpen} />
+		</div>
+	)
 }

@@ -3,16 +3,16 @@ import { Button } from '~/components/ui/button'
 import Heart from '~/icons/Heart'
 
 interface SupportButtonProps {
-  onOpenKofi: () => void
+	onOpenKofi: () => void
 }
 
 export default function SupportButton({ onOpenKofi }: SupportButtonProps) {
-  const { t } = useTranslation()
+	const { t } = useTranslation()
 
-  return (
-    <Button className="bg-red-500 text-white hover:bg-red-700" onClick={onOpenKofi}>
-      {t('support-project')}
-      <Heart />
-    </Button>
-  )
+	return (
+		<Button className="bg-red-500 text-white hover:bg-red-700" onClick={onOpenKofi}>
+			{t('support-project')}
+			<Heart />
+		</Button>
+	)
 }

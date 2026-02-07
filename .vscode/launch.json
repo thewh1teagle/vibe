@@ -1,90 +1,71 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in library 'vibe_core'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=vibe_core"
-                ],
-                "filter": {
-                    "name": "vibe_core",
-                    "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'vibe'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=vibe",
-                    "--package=vibe"
-                ],
-                "filter": {
-                    "name": "vibe",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'vibe' in Release mode",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=vibe",
-                    "--package=vibe",
-                    "--release"
-                ],
-                "filter": {
-                    "name": "vibe",
-                    "kind": "bin"
-                },
-                "env": {
-                    "FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
-                    "OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-                    "LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin",
-                    "PATH": "${env:PATH};${workspaceFolder}\\desktop\\src-tauri\\openblas\\bin;${workspaceFolder}\\desktop\\src-tauri\\ffmpeg\\bin\\x64",
-                    "RUSTFLAGS": "-L ${workspaceFolder}\\desktop\\src-tauri\\openblas\\lib"
-                },
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}",
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'vibe'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=vibe",
-                    "--package=vibe"
-                ],
-                "filter": {
-                    "name": "vibe",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        }
-    ]
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in library 'vibe_core'",
+			"cargo": {
+				"args": ["test", "--no-run", "--lib", "--package=vibe_core"],
+				"filter": {
+					"name": "vibe_core",
+					"kind": "lib"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'vibe'",
+			"cargo": {
+				"args": ["build", "--bin=vibe", "--package=vibe"],
+				"filter": {
+					"name": "vibe",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'vibe' in Release mode",
+			"cargo": {
+				"args": ["build", "--bin=vibe", "--package=vibe", "--release"],
+				"filter": {
+					"name": "vibe",
+					"kind": "bin"
+				},
+				"env": {
+					"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
+					"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
+					"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin",
+					"PATH": "${env:PATH};${workspaceFolder}\\desktop\\src-tauri\\openblas\\bin;${workspaceFolder}\\desktop\\src-tauri\\ffmpeg\\bin\\x64",
+					"RUSTFLAGS": "-L ${workspaceFolder}\\desktop\\src-tauri\\openblas\\lib"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'vibe'",
+			"cargo": {
+				"args": ["test", "--no-run", "--bin=vibe", "--package=vibe"],
+				"filter": {
+					"name": "vibe",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		}
+	]
 }

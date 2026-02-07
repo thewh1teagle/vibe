@@ -6,27 +6,27 @@ Vibe's frontend uses DaisyUI v5 on Tailwind CSS v4 for all UI components. The Da
 
 ### Current DaisyUI usage summary
 
-| DaisyUI component | Files using it | shadcn replacement |
-|-|-|-|
-| `btn` variants | ~20 files | `Button` |
-| `modal`, `modal-open`, `modal-box` | 6 files | `Dialog` |
-| `dropdown`, `dropdown-content`, `menu` | 3 files | `DropdownMenu` |
-| `collapse`, `collapse-open`, `collapse-content` | 5 files | `Collapsible` |
-| `form-control`, `label`, `label-text` | 15 files | `Label` + layout divs |
-| `input`, `input-bordered` | 10 files | `Input` |
-| `select`, `select-bordered` | 10 files | native `<select>` with shadcn styling or `Select` |
-| `textarea`, `textarea-bordered` | 5 files | `Textarea` |
-| `toggle`, `toggle-primary` | 8 files | `Switch` |
-| `progress`, `progress-primary` | 5 files | `Progress` |
-| `tabs`, `tab`, `tab-active` | 2 files | `Tabs` |
-| `tooltip`, `tooltip-bottom` | 5 files | `Tooltip` |
-| `toast`, `alert` | 2 files | `Sonner` (toast) |
-| `swap`, `swap-rotate` | 2 files | custom or `Toggle` |
-| `loading`, `loading-spinner` | 3 files | `Spinner` |
-| `link`, `link-primary` | 5 files | Tailwind utility classes |
-| `badge` | 1 file | `Badge` |
-| `join`, `join-vertical` | 1 file | flex layout |
-| `bg-base-*`, `text-base-content` | ~20 files | shadcn CSS variables (`bg-background`, `text-foreground`, etc.) |
+| DaisyUI component                               | Files using it | shadcn replacement                                              |
+| ----------------------------------------------- | -------------- | --------------------------------------------------------------- |
+| `btn` variants                                  | ~20 files      | `Button`                                                        |
+| `modal`, `modal-open`, `modal-box`              | 6 files        | `Dialog`                                                        |
+| `dropdown`, `dropdown-content`, `menu`          | 3 files        | `DropdownMenu`                                                  |
+| `collapse`, `collapse-open`, `collapse-content` | 5 files        | `Collapsible`                                                   |
+| `form-control`, `label`, `label-text`           | 15 files       | `Label` + layout divs                                           |
+| `input`, `input-bordered`                       | 10 files       | `Input`                                                         |
+| `select`, `select-bordered`                     | 10 files       | native `<select>` with shadcn styling or `Select`               |
+| `textarea`, `textarea-bordered`                 | 5 files        | `Textarea`                                                      |
+| `toggle`, `toggle-primary`                      | 8 files        | `Switch`                                                        |
+| `progress`, `progress-primary`                  | 5 files        | `Progress`                                                      |
+| `tabs`, `tab`, `tab-active`                     | 2 files        | `Tabs`                                                          |
+| `tooltip`, `tooltip-bottom`                     | 5 files        | `Tooltip`                                                       |
+| `toast`, `alert`                                | 2 files        | `Sonner` (toast)                                                |
+| `swap`, `swap-rotate`                           | 2 files        | custom or `Toggle`                                              |
+| `loading`, `loading-spinner`                    | 3 files        | `Spinner`                                                       |
+| `link`, `link-primary`                          | 5 files        | Tailwind utility classes                                        |
+| `badge`                                         | 1 file         | `Badge`                                                         |
+| `join`, `join-vertical`                         | 1 file         | flex layout                                                     |
+| `bg-base-*`, `text-base-content`                | ~20 files      | shadcn CSS variables (`bg-background`, `text-foreground`, etc.) |
 
 ### Current theme system
 
@@ -44,6 +44,7 @@ pnpm remove daisyui
 ```
 
 Remove from `globals.css`:
+
 - `@plugin "daisyui" { ... }`
 - Both `@plugin "daisyui/theme" { ... }` blocks
 
@@ -57,6 +58,7 @@ pnpm remove @tailwindcss/postcss autoprefixer
 ```
 
 Update `vite.config.ts`:
+
 ```ts
 import tailwindcss from "@tailwindcss/vite"
 // ...
@@ -72,6 +74,7 @@ pnpm dlx shadcn@latest init
 ```
 
 This creates `components.json` and sets up the CSS variable theme in `globals.css`. Configure:
+
 - Style: Default
 - Base color: Neutral (matches current dark base)
 - CSS variables: Yes
@@ -84,14 +87,15 @@ Remove the file — Tailwind v4 with shadcn doesn't need it. The `@config` direc
 ### 1e. Update path alias
 
 `components.json` needs to know about the `~/` alias:
+
 ```json
 {
-  "aliases": {
-    "components": "~/components",
-    "utils": "~/lib/utils",
-    "ui": "~/components/ui",
-    "hooks": "~/hooks"
-  }
+	"aliases": {
+		"components": "~/components",
+		"utils": "~/lib/utils",
+		"ui": "~/components/ui",
+		"hooks": "~/hooks"
+	}
 }
 ```
 
@@ -104,12 +108,13 @@ pnpm add clsx tailwind-merge
 ```
 
 Add to `lib/utils.ts`:
+
 ```ts
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+	return twMerge(clsx(inputs))
 }
 ```
 
@@ -122,85 +127,85 @@ Replace all `cx(` calls with `cn(` across the codebase. Remove the old `cx` func
 Replace the DaisyUI theme blocks with shadcn's CSS variable system. Keep the existing custom styles (font-family, RTL, print media).
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --radius: 0.625rem;
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--radius: 0.625rem;
 }
 
 :root {
-  /* shadcn default neutral theme values */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+	/* shadcn default neutral theme values */
+	--background: oklch(1 0 0);
+	--foreground: oklch(0.145 0 0);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.145 0 0);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.145 0 0);
+	--primary: oklch(0.205 0 0);
+	--primary-foreground: oklch(0.985 0 0);
+	--secondary: oklch(0.97 0 0);
+	--secondary-foreground: oklch(0.205 0 0);
+	--muted: oklch(0.97 0 0);
+	--muted-foreground: oklch(0.556 0 0);
+	--accent: oklch(0.97 0 0);
+	--accent-foreground: oklch(0.205 0 0);
+	--destructive: oklch(0.577 0.245 27.325);
+	--destructive-foreground: oklch(0.577 0.245 27.325);
+	--border: oklch(0.922 0 0);
+	--input: oklch(0.922 0 0);
+	--ring: oklch(0.708 0 0);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+	--background: oklch(0.145 0 0);
+	--foreground: oklch(0.985 0 0);
+	--card: oklch(0.145 0 0);
+	--card-foreground: oklch(0.985 0 0);
+	--popover: oklch(0.145 0 0);
+	--popover-foreground: oklch(0.985 0 0);
+	--primary: oklch(0.985 0 0);
+	--primary-foreground: oklch(0.205 0 0);
+	--secondary: oklch(0.269 0 0);
+	--secondary-foreground: oklch(0.985 0 0);
+	--muted: oklch(0.269 0 0);
+	--muted-foreground: oklch(0.708 0 0);
+	--accent: oklch(0.269 0 0);
+	--accent-foreground: oklch(0.985 0 0);
+	--destructive: oklch(0.396 0.141 25.723);
+	--destructive-foreground: oklch(0.637 0.237 25.331);
+	--border: oklch(0.269 0 0);
+	--input: oklch(0.269 0 0);
+	--ring: oklch(0.439 0 0);
 }
 
 @layer base {
-  html {
-    font-family: 'Proxima Nova', system-ui, sans-serif;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	html {
+		font-family: 'Proxima Nova', system-ui, sans-serif;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
 }
 
 /* Keep existing RTL and print styles */
@@ -228,17 +233,17 @@ This creates files in `src/components/ui/`.
 
 Global find-and-replace for DaisyUI semantic color classes:
 
-| DaisyUI class | shadcn/Tailwind replacement |
-|-|-|
-| `bg-base-100` | `bg-background` |
-| `bg-base-200` | `bg-muted` |
-| `bg-base-300` | `bg-accent` |
-| `text-base-content` | `text-foreground` |
-| `bg-primary` | `bg-primary` (same name, different value) |
-| `text-primary` | `text-primary` |
-| `bg-error` / `text-error` | `bg-destructive` / `text-destructive` |
-| `stroke-base-content` | `stroke-foreground` |
-| `link link-primary` | `text-primary underline hover:text-primary/80` |
+| DaisyUI class             | shadcn/Tailwind replacement                    |
+| ------------------------- | ---------------------------------------------- |
+| `bg-base-100`             | `bg-background`                                |
+| `bg-base-200`             | `bg-muted`                                     |
+| `bg-base-300`             | `bg-accent`                                    |
+| `text-base-content`       | `text-foreground`                              |
+| `bg-primary`              | `bg-primary` (same name, different value)      |
+| `text-primary`            | `text-primary`                                 |
+| `bg-error` / `text-error` | `bg-destructive` / `text-destructive`          |
+| `stroke-base-content`     | `stroke-foreground`                            |
+| `link link-primary`       | `text-primary underline hover:text-primary/80` |
 
 ---
 
@@ -248,17 +253,17 @@ Global find-and-replace for DaisyUI semantic color classes:
 
 Replace DaisyUI button classes with shadcn `<Button>` component:
 
-| DaisyUI | shadcn |
-|-|-|
-| `btn btn-primary` | `<Button>` (default variant) |
-| `btn btn-secondary` | `<Button variant="secondary">` |
-| `btn btn-ghost` | `<Button variant="ghost">` |
-| `btn btn-outline` | `<Button variant="outline">` |
-| `btn btn-success` | `<Button variant="secondary" className="bg-green-600 ...">` or custom variant |
-| `btn btn-xs` | `<Button size="sm">` |
-| `btn btn-sm` | `<Button size="sm">` |
-| `btn btn-md` | `<Button size="default">` |
-| `btn btn-square` | `<Button variant="ghost" size="icon">` |
+| DaisyUI             | shadcn                                                                        |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `btn btn-primary`   | `<Button>` (default variant)                                                  |
+| `btn btn-secondary` | `<Button variant="secondary">`                                                |
+| `btn btn-ghost`     | `<Button variant="ghost">`                                                    |
+| `btn btn-outline`   | `<Button variant="outline">`                                                  |
+| `btn btn-success`   | `<Button variant="secondary" className="bg-green-600 ...">` or custom variant |
+| `btn btn-xs`        | `<Button size="sm">`                                                          |
+| `btn btn-sm`        | `<Button size="sm">`                                                          |
+| `btn btn-md`        | `<Button size="default">`                                                     |
+| `btn btn-square`    | `<Button variant="ghost" size="icon">`                                        |
 
 **Files:** Every component — AppMenu, Params, TextArea, ErrorModal, SettingsPage, HomePage, BatchPage, etc.
 
@@ -267,24 +272,26 @@ Replace DaisyUI button classes with shadcn `<Button>` component:
 Replace all DaisyUI modals (`modal modal-open modal-box modal-action`) with shadcn `<Dialog>`.
 
 **SettingsModal.tsx:**
+
 ```tsx
 <Dialog open={visible} onOpenChange={setVisible}>
-  <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-    <SettingsPage setVisible={setVisible} />
-  </DialogContent>
+	<DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+		<SettingsPage setVisible={setVisible} />
+	</DialogContent>
 </Dialog>
 ```
 
 **ErrorModal.tsx:**
+
 ```tsx
 <Dialog open={state?.open} onOpenChange={(open) => setState({ ...state, open })}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>{t('common.error-title')}</DialogTitle>
-      <DialogDescription>{t('common.modal-error-body')}</DialogDescription>
-    </DialogHeader>
-    {/* ... content ... */}
-  </DialogContent>
+	<DialogContent>
+		<DialogHeader>
+			<DialogTitle>{t('common.error-title')}</DialogTitle>
+			<DialogDescription>{t('common.modal-error-body')}</DialogDescription>
+		</DialogHeader>
+		{/* ... content ... */}
+	</DialogContent>
 </Dialog>
 ```
 
@@ -300,22 +307,16 @@ Replace all DaisyUI modals (`modal modal-open modal-box modal-action`) with shad
 
 ```tsx
 <DropdownMenu open={open} onOpenChange={setOpen}>
-  <DropdownMenuTrigger asChild>
-    <Button variant="ghost" size="icon"><EllipsisIcon /></Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent>
-    <DropdownMenuItem onSelect={() => onClickSettings()}>
-      {t('common.settings')}
-    </DropdownMenuItem>
-    <DropdownMenuItem onSelect={() => navigate(-1)}>
-      {t('common.back')}
-    </DropdownMenuItem>
-    {availableUpdate && (
-      <DropdownMenuItem onSelect={() => updateApp()}>
-        {t('common.update-version')}
-      </DropdownMenuItem>
-    )}
-  </DropdownMenuContent>
+	<DropdownMenuTrigger asChild>
+		<Button variant="ghost" size="icon">
+			<EllipsisIcon />
+		</Button>
+	</DropdownMenuTrigger>
+	<DropdownMenuContent>
+		<DropdownMenuItem onSelect={() => onClickSettings()}>{t('common.settings')}</DropdownMenuItem>
+		<DropdownMenuItem onSelect={() => navigate(-1)}>{t('common.back')}</DropdownMenuItem>
+		{availableUpdate && <DropdownMenuItem onSelect={() => updateApp()}>{t('common.update-version')}</DropdownMenuItem>}
+	</DropdownMenuContent>
 </DropdownMenu>
 ```
 
@@ -329,15 +330,13 @@ Replace all DaisyUI modals (`modal modal-open modal-box modal-action`) with shad
 
 ```tsx
 <Collapsible open={open} onOpenChange={setOpen}>
-  <CollapsibleTrigger asChild>
-    <button className="mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer">
-      {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-      {t('common.more-options')}
-    </button>
-  </CollapsibleTrigger>
-  <CollapsibleContent>
-    {/* ... form fields ... */}
-  </CollapsibleContent>
+	<CollapsibleTrigger asChild>
+		<button className="mt-3 flex flex-row items-center gap-1 text-sm text-primary font-medium cursor-pointer">
+			{open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+			{t('common.more-options')}
+		</button>
+	</CollapsibleTrigger>
+	<CollapsibleContent>{/* ... form fields ... */}</CollapsibleContent>
 </Collapsible>
 ```
 
@@ -348,20 +347,22 @@ Replace all DaisyUI modals (`modal modal-open modal-box modal-action`) with shad
 Replace DaisyUI form patterns:
 
 **Before (DaisyUI):**
+
 ```tsx
 <label className="form-control w-full">
-  <div className="label">
-    <span className="label-text">Label</span>
-  </div>
-  <input className="input input-bordered" />
+	<div className="label">
+		<span className="label-text">Label</span>
+	</div>
+	<input className="input input-bordered" />
 </label>
 ```
 
 **After (shadcn):**
+
 ```tsx
 <div className="space-y-2">
-  <Label>Label</Label>
-  <Input />
+	<Label>Label</Label>
+	<Input />
 </div>
 ```
 
@@ -376,11 +377,13 @@ For `<textarea>`: use shadcn's `<Textarea>` component.
 Replace all DaisyUI toggles with shadcn `<Switch>`:
 
 **Before:**
+
 ```tsx
 <input type="checkbox" className="toggle toggle-primary" checked={value} onChange={handler} />
 ```
 
 **After:**
+
 ```tsx
 <Switch checked={value} onCheckedChange={handler} />
 ```
@@ -393,14 +396,20 @@ Replace all DaisyUI toggles with shadcn `<Switch>`:
 
 ```tsx
 <Tabs value={String(vm.preference.homeTabIndex)} onValueChange={(v) => vm.preference.setHomeTabIndex(Number(v))}>
-  <TabsList>
-    <TabsTrigger value="0"><MicrophoneIcon className="w-[18px] h-[18px]" /></TabsTrigger>
-    <TabsTrigger value="1"><FileIcon className="w-[18px] h-[18px]" /></TabsTrigger>
-    <TabsTrigger value="2"><LinkIcon className="w-[18px] h-[18px]" /></TabsTrigger>
-  </TabsList>
-  <TabsContent value="0">{/* Record tab */}</TabsContent>
-  <TabsContent value="1">{/* File tab */}</TabsContent>
-  <TabsContent value="2">{/* URL tab */}</TabsContent>
+	<TabsList>
+		<TabsTrigger value="0">
+			<MicrophoneIcon className="w-[18px] h-[18px]" />
+		</TabsTrigger>
+		<TabsTrigger value="1">
+			<FileIcon className="w-[18px] h-[18px]" />
+		</TabsTrigger>
+		<TabsTrigger value="2">
+			<LinkIcon className="w-[18px] h-[18px]" />
+		</TabsTrigger>
+	</TabsList>
+	<TabsContent value="0">{/* Record tab */}</TabsContent>
+	<TabsContent value="1">{/* File tab */}</TabsContent>
+	<TabsContent value="2">{/* URL tab */}</TabsContent>
 </Tabs>
 ```
 
@@ -413,21 +422,25 @@ Also the transcript/summary tab switcher.
 Replace DaisyUI tooltip pattern with shadcn `<Tooltip>`:
 
 **Before:**
+
 ```tsx
 <div className="tooltip tooltip-bottom" data-tip={info}>
-  <button className="btn btn-square btn-md">...</button>
+	<button className="btn btn-square btn-md">...</button>
 </div>
 ```
 
 **After:**
+
 ```tsx
 <TooltipProvider>
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <Button variant="ghost" size="icon">...</Button>
-    </TooltipTrigger>
-    <TooltipContent side="bottom">{info}</TooltipContent>
-  </Tooltip>
+	<Tooltip>
+		<TooltipTrigger asChild>
+			<Button variant="ghost" size="icon">
+				...
+			</Button>
+		</TooltipTrigger>
+		<TooltipContent side="bottom">{info}</TooltipContent>
+	</Tooltip>
 </TooltipProvider>
 ```
 
@@ -447,6 +460,7 @@ pnpm dlx shadcn@latest add sonner
 **App.tsx:** Add `<Toaster />` from sonner.
 
 Replace all `toast()` calls:
+
 - `toast('message')` → `toast('message')` (from sonner)
 - `toast.promise(...)` → `toast.promise(...)` (sonner has the same API)
 - Custom toast provider (`ToastProvider`) with progress → use sonner's `toast.loading()` with description updates
@@ -458,11 +472,13 @@ Replace all `toast()` calls:
 Replace DaisyUI `progress progress-primary` with shadcn `<Progress>`:
 
 **Before:**
+
 ```tsx
 <progress className="progress progress-primary w-56" value={progress} max="100" />
 ```
 
 **After:**
+
 ```tsx
 <Progress value={progress} className="w-56" />
 ```
@@ -474,11 +490,13 @@ Replace DaisyUI `progress progress-primary` with shadcn `<Progress>`:
 Replace DaisyUI `loading loading-spinner` with shadcn `<Spinner>`:
 
 **Before:**
+
 ```tsx
 <span className="loading loading-spinner"></span>
 ```
 
 **After:**
+
 ```tsx
 <Spinner />
 ```
@@ -491,7 +509,7 @@ Or use a simple SVG spinner with Tailwind `animate-spin`.
 
 DaisyUI's `swap` has no shadcn equivalent. Replace with a simple conditional render or shadcn `<Toggle>`:
 
-**_ThemeToggle.tsx:** Replace swap with a button that toggles between sun/moon icons.
+**\_ThemeToggle.tsx:** Replace swap with a button that toggles between sun/moon icons.
 
 **AudioPlayer.tsx:** Replace swap with conditional play/pause icon rendering.
 
@@ -511,9 +529,9 @@ document.documentElement.setAttribute('data-theme', theme)
 
 // After
 if (theme === 'dark') {
-  document.documentElement.classList.add('dark')
+	document.documentElement.classList.add('dark')
 } else {
-  document.documentElement.classList.remove('dark')
+	document.documentElement.classList.remove('dark')
 }
 ```
 
@@ -577,6 +595,7 @@ Execute in this order to keep the app functional between steps:
 ## Files affected
 
 ### New files (created by shadcn CLI)
+
 - `desktop/components.json`
 - `desktop/src/components/ui/button.tsx`
 - `desktop/src/components/ui/dialog.tsx`
@@ -595,6 +614,7 @@ Execute in this order to keep the app functional between steps:
 - `desktop/src/components/ui/separator.tsx`
 
 ### Modified files
+
 - `desktop/vite.config.ts` — add `@tailwindcss/vite` plugin
 - `desktop/src/globals.css` — replace DaisyUI theme with shadcn CSS variables
 - `desktop/src/lib/utils.ts` — replace `cx()` with `cn()`
@@ -628,6 +648,7 @@ Execute in this order to keep the app functional between steps:
 - `desktop/package.json` — dependency changes
 
 ### Deleted files
+
 - `desktop/tailwind.config.js`
 - `desktop/postcss.config.js`
 - `desktop/src/components/Toast.tsx`
@@ -635,6 +656,7 @@ Execute in this order to keep the app functional between steps:
 ### Dependency changes
 
 **Add:**
+
 - `clsx`
 - `tailwind-merge`
 - `sonner`
@@ -650,6 +672,7 @@ Execute in this order to keep the app functional between steps:
 - (Radix deps are auto-installed by `shadcn add`)
 
 **Remove:**
+
 - `daisyui`
 - `react-hot-toast`
 - `@tailwindcss/postcss`

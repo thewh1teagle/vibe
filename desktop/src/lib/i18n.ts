@@ -71,10 +71,10 @@ i18n.use(LanguageDetector)
 					const namespace = file.name.replace('.json', '')
 					const content = await fs.readTextFile(filePath)
 					translations[namespace] = JSON.parse(content)
-				})
+				}),
 			)
 			return translations
-		})
+		}),
 	)
 	.init({
 		debug: false,

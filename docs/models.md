@@ -45,7 +45,8 @@ For high accuracy and more computational resources, excels in complex scenarios.
 Specialized for Hebrew (Ivrit) language data, optimized for high speed and accuracy in Hebrew tasks.
 
 [👉 Magic Setup (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
-[🔽 Direct Download (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)	
+[🔽 Direct Download (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
+
 </details>
 
 <details>
@@ -60,7 +61,8 @@ Optimised for Norwegian by the [AI Lab at the National Library of Norway](https:
 [🔽 Direct Download (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
 
 More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/NbAiLab/nb-whisper-large).  
-Find the size you want, download the *ggml-model.bin* file, rename the file, and palce it in vibe's model folder.
+Find the size you want, download the _ggml-model.bin_ file, rename the file, and palce it in vibe's model folder.
+
 </details>
 
 <details>
@@ -75,7 +77,8 @@ Optimised for Swedish by the [Data Lab at the National Library of Sweden](https:
 [🔽 Direct Download (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
 
 More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/KBLab/kb-whisper-large).  
-Find the size you want, download the *ggml-model.bin* file, rename the file, and palce it in vibe's model folder.
+Find the size you want, download the _ggml-model.bin_ file, rename the file, and palce it in vibe's model folder.
+
 </details>
 </details>
 
@@ -110,7 +113,7 @@ uv run ./whisper.cpp/models/convert-h5-to-ggml.py ./whisper-large-v3-turbo/ ./wh
 uv run huggingface-cli upload --repo-type model whisper-large-v3-turbo-ivrit ./ggml-model.bin ./ggml-model.bin
 
 # Quantize
-sudo apt install cmake build-essential -y 
+sudo apt install cmake build-essential -y
 cd whisper.cpp
 cmake -B build
 cmake --build build --config Release

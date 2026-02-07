@@ -35,31 +35,31 @@
 
 # Features 🌟
 
--   🌍 Transcribe almost every language
--   🔒 Ultimate privacy: fully offline transcription, no data ever leaves your device
--   🎨 User friendly design
--   🎙️ Transcribe audio / video
--   🎶 Option to transcribe audio from popular websites (YouTube, Vimeo, Facebook, Twitter and more!)
--   📂 Batch transcribe multiple files!
--   📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON`, `DOCX` formats
--   👀 Realtime preview
--   ✨ Summarize transcripts: Get quick, multilingual summaries using the Claude API
--   🧠 Ollama support: Do local AI analysis and batch summaries with Ollama
--   🌐 Translate to English from any language
--   🖨️ Print transcript directly to any printer
--   🔄 Automatic updates
--   💻 Optimized for `GPU` (`macOS`, `Windows`, `Linux`)
--   🎮 Optimized for `Nvidia` / `AMD` / `Intel` GPUs! (`Vulkan`/`CoreML`)
--   🔧 Total Freedom: Customize Models Easily via Settings
--   ⚙️ Model arguments for advanced users
--   ⏳ Transcribe system audio
--   🎤 Transcribe from microphone
--   🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
--   👥 Speaker diarization
--   📱 ~iOS & Android support~ (coming soon)
--   📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
--   📹 Choose caption length optimized for videos / reels
--   ⚡ HTTP API with Swagger docs! (use `--server` and open `http://<host>:3022/docs` for docs)
+- 🌍 Transcribe almost every language
+- 🔒 Ultimate privacy: fully offline transcription, no data ever leaves your device
+- 🎨 User friendly design
+- 🎙️ Transcribe audio / video
+- 🎶 Option to transcribe audio from popular websites (YouTube, Vimeo, Facebook, Twitter and more!)
+- 📂 Batch transcribe multiple files!
+- 📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON`, `DOCX` formats
+- 👀 Realtime preview
+- ✨ Summarize transcripts: Get quick, multilingual summaries using the Claude API
+- 🧠 Ollama support: Do local AI analysis and batch summaries with Ollama
+- 🌐 Translate to English from any language
+- 🖨️ Print transcript directly to any printer
+- 🔄 Automatic updates
+- 💻 Optimized for `GPU` (`macOS`, `Windows`, `Linux`)
+- 🎮 Optimized for `Nvidia` / `AMD` / `Intel` GPUs! (`Vulkan`/`CoreML`)
+- 🔧 Total Freedom: Customize Models Easily via Settings
+- ⚙️ Model arguments for advanced users
+- ⏳ Transcribe system audio
+- 🎤 Transcribe from microphone
+- 🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
+- 👥 Speaker diarization
+- 📱 ~iOS & Android support~ (coming soon)
+- 📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
+- 📹 Choose caption length optimized for videos / reels
+- ⚡ HTTP API with Swagger docs! (use `--server` and open `http://<host>:3022/docs` for docs)
 
 # Supported platforms 🖥️
 

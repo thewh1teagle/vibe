@@ -45,10 +45,18 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 				</div>
 				<div className="ms-auto flex gap-3">
 					<CollapsibleTrigger asChild>
-						<div className="cursor-pointer p-2 bg-secondary rounded-full">{open ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}</div>
+						<div className="cursor-pointer p-2 bg-secondary rounded-full">
+							{open ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+						</div>
 					</CollapsibleTrigger>
-					<div onClick={() => (inProgress ? onCancel() : onStart())} className={inProgress ? 'cursor-pointer p-2 rounded-full bg-destructive' : 'cursor-pointer p-2 rounded-full bg-success'}>
-						{inProgress ? <CancelIcon className="h-5 w-5 stroke-destructive-foreground" /> : <PlayIcon className="h-5 w-5 stroke-success-foreground stroke-2" />}
+					<div
+						onClick={() => (inProgress ? onCancel() : onStart())}
+						className={inProgress ? 'cursor-pointer p-2 rounded-full bg-destructive' : 'cursor-pointer p-2 rounded-full bg-success'}>
+						{inProgress ? (
+							<CancelIcon className="h-5 w-5 stroke-destructive-foreground" />
+						) : (
+							<PlayIcon className="h-5 w-5 stroke-success-foreground stroke-2" />
+						)}
 					</div>
 				</div>
 			</div>

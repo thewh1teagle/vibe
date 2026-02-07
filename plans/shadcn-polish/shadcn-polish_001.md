@@ -32,6 +32,7 @@ The `<Tabs>` root component (a plain `<div>`) needs to act as a flex column with
 Remove `m-auto` from `TabsList` since the parent flex handles centering.
 
 Same fix for the transcript/summary tabs further down:
+
 ```tsx
 <Tabs ... className="flex flex-col items-center">
   <TabsList>
@@ -85,13 +86,15 @@ Key: pass `open`/`onOpenChange` to `DropdownMenu` for controlled mode. Mouse eve
 **Fix:** Remove the `border` class from `DropdownMenuContent` default styles, or override it in AppMenu:
 
 Option A — Remove from component defaults (affects all dropdown menus):
+
 ```tsx
 // ui/dropdown-menu.tsx line 68
-"z-50 ... rounded-md border bg-popover ..."
+'z-50 ... rounded-md border bg-popover ...'
 //                    ^^^^^^ remove this
 ```
 
 Option B — Override in AppMenu only:
+
 ```tsx
 <DropdownMenuContent align="start" className="border-none shadow-lg">
 ```
@@ -111,17 +114,18 @@ Option B — Override in AppMenu only:
 ```tsx
 // SettingsModal.tsx
 export default function SettingsModal({ visible, setVisible }: SettingsModalProps) {
-  if (!visible) return null
+	if (!visible) return null
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background/80 backdrop-blur-xl">
-      <SettingsPage setVisible={setVisible} />
-    </div>
-  )
+	return (
+		<div className="fixed inset-0 z-50 overflow-y-auto bg-background/80 backdrop-blur-xl">
+			<SettingsPage setVisible={setVisible} />
+		</div>
+	)
 }
 ```
 
 This gives:
+
 - Full-screen coverage (not a tiny modal box)
 - Glass blur effect via `backdrop-blur-xl`
 - Semi-transparent background via `bg-background/80`
@@ -152,57 +156,60 @@ This is a `registry:style` type package. It will update `globals.css` with the m
 If the CLI only partially updates, manually replace the `:root` and `.dark` blocks in `globals.css` with the material theme values:
 
 **Light theme (`:root`):**
+
 ```css
 :root {
-  --radius: 1rem;
-  --background: oklch(0.98 0.01 334.35);
-  --foreground: oklch(0.22 0 0);
-  --card: oklch(0.96 0.01 335.69);
-  --card-foreground: oklch(0.14 0 0);
-  --popover: oklch(0.95 0.01 316.67);
-  --popover-foreground: oklch(0.40 0.04 309.35);
-  --primary: oklch(0.51 0.21 286.50);
-  --primary-foreground: oklch(1.00 0 0);
-  --secondary: oklch(0.49 0.04 300.23);
-  --secondary-foreground: oklch(1.00 0 0);
-  --muted: oklch(0.96 0.01 335.69);
-  --muted-foreground: oklch(0.14 0 0);
-  --accent: oklch(0.92 0.04 303.47);
-  --accent-foreground: oklch(0.14 0 0);
-  --destructive: oklch(0.57 0.23 29.21);
-  --destructive-foreground: oklch(1.00 0 0);
-  --border: oklch(0.83 0.02 308.26);
-  --input: oklch(0.57 0.02 309.68);
-  --ring: oklch(0.50 0.13 293.77);
+	--radius: 1rem;
+	--background: oklch(0.98 0.01 334.35);
+	--foreground: oklch(0.22 0 0);
+	--card: oklch(0.96 0.01 335.69);
+	--card-foreground: oklch(0.14 0 0);
+	--popover: oklch(0.95 0.01 316.67);
+	--popover-foreground: oklch(0.4 0.04 309.35);
+	--primary: oklch(0.51 0.21 286.5);
+	--primary-foreground: oklch(1 0 0);
+	--secondary: oklch(0.49 0.04 300.23);
+	--secondary-foreground: oklch(1 0 0);
+	--muted: oklch(0.96 0.01 335.69);
+	--muted-foreground: oklch(0.14 0 0);
+	--accent: oklch(0.92 0.04 303.47);
+	--accent-foreground: oklch(0.14 0 0);
+	--destructive: oklch(0.57 0.23 29.21);
+	--destructive-foreground: oklch(1 0 0);
+	--border: oklch(0.83 0.02 308.26);
+	--input: oklch(0.57 0.02 309.68);
+	--ring: oklch(0.5 0.13 293.77);
 }
 ```
 
 **Dark theme (`.dark`):**
+
 ```css
 .dark {
-  --background: oklch(0.15 0.01 317.69);
-  --foreground: oklch(0.95 0.01 321.50);
-  --card: oklch(0.22 0.02 322.13);
-  --card-foreground: oklch(0.95 0.01 321.50);
-  --popover: oklch(0.22 0.02 322.13);
-  --popover-foreground: oklch(0.95 0.01 321.50);
-  --primary: oklch(0.60 0.22 279.81);
-  --primary-foreground: oklch(0.98 0.01 321.51);
-  --secondary: oklch(0.45 0.03 294.79);
-  --secondary-foreground: oklch(0.95 0.01 321.50);
-  --muted: oklch(0.22 0.01 319.50);
-  --muted-foreground: oklch(0.70 0.01 320.70);
-  --accent: oklch(0.35 0.06 299.57);
-  --accent-foreground: oklch(0.95 0.01 321.50);
-  --destructive: oklch(0.57 0.23 29.21);
-  --destructive-foreground: oklch(1.00 0 0);
-  --border: oklch(0.40 0.04 309.35);
-  --input: oklch(0.40 0.04 309.35);
-  --ring: oklch(0.50 0.15 294.97);
+	--background: oklch(0.15 0.01 317.69);
+	--foreground: oklch(0.95 0.01 321.5);
+	--card: oklch(0.22 0.02 322.13);
+	--card-foreground: oklch(0.95 0.01 321.5);
+	--popover: oklch(0.22 0.02 322.13);
+	--popover-foreground: oklch(0.95 0.01 321.5);
+	--primary: oklch(0.6 0.22 279.81);
+	--primary-foreground: oklch(0.98 0.01 321.51);
+	--secondary: oklch(0.45 0.03 294.79);
+	--secondary-foreground: oklch(0.95 0.01 321.5);
+	--muted: oklch(0.22 0.01 319.5);
+	--muted-foreground: oklch(0.7 0.01 320.7);
+	--accent: oklch(0.35 0.06 299.57);
+	--accent-foreground: oklch(0.95 0.01 321.5);
+	--destructive: oklch(0.57 0.23 29.21);
+	--destructive-foreground: oklch(1 0 0);
+	--border: oklch(0.4 0.04 309.35);
+	--input: oklch(0.4 0.04 309.35);
+	--ring: oklch(0.5 0.15 294.97);
 }
 ```
 
 Key color changes from default neutral:
+
 - **Primary** goes from near-black to **purple** (`oklch(0.51 0.21 286.50)`) — buttons become visibly colored
 - **Background** gains a subtle warm tint instead of pure white/black
 - **Cards/popovers** have distinct elevated surfaces
@@ -215,23 +222,25 @@ The material theme also defines font and shadow overrides. Add to the `@theme in
 
 ```css
 @theme inline {
-  /* ... existing color mappings ... */
-  --font-sans: Roboto, sans-serif;
-  --font-serif: Merriweather, serif;
-  --radius: 1rem;
+	/* ... existing color mappings ... */
+	--font-sans: Roboto, sans-serif;
+	--font-serif: Merriweather, serif;
+	--radius: 1rem;
 }
 ```
 
 Update the base font in `@layer base`:
+
 ```css
 @layer base {
-  html {
-    font-family: var(--font-sans), system-ui, sans-serif;
-  }
+	html {
+		font-family: var(--font-sans), system-ui, sans-serif;
+	}
 }
 ```
 
 Since the project already has `@fontsource/roboto` as a dependency, import it in `globals.css` or `main.tsx`:
+
 ```ts
 import '@fontsource/roboto'
 ```
@@ -242,13 +251,13 @@ Add the material shadow system to the `@theme inline` block:
 
 ```css
 @theme inline {
-  /* ... colors ... */
-  --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-  --shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 2px 4px -2px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 4px 6px -2px hsl(0 0% 0% / 0.10);
+	/* ... colors ... */
+	--shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
+	--shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
+	--shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 1px 2px -2px hsl(0 0% 0% / 0.1);
+	--shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 1px 2px -2px hsl(0 0% 0% / 0.1);
+	--shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 2px 4px -2px hsl(0 0% 0% / 0.1);
+	--shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 4px 6px -2px hsl(0 0% 0% / 0.1);
 }
 ```
 
@@ -265,28 +274,26 @@ Native `<select>` elements are used throughout (LanguageInput, FormatSelect, Aud
 **Create `desktop/src/components/ui/native-select.tsx`:**
 
 ```tsx
-import * as React from "react"
-import { cn } from "~/lib/utils"
+import * as React from 'react'
+import { cn } from '~/lib/utils'
 
-const NativeSelect = React.forwardRef<
-  HTMLSelectElement,
-  React.SelectHTMLAttributes<HTMLSelectElement>
->(({ className, ...props }, ref) => (
-  <select
-    ref={ref}
-    className={cn(
-      "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
-    {...props}
-  />
+const NativeSelect = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(({ className, ...props }, ref) => (
+	<select
+		ref={ref}
+		className={cn(
+			'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+			className,
+		)}
+		{...props}
+	/>
 ))
-NativeSelect.displayName = "NativeSelect"
+NativeSelect.displayName = 'NativeSelect'
 
 export { NativeSelect }
 ```
 
 Then replace all inline-styled `<select>` elements with `<NativeSelect>`:
+
 - `pages/settings/Page.tsx` — language select, theme select, model select
 - `components/LanguageInput.tsx`
 - `components/FormatSelect.tsx`
@@ -314,25 +321,26 @@ If secondary buttons still look too flat in settings, consider using `variant="o
 
 ## Files affected
 
-| File | Changes |
-|-|-|
-| `src/globals.css` | Replace color variables with material theme, add shadows/fonts |
-| `src/components/SettingsModal.tsx` | Replace Dialog with full-screen overlay div |
-| `src/components/AppMenu.tsx` | Add hover open/close, remove menu border |
-| `src/pages/home/Page.tsx` | Add `flex flex-col items-center` to Tabs |
-| `src/components/ui/native-select.tsx` | **New** — reusable styled native select |
-| `src/pages/settings/Page.tsx` | Use NativeSelect |
-| `src/components/LanguageInput.tsx` | Use NativeSelect |
-| `src/components/FormatSelect.tsx` | Use NativeSelect |
-| `src/components/AudioDeviceInput.tsx` | Use NativeSelect |
-| `src/components/Params.tsx` | Use NativeSelect |
-| `src/components/TextArea.tsx` | Use NativeSelect |
+| File                                  | Changes                                                        |
+| ------------------------------------- | -------------------------------------------------------------- |
+| `src/globals.css`                     | Replace color variables with material theme, add shadows/fonts |
+| `src/components/SettingsModal.tsx`    | Replace Dialog with full-screen overlay div                    |
+| `src/components/AppMenu.tsx`          | Add hover open/close, remove menu border                       |
+| `src/pages/home/Page.tsx`             | Add `flex flex-col items-center` to Tabs                       |
+| `src/components/ui/native-select.tsx` | **New** — reusable styled native select                        |
+| `src/pages/settings/Page.tsx`         | Use NativeSelect                                               |
+| `src/components/LanguageInput.tsx`    | Use NativeSelect                                               |
+| `src/components/FormatSelect.tsx`     | Use NativeSelect                                               |
+| `src/components/AudioDeviceInput.tsx` | Use NativeSelect                                               |
+| `src/components/Params.tsx`           | Use NativeSelect                                               |
+| `src/components/TextArea.tsx`         | Use NativeSelect                                               |
 
 ---
 
 ## Verification
 
 After all fixes:
+
 1. Tabs centered on home page (record/file/URL icons)
 2. 3-dot menu opens on hover, no visible border on the dropdown
 3. Settings is a full-screen glass-blur overlay, scrollable, not a tiny dialog box

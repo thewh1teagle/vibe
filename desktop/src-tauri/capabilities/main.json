@@ -1,129 +1,127 @@
 {
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
-  "description": "default permissions",
-  "local": true,
-  "windows": [
-    "main"
-  ],
-  "permissions": [
-    "http:default",
-    "http:allow-fetch",
-    "store:allow-set",
-    "store:allow-get",
-    "store:allow-has",
-    "store:allow-reset",
-    "store:allow-clear",
-    "store:allow-save",
-    "store:allow-load",
-    "store:allow-get-store",
-    "core:path:default",
-    "core:event:default",
-    "core:resources:default",
-    "core:menu:default",
-    "core:tray:default",
-    "fs:allow-remove",
-    "fs:allow-read-dir",
-    "fs:allow-read-text-file",
-    "fs:allow-app-write",
-    "os:allow-arch",
-    "os:allow-platform",
-    "os:allow-version",
-    "os:allow-os-type",
-    "os:allow-locale",
-    "core:window:default",
-    "core:window:allow-unminimize",
-    "core:window:allow-set-focus",
-    "core:window:allow-close",
-    "core:window:allow-destroy",
-    "core:window:allow-show",
-    "core:window:allow-is-visible",
-    "window-state:allow-restore-state",
-    "window-state:allow-save-window-state",
-    "core:webview:default",
-    "core:webview:allow-print",
-    "dialog:default",
-    "dialog:allow-open",
-    "dialog:allow-save",
-    "dialog:allow-ask",
-    "dialog:allow-message",
-    "process:allow-restart",
-    "core:app:default",
-    "core:app:allow-version",
-    "core:app:allow-name",
-    "updater:default",
-    "shell:allow-open",
-    "shell:allow-execute",
-    "shell:allow-kill",
-    "shell:allow-spawn",
-    "fs:default",
-    "fs:allow-exists",
-    "core:path:allow-basename",
-    "deep-link:allow-get-current",
-    "clipboard-manager:allow-write-text",
-    {
-      "identifier": "fs:scope",
-      "allow": [
-        {
-          "path": "**",
-          "requireLiteralLeadingDot": false
-        },
-        {
-          "path": "$HOME/**",
-          "requireLiteralLeadingDot": false
-        },
-        {
-          "path": "$APPCONFIG/**",
-          "requireLiteralLeadingDot": false
-        },
-        {
-          "path": "$APPDATA/**",
-          "requireLiteralLeadingDot": false
-        },
-        {
-          "path": "$APPLOCALDATA/**",
-          "requireLiteralLeadingDot": false
-        },
-        {
-          "path": "$CONFIG/**",
-          "requireLiteralLeadingDot": false
-        },
-        {
-          "path": "$DATA/**",
-          "requireLiteralLeadingDot": false
-        }
-      ]
-    },
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        {
-          "name": "yt-dlp_macos",
-          "cmd": "$APPLOCALDATA/yt-dlp_macos",
-          "args": [
-            {
-              "validator": "\\S+"
-            }
-          ],
-          "sidecar": false
-        },
-        {
-          "name": "sona",
-          "sidecar": true,
-          "args": true
-        }
-      ]
-    },
-    {
-      "identifier": "http:default",
-      "allow": [
-        {
-          "url": "https://*.anthropic.*"
-        },
-        {
-          "url": "http{s}?://localhost:*/*"
-        }
-      ]
-    }
-  ]
+	"$schema": "../gen/schemas/desktop-schema.json",
+	"identifier": "default",
+	"description": "default permissions",
+	"local": true,
+	"windows": ["main"],
+	"permissions": [
+		"http:default",
+		"http:allow-fetch",
+		"store:allow-set",
+		"store:allow-get",
+		"store:allow-has",
+		"store:allow-reset",
+		"store:allow-clear",
+		"store:allow-save",
+		"store:allow-load",
+		"store:allow-get-store",
+		"core:path:default",
+		"core:event:default",
+		"core:resources:default",
+		"core:menu:default",
+		"core:tray:default",
+		"fs:allow-remove",
+		"fs:allow-read-dir",
+		"fs:allow-read-text-file",
+		"fs:allow-app-write",
+		"os:allow-arch",
+		"os:allow-platform",
+		"os:allow-version",
+		"os:allow-os-type",
+		"os:allow-locale",
+		"core:window:default",
+		"core:window:allow-unminimize",
+		"core:window:allow-set-focus",
+		"core:window:allow-close",
+		"core:window:allow-destroy",
+		"core:window:allow-show",
+		"core:window:allow-is-visible",
+		"window-state:allow-restore-state",
+		"window-state:allow-save-window-state",
+		"core:webview:default",
+		"core:webview:allow-print",
+		"dialog:default",
+		"dialog:allow-open",
+		"dialog:allow-save",
+		"dialog:allow-ask",
+		"dialog:allow-message",
+		"process:allow-restart",
+		"core:app:default",
+		"core:app:allow-version",
+		"core:app:allow-name",
+		"updater:default",
+		"shell:allow-open",
+		"shell:allow-execute",
+		"shell:allow-kill",
+		"shell:allow-spawn",
+		"fs:default",
+		"fs:allow-exists",
+		"core:path:allow-basename",
+		"deep-link:allow-get-current",
+		"clipboard-manager:allow-write-text",
+		{
+			"identifier": "fs:scope",
+			"allow": [
+				{
+					"path": "**",
+					"requireLiteralLeadingDot": false
+				},
+				{
+					"path": "$HOME/**",
+					"requireLiteralLeadingDot": false
+				},
+				{
+					"path": "$APPCONFIG/**",
+					"requireLiteralLeadingDot": false
+				},
+				{
+					"path": "$APPDATA/**",
+					"requireLiteralLeadingDot": false
+				},
+				{
+					"path": "$APPLOCALDATA/**",
+					"requireLiteralLeadingDot": false
+				},
+				{
+					"path": "$CONFIG/**",
+					"requireLiteralLeadingDot": false
+				},
+				{
+					"path": "$DATA/**",
+					"requireLiteralLeadingDot": false
+				}
+			]
+		},
+		{
+			"identifier": "shell:allow-execute",
+			"allow": [
+				{
+					"name": "yt-dlp_macos",
+					"cmd": "$APPLOCALDATA/yt-dlp_macos",
+					"args": [
+						{
+							"validator": "\\S+"
+						}
+					],
+					"sidecar": false
+				},
+				{
+					"name": "sona",
+					"sidecar": true,
+					"args": true
+				}
+			]
+		},
+		{
+			"identifier": "http:default",
+			"allow": [
+				{
+					"url": "https://*.anthropic.*"
+				},
+				{
+					"url": "http{s}?://localhost:*/*"
+				}
+			]
+		}
+	]
 }

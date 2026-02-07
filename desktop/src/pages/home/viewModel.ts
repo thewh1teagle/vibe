@@ -311,11 +311,11 @@ export function viewModel() {
 				// Found unsupported features
 				await dialog.message(
 					`Your CPU is old and doesn't support some features (${unsupported.join(
-						','
+						',',
 					)}). Please click OK and read the readme that will open for more information.`,
 					{
 						kind: 'error',
-					}
+					},
 				)
 				open(config.unsupportedCpuReadmeURL)
 				return // Don't run anything
@@ -412,16 +412,13 @@ export function viewModel() {
 			try {
 				const question = `${preferenceRef.current.llmConfig.prompt.replace('%s', transcript.asText(newSegments))}`
 				const answerPromise = llm.ask(question)
-				hotToast.promise(
-					answerPromise,
-					{
-						loading: t('common.summarize-loading'),
-						error: (error) => {
-							return String(error)
-						},
-						success: t('common.summarize-success'),
-					}
-				)
+				hotToast.promise(answerPromise, {
+					loading: t('common.summarize-loading'),
+					error: (error) => {
+						return String(error)
+					},
+					success: t('common.summarize-success'),
+				})
 				const answer = await answerPromise
 				if (answer) {
 					setSummarizeSegments([{ start: 0, stop: newSegments?.[newSegments?.length - 1].stop ?? 0, text: answer }])

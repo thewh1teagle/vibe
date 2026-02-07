@@ -113,10 +113,20 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							const newPlatform = e.target.value
 							if (newPlatform === 'ollama') {
 								const defaultConfig = defaultOllamaConfig()
-								setLlmConfig({ ...defaultConfig, ollamaBaseUrl: llmConfig.ollamaBaseUrl, claudeApiKey: llmConfig.claudeApiKey, enabled: llmConfig?.enabled ?? false })
+								setLlmConfig({
+									...defaultConfig,
+									ollamaBaseUrl: llmConfig.ollamaBaseUrl,
+									claudeApiKey: llmConfig.claudeApiKey,
+									enabled: llmConfig?.enabled ?? false,
+								})
 							} else if (newPlatform === 'claude') {
 								const defaultConfig = defaultClaudeConfig()
-								setLlmConfig({ ...defaultConfig, ollamaBaseUrl: llmConfig.ollamaBaseUrl, claudeApiKey: llmConfig.claudeApiKey, enabled: llmConfig?.enabled ?? false })
+								setLlmConfig({
+									...defaultConfig,
+									ollamaBaseUrl: llmConfig.ollamaBaseUrl,
+									claudeApiKey: llmConfig.claudeApiKey,
+									enabled: llmConfig?.enabled ?? false,
+								})
 							}
 						}}
 						className="capitalize">
@@ -151,13 +161,19 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				{llmConfig?.platform === 'ollama' && (
 					<>
 						<Field label={t('common.ollama-base-url')}>
-							<Input value={llmConfig?.ollamaBaseUrl} onChange={(e) => setLlmConfig({ ...preference.llmConfig, ollamaBaseUrl: e.target.value })} />
+							<Input
+								value={llmConfig?.ollamaBaseUrl}
+								onChange={(e) => setLlmConfig({ ...preference.llmConfig, ollamaBaseUrl: e.target.value })}
+							/>
 						</Field>
 						<Field
 							label={
 								<>
 									{t('common.llm-model')}
-									<button type="button" className="text-primary underline hover:text-primary/80" onClick={() => shellOpen(`https://ollama.com/library/${llmConfig.model}`)}>
+									<button
+										type="button"
+										className="text-primary underline hover:text-primary/80"
+										onClick={() => shellOpen(`https://ollama.com/library/${llmConfig.model}`)}>
 										{t('common.find-here')}
 									</button>
 								</>
@@ -174,7 +190,11 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							{t('common.llm-prompt')}
 						</>
 					}>
-					<Textarea value={llmConfig?.prompt} onChange={(e) => setLlmConfig({ ...preference.llmConfig, prompt: e.target.value })} onBlur={validateLlmPrompt} />
+					<Textarea
+						value={llmConfig?.prompt}
+						onChange={(e) => setLlmConfig({ ...preference.llmConfig, prompt: e.target.value })}
+						onBlur={validateLlmPrompt}
+					/>
 				</Field>
 
 				<Field
@@ -184,7 +204,11 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							{t('common.max-tokens')}
 						</>
 					}>
-					<Input type="number" onChange={(e) => setLlmConfig({ ...llmConfig, maxTokens: parseIntOr(e.target.value, 1) })} value={llmConfig?.maxTokens} />
+					<Input
+						type="number"
+						onChange={(e) => setLlmConfig({ ...llmConfig, maxTokens: parseIntOr(e.target.value, 1) })}
+						value={llmConfig?.maxTokens}
+					/>
 				</Field>
 
 				<Button onClick={checkLlm} size="sm" className="w-full mt-1">
@@ -230,7 +254,13 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					<Switch checked={Boolean(options.word_timestamps)} onCheckedChange={(checked) => setOptions({ ...options, word_timestamps: checked })} />
 				</div>
 
-				<Field label={<><InfoTooltip text={t('common.info-max-sentence-len')} />{t('common.max-sentence-len')}</>}>
+				<Field
+					label={
+						<>
+							<InfoTooltip text={t('common.info-max-sentence-len')} />
+							{t('common.max-sentence-len')}
+						</>
+					}>
 					<Input
 						type="number"
 						value={options.max_sentence_len}
@@ -241,16 +271,44 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					/>
 				</Field>
 
-				<Field label={<><InfoTooltip text={t('common.info-threads')} />{t('common.threads')}</>}>
+				<Field
+					label={
+						<>
+							<InfoTooltip text={t('common.info-threads')} />
+							{t('common.threads')}
+						</>
+					}>
 					<Input type="number" value={options.n_threads} onChange={(e) => setOptions({ ...options, n_threads: parseIntOr(e.target.value, 1) })} />
 				</Field>
 
-				<Field label={<><InfoTooltip text={t('common.info-temperature')} />{t('common.temperature')}</>}>
-					<Input type="number" step={0.1} value={options.temperature} onChange={(e) => setOptions({ ...options, temperature: parseFloat(e.target.value) || 0 })} />
+				<Field
+					label={
+						<>
+							<InfoTooltip text={t('common.info-temperature')} />
+							{t('common.temperature')}
+						</>
+					}>
+					<Input
+						type="number"
+						step={0.1}
+						value={options.temperature}
+						onChange={(e) => setOptions({ ...options, temperature: parseFloat(e.target.value) || 0 })}
+					/>
 				</Field>
 
-				<Field label={<><InfoTooltip text={t('common.info-max-text-ctx')} />{t('common.max-text-ctx')}</>}>
-					<Input type="number" step={1} value={options.max_text_ctx ?? 0} onChange={(e) => setOptions({ ...options, max_text_ctx: parseIntOr(e.target.value, 0) })} />
+				<Field
+					label={
+						<>
+							<InfoTooltip text={t('common.info-max-text-ctx')} />
+							{t('common.max-text-ctx')}
+						</>
+					}>
+					<Input
+						type="number"
+						step={1}
+						value={options.max_text_ctx ?? 0}
+						onChange={(e) => setOptions({ ...options, max_text_ctx: parseIntOr(e.target.value, 0) })}
+					/>
 				</Field>
 
 				<Field
@@ -262,7 +320,9 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					}>
 					<NativeSelect
 						value={preference.modelOptions.sampling_strategy}
-						onChange={(e) => preference.setModelOptions({ ...preference.modelOptions, sampling_strategy: e.target.value as 'greedy' | 'beam search' })}
+						onChange={(e) =>
+							preference.setModelOptions({ ...preference.modelOptions, sampling_strategy: e.target.value as 'greedy' | 'beam search' })
+						}
 						className="capitalize">
 						{['beam search', 'greedy'].map((name) => (
 							<option key={name} value={name}>

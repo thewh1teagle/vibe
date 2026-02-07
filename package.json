@@ -1,0 +1,13 @@
+{
+	"private": true,
+	"packageManager": "pnpm@10.4.1",
+	"scripts": {
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"check-types": "tsc --noEmit -p desktop/tsconfig.json && tsc --noEmit -p website/tsconfig.json"
+	},
+	"devDependencies": {
+		"prettier": "^3.5.3",
+		"typescript": "^5.9.3"
+	}
+}

@@ -1,37 +1,27 @@
 {
-    // General
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": "never"
-    },
-    "files.eol": "\n",
-    // Rust analyzer
-    "rust-analyzer.checkOnSave": false,
-    // "rust-analyzer.check.command": "clippy",
-    "[rust]": {
-        "editor.defaultFormatter": "rust-lang.rust-analyzer"
-    },
-    // Formatting
-    "prettier.configPath": ".prettierrc.json",
-    // i18n
-    "i18n-ally.enabledParsers": [
-        "ts",
-        "json"
-    ],
-    "i18n-ally.sortKeys": true,
-    "i18n-ally.namespace": true,
-    "i18n-ally.sourceLanguage": "en-US",
-    "i18n-ally.enabledFrameworks": [
-        "react",
-        "svelte"
-    ],
-    "i18n-ally.keystyle": "flat",
-    "i18n-ally.translate.engines": [
-        "google",
-    ],
-    "i18n-ally.localesPaths": [
-        "desktop/src-tauri/locales"
-    ],
-    "i18n-ally.pathMatcher": "{locale}/{namespace}.json",
-    "i18n-ally.tabStyle": "tab",
+	// General
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "never"
+	},
+	"files.eol": "\n",
+	// Rust analyzer
+	"rust-analyzer.checkOnSave": false,
+	// "rust-analyzer.check.command": "clippy",
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer"
+	},
+	// Formatting
+	"prettier.configPath": ".prettierrc.json",
+	// i18n
+	"i18n-ally.enabledParsers": ["ts", "json"],
+	"i18n-ally.sortKeys": true,
+	"i18n-ally.namespace": true,
+	"i18n-ally.sourceLanguage": "en-US",
+	"i18n-ally.enabledFrameworks": ["react", "svelte"],
+	"i18n-ally.keystyle": "flat",
+	"i18n-ally.translate.engines": ["google"],
+	"i18n-ally.localesPaths": ["desktop/src-tauri/locales"],
+	"i18n-ally.pathMatcher": "{locale}/{namespace}.json",
+	"i18n-ally.tabStyle": "tab"
 }

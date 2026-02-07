@@ -33,19 +33,19 @@ export default function DropModal() {
 		listeners.current.push(
 			await event.listen('tauri://drag-enter', () => {
 				setOpen(true)
-			})
+			}),
 		)
 
 		listeners.current.push(
 			await event.listen('tauri://drag-leave', (_event) => {
 				setOpen(false)
-			})
+			}),
 		)
 
 		listeners.current.push(
 			await event.listen<{ position: Position }>('tauri://drag-over', (event) => {
 				setPosition(event.payload.position)
-			})
+			}),
 		)
 
 		listeners.current.push(
@@ -61,7 +61,7 @@ export default function DropModal() {
 					}
 				}
 				setOpen(false)
-			})
+			}),
 		)
 	}
 

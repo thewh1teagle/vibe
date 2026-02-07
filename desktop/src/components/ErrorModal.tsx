@@ -43,7 +43,10 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 				</DialogHeader>
 				<div className="relative">
 					<Textarea readOnly className="w-full max-h-20" dir="ltr" value={state?.log} />
-					<CopyIcon className="w-6 h-6 z-10 right-4 bottom-4 absolute opacity-50 cursor-pointer stroke-foreground" onMouseDown={() => clipboard.writeText(state?.log ?? '')} />
+					<CopyIcon
+						className="w-6 h-6 z-10 right-4 bottom-4 absolute opacity-50 cursor-pointer stroke-foreground"
+						onMouseDown={() => clipboard.writeText(state?.log ?? '')}
+					/>
 				</div>
 				<div className="flex justify-center gap-3 mt-3">
 					<Button onClick={clearLogAndReset}>{t('common.reset-app')}</Button>

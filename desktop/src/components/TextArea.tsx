@@ -81,7 +81,13 @@ function ReplaceWithBox({
 
 	return (
 		<div ref={boxRef} style={{ left: Math.max(x, 50), top: y }} className="absolute z-10 w-64 rounded-md border bg-popover p-2 shadow-md">
-			<UITextarea value={value} onChange={(e) => setValue(e.target.value)} dir={dir} className="resize-none" placeholder={`${t('common.replace-all')}... (${selected})`} />
+			<UITextarea
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
+				dir={dir}
+				className="resize-none"
+				placeholder={`${t('common.replace-all')}... (${selected})`}
+			/>
 			<Button onClick={replace} size="sm" className="mt-2 w-full">
 				{t('common.replace-all')}
 			</Button>
@@ -118,10 +124,10 @@ export default function TextArea({
 				preference.textFormat === 'vtt'
 					? asVtt(segments)
 					: preference.textFormat === 'srt'
-					? asSrt(segments)
-					: preference.textFormat === 'json'
-					? asJson(segments)
-					: asText(segments)
+						? asSrt(segments)
+						: preference.textFormat === 'json'
+							? asJson(segments)
+							: asText(segments),
 			)
 		} else {
 			setText('')
@@ -235,9 +241,7 @@ export default function TextArea({
 				</Tooltip>
 
 				<div className="ms-auto me-1">
-					<NativeSelect
-						value={preference.textFormat}
-						onChange={(event) => preference.setTextFormat(event.target.value as TextFormat)}>
+					<NativeSelect value={preference.textFormat} onChange={(event) => preference.setTextFormat(event.target.value as TextFormat)}>
 						<option value="normal">{t('common.mode-text')}</option>
 						<option value="html">html</option>
 						<option value="pdf">pdf</option>

@@ -5,6 +5,7 @@
 Vibe is a Tauri v2 desktop app (Rust + React) for offline audio transcription. It currently uses `vibe_core` — a Rust library wrapping whisper.cpp via `whisper-rs` with in-process FFI. This migration replaces vibe_core entirely with **sona**, a prebuilt Go binary that runs as a local HTTP server with an OpenAI-compatible API. This eliminates the complex whisper-rs/CGO build, removes speaker diarization (pyannote-rs), and simplifies the architecture to: Tauri app spawns sona process, talks HTTP.
 
 **User decisions:**
+
 - Unsupported TranscribeOptions (temperature, n_threads, etc.) → keep UI, Rust layer silently ignores
 - CLI mode → delegate to `sona transcribe` subprocess
 - Server mode → remove entirely
@@ -24,12 +25,14 @@ pub struct SonaProcess {
 ```
 
 Methods:
+
 - `spawn(binary_path) -> Result<SonaProcess>` — runs `sona serve --port 0`, reads `{"status":"ready","port":N}` from stdout
 - `load_model(path) -> Result<()>` — POST `/v1/models/load`
 - `transcribe_stream(file, language, translate, prompt, enhance_audio) -> impl Stream<Item=SonaEvent>` — POST `/v1/audio/transcriptions` with `stream=true`, parses ndjson lines
 - `kill()` — kills child process
 
 Event enum for ndjson parsing:
+
 ```rust
 #[derive(Deserialize)]
 #[serde(tag = "type")]
@@ -61,6 +64,7 @@ Copy `find_ffmpeg_path()` (~20 lines from `core/src/audio.rs`) and the `merge_wa
 **File:** `/desktop/src-tauri/src/setup.rs`
 
 Replace:
+
 ```rust
 pub struct ModelContext {
     pub path: String,
@@ -69,7 +73,9 @@ pub struct ModelContext {
     pub handle: WhisperContext,
 }
 ```
+
 With:
+
 ```rust
 pub struct SonaState {
     pub process: Option<SonaProcess>,
@@ -88,26 +94,30 @@ Remove `use vibe_core::transcribe::WhisperContext`.
 **File:** `/desktop/src-tauri/src/cmd/mod.rs`
 
 ### 4a. `load_model()`
+
 - Acquire `SonaState` mutex
 - If sona not running, spawn it (resolve binary via Tauri sidecar path)
 - Call `sona.load_model(&model_path)` via HTTP
 - Remove `gpu_device` and `use_gpu` params (sona auto-selects GPU)
 
 ### 4b. `transcribe()`
+
 - Build multipart form: `file`, `language`, `stream=true`, `prompt`, `translate`, `enhance_audio`
 - Silently ignore unsupported TranscribeOptions fields (temperature, n_threads, word_timestamps, max_sentence_len, sampling_strategy, max_text_ctx)
 - Stream ndjson response:
-  - `progress` → emit `transcribe_progress` event
-  - `segment` → convert float seconds to centiseconds, emit `new_segment` event
-  - `result` → done
+    - `progress` → emit `transcribe_progress` event
+    - `segment` → convert float seconds to centiseconds, emit `new_segment` event
+    - `result` → done
 - Abort: listen for `abort_transcribe` event, drop the reqwest stream (sona detects disconnect)
 - Remove `DiarizeOptions`, `FfmpegOptions` params
 - Remove `catch_unwind` (sona crashes are isolated)
 
 ### 4c. `download_model()` / `download_file()`
+
 - Inline the reqwest download logic from `core/src/downloader.rs` (~40 lines). No whisper dependency.
 
 ### 4d. Remove/stub GPU commands
+
 - `get_cargo_features()` → return empty vec
 - `get_cuda_version()` → return empty string
 - `get_rocm_version()` → return empty string
@@ -156,6 +166,7 @@ Remove all `use vibe_core::*` imports.
 ## Step 9: Update Cargo.toml files
 
 ### `/desktop/src-tauri/Cargo.toml`
+
 - Remove all `vibe_core` dependency blocks (3 platform-specific)
 - Remove all feature flags (`cuda`, `coreml`, `metal`, `openblas`, `rocm`, `vulkan`, `server`)
 - Remove `axum`, `utoipa`, `utoipa-swagger-ui`, `ash`, `libc`, `libc-stdhandle`
@@ -163,6 +174,7 @@ Remove all `use vibe_core::*` imports.
 - Add `futures-util = "0.3"`
 
 ### `/Cargo.toml` (workspace)
+
 - Change members from `["core", "desktop/src-tauri"]` to `["desktop/src-tauri"]`
 
 ---
@@ -170,7 +182,9 @@ Remove all `use vibe_core::*` imports.
 ## Step 10: Configure sona as Tauri sidecar
 
 ### `/desktop/src-tauri/tauri.conf.json`
+
 Add:
+
 ```json
 "bundle": {
     "externalBin": ["binaries/sona"]
@@ -178,6 +192,7 @@ Add:
 ```
 
 Place sona binaries at:
+
 - `desktop/src-tauri/binaries/sona-aarch64-apple-darwin`
 - `desktop/src-tauri/binaries/sona-x86_64-apple-darwin`
 - `desktop/src-tauri/binaries/sona-x86_64-pc-windows-msvc.exe`
@@ -185,6 +200,7 @@ Place sona binaries at:
 - `desktop/src-tauri/binaries/sona-aarch64-unknown-linux-gnu`
 
 ### `/desktop/src-tauri/capabilities/main.json`
+
 Add shell execute permission for sona sidecar.
 
 ---
@@ -198,20 +214,25 @@ Remove `extract_whisper_env()`, `CUDA_VERSION`, `ROCM_VERSION` env extraction. K
 ## Step 12: Frontend changes
 
 ### `viewModel.ts` (home + batch)
+
 - Remove `diarizeOptions` from `invoke('transcribe', ...)` calls
 - Remove `gpuDevice`, `useGpu` from `invoke('load_model', ...)` calls
 
 ### `Params.tsx`
+
 - Remove entire "Speaker Recognition" section (toggle, threshold, max speakers, model download)
 
 ### `Preference.tsx`
+
 - Remove: `recognizeSpeakers`, `maxSpeakers`, `diarizeThreshold`, `gpuDevice`, `useGpu`, `highGraphicsPreference` and their setters/defaults
 
 ### `transcript.ts`
+
 - Remove `speaker` field from Segment interface
 - Remove `mergeSpeakerSegments()` and speaker formatting logic
 
 ### `TextArea.tsx`
+
 - Remove speaker label rendering
 
 ---

@@ -12,8 +12,7 @@ Before contributing, **please open a [new issue](https://github.com/thewh1teagle
 This keeps contributions aligned with the project and avoids wasted effort.
 
 ✅ **Exception:**  
-If you're fixing a clear **critical bug**, you may open a PR without prior discussion. **but the PR must contain *only* the relevant fix (no refactors, formatting, etc.)** and the description should mention the bug and link an issue if possible.
-
+If you're fixing a clear **critical bug**, you may open a PR without prior discussion. **but the PR must contain _only_ the relevant fix (no refactors, formatting, etc.)** and the description should mention the bug and link an issue if possible.
 
 ## Pull Request Guidelines
 

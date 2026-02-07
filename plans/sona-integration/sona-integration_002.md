@@ -17,12 +17,12 @@ The sona integration (001) is complete and compiling on macOS. The release CI al
 
 Sona release assets use Go-style names (`sona-{goos}-{goarch}`), while Tauri expects Rust target triples (`sona-{arch}-{vendor}-{os}-{abi}`). The mapping:
 
-| Sona release asset | Tauri sidecar name |
-|-|-|
-| `sona-darwin-arm64` | `sona-aarch64-apple-darwin` |
-| `sona-darwin-amd64` | `sona-x86_64-apple-darwin` |
-| `sona-linux-amd64` | `sona-x86_64-unknown-linux-gnu` |
-| `sona-linux-arm64` | `sona-aarch64-unknown-linux-gnu` |
+| Sona release asset       | Tauri sidecar name                |
+| ------------------------ | --------------------------------- |
+| `sona-darwin-arm64`      | `sona-aarch64-apple-darwin`       |
+| `sona-darwin-amd64`      | `sona-x86_64-apple-darwin`        |
+| `sona-linux-amd64`       | `sona-x86_64-unknown-linux-gnu`   |
+| `sona-linux-arm64`       | `sona-aarch64-unknown-linux-gnu`  |
 | `sona-windows-amd64.exe` | `sona-x86_64-pc-windows-msvc.exe` |
 
 ---
@@ -32,6 +32,7 @@ Sona release assets use Go-style names (`sona-{goos}-{goarch}`), while Tauri exp
 Create a file `.sona-version` at the repo root containing the sona release tag to use (e.g. `v0.1.0`). This is the single source of truth for which sona version vibe uses.
 
 **File:** `/.sona-version`
+
 ```
 v0.1.0
 ```
@@ -130,21 +131,23 @@ def main() -> int:
 **Remove** the separate "Download Sona sidecar binary" step entirely. The existing "Run pre_build.py" step already runs — it just needs the `--target` flag passed.
 
 Before:
+
 ```yaml
 - name: Download Sona sidecar binary
   env:
-    GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
   shell: bash
   run: |
-    mkdir -p desktop/src-tauri/binaries
-    gh release download --repo thewh1teagle/sona --pattern "${{ matrix.sona_asset }}" --dir desktop/src-tauri/binaries
-    mv "desktop/src-tauri/binaries/${{ matrix.sona_asset }}" "desktop/src-tauri/binaries/${{ matrix.sidecar_name }}"
+      mkdir -p desktop/src-tauri/binaries
+      gh release download --repo thewh1teagle/sona --pattern "${{ matrix.sona_asset }}" --dir desktop/src-tauri/binaries
+      mv "desktop/src-tauri/binaries/${{ matrix.sona_asset }}" "desktop/src-tauri/binaries/${{ matrix.sidecar_name }}"
 
 - name: Run pre_build.py on ${{ matrix.platform }}
   run: uv run scripts/pre_build.py
 ```
 
 After:
+
 ```yaml
 - name: Run pre_build.py on ${{ matrix.platform }}
   run: uv run scripts/pre_build.py --target ${{ matrix.target_triple }}
@@ -154,19 +157,19 @@ The matrix already has the target triple embedded in the `args` field (e.g. `--t
 
 ```yaml
 matrix:
-  include:
-    - platform: "macos-latest"
-      args: "--target aarch64-apple-darwin"
-      target_triple: "aarch64-apple-darwin"
-    - platform: "macos-latest"
-      args: "--target x86_64-apple-darwin"
-      target_triple: "x86_64-apple-darwin"
-    - platform: "ubuntu-22.04"
-      args: "--target x86_64-unknown-linux-gnu"
-      target_triple: "x86_64-unknown-linux-gnu"
-    - platform: "windows-latest"
-      args: "--target x86_64-pc-windows-msvc"
-      target_triple: "x86_64-pc-windows-msvc"
+    include:
+        - platform: 'macos-latest'
+          args: '--target aarch64-apple-darwin'
+          target_triple: 'aarch64-apple-darwin'
+        - platform: 'macos-latest'
+          args: '--target x86_64-apple-darwin'
+          target_triple: 'x86_64-apple-darwin'
+        - platform: 'ubuntu-22.04'
+          args: '--target x86_64-unknown-linux-gnu'
+          target_triple: 'x86_64-unknown-linux-gnu'
+        - platform: 'windows-latest'
+          args: '--target x86_64-pc-windows-msvc'
+          target_triple: 'x86_64-pc-windows-msvc'
 ```
 
 Remove `sona_asset` and `sidecar_name` from the matrix — they're no longer needed since `pre_build.py` handles the mapping internally.
@@ -187,12 +190,12 @@ Keep the existing `.gitkeep` so the directory is tracked.
 
 ## Summary of changes
 
-| File | Change |
-|-|-|
-| `.sona-version` | New — pins sona release tag |
-| `scripts/pre_build.py` | Add `httpx` dep, `--target` flag, `download_sona()` function |
+| File                            | Change                                                                                                         |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `.sona-version`                 | New — pins sona release tag                                                                                    |
+| `scripts/pre_build.py`          | Add `httpx` dep, `--target` flag, `download_sona()` function                                                   |
 | `.github/workflows/release.yml` | Remove separate download step, pass `--target` to `pre_build.py`, drop `sona_asset`/`sidecar_name` from matrix |
-| `.gitignore` | Add `desktop/src-tauri/binaries/sona-*` |
+| `.gitignore`                    | Add `desktop/src-tauri/binaries/sona-*`                                                                        |
 
 ### Dev workflow (local)
 

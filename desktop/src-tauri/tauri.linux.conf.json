@@ -3,9 +3,7 @@
 	"bundle": {
 		"linux": {
 			"deb": {
-				"depends": [
-					"ffmpeg"
-				]
+				"depends": ["ffmpeg"]
 			}
 		}
 	}

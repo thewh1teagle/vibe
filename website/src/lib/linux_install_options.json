@@ -1,10 +1,10 @@
 [
-    {
-        "title": "Quick Install",
-        "command": "curl -sSf https://thewh1teagle.github.io/vibe/installer.sh | sh -s {tag}"
-    },
-    {
-        "title": "Yay (Arch Linux)",
-        "command": "yay -S vibe-bin"
-    }
+	{
+		"title": "Quick Install",
+		"command": "curl -sSf https://thewh1teagle.github.io/vibe/installer.sh | sh -s {tag}"
+	},
+	{
+		"title": "Yay (Arch Linux)",
+		"command": "yay -S vibe-bin"
+	}
 ]

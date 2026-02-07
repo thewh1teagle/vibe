@@ -95,7 +95,9 @@ export default function Home() {
 						</div>
 						{vm.audio && (
 							<div>
-								{vm.files.length ? <AudioPlayer label={vm.files[0].name} onLabelClick={() => vm.openPath(vm.files[0])} audio={vm.audio} /> : null}
+								{vm.files.length ? (
+									<AudioPlayer label={vm.files[0].name} onLabelClick={() => vm.openPath(vm.files[0])} audio={vm.audio} />
+								) : null}
 								{!vm.loading && (
 									<Button variant="link" onMouseDown={vm.selectFiles} className="text-xs px-0 mb-3 mt-1">
 										{t('common.change-file')}
@@ -116,7 +118,10 @@ export default function Home() {
 					{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
 
 					{vm.summarizeSegments && (
-						<Tabs value={vm.transcriptTab} onValueChange={(v) => vm.setTranscriptTab(v as 'transcript' | 'summary')} className="flex flex-col items-center">
+						<Tabs
+							value={vm.transcriptTab}
+							onValueChange={(v) => vm.setTranscriptTab(v as 'transcript' | 'summary')}
+							className="flex flex-col items-center">
 							<TabsList className="self-center">
 								<TabsTrigger value="transcript">{t('common.segments-tab')}</TabsTrigger>
 								<TabsTrigger value="summary">{t('common.summary-tab')}</TabsTrigger>
@@ -154,7 +159,11 @@ export default function Home() {
 								<div className="flex flex-row items-center text-center gap-3 bg-muted p-4 rounded-2xl">
 									<Spinner className="text-primary" />
 									<p>{t('common.downloading', { progress: vm.ytdlpProgress })}</p>
-									<Button variant="ghost" size="sm" onClick={() => vm.cancelYtDlpDownload()} className="text-destructive hover:text-destructive/80">
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => vm.cancelYtDlpDownload()}
+										className="text-destructive hover:text-destructive/80">
 										{t('common.cancel')}
 									</Button>
 								</div>

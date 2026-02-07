@@ -15,10 +15,7 @@ i18next
 			lookupLocalStorage: 'locale',
 		},
 		fallbackLng: 'en-US',
-		supportedLngs: [
-			'en-US', 'es-MX', 'fr-FR', 'he-IL', 'ja-JP', 'ko-KR',
-			'no-NO', 'pl-PL', 'pt-BR', 'ru-RU', 'zh-CN', 'zh-HK',
-		],
+		supportedLngs: ['en-US', 'es-MX', 'fr-FR', 'he-IL', 'ja-JP', 'ko-KR', 'no-NO', 'pl-PL', 'pt-BR', 'ru-RU', 'zh-CN', 'zh-HK'],
 		ns: 'translation',
 		backend: {
 			loadPath: '/vibe/locales/{{lng}}.json',

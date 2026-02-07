@@ -63,7 +63,7 @@ _All models available for manual install. see settings or [Pre built models](htt
 
 1. Download the matching `.mlcmodelc.zip` for your model from https://huggingface.co/ggerganov/whisper.cpp/tree/main
 
--   e.g. `ggml-medium-encoder.mlmodelc.zip` matches `ggml-medium-encoder.bin`
+- e.g. `ggml-medium-encoder.mlmodelc.zip` matches `ggml-medium-encoder.bin`
 
 2. Open models path from Vibe settings
 3. Drag and drop the `.mlcmodel.c` file into the models folder so that it is alongside the `.bin` file

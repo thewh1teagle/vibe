@@ -128,8 +128,8 @@ gh cache delete -a
 
 ## Notes
 
--   Always update crates and lock in specific commit so it will be easy to revert!!
--   Don't upgrade important crates such as tauri as long as it stable and works and there's no real need!!
+- Always update crates and lock in specific commit so it will be easy to revert!!
+- Don't upgrade important crates such as tauri as long as it stable and works and there's no real need!!
 
 ## Sign on Windows
 

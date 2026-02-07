@@ -46,8 +46,8 @@ There is no encryption involved in the app. Users have complete control over whe
 
 **Vibe** may include links to external websites, such as:
 
--   [GitHub](https://github.com/thewh1teagle/vibe)
--   [Ko-Fi](https://ko-fi.com/thewh1teagle)
+- [GitHub](https://github.com/thewh1teagle/vibe)
+- [Ko-Fi](https://ko-fi.com/thewh1teagle)
 
 These websites may collect personal data according to their respective privacy policies. Please review those policies before interacting with external sites.
 

@@ -17,7 +17,9 @@ Cancel/abort buttons use `text-red-500 hover:text-red-600` instead of the semant
 ```
 text-red-500 hover:text-red-600
 ```
+
 →
+
 ```
 text-destructive hover:text-destructive/80
 ```
@@ -27,7 +29,9 @@ text-destructive hover:text-destructive/80
 ```
 text-red-500 hover:text-red-600
 ```
+
 →
+
 ```
 text-destructive hover:text-destructive/80
 ```
@@ -47,24 +51,28 @@ className="mt-3 bg-green-600 hover:bg-green-700 text-white"
 **Fix:** Define custom `--success` and `--success-foreground` CSS variables in `globals.css`, then use them:
 
 Add to `globals.css` `:root` block:
+
 ```css
---success: oklch(0.60 0.15 145);
---success-foreground: oklch(1.00 0 0);
+--success: oklch(0.6 0.15 145);
+--success-foreground: oklch(1 0 0);
 ```
 
 Add to `.dark` block:
+
 ```css
---success: oklch(0.50 0.15 145);
---success-foreground: oklch(1.00 0 0);
+--success: oklch(0.5 0.15 145);
+--success-foreground: oklch(1 0 0);
 ```
 
 Add to `@theme inline`:
+
 ```css
 --color-success: var(--success);
 --color-success-foreground: var(--success-foreground);
 ```
 
 Then the button becomes:
+
 ```
 className="mt-3 bg-success hover:bg-success/90 text-success-foreground"
 ```
@@ -74,17 +82,22 @@ className="mt-3 bg-success hover:bg-success/90 text-success-foreground"
 ```tsx
 className={inProgress ? 'cursor-pointer p-2 rounded-full bg-destructive' : 'cursor-pointer p-2 rounded-full bg-green-600'}
 ```
+
 Icons:
+
 ```tsx
 <CancelIcon className="h-5 w-5 stroke-white" />
 <PlayIcon className="h-5 w-5 stroke-white stroke-2" />
 ```
 
 **Fix:**
+
 ```tsx
 className={inProgress ? 'cursor-pointer p-2 rounded-full bg-destructive' : 'cursor-pointer p-2 rounded-full bg-success'}
 ```
+
 Icons:
+
 ```tsx
 <CancelIcon className="h-5 w-5 stroke-destructive-foreground" />
 <PlayIcon className="h-5 w-5 stroke-success-foreground stroke-2" />
@@ -95,7 +108,9 @@ Icons:
 ```
 stroke-green-600
 ```
+
 →
+
 ```
 stroke-success
 ```
@@ -113,6 +128,7 @@ color: '#1565c0'
 **Problem:** Hardcoded blue hex in inline style — doesn't adapt to dark mode.
 
 **Fix:** Use CSS variable:
+
 ```tsx
 color: 'var(--primary)'
 ```
@@ -132,6 +148,7 @@ The full style block at line 31-40 should also be audited. The inline styles are
 **Problem:** `#db61a2` is a hardcoded pink. While this is arguably a brand color (GitHub sponsor pink), it should at minimum work visually in both modes.
 
 **Fix:** Use `fill="currentColor"` with a pink that works in both themes, or use the CSS variable approach:
+
 ```tsx
 <HeartIcon className="w-4 h-4 stroke-2 fill-pink-500" />
 ```
@@ -181,12 +198,14 @@ className={cx('fixed inset-0 backdrop-blur-sm bg-background/60 z-50', open ? 'bl
 ```
 
 **Problems:**
+
 - `text-1xl` is not a valid Tailwind class (should be `text-xl`)
 - No hover/focus states
 - No cursor-pointer
 - Raw `<button>` instead of shadcn Button
 
 **Fix:**
+
 ```tsx
 <button className="absolute bottom-1 left-1/2 -translate-x-1/2 cursor-pointer text-foreground hover:text-primary transition-colors" onMouseDown={...}>
 ```
@@ -198,18 +217,21 @@ className={cx('fixed inset-0 backdrop-blur-sm bg-background/60 z-50', open ? 'bl
 ### `globals.css` — add success color variables
 
 Add to `:root`:
+
 ```css
---success: oklch(0.60 0.15 145);
---success-foreground: oklch(1.00 0 0);
+--success: oklch(0.6 0.15 145);
+--success-foreground: oklch(1 0 0);
 ```
 
 Add to `.dark`:
+
 ```css
---success: oklch(0.50 0.15 145);
---success-foreground: oklch(1.00 0 0);
+--success: oklch(0.5 0.15 145);
+--success-foreground: oklch(1 0 0);
 ```
 
 Add to `@theme inline`:
+
 ```css
 --color-success: var(--success);
 --color-success-foreground: var(--success-foreground);
@@ -217,22 +239,22 @@ Add to `@theme inline`:
 
 ### Files changed
 
-| File | Line(s) | Change |
-|-|-|-|
-| `src/globals.css` | `:root`, `.dark`, `@theme` | Add `--success` / `--success-foreground` variables |
-| `src/pages/home/Page.tsx` | 75 | `bg-green-600 hover:bg-green-700 text-white` → `bg-success hover:bg-success/90 text-success-foreground` |
-| `src/pages/home/Page.tsx` | 154 | `text-red-500 hover:text-red-600` → `text-destructive hover:text-destructive/80` |
-| `src/pages/home/ProgressPanel.tsx` | 25 | `text-red-500 hover:text-red-600` → `text-destructive hover:text-destructive/80` |
-| `src/pages/batch/BatchPanel.tsx` | 50 | `bg-green-600` → `bg-success` |
-| `src/pages/batch/BatchPanel.tsx` | 51 | `stroke-white` → `stroke-destructive-foreground` / `stroke-success-foreground` |
-| `src/pages/batch/BatchQueue.tsx` | 20 | `stroke-green-600` → `stroke-success` |
-| `src/components/HtmlView.tsx` | 34 | `color: '#1565c0'` → `color: 'var(--primary)'` |
-| `src/components/DropModal.tsx` | 1, 79 | `cx` → `cn` |
-| `src/pages/home/AudioPlayer.tsx` | 93 | Fix invalid `text-1xl`, add `cursor-pointer`, `text-foreground`, `hover:text-primary` |
+| File                               | Line(s)                    | Change                                                                                                  |
+| ---------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `src/globals.css`                  | `:root`, `.dark`, `@theme` | Add `--success` / `--success-foreground` variables                                                      |
+| `src/pages/home/Page.tsx`          | 75                         | `bg-green-600 hover:bg-green-700 text-white` → `bg-success hover:bg-success/90 text-success-foreground` |
+| `src/pages/home/Page.tsx`          | 154                        | `text-red-500 hover:text-red-600` → `text-destructive hover:text-destructive/80`                        |
+| `src/pages/home/ProgressPanel.tsx` | 25                         | `text-red-500 hover:text-red-600` → `text-destructive hover:text-destructive/80`                        |
+| `src/pages/batch/BatchPanel.tsx`   | 50                         | `bg-green-600` → `bg-success`                                                                           |
+| `src/pages/batch/BatchPanel.tsx`   | 51                         | `stroke-white` → `stroke-destructive-foreground` / `stroke-success-foreground`                          |
+| `src/pages/batch/BatchQueue.tsx`   | 20                         | `stroke-green-600` → `stroke-success`                                                                   |
+| `src/components/HtmlView.tsx`      | 34                         | `color: '#1565c0'` → `color: 'var(--primary)'`                                                          |
+| `src/components/DropModal.tsx`     | 1, 79                      | `cx` → `cn`                                                                                             |
+| `src/pages/home/AudioPlayer.tsx`   | 93                         | Fix invalid `text-1xl`, add `cursor-pointer`, `text-foreground`, `hover:text-primary`                   |
 
 ### No change needed
 
-| File | Line | Why |
-|-|-|-|
-| `src/components/ui/dialog.tsx` | 22 | `bg-black/80` overlay is correct UX for both modes |
-| `src/pages/settings/Page.tsx` | 136 | `fill="#db61a2"` is intentional brand color, visible in both modes |
+| File                           | Line | Why                                                                |
+| ------------------------------ | ---- | ------------------------------------------------------------------ |
+| `src/components/ui/dialog.tsx` | 22   | `bg-black/80` overlay is correct UX for both modes                 |
+| `src/pages/settings/Page.tsx`  | 136  | `fill="#db61a2"` is intentional brand color, visible in both modes |
