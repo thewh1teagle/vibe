@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName } from '~/lib/i18n'
 import { usePreferenceProvider } from '~/providers/Preference'
+import { Label } from '~/components/ui/label'
+import { NativeSelect } from '~/components/ui/native-select'
 
 const specialModels = [{ pattern: 'ug.bin', languages: [{ code: 'ug', label: 'Uyghur', name: 'uyghur' }] }]
 
@@ -10,21 +12,18 @@ export default function LanguageInput() {
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 
-	// create entries with translated labels
 	const entries = Object.entries(WhisperLanguages).map(([name, code]) => {
 		return { label: t(`language.${name}`, { defaultValue: name }), name, code }
 	})
 
-	// Speical models with special languages
 	for (const special of specialModels) {
 		if (preference.modelPath?.endsWith(special.pattern)) {
 			entries.push(...special.languages)
 		}
 	}
-	// sort alphabet
-	entries.sort((a, b) => {
-		return a.label.localeCompare(b.label)
-	})
+
+	entries.sort((a, b) => a.label.localeCompare(b.label))
+
 	function onChange(event: ChangeEvent<HTMLSelectElement>) {
 		preference.setModelOptions({ ...preference.modelOptions, lang: event.target.value })
 	}
@@ -41,33 +40,25 @@ export default function LanguageInput() {
 		}
 	})
 
-	// Group names
-	const groupNames = {
-		popular: t('common.popular'),
-		others: t('common.others'),
-	}
-
 	return (
-		<label className="form-control w-full">
-			<div className="label">
-				<span className="label-text">{t('common.language')}</span>
-			</div>
-			<select value={preference.modelOptions.lang} onChange={onChange} className="select select-bordered">
-				<optgroup label={groupNames.popular}>
+		<div className="space-y-2 w-full">
+			<Label>{t('common.language')}</Label>
+			<NativeSelect value={preference.modelOptions.lang} onChange={onChange}>
+				<optgroup label={t('common.popular')}>
 					{popularEntries.map(({ label, code }) => (
 						<option key={code} value={code}>
 							{label}
 						</option>
 					))}
 				</optgroup>
-				<optgroup label={groupNames.others}>
+				<optgroup label={t('common.others')}>
 					{otherEntries.map(({ label, code }) => (
 						<option key={code} value={code}>
 							{label}
 						</option>
 					))}
 				</optgroup>
-			</select>
-		</label>
+			</NativeSelect>
+		</div>
 	)
 }

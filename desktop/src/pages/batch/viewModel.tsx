@@ -17,7 +17,7 @@ import { Claude, Ollama, Llm } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { path } from '@tauri-apps/api'
 import { toDocx } from '~/lib/docx'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 
 export function viewModel() {
 	const { files, setFiles } = useFilesContext()
