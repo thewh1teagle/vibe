@@ -34,12 +34,18 @@ impl SonaProcess {
     pub fn spawn(binary_path: &Path) -> Result<Self> {
         tracing::debug!("spawning sona at {}", binary_path.display());
 
-        let mut child = Command::new(binary_path)
-            .args(["serve", "--port", "0"])
+        let mut cmd = Command::new(binary_path);
+        cmd.args(["serve", "--port", "0"])
             .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
-            .spawn()
-            .context("failed to spawn sona binary")?;
+            .stderr(Stdio::inherit());
+
+        #[cfg(target_os = "windows")]
+        {
+            use std::os::windows::process::CommandExt;
+            cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+        }
+
+        let mut child = cmd.spawn().context("failed to spawn sona binary")?;
 
         let stdout = child.stdout.take().context("failed to get sona stdout")?;
         let mut reader = std::io::BufReader::new(stdout);
