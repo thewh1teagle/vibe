@@ -1,0 +1,75 @@
+name: Deploy Landing
+
+on:
+    # push:
+    #     branches:
+    #         - main
+    #     paths:
+    #         - "website/**"
+    #         - "scripts/landing_links.py"
+    workflow_dispatch:
+
+# Allow this job to clone the repo and create a page deployment
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+jobs:
+    build:
+        runs-on: macos-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: website/package.json
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: website/pnpm-lock.yaml
+
+            - name: setup uv
+              uses: astral-sh/setup-uv@v5
+
+            - name: Build
+              run: |
+                pnpm install
+                uv run ../scripts/landing_links.py
+                cp -rf ../docs public/
+                pnpm build
+              working-directory: website
+              env:
+                GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+            - name: Setup Pages
+              uses: actions/configure-pages@v5
+
+            - name: Upload Artifacts
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: website/dist
+
+    deploy:
+        needs: build
+        runs-on: macos-latest
+
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        steps:
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@v4
