@@ -3,7 +3,6 @@ import LanguageInput from '~/components/LanguageInput'
 import Layout from '~/components/Layout'
 import ModelOptions from '~/components/Params'
 import TextArea from '~/components/TextArea'
-import { cx } from '~/lib/utils'
 import AudioInput from '~/pages/home/AudioInput'
 import AudioPlayer from './AudioPlayer'
 import ProgressPanel from './ProgressPanel'
@@ -16,6 +15,11 @@ import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
 import * as keepAwake from 'tauri-plugin-keepawake-api'
 import AdvancedTranscribe from '~/components/AdvancedTranscribe'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Spinner } from '~/components/ui/spinner'
+import { Switch } from '~/components/ui/switch'
+import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
 
 export default function Home() {
 	const { t } = useTranslation()
@@ -24,132 +28,109 @@ export default function Home() {
 	async function showWindow() {
 		const currentWindow = webviewWindow.getCurrentWebviewWindow()
 		await currentWindow.show()
-		if (import.meta.env.PROD) {
-			await currentWindow.setFocus()
-		}
+		if (import.meta.env.PROD) await currentWindow.setFocus()
 	}
 
 	useEffect(() => {
 		showWindow()
 	}, [])
+
 	return (
 		<Layout>
-			<div role="tablist" className="tabs tabs-lifted flex m-auto mt-5">
-				<a
-					role="tab"
-					onClick={() => vm.preference.setHomeTabIndex(0)}
-					className={cx('tab [--tab-border-color:gray]', vm.preference.homeTabIndex === 0 && 'tab-active')}>
-					<MicrphoneIcon className="w-[18px] h-[18px]" />
-				</a>
-				<a
-					role="tab"
-					onClick={() => vm.preference.setHomeTabIndex(1)}
-					className={cx('tab [--tab-border-color:gray]', vm.preference.homeTabIndex === 1 && 'tab-active')}>
-					<FileIcon className="w-[18px] h-[18px]" />
-				</a>
-				<a role="tab" onClick={vm.switchToLinkTab} className={cx('tab [--tab-border-color:gray]', vm.preference.homeTabIndex === 2 && 'tab-active')}>
-					<LinkIcon className="w-[18px] h-[18px]" />
-				</a>
-			</div>
+			<Tabs
+				value={String(vm.preference.homeTabIndex)}
+				onValueChange={(v) => (v === '2' ? vm.switchToLinkTab() : vm.preference.setHomeTabIndex(Number(v)))}
+				className="flex flex-col items-center">
+				<TabsList className="mt-5">
+					<TabsTrigger value="0">
+						<MicrphoneIcon className="w-[18px] h-[18px]" />
+					</TabsTrigger>
+					<TabsTrigger value="1">
+						<FileIcon className="w-[18px] h-[18px]" />
+					</TabsTrigger>
+					<TabsTrigger value="2">
+						<LinkIcon className="w-[18px] h-[18px]" />
+					</TabsTrigger>
+				</TabsList>
+			</Tabs>
 
-			{/* Record */}
 			{vm.preference.homeTabIndex === 0 && (
-				<>
-					<div className="flex w-[300px] flex-col m-auto">
-						<div className="">
-							<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
-							<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
-							<label className="label cursor-pointer mt-2 mb-5">
-								<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
-								<input
-									type="checkbox"
-									className="toggle toggle-primary"
-									onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
-									checked={vm.preference.storeRecordInDocuments}
-								/>
-							</label>
-						</div>
-						{!vm.isRecording && (
-							<button onMouseDown={() => vm.startRecord()} className="btn btn-primary mt-3">
-								{t('common.start-record')}
-							</button>
-						)}
-
-						{vm.isRecording && (
-							<>
-								<button
-									onMouseDown={() => {
-										keepAwake.stop()
-										vm.stopRecord()
-									}}
-									className="btn relative btn-success mt-3">
-									<span className="loading loading-spinner"></span>
-									{t('common.stop-and-transcribe')}
-								</button>
-							</>
-						)}
-
-						<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
+				<div className="flex w-[300px] flex-col m-auto">
+					<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
+					<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
+					<div className="flex items-center justify-between mt-2 mb-5">
+						<span className="text-sm font-medium">{t('common.save-record-in-documents-folder')}</span>
+						<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
 					</div>
-				</>
+
+					{!vm.isRecording && (
+						<Button onMouseDown={() => vm.startRecord()} className="mt-3">
+							{t('common.start-record')}
+						</Button>
+					)}
+
+					{vm.isRecording && (
+						<Button
+							onMouseDown={() => {
+								keepAwake.stop()
+								vm.stopRecord()
+							}}
+							className="mt-3 bg-success hover:bg-success/90 text-success-foreground">
+							<Spinner className="mr-2" />
+							{t('common.stop-and-transcribe')}
+						</Button>
+					)}
+
+					<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
+				</div>
 			)}
-			{/* File */}
+
 			{vm.preference.homeTabIndex === 1 && (
 				<>
 					<div className="flex w-[300px] flex-col m-auto">
-						<div className="join join-vertical">
+						<div className="flex flex-col gap-2">
 							<LanguageInput />
 							{!vm.files.length && <AudioInput onClick={vm.selectFiles} />}
 							<AdvancedTranscribe />
 						</div>
 						{vm.audio && (
 							<div>
-								{vm.files.length ? (
-									<AudioPlayer label={vm?.files?.[0].name} onLabelClick={() => vm.openPath(vm?.files?.[0])} audio={vm.audio} />
-								) : null}
-
+								{vm.files.length ? <AudioPlayer label={vm.files[0].name} onLabelClick={() => vm.openPath(vm.files[0])} audio={vm.audio} /> : null}
 								{!vm.loading && (
-									<div onMouseDown={vm.selectFiles} className={cx('text-xs text-base-content font-medium cursor-pointer mb-3 mt-1')}>
+									<Button variant="link" onMouseDown={vm.selectFiles} className="text-xs px-0 mb-3 mt-1">
 										{t('common.change-file')}
-									</div>
+									</Button>
 								)}
 							</div>
 						)}
 						{vm.audio && !vm.loading && (
 							<>
-								<button onMouseDown={() => vm.transcribe(vm.files[0].path)} className="btn btn-primary mt-3">
+								<Button onMouseDown={() => vm.transcribe(vm.files[0].path)} className="mt-3">
 									{t('common.transcribe')}
-								</button>
+								</Button>
 								<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 							</>
 						)}
 					</div>
 					<div className="h-20" />
 					{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
-					{vm.summarizeSegments && (
-						<div role="tablist" className="tabs tabs-lifted tabs-lg self-center">
-							<a
-								onClick={() => vm.setTranscriptTab('transcript')}
-								role="tab"
-								className={cx('tab ', vm.transcriptTab == 'transcript' && 'text-primary font-medium tab-active')}>
-								{t('common.segments-tab')}
-							</a>
 
-							<a
-								onClick={() => vm.setTranscriptTab('summary')}
-								role="tab"
-								className={cx('tab', vm.transcriptTab == 'summary' && 'text-primary font-medium tab-active')}>
-								{t('common.summary-tab')}
-							</a>
-						</div>
+					{vm.summarizeSegments && (
+						<Tabs value={vm.transcriptTab} onValueChange={(v) => vm.setTranscriptTab(v as 'transcript' | 'summary')} className="flex flex-col items-center">
+							<TabsList className="self-center">
+								<TabsTrigger value="transcript">{t('common.segments-tab')}</TabsTrigger>
+								<TabsTrigger value="summary">{t('common.summary-tab')}</TabsTrigger>
+							</TabsList>
+						</Tabs>
 					)}
+
 					{(vm.segments || vm.loading) && (
 						<div className="flex flex-col mt-5 items-center w-[90%] max-w-[1000px] h-[84vh] m-auto">
 							<TextArea
-								setSegments={vm.transcriptTab == 'transcript' ? vm.setSegments : vm.setSummarizeSegments}
-								file={vm.files?.[0]}
+								setSegments={vm.transcriptTab === 'transcript' ? vm.setSegments : vm.setSummarizeSegments}
+								file={vm.files[0]}
 								placeholder={t('common.transcript-will-displayed-shortly')}
-								segments={vm.transcriptTab == 'transcript' ? vm.segments : vm.summarizeSegments}
+								segments={vm.transcriptTab === 'transcript' ? vm.segments : vm.summarizeSegments}
 								readonly={vm.loading}
 							/>
 						</div>
@@ -157,13 +138,11 @@ export default function Home() {
 				</>
 			)}
 
-			{/* URL */}
 			{vm.preference.homeTabIndex === 2 && (
 				<div className="flex w-[300px] flex-col m-auto">
 					<div className="flex flex-col gap-0 mt-5">
-						<input
+						<Input
 							type="text"
-							className="input input-bordered"
 							value={vm.audioUrl}
 							onChange={(event) => vm.setAudioUrl(event.target.value)}
 							placeholder="https://www.youtube.com/watch?v=aj8-ABRl1Jo"
@@ -171,32 +150,22 @@ export default function Home() {
 						/>
 
 						{vm.downloadingAudio ? (
-							<>
-								<div className="w-full flex flex-col items-center mt-5">
-									<div className="flex flex-row items-center text-center gap-3 bg-base-200 p-4 rounded-2xl">
-										<span className="loading loading-spinner text-primary"></span>
-										<p>{t('common.downloading', { progress: vm.ytdlpProgress })}</p>
-										<button onClick={() => vm.cancelYtDlpDownload()} className="btn btn-primary btn-ghost btn-sm text-red-500">
-											{t('common.cancel')}
-										</button>
-									</div>
+							<div className="w-full flex flex-col items-center mt-5">
+								<div className="flex flex-row items-center text-center gap-3 bg-muted p-4 rounded-2xl">
+									<Spinner className="text-primary" />
+									<p>{t('common.downloading', { progress: vm.ytdlpProgress })}</p>
+									<Button variant="ghost" size="sm" onClick={() => vm.cancelYtDlpDownload()} className="text-destructive hover:text-destructive/80">
+										{t('common.cancel')}
+									</Button>
 								</div>
-							</>
+							</div>
 						) : (
 							<>
-								<label className="label cursor-pointer mt-2 mb-5">
-									<span className="label-text">{t('common.save-record-in-documents-folder')}</span>
-									<input
-										type="checkbox"
-										className="toggle toggle-primary"
-										onChange={(e) => vm.preference.setStoreRecordInDocuments(e.target.checked)}
-										checked={vm.preference.storeRecordInDocuments}
-									/>
-								</label>
-
-								<button onMouseDown={vm.downloadAudio} className="btn btn-primary mt-0">
-									{t('common.download-file')}
-								</button>
+								<div className="flex items-center justify-between mt-2 mb-5">
+									<span className="text-sm font-medium">{t('common.save-record-in-documents-folder')}</span>
+									<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
+								</div>
+								<Button onMouseDown={vm.downloadAudio}>{t('common.download-file')}</Button>
 								<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 							</>
 						)}

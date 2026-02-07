@@ -4,7 +4,6 @@ import { UpdaterContext } from '~/providers/Updater'
 import AppMenu from './AppMenu'
 import DropModal from './DropModal'
 import SettingsModal from './SettingsModal'
-import Toast from './Toast'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
@@ -13,7 +12,6 @@ export default function Layout({ children }: { children: ReactNode }) {
 
 	return (
 		<div className="flex flex-col pb-[80px]">
-			<Toast />
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} />}
 			<DropModal />
 
@@ -22,7 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 					<div className="relative w-[300px] m-auto">
 						<AppMenu onClickSettings={() => setSettingsVisible(true)} availableUpdate={availableUpdate} updateApp={updateApp} />
 					</div>
-					<h1 className="text-center text-4xl mb-2 text-base-content font-normal">{t('common.app-title')}</h1>
+					<h1 className="text-center text-4xl mb-2 text-foreground font-normal">{t('common.app-title')}</h1>
 				</div>
 				{children}
 			</div>

@@ -1,10 +1,13 @@
 import * as shell from '@tauri-apps/plugin-shell'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
-import { ModifyState, cx, getIssueUrl, resetApp } from '~/lib/utils'
+import { ModifyState, getIssueUrl, resetApp } from '~/lib/utils'
 import { ErrorModalState } from '~/providers/ErrorModal'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { collectLogs } from '~/lib/logs'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog'
+import { Button } from '~/components/ui/button'
+import { Textarea } from '~/components/ui/textarea'
 
 interface ErrorModalProps {
 	state: ErrorModalState
@@ -32,34 +35,28 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 	}
 
 	return (
-		<dialog id="modal-error" className={cx('modal', state?.open && 'modal-open')}>
-			<div className="modal-box">
-				<h3 className="font-bold text-lg">{t('common.error-title')}</h3>
-				<p className="py-4">{t('common.modal-error-body')}</p>
+		<Dialog open={state?.open} onOpenChange={(open) => setState({ ...state, open })}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>{t('common.error-title')}</DialogTitle>
+					<DialogDescription>{t('common.modal-error-body')}</DialogDescription>
+				</DialogHeader>
 				<div className="relative">
-					<textarea readOnly className="w-full rounded-lg p-3 max-h-20 textarea textarea-bordered" dir="ltr" value={state?.log} />
-					<CopyIcon
-						className="w-6 h-6 z-10 right-4 bottom-4 absolute strokeBase-content
-    opacity-50 cursor-pointer"
-						onMouseDown={() => clipboard.writeText(state?.log ?? '')}
-					/>
+					<Textarea readOnly className="w-full max-h-20" dir="ltr" value={state?.log} />
+					<CopyIcon className="w-6 h-6 z-10 right-4 bottom-4 absolute opacity-50 cursor-pointer stroke-foreground" onMouseDown={() => clipboard.writeText(state?.log ?? '')} />
 				</div>
 				<div className="flex justify-center gap-3 mt-3">
-					<button onClick={clearLogAndReset} className="btn btn-primary cursor-pointer">
-						{t('common.reset-app')}
-					</button>
-					<button onMouseDown={reportIssue} className="btn btn-outline">
+					<Button onClick={clearLogAndReset}>{t('common.reset-app')}</Button>
+					<Button variant="outline" onMouseDown={reportIssue}>
 						{t('common.report-issue')}
-					</button>
+					</Button>
 				</div>
-				<div className="modal-action">
-					<form method="dialog">
-						<button onClick={() => setState?.({ log: '', open: false })} className="btn cursor-pointer">
-							{t('common.modal-close')}
-						</button>
-					</form>
-				</div>
-			</div>
-		</dialog>
+				<DialogFooter>
+					<Button variant="secondary" onClick={() => setState?.({ log: '', open: false })}>
+						{t('common.modal-close')}
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
 	)
 }

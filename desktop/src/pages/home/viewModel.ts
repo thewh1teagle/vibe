@@ -8,7 +8,7 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { open } from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { toast as hotToast } from 'react-hot-toast'
+import { toast as hotToast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'usehooks-ts'
@@ -62,6 +62,8 @@ export function viewModel() {
 	const [downloadingAudio, setDownloadingAudio] = useState(false)
 	const [ytdlpProgress, setYtDlpProgress] = useState<number | null>(null)
 	const cancelYtDlpRef = useRef<boolean>(false)
+	const switchingToLinkRef = useRef(false)
+	const skippedYtDlpUpdatePromptRef = useRef(false)
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -124,44 +126,61 @@ export function viewModel() {
 	}
 
 	async function switchToLinkTab() {
-		const isUpToDate = config.ytDlpVersion === preference.ytDlpVersion
-		const exists = await ytDlp.exists()
-		if (!exists || (!isUpToDate && preference.shouldCheckYtDlpVersion)) {
-			let shouldInstallOrUpdate = false
-			if (!isUpToDate) {
-				shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
-					title: t('common.ask-for-update-ytdlp-title'),
-					kind: 'info',
-					cancelLabel: t('common.later'),
-					okLabel: t('common.update-now'),
-				})
-			} else {
-				shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
-					title: t('common.ask-for-install-ytdlp-title'),
-					kind: 'info',
-					cancelLabel: t('common.cancel'),
-					okLabel: t('common.install-now'),
-				})
+		if (switchingToLinkRef.current) return
+		switchingToLinkRef.current = true
+
+		try {
+			const isUpToDate = config.ytDlpVersion === preference.ytDlpVersion
+			const exists = await ytDlp.exists()
+
+			if (!isUpToDate && preference.shouldCheckYtDlpVersion && skippedYtDlpUpdatePromptRef.current) {
+				preference.setHomeTabIndex(2)
+				return
 			}
 
-			if (shouldInstallOrUpdate) {
-				try {
-					toast.setMessage(t('common.downloading-ytdlp'))
-					toast.setProgress(0)
-					toast.setOpen(true)
-					await ytDlp.downloadYtDlp()
-					preference.setYtDlpVersion(config.ytDlpVersion)
-					toast.setOpen(false)
-					preference.setHomeTabIndex(2)
-				} catch (e) {
-					console.error(e)
-					setErrorModal?.({ log: String(e), open: true })
+			if (!exists || (!isUpToDate && preference.shouldCheckYtDlpVersion)) {
+				let shouldInstallOrUpdate = false
+				if (!isUpToDate) {
+					shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
+						title: t('common.ask-for-update-ytdlp-title'),
+						kind: 'info',
+						cancelLabel: t('common.later'),
+						okLabel: t('common.update-now'),
+					})
+				} else {
+					shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
+						title: t('common.ask-for-install-ytdlp-title'),
+						kind: 'info',
+						cancelLabel: t('common.cancel'),
+						okLabel: t('common.install-now'),
+					})
 				}
-			} else if (exists) {
+
+				if (shouldInstallOrUpdate) {
+					try {
+						toast.setMessage(t('common.downloading-ytdlp'))
+						toast.setProgress(0)
+						toast.setOpen(true)
+						await ytDlp.downloadYtDlp()
+						preference.setYtDlpVersion(config.ytDlpVersion)
+						skippedYtDlpUpdatePromptRef.current = false
+						toast.setOpen(false)
+						preference.setHomeTabIndex(2)
+					} catch (e) {
+						console.error(e)
+						setErrorModal?.({ log: String(e), open: true })
+					}
+				} else if (exists) {
+					if (!isUpToDate) {
+						skippedYtDlpUpdatePromptRef.current = true
+					}
+					preference.setHomeTabIndex(2)
+				}
+			} else {
 				preference.setHomeTabIndex(2)
 			}
-		} else {
-			preference.setHomeTabIndex(2)
+		} finally {
+			switchingToLinkRef.current = false
 		}
 	}
 
@@ -387,8 +406,7 @@ export function viewModel() {
 							return String(error)
 						},
 						success: t('common.summarize-success'),
-					},
-					{ position: 'bottom-center' }
+					}
 				)
 				const answer = await answerPromise
 				if (answer) {

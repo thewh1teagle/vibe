@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { ReactComponent as EllipsisIcon } from '~/icons/ellipsis.svg'
 import { ReactComponent as IndicatorIcon } from '~/icons/update-indicator.svg'
-import { cx } from '~/lib/utils'
+import { Button } from '~/components/ui/button'
 
 interface AppMenuProps {
 	availableUpdate: boolean
@@ -13,39 +13,37 @@ interface AppMenuProps {
 
 export default function AppMenu({ availableUpdate, updateApp, onClickSettings }: AppMenuProps) {
 	const { t } = useTranslation()
-	const [open, setOpen] = useState(false)
 	const navigate = useNavigate()
+	const [open, setOpen] = useState(false)
 
 	return (
-		<div
-			onMouseEnter={() => {
-				if (!open) {
-					setOpen(true)
-				}
-			}}
-			onMouseLeave={() => {
-				if (open) {
-					setOpen(false)
-				}
-			}}
-			onMouseDown={() => setOpen(!open)}
-			className={cx('dropdown absolute left-0 top-0', open && 'dropdown-open')}
-			dir="ltr">
-			<EllipsisIcon />
-			{availableUpdate && <IndicatorIcon className="w-2 h-2 absolute -top-0.5 left-3" />}
-			<div tabIndex={0} className="dropdown-content -translate-x-0.5 -translate-y-1.5 z-[1] menu p-1.5 bg-base-300 rounded-box w-52">
-				<li onMouseDown={() => onClickSettings()}>
-					<a>{t('common.settings')}</a>
-				</li>
-				<li onMouseDown={() => navigate(-1)}>
-					<a>{t('common.back')}</a>
-				</li>
-				{availableUpdate && (
-					<li onMouseDown={() => updateApp()}>
-						<a className="bg-primary">{t('common.update-version')}</a>
-					</li>
-				)}
-			</div>
+		<div className="absolute left-0 top-0" dir="ltr" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+			<Button variant="ghost" size="icon" className="relative h-10 w-10" onMouseDown={() => setOpen(!open)}>
+				<EllipsisIcon className="h-5 w-5" />
+				{availableUpdate && <IndicatorIcon className="w-2 h-2 absolute -top-0.5 left-4" />}
+			</Button>
+
+			{open && (
+				<div className="absolute top-full left-0 z-50 min-w-[12rem] rounded-lg bg-popover p-1 shadow-lg">
+					<button
+						onMouseDown={onClickSettings}
+						className="flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+						{t('common.settings')}
+					</button>
+					<button
+						onMouseDown={() => navigate(-1)}
+						className="flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+						{t('common.back')}
+					</button>
+					{availableUpdate && (
+						<button
+							onMouseDown={updateApp}
+							className="flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+							{t('common.update-version')}
+						</button>
+					)}
+				</div>
+			)}
 		</div>
 	)
 }

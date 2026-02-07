@@ -31,7 +31,7 @@ export default function HTMLView({ segments, file, preference }: HTMLViewProps) 
 				style={{
 					fontSize: '36px',
 					textAlign: 'center',
-					color: '#1565c0',
+					color: 'var(--primary)',
 					maxWidth: '50vw',
 					margin: 'auto',
 					whiteSpace: 'nowrap',
