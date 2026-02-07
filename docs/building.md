@@ -2,18 +2,7 @@
 
 ### Prerequisites
 
-[pnpm](https://pnpm.io/) | [Cargo](https://www.rust-lang.org/tools/install) | [Clang](https://releases.llvm.org/download.html) | [Cmake](https://cmake.org/download/)
-
-**Windows**:
-
-**Note** Install Clang into `C:\Program Files\LLVM` or set `LIBCLANG_PATH` env.
-
-`Winget` packages
-
-```console
-winget install -e --id JernejSimoncic.Wget
-winget install -e --id 7zip.7zip
-```
+[pnpm](https://pnpm.io/) | [uv](https://docs.astral.sh/uv/) | [Cargo](https://www.rust-lang.org/tools/install)
 
 **Linux**:
 
@@ -21,158 +10,51 @@ Based on [tauri/prerequisites/#setting-up-linux](https://tauri.app/v1/guides/get
 
 ```console
 sudo apt-get update
-sudo apt-get install -y ffmpeg libopenblas-dev # runtime
-sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake libssl-dev # tauri
-sudo apt-get install -y libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev # ffmpeg
-```
-
-_Vulkan (Linux)_
-
-```console
-sudo apt-get install -y mesa-vulkan-drivers
-```
-
-_Vulkan (Windows)_
-
-**Run as admin once!!!**
-
-```console
-pnpm exec scripts\pre_build.js --vulkan
+sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake libssl-dev libasound2-dev
 ```
 
 **macOS**:
 
 Make sure to install XCode from the AppStore and open it once so it will download essential macOS libraries.
-You might need to run `export SDKROOT=$(xcrun --show-sdk-path)` as well.
-You might need `llvm` from `brew` as well with
-
-```console
-export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
-export CC="$(brew --prefix llvm)/bin/clang"
-export CXX="$(brew --prefix llvm)/bin/clang++"
-export LIBCLANG_PATH="$(brew --prefix llvm)/lib"
-```
 
 ## Build
 
-Install dependencies from `desktop` folder
+Run the pre-build script (downloads the sona sidecar binary and sets up platform deps):
 
 ```console
+uv run scripts/pre_build.py
+```
+
+Install frontend dependencies from `desktop` folder:
+
+```console
+cd desktop
 pnpm install
 ```
 
-Execute pre build scripts and follow the instructions it provide
+Start dev mode:
 
 ```console
-pnpm exec scripts/pre_build.js
+pnpm exec tauri dev
 ```
 
-## Build with `Nvidia` support
-
-See [whisper.cpp#nvidia-support](https://github.com/ggerganov/whisper.cpp?tab=readme-ov-file#nvidia-gpu-support)
-
-1. Enable `cuda` feature in `Cargo.toml`
-
-2. Install [`cuda`](https://developer.nvidia.com/cuda-downloads)
-
-3. Add to `tauri.windows.conf.json`
-
-<details>
-
-<summary>tauri.windows.conf.json</summary>
-
-```json
-{
-	"bundle": {
-		"resources": {
-			"ffmpeg\\bin\\x64\\*.dll": "./",
-			"openblas\\bin\\*.dll": "./",
-			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cudart64_*": "./",
-			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublas64_*": "./",
-			"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5\\bin\\cublasLt64_*": "./"
-		}
-	}
-}
-```
-
-</details>
-
-4. Build in `Powershell`
+Or build for production:
 
 ```console
-$env:CUDA_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
-$env:CudaToolkitDir = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.5"
-pnpm exec scripts/pre_build.js --openblas --build
-```
-
-## Build with `AMD` support
-
-AMD support is only available under linux environment
-
-1. Install [`rocm toolkit`](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/)
-
-2. Run `pnpm exec scripts/pre_build.js --amd`
-
-3. Run
-
-```console
-export ROCM_VERSION="your rocm version"
-cd desktop
 pnpm exec tauri build
 ```
 
-## Gotchas
-
-### On Linux cmake not find Vulkan
-
-Then install it from [here](https://vulkan.lunarg.com/sdk/home)
-
-On Windows when run `pre_build` with `--vulkan` you may need to run it with admin rights first time thanks to vulkan recent changes...
-
-On Ubuntu you may need to copy some libraries for `ffmpeg_next` library
+You can also do it all in one step:
 
 ```console
-sudo cp -rf /usr/include/x86_64-linux-gnu/libsw* /usr/include/
-sudo cp -rf /usr/include/x86_64-linux-gnu/libav* /usr/include/
+uv run scripts/pre_build.py --dev   # or --build
 ```
-
-If the CPU failed to execute an instruction, then build with the following environment variable
-
-```console
-WHISPER_NO_AVX = "ON"
-WHISPER_NO_AVX2 = "ON"
-WHISPER_NO_FMA = "ON"
-WHISPER_NO_F16C = "ON"
-```
-
-Rust analyzer failed to run on windows
-
-1. Execute `cargo clean`
-2. Add to `settings.json`:
-
-```json
-"rust-analyzer.cargo.extraEnv": {
-	"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
-	"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-	"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
-}
-```
-
-3. Relaunch `VSCode`
-
-Otherwise you will get error such as `ggml_gallocr_needs_realloc: graph has different number of nodes` and it will transcribe slower.
 
 ## Test
 
-```
+```console
 export RUST_LOG=trace
 cargo test -- --nocapture
-```
-
-## Test core in release mode
-
-```console
-cargo test -p vibe_core --release -- --nocapture
 ```
 
 # Lint
@@ -185,17 +67,13 @@ cargo clippy
 # Create new release
 
 1. Increment version in `tauri.conf.json` and commit
-2. Create new git tag and push
-
-```console
-git tag -a v<version> -m "v<version>" && git push --tags
-```
+2. Run the Release workflow from GitHub Actions (workflow_dispatch)
 
 It will create releases for `Windows`, `Linux`, and `macOS`
 
 Along with `latest.json` file (used for auto updater).
 
-When `Release` action finish, it will run `Deploy landing` action
+When `Release` action finishes, it will run `Deploy landing` action
 
 and update downloads links in landing page.
 
@@ -229,16 +107,6 @@ gh pr checkout <url>
 git push <fork url>
 ```
 
-## Merge dev branch
-
-```console
-gh pr create # Enter defaults
-# After merge reset dev
-git checkout dev
-git reset --hard main
-git push origin dev --force
-```
-
 ## Update packages
 
 ```console
@@ -247,32 +115,9 @@ pnpx ncu -u
 cd src-tauri
 cargo install cargo-edit
 rm -rf ../Cargo.lock
-CARGO_NET_GIT_FETCH_WITH_CLI=true
 CARGO_NET_GIT_FETCH_WITH_CLI=true cargo upgrade
 # OR
 cargo +nightly -Zunstable-options update --breaking
-```
-
-## Debug in release mode in VSCode
-
-```json
-{
-	"rust-analyzer.runnables.extraEnv": {
-		"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
-		"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-		"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin"
-	},
-	"rust-analyzer.runnables.extraArgs": ["--release"]
-}
-```
-
-## Test core
-
-```console
-pnpm exec scripts/pre_build.js
-# Export env
-$env:PATH += ";$pwd\desktop\src-tauri\openblas\bin"
-cargo test --target x86_64-pc-windows-msvc --features "vulkan" -p vibe_core --release -- --nocapture
 ```
 
 ## Clear Github actions cache
