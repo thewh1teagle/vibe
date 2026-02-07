@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use eyre::Result;
 use serde::{Deserialize, Serialize};
 

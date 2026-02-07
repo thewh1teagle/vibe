@@ -180,11 +180,9 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         let mut stderr_output = String::new();
         if let Some(stderr) = child.stderr.take() {
             let reader = BufReader::new(stderr);
-            for line in reader.lines() {
-                if let Ok(line) = line {
-                    stderr_output.push_str(&line);
-                    stderr_output.push('\n');
-                }
+            for line in reader.lines().map_while(|line| line.ok()) {
+                stderr_output.push_str(&line);
+                stderr_output.push('\n');
             }
         }
         eyre::bail!("sona transcribe failed: {}", stderr_output);

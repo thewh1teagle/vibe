@@ -20,6 +20,7 @@ pub struct SonaState {
     pub loaded_model_path: Option<String>,
 }
 
+#[allow(deprecated)]
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Create app directories
     let local_app_data_dir = app.path().app_local_data_dir()?;
