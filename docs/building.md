@@ -133,6 +133,14 @@ gh cache delete -a
 
 ## Windows Code Signing
 
+See [Windows Code Signing](https://gist.github.com/thewh1teagle/06022cf1ec17a62949377a17c1b590bd)
+
+Install Windows SDK:
+
+```console
+winget install -e --id Microsoft.WindowsSDK.10.0.26100
+```
+
 Generate a self-signed certificate (valid 10 years):
 
 ```console
