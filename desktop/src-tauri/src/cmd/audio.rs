@@ -27,6 +27,7 @@ pub struct AudioDevice {
 }
 
 #[tauri::command]
+#[allow(deprecated)]
 pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     let host = cpal::default_host();
     let mut audio_devices = Vec::new();

@@ -182,6 +182,7 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
     Ok(())
 }
 
+#[allow(dead_code)]
 #[derive(Deserialize, Serialize, Clone)]
 pub struct FfmpegOptions {
     pub normalize_loudness: bool,

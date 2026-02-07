@@ -35,6 +35,7 @@ fn main() -> Result<()> {
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
 
+    #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())

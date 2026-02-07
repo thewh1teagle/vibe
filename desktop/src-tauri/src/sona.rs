@@ -22,6 +22,7 @@ struct ReadySignal {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
+#[allow(dead_code)]
 pub enum SonaEvent {
     Progress { progress: i32 },
     Segment { start: f64, end: f64, text: String },
