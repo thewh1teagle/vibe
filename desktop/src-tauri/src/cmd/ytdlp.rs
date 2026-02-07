@@ -1,3 +1,4 @@
+use crate::audio_utils::get_vibe_temp_folder;
 use eyre::{bail, Context, ContextCompat, Result};
 use serde_json::Value;
 use std::{
@@ -5,7 +6,6 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
 };
 use tauri::{AppHandle, Emitter, Listener, Manager};
-use crate::audio_utils::get_vibe_temp_folder;
 
 use crate::utils::LogError;
 

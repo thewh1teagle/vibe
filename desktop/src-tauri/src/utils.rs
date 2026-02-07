@@ -13,11 +13,7 @@ pub fn get_local_time() -> String {
 }
 
 pub fn random_string(length: usize) -> String {
-    rand::rng()
-        .sample_iter(&Alphanumeric)
-        .take(length)
-        .map(char::from)
-        .collect()
+    rand::rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
 }
 
 pub fn get_current_dir() -> Result<PathBuf> {

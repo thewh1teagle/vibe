@@ -45,8 +45,7 @@ impl SonaProcess {
         let mut line = String::new();
         reader.read_line(&mut line).context("failed to read sona ready signal")?;
 
-        let signal: ReadySignal =
-            serde_json::from_str(line.trim()).context("failed to parse sona ready signal")?;
+        let signal: ReadySignal = serde_json::from_str(line.trim()).context("failed to parse sona ready signal")?;
 
         tracing::debug!("sona ready on port {}", signal.port);
 
@@ -97,9 +96,7 @@ impl SonaProcess {
     ) -> Result<impl futures_util::Stream<Item = Result<SonaEvent>>> {
         let url = format!("{}/v1/audio/transcriptions", self.base_url());
 
-        let file_bytes = tokio::fs::read(file_path)
-            .await
-            .context("failed to read audio file")?;
+        let file_bytes = tokio::fs::read(file_path).await.context("failed to read audio file")?;
 
         let file_name = Path::new(file_path)
             .file_name()
@@ -111,9 +108,7 @@ impl SonaProcess {
             .file_name(file_name)
             .mime_str("application/octet-stream")?;
 
-        let mut form = multipart::Form::new()
-            .part("file", file_part)
-            .text("stream", "true");
+        let mut form = multipart::Form::new().part("file", file_part).text("stream", "true");
 
         if let Some(lang) = language {
             if !lang.is_empty() {
