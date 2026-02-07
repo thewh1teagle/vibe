@@ -61,6 +61,7 @@ jobs:
 
             - name: Sign Windows artifacts
               if: matrix.platform == 'windows-latest'
+              continue-on-error: true
               env:
                 WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
                 WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
