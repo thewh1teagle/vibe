@@ -85,8 +85,10 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
     let mut stream_writers = Vec::new();
 
     // For macOS screen capture
+    #[cfg(target_os = "macos")]
     let mut screencapture_wav_writer: Arc<Mutex<Option<hound::WavWriter<std::io::BufWriter<std::fs::File>>>>> =
         Arc::new(Mutex::new(None));
+    #[cfg(target_os = "macos")]
     let mut screencapture_wav_path: PathBuf = PathBuf::new();
 
     #[cfg(target_os = "macos")]
