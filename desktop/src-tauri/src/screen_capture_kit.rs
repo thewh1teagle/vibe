@@ -1,3 +1,4 @@
+use crate::audio_utils::{find_ffmpeg_path, get_vibe_temp_folder};
 use core_graphics_helmer_fork::access::ScreenCaptureAccess;
 use eyre::{bail, eyre, Context, ContextCompat, Result};
 use objc_id::Id;
@@ -13,7 +14,6 @@ use std::ops::Deref;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
-use crate::audio_utils::{find_ffmpeg_path, get_vibe_temp_folder};
 
 use crate::utils::LogError;
 

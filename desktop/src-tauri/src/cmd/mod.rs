@@ -113,7 +113,8 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: Str
         }
         let chunk = item.context("Error while downloading file")?;
         use std::io::Write;
-        file.write_all(&chunk).context(format!("Error while writing to file {}", path))?;
+        file.write_all(&chunk)
+            .context(format!("Error while writing to file {}", path))?;
         downloaded += chunk.len() as u64;
         if total_size > 0 && downloaded > callback_offset + callback_limit {
             let percentage = (downloaded as f64 / total_size as f64) * 100.0;
@@ -166,7 +167,8 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
         }
         let chunk = item.context("Error while downloading file")?;
         use std::io::Write;
-        file.write_all(&chunk).context(format!("Error while writing to file {}", path))?;
+        file.write_all(&chunk)
+            .context(format!("Error while writing to file {}", path))?;
         downloaded += chunk.len() as u64;
         if total_size > 0 && downloaded > callback_offset + callback_limit {
             let percentage = (downloaded as f64 / total_size as f64) * 100.0;
@@ -304,9 +306,7 @@ pub async fn transcribe(
     let translate = options.translate.unwrap_or(false);
     let prompt = options.init_prompt.as_deref();
 
-    let stream = sona
-        .transcribe_stream(&options.path, language, translate, prompt)
-        .await?;
+    let stream = sona.transcribe_stream(&options.path, language, translate, prompt).await?;
 
     tokio::pin!(stream);
 
@@ -329,9 +329,7 @@ pub async fn transcribe(
                         stop: (end * 100.0) as i64,
                         text,
                     };
-                    app_handle
-                        .emit_to("main", "new_segment", segment.clone())
-                        .log_error();
+                    app_handle.emit_to("main", "new_segment", segment.clone()).log_error();
                     segments.push(segment);
                 }
                 SonaEvent::Result { .. } => {
@@ -418,10 +416,7 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub async fn load_model(
-    app_handle: tauri::AppHandle,
-    model_path: String,
-) -> Result<String> {
+pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Result<String> {
     let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
     let mut state_guard = sona_state.lock().await;
 
@@ -507,7 +502,10 @@ pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
 
 #[tauri::command]
 pub fn is_crashed_recently() -> bool {
-    tracing::debug!("checking path {}", audio_utils::get_vibe_temp_folder().join("crash.txt").display());
+    tracing::debug!(
+        "checking path {}",
+        audio_utils::get_vibe_temp_folder().join("crash.txt").display()
+    );
     audio_utils::get_vibe_temp_folder().join("crash.txt").exists()
 }
 

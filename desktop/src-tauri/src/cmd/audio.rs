@@ -1,3 +1,4 @@
+use crate::audio_utils::get_vibe_temp_folder;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{FromSample, Sample, Stream};
 use eyre::{bail, eyre, Context, ContextCompat, Result};
@@ -8,7 +9,6 @@ use std::io::BufWriter;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Listener, Manager};
-use crate::audio_utils::get_vibe_temp_folder;
 
 #[cfg(target_os = "macos")]
 use crate::screen_capture_kit;

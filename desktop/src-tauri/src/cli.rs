@@ -200,10 +200,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     let elapsed = start.elapsed();
 
     app_handle.cleanup_before_exit();
-    eprintln!(
-        "Transcription completed in {:.1}s",
-        elapsed.as_secs_f64()
-    );
+    eprintln!("Transcription completed in {:.1}s", elapsed.as_secs_f64());
     eprintln!("Done");
     process::exit(0);
 }
