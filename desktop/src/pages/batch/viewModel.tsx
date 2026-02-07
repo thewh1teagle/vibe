@@ -17,7 +17,7 @@ import { Claude, Ollama, Llm } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { path } from '@tauri-apps/api'
 import { toDocx } from '~/lib/docx'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 
 export function viewModel() {
 	const { files, setFiles } = useFilesContext()
@@ -141,7 +141,7 @@ export function viewModel() {
 		startKeepAwake()
 
 		let localIndex = 0
-		await invoke('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice, useGpu: preference.useGpu })
+		await invoke('load_model', { modelPath: preference.modelPath })
 		setCurrentIndex(localIndex)
 		const loopStartTime = performance.now()
 		for (const file of files) {
@@ -173,12 +173,8 @@ export function viewModel() {
 					continue
 				}
 
-				const diarizeOptions = { threshold: preference.diarizeThreshold, max_speakers: preference.maxSpeakers, enabled: preference.recognizeSpeakers }
 				const res: Transcript = await invoke('transcribe', {
 					options,
-					modelPath: preference.modelPath,
-					diarizeOptions,
-					ffmpegOptions: preference.ffmpegOptions,
 				})
 
 				// Calculate time

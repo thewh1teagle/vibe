@@ -4,7 +4,7 @@ import * as webview from '@tauri-apps/api/webview'
 import * as os from '@tauri-apps/plugin-os'
 import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DocumentIcon } from '~/icons/document.svg'
-import { cx, formatLongString, validPath } from '~/lib/utils'
+import { cn, formatLongString, validPath } from '~/lib/utils'
 
 interface Position {
 	x: number
@@ -14,7 +14,7 @@ interface Position {
 function Document({ position, path }: { position: Position; path: string }) {
 	return (
 		<div
-			className="absolute z-[100000] bg-base-300 p-4 -translate-x-[50%] -translate-y-[50%] rounded-2xl flex flex-col items-center justify-center gap-4"
+			className="absolute z-[100000] bg-accent p-4 -translate-x-[50%] -translate-y-[50%] rounded-2xl flex flex-col items-center justify-center gap-4"
 			style={{ left: position.x, top: position.y, cursor: 'grabbing' }}>
 			<DocumentIcon />
 			<p className="text-md font-light font-mono">{formatLongString(path, 10)}</p>
@@ -30,38 +30,32 @@ export default function DropModal() {
 	const [platform, setPlatofrm] = useState<os.Platform>('macos')
 
 	async function handleDrops() {
-		// Add blur
 		listeners.current.push(
 			await event.listen('tauri://drag-enter', () => {
 				setOpen(true)
 			})
 		)
 
-		// Remove blur
 		listeners.current.push(
 			await event.listen('tauri://drag-leave', (_event) => {
 				setOpen(false)
 			})
 		)
 
-		// Update positions
 		listeners.current.push(
 			await event.listen<{ position: Position }>('tauri://drag-over', (event) => {
 				setPosition(event.payload.position)
 			})
 		)
 
-		// Get dropped path
 		listeners.current.push(
 			await event.listen<{ paths?: string[] }>('tauri://drag-drop', async (event) => {
-				// const paths = ((event.payload as any)?.paths as string[]) ?? []
 				const { paths } = event.payload
 				if (paths && paths.length > 0) {
 					const newPath = await basename(paths[0])
 					if (validPath(newPath)) {
 						setPath(newPath)
 						setOpen(true)
-						// Focus window
 						const currentWindow = webview.getCurrentWebview().window
 						currentWindow.setFocus()
 					}
@@ -82,7 +76,7 @@ export default function DropModal() {
 	return (
 		<div>
 			{open && platform === 'windows' && <Document path={path} position={position} />}
-			<div className={cx('modal backdrop-blur-sm bg-base-100', open && 'modal-open')}></div>
+			<div className={cn('fixed inset-0 backdrop-blur-sm bg-background/60 z-50', open ? 'block' : 'hidden')}></div>
 		</div>
 	)
 }

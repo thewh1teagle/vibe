@@ -6,7 +6,7 @@ on:
             - main
         paths:
             - "landing/**"
-            - "scripts/landing_links.js"
+            - "scripts/landing_links.py"
     workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
@@ -28,15 +28,27 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
-            - name: setup Bun
-              uses: oven-sh/setup-bun@v1
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: landing/package.json
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: landing/pnpm-lock.yaml
+
+            - name: setup uv
+              uses: astral-sh/setup-uv@v5
 
             - name: Build
               run: |
-                bun install
-                bun run ../scripts/landing_links.js
+                pnpm install
+                uv run ../scripts/landing_links.py
                 cp -rf ../docs static/
-                bun run build
+                pnpm build
               working-directory: landing
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -45,7 +57,7 @@ jobs:
               uses: actions/configure-pages@v5
               with:
                   static_site_generator: sveltekit
-                  working-directory: landing
+                  working-directory: ./landing
 
             - name: Upload Artifacts
               uses: actions/upload-pages-artifact@v3

@@ -8,7 +8,7 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { open } from '@tauri-apps/plugin-shell'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { toast as hotToast } from 'react-hot-toast'
+import { toast as hotToast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'usehooks-ts'
@@ -62,6 +62,8 @@ export function viewModel() {
 	const [downloadingAudio, setDownloadingAudio] = useState(false)
 	const [ytdlpProgress, setYtDlpProgress] = useState<number | null>(null)
 	const cancelYtDlpRef = useRef<boolean>(false)
+	const switchingToLinkRef = useRef(false)
+	const skippedYtDlpUpdatePromptRef = useRef(false)
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -75,7 +77,6 @@ export function viewModel() {
 	async function checkIfCrashedRecently() {
 		const isCrashed = await invoke<boolean>('is_crashed_recently')
 		if (isCrashed) {
-			preference.setUseGpu(false)
 			dialog.message(t('common.crashed-recently'))
 			await invoke('rename_crash_file')
 		}
@@ -125,44 +126,75 @@ export function viewModel() {
 	}
 
 	async function switchToLinkTab() {
-		const isUpToDate = config.ytDlpVersion === preference.ytDlpVersion
-		const exists = await ytDlp.exists()
-		if (!exists || (!isUpToDate && preference.shouldCheckYtDlpVersion)) {
-			let shouldInstallOrUpdate = false
-			if (!isUpToDate) {
-				shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
-					title: t('common.ask-for-update-ytdlp-title'),
-					kind: 'info',
-					cancelLabel: t('common.later'),
-					okLabel: t('common.update-now'),
-				})
-			} else {
-				shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
-					title: t('common.ask-for-install-ytdlp-title'),
-					kind: 'info',
-					cancelLabel: t('common.cancel'),
-					okLabel: t('common.install-now'),
-				})
+		if (switchingToLinkRef.current) return
+		switchingToLinkRef.current = true
+
+		try {
+			const binaryExists = await ytDlp.exists()
+			let latestVersion: string | null = null
+
+			try {
+				latestVersion = await ytDlp.getLatestVersion()
+			} catch (e) {
+				console.error('Failed to fetch latest yt-dlp version', e)
+				if (binaryExists) {
+					preference.setHomeTabIndex(2)
+					return
+				}
 			}
 
-			if (shouldInstallOrUpdate) {
-				try {
-					toast.setMessage(t('common.downloading-ytdlp'))
-					toast.setProgress(0)
-					toast.setOpen(true)
-					await ytDlp.downloadYtDlp()
-					preference.setYtDlpVersion(config.ytDlpVersion)
-					toast.setOpen(false)
-					preference.setHomeTabIndex(2)
-				} catch (e) {
-					console.error(e)
-					setErrorModal?.({ log: String(e), open: true })
+			const needsInstall = !binaryExists
+			const needsUpdate = !needsInstall && preference.shouldCheckYtDlpVersion && latestVersion !== null && latestVersion !== preference.ytDlpVersion
+
+			if (needsUpdate && skippedYtDlpUpdatePromptRef.current) {
+				preference.setHomeTabIndex(2)
+				return
+			}
+
+			if (needsInstall || needsUpdate) {
+				let shouldInstallOrUpdate = false
+				if (needsUpdate) {
+					shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-update-ytdlp-message'), {
+						title: t('common.ask-for-update-ytdlp-title'),
+						kind: 'info',
+						cancelLabel: t('common.later'),
+						okLabel: t('common.update-now'),
+					})
+				} else {
+					shouldInstallOrUpdate = await dialog.ask(t('common.ask-for-install-ytdlp-message'), {
+						title: t('common.ask-for-install-ytdlp-title'),
+						kind: 'info',
+						cancelLabel: t('common.cancel'),
+						okLabel: t('common.install-now'),
+					})
 				}
-			} else if (exists) {
+
+				if (shouldInstallOrUpdate) {
+					try {
+						const versionToDownload = latestVersion ?? preference.ytDlpVersion ?? '2026.02.04'
+						toast.setMessage(t('common.downloading-ytdlp'))
+						toast.setProgress(0)
+						toast.setOpen(true)
+						await ytDlp.downloadYtDlp(versionToDownload)
+						preference.setYtDlpVersion(versionToDownload)
+						skippedYtDlpUpdatePromptRef.current = false
+						toast.setOpen(false)
+						preference.setHomeTabIndex(2)
+					} catch (e) {
+						console.error(e)
+						setErrorModal?.({ log: String(e), open: true })
+					}
+				} else if (binaryExists) {
+					if (needsUpdate) {
+						skippedYtDlpUpdatePromptRef.current = true
+					}
+					preference.setHomeTabIndex(2)
+				}
+			} else {
 				preference.setHomeTabIndex(2)
 			}
-		} else {
-			preference.setHomeTabIndex(2)
+		} finally {
+			switchingToLinkRef.current = false
 		}
 	}
 
@@ -269,21 +301,6 @@ export function viewModel() {
 		})
 	}
 
-	async function checkVulkanOk() {
-		try {
-			await invoke('check_vulkan')
-		} catch (error) {
-			console.error(error)
-			await dialog.message(
-				`Your GPU is unsupported in this version of Vibe. Please download vibe_2.4.0_x64-setup.exe. Click OK to open the download page.`,
-				{
-					kind: 'error',
-				}
-			)
-			open(config.latestVersionWithoutVulkan)
-		}
-	}
-
 	async function CheckCpuAndInit() {
 		const features = await getX86Features()
 		if (features) {
@@ -313,7 +330,6 @@ export function viewModel() {
 	}
 
 	useEffect(() => {
-		checkVulkanOk()
 		CheckCpuAndInit()
 	}, [])
 
@@ -351,18 +367,14 @@ export function viewModel() {
 		var newSegments: transcript.Segment[] = []
 		try {
 			const modelPath = preferenceRef.current.modelPath
-			await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice, useGpu: preferenceRef.current.useGpu })
+			await invoke('load_model', { modelPath })
 			const options = {
 				path,
 				...preferenceRef.current.modelOptions,
 			}
 			const startTime = performance.now()
-			const diarizeOptions = { threshold: preferenceRef.current.diarizeThreshold, max_speakers: preferenceRef.current.maxSpeakers, enabled: preferenceRef.current.recognizeSpeakers }
 			const res: transcript.Transcript = await invoke('transcribe', {
 				options,
-				modelPath,
-				diarizeOptions,
-				ffmpegOptions: preferenceRef.current.ffmpegOptions,
 			})
 
 			// Calcualte time
@@ -408,8 +420,7 @@ export function viewModel() {
 							return String(error)
 						},
 						success: t('common.summarize-success'),
-					},
-					{ position: 'bottom-center' }
+					}
 				)
 				const answer = await answerPromise
 				if (answer) {

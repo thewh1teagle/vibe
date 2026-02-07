@@ -1,5 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from '~/components/ui/button'
+import { Label } from '~/components/ui/label'
 
 export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json' | 'docx'
 export type FormatExtensions = {
@@ -23,32 +25,28 @@ export default function FormatMultiSelect({ formats, setFormats }: FormatMultiSe
 	const { t } = useTranslation()
 
 	const handleFormatButtonClick = (formatOption: TextFormat) => {
-		// Check if the format is already selected
 		if (formats.includes(formatOption)) {
-			// If it's selected, remove it
 			setFormats(formats.filter((format) => format !== formatOption))
 		} else {
-			// If it's not selected, add it to the array
 			setFormats([...formats, formatOption])
 		}
 	}
 
 	return (
-		<label className="form-control w-full">
-			<div className="label">
-				<span className="label-text">{t('common.formats')}</span>
-			</div>
-
+		<div className="space-y-2 w-full">
+			<Label>{t('common.formats')}</Label>
 			<div className="flex flex-wrap gap-2 justify-center">
 				{['normal', 'srt', 'docx', 'vtt', 'json'].map((formatOption) => (
-					<button
+					<Button
+						type="button"
 						key={formatOption}
-						className={`btn btn-xs ${formats.includes(formatOption as TextFormat) ? 'btn-primary' : ''}`}
+						size="sm"
+						variant={formats.includes(formatOption as TextFormat) ? 'default' : 'outline'}
 						onClick={() => handleFormatButtonClick(formatOption as TextFormat)}>
 						{formatOption}
-					</button>
+					</Button>
 				))}
 			</div>
-		</label>
+		</div>
 	)
 }

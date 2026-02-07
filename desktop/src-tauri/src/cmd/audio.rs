@@ -1,3 +1,4 @@
+use crate::audio_utils::get_vibe_temp_folder;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{FromSample, Sample, Stream};
 use eyre::{bail, eyre, Context, ContextCompat, Result};
@@ -8,7 +9,6 @@ use std::io::BufWriter;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Listener, Manager};
-use vibe_core::get_vibe_temp_folder;
 
 #[cfg(target_os = "macos")]
 use crate::screen_capture_kit;
@@ -27,6 +27,7 @@ pub struct AudioDevice {
 }
 
 #[tauri::command]
+#[allow(deprecated)]
 pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     let host = cpal::default_host();
     let mut audio_devices = Vec::new();
@@ -230,7 +231,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
             tracing::debug!("Merging WAV files");
-            vibe_core::audio::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+            crate::audio_utils::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
             dst
         } else if wav_paths[0].1 > wav_paths[1].1 {
             // First WAV file has a larger sample count, choose it
@@ -243,7 +244,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
 
         tracing::debug!("Emitting record_finish event");
         let mut normalized = get_vibe_temp_folder().join(format!("{}.wav", get_local_time()));
-        vibe_core::audio::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
+        crate::audio_utils::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
 
         if store_in_documents {
             if let Some(file_name) = normalized.file_name() {
@@ -287,7 +288,7 @@ fn sample_format(format: cpal::SampleFormat) -> hound::SampleFormat {
 fn wav_spec_from_config(config: &cpal::SupportedStreamConfig) -> hound::WavSpec {
     hound::WavSpec {
         channels: config.channels() as _,
-        sample_rate: config.sample_rate().0 as _,
+        sample_rate: config.sample_rate() as _,
         bits_per_sample: (config.sample_format().sample_size() * 8) as _,
         sample_format: sample_format(config.sample_format()),
     }

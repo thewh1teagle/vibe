@@ -1,7 +1,7 @@
 use crate::{
     cli::{self, is_cli_detected},
     config::STORE_FILENAME,
-    panic_hook,
+    sona::SonaProcess,
     utils::{get_issue_url, LogError},
 };
 use eyre::eyre;
@@ -12,21 +12,16 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_shell::ShellExt;
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
-use vibe_core::transcribe::WhisperContext;
 
 pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
 
-pub struct ModelContext {
-    pub path: String,
-    pub gpu_device: Option<i32>,
-    pub use_gpu: Option<bool>,
-    pub handle: WhisperContext,
+pub struct SonaState {
+    pub process: Option<SonaProcess>,
+    pub loaded_model_path: Option<String>,
 }
 
+#[allow(deprecated)]
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
-    // Add panic hook
-    panic_hook::set_panic_hook(app.app_handle())?;
-
     // Create app directories
     let local_app_data_dir = app.path().app_local_data_dir()?;
     let app_config_dir = app.path().app_config_dir()?;
@@ -35,8 +30,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     fs::create_dir_all(&app_config_dir)
         .unwrap_or_else(|_| panic!("cant create app config directory at {}", app_config_dir.display()));
 
-    // Manage model context
-    app.manage(Mutex::new(None::<ModelContext>));
+    // Manage sona state
+    app.manage(Mutex::new(SonaState {
+        process: None,
+        loaded_model_path: None,
+    }));
 
     let store = app.store(STORE_FILENAME)?;
 
@@ -97,8 +95,6 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    tracing::debug!("Cargo features: {}", crate::cmd::get_cargo_features().join(", "));
-
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
     tracing::debug!(
         "CPU Features\n{}",
@@ -132,7 +128,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .resizable(true)
             .focused(true)
             .shadow(true)
-            .visible(true) // TODO: hide it again? it shows flicker white on boot. but if we hide it won't show errors
+            .visible(true)
             .build();
         if let Err(error) = result {
             tracing::error!("{:?}", error);

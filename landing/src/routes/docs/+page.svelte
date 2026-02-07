@@ -32,10 +32,10 @@
 	<h1 class="text-4xl font-bold mb-6">Vibe Documentation</h1>
 
 	<!-- Navigation -->
-	<div class="tabs tabs-boxed mb-8">
+	<div class="mb-8 flex flex-wrap justify-center gap-2 rounded-xl border border-border bg-card/60 p-2">
 		{#each docs as doc}
 			<button
-				class="tab {url === doc.url ? 'tab-active' : ''}"
+				class={`v-btn v-btn-sm ${url === doc.url ? 'v-btn-primary' : 'v-btn-ghost'}`}
 				on:click={() => {
 					url = doc.url
 					window.location.hash = doc.name.toLowerCase() // Update hash
@@ -50,9 +50,3 @@
 		<DocViewer {url} />
 	</div>
 </div>
-
-<style>
-	.tabs {
-		justify-content: center;
-	}
-</style>

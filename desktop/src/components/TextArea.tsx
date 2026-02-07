@@ -7,15 +7,19 @@ import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
 import { ReactComponent as PrintIcon } from '~/icons/print.svg'
 import { Segment, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
-import { ModifyState, NamedPath, cx, openPath } from '~/lib/utils'
+import { ModifyState, NamedPath, cn, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferenceProvider } from '~/providers/Preference'
 import HTMLView from './HtmlView'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import { invoke } from '@tauri-apps/api/core'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { toDocx } from '~/lib/docx'
 import { path } from '@tauri-apps/api'
+import { Button } from '~/components/ui/button'
+import { Textarea as UITextarea } from '~/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
+import { NativeSelect } from '~/components/ui/native-select'
 
 function Copy({ text }: { text: string }) {
 	const { t } = useTranslation()
@@ -26,12 +30,16 @@ function Copy({ text }: { text: string }) {
 		setInfo(t('common.copied'))
 		setTimeout(() => setInfo(t('common.copy')), 1000)
 	}
+
 	return (
-		<div className="tooltip tooltip-bottom" data-tip={info}>
-			<button className="btn btn-square btn-md" onMouseDown={onCopy}>
-				<CopyIcon className="h-6 w-6" />
-			</button>
-		</div>
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button variant="ghost" size="icon" onMouseDown={onCopy}>
+					<CopyIcon className="h-6 w-6" />
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent>{info}</TooltipContent>
+		</Tooltip>
 	)
 }
 
@@ -50,11 +58,9 @@ function ReplaceWithBox({
 	x: number
 	y: number
 	dir: 'ltr' | 'rtl'
-
 	onClickOutside: () => void
 }) {
 	const boxRef = useRef<HTMLDivElement>(null)
-	const textAreaRef = useRef<HTMLTextAreaElement>(null)
 	const { t } = useTranslation()
 	const [value, setValue] = useState('')
 
@@ -63,61 +69,22 @@ function ReplaceWithBox({
 			if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
 				onClickOutside()
 			}
-			event.stopPropagation()
 		}
 		document.addEventListener('mousedown', handleClickOutside)
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside)
-		}
+		return () => document.removeEventListener('mousedown', handleClickOutside)
 	}, [onClickOutside])
-
-	useEffect(() => {
-		// textAreaRef.current?.focus()
-	}, [])
 
 	function replace() {
 		setSegments(segments!.map((s) => ({ ...s, text: s.text.replace(selected, value) })))
 		onClickOutside()
 	}
 
-	const safeX = Math.max(x, 50) // Ensure mouseX is at least 200 pixels
-
 	return (
-		<div ref={boxRef} style={{ left: x, top: y }} className="absolute z-10 bg-transparent flex flex-col">
-			<details className="dropdown">
-				<summary className="cursor-pointer p-0.5 bg-primary rounded-full m-1">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						strokeWidth={1.5}
-						stroke="currentColor"
-						className="h-4 w-4 rounded-3xl">
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-						/>
-					</svg>
-				</summary>
-				<ul
-					style={{ left: safeX > x ? 50 : 0 }}
-					className={cx('menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow', safeX > x && 'absolute')}>
-					<textarea
-						ref={textAreaRef}
-						value={value}
-						onChange={(e) => setValue(e.target.value)}
-						dir={dir}
-						className="textarea textarea-bordered resize-none"
-						name=""
-						id=""
-						placeholder={`${t('common.replace-all')}... (${selected})`}
-					/>
-					<button onClick={replace} className="btn btn-primary btn-xs">
-						{t('common.replace-all')}
-					</button>
-				</ul>
-			</details>
+		<div ref={boxRef} style={{ left: Math.max(x, 50), top: y }} className="absolute z-10 w-64 rounded-md border bg-popover p-2 shadow-md">
+			<UITextarea value={value} onChange={(e) => setValue(e.target.value)} dir={dir} className="resize-none" placeholder={`${t('common.replace-all')}... (${selected})`} />
+			<Button onClick={replace} size="sm" className="mt-2 w-full">
+				{t('common.replace-all')}
+			</Button>
 		</div>
 	)
 }
@@ -149,75 +116,51 @@ export default function TextArea({
 		if (segments) {
 			setText(
 				preference.textFormat === 'vtt'
-					? asVtt(segments, t('common.speaker-prefix'))
+					? asVtt(segments)
 					: preference.textFormat === 'srt'
-					? asSrt(segments, t('common.speaker-prefix'))
+					? asSrt(segments)
 					: preference.textFormat === 'json'
 					? asJson(segments)
-					: asText(segments, t('common.speaker-prefix'))
+					: asText(segments)
 			)
 		} else {
 			setText('')
 		}
 	}, [preference.textFormat, segments])
 
-	async function download(text: string, format: TextFormat, file: NamedPath) {
+	async function download(textToSave: string, format: TextFormat, srcFile: NamedPath) {
 		if (format === 'html') {
-			text = document.querySelector('.html')!.outerHTML.replace(`contenteditable="true"`, `contenteditable="false"`)
+			textToSave = document.querySelector('.html')!.outerHTML.replace('contenteditable="true"', 'contenteditable="false"')
 		}
-		if (format == 'pdf') {
+		if (format === 'pdf') {
 			window.print()
 			return
 		}
 
 		const ext = formatExtensions[format].slice(1)
-		const defaultPath = await invoke<NamedPath>('get_save_path', { srcPath: file.path, targetExt: ext })
+		const defaultPath = await invoke<NamedPath>('get_save_path', { srcPath: srcFile.path, targetExt: ext })
 		const filePath = await dialog.save({
-			filters: [
-				{
-					name: ``,
-					extensions: [ext],
-				},
-			],
+			filters: [{ name: '', extensions: [ext] }],
 			canCreateDirectories: true,
 			defaultPath: defaultPath.path,
 		})
 
-		if (filePath) {
-			if (format === 'docx') {
-				const fileName = await path.basename(filePath)
-				const doc = await toDocx(fileName, segments!, preference.textAreaDirection)
-				const arrayBuffer = await doc.arrayBuffer()
-				const buffer = new Uint8Array(arrayBuffer)
-				fs.writeFile(filePath, buffer)
-			} else {
-				fs.writeTextFile(filePath, text)
-			}
+		if (!filePath) return
 
-			toast(
-				(mytoast) => (
-					<span>
-						{`${t('common.save-success')}`}
-						<button
-							onClick={() => {
-								toast.dismiss(mytoast.id)
-								openPath({ name: '', path: filePath ?? '' })
-							}}>
-							<div className="link link-primary ms-5">{defaultPath?.name}</div>
-						</button>
-					</span>
-				),
-				{
-					duration: 5000,
-					position: 'bottom-center',
-					// icon: '✅',
-					iconTheme: {
-						primary: '#000',
-						secondary: '#fff',
-					},
-				}
-			)
+		if (format === 'docx') {
+			const fileName = await path.basename(filePath)
+			const doc = await toDocx(fileName, segments!, preference.textAreaDirection)
+			const arrayBuffer = await doc.arrayBuffer()
+			await fs.writeFile(filePath, new Uint8Array(arrayBuffer))
+		} else {
+			await fs.writeTextFile(filePath, textToSave)
 		}
+
+		toast.success(t('common.save-success'), {
+			description: defaultPath?.name,
+			position: 'bottom-center',
+			action: { label: t('common.open'), onClick: () => openPath({ name: '', path: filePath }) },
+		})
 	}
 
 	useEffect(() => {
@@ -225,34 +168,13 @@ export default function TextArea({
 	}, [replaceBoxVisible])
 
 	function onMouseUp(event: MouseEvent) {
-		if (!segmentsInFocusRef.current) {
-			return
-		}
-		if (replaceBoxVisibleRef.current) {
-			return
-		}
+		if (!segmentsInFocusRef.current || replaceBoxVisibleRef.current) return
+		const selection = window.getSelection()?.toString()
+		if (!selection) return
 
-		const text = window.getSelection()?.toString()
-		if (!text) {
-			return
-		}
-
-		setSelectedText(text)
-
-		const mouseX = event.pageX
-		const mouseY = event.pageY
-
-		const segmentsTextArea = segmentsTextAreaRef.current
-		if (!segmentsTextArea) {
-			return
-		}
-
-		const newPos = { x: mouseX - 10, y: mouseY - 40 }
-		setReplaceBoxPos(newPos)
-
-		if (text.length < 100) {
-			setReplaceBoxVisible(true)
-		}
+		setSelectedText(selection)
+		setReplaceBoxPos({ x: event.pageX - 10, y: event.pageY - 40 })
+		if (selection.length < 100) setReplaceBoxVisible(true)
 	}
 
 	useEffect(() => {
@@ -276,36 +198,46 @@ export default function TextArea({
 					dir={preference.textAreaDirection}
 				/>
 			)}
-			<div className=" w-full bg-base-200 rounded-tl-lg rounded-tr-lg flex flex-row items-center">
+
+			<div className="w-full bg-muted rounded-tl-lg rounded-tr-lg flex flex-row items-center gap-1 px-1">
 				<Copy text={text} />
-				<div className="tooltip tooltip-bottom" data-tip={t('common.save-transcript')}>
-					<button onMouseDown={() => download(text, preference.textFormat, file)} className="btn btn-square btn-md">
-						<DownloadIcon className="h-6 w-6" />
-					</button>
-				</div>
+
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button variant="ghost" size="icon" onMouseDown={() => download(text, preference.textFormat, file)}>
+							<DownloadIcon className="h-6 w-6" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>{t('common.save-transcript')}</TooltipContent>
+				</Tooltip>
+
 				{['html', 'pdf'].includes(preference.textFormat) && (
-					<div className="tooltip tooltip-bottom" data-tip={t('common.print-tooltip')}>
-						<div onMouseDown={() => window.print()} className={cx('h-full p-2 rounded-lg cursor-pointer')}>
-							<PrintIcon className="w-6 h-6" />
-						</div>
-					</div>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button variant="ghost" size="icon" onMouseDown={() => window.print()}>
+								<PrintIcon className="w-6 h-6" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>{t('common.print-tooltip')}</TooltipContent>
+					</Tooltip>
 				)}
 
-				<div className="tooltip tooltip-bottom" data-tip={t('common.right-alignment')}>
-					<div
-						onMouseDown={() => preference.setTextAreaDirection(preference.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}
-						className={cx('h-full p-2 rounded-lg cursor-pointer', preference.textAreaDirection == 'rtl' && 'bg-base-100')}>
-						<AlignRightIcon className="w-6 h-6" />
-					</div>
-				</div>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							variant={preference.textAreaDirection === 'rtl' ? 'secondary' : 'ghost'}
+							size="icon"
+							onMouseDown={() => preference.setTextAreaDirection(preference.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}>
+							<AlignRightIcon className="w-6 h-6" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>{t('common.right-alignment')}</TooltipContent>
+				</Tooltip>
 
-				<div className="tooltip tooltip-bottom ms-auto me-1" data-tip={t('common.format')}>
-					<select
+				<div className="ms-auto me-1">
+					<NativeSelect
 						value={preference.textFormat}
-						onChange={(event) => {
-							preference.setTextFormat(event.target.value as unknown as TextFormat)
-						}}
-						className="select select-bordered">
+						onChange={(event) => preference.setTextFormat(event.target.value as TextFormat)}>
 						<option value="normal">{t('common.mode-text')}</option>
 						<option value="html">html</option>
 						<option value="pdf">pdf</option>
@@ -313,13 +245,14 @@ export default function TextArea({
 						<option value="srt">srt</option>
 						<option value="vtt">vtt</option>
 						<option value="json">json</option>
-					</select>
+					</NativeSelect>
 				</div>
 			</div>
+
 			{['html', 'pdf', 'docx'].includes(preference.textFormat) ? (
 				<HTMLView preference={preference} segments={segments ?? []} file={file} />
 			) : (
-				<textarea
+				<UITextarea
 					onFocus={() => (segmentsInFocusRef.current = true)}
 					onBlur={() => (segmentsInFocusRef.current = false)}
 					ref={segmentsTextAreaRef}
@@ -330,7 +263,7 @@ export default function TextArea({
 					onChange={(e) => setText(e.target.value)}
 					value={text}
 					dir={preference.textAreaDirection}
-					className="textarea textarea-bordered w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none"
+					className={cn('w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none')}
 				/>
 			)}
 		</div>

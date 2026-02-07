@@ -1,6 +1,6 @@
 use chrono::Local;
 use eyre::{Context, ContextCompat, Result};
-use rand::distributions::Alphanumeric;
+use rand::distr::Alphanumeric;
 use rand::Rng;
 use std::env;
 use std::path::PathBuf;
@@ -13,11 +13,7 @@ pub fn get_local_time() -> String {
 }
 
 pub fn random_string(length: usize) -> String {
-    rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(length)
-        .map(char::from)
-        .collect()
+    rand::rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
 }
 
 pub fn get_current_dir() -> Result<PathBuf> {
@@ -69,7 +65,7 @@ pub trait LogError<T> {
     fn log_error(self) -> Option<T>;
 }
 
-impl<T> LogError<T> for Result<T> {
+impl<T, E: std::fmt::Debug> LogError<T> for std::result::Result<T, E> {
     fn log_error(self) -> Option<T> {
         match self {
             Ok(value) => Some(value),

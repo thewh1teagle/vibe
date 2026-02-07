@@ -1,5 +1,6 @@
+use crate::audio_utils::get_vibe_temp_folder;
 use core_graphics_helmer_fork::access::ScreenCaptureAccess;
-use eyre::{bail, eyre, Context, ContextCompat, Result};
+use eyre::{eyre, Context, ContextCompat, Result};
 use objc_id::Id;
 use screencapturekit_sys::os_types::base::BOOL;
 use screencapturekit_sys::{
@@ -7,16 +8,8 @@ use screencapturekit_sys::{
     shareable_content::UnsafeSCShareableContent, stream::UnsafeSCStream, stream_configuration::UnsafeStreamConfiguration,
     stream_error_handler::UnsafeSCStreamError, stream_output_handler::UnsafeSCStreamOutput,
 };
-use std::fs::{self, OpenOptions};
-use std::io::Write;
-use std::ops::Deref;
-use std::path::PathBuf;
-use std::process::{Command, Stdio};
+use std::fs;
 use std::sync::{Arc, Mutex};
-use vibe_core::audio::find_ffmpeg_path;
-use vibe_core::get_vibe_temp_folder;
-
-use crate::utils::LogError;
 
 const MAX_CHANNELS: usize = 2;
 

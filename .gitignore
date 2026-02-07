@@ -30,3 +30,4 @@ venv/
 *trace*.log
 samples/**/*.txt
 pnpm-workspace.yaml
+desktop/src-tauri/binaries/sona-*

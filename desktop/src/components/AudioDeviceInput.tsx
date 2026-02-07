@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { AudioDevice } from '~/lib/audio'
 import { ModifyState } from '~/lib/utils'
+import { Label } from '~/components/ui/label'
+import { NativeSelect } from '~/components/ui/native-select'
 
 interface AudioDeviceInputProps {
 	type: 'output' | 'input'
@@ -15,28 +17,22 @@ export default function AudioDeviceInput({ type, devices, device, setDevice }: A
 	const filtered = devices.filter((d) => (d.isInput && type === 'input') || (!d.isInput && type === 'output'))
 
 	return (
-		<label className="form-control w-full">
-			<div className="label">
-				<span className="label-text">{t(type === 'input' ? 'common.microphone' : 'common.speakers')}</span>
-			</div>
-			<select
+		<div className="space-y-2 w-full">
+			<Label>{t(type === 'input' ? 'common.microphone' : 'common.speakers')}</Label>
+			<NativeSelect
 				value={device?.id}
 				onChange={(event) => {
-					const device = filtered.find((d) => d.id === event.target.value)
-					if (device) {
-						setDevice(device)
-					} else {
-						setDevice(null)
-					}
+					const next = filtered.find((d) => d.id === event.target.value)
+					setDevice(next ?? null)
 				}}
-				className="select select-bordered">
+			>
 				<option>{t('common.no-record')}</option>
 				{filtered.map(({ id, name }) => (
 					<option key={id} value={id}>
 						{name}
 					</option>
 				))}
-			</select>
-		</label>
+			</NativeSelect>
+		</div>
 	)
 }

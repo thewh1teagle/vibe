@@ -5,6 +5,8 @@ import * as config from './config'
 import { Dispatch, SetStateAction } from 'react'
 import { load } from '@tauri-apps/plugin-store'
 import * as keepAwake from 'tauri-plugin-keepawake-api'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export interface NamedPath {
 	name: string
@@ -26,6 +28,10 @@ export async function ls(where: string) {
 		paths.push({ name: entry.name, path: abs })
 	}
 	return paths
+}
+
+export function cn(...inputs: ClassValue[]) {
+	return twMerge(clsx(inputs))
 }
 
 export function cx(...cns: (boolean | string | undefined)[]): string {
@@ -81,10 +87,6 @@ export async function openPath(path: NamedPath) {
 }
 
 export async function getModelsFolder() {}
-
-export function formatSpeaker(speaker?: string, prefix = 'Speaker') {
-	return `${prefix} ${speaker ?? '?'}: `
-}
 
 export async function startKeepAwake() {
 	try {

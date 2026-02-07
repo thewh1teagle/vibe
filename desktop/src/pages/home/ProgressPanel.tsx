@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { Button } from '~/components/ui/button'
+import { Spinner } from '~/components/ui/spinner'
 
 interface ProgressPanelProps {
 	isAborting: boolean
@@ -10,8 +12,8 @@ export default function ProgressPanel({ isAborting, onAbort, progress }: Progres
 	const { t } = useTranslation()
 	return (
 		<div className="w-full flex flex-col items-center">
-			<div className="flex flex-row items-center text-center gap-3 bg-base-200 p-4 rounded-2xl">
-				<span className="loading loading-spinner text-primary"></span>
+			<div className="flex flex-row items-center text-center gap-3 bg-muted p-4 rounded-2xl">
+				<Spinner className="text-primary" />
 				{isAborting ? (
 					<p>{t('common.aborting')}...</p>
 				) : (
@@ -20,9 +22,9 @@ export default function ProgressPanel({ isAborting, onAbort, progress }: Progres
 					</p>
 				)}
 				{!isAborting && (
-					<button onClick={onAbort} className="btn btn-primary btn-ghost btn-sm text-red-500">
+					<Button variant="ghost" size="sm" onClick={onAbort} className="text-destructive hover:text-destructive/80">
 						{t('common.cancel')}
-					</button>
+					</Button>
 				)}
 			</div>
 		</div>
