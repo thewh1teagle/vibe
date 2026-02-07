@@ -13,20 +13,16 @@ jobs:
                 include:
                     - platform: "macos-latest"
                       args: "--target aarch64-apple-darwin"
-                      sona_asset: "sona-darwin-arm64"
-                      sidecar_name: "sona-aarch64-apple-darwin"
+                      target_triple: "aarch64-apple-darwin"
                     - platform: "macos-latest"
                       args: "--target x86_64-apple-darwin"
-                      sona_asset: "sona-darwin-amd64"
-                      sidecar_name: "sona-x86_64-apple-darwin"
+                      target_triple: "x86_64-apple-darwin"
                     - platform: "ubuntu-22.04"
                       args: "--target x86_64-unknown-linux-gnu"
-                      sona_asset: "sona-linux-amd64"
-                      sidecar_name: "sona-x86_64-unknown-linux-gnu"
+                      target_triple: "x86_64-unknown-linux-gnu"
                     - platform: "windows-latest"
                       args: "--target x86_64-pc-windows-msvc"
-                      sona_asset: "sona-windows-amd64.exe"
-                      sidecar_name: "sona-x86_64-pc-windows-msvc.exe"
+                      target_triple: "x86_64-pc-windows-msvc"
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -51,21 +47,8 @@ jobs:
               run: bun install
               working-directory: ./desktop
 
-            - name: Download Sona sidecar binary
-              env:
-                GH_TOKEN: ${{ github.token }}
-              shell: bash
-              run: |
-                mkdir -p desktop/src-tauri/binaries
-                gh release download --repo thewh1teagle/sona --pattern "${{ matrix.sona_asset }}" --dir desktop/src-tauri/binaries
-                mv "desktop/src-tauri/binaries/${{ matrix.sona_asset }}" "desktop/src-tauri/binaries/${{ matrix.sidecar_name }}"
-
             - name: Run pre_build.py on ${{ matrix.platform }}
-              run: uv run scripts/pre_build.py
-
-            - name: Mark sidecar executable (non-Windows)
-              if: matrix.platform != 'windows-latest'
-              run: chmod +x "desktop/src-tauri/binaries/${{ matrix.sidecar_name }}"
+              run: uv run scripts/pre_build.py --target ${{ matrix.target_triple }}
 
             - name: Import Windows certificate
               if: matrix.platform == 'windows-latest'
