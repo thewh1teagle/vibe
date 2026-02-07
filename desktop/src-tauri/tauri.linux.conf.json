@@ -1,13 +1,12 @@
 {
-    "$schema": "./gen/schemas/linux-schema.json",
-    "bundle": {
-        "linux": {
-            "deb": {
-                "depends": [
-                    "ffmpeg",
-                    "libopenblas-dev"
-                ]
-            }
-        }
-    }
+	"$schema": "./gen/schemas/linux-schema.json",
+	"bundle": {
+		"linux": {
+			"deb": {
+				"depends": [
+					"ffmpeg"
+				]
+			}
+		}
+	}
 }
