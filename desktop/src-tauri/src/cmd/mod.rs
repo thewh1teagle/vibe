@@ -246,7 +246,7 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
     files
 }
 
-fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
+pub fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     // Try to find sona binary in the app's resource directory (sidecar)
     let resource_dir = app_handle.path().resource_dir().context("get resource dir")?;
 
@@ -277,6 +277,22 @@ fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     }
 
     bail!("sona binary not found")
+}
+
+pub fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
+    let resource_dir = app_handle.path().resource_dir().ok()?;
+
+    #[cfg(target_os = "windows")]
+    let binary_name = "ffmpeg.exe";
+    #[cfg(not(target_os = "windows"))]
+    let binary_name = "ffmpeg";
+
+    let sidecar_path = resource_dir.join(binary_name);
+    if sidecar_path.exists() {
+        return Some(sidecar_path);
+    }
+
+    None
 }
 
 #[tauri::command]
@@ -432,7 +448,8 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Res
     // Spawn sona if not running
     if state_guard.process.is_none() {
         let binary_path = resolve_sona_binary(&app_handle)?;
-        let process = crate::sona::SonaProcess::spawn(&binary_path)?;
+        let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
+        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?;
         state_guard.process = Some(process);
     }
 

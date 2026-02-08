@@ -6,21 +6,25 @@
 
 from __future__ import annotations
 
+import io
 import os
 import platform
 import subprocess
 import sys
+import tarfile
+import zipfile
 from pathlib import Path
 
 import httpx
 
 
-SONA_TARGET_MAP = {
-    "aarch64-apple-darwin": "sona-darwin-arm64",
-    "x86_64-apple-darwin": "sona-darwin-amd64",
-    "x86_64-unknown-linux-gnu": "sona-linux-amd64",
-    "aarch64-unknown-linux-gnu": "sona-linux-arm64",
-    "x86_64-pc-windows-msvc": "sona-windows-amd64.exe",
+# Archives with bundled ffmpeg for macOS/Windows, raw binary for Linux
+SONA_ASSET_MAP = {
+    "aarch64-apple-darwin": ("sona-darwin-arm64-with-ffmpeg.tar.gz", "sona", "ffmpeg"),
+    "x86_64-apple-darwin": ("sona-darwin-amd64-with-ffmpeg.tar.gz", "sona", "ffmpeg"),
+    "x86_64-unknown-linux-gnu": ("sona-linux-amd64", None, None),
+    "aarch64-unknown-linux-gnu": ("sona-linux-arm64", None, None),
+    "x86_64-pc-windows-msvc": ("sona-windows-amd64-with-ffmpeg.zip", "sona.exe", "ffmpeg.exe"),
 }
 
 HOST_TRIPLE_MAP = {
@@ -60,8 +64,8 @@ def download_sona(script_root: Path, target_triple: str | None) -> None:
         )
         return
 
-    asset_name = SONA_TARGET_MAP.get(resolved_target)
-    if not asset_name:
+    asset_entry = SONA_ASSET_MAP.get(resolved_target)
+    if not asset_entry:
         print(
             f"Warning: Unsupported target triple '{resolved_target}' for automatic sona download. "
             "Place the binary manually in desktop/src-tauri/binaries/."
@@ -80,32 +84,63 @@ def download_sona(script_root: Path, target_triple: str | None) -> None:
         print(f"Warning: {version_file} is empty; skipping sona download.")
         return
 
-    sidecar_name = f"sona-{resolved_target}"
-    if resolved_target.endswith("windows-msvc"):
-        sidecar_name += ".exe"
+    is_windows = resolved_target.endswith("windows-msvc")
+    sona_sidecar = f"sona-{resolved_target}" + (".exe" if is_windows else "")
+    binaries_dir = repo_root / "desktop" / "src-tauri" / "binaries"
+    sona_dest = binaries_dir / sona_sidecar
 
-    destination = repo_root / "desktop" / "src-tauri" / "binaries" / sidecar_name
-    if destination.exists():
-        print(f"Sona sidecar already exists at {destination}; skipping download.")
+    if sona_dest.exists():
+        print(f"Sona sidecar already exists at {sona_dest}; skipping download.")
         return
 
-    destination.parent.mkdir(parents=True, exist_ok=True)
+    binaries_dir.mkdir(parents=True, exist_ok=True)
+    asset_name, sona_member, ffmpeg_member = asset_entry
     url = f"https://github.com/thewh1teagle/sona/releases/download/{tag}/{asset_name}"
 
     try:
-        with httpx.Client(follow_redirects=True, timeout=60) as client:
+        with httpx.Client(follow_redirects=True, timeout=120) as client:
             response = client.get(url)
             response.raise_for_status()
-        destination.write_bytes(response.content)
-        if not sidecar_name.endswith(".exe"):
-            destination.chmod(destination.stat().st_mode | 0o111)
-        print(f"Downloaded sona sidecar to {destination}")
+        data = response.content
     except Exception as exc:
-        print(f"Warning: Failed to download sona sidecar from {url}: {exc}")
-        print(
-            "Warning: You can manually place the sidecar at "
-            f"{destination}"
-        )
+        print(f"Warning: Failed to download sona from {url}: {exc}")
+        print(f"Warning: You can manually place the sidecar at {sona_dest}")
+        return
+
+    if sona_member is None:
+        # Raw binary (Linux) — no archive, no ffmpeg
+        sona_dest.write_bytes(data)
+        sona_dest.chmod(sona_dest.stat().st_mode | 0o111)
+        print(f"Downloaded sona sidecar to {sona_dest}")
+        return
+
+    # Extract sona and ffmpeg from archive
+    ffmpeg_sidecar = f"ffmpeg-{resolved_target}" + (".exe" if is_windows else "")
+    ffmpeg_dest = binaries_dir / ffmpeg_sidecar
+
+    if asset_name.endswith(".zip"):
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            for name in zf.namelist():
+                basename = Path(name).name
+                if basename == sona_member:
+                    sona_dest.write_bytes(zf.read(name))
+                elif basename == ffmpeg_member:
+                    ffmpeg_dest.write_bytes(zf.read(name))
+    else:
+        with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tf:
+            for member in tf.getmembers():
+                basename = Path(member.name).name
+                if basename == sona_member:
+                    sona_dest.write_bytes(tf.extractfile(member).read())
+                elif basename == ffmpeg_member:
+                    ffmpeg_dest.write_bytes(tf.extractfile(member).read())
+
+    for path in (sona_dest, ffmpeg_dest):
+        if path.exists() and not path.name.endswith(".exe"):
+            path.chmod(path.stat().st_mode | 0o111)
+
+    print(f"Extracted sona sidecar to {sona_dest}")
+    print(f"Extracted ffmpeg sidecar to {ffmpeg_dest}")
 
 
 def main() -> int:

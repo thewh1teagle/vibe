@@ -31,13 +31,18 @@ pub enum SonaEvent {
 }
 
 impl SonaProcess {
-    pub fn spawn(binary_path: &Path) -> Result<Self> {
+    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>) -> Result<Self> {
         tracing::debug!("spawning sona at {}", binary_path.display());
 
         let mut cmd = Command::new(binary_path);
         cmd.args(["serve", "--port", "0"])
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit());
+
+        if let Some(ffmpeg) = ffmpeg_path {
+            tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
+            cmd.env("SONA_FFMPEG_PATH", ffmpeg);
+        }
 
         #[cfg(target_os = "windows")]
         {
