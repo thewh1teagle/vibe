@@ -1,6 +1,12 @@
-export default function Logo() {
+import { cn } from '~/lib/utils'
+
+export default function Logo({ className }: { className?: string }) {
 	return (
-		<svg width="30" height="30" viewBox="0 0 169 169" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg
+			viewBox="0 0 169 169"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={cn('size-8 shrink-0', className)}>
 			<circle cx="84.5006" cy="84.5006" r="84.5006" fill="white" />
 			<circle cx="84.5007" cy="84.5007" r="75.437" fill="white" />
 			<path

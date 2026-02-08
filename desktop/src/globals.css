@@ -118,8 +118,8 @@
 	--card-foreground: hsl(210 18% 93%);
 	--popover: hsl(220 9% 17%);
 	--popover-foreground: hsl(210 18% 93%);
-	--primary: hsl(208 94% 66%);
-	--primary-foreground: hsl(220 15% 10%);
+	--primary: hsl(212 100% 56%);
+	--primary-foreground: hsl(0 0% 100%);
 	--secondary: hsl(220 8% 22%);
 	--secondary-foreground: hsl(210 14% 90%);
 	--muted: hsl(220 8% 20%);
@@ -132,20 +132,20 @@
 	--success-foreground: hsl(153 58% 10%);
 	--border: hsl(220 8% 34%);
 	--input: hsl(220 8% 34%);
-	--ring: hsl(208 94% 66%);
-	--chart-1: hsl(208 94% 66%);
+	--ring: hsl(212 100% 60%);
+	--chart-1: hsl(212 100% 56%);
 	--chart-2: hsl(197 38% 60%);
 	--chart-3: hsl(30 76% 58%);
 	--chart-4: hsl(50 74% 58%);
 	--chart-5: hsl(270 58% 62%);
 	--sidebar: hsl(220 9% 16%);
 	--sidebar-foreground: hsl(210 18% 93%);
-	--sidebar-primary: hsl(208 94% 66%);
-	--sidebar-primary-foreground: hsl(220 15% 10%);
+	--sidebar-primary: hsl(212 100% 56%);
+	--sidebar-primary-foreground: hsl(0 0% 100%);
 	--sidebar-accent: hsl(220 8% 24%);
 	--sidebar-accent-foreground: hsl(210 14% 90%);
 	--sidebar-border: hsl(220 8% 34%);
-	--sidebar-ring: hsl(208 94% 66%);
+	--sidebar-ring: hsl(212 100% 60%);
 	--shadow-sm: 0 8px 20px hsl(225 28% 4% / 0.28);
 	--shadow: 0 12px 28px hsl(225 28% 4% / 0.35);
 	--shadow-md: 0 18px 38px hsl(225 28% 4% / 0.42);
@@ -184,7 +184,7 @@
 	}
 
 	.dark ::selection {
-		background: hsl(208 94% 66% / 0.28);
+		background: hsl(212 100% 56% / 0.26);
 	}
 
 	::-webkit-scrollbar {

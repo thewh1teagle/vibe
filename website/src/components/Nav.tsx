@@ -12,7 +12,7 @@ export default function Nav() {
 			<div className="flex-1">
 				<Button variant="ghost" asChild className="text-sm lg:text-xl">
 					<Link to="/" aria-label={t('home')}>
-						<Logo />
+						<Logo className="size-7 lg:size-8" />
 						<span className="opacity-95">Vibe</span>
 					</Link>
 				</Button>
