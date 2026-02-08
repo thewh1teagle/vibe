@@ -1,0 +1,54 @@
+name: Test Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            pattern: vibe_aarch64.app.tar.gz
+          - runner: macos-13
+            pattern: vibe_x64.app.tar.gz
+          - runner: ubuntu-22.04
+            pattern: "vibe_*_amd64.deb"
+          - runner: windows-latest
+            pattern: "vibe_*_x64-setup.exe"
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: samples
+
+      - name: Download latest release artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download --repo ${{ github.repository }} --pattern "${{ matrix.pattern }}"
+
+      - name: Download tiny whisper model
+        shell: bash
+        run: wget -q https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+
+      - name: Extract and test (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          tar xzf ${{ matrix.pattern }}
+          ./vibe.app/Contents/MacOS/vibe transcribe ggml-tiny.bin samples/short.mp4
+
+      - name: Install and test (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo dpkg -i vibe_*_amd64.deb
+          vibe transcribe ggml-tiny.bin samples/short.mp4
+
+      - name: Install and test (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = (Get-Item vibe_*_x64-setup.exe).FullName
+          Start-Process -FilePath $installer -ArgumentList "/S" -Wait
+          & "$env:LOCALAPPDATA\vibe\vibe.exe" transcribe ggml-tiny.bin samples\short.mp4
