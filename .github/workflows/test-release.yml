@@ -55,8 +55,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y ./vibe_*_amd64.deb
-          vibe transcribe ggml-tiny.bin samples/short.mp4
+          sudo apt-get install -y xvfb ./vibe_*_amd64.deb
+          xvfb-run -a vibe transcribe ggml-tiny.bin samples/short.mp4
 
       - name: Install and test (Windows)
         if: runner.os == 'Windows'
