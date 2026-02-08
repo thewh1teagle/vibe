@@ -30,6 +30,7 @@ jobs:
           sparse-checkout: samples
 
       - name: Download latest release artifact (including pre-releases)
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
