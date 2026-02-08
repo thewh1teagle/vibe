@@ -3,7 +3,7 @@ import * as fs from '@tauri-apps/plugin-fs'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlignRight, Check, Copy, Download, Printer } from 'lucide-react'
-import { Segment, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
+import { Segment, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, cn, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferenceProvider } from '~/providers/Preference'
@@ -81,6 +81,8 @@ export default function TextArea({
 						? asSrt(segments)
 						: preference.textFormat === 'json'
 							? asJson(segments)
+							: preference.textFormat === 'csv'
+								? asCsv(segments)
 							: asText(segments),
 			)
 		} else {
@@ -176,6 +178,7 @@ export default function TextArea({
 							<SelectItem value="srt">srt</SelectItem>
 							<SelectItem value="vtt">vtt</SelectItem>
 							<SelectItem value="json">json</SelectItem>
+							<SelectItem value="csv">csv</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>

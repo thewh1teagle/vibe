@@ -37,5 +37,5 @@ export function ytDlpDownloadUrl(version: string, platform: keyof typeof ytDlpAs
 }
 
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm']
-export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a', 'wma']
+export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a', 'm4b', 'wma']
 export const themes = ['light', 'dark']

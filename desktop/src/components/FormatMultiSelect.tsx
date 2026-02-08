@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 
-export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json' | 'docx'
+export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json' | 'docx' | 'csv'
 export type FormatExtensions = {
 	[name in TextFormat]: string
 }
@@ -15,6 +15,7 @@ export const formatExtensions: FormatExtensions = {
 	pdf: '.pdf',
 	json: '.json',
 	docx: '.docx',
+	csv: '.csv',
 }
 
 interface FormatMultiSelectProps {
@@ -36,7 +37,7 @@ export default function FormatMultiSelect({ formats, setFormats }: FormatMultiSe
 		<div className="space-y-2 w-full">
 			<Label>{t('common.formats')}</Label>
 			<div className="flex flex-wrap gap-2 justify-center">
-				{['normal', 'srt', 'docx', 'vtt', 'json'].map((formatOption) => (
+				{['normal', 'srt', 'docx', 'vtt', 'json', 'csv'].map((formatOption) => (
 					<Button
 						type="button"
 						key={formatOption}

@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
-import { Segment, Transcript, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
+import { Segment, Transcript, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
@@ -54,6 +54,9 @@ export function viewModel() {
 		}
 		if (format === 'json') {
 			return asJson(segments)
+		}
+		if (format === 'csv') {
+			return asCsv(segments)
 		}
 		return asText(segments)
 	}

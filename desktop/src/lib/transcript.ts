@@ -72,3 +72,18 @@ export function asText(segments: Segment[]) {
 export function asJson(segments: Segment[]) {
 	return JSON.stringify(segments, null, 4)
 }
+
+function escapeCsv(value: string) {
+	return `"${value.replace(/"/g, '""')}"`
+}
+
+export function asCsv(segments: Segment[]) {
+	const header = 'start,end,text'
+	const rows = segments.map((segment) => {
+		const start = formatTimestamp(segment.start, true, '.')
+		const end = formatTimestamp(segment.stop, true, '.')
+		const text = segment.text.trim()
+		return `${escapeCsv(start)},${escapeCsv(end)},${escapeCsv(text)}`
+	})
+	return [header, ...rows].join('\n')
+}
