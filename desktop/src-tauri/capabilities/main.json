@@ -46,6 +46,7 @@
 		"dialog:allow-ask",
 		"dialog:allow-message",
 		"process:allow-restart",
+		"aptabase:allow-track-event",
 		"core:app:default",
 		"core:app:allow-version",
 		"core:app:allow-name",

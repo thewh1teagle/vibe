@@ -89,12 +89,19 @@ def download_sona(script_root: Path, target_triple: str | None) -> None:
     binaries_dir = repo_root / "desktop" / "src-tauri" / "binaries"
     sona_dest = binaries_dir / sona_sidecar
 
-    if sona_dest.exists():
-        print(f"Sona sidecar already exists at {sona_dest}; skipping download.")
-        return
-
     binaries_dir.mkdir(parents=True, exist_ok=True)
     asset_name, sona_member, ffmpeg_member = asset_entry
+    ffmpeg_dest: Path | None = None
+    if ffmpeg_member is not None:
+        ffmpeg_sidecar = f"ffmpeg-{resolved_target}" + (".exe" if is_windows else "")
+        ffmpeg_dest = binaries_dir / ffmpeg_sidecar
+
+    if sona_dest.exists() and (ffmpeg_dest is None or ffmpeg_dest.exists()):
+        print(f"Sona sidecar already exists at {sona_dest}; skipping download.")
+        if ffmpeg_dest is not None:
+            print(f"FFmpeg sidecar already exists at {ffmpeg_dest}; skipping download.")
+        return
+
     url = f"https://github.com/thewh1teagle/sona/releases/download/{tag}/{asset_name}"
 
     try:
@@ -115,8 +122,8 @@ def download_sona(script_root: Path, target_triple: str | None) -> None:
         return
 
     # Extract sona and ffmpeg from archive
-    ffmpeg_sidecar = f"ffmpeg-{resolved_target}" + (".exe" if is_windows else "")
-    ffmpeg_dest = binaries_dir / ffmpeg_sidecar
+    if ffmpeg_dest is None:
+        raise RuntimeError(f"Expected ffmpeg sidecar path for target {resolved_target}")
 
     if asset_name.endswith(".zip"):
         with zipfile.ZipFile(io.BytesIO(data)) as zf:

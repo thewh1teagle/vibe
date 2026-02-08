@@ -15,6 +15,7 @@ import { useLocalStorage } from 'usehooks-ts'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
 import { AudioDevice } from '~/lib/audio'
+import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { Claude, Llm, Ollama } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
@@ -436,6 +437,9 @@ export function viewModel() {
 		abortRef.current = false
 
 		var newSegments: transcript.Segment[] = []
+		trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_STARTED, {
+			source: 'home',
+		})
 		try {
 			const modelPath = preferenceRef.current.modelPath
 			await invoke('load_model', { modelPath })
@@ -455,10 +459,19 @@ export function viewModel() {
 			newSegments = res.segments
 			setSegments(res.segments)
 			hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
+			trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, {
+				source: 'home',
+				duration_seconds: total,
+				segments_count: res.segments.length,
+			})
 		} catch (error) {
 			if (!abortRef.current) {
 				stopKeepAwake()
 				console.error('error: ', error)
+				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
+					source: 'home',
+					error_message: String(error),
+				})
 				setErrorModal?.({ log: String(error), open: true })
 				setLoading(false)
 			}

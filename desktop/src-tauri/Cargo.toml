@@ -26,13 +26,14 @@ tauri-plugin-store = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-keepawake = { version = "0.1.1", optional = true }
+tauri-plugin-aptabase = "1.0.0"
 # Unsafe headers required for Ollama (to set Origin)
 tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
 
 serde_json = { workspace = true }
 eyre = { workspace = true }
 
-tokio = { version = "1.49.0", features = ["net", "fs"] }
+tokio = { version = "1.49.0", features = ["net", "fs", "macros", "rt-multi-thread"] }
 once_cell = "1.21.3"
 serde = { version = "^1.0.228", features = ["derive"] }
 url = "2.5.8"

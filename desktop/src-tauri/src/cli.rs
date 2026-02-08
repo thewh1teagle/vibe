@@ -1,4 +1,5 @@
 use eyre::Result;
+use std::io::{BufRead, BufReader};
 use std::process;
 use tauri::AppHandle;
 
@@ -42,14 +43,37 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
 
     let mut cmd = std::process::Command::new(&sona_binary);
     cmd.args(&args)
-        .stdout(std::process::Stdio::inherit())
-        .stderr(std::process::Stdio::inherit());
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
 
     if let Some(ref ffmpeg) = ffmpeg_path {
         cmd.env("SONA_FFMPEG_PATH", ffmpeg);
     }
 
-    let status = cmd.status().map_err(|e| eyre::eyre!("failed to spawn sona: {}", e))?;
+    let mut child = cmd.spawn().map_err(|e| eyre::eyre!("failed to spawn sona: {}", e))?;
+
+    // Pipe stdout in a thread so it works even without an inherited console (Windows)
+    let stdout = child.stdout.take();
+    let stdout_thread = std::thread::spawn(move || {
+        if let Some(out) = stdout {
+            for line in BufReader::new(out).lines().map_while(|l| l.ok()) {
+                println!("{}", line);
+            }
+        }
+    });
+
+    let stderr = child.stderr.take();
+    let stderr_thread = std::thread::spawn(move || {
+        if let Some(err) = stderr {
+            for line in BufReader::new(err).lines().map_while(|l| l.ok()) {
+                eprintln!("{}", line);
+            }
+        }
+    });
+
+    let status = child.wait().map_err(|e| eyre::eyre!("failed to wait for sona: {}", e))?;
+    let _ = stdout_thread.join();
+    let _ = stderr_thread.join();
 
     app_handle.cleanup_before_exit();
     process::exit(status.code().unwrap_or(1));

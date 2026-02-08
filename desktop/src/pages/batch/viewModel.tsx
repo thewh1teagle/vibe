@@ -7,6 +7,7 @@ import { NamedPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
+import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import successSound from '~/assets/success.mp3'
 import * as fs from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
@@ -173,6 +174,9 @@ export function viewModel() {
 					continue
 				}
 
+				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_STARTED, {
+					source: 'batch',
+				})
 				const res: Transcript = await invoke('transcribe', {
 					options,
 				})
@@ -180,6 +184,11 @@ export function viewModel() {
 				// Calculate time
 				let total = Math.round((performance.now() - startTime) / 1000)
 				console.info(`Transcribe ${file.name} took ${total} seconds.`)
+				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, {
+					source: 'batch',
+					duration_seconds: total,
+					segments_count: res.segments.length,
+				})
 
 				let llmSegments: Segment[] | null = null
 				if (llm && preference.llmConfig?.enabled) {
@@ -217,6 +226,10 @@ export function viewModel() {
 				setCurrentIndex(localIndex)
 			} catch (error) {
 				stopKeepAwake()
+				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
+					source: 'batch',
+					error_message: String(error),
+				})
 				if (isAbortingRef.current) {
 					navigate('/')
 				} else {

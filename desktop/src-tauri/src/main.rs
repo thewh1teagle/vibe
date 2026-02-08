@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod audio_utils;
+mod analytics;
 mod cleaner;
 mod cli;
 mod cmd;
@@ -30,7 +31,13 @@ use tauri_plugin_window_state::StateFlags;
 
 use utils::LogError;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
+    const APTABASE_KEY: &str = match option_env!("APTABASE_KEY") {
+        Some(value) => value,
+        None => "",
+    };
+
     // Attach console in Windows:
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
@@ -46,7 +53,13 @@ fn main() -> Result<()> {
             }
             app.emit("single-instance", argv).map_err(|e| eyre!("{:?}", e)).log_error();
         }))
-        .setup(|app| setup::setup(app))
+        .setup(|app| {
+            setup::setup(app)?;
+            if !APTABASE_KEY.is_empty() {
+                analytics::track_event(app, analytics::events::APP_STARTED);
+            }
+            Ok(())
+        })
         .plugin(
             tauri_plugin_window_state::Builder::default()
                 .with_state_flags(!StateFlags::VISIBLE)
@@ -60,6 +73,10 @@ fn main() -> Result<()> {
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_shell::init());
+
+    if !APTABASE_KEY.is_empty() {
+        builder = builder.plugin(tauri_plugin_aptabase::Builder::new(APTABASE_KEY).build());
+    }
 
     #[cfg(feature = "keepawake")]
     {
