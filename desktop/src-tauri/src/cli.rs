@@ -25,13 +25,7 @@ pub fn attach_console() {
 }
 
 pub fn is_cli_detected() -> bool {
-    let args: Vec<String> = std::env::args().collect();
-    for arg in &args {
-        if arg.starts_with("--") || arg == "-h" {
-            return true;
-        }
-    }
-    false
+    std::env::args().nth(1).is_some()
 }
 
 /// Forward all CLI args to the bundled sona binary.
