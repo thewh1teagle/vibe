@@ -3,7 +3,9 @@
 	"identifier": "default",
 	"description": "default permissions",
 	"local": true,
-	"windows": ["main"],
+	"windows": [
+		"main"
+	],
 	"permissions": [
 		"http:default",
 		"http:allow-fetch",
@@ -117,10 +119,13 @@
 			"identifier": "http:default",
 			"allow": [
 				{
-					"url": "https://*.anthropic.*"
+					"url": "https://**"
 				},
 				{
-					"url": "http{s}?://localhost:*/*"
+					"url": "http://localhost:*/*"
+				},
+				{
+					"url": "http://127.0.0.1:*/*"
 				}
 			]
 		}

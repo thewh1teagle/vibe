@@ -1,15 +1,15 @@
 import { fetch } from '@tauri-apps/plugin-http'
 import { Llm, LlmConfig } from './index'
 
-export function deafultConfig(): LlmConfig {
+export function deafultConfig(language = 'English'): LlmConfig {
 	return {
 		claudeApiKey: '',
-		model: 'claude-3-5-sonnet-20240620',
+		model: 'claude-sonnet-4-5',
 		maxTokens: 8192,
 		enabled: false,
 		ollamaBaseUrl: '',
 		platform: 'claude',
-		prompt: `Please summarize the following transcription: \n\n"""\n%s\n"""\n`,
+		prompt: `Please summarize the following transcription and write it in ${language}: \n\n"""\n%s\n"""\n`,
 	}
 }
 

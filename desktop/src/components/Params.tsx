@@ -10,7 +10,7 @@ import * as config from '~/lib/config'
 import { open as shellOpen } from '@tauri-apps/plugin-shell'
 import { toast as hotToast } from 'sonner'
 import * as dialog from '@tauri-apps/plugin-dialog'
-import { Claude, defaultClaudeConfig, defaultOllamaConfig, Llm, Ollama } from '~/lib/llm'
+import { Claude, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import { ScrollArea } from '~/components/ui/scroll-area'
@@ -37,12 +37,13 @@ function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const [open, setOpen] = useState(false)
 	const preference = usePreferenceProvider()
-	const { t } = useTranslation()
+	const { t, i18n } = useTranslation()
 	const toast = useToastProvider()
 	const [llm, setLlm] = useState<Llm | null>(null)
 
 	useEffect(() => {
-		const llmInstance = preference.llmConfig?.platform === 'ollama' ? new Ollama(preference.llmConfig) : new Claude(preference.llmConfig)
+		const platform = preference.llmConfig?.platform
+		const llmInstance = platform === 'ollama' ? new Ollama(preference.llmConfig) : platform === 'openai' ? new OpenAICompatible(preference.llmConfig) : new Claude(preference.llmConfig)
 		setLlm(llmInstance)
 	}, [preference.llmConfig])
 
@@ -117,32 +118,25 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								<Select
 									value={llmConfig?.platform}
 									onValueChange={(value) => {
-										const newPlatform = value
-										if (newPlatform === 'ollama') {
-											const defaultConfig = defaultOllamaConfig()
-											setLlmConfig({
-												...defaultConfig,
-												ollamaBaseUrl: llmConfig.ollamaBaseUrl,
-												claudeApiKey: llmConfig.claudeApiKey,
-												enabled: llmConfig?.enabled ?? false,
-											})
-										} else if (newPlatform === 'claude') {
-											const defaultConfig = defaultClaudeConfig()
-											setLlmConfig({
-												...defaultConfig,
-												ollamaBaseUrl: llmConfig.ollamaBaseUrl,
-												claudeApiKey: llmConfig.claudeApiKey,
-												enabled: llmConfig?.enabled ?? false,
-											})
-										}
+										const lang = new Intl.DisplayNames([i18n.language], { type: 'language' }).of(i18n.language) ?? 'English'
+										const defaults =
+											value === 'ollama' ? defaultOllamaConfig(lang) : value === 'openai' ? defaultOpenAIConfig(lang) : defaultClaudeConfig(lang)
+										setLlmConfig({
+											...defaults,
+											ollamaBaseUrl: llmConfig.ollamaBaseUrl,
+											claudeApiKey: llmConfig.claudeApiKey,
+											openaiBaseUrl: llmConfig.openaiBaseUrl,
+											openaiApiKey: llmConfig.openaiApiKey,
+											enabled: llmConfig?.enabled ?? false,
+										})
 									}}>
 									<SelectTrigger className="capitalize">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										{['claude', 'ollama'].map((name) => (
+										{['claude', 'ollama', 'openai'].map((name) => (
 											<SelectItem key={name} value={name} className="capitalize">
-												{name}
+												{name === 'openai' ? 'OpenAI Compatible' : name}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -150,23 +144,43 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							</Field>
 
 							{llmConfig?.platform === 'claude' && (
-								<Field
-									label={
-										<>
-											<InfoTooltip text={t('common.info-llm-api-key')} />
-											{t('common.llm-api-key')}
-											<button type="button" className="text-primary underline hover:text-primary/80 ml-1" onClick={() => shellOpen(config.llmApiKeyUrl)}>
-												{t('common.find-here')}
-											</button>
-										</>
-									}>
-									<Input
-										value={llmConfig?.claudeApiKey}
-										onChange={(e) => setLlmConfig({ ...preference.llmConfig, claudeApiKey: e.target.value })}
-										placeholder="Paste here your API key"
-										type="text"
-									/>
-								</Field>
+								<>
+									<Field
+										label={
+											<>
+												<InfoTooltip text={t('common.info-llm-api-key')} />
+												{t('common.llm-api-key')}
+												<button type="button" className="text-primary underline hover:text-primary/80 ml-1" onClick={() => shellOpen(config.llmApiKeyUrl)}>
+													{t('common.find-here')}
+												</button>
+											</>
+										}>
+										<Input
+											value={llmConfig?.claudeApiKey}
+											onChange={(e) => setLlmConfig({ ...preference.llmConfig, claudeApiKey: e.target.value })}
+											placeholder="Paste here your API key"
+											type="text"
+										/>
+									</Field>
+									<Field
+										label={
+											<>
+												{t('common.llm-model')}
+												<button
+													type="button"
+													className="text-primary underline hover:text-primary/80 ml-1"
+													onClick={() => shellOpen('https://docs.anthropic.com/en/docs/about-claude/models')}>
+													{t('common.find-here')}
+												</button>
+											</>
+										}>
+										<Input
+											value={llmConfig?.model}
+											onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
+											placeholder="claude-sonnet-4-5"
+										/>
+									</Field>
+								</>
 							)}
 
 							{llmConfig?.platform === 'ollama' && (
@@ -190,6 +204,33 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 											</>
 										}>
 										<Input value={llmConfig?.model} onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })} />
+									</Field>
+								</>
+							)}
+
+							{llmConfig?.platform === 'openai' && (
+								<>
+									<Field label="Base URL">
+										<Input
+											value={llmConfig?.openaiBaseUrl}
+											onChange={(e) => setLlmConfig({ ...preference.llmConfig, openaiBaseUrl: e.target.value })}
+											placeholder="https://api.openai.com/v1"
+										/>
+									</Field>
+									<Field label="API Key">
+										<Input
+											value={llmConfig?.openaiApiKey}
+											onChange={(e) => setLlmConfig({ ...preference.llmConfig, openaiApiKey: e.target.value })}
+											placeholder="sk-... (optional for local servers)"
+											type="text"
+										/>
+									</Field>
+									<Field label={t('common.llm-model')}>
+										<Input
+											value={llmConfig?.model}
+											onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
+											placeholder="gpt-4o-mini"
+										/>
 									</Field>
 								</>
 							)}

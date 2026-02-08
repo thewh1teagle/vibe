@@ -9,13 +9,13 @@ curl http://localhost:11434/api/generate -d '{
 import { fetch } from '@tauri-apps/plugin-http'
 import { Llm, type LlmConfig } from './index'
 
-export function defaultConfig() {
+export function defaultConfig(language = 'English') {
 	return {
 		enabled: false,
 		model: 'llama3.2',
 		ollamaBaseUrl: 'http://localhost:11434',
 		platform: 'ollama',
-		prompt: `Please summarize the following transcription: \n\n"""\n%s\n"""\n`,
+		prompt: `Please summarize the following transcription and write it in ${language}: \n\n"""\n%s\n"""\n`,
 
 		claudeApiKey: '',
 	} satisfies LlmConfig

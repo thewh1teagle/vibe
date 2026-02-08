@@ -3,24 +3,22 @@ import { Segment } from './transcript'
 import { formatDuration } from '~/components/HtmlView'
 
 export async function toDocx(title: string, segments: Segment[], direction: 'rtl' | 'ltr') {
+	const isRtl = direction === 'rtl'
 	const doc = new Document({
 		sections: [
 			{
-				properties: {
-					page: {
-						textDirection: direction === 'rtl' ? 'lrTb' : 'tbRl',
-					},
-				},
 				children: [
 					// Add the title as a centered paragraph
 					new Paragraph({
 						alignment: AlignmentType.CENTER,
+						bidirectional: isRtl,
 						children: [
 							new TextRun({
 								text: title,
 								color: '1565C0',
 								size: 36 * 1.5,
 								bold: true,
+								rightToLeft: isRtl,
 							}),
 						],
 					}),
@@ -29,8 +27,12 @@ export async function toDocx(title: string, segments: Segment[], direction: 'rtl
 					...segments.map((segment) => {
 						const duration = formatDuration(segment.start, segment.stop, direction)
 						return new Paragraph({
-							alignment: direction === 'rtl' ? AlignmentType.RIGHT : AlignmentType.LEFT,
-							children: [new TextRun({ text: duration, bold: true }), new TextRun({ text: `\n${segment.text}`, break: 1 })],
+							alignment: isRtl ? AlignmentType.RIGHT : AlignmentType.LEFT,
+							bidirectional: isRtl,
+							children: [
+								new TextRun({ text: duration, bold: true, rightToLeft: isRtl }),
+								new TextRun({ text: `\n${segment.text}`, break: 1, rightToLeft: isRtl }),
+							],
 						})
 					}),
 				],
