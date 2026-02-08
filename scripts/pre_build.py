@@ -260,6 +260,7 @@ def main() -> int:
             "clang",
             "cmake",
             "libasound2-dev",
+            "libxdo-dev",
         ]
         run_cmd("sudo", "apt-get", "update")
         for pkg in apt_packages:
