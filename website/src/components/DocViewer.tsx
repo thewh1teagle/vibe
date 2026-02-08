@@ -2,46 +2,26 @@ import { useEffect, useState } from 'react'
 import { marked } from 'marked'
 
 interface DocViewerProps {
-	url: string
+	content: string
 }
 
-export default function DocViewer({ url }: DocViewerProps) {
+export default function DocViewer({ content }: DocViewerProps) {
 	const [html, setHtml] = useState('Loading...')
 
 	useEffect(() => {
-		if (!url) {
+		if (!content) {
 			setHtml('No document selected.')
 			return
 		}
 
-		let cancelled = false
-		setHtml('Loading...')
-
-		fetch(url)
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error(`Failed to fetch ${url}: ${response.statusText}`)
-				}
-
-				return response.text()
-			})
-			.then((text) => marked(text))
-			.then((result) => {
-				if (!cancelled) {
-					setHtml(typeof result === 'string' ? result : '')
-				}
-			})
-			.catch((error: unknown) => {
-				console.error('Error loading document:', error)
-				if (!cancelled) {
-					setHtml('Failed to load document.')
-				}
-			})
-
-		return () => {
-			cancelled = true
+		try {
+			const result = marked(content)
+			setHtml(typeof result === 'string' ? result : '')
+		} catch (error: unknown) {
+			console.error('Error rendering document:', error)
+			setHtml('Failed to load document.')
 		}
-	}, [url])
+	}, [content])
 
 	return (
 		<div className="min-h-screen">

@@ -85,21 +85,21 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 					<Button onMouseDown={ctaClick}>{t('download')}</Button>
 				) : currentPlatform === 'macos' ? (
 					<Button className="hidden lg:flex" onMouseDown={ctaClick}>
-						<Mac />
+						<Mac className="size-[18px]" />
 						{t('download-for')}
 						{asset?.platform}
 					</Button>
 				) : currentPlatform === 'windows' ? (
 					<Button className="hidden md:flex" asChild>
 						<a href={asset?.url} onClick={() => setPostDownloadOpen(true)}>
-							<Windows />
+							<Windows className="size-[18px]" />
 							{t('download-for')}
 							{asset?.platform}
 						</a>
 					</Button>
 				) : currentPlatform === 'linux' ? (
 					<Button className="hidden md:flex" onClick={() => setLinuxModalOpen(true)}>
-						<Linux />
+						<Linux className="size-[18px]" />
 						{t('download-for')}
 						{asset?.platform}
 					</Button>
@@ -132,15 +132,15 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 				</div>
 			)}
 
-			<div className="mt-4 flex gap-3">
+			<div className="mt-4 flex gap-2">
 				<Button variant="ghost" size="icon" onMouseDown={() => changePlatform('macos')}>
-					<Mac />
+					<Mac className="size-6" />
 				</Button>
 				<Button variant="ghost" size="icon" onClick={() => changePlatform('windows')}>
-					<Windows />
+					<Windows className="size-6" />
 				</Button>
 				<Button variant="ghost" size="icon" onClick={() => changePlatform('linux')}>
-					<Linux />
+					<Linux className="size-6" />
 				</Button>
 			</div>
 

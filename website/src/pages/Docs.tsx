@@ -1,30 +1,34 @@
 import { useEffect, useState } from 'react'
 import DocViewer from '~/components/DocViewer'
 import { Button } from '~/components/ui/button'
+import installDoc from '../../../docs/install.md?raw'
+import modelsDoc from '../../../docs/models.md?raw'
+import debugDoc from '../../../docs/debug.md?raw'
+import buildingDoc from '../../../docs/building.md?raw'
 
 const docs = [
-	{ name: 'Install', url: '/vibe/docs/install.md' },
-	{ name: 'Models', url: '/vibe/docs/models.md' },
-	{ name: 'Debug', url: '/vibe/docs/debug.md' },
-	{ name: 'Build', url: '/vibe/docs/building.md' },
+	{ name: 'Install', content: installDoc },
+	{ name: 'Models', content: modelsDoc },
+	{ name: 'Debug', content: debugDoc },
+	{ name: 'Build', content: buildingDoc },
 ]
 
 function getDocUrl(hash: string) {
 	const docName = hash.replace('#', '')
 	const doc = docs.find((entry) => entry.name.toLowerCase() === docName.toLowerCase())
 
-	return doc ? doc.url : docs[0].url
+	return doc ? doc.content : docs[0].content
 }
 
 export default function Docs() {
-	const [url, setUrl] = useState(docs[0].url)
+	const [content, setContent] = useState(docs[0].content)
 
 	useEffect(() => {
 		if (window.location.hash) {
-			setUrl(getDocUrl(window.location.hash))
+			setContent(getDocUrl(window.location.hash))
 		}
 
-		const onHashChange = () => setUrl(getDocUrl(window.location.hash))
+		const onHashChange = () => setContent(getDocUrl(window.location.hash))
 		window.addEventListener('hashchange', onHashChange)
 
 		return () => window.removeEventListener('hashchange', onHashChange)
@@ -38,10 +42,10 @@ export default function Docs() {
 				{docs.map((doc) => (
 					<Button
 						key={doc.name}
-						variant={url === doc.url ? 'default' : 'ghost'}
+						variant={content === doc.content ? 'default' : 'ghost'}
 						size="sm"
 						onClick={() => {
-							setUrl(doc.url)
+							setContent(doc.content)
 							window.location.hash = doc.name.toLowerCase()
 						}}>
 						{doc.name}
@@ -49,7 +53,7 @@ export default function Docs() {
 				))}
 			</div>
 
-			<DocViewer url={url} />
+			<DocViewer content={content} />
 		</div>
 	)
 }
