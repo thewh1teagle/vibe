@@ -51,10 +51,17 @@ Also, change the **full changelog** based on this tags: {latest_two_tags}
 
 
 def main() -> int:
-    last_tag = run_text("git", "describe", "--tags", "--abbrev=0")
-    last_tag_commit = run_text("git", "rev-list", "-n", "1", last_tag)
-    messages = run_text("git", "log", "--oneline", f"{last_tag_commit}..HEAD")
-    latest_two_tags = run_text("sh", "-c", "git tag --sort=-creatordate | head -n 2")
+    if len(sys.argv) == 3:
+        old_tag, new_tag = sys.argv[1], sys.argv[2]
+        old_commit = run_text("git", "rev-list", "-n", "1", old_tag)
+        new_commit = run_text("git", "rev-list", "-n", "1", new_tag)
+        messages = run_text("git", "log", "--oneline", f"{old_commit}..{new_commit}")
+        latest_two_tags = f"{new_tag}\n{old_tag}"
+    else:
+        last_tag = run_text("git", "describe", "--tags", "--abbrev=0")
+        last_tag_commit = run_text("git", "rev-list", "-n", "1", last_tag)
+        messages = run_text("git", "log", "--oneline", f"{last_tag_commit}..HEAD")
+        latest_two_tags = run_text("sh", "-c", "git tag --sort=-creatordate | head -n 2")
 
     prompt = build_prompt(messages=messages, latest_two_tags=latest_two_tags)
     print(prompt)
