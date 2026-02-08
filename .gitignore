@@ -36,3 +36,4 @@ dedup_report.json
 ISSUES-REPORT.md
 desktop/src-tauri/binaries/
 !desktop/src-tauri/binaries/.gitkeep
+*.csv
