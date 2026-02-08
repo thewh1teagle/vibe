@@ -19,7 +19,7 @@ jobs:
             pattern: vibe_aarch64.app.tar.gz
           - runner: macos-15-intel
             pattern: vibe_x64.app.tar.gz
-          - runner: ubuntu-22.04
+          - runner: ubuntu-24.04
             pattern: "vibe_*_amd64.deb"
           - runner: windows-latest
             pattern: "vibe_*_x64-setup.exe"
