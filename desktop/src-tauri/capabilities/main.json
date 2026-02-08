@@ -62,6 +62,14 @@
 		"core:path:allow-basename",
 		"deep-link:allow-get-current",
 		"clipboard-manager:allow-write-text",
+		"global-shortcut:allow-register",
+		"global-shortcut:allow-unregister",
+		"global-shortcut:allow-is-registered",
+		"notification:default",
+		"notification:allow-notify",
+		"notification:allow-is-permission-granted",
+		"notification:allow-request-permission",
+		"notification:allow-permission-state",
 		{
 			"identifier": "fs:scope",
 			"allow": [

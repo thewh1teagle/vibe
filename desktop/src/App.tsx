@@ -13,6 +13,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { BoundaryFallback } from './components/BoundaryFallback'
 import ErrorModalWithContext from './components/ErrorModalWithContext'
 import { FilesProvider } from './providers/FilesProvider'
+import { HotkeyProvider } from './providers/Hotkey'
 import { ToastProvider } from './providers/Toast'
 import { Toaster } from '~/components/ui/sonner'
 import { TooltipProvider } from '~/components/ui/tooltip'
@@ -28,6 +29,7 @@ export default function App() {
 					<PreferenceProvider>
 						<TooltipProvider>
 							<ToastProvider>
+								<HotkeyProvider>
 								<ErrorModalWithContext />
 								<UpdateProgress />
 								<FilesProvider>
@@ -38,6 +40,7 @@ export default function App() {
 									</Routes>
 								</FilesProvider>
 								<Toaster position="bottom-right" />
+							</HotkeyProvider>
 							</ToastProvider>
 						</TooltipProvider>
 					</PreferenceProvider>

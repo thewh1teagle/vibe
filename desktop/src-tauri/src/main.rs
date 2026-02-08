@@ -72,7 +72,9 @@ async fn main() -> Result<()> {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_shell::init());
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_notification::init());
 
     if !APTABASE_KEY.is_empty() {
         builder = builder.plugin(tauri_plugin_aptabase::Builder::new(APTABASE_KEY).build());
@@ -118,7 +120,8 @@ async fn main() -> Result<()> {
             cmd::ytdlp::get_temp_path,
             cmd::ytdlp::get_latest_ytdlp_version,
             cmd::is_crashed_recently,
-            cmd::rename_crash_file
+            cmd::rename_crash_file,
+            cmd::type_text
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");

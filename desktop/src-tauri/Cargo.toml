@@ -25,6 +25,8 @@ tauri-plugin-deep-link = "2"
 tauri-plugin-store = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-clipboard-manager = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-notification = "2"
 tauri-plugin-keepawake = { version = "0.1.1", optional = true }
 tauri-plugin-aptabase = "1.0.0"
 # Unsafe headers required for Ollama (to set Origin)
@@ -58,6 +60,7 @@ crash-handler = "0.7.0"
 urlencoding = "2.1.3"
 bytemuck = "1.24.0"
 which = "8"
+enigo = "0.3"
 
 # Linux
 [target.'cfg(target_os = "linux")'.dependencies]

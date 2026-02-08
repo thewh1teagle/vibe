@@ -28,6 +28,7 @@ import { useFilesContext } from '~/providers/FilesProvider'
 import { ModelOptions, usePreferenceProvider } from '~/providers/Preference'
 import { useToastProvider } from '~/providers/Toast'
 import { UpdaterContext } from '~/providers/Updater'
+import { hotkeyRecordingActive } from '~/providers/Hotkey'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -221,6 +222,7 @@ export function viewModel() {
 
 	async function handleRecordFinish() {
 		await listen<{ path: string; name: string }>('record_finish', (event) => {
+			if (hotkeyRecordingActive) return
 			const { name, path } = event.payload
 			setSelectedFolder(null)
 			preference.setHomeTabIndex(1)

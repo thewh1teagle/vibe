@@ -603,6 +603,16 @@ pub fn rename_crash_file() -> Result<()> {
 }
 
 #[tauri::command]
+pub fn type_text(text: String) -> Result<()> {
+    use enigo::{Enigo, Keyboard, Settings};
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
+    // Small delay to let the user's key release propagate
+    std::thread::sleep(std::time::Duration::from_millis(100));
+    enigo.text(&text).map_err(|e| eyre::eyre!("Failed to type text: {}", e))?;
+    Ok(())
+}
+
+#[tauri::command]
 pub fn get_cargo_features() -> Vec<String> {
     Vec::new()
 }
