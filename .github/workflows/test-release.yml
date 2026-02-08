@@ -16,7 +16,7 @@ jobs:
         include:
           - runner: macos-14
             pattern: vibe_aarch64.app.tar.gz
-          - runner: macos-13
+          - runner: macos-15-intel
             pattern: vibe_x64.app.tar.gz
           - runner: ubuntu-22.04
             pattern: "vibe_*_amd64.deb"
@@ -28,6 +28,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: samples
+
+      - name: Setup MSYS2 wget (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: wget
 
       - name: Download latest release artifact (including pre-releases)
         shell: bash
@@ -42,8 +49,14 @@ jobs:
           gh release download "$tag" --repo ${{ github.repository }} --pattern "${{ matrix.pattern }}"
 
       - name: Download tiny whisper model
+        if: runner.os != 'Windows'
         shell: bash
         run: wget -q https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+
+      - name: Download tiny whisper model (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: C:\msys64\usr\bin\wget.exe --progress=bar:force:noscroll https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin -O ggml-tiny.bin
 
       - name: Extract and test (macOS)
         if: runner.os == 'macOS'
