@@ -2,6 +2,11 @@ name: Test Release
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to test (leave empty for latest)"
+        required: false
+        type: string
 
 jobs:
   test:
@@ -24,10 +29,16 @@ jobs:
         with:
           sparse-checkout: samples
 
-      - name: Download latest release artifact
+      - name: Download latest release artifact (including pre-releases)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download --repo ${{ github.repository }} --pattern "${{ matrix.pattern }}"
+        run: |
+          tag="${{ inputs.tag }}"
+          if [ -z "$tag" ]; then
+            tag=$(gh release list --repo ${{ github.repository }} --limit 1 --json tagName --jq '.[0].tagName')
+          fi
+          echo "Downloading from release: $tag"
+          gh release download "$tag" --repo ${{ github.repository }} --pattern "${{ matrix.pattern }}"
 
       - name: Download tiny whisper model
         shell: bash
