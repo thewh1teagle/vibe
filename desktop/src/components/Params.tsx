@@ -363,15 +363,26 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								<Field
 									label={
 										<>
-											<InfoTooltip text="best_of: Top candidates in Greedy mode (default: 5) — higher = better accuracy, slower. beam_size: Paths explored in Beam Search (default: 5) — higher = better accuracy, slower." />
+											<InfoTooltip text={preference.modelOptions.sampling_strategy === 'greedy'
+												? "Top candidates in Greedy mode (default: 5) — higher = better accuracy, slower."
+												: "Paths explored in Beam Search (default: 5) — higher = better accuracy, slower."} />
 											{preference.modelOptions.sampling_strategy === 'greedy' ? 'Best of' : 'Beam size'}
 										</>
 									}>
 									<Input
 										type="number"
 										step={1}
-										value={preference.modelOptions.sampling_bestof_or_beam_size ?? 5}
-										onChange={(e) => setOptions({ ...options, sampling_bestof_or_beam_size: parseIntOr(e.target.value, 5) })}
+										value={preference.modelOptions.sampling_strategy === 'greedy'
+											? (preference.modelOptions.best_of ?? 5)
+											: (preference.modelOptions.beam_size ?? 5)}
+										onChange={(e) => {
+											const val = parseIntOr(e.target.value, 5)
+											if (preference.modelOptions.sampling_strategy === 'greedy') {
+												setOptions({ ...options, best_of: val })
+											} else {
+												setOptions({ ...options, beam_size: val })
+											}
+										}}
 									/>
 								</Field>
 							</div>

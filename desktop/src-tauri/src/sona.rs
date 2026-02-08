@@ -101,16 +101,13 @@ impl SonaProcess {
 
     pub async fn transcribe_stream(
         &self,
-        file_path: &str,
-        language: Option<&str>,
-        translate: bool,
-        prompt: Option<&str>,
+        options: &crate::cmd::TranscribeOptions,
     ) -> Result<impl futures_util::Stream<Item = Result<SonaEvent>>> {
         let url = format!("{}/v1/audio/transcriptions", self.base_url());
 
-        let file_bytes = tokio::fs::read(file_path).await.context("failed to read audio file")?;
+        let file_bytes = tokio::fs::read(&options.path).await.context("failed to read audio file")?;
 
-        let file_name = Path::new(file_path)
+        let file_name = Path::new(&options.path)
             .file_name()
             .unwrap_or_default()
             .to_string_lossy()
@@ -122,17 +119,55 @@ impl SonaProcess {
 
         let mut form = multipart::Form::new().part("file", file_part).text("stream", "true");
 
-        if let Some(lang) = language {
+        if let Some(ref lang) = options.lang {
             if !lang.is_empty() {
-                form = form.text("language", lang.to_string());
+                form = form.text("language", lang.clone());
             }
         }
-        if translate {
+        if options.translate.unwrap_or(false) {
             form = form.text("translate", "true");
         }
-        if let Some(p) = prompt {
+        if let Some(ref p) = options.init_prompt {
             if !p.is_empty() {
-                form = form.text("prompt", p.to_string());
+                form = form.text("prompt", p.clone());
+            }
+        }
+        if let Some(n) = options.n_threads {
+            if n > 0 {
+                form = form.text("n_threads", n.to_string());
+            }
+        }
+        if let Some(t) = options.temperature {
+            if t > 0.0 {
+                form = form.text("temperature", t.to_string());
+            }
+        }
+        if let Some(n) = options.max_text_ctx {
+            if n > 0 {
+                form = form.text("max_text_ctx", n.to_string());
+            }
+        }
+        if options.word_timestamps.unwrap_or(false) {
+            form = form.text("word_timestamps", "true");
+        }
+        if let Some(n) = options.max_sentence_len {
+            if n > 0 {
+                form = form.text("max_segment_len", n.to_string());
+            }
+        }
+        if let Some(ref strategy) = options.sampling_strategy {
+            if strategy == "beam search" {
+                form = form.text("sampling_strategy", "beam_search".to_string());
+            }
+        }
+        if let Some(n) = options.best_of {
+            if n > 0 {
+                form = form.text("best_of", n.to_string());
+            }
+        }
+        if let Some(n) = options.beam_size {
+            if n > 0 {
+                form = form.text("beam_size", n.to_string());
             }
         }
 

@@ -211,7 +211,8 @@ pub struct TranscribeOptions {
     pub word_timestamps: Option<bool>,
     pub max_sentence_len: Option<i32>,
     pub sampling_strategy: Option<String>,
-    pub sampling_bestof_or_beam_size: Option<i32>,
+    pub best_of: Option<i32>,
+    pub beam_size: Option<i32>,
 }
 
 #[tauri::command]
@@ -319,11 +320,7 @@ pub async fn transcribe(
 
     let start = std::time::Instant::now();
 
-    let language = options.lang.as_deref();
-    let translate = options.translate.unwrap_or(false);
-    let prompt = options.init_prompt.as_deref();
-
-    let stream = sona.transcribe_stream(&options.path, language, translate, prompt).await?;
+    let stream = sona.transcribe_stream(&options).await?;
 
     tokio::pin!(stream);
 
