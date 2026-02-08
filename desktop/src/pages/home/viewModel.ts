@@ -17,7 +17,7 @@ import { TextFormat } from '~/components/FormatSelect'
 import { AudioDevice } from '~/lib/audio'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
-import { Claude, Llm, Ollama } from '~/lib/llm'
+import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { useConfirmExit } from '~/lib/useConfirmExit'
 import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
@@ -109,6 +109,9 @@ export function viewModel() {
 	useEffect(() => {
 		if (preference.llmConfig?.platform === 'ollama') {
 			const llmInstance = new Ollama(preference.llmConfig)
+			setLlm(llmInstance)
+		} else if (preference.llmConfig?.platform === 'openai') {
+			const llmInstance = new OpenAICompatible(preference.llmConfig)
 			setLlm(llmInstance)
 		} else {
 			const llmInstance = new Claude(preference.llmConfig)
