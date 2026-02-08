@@ -1,6 +1,8 @@
 {
 	"aborting": "Aborting",
 	"advanced": "Advanced",
+	"analytics-enabled": "Anonymous analytics",
+	"analytics-disabled-warning": "We strongly recommend keeping this enabled so we can find and fix issues faster.",
 	"app-title": "Vibe",
 	"ask-for-download-model": "Would you like to download the model from the website",
 	"ask-for-install-ytdlp-message": "Do you want to install ytdlp which is used for downloading audio from popular websites?",

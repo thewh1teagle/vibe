@@ -1,6 +1,6 @@
 ## Privacy Policy
 
-_Last updated: 2024-09-03_
+_Last updated: 2026-02-08_
 
 Thank you for choosing **Vibe**! We are committed to ensuring your privacy and data security. This policy outlines how **Vibe** handles data and user privacy.
 
@@ -14,7 +14,13 @@ Thank you for choosing **Vibe**! We are committed to ensuring your privacy and d
 
 ### 2. Data Collection
 
-**Vibe** does not collect any data or analytics. There is no automatic data reporting or tracking of any kind.
+**Vibe** collects anonymous, privacy-friendly analytics through [Aptabase](https://aptabase.com/) to help us identify and fix errors. This includes:
+
+- Event names (e.g. transcription started, failed)
+- Error messages (no file names or content)
+- OS name, app version, and country (coarse, no IP stored)
+
+No personal data, file contents, transcription text, or identifying information is ever collected. Analytics can be disabled at any time in **Settings**.
 
 In the event of a crash, no reports are automatically sent. Instead, crash logs are saved on your computer, and users may choose to submit them when reporting an issue. When an error occurs, a dialog box will display the error, allowing users to decide whether they want to report the issue. Any data included in the report, such as OS information, will be fully visible to the user before submission (via GitHub).
 

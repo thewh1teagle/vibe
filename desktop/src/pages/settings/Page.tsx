@@ -277,6 +277,19 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 					</div>
 
 					<div className="space-y-2">
+						<SectionTitle title={t('common.analytics-enabled')} />
+						<SectionCard>
+							<div className="flex flex-wrap items-center justify-between gap-2">
+								<span className="text-sm font-medium">{t('common.analytics-enabled')}</span>
+								<Switch checked={vm.preference.analyticsEnabled} onCheckedChange={vm.preference.setAnalyticsEnabled} />
+							</div>
+							{!vm.preference.analyticsEnabled && (
+								<p className="mt-2 text-xs italic text-muted-foreground">{t('common.analytics-disabled-warning')}</p>
+							)}
+						</SectionCard>
+					</div>
+
+					<div className="space-y-2">
 						<SectionTitle title={t('common.advanced')} />
 						<SectionCard>
 							<div className="divide-y divide-border/45 rounded-lg border border-border/55 bg-background/20">

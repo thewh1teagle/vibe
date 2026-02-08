@@ -1,5 +1,7 @@
-import { ReactNode, createContext, useContext, useEffect, useRef } from 'react'
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
+import { load } from '@tauri-apps/plugin-store'
+import * as config from '~/lib/config'
 import { TextFormat } from '~/components/FormatSelect'
 import { ModifyState } from '~/lib/utils'
 import { supportedLanguages } from '~/lib/i18n'
@@ -55,6 +57,9 @@ export interface Preference {
 
 	advancedTranscribeOptions: AdvancedTranscribeOptions
 	setAdvancedTranscribeOptions: ModifyState<AdvancedTranscribeOptions>
+
+	analyticsEnabled: boolean
+	setAnalyticsEnabled: (value: boolean) => void
 }
 
 // Create the context
@@ -143,6 +148,23 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		saveNextToAudioFile: true,
 		skipIfExists: true,
 	})
+
+	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
+	useEffect(() => {
+		load(config.storeFilename).then((store) => {
+			store.get<boolean>('analytics_enabled').then((val) => {
+				if (val !== null && val !== undefined) {
+					setAnalyticsEnabledLocal(val)
+				}
+			})
+		})
+	}, [])
+	const setAnalyticsEnabled = async (value: boolean) => {
+		setAnalyticsEnabledLocal(value)
+		const store = await load(config.storeFilename)
+		await store.set('analytics_enabled', value)
+		await store.save()
+	}
 
 	useEffect(() => {
 		setIsFirstRun(false)
@@ -236,6 +258,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setShouldCheckYtDlpVersion,
 		advancedTranscribeOptions,
 		setAdvancedTranscribeOptions,
+		analyticsEnabled,
+		setAnalyticsEnabled,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>
