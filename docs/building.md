@@ -89,7 +89,7 @@ pnpx tinypng-go static/*.png
 
 ```console
 go install github.com/mandolyte/mdtopdf/cmd/md2pdf@latest
-md2pdf -i landing/static/privacy_policy.md -o landing/static/privacy_policy.pdf
+md2pdf -i website/public/privacy_policy.md -o website/public/privacy_policy.pdf
 ```
 
 ## Normalize wav file for tests
