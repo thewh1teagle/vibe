@@ -1,5 +1,6 @@
 {
 	"bundle": {
+		"externalBin": ["binaries/sona", "binaries/ffmpeg"],
 		"macOS": {
 			"entitlements": "entitlements.plist",
 			"signingIdentity": "-",
