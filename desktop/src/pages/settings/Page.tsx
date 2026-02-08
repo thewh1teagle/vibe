@@ -42,6 +42,8 @@ function SectionCard({ children }: { children: ReactNode }) {
 export default function SettingsPage({ setVisible }: SettingsPageProps) {
 	const { t, i18n } = useTranslation()
 	const vm = viewModel()
+	const apiDocsUrl = vm.apiBaseUrl ? `${vm.apiBaseUrl}/docs` : null
+	const serverActionBusy = vm.isStartingApiServer || vm.isStoppingApiServer
 
 	return (
 		<div className="app-shell flex min-h-screen items-start justify-center py-6 md:py-10">
@@ -197,6 +199,47 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 							<div className="flex flex-wrap items-center justify-between gap-2">
 								<span className="text-sm font-medium">{t('common.check-ytdlp-updates')}</span>
 								<Switch checked={vm.preference.shouldCheckYtDlpVersion} onCheckedChange={vm.preference.setShouldCheckYtDlpVersion} />
+							</div>
+						</SectionCard>
+					</div>
+
+					<div className="space-y-2">
+						<SectionTitle title="API Server" />
+						<SectionCard>
+							<div className="space-y-4">
+								<div className="flex items-center justify-between gap-3">
+									<div className="flex items-center gap-2 text-sm font-medium">
+										<span
+											className={`h-2.5 w-2.5 rounded-full ${vm.apiBaseUrl ? 'bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.18)]' : 'bg-muted-foreground/40 shadow-[0_0_0_4px_rgba(148,163,184,0.12)]'}`}
+										/>
+										<span>{vm.apiBaseUrl ? 'Running' : 'Idle'}</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<Button
+											variant="outline"
+											size="sm"
+											onMouseDown={vm.apiBaseUrl ? vm.stopApiServer : vm.startApiServer}
+											disabled={serverActionBusy}>
+											{vm.isStartingApiServer ? 'Starting...' : vm.isStoppingApiServer ? 'Stopping...' : vm.apiBaseUrl ? 'Stop server' : 'Start server'}
+										</Button>
+										<Button variant="outline" size="sm" onMouseDown={vm.refreshApiServerStatus}>
+											Refresh
+										</Button>
+									</div>
+								</div>
+								<div className="rounded-lg border border-border/55 bg-background/30 p-3">
+									<p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">API URL</p>
+									<p className="truncate font-mono text-xs text-foreground/90">
+										{vm.apiBaseUrl ?? 'http://127.0.0.1:<port>'}
+									</p>
+								</div>
+								<Button
+									variant="ghost"
+									onMouseDown={() => (apiDocsUrl ? shell.open(apiDocsUrl) : null)}
+									disabled={!apiDocsUrl}
+									className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
+									Open API docs <LinkIcon className="h-4 w-4 text-muted-foreground" />
+								</Button>
 							</div>
 						</SectionCard>
 					</div>

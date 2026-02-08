@@ -86,6 +86,9 @@ export function viewModel() {
 	const { t } = useTranslation()
 	const listenersRef = useRef<UnlistenFn[]>([])
 	const [downloadURL, setDownloadURL] = useState('')
+	const [apiBaseUrl, setApiBaseUrl] = useState<string | null>(null)
+	const [isStartingApiServer, setIsStartingApiServer] = useState(false)
+	const [isStoppingApiServer, setIsStoppingApiServer] = useState(false)
 	const navigate = useNavigate()
 
 	async function askAndReset() {
@@ -144,12 +147,48 @@ export function viewModel() {
 
 	async function onWindowFocus() {
 		listenersRef.current.push(await listen('tauri://focus', loadModels))
+		listenersRef.current.push(await listen('tauri://focus', refreshApiServerStatus))
+	}
+
+	async function refreshApiServerStatus() {
+		try {
+			const baseUrl = await invoke<string | null>('get_api_base_url')
+			setApiBaseUrl(baseUrl)
+		} catch (error) {
+			console.error(error)
+			setApiBaseUrl(null)
+		}
+	}
+
+	async function startApiServer() {
+		try {
+			setIsStartingApiServer(true)
+			const baseUrl = await invoke<string>('start_api_server')
+			setApiBaseUrl(baseUrl)
+		} catch (error) {
+			console.error(error)
+		} finally {
+			setIsStartingApiServer(false)
+		}
+	}
+
+	async function stopApiServer() {
+		try {
+			setIsStoppingApiServer(true)
+			await invoke<boolean>('stop_api_server')
+			setApiBaseUrl(null)
+		} catch (error) {
+			console.error(error)
+		} finally {
+			setIsStoppingApiServer(false)
+		}
 	}
 
 	useEffect(() => {
 		loadMeta()
 		loadModels()
 		getDefaultModel()
+		refreshApiServerStatus()
 		onWindowFocus()
 		return () => {
 			listenersRef.current.forEach((unlisten) => unlisten())
@@ -163,6 +202,12 @@ export function viewModel() {
 		downloadModel,
 		downloadURL,
 		setDownloadURL,
+		apiBaseUrl,
+		isStartingApiServer,
+		isStoppingApiServer,
+		startApiServer,
+		stopApiServer,
+		refreshApiServerStatus,
 		preference: preference,
 		askAndReset,
 		openModelPath,

@@ -77,7 +77,7 @@ impl SonaProcess {
         })
     }
 
-    fn base_url(&self) -> String {
+    pub fn base_url(&self) -> String {
         format!("http://127.0.0.1:{}", self.port)
     }
 

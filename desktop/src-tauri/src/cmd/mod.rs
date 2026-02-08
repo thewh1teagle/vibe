@@ -462,6 +462,36 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Res
 }
 
 #[tauri::command]
+pub async fn get_api_base_url(sona_state: State<'_, Mutex<SonaState>>) -> Result<Option<String>> {
+    let state = sona_state.lock().await;
+    Ok(state.process.as_ref().map(|process| process.base_url()))
+}
+
+#[tauri::command]
+pub async fn start_api_server(app_handle: tauri::AppHandle, sona_state: State<'_, Mutex<SonaState>>) -> Result<String> {
+    let mut state_guard = sona_state.lock().await;
+    if state_guard.process.is_none() {
+        let binary_path = resolve_sona_binary(&app_handle)?;
+        let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
+        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?;
+        state_guard.process = Some(process);
+    }
+    let process = state_guard.process.as_ref().context("API server process missing")?;
+    Ok(process.base_url())
+}
+
+#[tauri::command]
+pub async fn stop_api_server(sona_state: State<'_, Mutex<SonaState>>) -> Result<bool> {
+    let mut state_guard = sona_state.lock().await;
+    if let Some(mut process) = state_guard.process.take() {
+        process.kill();
+        state_guard.loaded_model_path = None;
+        return Ok(true);
+    }
+    Ok(false)
+}
+
+#[tauri::command]
 #[allow(clippy::comparison_to_empty)]
 pub fn is_portable() -> bool {
     env!("WINDOWS_PORTABLE") == "1"
