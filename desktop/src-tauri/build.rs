@@ -52,6 +52,9 @@ fn main() {
         std::env::var("WINDOWS_PORTABLE").unwrap_or_default().trim()
     );
 
+    // Analytics
+    println!("cargo:rerun-if-env-changed=APTABASE_KEY");
+
     copy_locales();
     tauri_build::build();
 }

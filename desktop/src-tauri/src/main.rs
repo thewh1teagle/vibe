@@ -94,6 +94,7 @@ async fn main() -> Result<()> {
             cmd::get_api_base_url,
             cmd::start_api_server,
             cmd::stop_api_server,
+            cmd::track_analytics_event,
             cmd::get_commit_hash,
             cmd::get_cuda_version,
             cmd::get_rocm_version,

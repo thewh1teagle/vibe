@@ -1,4 +1,4 @@
-import { trackEvent } from '@aptabase/tauri'
+import { invoke } from '@tauri-apps/api/core'
 
 export const analyticsEvents = {
 	TRANSCRIBE_STARTED: 'transcribe_started',
@@ -9,9 +9,10 @@ export const analyticsEvents = {
 type AnalyticsProps = Record<string, string | number>
 
 export function trackAnalyticsEvent(eventName: string, props?: AnalyticsProps) {
-	try {
-		trackEvent(eventName, props)
-	} catch (error) {
+	void invoke('track_analytics_event', {
+		name: eventName,
+		props,
+	}).catch((error) => {
 		console.debug('analytics track failed', error)
-	}
+	})
 }

@@ -2,6 +2,7 @@ use eyre::Result;
 use std::io::{BufRead, BufReader};
 use std::process;
 use tauri::AppHandle;
+use tauri_plugin_aptabase::EventTracker;
 
 use crate::cmd::{resolve_ffmpeg_path, resolve_sona_binary};
 
@@ -77,6 +78,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     let _ = stdout_thread.join();
     let _ = stderr_thread.join();
 
+    app_handle.flush_events_blocking();
     app_handle.cleanup_before_exit();
     process::exit(status.code().unwrap_or(1));
 }
