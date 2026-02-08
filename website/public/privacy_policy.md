@@ -22,8 +22,6 @@ Thank you for choosing **Vibe**! We are committed to ensuring your privacy and d
 
 No personal data, file contents, transcription text, or identifying information is ever collected. Analytics can be disabled at any time in **Settings**.
 
-In the event of a crash, no reports are automatically sent. Instead, crash logs are saved on your computer, and users may choose to submit them when reporting an issue. When an error occurs, a dialog box will display the error, allowing users to decide whether they want to report the issue. Any data included in the report, such as OS information, will be fully visible to the user before submission (via GitHub).
-
 **Optional Cloud Summarization**
 
 When using the **Summarize** option in the `More Options` menu (which is off by default), the transcription is sent to the Claude API for summarization. This feature is entirely optional, and users can choose whether or not to enable it. By default, this option is disabled, ensuring that no data is sent to the cloud without explicit user consent.
