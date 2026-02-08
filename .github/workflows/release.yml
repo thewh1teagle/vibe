@@ -83,12 +83,12 @@ jobs:
                   args: ${{ matrix.args }}
                   projectPath: "./desktop"
                   tauriScript: pnpm exec tauri
-    update-landing:
+    update-website:
       runs-on: macos-latest
       needs: publish-tauri
       steps:
         - uses: actions/checkout@v4
-        - name: Update landing URLs
-          run: gh workflow run landing.yml
+        - name: Update website URLs
+          run: gh workflow run website.yml
           env:
             GH_TOKEN: ${{ secrets.GH_TOKEN }}
