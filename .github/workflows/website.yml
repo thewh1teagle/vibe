@@ -1,12 +1,12 @@
 name: Deploy Landing
 
 on:
-    # push:
-    #     branches:
-    #         - main
-    #     paths:
-    #         - "website/**"
-    #         - "scripts/landing_links.py"
+    push:
+        branches:
+            - main
+        paths:
+            - "website/**"
+            - "scripts/website_links.py"
     workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
