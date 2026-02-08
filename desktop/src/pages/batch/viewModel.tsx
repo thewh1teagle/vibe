@@ -142,6 +142,9 @@ export function viewModel() {
 		startKeepAwake()
 
 		let localIndex = 0
+		if (!preference.modelPath) {
+			throw new Error('No model selected. Please download or select a model first.')
+		}
 		await invoke('load_model', { modelPath: preference.modelPath })
 		setCurrentIndex(localIndex)
 		const loopStartTime = performance.now()

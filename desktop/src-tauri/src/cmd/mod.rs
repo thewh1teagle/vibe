@@ -257,7 +257,7 @@ pub fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     #[cfg(not(target_os = "windows"))]
     let binary_name = "sona";
 
-    // Check in binaries/ subdirectory (Tauri externalBin places them here)
+    // Check resource dir (Tauri externalBin places them here)
     let sidecar_path = resource_dir.join(binary_name);
     if sidecar_path.exists() {
         return Ok(sidecar_path);
@@ -269,6 +269,22 @@ pub fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
             let path = exe_dir.join(binary_name);
             if path.exists() {
                 return Ok(path);
+            }
+        }
+    }
+
+    // Common Linux install paths (deb/rpm/AUR packages)
+    #[cfg(target_os = "linux")]
+    {
+        let linux_paths = [
+            PathBuf::from("/usr/lib/vibe").join(binary_name),
+            PathBuf::from("/usr/lib/vibe/binaries").join(binary_name),
+            PathBuf::from("/opt/vibe").join(binary_name),
+            PathBuf::from("/opt/vibe/binaries").join(binary_name),
+        ];
+        for path in &linux_paths {
+            if path.exists() {
+                return Ok(path.clone());
             }
         }
     }
@@ -450,7 +466,12 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Res
         match crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref()) {
             Ok(process) => state_guard.process = Some(process),
             Err(e) => {
-                crate::analytics::track_event_handle(&app_handle, crate::analytics::events::SONA_SPAWN_FAILED);
+                let error_msg = format!("{:#}", e);
+                crate::analytics::track_event_handle_with_props(
+                    &app_handle,
+                    crate::analytics::events::SONA_SPAWN_FAILED,
+                    Some(serde_json::json!({"error_message": error_msg})),
+                );
                 return Err(e);
             }
         }

@@ -37,7 +37,7 @@ impl SonaProcess {
         let mut cmd = Command::new(binary_path);
         cmd.args(["serve", "--port", "0"])
             .stdout(Stdio::piped())
-            .stderr(Stdio::inherit());
+            .stderr(Stdio::piped());
 
         if let Some(ffmpeg) = ffmpeg_path {
             tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
@@ -52,16 +52,43 @@ impl SonaProcess {
 
         let mut child = cmd.spawn().context("failed to spawn sona binary")?;
 
+        let mut stderr = child.stderr.take();
         let stdout = child.stdout.take().context("failed to get sona stdout")?;
         let mut reader = std::io::BufReader::new(stdout);
         let mut line = String::new();
-        reader.read_line(&mut line).context("failed to read sona ready signal")?;
 
-        let signal: ReadySignal = serde_json::from_str(line.trim()).context("failed to parse sona ready signal")?;
+        let mut read_stderr = || -> String {
+            let Some(s) = stderr.take() else { return String::new() };
+            let mut buf = String::new();
+            let mut r = std::io::BufReader::new(s);
+            // Read first line of stderr for diagnostics
+            let _ = r.read_line(&mut buf);
+            buf.truncate(4096);
+            buf
+        };
+
+        if let Err(e) = reader.read_line(&mut line) {
+            let stderr_output = read_stderr();
+            if stderr_output.is_empty() {
+                return Err(e).context("failed to read sona ready signal");
+            }
+            bail!("failed to read sona ready signal: {}\n\nsona stderr: {}", e, stderr_output.trim());
+        }
+
+        let signal: ReadySignal = match serde_json::from_str(line.trim()) {
+            Ok(s) => s,
+            Err(e) => {
+                let stderr_output = read_stderr();
+                if stderr_output.is_empty() {
+                    bail!("failed to parse sona ready signal: {}", e);
+                }
+                bail!("failed to parse sona ready signal: {}\n\nsona stderr: {}", e, stderr_output.trim());
+            }
+        };
 
         tracing::debug!("sona ready on port {}", signal.port);
 
-        // Spawn a thread to consume remaining stdout so the pipe doesn't block
+        // Spawn threads to consume remaining stdout/stderr so the pipes don't block
         std::thread::spawn(move || {
             let mut buf = String::new();
             while reader.read_line(&mut buf).unwrap_or(0) > 0 {
@@ -69,6 +96,16 @@ impl SonaProcess {
                 buf.clear();
             }
         });
+        if let Some(stderr) = stderr {
+            std::thread::spawn(move || {
+                let mut reader = std::io::BufReader::new(stderr);
+                let mut buf = String::new();
+                while reader.read_line(&mut buf).unwrap_or(0) > 0 {
+                    tracing::debug!("sona stderr: {}", buf.trim());
+                    buf.clear();
+                }
+            });
+        }
 
         Ok(Self {
             port: signal.port,
@@ -83,20 +120,33 @@ impl SonaProcess {
 
     pub async fn load_model(&self, path: &str) -> Result<()> {
         let url = format!("{}/v1/models/load", self.base_url());
-        let resp = self
-            .client
-            .post(&url)
-            .json(&serde_json::json!({"path": path}))
-            .send()
-            .await
-            .context("failed to send load_model request to sona")?;
-
-        if !resp.status().is_success() {
-            let body = resp.text().await.unwrap_or_default();
-            bail!("sona load_model failed: {}", body);
+        let mut last_err = None;
+        for attempt in 0..3 {
+            if attempt > 0 {
+                tracing::debug!("retrying load_model (attempt {})", attempt + 1);
+                tokio::time::sleep(std::time::Duration::from_millis(500 * (1 << attempt))).await;
+            }
+            match self
+                .client
+                .post(&url)
+                .json(&serde_json::json!({"path": path}))
+                .send()
+                .await
+            {
+                Ok(resp) => {
+                    if !resp.status().is_success() {
+                        let body = resp.text().await.unwrap_or_default();
+                        bail!("sona load_model failed: {}", body);
+                    }
+                    tracing::debug!("sona model loaded: {}", path);
+                    return Ok(());
+                }
+                Err(e) => {
+                    last_err = Some(e);
+                }
+            }
         }
-        tracing::debug!("sona model loaded: {}", path);
-        Ok(())
+        Err(last_err.unwrap()).context("failed to send load_model request to sona after 3 attempts")
     }
 
     pub async fn transcribe_stream(

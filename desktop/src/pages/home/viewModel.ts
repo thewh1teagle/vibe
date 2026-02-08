@@ -442,6 +442,9 @@ export function viewModel() {
 		})
 		try {
 			const modelPath = preferenceRef.current.modelPath
+			if (!modelPath) {
+				throw new Error('No model selected. Please download or select a model first.')
+			}
 			await invoke('load_model', { modelPath })
 			const options = {
 				path,
