@@ -149,10 +149,8 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					await invoke('type_text', { text: resultText })
 				} else {
 					await clipboard.writeText(resultText)
+					await notify('Vibe', t('common.hotkey-transcription-copied'))
 				}
-
-				// Show native notification
-				await notify('Vibe', t('common.hotkey-transcription-copied'))
 			} catch (error) {
 				console.error('Hotkey transcription error:', error)
 				await notify('Vibe', String(error))
