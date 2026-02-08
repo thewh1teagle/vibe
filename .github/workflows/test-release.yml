@@ -53,7 +53,8 @@ jobs:
       - name: Install and test (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo dpkg -i vibe_*_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y ./vibe_*_amd64.deb
           vibe transcribe ggml-tiny.bin samples/short.mp4
 
       - name: Install and test (Windows)
