@@ -448,9 +448,15 @@ export function viewModel() {
 				throw new Error('No model selected. Please download or select a model first.')
 			}
 			await invoke('load_model', { modelPath })
+			let diarize_model: string | undefined
+			if (preferenceRef.current.diarizeEnabled) {
+				const modelsFolder = await invoke<string>('get_models_folder')
+				diarize_model = modelsFolder + '/' + config.diarizeModelFilename
+			}
 			const options = {
 				path,
 				...preferenceRef.current.modelOptions,
+				...(diarize_model ? { diarize_model } : {}),
 			}
 			const startTime = performance.now()
 			const res: transcript.Transcript = await invoke('transcribe', {
@@ -499,7 +505,7 @@ export function viewModel() {
 
 		if (newSegments && llm && preferenceRef.current.llmConfig?.enabled) {
 			try {
-				const question = `${preferenceRef.current.llmConfig.prompt.replace('%s', transcript.asText(newSegments))}`
+				const question = `${preferenceRef.current.llmConfig.prompt.replace('%s', transcript.asText(newSegments, t('common.speaker-prefix')))}`
 				const answerPromise = llm.ask(question)
 				hotToast.promise(answerPromise, {
 					loading: t('common.summarize-loading'),

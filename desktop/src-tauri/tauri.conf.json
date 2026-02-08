@@ -44,7 +44,8 @@
 			"icons/icon.ico"
 		],
 		"externalBin": [
-			"binaries/sona"
+			"binaries/sona",
+			"binaries/sona-diarize"
 		],
 		"resources": {
 			"locales": "locales"

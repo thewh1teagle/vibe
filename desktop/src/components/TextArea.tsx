@@ -72,18 +72,19 @@ export default function TextArea({
 	const preference = usePreferenceProvider()
 	const [text, setText] = useState('')
 
+	const speakerLabel = t('common.speaker-prefix')
 	useEffect(() => {
 		if (segments) {
 			setText(
 				preference.textFormat === 'vtt'
-					? asVtt(segments)
+					? asVtt(segments, speakerLabel)
 					: preference.textFormat === 'srt'
-						? asSrt(segments)
+						? asSrt(segments, speakerLabel)
 						: preference.textFormat === 'json'
 							? asJson(segments)
 							: preference.textFormat === 'csv'
 								? asCsv(segments)
-							: asText(segments),
+							: asText(segments, speakerLabel),
 			)
 		} else {
 			setText('')
@@ -111,7 +112,7 @@ export default function TextArea({
 
 		if (format === 'docx') {
 			const fileName = await path.basename(filePath)
-			const doc = await toDocx(fileName, segments!, preference.textAreaDirection)
+			const doc = await toDocx(fileName, segments!, preference.textAreaDirection, speakerLabel)
 			const arrayBuffer = await doc.arrayBuffer()
 			await fs.writeFile(filePath, new Uint8Array(arrayBuffer))
 		} else {

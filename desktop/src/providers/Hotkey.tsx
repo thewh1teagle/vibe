@@ -14,6 +14,8 @@ import { useTranslation } from 'react-i18next'
 // when hotkey-triggered recording finishes
 export let hotkeyRecordingActive = false
 
+export const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+V'
+
 export type HotkeyOutputMode = 'clipboard' | 'type'
 
 interface HotkeyContextType {
@@ -55,7 +57,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const preferenceRef = useRef(preference)
 
 	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
-	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', 'CmdOrCtrl+Shift+V')
+	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 
@@ -79,35 +81,35 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		return new Claude(config)
 	}, [])
 
-	const handleHotkeyPress = useCallback(async () => {
-		if (isHotkeyRecordingRef.current) {
-			// Stop recording
-			await emit('stop_record')
-		} else {
-			// Start recording
-			try {
-				const devices = await invoke<AudioDevice[]>('get_audio_devices')
-				const defaultInput = devices.find((d) => d.isDefault && d.isInput)
-				if (!defaultInput) {
-					console.error('No default input device found')
-					return
-				}
-
-				isHotkeyRecordingRef.current = true
-				hotkeyRecordingActive = true
-				setIsHotkeyRecording(true)
-
-				await invoke('start_record', {
-					devices: [defaultInput],
-					storeInDocuments: false,
-				})
-			} catch (error) {
-				console.error('Hotkey start_record error:', error)
-				isHotkeyRecordingRef.current = false
-				hotkeyRecordingActive = false
-				setIsHotkeyRecording(false)
+	const handleHotkeyDown = useCallback(async () => {
+		if (isHotkeyRecordingRef.current) return
+		try {
+			const devices = await invoke<AudioDevice[]>('get_audio_devices')
+			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
+			if (!defaultInput) {
+				console.error('No default input device found')
+				return
 			}
+
+			isHotkeyRecordingRef.current = true
+			hotkeyRecordingActive = true
+			setIsHotkeyRecording(true)
+
+			await invoke('start_record', {
+				devices: [defaultInput],
+				storeInDocuments: false,
+			})
+		} catch (error) {
+			console.error('Hotkey start_record error:', error)
+			isHotkeyRecordingRef.current = false
+			hotkeyRecordingActive = false
+			setIsHotkeyRecording(false)
 		}
+	}, [])
+
+	const handleHotkeyUp = useCallback(async () => {
+		if (!isHotkeyRecordingRef.current) return
+		await emit('stop_record')
 	}, [])
 
 	// Listen for record_finish and process when hotkey-triggered
@@ -129,7 +131,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					...preferenceRef.current.modelOptions,
 				}
 				const res: transcript.Transcript = await invoke('transcribe', { options })
-				let resultText = transcript.asText(res.segments)
+				let resultText = transcript.asText(res.segments, t('common.speaker-prefix'))
 
 				// Optional LLM summarization
 				const llm = createLlm()
@@ -188,7 +190,9 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			try {
 				await register(hotkeyShortcut, (event) => {
 					if (event.state === 'Pressed') {
-						handleHotkeyPress()
+						handleHotkeyDown()
+					} else if (event.state === 'Released') {
+						handleHotkeyUp()
 					}
 				})
 				registeredShortcutRef.current = hotkeyShortcut
@@ -206,7 +210,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				registeredShortcutRef.current = null
 			}
 		}
-	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyPress])
+	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
 
 	const value: HotkeyContextType = {
 		hotkeyEnabled,

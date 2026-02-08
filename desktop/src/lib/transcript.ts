@@ -13,6 +13,7 @@ export interface Segment {
 	start: number
 	stop: number
 	text: string
+	speaker?: number
 }
 
 export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, decimalMarker: string, includeMilliseconds: boolean = true): string {
@@ -42,30 +43,34 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 	return result
 }
 
-export function asSrt(segments: Segment[]) {
+function speakerPrefix(segment: Segment, label: string): string {
+	return segment.speaker != null ? `[${label} ${segment.speaker + 1}] ` : ''
+}
+
+export function asSrt(segments: Segment[], speakerLabel: string = 'Speaker') {
 	return segments.reduce((transcript, segment, i) => {
 		return (
 			transcript +
 			`${i > 0 ? '\n' : ''}${i + 1}\n` +
 			`${formatTimestamp(segment.start, true, ',')} --> ${formatTimestamp(segment.stop, true, ',')}\n` +
-			`${segment.text.trim().replace('-->', '->')}\n`
+			`${speakerPrefix(segment, speakerLabel)}${segment.text.trim().replace('-->', '->')}\n`
 		)
 	}, '')
 }
 
-export function asVtt(segments: Segment[]) {
+export function asVtt(segments: Segment[], speakerLabel: string = 'Speaker') {
 	return segments.reduce((transcript, segment) => {
 		return (
 			transcript +
 			`${formatTimestamp(segment.start, false, '.')} --> ${formatTimestamp(segment.stop, false, '.')}\n` +
-			`${segment.text.trim().replace('-->', '->')}\n`
+			`${speakerPrefix(segment, speakerLabel)}${segment.text.trim().replace('-->', '->')}\n`
 		)
 	}, '')
 }
 
-export function asText(segments: Segment[]) {
+export function asText(segments: Segment[], speakerLabel: string = 'Speaker') {
 	return segments.reduce((transcript, segment) => {
-		return transcript + `${segment.text.trim()}\n`
+		return transcript + `${speakerPrefix(segment, speakerLabel)}${segment.text.trim()}\n`
 	}, '')
 }
 
@@ -78,11 +83,16 @@ function escapeCsv(value: string) {
 }
 
 export function asCsv(segments: Segment[]) {
-	const header = 'start,end,text'
+	const hasSpeakers = segments.some((s) => s.speaker != null)
+	const header = hasSpeakers ? 'start,end,speaker,text' : 'start,end,text'
 	const rows = segments.map((segment) => {
 		const start = formatTimestamp(segment.start, true, '.')
 		const end = formatTimestamp(segment.stop, true, '.')
 		const text = segment.text.trim()
+		if (hasSpeakers) {
+			const speaker = segment.speaker != null ? String(segment.speaker + 1) : ''
+			return `${escapeCsv(start)},${escapeCsv(end)},${escapeCsv(speaker)},${escapeCsv(text)}`
+		}
 		return `${escapeCsv(start)},${escapeCsv(end)},${escapeCsv(text)}`
 	})
 	return [header, ...rows].join('\n')

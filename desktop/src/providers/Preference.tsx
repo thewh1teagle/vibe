@@ -58,6 +58,9 @@ export interface Preference {
 	advancedTranscribeOptions: AdvancedTranscribeOptions
 	setAdvancedTranscribeOptions: ModifyState<AdvancedTranscribeOptions>
 
+	diarizeEnabled: boolean
+	setDiarizeEnabled: ModifyState<boolean>
+
 	analyticsEnabled: boolean
 	setAnalyticsEnabled: (value: boolean) => void
 }
@@ -148,6 +151,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		saveNextToAudioFile: true,
 		skipIfExists: true,
 	})
+
+	const [diarizeEnabled, setDiarizeEnabled] = useLocalStorage<boolean>('prefs_diarize_enabled', false)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 	useEffect(() => {
@@ -258,6 +263,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setShouldCheckYtDlpVersion,
 		advancedTranscribeOptions,
 		setAdvancedTranscribeOptions,
+		diarizeEnabled,
+		setDiarizeEnabled,
 		analyticsEnabled,
 		setAnalyticsEnabled,
 	}

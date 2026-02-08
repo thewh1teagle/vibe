@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
@@ -31,6 +32,7 @@ export function viewModel() {
 	const isAbortingRef = useRef<boolean>(false)
 	const preference = usePreferenceProvider()
 	const navigate = useNavigate()
+	const { t } = useTranslation()
 	const [llm, setLlm] = useState<Llm | null>(null)
 	const location = useLocation()
 	const [outputFolder, setOutputFolder] = useState('')
@@ -45,12 +47,13 @@ export function viewModel() {
 		}
 	}, [preference.llmConfig])
 
+	const speakerLabel = t('common.speaker-prefix')
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {
-			return asSrt(segments)
+			return asSrt(segments, speakerLabel)
 		}
 		if (format === 'vtt') {
-			return asVtt(segments)
+			return asVtt(segments, speakerLabel)
 		}
 		if (format === 'json') {
 			return asJson(segments)
@@ -58,7 +61,7 @@ export function viewModel() {
 		if (format === 'csv') {
 			return asCsv(segments)
 		}
-		return asText(segments)
+		return asText(segments, speakerLabel)
 	}
 
 	async function checkFilesState() {
@@ -149,6 +152,11 @@ export function viewModel() {
 			throw new Error('No model selected. Please download or select a model first.')
 		}
 		await invoke('load_model', { modelPath: preference.modelPath })
+		let diarize_model: string | undefined
+		if (preference.diarizeEnabled) {
+			const modelsFolder = await invoke<string>('get_models_folder')
+			diarize_model = modelsFolder + '/' + config.diarizeModelFilename
+		}
 		setCurrentIndex(localIndex)
 		const loopStartTime = performance.now()
 		for (const file of files) {
@@ -160,6 +168,7 @@ export function viewModel() {
 				const options = {
 					path: file.path,
 					...preference.modelOptions,
+					...(diarize_model ? { diarize_model } : {}),
 				}
 				const startTime = performance.now()
 
@@ -199,7 +208,7 @@ export function viewModel() {
 				let llmSegments: Segment[] | null = null
 				if (llm && preference.llmConfig?.enabled) {
 					try {
-						const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments))}`
+						const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments, speakerLabel))}`
 						const answer = await llm.ask(question)
 						if (answer) {
 							llmSegments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
@@ -215,7 +224,7 @@ export function viewModel() {
 					// Write file
 					if (format === 'docx') {
 						const fileName = await path.basename(dst)
-						const doc = await toDocx(fileName, res.segments, preference.textAreaDirection)
+						const doc = await toDocx(fileName, res.segments, preference.textAreaDirection, speakerLabel)
 						const arrayBuffer = await doc.arrayBuffer()
 						const buffer = new Uint8Array(arrayBuffer)
 						fs.writeFile(dst, buffer)

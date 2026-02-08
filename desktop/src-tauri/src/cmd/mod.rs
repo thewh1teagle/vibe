@@ -214,6 +214,7 @@ pub struct TranscribeOptions {
     pub sampling_strategy: Option<String>,
     pub best_of: Option<i32>,
     pub beam_size: Option<i32>,
+    pub diarize_model: Option<String>,
 }
 
 #[tauri::command]
@@ -313,6 +314,22 @@ pub fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
     None
 }
 
+pub fn resolve_diarize_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
+    let resource_dir = app_handle.path().resource_dir().ok()?;
+
+    #[cfg(target_os = "windows")]
+    let binary_name = "sona-diarize.exe";
+    #[cfg(not(target_os = "windows"))]
+    let binary_name = "sona-diarize";
+
+    let sidecar_path = resource_dir.join(binary_name);
+    if sidecar_path.exists() {
+        return Some(sidecar_path);
+    }
+
+    None
+}
+
 #[tauri::command]
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
@@ -354,11 +371,12 @@ pub async fn transcribe(
                 SonaEvent::Progress { progress } => {
                     let _ = set_progress_bar(&app_handle, Some(progress.into()));
                 }
-                SonaEvent::Segment { start, end, text } => {
+                SonaEvent::Segment { start, end, text, speaker } => {
                     let segment = Segment {
                         start: (start * 100.0) as i64,
                         stop: (end * 100.0) as i64,
                         text,
+                        speaker,
                     };
                     app_handle.emit_to("main", "new_segment", segment.clone()).log_error();
                     segments.push(segment);
@@ -463,7 +481,8 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Res
     if state_guard.process.is_none() {
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        match crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref()) {
+        let diarize_path = resolve_diarize_path(&app_handle);
+        match crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref()) {
             Ok(process) => state_guard.process = Some(process),
             Err(e) => {
                 let error_msg = format!("{:#}", e);
@@ -497,7 +516,8 @@ pub async fn start_api_server(app_handle: tauri::AppHandle, sona_state: State<'_
     if state_guard.process.is_none() {
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?;
+        let diarize_path = resolve_diarize_path(&app_handle);
+        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
         state_guard.process = Some(process);
     }
     let process = state_guard.process.as_ref().context("API server process missing")?;

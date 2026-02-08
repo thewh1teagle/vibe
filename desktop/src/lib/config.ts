@@ -21,6 +21,9 @@ export const segmentModelFilename = 'segmentation-3.0.onnx'
 export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
+export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.1.onnx'
+export const diarizeModelUrl = 'https://huggingface.co/altunenes/parakeet-rs/resolve/main/diar_streaming_sortformer_4spk-v2.1.onnx'
+
 export const llmApiKeyUrl = 'https://console.anthropic.com/settings/keys'
 export const llmDefaultMaxTokens = 8192 // https://docs.anthropic.com/en/docs/about-claude/models
 export const llmLimitsUrl = 'https://console.anthropic.com/settings/limits'

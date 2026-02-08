@@ -2,7 +2,7 @@ import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx'
 import { Segment } from './transcript'
 import { formatDuration } from '~/components/HtmlView'
 
-export async function toDocx(title: string, segments: Segment[], direction: 'rtl' | 'ltr') {
+export async function toDocx(title: string, segments: Segment[], direction: 'rtl' | 'ltr', speakerLabel: string = 'Speaker') {
 	const isRtl = direction === 'rtl'
 	const doc = new Document({
 		sections: [
@@ -26,11 +26,13 @@ export async function toDocx(title: string, segments: Segment[], direction: 'rtl
 					new Paragraph({}),
 					...segments.map((segment) => {
 						const duration = formatDuration(segment.start, segment.stop, direction)
+						const speakerText = segment.speaker != null ? `  ${speakerLabel} ${segment.speaker + 1}` : ''
 						return new Paragraph({
 							alignment: isRtl ? AlignmentType.RIGHT : AlignmentType.LEFT,
 							bidirectional: isRtl,
 							children: [
 								new TextRun({ text: duration, bold: true, rightToLeft: isRtl }),
+								...(speakerText ? [new TextRun({ text: speakerText, bold: true, rightToLeft: isRtl })] : []),
 								new TextRun({ text: `\n${segment.text}`, break: 1, rightToLeft: isRtl }),
 							],
 						})

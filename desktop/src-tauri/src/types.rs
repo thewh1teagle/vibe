@@ -36,6 +36,8 @@ pub struct Segment {
     pub start: i64,
     pub stop: i64,
     pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub speaker: Option<i32>,
 }
 
 impl Segment {

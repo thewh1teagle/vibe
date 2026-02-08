@@ -7,7 +7,10 @@ import { ModelOptions as IModelOptions, usePreferenceProvider } from '~/provider
 import { useToastProvider } from '~/providers/Toast'
 import { listen } from '@tauri-apps/api/event'
 import * as config from '~/lib/config'
+import * as fs from '@tauri-apps/plugin-fs'
+import { invoke } from '@tauri-apps/api/core'
 import { open as shellOpen } from '@tauri-apps/plugin-shell'
+import { join } from '@tauri-apps/api/path'
 import { toast as hotToast } from 'sonner'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import { Claude, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
@@ -277,6 +280,60 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 										{t('common.llm-current-cost')}
 									</button>
 								</div>
+							)}
+						</div>
+
+						<div className="h-px bg-border/45" />
+
+						{/* Diarization Section */}
+						<div className="space-y-4">
+							<h3 className="text-lg font-semibold">{t('common.diarization')}</h3>
+							<div className="flex items-center justify-between">
+								<span className="text-sm font-medium flex items-center gap-1">
+									<InfoTooltip text={t('common.info-diarization')} />
+									{t('common.enable-diarization')}
+								</span>
+								<Switch
+									checked={preference.diarizeEnabled}
+									onCheckedChange={async (checked) => {
+										if (!checked) {
+											preference.setDiarizeEnabled(false)
+											return
+										}
+										try {
+											const modelsFolder = await invoke<string>('get_models_folder')
+											const modelPath = await join(modelsFolder, config.diarizeModelFilename)
+											const exists = await fs.exists(modelPath)
+											if (exists) {
+												preference.setDiarizeEnabled(true)
+											} else {
+												const confirmed = await dialog.ask(
+													t('common.download-diarize-model'),
+													{ title: t('common.diarization'), kind: 'info' }
+												)
+												if (confirmed) {
+													toast.setMessage(t('common.downloading-diarize-model') as string)
+													toast.setOpen(true)
+													toast.setProgress(0)
+													try {
+														await invoke('download_model', { url: config.diarizeModelUrl, path: modelPath })
+														preference.setDiarizeEnabled(true)
+														hotToast.success(t('common.download-complete'))
+													} finally {
+														toast.setOpen(false)
+														toast.setProgress(null)
+													}
+												}
+											}
+										} catch (e) {
+											console.error('diarization setup failed:', e)
+											hotToast.error(String(e))
+										}
+									}}
+								/>
+							</div>
+							{preference.diarizeEnabled && (
+								<p className="text-sm italic text-muted-foreground">{t('common.diarize-max-speakers-note')}</p>
 							)}
 						</div>
 

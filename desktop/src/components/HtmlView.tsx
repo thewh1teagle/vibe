@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Segment, formatTimestamp } from '~/lib/transcript'
 import { NamedPath } from '~/lib/utils'
 import { Preference } from '~/providers/Preference'
@@ -20,6 +21,7 @@ export function formatDuration(start: number, stop: number, direction: 'rtl' | '
 }
 
 export default function HTMLView({ segments, file, preference }: HTMLViewProps) {
+	const { t } = useTranslation()
 	return (
 		<div
 			autoCorrect="off"
@@ -45,6 +47,11 @@ export default function HTMLView({ segments, file, preference }: HTMLViewProps) 
 					<div style={{ marginBottom: '10px' }}>
 						<div className="timestamp" style={{ fontSize: '13px', paddingBottom: '6px', opacity: 0.7 }}>
 							{formatDuration(segment.start, segment.stop)}
+							{segment.speaker != null && (
+								<span style={{ marginLeft: '8px', fontWeight: 600 }}>
+									{t('common.speaker-prefix')} {segment.speaker + 1}
+								</span>
+							)}
 						</div>
 						{segment.text}
 					</div>

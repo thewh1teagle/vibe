@@ -15,8 +15,6 @@ import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import { ModifyState } from '~/lib/utils'
-import ModelOptions from '~/components/Params'
-import { useHotkeyProvider, HotkeyOutputMode } from '~/providers/Hotkey'
 import { viewModel } from './viewModel'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -44,7 +42,6 @@ function SectionCard({ children }: { children: ReactNode }) {
 export default function SettingsPage({ setVisible }: SettingsPageProps) {
 	const { t, i18n } = useTranslation()
 	const vm = viewModel()
-	const hotkey = useHotkeyProvider()
 	const apiDocsUrl = vm.apiBaseUrl ? `${vm.apiBaseUrl}/docs` : null
 	const serverActionBusy = vm.isStartingApiServer || vm.isStoppingApiServer
 
@@ -267,7 +264,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 									variant="ghost"
 									onMouseDown={() => shell.open(config.supportVibeURL)}
 									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
-									{t('common.support-the-project')} <HeartIcon className="h-4 w-4 text-muted-foreground" />
+									{t('common.support-the-project')} <HeartIcon className="h-4 w-4 fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" />
 								</Button>
 								<Button
 									variant="ghost"
@@ -275,48 +272,6 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
 									{t('common.discord-community')} <DiscordIcon className="h-4 w-4 text-muted-foreground" />
 								</Button>
-							</div>
-						</SectionCard>
-					</div>
-
-					<div className="space-y-2">
-						<SectionTitle title={t('common.global-hotkey')} />
-						<SectionCard>
-							<div className="space-y-4">
-								<div className="flex flex-wrap items-center justify-between gap-2">
-									<span className="text-sm font-medium">{t('common.global-hotkey-enabled')}</span>
-									<Switch checked={hotkey.hotkeyEnabled} onCheckedChange={hotkey.setHotkeyEnabled} />
-								</div>
-								{hotkey.hotkeyEnabled && (
-									<div className="space-y-2">
-										<Label>{t('common.global-hotkey-shortcut')}</Label>
-										<Input
-											type="text"
-											value={hotkey.hotkeyShortcut}
-											onChange={(e) => hotkey.setHotkeyShortcut(e.target.value)}
-										/>
-									</div>
-								)}
-								<div className="space-y-2">
-									<Label>{t('common.hotkey-output-mode')}</Label>
-									<div className="flex gap-2">
-										{(['clipboard', 'type'] as HotkeyOutputMode[]).map((mode) => (
-											<button
-												key={mode}
-												type="button"
-												onClick={() => hotkey.setHotkeyOutputMode(mode)}
-												className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-													hotkey.hotkeyOutputMode === mode
-														? 'border-primary bg-primary/10 text-primary'
-														: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
-												}`}>
-												{t(`common.hotkey-output-${mode}`)}
-											</button>
-										))}
-									</div>
-								</div>
-								<p className="text-xs text-muted-foreground">{t('common.global-hotkey-description')}</p>
-								<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 							</div>
 						</SectionCard>
 					</div>

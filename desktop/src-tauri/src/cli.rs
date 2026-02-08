@@ -4,7 +4,7 @@ use std::process;
 use tauri::AppHandle;
 use tauri_plugin_aptabase::EventTracker;
 
-use crate::cmd::{resolve_ffmpeg_path, resolve_sona_binary};
+use crate::cmd::{resolve_diarize_path, resolve_ffmpeg_path, resolve_sona_binary};
 
 /// Attach to console if cli detected in Windows
 #[cfg(all(windows, not(debug_assertions)))]
@@ -40,6 +40,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
 
     let sona_binary = resolve_sona_binary(app_handle)?;
     let ffmpeg_path = resolve_ffmpeg_path(app_handle);
+    let diarize_path = resolve_diarize_path(app_handle);
 
     // Forward all args after the executable name to sona
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -51,6 +52,9 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
 
     if let Some(ref ffmpeg) = ffmpeg_path {
         cmd.env("SONA_FFMPEG_PATH", ffmpeg);
+    }
+    if let Some(ref diarize) = diarize_path {
+        cmd.env("SONA_DIARIZE_PATH", diarize);
     }
 
     let mut child = cmd.spawn().map_err(|e| eyre::eyre!("failed to spawn sona: {}", e))?;
