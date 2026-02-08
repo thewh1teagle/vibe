@@ -36,6 +36,6 @@ export function ytDlpDownloadUrl(version: string, platform: keyof typeof ytDlpAs
 	return `https://github.com/yt-dlp/yt-dlp/releases/download/${version}/${ytDlpAssetNames[platform]}`
 }
 
-export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm']
+export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm', 'mxf']
 export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a', 'm4b', 'wma']
 export const themes = ['light', 'dark']
