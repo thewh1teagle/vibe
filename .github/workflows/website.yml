@@ -46,7 +46,7 @@ jobs:
             - name: Build
               run: |
                 pnpm install
-                uv run ../scripts/landing_links.py
+                uv run ../scripts/website_links.py
                 cp -rf ../docs public/
                 pnpm build
               working-directory: website
