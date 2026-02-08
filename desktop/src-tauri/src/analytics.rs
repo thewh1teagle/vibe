@@ -4,6 +4,7 @@ use tauri_plugin_aptabase::EventTracker;
 pub mod events {
     pub const APP_STARTED: &str = "app_started";
     pub const CLI_STARTED: &str = "cli_started";
+    pub const SONA_SPAWN_FAILED: &str = "sona_spawn_failed";
 }
 
 pub fn track_event(app: &App, event_name: &str) {

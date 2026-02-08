@@ -446,8 +446,13 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Res
     if state_guard.process.is_none() {
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?;
-        state_guard.process = Some(process);
+        match crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref()) {
+            Ok(process) => state_guard.process = Some(process),
+            Err(e) => {
+                crate::analytics::track_event_handle(&app_handle, crate::analytics::events::SONA_SPAWN_FAILED);
+                return Err(e);
+            }
+        }
     }
 
     // Load model via HTTP
