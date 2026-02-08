@@ -61,6 +61,8 @@ export function viewModel() {
 	const [audioUrl, setAudioUrl] = useState<string>('')
 	const [downloadingAudio, setDownloadingAudio] = useState(false)
 	const [ytdlpProgress, setYtDlpProgress] = useState<number | null>(null)
+	const [selectedFolder, setSelectedFolder] = useState<string | null>(null)
+	const [isCollectingFolder, setIsCollectingFolder] = useState(false)
 	const cancelYtDlpRef = useRef<boolean>(false)
 	const switchingToLinkRef = useRef(false)
 	const skippedYtDlpUpdatePromptRef = useRef(false)
@@ -69,6 +71,10 @@ export function viewModel() {
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 
 	async function onFilesChanged() {
+		if (selectedFolder) {
+			setAudio(null)
+			return
+		}
 		if (files.length === 1) {
 			setAudio(new Audio(convertFileSrc(files[0].path)))
 		}
@@ -84,6 +90,7 @@ export function viewModel() {
 
 	useEffect(() => {
 		setFiles([])
+		setSelectedFolder(null)
 		if (!(files.length === 1)) {
 			setAudio(null)
 		}
@@ -95,7 +102,7 @@ export function viewModel() {
 
 	useEffect(() => {
 		onFilesChanged()
-	}, [files])
+	}, [files, selectedFolder])
 
 	useEffect(() => {
 		if (preference.llmConfig?.platform === 'ollama') {
@@ -214,6 +221,7 @@ export function viewModel() {
 	async function handleRecordFinish() {
 		await listen<{ path: string; name: string }>('record_finish', (event) => {
 			const { name, path } = event.payload
+			setSelectedFolder(null)
 			preference.setHomeTabIndex(1)
 			setFiles([{ name, path }])
 			setIsRecording(false)
@@ -251,6 +259,7 @@ export function viewModel() {
 			],
 		})
 		if (selected) {
+			setSelectedFolder(null)
 			const newFiles: NamedPath[] = []
 			for (const path of selected) {
 				const name = await basename(path)
@@ -263,6 +272,53 @@ export function viewModel() {
 			}
 		}
 	}
+
+	async function loadFolderFiles(folder: string, recursive: boolean) {
+		setIsCollectingFolder(true)
+		try {
+			const paths = await invoke<string[]>('glob_files', {
+				folder,
+				patterns: [...config.audioExtensions, ...config.videoExtensions],
+				recursive,
+			})
+			const newFiles: NamedPath[] = []
+			for (const filePath of paths) {
+				const name = await basename(filePath)
+				newFiles.push({ path: filePath, name })
+			}
+			setFiles(newFiles)
+		} finally {
+			setIsCollectingFolder(false)
+		}
+	}
+
+	async function selectFolder() {
+		const folder = await dialog.open({ multiple: false, directory: true })
+		if (!folder || Array.isArray(folder)) return
+		setSelectedFolder(folder)
+		await loadFolderFiles(folder, preference.advancedTranscribeOptions.includeSubFolders)
+	}
+
+	function startFolderBatch() {
+		if (!selectedFolder || !files.length) return
+		navigate('/batch', {
+			state: {
+				files: files.map((file) => file.path),
+				outputFolder: selectedFolder,
+			},
+		})
+	}
+
+	function clearFolderSelection() {
+		setSelectedFolder(null)
+		setFiles([])
+		setAudio(null)
+	}
+
+	useEffect(() => {
+		if (!selectedFolder) return
+		loadFolderFiles(selectedFolder, preference.advancedTranscribeOptions.includeSubFolders)
+	}, [selectedFolder, preference.advancedTranscribeOptions.includeSubFolders])
 
 	async function checkModelExists() {
 		try {
@@ -289,6 +345,7 @@ export function viewModel() {
 
 	async function handleDrop() {
 		listen<{ paths: string[] }>('tauri://drag-drop', async (event) => {
+			setSelectedFolder(null)
 			const newFiles: NamedPath[] = []
 			for (const path of event.payload.paths) {
 				const file = await pathToNamedPath(path)
@@ -347,11 +404,25 @@ export function viewModel() {
 		if (outputDevice) {
 			devices.push(outputDevice)
 		}
-		invoke('start_record', { devices, storeInDocuments: preference.storeRecordInDocuments })
+		try {
+			await invoke('start_record', { devices, storeInDocuments: preference.storeRecordInDocuments })
+		} catch (error) {
+			stopKeepAwake()
+			setIsRecording(false)
+			console.error('startRecord error: ', error)
+			setErrorModal?.({ log: String(error), open: true })
+		}
 	}
 
 	async function stopRecord() {
-		emit('stop_record')
+		try {
+			await emit('stop_record')
+		} catch (error) {
+			stopKeepAwake()
+			setIsRecording(false)
+			console.error('stopRecord error: ', error)
+			setErrorModal?.({ log: String(error), open: true })
+		}
 	}
 
 	async function transcribe(path: string) {
@@ -474,6 +545,11 @@ export function viewModel() {
 		preference: preference,
 		openPath,
 		selectFiles,
+		selectFolder,
+		startFolderBatch,
+		clearFolderSelection,
+		selectedFolder,
+		isCollectingFolder,
 		isAborting,
 		settingsVisible,
 		setSettingsVisible,

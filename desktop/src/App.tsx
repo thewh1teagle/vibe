@@ -1,4 +1,3 @@
-import '@fontsource/roboto'
 import { useTranslation } from 'react-i18next'
 import { Route, Routes } from 'react-router-dom'
 import UpdateProgress from '~/components/UpdaterProgress'

@@ -2,12 +2,9 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ReactComponent as AlignRightIcon } from '~/icons/align-right.svg'
-import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
-import { ReactComponent as DownloadIcon } from '~/icons/download.svg'
-import { ReactComponent as PrintIcon } from '~/icons/print.svg'
+import { AlignRight, Check, Copy, Download, Printer } from 'lucide-react'
 import { Segment, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
-import { ModifyState, NamedPath, cn, openPath } from '~/lib/utils'
+import { NamedPath, cn, openPath } from '~/lib/utils'
 import { TextFormat, formatExtensions } from './FormatSelect'
 import { usePreferenceProvider } from '~/providers/Preference'
 import HTMLView from './HtmlView'
@@ -17,25 +14,42 @@ import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { toDocx } from '~/lib/docx'
 import { path } from '@tauri-apps/api'
 import { Button } from '~/components/ui/button'
-import { Textarea as UITextarea } from '~/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
-import { NativeSelect } from '~/components/ui/native-select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
-function Copy({ text }: { text: string }) {
+function CopyButton({ text }: { text: string }) {
 	const { t } = useTranslation()
+	const [copied, setCopied] = useState(false)
 	const [info, setInfo] = useState(t('common.copy'))
+	const resetTimerRef = useRef<number | null>(null)
+
+	useEffect(() => {
+		return () => {
+			if (resetTimerRef.current) {
+				window.clearTimeout(resetTimerRef.current)
+			}
+		}
+	}, [])
 
 	function onCopy() {
 		clipboard.writeText(text)
+		setCopied(true)
 		setInfo(t('common.copied'))
-		setTimeout(() => setInfo(t('common.copy')), 1000)
+		if (resetTimerRef.current) {
+			window.clearTimeout(resetTimerRef.current)
+		}
+		resetTimerRef.current = window.setTimeout(() => {
+			setCopied(false)
+			setInfo(t('common.copy'))
+			resetTimerRef.current = null
+		}, 1000)
 	}
 
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<Button variant="ghost" size="icon" onMouseDown={onCopy}>
-					<CopyIcon className="h-6 w-6" />
+					{copied ? <Check className="h-5 w-5" strokeWidth={2.3} /> : <Copy className="h-5 w-5" strokeWidth={2.1} />}
 				</Button>
 			</TooltipTrigger>
 			<TooltipContent>{info}</TooltipContent>
@@ -43,67 +57,13 @@ function Copy({ text }: { text: string }) {
 	)
 }
 
-function ReplaceWithBox({
-	segments,
-	setSegments,
-	x,
-	y,
-	dir,
-	onClickOutside,
-	selected,
-}: {
-	selected: string
-	segments: Segment[] | null
-	setSegments: ModifyState<Segment[] | null>
-	x: number
-	y: number
-	dir: 'ltr' | 'rtl'
-	onClickOutside: () => void
-}) {
-	const boxRef = useRef<HTMLDivElement>(null)
-	const { t } = useTranslation()
-	const [value, setValue] = useState('')
-
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
-				onClickOutside()
-			}
-		}
-		document.addEventListener('mousedown', handleClickOutside)
-		return () => document.removeEventListener('mousedown', handleClickOutside)
-	}, [onClickOutside])
-
-	function replace() {
-		setSegments(segments!.map((s) => ({ ...s, text: s.text.replace(selected, value) })))
-		onClickOutside()
-	}
-
-	return (
-		<div ref={boxRef} style={{ left: Math.max(x, 50), top: y }} className="absolute z-10 w-64 rounded-md border bg-popover p-2 shadow-md">
-			<UITextarea
-				value={value}
-				onChange={(e) => setValue(e.target.value)}
-				dir={dir}
-				className="resize-none"
-				placeholder={`${t('common.replace-all')}... (${selected})`}
-			/>
-			<Button onClick={replace} size="sm" className="mt-2 w-full">
-				{t('common.replace-all')}
-			</Button>
-		</div>
-	)
-}
-
 export default function TextArea({
 	segments,
-	setSegments,
 	readonly,
 	placeholder,
 	file,
 }: {
 	segments: Segment[] | null
-	setSegments: ModifyState<Segment[] | null>
 	readonly: boolean
 	placeholder?: string
 	file: NamedPath
@@ -111,12 +71,6 @@ export default function TextArea({
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const [text, setText] = useState('')
-	const [replaceBoxVisible, setReplaceBoxVisible] = useState(false)
-	const replaceBoxVisibleRef = useRef(false)
-	const [replaceBoxPos, setReplaceBoxPos] = useState({ x: 0, y: 0 })
-	const [selectedText, setSelectedText] = useState('')
-	const segmentsTextAreaRef = useRef<HTMLTextAreaElement | null>(null)
-	const segmentsInFocusRef = useRef<boolean>(false)
 
 	useEffect(() => {
 		if (segments) {
@@ -165,53 +119,19 @@ export default function TextArea({
 		toast.success(t('common.save-success'), {
 			description: defaultPath?.name,
 			position: 'bottom-center',
-			action: { label: t('common.open'), onClick: () => openPath({ name: '', path: filePath }) },
+			action: { label: t('common.find-here'), onClick: () => openPath({ name: '', path: filePath }) },
 		})
 	}
 
-	useEffect(() => {
-		replaceBoxVisibleRef.current = replaceBoxVisible
-	}, [replaceBoxVisible])
-
-	function onMouseUp(event: MouseEvent) {
-		if (!segmentsInFocusRef.current || replaceBoxVisibleRef.current) return
-		const selection = window.getSelection()?.toString()
-		if (!selection) return
-
-		setSelectedText(selection)
-		setReplaceBoxPos({ x: event.pageX - 10, y: event.pageY - 40 })
-		if (selection.length < 100) setReplaceBoxVisible(true)
-	}
-
-	useEffect(() => {
-		window.addEventListener('mouseup', onMouseUp)
-		return () => window.removeEventListener('mouseup', onMouseUp)
-	}, [])
-
 	return (
-		<div className="w-full h-full">
-			{replaceBoxVisible && (
-				<ReplaceWithBox
-					selected={selectedText}
-					segments={segments}
-					setSegments={setSegments}
-					onClickOutside={() => {
-						setSelectedText('')
-						setReplaceBoxVisible(false)
-					}}
-					x={replaceBoxPos.x}
-					y={replaceBoxPos.y}
-					dir={preference.textAreaDirection}
-				/>
-			)}
-
-			<div className="w-full bg-muted rounded-tl-lg rounded-tr-lg flex flex-row items-center gap-1 px-1">
-				<Copy text={text} />
+		<div className="flex h-full w-full min-w-0 flex-col overflow-hidden">
+			<div className="flex w-full shrink-0 flex-wrap items-center gap-1 rounded-tl-lg rounded-tr-lg bg-muted p-1">
+				<CopyButton text={text} />
 
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button variant="ghost" size="icon" onMouseDown={() => download(text, preference.textFormat, file)}>
-							<DownloadIcon className="h-6 w-6" />
+							<Download className="h-5 w-5" strokeWidth={2.1} />
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>{t('common.save-transcript')}</TooltipContent>
@@ -221,7 +141,7 @@ export default function TextArea({
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button variant="ghost" size="icon" onMouseDown={() => window.print()}>
-								<PrintIcon className="w-6 h-6" />
+								<Printer className="h-5 w-5" strokeWidth={2.1} />
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent>{t('common.print-tooltip')}</TooltipContent>
@@ -231,35 +151,42 @@ export default function TextArea({
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button
-							variant={preference.textAreaDirection === 'rtl' ? 'secondary' : 'ghost'}
+							variant="ghost"
 							size="icon"
+							className={cn(
+								preference.textAreaDirection === 'rtl' ? 'bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary' : '',
+							)}
 							onMouseDown={() => preference.setTextAreaDirection(preference.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}>
-							<AlignRightIcon className="w-6 h-6" />
+							<AlignRight className="h-5 w-5" strokeWidth={2.1} />
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>{t('common.right-alignment')}</TooltipContent>
 				</Tooltip>
 
-				<div className="ms-auto me-1">
-					<NativeSelect value={preference.textFormat} onChange={(event) => preference.setTextFormat(event.target.value as TextFormat)}>
-						<option value="normal">{t('common.mode-text')}</option>
-						<option value="html">html</option>
-						<option value="pdf">pdf</option>
-						<option value="docx">docx</option>
-						<option value="srt">srt</option>
-						<option value="vtt">vtt</option>
-						<option value="json">json</option>
-					</NativeSelect>
+				<div className="ms-auto me-1 min-w-[98px]">
+					<Select value={preference.textFormat} onValueChange={(value) => preference.setTextFormat(value as TextFormat)}>
+						<SelectTrigger className="h-9 w-[98px] px-2 text-sm">
+							<SelectValue placeholder={t('common.mode-text')} />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="normal">{t('common.mode-text')}</SelectItem>
+							<SelectItem value="html">html</SelectItem>
+							<SelectItem value="pdf">pdf</SelectItem>
+							<SelectItem value="docx">docx</SelectItem>
+							<SelectItem value="srt">srt</SelectItem>
+							<SelectItem value="vtt">vtt</SelectItem>
+							<SelectItem value="json">json</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
 			</div>
 
 			{['html', 'pdf', 'docx'].includes(preference.textFormat) ? (
-				<HTMLView preference={preference} segments={segments ?? []} file={file} />
+				<div className="transcript-editor min-h-0 flex-1 overflow-x-hidden overflow-y-auto rounded-bl-lg rounded-br-lg border-x border-b border-input/70 bg-card">
+					<HTMLView preference={preference} segments={segments ?? []} file={file} />
+				</div>
 			) : (
-				<UITextarea
-					onFocus={() => (segmentsInFocusRef.current = true)}
-					onBlur={() => (segmentsInFocusRef.current = false)}
-					ref={segmentsTextAreaRef}
+				<textarea
 					placeholder={placeholder}
 					readOnly={readonly}
 					autoCorrect="off"
@@ -267,7 +194,9 @@ export default function TextArea({
 					onChange={(e) => setText(e.target.value)}
 					value={text}
 					dir={preference.textAreaDirection}
-					className={cn('w-full h-full text-lg rounded-tl-none rounded-tr-none focus:outline-none')}
+					className={cn(
+						'transcript-editor min-h-0 flex-1 resize-none overflow-x-hidden overflow-y-scroll rounded-bl-lg rounded-br-lg border-x border-b border-input/70 bg-card px-3 py-2 text-lg leading-relaxed focus:outline-none',
+					)}
 				/>
 			)}
 		</div>

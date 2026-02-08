@@ -4,6 +4,7 @@ import { UpdaterContext } from '~/providers/Updater'
 import AppMenu from './AppMenu'
 import DropModal from './DropModal'
 import SettingsModal from './SettingsModal'
+import PageTransition from './PageTransition'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
@@ -11,18 +12,17 @@ export default function Layout({ children }: { children: ReactNode }) {
 	const { t } = useTranslation()
 
 	return (
-		<div className="flex flex-col pb-[80px]">
+		<div className="min-h-screen">
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} />}
 			<DropModal />
-
-			<div className="flex flex-col m-auto w-full mt-10">
-				<div className="relative text-center">
-					<div className="relative w-[300px] m-auto">
-						<AppMenu onClickSettings={() => setSettingsVisible(true)} availableUpdate={availableUpdate} updateApp={updateApp} />
-					</div>
-					<h1 className="text-center text-4xl mb-2 text-foreground font-normal">{t('common.app-title')}</h1>
+			<div className="app-shell">
+				<div className="stagger-in mb-4 flex items-center justify-between gap-4 border-b border-border/55 pb-3">
+					<h1 className="app-title">{t('common.app-title')}</h1>
+					<AppMenu onClickSettings={() => setSettingsVisible(true)} availableUpdate={availableUpdate} updateApp={updateApp} />
 				</div>
-				{children}
+				<PageTransition>
+					<div className="stagger-in [animation-delay:120ms]">{children}</div>
+				</PageTransition>
 			</div>
 		</div>
 	)

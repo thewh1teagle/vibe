@@ -24,11 +24,9 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
-	--font-sans:
-		ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
-		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-	--font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-	--radius: 0.625rem;
+	--font-sans: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+	--font-serif: 'SF Pro Text', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+	--radius: 0.9rem;
 	--tracking-tighter: calc(var(--tracking-normal) - 0.05em);
 	--tracking-tight: calc(var(--tracking-normal) - 0.025em);
 	--tracking-wide: calc(var(--tracking-normal) + 0.025em);
@@ -63,120 +61,240 @@
 	--radius-2xl: calc(var(--radius) + 8px);
 	--radius-3xl: calc(var(--radius) + 12px);
 	--radius-4xl: calc(var(--radius) + 16px);
-	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 :root {
-	--radius: 0.625rem;
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.1884 0.0128 248.5103);
-	--card: oklch(0.9784 0.0011 197.1387);
-	--card-foreground: oklch(0.1884 0.0128 248.5103);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.1884 0.0128 248.5103);
-	--primary: oklch(0.6723 0.1606 244.9955);
-	--primary-foreground: oklch(1 0 0);
-	--secondary: oklch(0.1884 0.0128 248.5103);
-	--secondary-foreground: oklch(1 0 0);
-	--muted: oklch(0.9222 0.0013 286.3737);
-	--muted-foreground: oklch(0.1884 0.0128 248.5103);
-	--accent: oklch(0.9392 0.0166 250.8453);
-	--accent-foreground: oklch(0.6723 0.1606 244.9955);
-	--destructive: oklch(0.6188 0.2376 25.7658);
-	--destructive-foreground: oklch(1 0 0);
-	--success: oklch(0.6 0.15 145);
-	--success-foreground: oklch(1 0 0);
-	--border: oklch(0.9317 0.0118 231.6594);
-	--input: oklch(0.9809 0.0025 228.7836);
-	--ring: oklch(0.6818 0.1584 243.354);
-	--chart-1: oklch(0.6723 0.1606 244.9955);
-	--chart-2: oklch(0.6907 0.1554 160.3454);
-	--chart-3: oklch(0.8214 0.16 82.5337);
-	--chart-4: oklch(0.7064 0.1822 151.7125);
-	--chart-5: oklch(0.5919 0.2186 10.5826);
-	--sidebar: oklch(0.9784 0.0011 197.1387);
-	--sidebar-foreground: oklch(0.1884 0.0128 248.5103);
-	--sidebar-primary: oklch(0.6723 0.1606 244.9955);
-	--sidebar-primary-foreground: oklch(1 0 0);
-	--sidebar-accent: oklch(0.9392 0.0166 250.8453);
-	--sidebar-accent-foreground: oklch(0.6723 0.1606 244.9955);
-	--sidebar-border: oklch(0.9271 0.0101 238.5177);
-	--sidebar-ring: oklch(0.6818 0.1584 243.354);
-	--font-sans:
-		ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
-		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-	--font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-	--shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-	--shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-	--shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 1px 2px -2px hsl(0 0% 0% / 0.1);
-	--shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 1px 2px -2px hsl(0 0% 0% / 0.1);
-	--shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 2px 4px -2px hsl(0 0% 0% / 0.1);
-	--shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 4px 6px -2px hsl(0 0% 0% / 0.1);
-	--shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 8px 10px -2px hsl(0 0% 0% / 0.1);
-	--shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
+	--radius: 0.75rem;
+	--background: hsl(210 34% 96%);
+	--foreground: hsl(215 22% 17%);
+	--card: hsl(0 0% 100% / 0.95);
+	--card-foreground: hsl(215 22% 17%);
+	--popover: hsl(0 0% 100% / 0.98);
+	--popover-foreground: hsl(215 22% 17%);
+	--primary: hsl(205 74% 43%);
+	--primary-foreground: hsl(0 0% 100%);
+	--secondary: hsl(206 28% 92%);
+	--secondary-foreground: hsl(214 20% 24%);
+	--muted: hsl(207 24% 93%);
+	--muted-foreground: hsl(214 12% 44%);
+	--accent: hsl(206 44% 90%);
+	--accent-foreground: hsl(214 20% 24%);
+	--destructive: hsl(0 78% 57%);
+	--destructive-foreground: hsl(210 40% 98%);
+	--success: hsl(154 64% 38%);
+	--success-foreground: hsl(154 100% 96%);
+	--border: hsl(208 22% 83%);
+	--input: hsl(208 22% 83%);
+	--ring: hsl(205 72% 45%);
+	--chart-1: hsl(205 74% 43%);
+	--chart-2: hsl(197 60% 42%);
+	--chart-3: hsl(28 70% 52%);
+	--chart-4: hsl(45 80% 52%);
+	--chart-5: hsl(265 45% 55%);
+	--sidebar: hsl(0 0% 100% / 0.9);
+	--sidebar-foreground: hsl(215 20% 18%);
+	--sidebar-primary: hsl(205 74% 43%);
+	--sidebar-primary-foreground: hsl(0 0% 100%);
+	--sidebar-accent: hsl(206 30% 92%);
+	--sidebar-accent-foreground: hsl(214 20% 24%);
+	--sidebar-border: hsl(208 20% 84%);
+	--sidebar-ring: hsl(205 72% 45%);
+	--shadow-2xs: 0 1px 1px hsl(211 60% 11% / 0.06);
+	--shadow-xs: 0 1px 2px hsl(211 60% 11% / 0.08);
+	--shadow-sm: 0 4px 12px hsl(220 18% 16% / 0.05);
+	--shadow: 0 8px 20px hsl(220 18% 16% / 0.07);
+	--shadow-md: 0 12px 28px hsl(220 18% 16% / 0.09);
+	--shadow-lg: 0 16px 36px hsl(220 10% 20% / 0.12);
+	--shadow-xl: 0 24px 52px hsl(220 10% 20% / 0.16);
+	--shadow-2xl: 0 32px 68px hsl(220 10% 20% / 0.2);
 	--tracking-normal: 0em;
-	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 .dark {
-	--background: oklch(0 0 0);
-	--foreground: oklch(0.9328 0.0025 228.7857);
-	--card: oklch(0.2097 0.008 274.5332);
-	--card-foreground: oklch(0.8853 0 0);
-	--popover: oklch(0 0 0);
-	--popover-foreground: oklch(0.9328 0.0025 228.7857);
-	--primary: oklch(0.6692 0.1607 245.011);
-	--primary-foreground: oklch(1 0 0);
-	--secondary: oklch(0.9622 0.0035 219.5331);
-	--secondary-foreground: oklch(0.1884 0.0128 248.5103);
-	--muted: oklch(0.209 0 0);
-	--muted-foreground: oklch(0.5637 0.0078 247.9662);
-	--accent: oklch(0.1928 0.0331 242.5459);
-	--accent-foreground: oklch(0.6692 0.1607 245.011);
-	--destructive: oklch(0.6188 0.2376 25.7658);
-	--destructive-foreground: oklch(1 0 0);
-	--success: oklch(0.5 0.15 145);
-	--success-foreground: oklch(1 0 0);
-	--border: oklch(0.2674 0.0047 248.0045);
-	--input: oklch(0.302 0.0288 244.8244);
-	--ring: oklch(0.6818 0.1584 243.354);
-	--chart-1: oklch(0.6723 0.1606 244.9955);
-	--chart-2: oklch(0.6907 0.1554 160.3454);
-	--chart-3: oklch(0.8214 0.16 82.5337);
-	--chart-4: oklch(0.7064 0.1822 151.7125);
-	--chart-5: oklch(0.5919 0.2186 10.5826);
-	--sidebar: oklch(0.2097 0.008 274.5332);
-	--sidebar-foreground: oklch(0.8853 0 0);
-	--sidebar-primary: oklch(0.6818 0.1584 243.354);
-	--sidebar-primary-foreground: oklch(1 0 0);
-	--sidebar-accent: oklch(0.1928 0.0331 242.5459);
-	--sidebar-accent-foreground: oklch(0.6692 0.1607 245.011);
-	--sidebar-border: oklch(0.3795 0.022 240.5943);
-	--sidebar-ring: oklch(0.6818 0.1584 243.354);
-	--radius: 0.625rem;
-	--font-sans:
-		ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
-		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-	--font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-	--shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-	--shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
-	--shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 1px 2px -2px hsl(0 0% 0% / 0.1);
-	--shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 1px 2px -2px hsl(0 0% 0% / 0.1);
-	--shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 2px 4px -2px hsl(0 0% 0% / 0.1);
-	--shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 4px 6px -2px hsl(0 0% 0% / 0.1);
-	--shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.1), 0px 8px 10px -2px hsl(0 0% 0% / 0.1);
-	--shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
-	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+	--background: hsl(220 10% 10%);
+	--foreground: hsl(210 18% 93%);
+	--card: hsl(220 9% 16%);
+	--card-foreground: hsl(210 18% 93%);
+	--popover: hsl(220 9% 17%);
+	--popover-foreground: hsl(210 18% 93%);
+	--primary: hsl(208 94% 66%);
+	--primary-foreground: hsl(220 15% 10%);
+	--secondary: hsl(220 8% 22%);
+	--secondary-foreground: hsl(210 14% 90%);
+	--muted: hsl(220 8% 20%);
+	--muted-foreground: hsl(214 10% 74%);
+	--accent: hsl(220 8% 24%);
+	--accent-foreground: hsl(210 14% 90%);
+	--destructive: hsl(0 70% 48%);
+	--destructive-foreground: hsl(210 28% 96%);
+	--success: hsl(154 64% 45%);
+	--success-foreground: hsl(153 58% 10%);
+	--border: hsl(220 8% 34%);
+	--input: hsl(220 8% 34%);
+	--ring: hsl(208 94% 66%);
+	--chart-1: hsl(208 94% 66%);
+	--chart-2: hsl(197 38% 60%);
+	--chart-3: hsl(30 76% 58%);
+	--chart-4: hsl(50 74% 58%);
+	--chart-5: hsl(270 58% 62%);
+	--sidebar: hsl(220 9% 16%);
+	--sidebar-foreground: hsl(210 18% 93%);
+	--sidebar-primary: hsl(208 94% 66%);
+	--sidebar-primary-foreground: hsl(220 15% 10%);
+	--sidebar-accent: hsl(220 8% 24%);
+	--sidebar-accent-foreground: hsl(210 14% 90%);
+	--sidebar-border: hsl(220 8% 34%);
+	--sidebar-ring: hsl(208 94% 66%);
+	--shadow-sm: 0 8px 20px hsl(225 28% 4% / 0.28);
+	--shadow: 0 12px 28px hsl(225 28% 4% / 0.35);
+	--shadow-md: 0 18px 38px hsl(225 28% 4% / 0.42);
+	--shadow-lg: 0 26px 52px hsl(225 28% 4% / 0.5);
+	--shadow-xl: 0 34px 70px hsl(225 28% 4% / 0.58);
 }
 
 @layer base {
+	html,
+	body,
+	#root {
+		height: 100%;
+	}
+
 	html {
-		font-family: var(--font-sans), system-ui, sans-serif;
+		font-family: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
 	}
 
 	body {
 		@apply bg-background text-foreground;
-		letter-spacing: var(--tracking-normal);
+		font-feature-settings: 'rlig' 1, 'calt' 1;
+		background-image: linear-gradient(180deg, hsl(210 32% 97%) 0%, hsl(210 28% 95%) 100%);
+		overflow-x: hidden;
+	}
+
+	.dark body {
+		background-image: linear-gradient(180deg, hsl(220 10% 11%) 0%, hsl(220 10% 9%) 100%);
+	}
+
+	* {
+		border-color: hsl(var(--border));
+	}
+
+	::selection {
+		background: hsl(205 74% 43% / 0.22);
+	}
+
+	.dark ::selection {
+		background: hsl(208 94% 66% / 0.28);
+	}
+
+	::-webkit-scrollbar {
+		height: 10px;
+		width: 10px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: hsl(210 13% 52% / 0.35);
+		border-radius: 999px;
+	}
+
+	.dark ::-webkit-scrollbar-thumb {
+		background: hsl(214 6% 56% / 0.42);
+	}
+
+	.transcript-editor {
+		scrollbar-width: auto;
+		scrollbar-color: hsl(208 36% 52% / 0.78) hsl(210 18% 90% / 0.85);
+		scrollbar-gutter: stable;
+	}
+
+	.transcript-editor::-webkit-scrollbar {
+		width: 16px !important;
+		height: 0 !important;
+		background: transparent !important;
+	}
+
+	.transcript-editor::-webkit-scrollbar-thumb {
+		background: hsl(208 36% 52% / 0.8) !important;
+		border: 3px solid hsl(210 18% 90% / 0.85) !important;
+		background-clip: padding-box !important;
+		border-radius: 999px !important;
+		min-height: 96px !important;
+	}
+
+	.transcript-editor::-webkit-scrollbar-thumb:hover {
+		background: hsl(208 36% 46% / 0.9) !important;
+	}
+
+	.transcript-editor::-webkit-scrollbar-track {
+		background: hsl(210 18% 90% / 0.85) !important;
+		border-left: 1px solid hsl(208 22% 83% / 0.75) !important;
+	}
+
+	.dark .transcript-editor::-webkit-scrollbar-thumb {
+		background: hsl(214 10% 62% / 0.82) !important;
+		border: 3px solid hsl(220 8% 18% / 0.96) !important;
+		background-clip: padding-box !important;
+	}
+
+	.dark .transcript-editor::-webkit-scrollbar-thumb:hover {
+		background: hsl(214 12% 70% / 0.9) !important;
+	}
+
+	.dark .transcript-editor::-webkit-scrollbar-track {
+		background: hsl(220 8% 18% / 0.96) !important;
+		border-left: 1px solid hsl(220 8% 34% / 0.8) !important;
+	}
+
+	.dark .transcript-editor {
+		scrollbar-color: hsl(214 10% 62% / 0.82) hsl(220 8% 18% / 0.96);
+	}
+}
+
+@layer components {
+	.app-shell {
+		@apply mx-auto w-full max-w-5xl px-4 pb-8 pt-4 md:px-6 md:pt-6;
+	}
+
+	.app-hero {
+		@apply relative mb-4 rounded-xl border border-border/70 bg-card/95 px-5 py-4 shadow-sm md:mb-5 md:px-6;
+	}
+
+	.app-panel {
+		@apply rounded-xl border border-border/70 bg-card/95 p-4 shadow-sm md:p-5;
+	}
+
+	.app-subtle {
+		@apply rounded-xl border border-border/70 bg-background/80 p-3;
+	}
+
+	.dark .app-hero {
+		@apply border-border/70 bg-card text-card-foreground;
+		background-image: none;
+	}
+
+	.dark .app-panel {
+		@apply border-border/85 bg-card text-card-foreground shadow-md;
+		background-image: none;
+	}
+
+	.dark .app-subtle {
+		@apply border-border/80 bg-muted/85 text-card-foreground;
+	}
+
+	.app-title {
+		@apply text-3xl font-semibold tracking-tight md:text-4xl;
+	}
+
+	.app-kicker {
+		@apply text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground;
+	}
+
+	.stagger-in {
+		animation: fade-up 380ms ease both;
 	}
 }
 
@@ -249,5 +367,67 @@
 	#footer,
 	#header {
 		all: unset;
+	}
+}
+
+@layer utilities {
+	.animate-in-smooth {
+		animation: enter-smooth 0.2s ease-out forwards;
+	}
+
+	.animate-out-smooth {
+		animation: exit-smooth 0.15s ease-in forwards;
+	}
+
+	.animate-in-dialog {
+		animation: enter-dialog 0.2s ease-out forwards;
+	}
+}
+
+@keyframes enter-smooth {
+	0% {
+		opacity: 0;
+		transform: scale(0.98);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes exit-smooth {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	100% {
+		opacity: 0;
+		transform: scale(0.98);
+	}
+}
+
+@keyframes enter-dialog {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -48%) scale(0.98);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+}
+
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
 	}
 }

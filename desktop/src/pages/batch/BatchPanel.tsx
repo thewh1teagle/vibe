@@ -7,6 +7,7 @@ import { ReactComponent as PlayIcon } from '~/icons/play.svg'
 import { NamedPath } from '~/lib/utils'
 import BatchQueue from './BatchQueue'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible'
+import { Button } from '~/components/ui/button'
 
 interface BatchPanelProps {
 	files: NamedPath[]
@@ -24,40 +25,41 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 
 	return (
 		<Collapsible open={open} onOpenChange={setOpen}>
-			<div className="border border-border bg-muted rounded-lg p-3 flex flex-row items-center">
-				<div className="flex flex-col ms-4">
+			<div className="flex items-center gap-4 rounded-2xl border border-border/70 bg-muted/55 p-3 md:p-4">
+				<div className="flex flex-col">
 					{inProgress && (
-						<span className="text-sm font-light tracking-wider">
+						<span className="text-sm font-medium tracking-wide">
 							{t('common.transcribing')} ({index + 1}/{files.length})
 						</span>
 					)}
 					{!isAborting && !inProgress && index < files.length && (
-						<span className="text-sm font-light tracking-wider">
+						<span className="text-sm font-medium tracking-wide">
 							{t('common.transcribe')} {files.length} {t('common.files')}
 						</span>
 					)}
 					{!isAborting && !inProgress && index > files.length && (
-						<span className="text-sm font-light tracking-wider">
+						<span className="text-sm font-medium tracking-wide">
 							{t('common.transcribed')} {files.length} {t('common.files')}
 						</span>
 					)}
-					{isAborting && <span className="text-sm font-light tracking-wider">{t('common.aborting')}...</span>}
+					{isAborting && <span className="text-sm font-medium tracking-wide">{t('common.aborting')}...</span>}
 				</div>
-				<div className="ms-auto flex gap-3">
+				<div className="ms-auto flex gap-2">
 					<CollapsibleTrigger asChild>
-						<div className="cursor-pointer p-2 bg-secondary rounded-full">
+						<Button variant="secondary" size="iconSm" className="rounded-full">
 							{open ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
-						</div>
+						</Button>
 					</CollapsibleTrigger>
-					<div
+					<Button
 						onClick={() => (inProgress ? onCancel() : onStart())}
-						className={inProgress ? 'cursor-pointer p-2 rounded-full bg-destructive' : 'cursor-pointer p-2 rounded-full bg-success'}>
+						size="iconSm"
+						className={inProgress ? 'rounded-full bg-destructive hover:bg-destructive/90' : 'rounded-full bg-success hover:bg-success/90'}>
 						{inProgress ? (
 							<CancelIcon className="h-5 w-5 stroke-destructive-foreground" />
 						) : (
 							<PlayIcon className="h-5 w-5 stroke-success-foreground stroke-2" />
 						)}
-					</div>
+					</Button>
 				</div>
 			</div>
 			<CollapsibleContent className="max-w-[100%] overflow-hidden pt-3">

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ReactComponent as ChevronDown } from '~/icons/chevron-down.svg'
-import { ReactComponent as ChevronUp } from '~/icons/chevron-up.svg'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import * as dialogExt from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
 import { invoke } from '@tauri-apps/api/core'
@@ -9,7 +8,8 @@ import { useNavigate } from 'react-router-dom'
 import { usePreferenceProvider } from '~/providers/Preference'
 import { InfoTooltip } from './InfoTooltip'
 import { Button } from '~/components/ui/button'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible'
+
+
 import { Switch } from '~/components/ui/switch'
 import { Spinner } from '~/components/ui/spinner'
 
@@ -35,63 +35,66 @@ export default function AdvancedTranscribe() {
 	}
 
 	return (
-		<Collapsible open={open} onOpenChange={setOpen}>
-			<CollapsibleTrigger asChild>
-				<button className="pt-2 ps-1.5 flex flex-row items-center gap-0.5 text-xs text-primary font-medium cursor-pointer" type="button">
-					{open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+		<Dialog open={open} onOpenChange={setOpen}>
+			<DialogTrigger asChild>
+				<Button variant="ghost" size="sm" className="mt-1 h-9 rounded-md border border-border/65 px-3 text-sm font-medium text-muted-foreground hover:bg-accent/45 hover:text-foreground">
 					{t('common.advanced')}
-				</button>
-			</CollapsibleTrigger>
-			<CollapsibleContent className="pt-3 w-full space-y-3">
-				<div className="mt-2">
-					<span className="text-2xl font-bold">{t('common.transcribe-folder')}</span>
-					<span className="text-primary text-sm ms-2">(beta)</span>
-				</div>
-
-				<div className="flex items-center justify-between">
-					<span className="text-sm font-medium flex items-center gap-1">
-						<InfoTooltip text={t('common.include-sub-folders')} />
-						{t('common.include-sub-folders')}
-					</span>
-					<Switch
-						checked={preference.advancedTranscribeOptions.includeSubFolders}
-						onCheckedChange={(checked) =>
-							preference.setAdvancedTranscribeOptions({ ...preference.advancedTranscribeOptions, includeSubFolders: checked })
-						}
-					/>
-				</div>
-
-				<div className="flex items-center justify-between">
-					<span className="text-sm font-medium flex items-center gap-1">
-						<InfoTooltip text={t('common.skip-if-transcript-exists')} />
-						{t('common.skip-if-transcript-exists')}
-					</span>
-					<Switch
-						checked={preference.advancedTranscribeOptions.skipIfExists}
-						onCheckedChange={(checked) =>
-							preference.setAdvancedTranscribeOptions({ ...preference.advancedTranscribeOptions, skipIfExists: checked })
-						}
-					/>
-				</div>
-
-				<div className="flex items-center justify-between">
-					<span className="text-sm font-medium flex items-center gap-1">
-						<InfoTooltip text={t('common.place-transcript-next-to-files')} />
-						{t('common.place-transcript-next-to-files')}
-					</span>
-					<Switch
-						checked={preference.advancedTranscribeOptions.saveNextToAudioFile}
-						onCheckedChange={(checked) =>
-							preference.setAdvancedTranscribeOptions({ ...preference.advancedTranscribeOptions, saveNextToAudioFile: checked })
-						}
-					/>
-				</div>
-
-				<Button onClick={selectFolder} className="w-full mt-2" disabled={collecting}>
-					{collecting && <Spinner className="mr-2" />}
-					{t('common.select-folder')}
 				</Button>
-			</CollapsibleContent>
-		</Collapsible>
+			</DialogTrigger>
+			<DialogContent className="sm:max-w-md">
+				<DialogHeader>
+					<DialogTitle className="flex items-center gap-2">
+						{t('common.transcribe-folder')}
+						<span className="rounded-full border border-border/65 bg-muted/35 px-2 py-0.5 text-xs font-medium text-primary">(beta)</span>
+					</DialogTitle>
+				</DialogHeader>
+
+				<div className="space-y-4 py-4">
+					<div className="flex items-center justify-between rounded-md border border-border/55 bg-card/50 px-3 py-2.5">
+						<span className="text-sm font-medium flex items-center gap-1">
+							<InfoTooltip text={t('common.include-sub-folders')} />
+							{t('common.include-sub-folders')}
+						</span>
+						<Switch
+							checked={preference.advancedTranscribeOptions.includeSubFolders}
+							onCheckedChange={(checked) =>
+								preference.setAdvancedTranscribeOptions({ ...preference.advancedTranscribeOptions, includeSubFolders: checked })
+							}
+						/>
+					</div>
+
+					<div className="flex items-center justify-between rounded-md border border-border/55 bg-card/50 px-3 py-2.5">
+						<span className="text-sm font-medium flex items-center gap-1">
+							<InfoTooltip text={t('common.skip-if-transcript-exists')} />
+							{t('common.skip-if-transcript-exists')}
+						</span>
+						<Switch
+							checked={preference.advancedTranscribeOptions.skipIfExists}
+							onCheckedChange={(checked) =>
+								preference.setAdvancedTranscribeOptions({ ...preference.advancedTranscribeOptions, skipIfExists: checked })
+							}
+						/>
+					</div>
+
+					<div className="flex items-center justify-between rounded-md border border-border/55 bg-card/50 px-3 py-2.5">
+						<span className="text-sm font-medium flex items-center gap-1">
+							<InfoTooltip text={t('common.place-transcript-next-to-files')} />
+							{t('common.place-transcript-next-to-files')}
+						</span>
+						<Switch
+							checked={preference.advancedTranscribeOptions.saveNextToAudioFile}
+							onCheckedChange={(checked) =>
+								preference.setAdvancedTranscribeOptions({ ...preference.advancedTranscribeOptions, saveNextToAudioFile: checked })
+							}
+						/>
+					</div>
+
+					<Button onClick={selectFolder} className="w-full mt-4" disabled={collecting}>
+						{collecting && <Spinner className="mr-2" />}
+						{t('common.select-folder')}
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
 	)
 }

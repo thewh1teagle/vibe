@@ -85,6 +85,7 @@ export interface ModelOptions {
 }
 
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+const defaultDisplayLanguage = 'en-US'
 
 const defaultOptions = {
 	soundOnFinish: true,
@@ -116,7 +117,7 @@ const defaultOptions = {
 export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const { i18n } = useTranslation()
 	const previ18Language = useRef(i18n.language)
-	const [language, setLanguage] = useLocalStorage('prefs_display_language', i18n.language)
+	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
@@ -174,6 +175,12 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		i18n.changeLanguage(language)
 	}, [language])
+
+	useEffect(() => {
+		if (!supportedLanguages[language]) {
+			setLanguage('en-US')
+		}
+	}, [language, setLanguage])
 
 	function resetOptions() {
 		setSoundOnFinish(defaultOptions.soundOnFinish)

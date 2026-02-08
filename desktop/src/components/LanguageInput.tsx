@@ -1,10 +1,10 @@
-import { ChangeEvent } from 'react'
+
 import { useTranslation } from 'react-i18next'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName } from '~/lib/i18n'
 import { usePreferenceProvider } from '~/providers/Preference'
 import { Label } from '~/components/ui/label'
-import { NativeSelect } from '~/components/ui/native-select'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '~/components/ui/select'
 
 const specialModels = [{ pattern: 'ug.bin', languages: [{ code: 'ug', label: 'Uyghur', name: 'uyghur' }] }]
 
@@ -24,8 +24,8 @@ export default function LanguageInput() {
 
 	entries.sort((a, b) => a.label.localeCompare(b.label))
 
-	function onChange(event: ChangeEvent<HTMLSelectElement>) {
-		preference.setModelOptions({ ...preference.modelOptions, lang: event.target.value })
+	function onValueChange(value: string) {
+		preference.setModelOptions({ ...preference.modelOptions, lang: value })
 	}
 
 	const popularLanguages = [getI18nLanguageName(), 'auto', 'english']
@@ -43,22 +43,29 @@ export default function LanguageInput() {
 	return (
 		<div className="space-y-2 w-full">
 			<Label>{t('common.language')}</Label>
-			<NativeSelect value={preference.modelOptions.lang} onChange={onChange}>
-				<optgroup label={t('common.popular')}>
-					{popularEntries.map(({ label, code }) => (
-						<option key={code} value={code}>
-							{label}
-						</option>
-					))}
-				</optgroup>
-				<optgroup label={t('common.others')}>
-					{otherEntries.map(({ label, code }) => (
-						<option key={code} value={code}>
-							{label}
-						</option>
-					))}
-				</optgroup>
-			</NativeSelect>
+			<Select value={preference.modelOptions.lang} onValueChange={onValueChange}>
+				<SelectTrigger>
+					<SelectValue placeholder={t('common.language')} />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectGroup>
+						<SelectLabel>{t('common.popular')}</SelectLabel>
+						{popularEntries.map(({ label, code }) => (
+							<SelectItem key={code} value={code}>
+								{label}
+							</SelectItem>
+						))}
+					</SelectGroup>
+					<SelectGroup>
+						<SelectLabel>{t('common.others')}</SelectLabel>
+						{otherEntries.map(({ label, code }) => (
+							<SelectItem key={code} value={code}>
+								{label}
+							</SelectItem>
+						))}
+					</SelectGroup>
+				</SelectContent>
+			</Select>
 		</div>
 	)
 }

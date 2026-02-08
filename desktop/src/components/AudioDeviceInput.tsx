@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { AudioDevice } from '~/lib/audio'
 import { ModifyState } from '~/lib/utils'
 import { Label } from '~/components/ui/label'
-import { NativeSelect } from '~/components/ui/native-select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
 interface AudioDeviceInputProps {
 	type: 'output' | 'input'
@@ -19,19 +19,21 @@ export default function AudioDeviceInput({ type, devices, device, setDevice }: A
 	return (
 		<div className="space-y-2 w-full">
 			<Label>{t(type === 'input' ? 'common.microphone' : 'common.speakers')}</Label>
-			<NativeSelect
-				value={device?.id}
-				onChange={(event) => {
-					const next = filtered.find((d) => d.id === event.target.value)
-					setDevice(next ?? null)
-				}}>
-				<option>{t('common.no-record')}</option>
-				{filtered.map(({ id, name }) => (
-					<option key={id} value={id}>
-						{name}
-					</option>
-				))}
-			</NativeSelect>
+			<Select value={device?.id} onValueChange={(value) => {
+				const next = filtered.find((d) => d.id === value)
+				setDevice(next ?? null)
+			}}>
+				<SelectTrigger>
+					<SelectValue placeholder={t('common.no-record')} />
+				</SelectTrigger>
+				<SelectContent>
+					{filtered.map(({ id, name }) => (
+						<SelectItem key={id} value={id}>
+							{name}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
 		</div>
 	)
 }

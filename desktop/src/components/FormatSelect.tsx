@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Label } from '~/components/ui/label'
-import { NativeSelect } from '~/components/ui/native-select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
 export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json' | 'docx'
 export type FormatExtensions = {
@@ -27,13 +27,18 @@ export default function FormatSelect({ format, setFormat }: FormatSelectProps) {
 	return (
 		<div className="space-y-2 w-full">
 			<Label>{t('common.format')}</Label>
-			<NativeSelect value={format} onChange={(event) => setFormat(event.target.value as TextFormat)}>
-				<option value="normal">{t('common.mode-text')}</option>
-				<option value="srt">srt</option>
-				<option value="docx">docx</option>
-				<option value="vtt">vtt</option>
-				<option value="json">json</option>
-			</NativeSelect>
+			<Select value={format} onValueChange={(value) => setFormat(value as TextFormat)}>
+				<SelectTrigger>
+					<SelectValue placeholder={t('common.mode-text')} />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value="normal">{t('common.mode-text')}</SelectItem>
+					<SelectItem value="srt">srt</SelectItem>
+					<SelectItem value="docx">docx</SelectItem>
+					<SelectItem value="vtt">vtt</SelectItem>
+					<SelectItem value="json">json</SelectItem>
+				</SelectContent>
+			</Select>
 		</div>
 	)
 }
