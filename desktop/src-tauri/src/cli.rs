@@ -35,6 +35,8 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     #[cfg(target_os = "macos")]
     crate::dock::set_dock_visible(false);
 
+    crate::analytics::track_event_handle(app_handle, crate::analytics::events::CLI_STARTED);
+
     let sona_binary = resolve_sona_binary(app_handle)?;
     let ffmpeg_path = resolve_ffmpeg_path(app_handle);
 
