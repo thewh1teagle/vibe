@@ -33,11 +33,6 @@ use utils::LogError;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    const APTABASE_KEY: &str = match option_env!("APTABASE_KEY") {
-        Some(value) => value,
-        None => "",
-    };
-
     // Attach console in Windows:
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
@@ -55,9 +50,7 @@ async fn main() -> Result<()> {
         }))
         .setup(|app| {
             setup::setup(app)?;
-            if !APTABASE_KEY.is_empty() {
-                analytics::track_event(app, analytics::events::APP_STARTED);
-            }
+            analytics::track_event(app, analytics::events::APP_STARTED);
             Ok(())
         })
         .plugin(
@@ -76,8 +69,16 @@ async fn main() -> Result<()> {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_notification::init());
 
-    if !APTABASE_KEY.is_empty() {
-        builder = builder.plugin(tauri_plugin_aptabase::Builder::new(APTABASE_KEY).build());
+    if analytics::is_aptabase_configured() {
+        let options = tauri_plugin_aptabase::InitOptions {
+            host: Some(analytics::APTABASE_BASE_URL.to_string()),
+            ..Default::default()
+        };
+        builder = builder.plugin(
+            tauri_plugin_aptabase::Builder::new(analytics::APTABASE_APP_KEY)
+                .with_options(options)
+                .build(),
+        );
     }
 
     #[cfg(feature = "keepawake")]

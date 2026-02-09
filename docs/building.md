@@ -160,6 +160,15 @@ Then delete the local files:
 rm key.pem cert.pem cert.pfx
 ```
 
+## Analytics (Optional)
+
+Vibe uses [Aptabase](https://aptabase.com/) for analytics. Not required for development. To enable, set these env vars at build time:
+
+```console
+export APTABASE_APP_KEY="A-..."
+export APTABASE_BASE_URL="https://..."
+```
+
 ## Build faster in dev mode (useful in Windows)
 
 ```console

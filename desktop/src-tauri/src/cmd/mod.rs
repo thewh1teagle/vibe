@@ -18,7 +18,6 @@ use tauri::{
     Manager,
 };
 use tauri::{Emitter, Listener, State};
-use tauri_plugin_aptabase::EventTracker;
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
 pub mod audio;
@@ -537,13 +536,7 @@ pub async fn stop_api_server(sona_state: State<'_, Mutex<SonaState>>) -> Result<
 
 #[tauri::command]
 pub fn track_analytics_event(app_handle: tauri::AppHandle, name: String, props: Option<Value>) -> Result<()> {
-    if option_env!("APTABASE_KEY").unwrap_or("").is_empty() {
-        tracing::debug!("analytics track failed: APTABASE_KEY is not set");
-        return Ok(());
-    }
-    app_handle
-        .track_event(&name, props)
-        .map_err(|e| eyre::eyre!("analytics track failed: {}", e))?;
+    crate::analytics::track_event_handle_with_props(&app_handle, &name, props);
     Ok(())
 }
 
