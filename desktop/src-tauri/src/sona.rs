@@ -5,6 +5,7 @@ use serde::Deserialize;
 use std::io::BufRead;
 use std::path::Path;
 use std::process::{Child, Command, Stdio};
+use tokio_util::io::ReaderStream;
 
 pub struct SonaProcess {
     port: u16,
@@ -160,7 +161,14 @@ impl SonaProcess {
     ) -> Result<impl futures_util::Stream<Item = Result<SonaEvent>>> {
         let url = format!("{}/v1/audio/transcriptions", self.base_url());
 
-        let file_bytes = tokio::fs::read(&options.path).await.context("failed to read audio file")?;
+        let file = tokio::fs::File::open(&options.path)
+            .await
+            .context("failed to open audio file")?;
+        let file_len = file
+            .metadata()
+            .await
+            .context("failed to read file metadata")?
+            .len();
 
         let file_name = Path::new(&options.path)
             .file_name()
@@ -168,7 +176,10 @@ impl SonaProcess {
             .to_string_lossy()
             .to_string();
 
-        let file_part = multipart::Part::bytes(file_bytes)
+        let stream = ReaderStream::new(file);
+        let body = reqwest::Body::wrap_stream(stream);
+
+        let file_part = multipart::Part::stream_with_length(body, file_len)
             .file_name(file_name)
             .mime_str("application/octet-stream")?;
 

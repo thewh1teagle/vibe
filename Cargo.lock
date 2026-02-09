@@ -6884,6 +6884,7 @@ dependencies = [
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
  "tokio",
+ "tokio-util",
  "tracing",
  "tracing-log",
  "tracing-subscriber",
