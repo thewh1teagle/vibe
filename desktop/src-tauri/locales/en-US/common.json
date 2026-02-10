@@ -61,6 +61,8 @@
 	"format": "Format",
 	"formats": "Formats",
 	"general": "General",
+	"gpu-device": "GPU Device",
+	"gpu-device-placeholder": "Auto (leave empty)",
 	"global-dictation": "Global Dictation",
 	"global-dictation-enable": "Enable",
 	"global-dictation-promo": "Press a shortcut anywhere to instantly transcribe. Works while Vibe runs in the background.",

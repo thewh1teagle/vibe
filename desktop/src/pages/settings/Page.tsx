@@ -169,6 +169,19 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 									</Select>
 								</div>
 
+								<div className="space-y-2">
+									<Label>{t('common.gpu-device')}</Label>
+									<Input
+										type="number"
+										value={vm.preference.gpuDevice ?? ''}
+										onChange={(e) => {
+											const val = e.target.value
+											vm.preference.setGpuDevice(val === '' ? null : parseInt(val, 10))
+										}}
+										placeholder={t('common.gpu-device-placeholder')}
+									/>
+								</div>
+
 								<div className="space-y-1 pt-1">
 									<Button
 										variant="ghost"

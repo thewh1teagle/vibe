@@ -125,8 +125,12 @@ impl SonaProcess {
         format!("http://127.0.0.1:{}", self.port)
     }
 
-    pub async fn load_model(&self, path: &str) -> Result<()> {
+    pub async fn load_model(&self, path: &str, gpu_device: Option<i32>) -> Result<()> {
         let url = format!("{}/v1/models/load", self.base_url());
+        let mut body = serde_json::json!({"path": path});
+        if let Some(dev) = gpu_device {
+            body["gpu_device"] = serde_json::json!(dev);
+        }
         let mut last_err = None;
         for attempt in 0..3 {
             if attempt > 0 {
@@ -136,7 +140,7 @@ impl SonaProcess {
             match self
                 .client
                 .post(&url)
-                .json(&serde_json::json!({"path": path}))
+                .json(&body)
                 .send()
                 .await
             {

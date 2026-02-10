@@ -125,7 +125,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					throw new Error('No model selected')
 				}
 
-				await invoke('load_model', { modelPath })
+				await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
 				const options = {
 					path,
 					...preferenceRef.current.modelOptions,

@@ -18,6 +18,7 @@ pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::
 pub struct SonaState {
     pub process: Option<SonaProcess>,
     pub loaded_model_path: Option<String>,
+    pub loaded_gpu_device: Option<i32>,
 }
 
 #[allow(deprecated)]
@@ -34,6 +35,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(Mutex::new(SonaState {
         process: None,
         loaded_model_path: None,
+        loaded_gpu_device: None,
     }));
 
     let store = app.store(STORE_FILENAME)?;

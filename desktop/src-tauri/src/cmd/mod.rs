@@ -464,13 +464,13 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Result<String> {
+pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
     let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
     let mut state_guard = sona_state.lock().await;
 
-    // Check if model already loaded
+    // Check if model already loaded with same gpu_device
     if let Some(ref loaded_path) = state_guard.loaded_model_path {
-        if *loaded_path == model_path {
+        if *loaded_path == model_path && state_guard.loaded_gpu_device == gpu_device {
             tracing::debug!("model already loaded, skipping");
             return Ok(model_path);
         }
@@ -497,8 +497,9 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String) -> Res
 
     // Load model via HTTP
     let sona = state_guard.process.as_ref().unwrap();
-    sona.load_model(&model_path).await?;
+    sona.load_model(&model_path, gpu_device).await?;
     state_guard.loaded_model_path = Some(model_path.clone());
+    state_guard.loaded_gpu_device = gpu_device;
 
     Ok(model_path)
 }
@@ -529,6 +530,7 @@ pub async fn stop_api_server(sona_state: State<'_, Mutex<SonaState>>) -> Result<
     if let Some(mut process) = state_guard.process.take() {
         process.kill();
         state_guard.loaded_model_path = None;
+        state_guard.loaded_gpu_device = None;
         return Ok(true);
     }
     Ok(false)

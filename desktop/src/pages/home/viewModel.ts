@@ -450,7 +450,7 @@ export function viewModel() {
 			if (!modelPath) {
 				throw new Error('No model selected. Please download or select a model first.')
 			}
-			await invoke('load_model', { modelPath })
+			await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
 			let diarize_model: string | undefined
 			if (preferenceRef.current.diarizeEnabled) {
 				const modelsFolder = await invoke<string>('get_models_folder')

@@ -61,6 +61,9 @@ export interface Preference {
 	diarizeEnabled: boolean
 	setDiarizeEnabled: ModifyState<boolean>
 
+	gpuDevice: number | null
+	setGpuDevice: ModifyState<number | null>
+
 	analyticsEnabled: boolean
 	setAnalyticsEnabled: (value: boolean) => void
 }
@@ -153,6 +156,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	})
 
 	const [diarizeEnabled, setDiarizeEnabled] = useLocalStorage<boolean>('prefs_diarize_enabled', false)
+	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 	useEffect(() => {
@@ -265,6 +269,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setAdvancedTranscribeOptions,
 		diarizeEnabled,
 		setDiarizeEnabled,
+		gpuDevice,
+		setGpuDevice,
 		analyticsEnabled,
 		setAnalyticsEnabled,
 	}
