@@ -75,7 +75,11 @@ export function asText(segments: Segment[], speakerLabel: string = 'Speaker') {
 }
 
 export function asJson(segments: Segment[]) {
-	return JSON.stringify(segments, null, 4)
+	return JSON.stringify(segments.map(s => ({
+		...s,
+		start: s.start / 100,
+		stop: s.stop / 100,
+	})), null, 4)
 }
 
 function escapeCsv(value: string) {
