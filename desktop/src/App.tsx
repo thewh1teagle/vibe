@@ -17,35 +17,39 @@ import { HotkeyProvider } from './providers/Hotkey'
 import { ToastProvider } from './providers/Toast'
 import { Toaster } from '~/components/ui/sonner'
 import { TooltipProvider } from '~/components/ui/tooltip'
+import { DirectionProvider } from '~/components/ui/direction'
 
 export default function App() {
 	const { i18n } = useTranslation()
-	document.body.dir = i18n.dir()
+	const dir = i18n.dir()
+	document.body.dir = dir
 
 	return (
-		<ErrorBoundary FallbackComponent={BoundaryFallback}>
-			<ErrorModalProvider>
-				<UpdaterProvider>
-					<PreferenceProvider>
-						<TooltipProvider>
-							<ToastProvider>
-								<HotkeyProvider>
-								<ErrorModalWithContext />
-								<UpdateProgress />
-								<FilesProvider>
-									<Routes>
-										<Route path="/" element={<HomePage />} />
-										<Route path="/setup" element={<SetupPage />} />
-										<Route path="/batch" element={<BatchPage />} />
-									</Routes>
-								</FilesProvider>
-								<Toaster position="bottom-right" />
-							</HotkeyProvider>
-							</ToastProvider>
-						</TooltipProvider>
-					</PreferenceProvider>
-				</UpdaterProvider>
-			</ErrorModalProvider>
-		</ErrorBoundary>
+		<DirectionProvider dir={dir}>
+			<ErrorBoundary FallbackComponent={BoundaryFallback}>
+				<ErrorModalProvider>
+					<UpdaterProvider>
+						<PreferenceProvider>
+							<TooltipProvider>
+								<ToastProvider>
+									<HotkeyProvider>
+									<ErrorModalWithContext />
+									<UpdateProgress />
+									<FilesProvider>
+										<Routes>
+											<Route path="/" element={<HomePage />} />
+											<Route path="/setup" element={<SetupPage />} />
+											<Route path="/batch" element={<BatchPage />} />
+										</Routes>
+									</FilesProvider>
+									<Toaster position="bottom-right" />
+								</HotkeyProvider>
+								</ToastProvider>
+							</TooltipProvider>
+						</PreferenceProvider>
+					</UpdaterProvider>
+				</ErrorModalProvider>
+			</ErrorBoundary>
+		</DirectionProvider>
 	)
 }
