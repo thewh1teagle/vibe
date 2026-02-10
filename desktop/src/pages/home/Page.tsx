@@ -20,6 +20,7 @@ import { Input } from '~/components/ui/input'
 import { Spinner } from '~/components/ui/spinner'
 import { Switch } from '~/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import AudioVisualizer from './AudioVisualizer'
 
 export default function Home() {
 	const { t } = useTranslation()
@@ -48,6 +49,10 @@ export default function Home() {
 	useEffect(() => {
 		showWindow()
 	}, [])
+
+	useEffect(() => {
+		console.log('devices', vm.devices)
+	}, [vm.devices])
 
 	return (
 		<Layout>
@@ -94,6 +99,8 @@ export default function Home() {
 									{t('common.stop-and-transcribe')}
 								</Button>
 							)}
+
+							<AudioVisualizer isRecording={vm.isRecording} inputDevice={vm.inputDevice} waveColor="#fff" reaction={0.1} sensitivity={3.5} />
 
 							<div className="flex items-center gap-3 pt-2">
 								<div className="h-px flex-1 bg-border/50" />
@@ -178,7 +185,10 @@ export default function Home() {
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.includeSubFolders}
 												onCheckedChange={(checked) =>
-													vm.preference.setAdvancedTranscribeOptions({ ...vm.preference.advancedTranscribeOptions, includeSubFolders: checked })
+													vm.preference.setAdvancedTranscribeOptions({
+														...vm.preference.advancedTranscribeOptions,
+														includeSubFolders: checked,
+													})
 												}
 											/>
 										</div>
@@ -187,7 +197,10 @@ export default function Home() {
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.skipIfExists}
 												onCheckedChange={(checked) =>
-													vm.preference.setAdvancedTranscribeOptions({ ...vm.preference.advancedTranscribeOptions, skipIfExists: checked })
+													vm.preference.setAdvancedTranscribeOptions({
+														...vm.preference.advancedTranscribeOptions,
+														skipIfExists: checked,
+													})
 												}
 											/>
 										</div>
@@ -205,7 +218,10 @@ export default function Home() {
 										</div>
 
 										<div className="flex items-center gap-3">
-											<Button onMouseDown={vm.startFolderBatch} className="flex-1" disabled={vm.isCollectingFolder || vm.files.length === 0}>
+											<Button
+												onMouseDown={vm.startFolderBatch}
+												className="flex-1"
+												disabled={vm.isCollectingFolder || vm.files.length === 0}>
 												{vm.isCollectingFolder && <Spinner className="mr-2" />}
 												{t('common.transcribe-folder')}
 											</Button>
@@ -218,7 +234,9 @@ export default function Home() {
 							</div>
 							{vm.audio && (
 								<div>
-									{vm.files.length ? <AudioPlayer label={vm.files[0].name} onLabelClick={() => vm.openPath(vm.files[0])} audio={vm.audio} /> : null}
+									{vm.files.length ? (
+										<AudioPlayer label={vm.files[0].name} onLabelClick={() => vm.openPath(vm.files[0])} audio={vm.audio} />
+									) : null}
 									{!vm.loading && (
 										<Button variant="link" onMouseDown={vm.selectFiles} className="mb-2 mt-1 px-0 text-xs">
 											{t('common.change-file')}
@@ -252,7 +270,11 @@ export default function Home() {
 								<div className="flex flex-wrap items-center justify-center gap-3 rounded-md border border-border/60 bg-card/45 px-3 py-2.5">
 									<Spinner className="text-primary" />
 									<p>{t('common.downloading', { progress: vm.ytdlpProgress })}</p>
-									<Button variant="ghost" size="sm" onClick={() => vm.cancelYtDlpDownload()} className="text-destructive hover:text-destructive/80">
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => vm.cancelYtDlpDownload()}
+										className="text-destructive hover:text-destructive/80">
 										{t('common.cancel')}
 									</Button>
 								</div>
