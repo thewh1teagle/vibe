@@ -116,7 +116,8 @@ impl SonaProcess {
         Ok(Self {
             port: signal.port,
             child,
-            client: reqwest::Client::new(),
+            // Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
+            client: reqwest::Client::builder().no_proxy().build().unwrap(),
         })
     }
 
