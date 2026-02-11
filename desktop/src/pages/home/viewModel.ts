@@ -120,12 +120,15 @@ export function viewModel() {
 	}, [preference.llmConfig])
 
 	useEffect(() => {
-		listen<number>('ytdlp-progress', ({ payload }) => {
+		const unlisten = listen<number>('ytdlp-progress', ({ payload }) => {
 			const newProgress = Math.ceil(payload)
 			if (!ytdlpProgress || newProgress > ytdlpProgress) {
 				setYtDlpProgress(newProgress)
 			}
 		})
+		return () => {
+			unlisten.then((fn) => fn())
+		}
 	}, [])
 
 	useEffect(() => {
@@ -210,29 +213,52 @@ export function viewModel() {
 		}
 	}
 
-	async function handleNewSegment() {
-		await listen('transcribe_progress', (event) => {
-			const value = event.payload as number
-			if (value >= 0 && value <= 100) {
-				setProgress(value)
-			}
-		})
-		await listen<transcript.Segment>('new_segment', (event) => {
-			const { payload } = event
-			setSegments((prev) => (prev ? [...prev, payload] : [payload]))
-		})
-	}
+	function setupEventListeners(): (() => void) {
+		const unlisteners: Promise<() => void>[] = []
 
-	async function handleRecordFinish() {
-		await listen<{ path: string; name: string }>('record_finish', (event) => {
-			if (hotkeyRecordingActive) return
-			const { name, path } = event.payload
-			setSelectedFolder(null)
-			preference.setHomeTabIndex(1)
-			setFiles([{ name, path }])
-			setIsRecording(false)
-			transcribe(path)
-		})
+		unlisteners.push(
+			listen('transcribe_progress', (event) => {
+				const value = event.payload as number
+				if (value >= 0 && value <= 100) {
+					setProgress(value)
+				}
+			})
+		)
+		unlisteners.push(
+			listen<transcript.Segment>('new_segment', (event) => {
+				const { payload } = event
+				setSegments((prev) => (prev ? [...prev, payload] : [payload]))
+			})
+		)
+		unlisteners.push(
+			listen<{ path: string; name: string }>('record_finish', (event) => {
+				if (hotkeyRecordingActive) return
+				const { name, path } = event.payload
+				setSelectedFolder(null)
+				preference.setHomeTabIndex(1)
+				setFiles([{ name, path }])
+				setIsRecording(false)
+				transcribe(path)
+			})
+		)
+		unlisteners.push(
+			listen<{ paths: string[] }>('tauri://drag-drop', async (event) => {
+				setSelectedFolder(null)
+				const newFiles: NamedPath[] = []
+				for (const path of event.payload.paths) {
+					const file = await pathToNamedPath(path)
+					newFiles.push({ name: file.name, path: file.path })
+				}
+				setFiles(newFiles)
+				if (newFiles.length > 1) {
+					navigate('/batch', { state: { files: newFiles } })
+				}
+			})
+		)
+
+		return () => {
+			unlisteners.forEach((p) => p.then((fn) => fn()))
+		}
 	}
 
 	async function loadAudioDevices() {
@@ -349,51 +375,40 @@ export function viewModel() {
 		}
 	}
 
-	async function handleDrop() {
-		listen<{ paths: string[] }>('tauri://drag-drop', async (event) => {
-			setSelectedFolder(null)
-			const newFiles: NamedPath[] = []
-			for (const path of event.payload.paths) {
-				const file = await pathToNamedPath(path)
-				newFiles.push({ name: file.name, path: file.path })
-			}
-			setFiles(newFiles)
-			if (newFiles.length > 1) {
-				navigate('/batch', { state: { files: newFiles } })
-			}
-		})
-	}
+	useEffect(() => {
+		let cleanup: (() => void) | undefined
 
-	async function CheckCpuAndInit() {
-		const features = await getX86Features()
-		if (features) {
-			const unsupported = Object.entries(features || {})
-				.filter(([_, feature]) => feature.enabled && !feature.support)
-				.map(([name]) => name)
-			if (unsupported.length > 0) {
-				// Found unsupported features
-				await dialog.message(
-					`Your CPU is old and doesn't support some features (${unsupported.join(
-						',',
-					)}). Please click OK and read the readme that will open for more information.`,
-					{
-						kind: 'error',
-					},
-				)
-				open(config.unsupportedCpuReadmeURL)
-				return // Don't run anything
+		async function CheckCpuAndInit() {
+			const features = await getX86Features()
+			if (features) {
+				const unsupported = Object.entries(features || {})
+					.filter(([_, feature]) => feature.enabled && !feature.support)
+					.map(([name]) => name)
+				if (unsupported.length > 0) {
+					// Found unsupported features
+					await dialog.message(
+						`Your CPU is old and doesn't support some features (${unsupported.join(
+							',',
+						)}). Please click OK and read the readme that will open for more information.`,
+						{
+							kind: 'error',
+						},
+					)
+					open(config.unsupportedCpuReadmeURL)
+					return // Don't run anything
+				}
 			}
+
+			cleanup = setupEventListeners()
+			checkModelExists()
+			loadAudioDevices()
 		}
 
-		handleDrop()
-		checkModelExists()
-		handleNewSegment()
-		handleRecordFinish()
-		loadAudioDevices()
-	}
-
-	useEffect(() => {
 		CheckCpuAndInit()
+
+		return () => {
+			cleanup?.()
+		}
 	}, [])
 
 	async function startRecord() {

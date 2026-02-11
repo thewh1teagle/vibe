@@ -6,16 +6,16 @@ import TextArea from '~/components/TextArea'
 import AudioInput from '~/pages/home/AudioInput'
 import AudioPlayer from './AudioPlayer'
 import ProgressPanel from './ProgressPanel'
-import { useHotkeyProvider, type HotkeyOutputMode } from '~/providers/Hotkey'
 import { viewModel } from './viewModel'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
 import { ReactComponent as FileIcon } from '~/icons/file.svg'
 import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
 import * as keepAwake from 'tauri-plugin-keepawake-api'
 import { Button } from '~/components/ui/button'
+import DictationDialog from '~/components/DictationDialog'
 import { Input } from '~/components/ui/input'
 import { Spinner } from '~/components/ui/spinner'
 import { Switch } from '~/components/ui/switch'
@@ -25,20 +25,6 @@ import AudioVisualizer from './AudioVisualizer'
 export default function Home() {
 	const { t } = useTranslation()
 	const vm = viewModel()
-	const hotkey = useHotkeyProvider()
-	const isMac = navigator.platform.toUpperCase().includes('MAC')
-
-	const shortcutKeys = useMemo(() => {
-		const keyMap: Record<string, string> = {
-			CmdOrCtrl: isMac ? '⌘' : 'Ctrl',
-			Cmd: '⌘',
-			Ctrl: isMac ? '⌃' : 'Ctrl',
-			Shift: isMac ? '⇧' : 'Shift',
-			Alt: isMac ? '⌥' : 'Alt',
-			Option: '⌥',
-		}
-		return hotkey.hotkeyShortcut.split('+').map((k) => keyMap[k] ?? k)
-	}, [hotkey.hotkeyShortcut, isMac])
 
 	async function showWindow() {
 		const currentWindow = webviewWindow.getCurrentWebviewWindow()
@@ -98,67 +84,7 @@ export default function Home() {
 
 							<AudioVisualizer isRecording={vm.isRecording} inputDevice={vm.inputDevice} />
 
-							<div className="flex items-center gap-3 pt-2">
-								<div className="h-px flex-1 bg-border/50" />
-								<span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
-									{t('common.global-dictation')}
-								</span>
-								<div className="h-px flex-1 bg-border/50" />
-							</div>
-
-							{!hotkey.hotkeyEnabled ? (
-								<div className="rounded-lg border border-dashed border-border/70 bg-muted/30 px-4 py-3">
-									<div className="flex flex-wrap items-center justify-between gap-3">
-										<p className="text-xs text-muted-foreground">{t('common.global-dictation-promo')}</p>
-										<Button variant="outline" size="sm" onMouseDown={() => hotkey.setHotkeyEnabled(true)} className="shrink-0">
-											{t('common.global-dictation-enable')}
-										</Button>
-									</div>
-								</div>
-							) : (
-								<div className="space-y-3 rounded-lg border border-primary/30 bg-primary/[0.03] px-4 py-3">
-									<div className="flex flex-wrap items-center justify-between gap-2">
-										<span className="text-sm font-medium">{t('common.global-hotkey-enabled')}</span>
-										<Switch checked={hotkey.hotkeyEnabled} onCheckedChange={hotkey.setHotkeyEnabled} />
-									</div>
-									<div className="space-y-1.5">
-										<div className="flex items-center gap-2">
-											<span className="text-xs text-muted-foreground">{t('common.global-hotkey-shortcut')}:</span>
-											<div className="flex items-center gap-1">
-												{shortcutKeys.map((key, i) => (
-													<kbd
-														key={i}
-														className="inline-flex h-7 min-w-7 items-center justify-center rounded-md border border-border/80 bg-background/70 px-2 font-mono text-xs font-medium text-foreground/80 shadow-[0_1px_0_1px_rgba(0,0,0,0.04)]">
-														{key}
-													</kbd>
-												))}
-											</div>
-										</div>
-										<Input
-											type="text"
-											value={hotkey.hotkeyShortcut}
-											onChange={(e) => hotkey.setHotkeyShortcut(e.target.value)}
-											className="h-7 text-xs text-muted-foreground"
-										/>
-									</div>
-									<div className="flex gap-2">
-										{(['clipboard', 'type'] as HotkeyOutputMode[]).map((mode) => (
-											<button
-												key={mode}
-												type="button"
-												onClick={() => hotkey.setHotkeyOutputMode(mode)}
-												className={`flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-													hotkey.hotkeyOutputMode === mode
-														? 'border-primary bg-primary/10 text-primary'
-														: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
-												}`}>
-												{t(`common.hotkey-output-${mode}`)}
-											</button>
-										))}
-									</div>
-									<p className="text-[11px] italic text-muted-foreground/70">{t('common.global-hotkey-description')}</p>
-								</div>
-							)}
+							<DictationDialog />
 
 							<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 						</div>
