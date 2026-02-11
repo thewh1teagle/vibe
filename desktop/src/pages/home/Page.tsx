@@ -21,6 +21,7 @@ import { Spinner } from '~/components/ui/spinner'
 import { Switch } from '~/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import AudioVisualizer from './AudioVisualizer'
+import ResummarizeDialog from '~/components/ResummarizeDialog'
 
 export default function Home() {
 	const { t } = useTranslation()
@@ -216,13 +217,16 @@ export default function Home() {
 					)}
 				</div>
 
-				{vm.preference.homeTabIndex === 1 && vm.summarizeSegments && (
-					<Tabs value={vm.transcriptTab} onValueChange={(v) => vm.setTranscriptTab(v as 'transcript' | 'summary')} className="flex justify-center">
-						<TabsList className="rounded-xl">
-							<TabsTrigger value="transcript">{t('common.segments-tab')}</TabsTrigger>
-							<TabsTrigger value="summary">{t('common.summary-tab')}</TabsTrigger>
-						</TabsList>
-					</Tabs>
+				{vm.preference.homeTabIndex === 1 && vm.summarizeSegments && !vm.loading && (
+					<div className="flex items-center justify-center gap-2">
+						<Tabs value={vm.transcriptTab} onValueChange={(v) => vm.setTranscriptTab(v as 'transcript' | 'summary')}>
+							<TabsList className="rounded-xl">
+								<TabsTrigger value="transcript">{t('common.segments-tab')}</TabsTrigger>
+								<TabsTrigger value="summary">{t('common.summary-tab')}</TabsTrigger>
+							</TabsList>
+						</Tabs>
+						<ResummarizeDialog onSubmit={vm.resummarize} loading={vm.summarizing} />
+					</div>
 				)}
 
 				{vm.preference.homeTabIndex === 1 && (vm.segments || vm.loading) && (
@@ -231,6 +235,10 @@ export default function Home() {
 							file={vm.files[0]}
 							placeholder={t('common.transcript-will-displayed-shortly')}
 							segments={vm.transcriptTab === 'transcript' ? vm.segments : vm.summarizeSegments}
+							textFormat={vm.transcriptTab === 'transcript' ? vm.preference.textFormatTranscript : vm.preference.textFormatSummary}
+							setTextFormat={
+								vm.transcriptTab === 'transcript' ? vm.preference.setTextFormatTranscript : vm.preference.setTextFormatSummary
+							}
 							readonly={vm.loading}
 						/>
 					</div>

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -169,6 +170,17 @@
 		font-feature-settings: 'rlig' 1, 'calt' 1;
 		background-image: linear-gradient(180deg, hsl(210 32% 97%) 0%, hsl(210 28% 95%) 100%);
 		overflow-x: hidden;
+	}
+
+	html,
+	body {
+		scrollbar-width: none;
+	}
+
+	html::-webkit-scrollbar,
+	body::-webkit-scrollbar {
+		width: 0;
+		height: 0;
 	}
 
 	.dark body {

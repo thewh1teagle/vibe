@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
-export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json' | 'docx' | 'csv'
+export type TextFormat = 'normal' | 'srt' | 'vtt' | 'html' | 'pdf' | 'json' | 'docx' | 'csv' | 'md'
 export type FormatExtensions = {
 	[name in TextFormat]: string
 }
@@ -16,6 +16,7 @@ export const formatExtensions: FormatExtensions = {
 	json: '.json',
 	docx: '.docx',
 	csv: '.csv',
+	md: '.md',
 }
 
 interface FormatSelectProps {

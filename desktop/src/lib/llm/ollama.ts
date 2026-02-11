@@ -15,7 +15,7 @@ export function defaultConfig(language = 'English') {
 		model: 'llama3.2',
 		ollamaBaseUrl: 'http://localhost:11434',
 		platform: 'ollama',
-		prompt: `Please summarize the following transcription and write it in ${language}: \n\n"""\n%s\n"""\n`,
+		prompt: `Output only the requested content. No introductions, explanations, or commentary.\n\nWrite a concise summary of this transcript in ${language} using markdown. Include:\n- A short overview paragraph\n- 3-5 key takeaways as bullet points\n- Action items as a checklist if there are any\n\n"""\n%s\n"""`,
 
 		claudeApiKey: '',
 	} satisfies LlmConfig

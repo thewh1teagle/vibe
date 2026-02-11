@@ -1,6 +1,6 @@
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
-import { useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AlignRight, Check, Copy, Download, Printer } from 'lucide-react'
 import { Segment, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
@@ -13,6 +13,7 @@ import { invoke } from '@tauri-apps/api/core'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { toDocx } from '~/lib/docx'
 import { path } from '@tauri-apps/api'
+import Markdown from 'react-markdown'
 import { Button } from '~/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
@@ -62,11 +63,15 @@ export default function TextArea({
 	readonly,
 	placeholder,
 	file,
+	textFormat,
+	setTextFormat,
 }: {
 	segments: Segment[] | null
 	readonly: boolean
 	placeholder?: string
 	file: NamedPath
+	textFormat: TextFormat
+	setTextFormat: Dispatch<SetStateAction<TextFormat>>
 }) {
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
@@ -76,20 +81,20 @@ export default function TextArea({
 	useEffect(() => {
 		if (segments) {
 			setText(
-				preference.textFormat === 'vtt'
+				textFormat === 'vtt'
 					? asVtt(segments, speakerLabel)
-					: preference.textFormat === 'srt'
+					: textFormat === 'srt'
 						? asSrt(segments, speakerLabel)
-						: preference.textFormat === 'json'
+						: textFormat === 'json'
 							? asJson(segments)
-							: preference.textFormat === 'csv'
+							: textFormat === 'csv'
 								? asCsv(segments)
 							: asText(segments, speakerLabel),
 			)
 		} else {
 			setText('')
 		}
-	}, [preference.textFormat, segments])
+	}, [textFormat, segments, speakerLabel])
 
 	async function download(textToSave: string, format: TextFormat, srcFile: NamedPath) {
 		if (format === 'html') {
@@ -133,14 +138,14 @@ export default function TextArea({
 
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button variant="ghost" size="icon" onMouseDown={() => download(text, preference.textFormat, file)}>
+						<Button variant="ghost" size="icon" onMouseDown={() => download(text, textFormat, file)}>
 							<Download className="h-5 w-5" strokeWidth={2.1} />
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>{t('common.save-transcript')}</TooltipContent>
 				</Tooltip>
 
-				{['html', 'pdf'].includes(preference.textFormat) && (
+				{['html', 'pdf'].includes(textFormat) && (
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button variant="ghost" size="icon" onMouseDown={() => window.print()}>
@@ -167,7 +172,7 @@ export default function TextArea({
 				</Tooltip>
 
 				<div className="ms-auto me-1 min-w-[98px]">
-					<Select value={preference.textFormat} onValueChange={(value) => preference.setTextFormat(value as TextFormat)}>
+					<Select value={textFormat} onValueChange={(value) => setTextFormat(value as TextFormat)}>
 						<SelectTrigger className="h-9 w-[98px] px-2 text-sm">
 							<SelectValue placeholder={t('common.mode-text')} />
 						</SelectTrigger>
@@ -180,14 +185,21 @@ export default function TextArea({
 							<SelectItem value="vtt">vtt</SelectItem>
 							<SelectItem value="json">json</SelectItem>
 							<SelectItem value="csv">csv</SelectItem>
+							<SelectItem value="md">md</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
 			</div>
 
-			{['html', 'pdf', 'docx'].includes(preference.textFormat) ? (
+			{['html', 'pdf', 'docx'].includes(textFormat) ? (
 				<div className="transcript-editor min-h-0 flex-1 overflow-x-hidden overflow-y-auto rounded-bl-lg rounded-br-lg border-x border-b border-input/70 bg-card">
 					<HTMLView preference={preference} segments={segments ?? []} file={file} />
+				</div>
+			) : textFormat === 'md' ? (
+				<div
+					dir={preference.textAreaDirection}
+					className="transcript-editor prose prose-sm dark:prose-invert min-h-0 max-w-none flex-1 overflow-x-hidden overflow-y-auto rounded-bl-lg rounded-br-lg border-x border-b border-input/70 bg-card px-4 py-3">
+					<Markdown>{text}</Markdown>
 				</div>
 			) : (
 				<textarea

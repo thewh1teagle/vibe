@@ -542,6 +542,31 @@ export function viewModel() {
 		}
 	}
 
+	const [summarizing, setSummarizing] = useState(false)
+
+	async function resummarize(prompt: string) {
+		if (!segments || !llm) return
+		setSummarizing(true)
+		try {
+			const question = prompt.replace('%s', transcript.asText(segments, t('common.speaker-prefix')))
+			const answerPromise = llm.ask(question)
+			hotToast.promise(answerPromise, {
+				loading: t('common.summarize-loading'),
+				error: (error) => String(error),
+				success: t('common.summarize-success'),
+			})
+			const answer = await answerPromise
+			if (answer) {
+				setSummarizeSegments([{ start: 0, stop: segments[segments.length - 1]?.stop ?? 0, text: answer }])
+				setTranscriptTab('summary')
+			}
+		} catch (e) {
+			console.error(e)
+		} finally {
+			setSummarizing(false)
+		}
+	}
+
 	async function downloadAudio() {
 		if (audioUrl) {
 			setYtDlpProgress(0)
@@ -613,5 +638,7 @@ export function viewModel() {
 		downloadAudio,
 		downloadingAudio,
 		setDownloadingAudio,
+		resummarize,
+		summarizing,
 	}
 }

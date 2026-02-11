@@ -32,8 +32,10 @@ export interface Preference {
 	setSkippedSetup: ModifyState<boolean>
 	textAreaDirection: Direction
 	setTextAreaDirection: ModifyState<Direction>
-	textFormat: TextFormat
-	setTextFormat: ModifyState<TextFormat>
+	textFormatTranscript: TextFormat
+	setTextFormatTranscript: ModifyState<TextFormat>
+	textFormatSummary: TextFormat
+	setTextFormatSummary: ModifyState<TextFormat>
 	modelOptions: ModelOptions
 	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
@@ -136,7 +138,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
-	const [textFormat, setTextFormat] = useLocalStorage<TextFormat>('prefs_text_format', 'pdf')
+	const [textFormatTranscript, setTextFormatTranscript] = useLocalStorage<TextFormat>('prefs_text_format_transcript', 'pdf')
+	const [textFormatSummary, setTextFormatSummary] = useLocalStorage<TextFormat>('prefs_text_format_summary', 'md')
 	const isMounted = useRef<boolean>(false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
 	const [homeTabIndex, setHomeTabIndex] = useLocalStorage<number>('prefs_home_tab_index', 1)
@@ -227,7 +230,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 
 	function enableSubtitlesPreset() {
 		setModelOptions({ ...preference.modelOptions, word_timestamps: true, max_sentence_len: 32 })
-		setTextFormat('srt')
+		setTextFormatTranscript('srt')
 		message(i18n.t('common.success-action'))
 	}
 
@@ -241,8 +244,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setModelOptions,
 		storeRecordInDocuments,
 		setStoreRecordInDocuments,
-		textFormat,
-		setTextFormat,
+		textFormatTranscript,
+		setTextFormatTranscript,
+		textFormatSummary,
+		setTextFormatSummary,
 		textAreaDirection,
 		setTextAreaDirection,
 		skippedSetup,

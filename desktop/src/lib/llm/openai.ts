@@ -6,7 +6,7 @@ export function defaultConfig(language = 'English'): LlmConfig {
 		enabled: false,
 		model: 'gpt-4o-mini',
 		platform: 'openai',
-		prompt: `Please summarize the following transcription and write it in ${language}: \n\n"""\n%s\n"""\n`,
+		prompt: `Output only the requested content. No introductions, explanations, or commentary.\n\nWrite a concise summary of this transcript in ${language} using markdown. Include:\n- A short overview paragraph\n- 3-5 key takeaways as bullet points\n- Action items as a checklist if there are any\n\n"""\n%s\n"""`,
 		maxTokens: 8192,
 		claudeApiKey: '',
 		ollamaBaseUrl: '',
