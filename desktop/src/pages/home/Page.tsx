@@ -50,10 +50,6 @@ export default function Home() {
 		showWindow()
 	}, [])
 
-	useEffect(() => {
-		console.log('devices', vm.devices)
-	}, [vm.devices])
-
 	return (
 		<Layout>
 			<div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-6">
@@ -100,7 +96,7 @@ export default function Home() {
 								</Button>
 							)}
 
-							<AudioVisualizer isRecording={vm.isRecording} inputDevice={vm.inputDevice} waveColor="#fff" reaction={0.1} sensitivity={3.5} />
+							<AudioVisualizer isRecording={vm.isRecording} inputDevice={vm.inputDevice} />
 
 							<div className="flex items-center gap-3 pt-2">
 								<div className="h-px flex-1 bg-border/50" />
