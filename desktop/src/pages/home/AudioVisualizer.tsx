@@ -13,7 +13,7 @@ interface AudioEngine {
 	ctx: AudioContext
 	analyser: AnalyserNode
 	stream: MediaStream
-	buffer: Uint8Array
+	buffer: Uint8Array<ArrayBuffer>
 }
 
 async function resolveDeviceId(name: string): Promise<string | undefined> {
@@ -61,7 +61,7 @@ async function createAudioEngine(deviceName?: string): Promise<AudioEngine> {
 	highpass2.connect(gain)
 	gain.connect(analyser)
 
-	return { ctx, analyser, stream, buffer: new Uint8Array(analyser.frequencyBinCount) }
+	return { ctx, analyser, stream, buffer: new Uint8Array(new ArrayBuffer(analyser.frequencyBinCount)) }
 }
 
 function destroyAudioEngine(engine: AudioEngine | null) {
