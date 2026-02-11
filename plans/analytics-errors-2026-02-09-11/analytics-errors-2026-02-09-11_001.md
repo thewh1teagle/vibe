@@ -14,7 +14,7 @@ Almost all on v3.0.9 (73) and v3.0.8 (15), only 1 on 3.0.10.
 
 | Category | Count | Notes |
 |---|---|---|
-| model_load_failed | 159 | Mostly Windows — non-ASCII paths like `Usuário` break model loading |
+| model_load_failed | 159 | Mostly Windows — non-ASCII paths (e.g. `C:\Users\José\AppData\...`) break model loading |
 | other (whisper codes, binary not found) | 128 | Whisper error codes -4/-7 on Linux; ffmpeg missing on Windows |
 | sona_connection_failed | 124 | Sona died between spawn and use (Win 106, macOS 16) |
 | no_model_selected | 99 | Users hit transcribe without downloading a model |
