@@ -18,7 +18,7 @@ export default function Home() {
 		if (action === 'support-vibe') {
 			onOpenKofi()
 		}
-	}, [onOpenKofi])
+	}, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<>

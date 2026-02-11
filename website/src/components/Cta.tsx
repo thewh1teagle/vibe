@@ -175,7 +175,6 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 							<SupportButton onOpenKofi={onOpenKofi} />
 						</div>
 					</div>
-					<DialogFooter showCloseButton />
 				</DialogContent>
 			</Dialog>
 
