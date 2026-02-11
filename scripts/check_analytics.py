@@ -27,6 +27,12 @@ TypeScript side (desktop/src/lib/analytics.ts → invokes track_analytics_event)
                            props: { source, error: string }
 
 CSV exported via scripts/export_analytics.py from self-hosted Aptabase.
+
+Codebase layout (for agents):
+  - desktop/src-tauri/src/  : Rust backend (sona spawn, model load, analytics)
+  - desktop/src/            : TypeScript frontend (transcribe UI, analytics events)
+  - sona/                   : Go sona server source (whisper bindings, HTTP API, audio processing)
+  - plans/                  : analysis reports and fix plans
 """
 
 import json
