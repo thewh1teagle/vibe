@@ -1,0 +1,39 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://thewh1teagle.github.io/vibe/#organization",
+      "name": "Vibe",
+      "url": "https://thewh1teagle.github.io/vibe/",
+      "logo": "https://thewh1teagle.github.io/vibe/logo.png",
+      "sameAs": [
+        "https://github.com/thewh1teagle/vibe",
+        "https://discord.gg/EcxWSstQN8"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://thewh1teagle.github.io/vibe/#website",
+      "url": "https://thewh1teagle.github.io/vibe/",
+      "name": "Vibe",
+      "publisher": {
+        "@id": "https://thewh1teagle.github.io/vibe/#organization"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://thewh1teagle.github.io/vibe/#app",
+      "name": "Vibe",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Windows, macOS, Linux",
+      "description": "Local-first transcription app for audio and video with AI summaries and multilingual support.",
+      "url": "https://thewh1teagle.github.io/vibe/",
+      "image": "https://thewh1teagle.github.io/vibe/preview.png",
+      "publisher": {
+        "@id": "https://thewh1teagle.github.io/vibe/#organization"
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thewh1teagle.github.io/vibe/sitemap.xml
+

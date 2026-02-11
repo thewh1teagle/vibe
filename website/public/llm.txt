@@ -1,0 +1,22 @@
+# Vibe
+
+Official website: https://thewh1teagle.github.io/vibe/
+Project repository: https://github.com/thewh1teagle/vibe
+
+Vibe is a local-first transcription app for audio and video.
+
+Key pages:
+- Home: https://thewh1teagle.github.io/vibe/
+- Features: https://thewh1teagle.github.io/vibe/features
+- Documentation: https://thewh1teagle.github.io/vibe/docs
+- Privacy Policy: https://thewh1teagle.github.io/vibe/privacy_policy.pdf
+
+Key capabilities:
+- Audio and video transcription
+- URL transcription
+- Speaker diarization
+- AI assistant summaries
+- Multiple export formats
+- Multilingual support
+- Works on Windows, macOS, and Linux
+
