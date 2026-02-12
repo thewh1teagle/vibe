@@ -144,6 +144,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					}
 				}
 
+				resultText = resultText.trim()
 				// Output result
 				if (hotkeyOutputModeRef.current === 'type') {
 					await invoke('type_text', { text: resultText })
