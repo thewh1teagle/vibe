@@ -17,9 +17,10 @@ interface BatchPanelProps {
 	index: number
 	inProgress: boolean
 	isAborting: boolean
+	modelPath: string | null
 }
 
-export default function BatchPanel({ files, onStart, onCancel, progress, index, inProgress, isAborting }: BatchPanelProps) {
+export default function BatchPanel({ files, onStart, onCancel, progress, index, inProgress, isAborting, modelPath }: BatchPanelProps) {
 	const { t } = useTranslation()
 	const [open, setOpen] = useState(false)
 
@@ -52,6 +53,7 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 					</CollapsibleTrigger>
 					<Button
 						onClick={() => (inProgress ? onCancel() : onStart())}
+						disabled={!inProgress && !modelPath}
 						size="iconSm"
 						className={inProgress ? 'rounded-full bg-destructive hover:bg-destructive/90' : 'rounded-full bg-success hover:bg-success/90'}>
 						{inProgress ? (

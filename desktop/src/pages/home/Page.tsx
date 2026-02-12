@@ -68,7 +68,7 @@ export default function Home() {
 							</div>
 
 							{!vm.isRecording ? (
-								<Button onMouseDown={() => vm.startRecord()} className="mt-1 w-full">
+								<Button onMouseDown={() => vm.startRecord()} className="mt-1 w-full" disabled={!vm.preference.modelPath}>
 									{t('common.start-record')}
 								</Button>
 							) : (
@@ -81,6 +81,10 @@ export default function Home() {
 									<Spinner className="mr-2" />
 									{t('common.stop-and-transcribe')}
 								</Button>
+							)}
+
+							{!vm.preference.modelPath && (
+								<p className="text-center text-sm text-muted-foreground">{t('common.no-model-selected')}</p>
 							)}
 
 							<AudioVisualizer isRecording={vm.isRecording} inputDevice={vm.inputDevice} />
@@ -144,7 +148,7 @@ export default function Home() {
 											<Button
 												onMouseDown={vm.startFolderBatch}
 												className="flex-1"
-												disabled={vm.isCollectingFolder || vm.files.length === 0}>
+												disabled={vm.isCollectingFolder || vm.files.length === 0 || !vm.preference.modelPath}>
 												{vm.isCollectingFolder && <Spinner className="mr-2" />}
 												{t('common.transcribe-folder')}
 											</Button>
@@ -169,9 +173,12 @@ export default function Home() {
 							)}
 							{vm.audio && !vm.loading && (
 								<>
-									<Button onMouseDown={() => vm.transcribe(vm.files[0].path)} className="mt-1 w-full">
+									<Button onMouseDown={() => vm.transcribe(vm.files[0].path)} className="mt-1 w-full" disabled={!vm.preference.modelPath}>
 										{t('common.transcribe')}
 									</Button>
+									{!vm.preference.modelPath && (
+										<p className="text-center text-sm text-muted-foreground">{t('common.no-model-selected')}</p>
+									)}
 									<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 								</>
 							)}
@@ -207,9 +214,12 @@ export default function Home() {
 										<span className="text-sm font-medium">{t('common.save-record-in-documents-folder')}</span>
 										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
 									</div>
-									<Button onMouseDown={vm.downloadAudio} className="w-full">
+									<Button onMouseDown={vm.downloadAudio} className="w-full" disabled={!vm.preference.modelPath}>
 										{t('common.download-file')}
 									</Button>
+									{!vm.preference.modelPath && (
+										<p className="text-center text-sm text-muted-foreground">{t('common.no-model-selected')}</p>
+									)}
 									<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 								</>
 							)}

@@ -32,7 +32,11 @@ export default function BatchPage() {
 							isAborting={vm.isAborting}
 							onStart={vm.start}
 							files={vm.files}
+							modelPath={vm.preference.modelPath}
 						/>
+						{!vm.preference.modelPath && (
+							<p className="mt-2 text-center text-sm text-muted-foreground">{t('common.no-model-selected')}</p>
+						)}
 						{!vm.inProgress && !vm.isAborting && (
 							<Button variant="link" onMouseDown={vm.selectFiles} className="mt-2 px-0 text-xs">
 								{t('common.change-files')}
