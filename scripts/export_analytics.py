@@ -25,7 +25,6 @@ Usage:
     --end-date 2025-02-01
 
   # optional flags
-    --app-key A-SH-...   (overrides APP_KEY from .env)
     --format csv|parquet   (default: csv)
     --build-mode release|debug   (default: release)
     --output custom-name.csv
@@ -137,11 +136,6 @@ def export_data(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Export Aptabase events")
-    parser.add_argument(
-        "--app-key",
-        default=os.environ.get("APP_KEY"),
-        help="App key e.g. A-SH-... (default: APP_KEY from .env)",
-    )
     parser.add_argument("--start-date", required=True, help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end-date", required=True, help="End date (YYYY-MM-DD)")
     parser.add_argument("--format", choices=["csv", "parquet"], default="csv")
@@ -156,8 +150,7 @@ def main() -> None:
         except ValueError:
             raise SystemExit(f"Invalid date format: {d} (expected YYYY-MM-DD)")
 
-    if not args.app_key:
-        raise SystemExit("Missing --app-key (and no APP_KEY in .env)")
+    app_key = require_env("APP_KEY")
 
     base_url = require_env("BASE_URL").rstrip("/")
     auth_secret = require_env("AUTH_SECRET")
@@ -169,8 +162,8 @@ def main() -> None:
 
     with httpx.Client(timeout=300) as client:
         authenticate(client, base_url, token)
-        app_id, app_name = resolve_app_key(client, base_url, args.app_key)
-        print(f"Resolved {args.app_key} → {app_name} ({app_id})")
+        app_id, app_name = resolve_app_key(client, base_url, app_key)
+        print(f"Resolved {app_key} → {app_name} ({app_id})")
 
         ext = "parquet" if args.format == "parquet" else "csv"
         output = Path(
