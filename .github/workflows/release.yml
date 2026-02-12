@@ -84,6 +84,15 @@ jobs:
                   args: ${{ matrix.args }}
                   projectPath: "./desktop"
                   tauriScript: pnpm exec tauri
+    test-release:
+      runs-on: ubuntu-latest
+      needs: publish-tauri
+      steps:
+        - uses: actions/checkout@v4
+        - name: Trigger test-release
+          run: gh workflow run test-release.yml
+          env:
+            GH_TOKEN: ${{ secrets.GH_TOKEN }}
     update-website:
       runs-on: macos-latest
       needs: publish-tauri
