@@ -496,7 +496,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
     }
 
     // Load model via HTTP
-    let sona = state_guard.process.as_ref().unwrap();
+    let sona = state_guard.process.as_mut().unwrap();
     sona.load_model(&model_path, gpu_device).await?;
     state_guard.loaded_model_path = Some(model_path.clone());
     state_guard.loaded_gpu_device = gpu_device;

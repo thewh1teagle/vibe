@@ -5,12 +5,14 @@ use serde::Deserialize;
 use std::io::BufRead;
 use std::path::Path;
 use std::process::{Child, Command, Stdio};
+use std::sync::{Arc, Mutex};
 use tokio_util::io::ReaderStream;
 
 pub struct SonaProcess {
     port: u16,
     child: Child,
     client: reqwest::Client,
+    stderr_buf: Arc<Mutex<String>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -102,13 +104,20 @@ impl SonaProcess {
                 buf.clear();
             }
         });
+        let stderr_buf = Arc::new(Mutex::new(String::new()));
         if let Some(stderr) = stderr {
+            let buf_clone = stderr_buf.clone();
             std::thread::spawn(move || {
                 let mut reader = std::io::BufReader::new(stderr);
-                let mut buf = String::new();
-                while reader.read_line(&mut buf).unwrap_or(0) > 0 {
-                    tracing::debug!("sona stderr: {}", buf.trim());
-                    buf.clear();
+                let mut line = String::new();
+                while reader.read_line(&mut line).unwrap_or(0) > 0 {
+                    tracing::debug!("sona stderr: {}", line.trim());
+                    if let Ok(mut buf) = buf_clone.lock() {
+                        if buf.len() < 8192 {
+                            buf.push_str(&line);
+                        }
+                    }
+                    line.clear();
                 }
             });
         }
@@ -118,6 +127,7 @@ impl SonaProcess {
             child,
             // Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
             client: reqwest::Client::builder().no_proxy().build().unwrap(),
+            stderr_buf,
         })
     }
 
@@ -125,7 +135,15 @@ impl SonaProcess {
         format!("http://127.0.0.1:{}", self.port)
     }
 
-    pub async fn load_model(&self, path: &str, gpu_device: Option<i32>) -> Result<()> {
+    fn is_alive(&mut self) -> bool {
+        matches!(self.child.try_wait(), Ok(None))
+    }
+
+    fn recent_stderr(&self) -> String {
+        self.stderr_buf.lock().map(|b| b.trim().to_string()).unwrap_or_default()
+    }
+
+    pub async fn load_model(&mut self, path: &str, gpu_device: Option<i32>) -> Result<()> {
         let url = format!("{}/v1/models/load", self.base_url());
         let mut body = serde_json::json!({"path": path});
         if let Some(dev) = gpu_device {
@@ -134,6 +152,13 @@ impl SonaProcess {
         let mut last_err = None;
         for attempt in 0..3 {
             if attempt > 0 {
+                if !self.is_alive() {
+                    let stderr = self.recent_stderr();
+                    if stderr.is_empty() {
+                        bail!("sona process died during model loading");
+                    }
+                    bail!("sona process died during model loading\n\nsona stderr: {}", stderr);
+                }
                 tracing::debug!("retrying load_model (attempt {})", attempt + 1);
                 tokio::time::sleep(std::time::Duration::from_millis(500 * (1 << attempt))).await;
             }
@@ -157,7 +182,13 @@ impl SonaProcess {
                 }
             }
         }
-        Err(last_err.unwrap()).context("failed to send load_model request to sona after 3 attempts")
+        let stderr = self.recent_stderr();
+        let base_err = Err(last_err.unwrap()).context("failed to send load_model request to sona after 3 attempts");
+        if stderr.is_empty() {
+            base_err
+        } else {
+            base_err.context(format!("sona stderr: {}", stderr))
+        }
     }
 
     pub async fn transcribe_stream(
