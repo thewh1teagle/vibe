@@ -465,7 +465,10 @@ export function viewModel() {
 			if (!modelPath) {
 				throw new Error('No model selected. Please download or select a model first.')
 			}
-			await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
+			const loadResult = await invoke<string>('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
+			if (loadResult === 'gpu_fallback') {
+				hotToast.warning(t('common.gpu-fallback-to-cpu'), { position: 'bottom-center', duration: 8000 })
+			}
 			let diarize_model: string | undefined
 			if (preferenceRef.current.diarizeEnabled) {
 				const modelsFolder = await invoke<string>('get_models_folder')

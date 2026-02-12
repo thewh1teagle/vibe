@@ -13,6 +13,7 @@ pub struct SonaProcess {
     child: Child,
     client: reqwest::Client,
     stderr_buf: Arc<Mutex<String>>,
+    no_gpu: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -34,11 +35,15 @@ pub enum SonaEvent {
 }
 
 impl SonaProcess {
-    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, diarize_path: Option<&Path>) -> Result<Self> {
-        tracing::debug!("spawning sona at {}", binary_path.display());
+    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, diarize_path: Option<&Path>, no_gpu: bool) -> Result<Self> {
+        tracing::debug!("spawning sona at {} (no_gpu={})", binary_path.display(), no_gpu);
 
         let mut cmd = Command::new(binary_path);
-        cmd.args(["serve", "--port", "0"])
+        let mut args = vec!["serve", "--port", "0"];
+        if no_gpu {
+            args.push("--no-gpu");
+        }
+        cmd.args(&args)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 
@@ -128,6 +133,7 @@ impl SonaProcess {
             // Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
             client: reqwest::Client::builder().no_proxy().build().unwrap(),
             stderr_buf,
+            no_gpu,
         })
     }
 
@@ -135,8 +141,12 @@ impl SonaProcess {
         format!("http://127.0.0.1:{}", self.port)
     }
 
-    fn is_alive(&mut self) -> bool {
+    pub fn is_alive(&mut self) -> bool {
         matches!(self.child.try_wait(), Ok(None))
+    }
+
+    pub fn no_gpu(&self) -> bool {
+        self.no_gpu
     }
 
     fn recent_stderr(&self) -> String {

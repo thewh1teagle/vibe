@@ -476,12 +476,16 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
         }
     }
 
-    // Spawn sona if not running
-    if state_guard.process.is_none() {
+    let spawn_sona = |no_gpu: bool| -> Result<crate::sona::SonaProcess> {
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
         let diarize_path = resolve_diarize_path(&app_handle);
-        match crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref()) {
+        crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref(), no_gpu)
+    };
+
+    // Spawn sona if not running
+    if state_guard.process.is_none() {
+        match spawn_sona(false) {
             Ok(process) => state_guard.process = Some(process),
             Err(e) => {
                 let error_msg = format!("{:#}", e);
@@ -496,12 +500,45 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
     }
 
     // Load model via HTTP
-    let sona = state_guard.process.as_mut().unwrap();
-    sona.load_model(&model_path, gpu_device).await?;
+    let load_result = {
+        let sona = state_guard.process.as_mut().unwrap();
+        sona.load_model(&model_path, gpu_device).await
+    };
+
+    let gpu_fallback = match load_result {
+        Ok(()) => false,
+        Err(e) => {
+            // If sona process died during model loading (GPU crash), retry with CPU
+            let should_fallback = {
+                let sona = state_guard.process.as_mut().unwrap();
+                !sona.is_alive() && !sona.no_gpu()
+            };
+            if should_fallback {
+                tracing::warn!("sona crashed during model load, falling back to CPU: {:#}", e);
+
+                // Kill dead process and respawn with --no-gpu
+                if let Some(mut old) = state_guard.process.take() {
+                    old.kill();
+                }
+                let process = spawn_sona(true).context("failed to respawn sona with --no-gpu")?;
+                state_guard.process = Some(process);
+
+                let sona = state_guard.process.as_mut().unwrap();
+                sona.load_model(&model_path, gpu_device).await?;
+                true
+            } else {
+                return Err(e);
+            }
+        }
+    };
     state_guard.loaded_model_path = Some(model_path.clone());
     state_guard.loaded_gpu_device = gpu_device;
 
-    Ok(model_path)
+    if gpu_fallback {
+        Ok("gpu_fallback".to_string())
+    } else {
+        Ok(model_path)
+    }
 }
 
 #[tauri::command]
@@ -517,7 +554,7 @@ pub async fn start_api_server(app_handle: tauri::AppHandle, sona_state: State<'_
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
         let diarize_path = resolve_diarize_path(&app_handle);
-        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
+        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref(), false)?;
         state_guard.process = Some(process);
     }
     let process = state_guard.process.as_ref().context("API server process missing")?;

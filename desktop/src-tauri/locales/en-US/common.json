@@ -182,6 +182,7 @@
 	"this-happens-once": "This happens only once! 🎉",
 	"threads": "Threads",
 	"transcribe": "Transcribe",
+	"gpu-fallback-to-cpu": "GPU failed to load model. Falling back to CPU.",
 	"no-model-selected": "Select a model in Settings to get started",
 	"transcribe-folder": "Transcribe folder",
 	"transcribe-took": "Transcribed successfully in {{total}} seconds.",

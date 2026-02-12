@@ -3,6 +3,8 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "httpx==0.28.1",
+#     "pandas==3.0.0",
+#     "pyarrow==23.0.0",
 #     "pyjwt==2.11.0",
 #     "python-dotenv==1.0.1",
 # ]
@@ -38,6 +40,7 @@ from urllib.parse import quote, urlencode
 
 import httpx
 import jwt
+import pandas as pd
 from dotenv import load_dotenv
 import os
 
@@ -129,6 +132,19 @@ def export_data(
         with open(output, "wb") as f:
             for chunk in resp.iter_bytes(chunk_size=65536):
                 f.write(chunk)
+
+    # Sort by timestamp descending (newest first)
+    if fmt == "csv":
+        df = pd.read_csv(output)
+    else:
+        df = pd.read_parquet(output)
+
+    if "timestamp" in df.columns:
+        df = df.sort_values("timestamp", ascending=False).reset_index(drop=True)
+        if fmt == "csv":
+            df.to_csv(output, index=False)
+        else:
+            df.to_parquet(output, index=False)
 
     size_kb = output.stat().st_size / 1024
     print(f"Saved to {output} ({size_kb:.1f} KB)")
