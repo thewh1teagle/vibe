@@ -53,8 +53,13 @@ pub fn track_event_handle_with_props(app_handle: &AppHandle, event_name: &str, p
     if !is_analytics_enabled(app_handle) {
         return;
     }
+    let mut merged = match props {
+        Some(serde_json::Value::Object(m)) => m,
+        _ => serde_json::Map::new(),
+    };
+    merged.entry("vibe_commit").or_insert_with(|| env!("COMMIT_HASH").into());
     tracing::trace!("analytics track_event '{}' sent", event_name);
-    if let Err(error) = app_handle.track_event(event_name, props) {
+    if let Err(error) = app_handle.track_event(event_name, Some(serde_json::Value::Object(merged))) {
         tracing::debug!("analytics track_event failed for '{}': {}", event_name, error);
     }
 }

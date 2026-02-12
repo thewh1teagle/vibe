@@ -247,6 +247,7 @@ export function viewModel() {
 				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
 					source: 'batch',
 					error_message: String(error),
+					file_ext: file.name.split('.').pop() ?? 'unknown',
 				})
 				if (isAbortingRef.current) {
 					navigate('/')

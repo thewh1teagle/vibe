@@ -500,6 +500,7 @@ export function viewModel() {
 				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
 					source: 'home',
 					error_message: String(error),
+					file_ext: path.split('.').pop() ?? 'unknown',
 				})
 				setErrorModal?.({ log: String(error), open: true })
 				setLoading(false)
