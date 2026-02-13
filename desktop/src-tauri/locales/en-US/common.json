@@ -183,6 +183,7 @@
 	"threads": "Threads",
 	"transcribe": "Transcribe",
 	"gpu-fallback-to-cpu": "GPU failed to load model. Falling back to CPU.",
+	"no-model-loaded-batch-stopped": "Model not loaded. Stopping batch.",
 	"no-model-selected": "Select a model in Settings to get started",
 	"transcribe-folder": "Transcribe folder",
 	"transcribe-took": "Transcribed successfully in {{total}} seconds.",

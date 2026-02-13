@@ -257,6 +257,13 @@ export function viewModel() {
 				} else {
 					console.error(`error while transcribe ${file.name}: `, error)
 				}
+
+				// Stop batch if model is not loaded — all subsequent files will fail too
+				if (String(error).includes('no model loaded')) {
+					toast.error(t('common.no-model-loaded-batch-stopped'))
+					break
+				}
+
 				localIndex += 1
 				setCurrentIndex(localIndex)
 			}
