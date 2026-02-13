@@ -28,7 +28,7 @@ tauri-plugin-clipboard-manager = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-notification = "2"
 tauri-plugin-keepawake = { version = "0.1.1", optional = true }
-tauri-plugin-aptabase = "1.0.0"
+tauri-plugin-aptabase = { git = "https://github.com/thewh1teagle/tauri-plugin-aptabase", branch = "deterministic-daily-session" }
 # Unsafe headers required for Ollama (to set Origin)
 tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
 
