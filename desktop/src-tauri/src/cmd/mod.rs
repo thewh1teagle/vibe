@@ -508,15 +508,17 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
     let gpu_fallback = match load_result {
         Ok(()) => false,
         Err(e) => {
-            // If sona process died during model loading (GPU crash), retry with CPU
+            // Fallback to CPU if GPU was enabled and model load failed for any reason:
+            // - sona process crashed (GPU driver issue)
+            // - sona returned an error (whisper.cpp failed to init with GPU)
             let should_fallback = {
                 let sona = state_guard.process.as_mut().unwrap();
-                !sona.is_alive() && !sona.no_gpu()
+                !sona.no_gpu()
             };
             if should_fallback {
-                tracing::warn!("sona crashed during model load, falling back to CPU: {:#}", e);
+                tracing::warn!("model load failed with GPU enabled, falling back to CPU: {:#}", e);
 
-                // Kill dead process and respawn with --no-gpu
+                // Kill existing process (dead or alive) and respawn with --no-gpu
                 if let Some(mut old) = state_guard.process.take() {
                     old.kill();
                 }

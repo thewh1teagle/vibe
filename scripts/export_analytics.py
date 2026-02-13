@@ -13,6 +13,15 @@
 """
 Export Aptabase events to CSV or Parquet.
 
+NOTE: The server stores all timestamps in UTC. Date params are day-granularity
+and the range is start-inclusive, end-exclusive. To export the last 24 hours,
+fetch two full days (yesterday + today) and filter afterward:
+
+  from datetime import datetime, timedelta, timezone
+  now = datetime.now(timezone.utc)
+  start = (now - timedelta(hours=24)).strftime("%Y-%m-%d")
+  end   = (now + timedelta(days=1)).strftime("%Y-%m-%d")   # end is exclusive
+
 Env vars (via .env):
   BASE_URL        – e.g. https://aptabase.example.com
   AUTH_SECRET     – same secret the server uses to verify JWTs
