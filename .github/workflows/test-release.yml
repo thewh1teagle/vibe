@@ -21,6 +21,8 @@ jobs:
             pattern: vibe_x64.app.tar.gz
           - runner: ubuntu-24.04
             pattern: "vibe_*_amd64.deb"
+          - runner: ubuntu-24.04-arm
+            pattern: "vibe_*_arm64.deb"
           - runner: windows-latest
             pattern: "vibe_*_x64-setup.exe"
 
@@ -69,7 +71,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb ./vibe_*_amd64.deb
+          sudo apt-get install -y xvfb ./${{ matrix.pattern }}
           xvfb-run -a vibe transcribe ggml-tiny.bin samples/short.mp4
 
       - name: Install and test (Windows)
