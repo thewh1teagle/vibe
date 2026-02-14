@@ -7,6 +7,8 @@ This tool helps identify and rename GitHub issues with non-descriptive titles in
 Some issues are created with placeholder titles like:
 - `[Short title]`
 - `[Title here. keep it short]`
+- `App reports bug` (auto-generated)
+- `Bug:` (generic)
 - Other generic placeholder text
 
 These titles make it hard to:
@@ -17,18 +19,54 @@ These titles make it hard to:
 ## Solution
 
 This directory contains tools to:
-1. Scan all issues in the repository
-2. Identify issues with non-descriptive titles
-3. Analyze issue content to generate descriptive titles
-4. Apply the changes using GitHub CLI
+1. Scan ALL issues in the repository (open and closed)
+2. Intelligently analyze each issue's content
+3. Generate descriptive titles based on issue body, errors, logs, etc.
+4. Skip issues that already have descriptive titles
+5. Apply the changes using GitHub CLI
 
 ## Files
 
-- **`analyze_issues.py`** - Python script that analyzes issue JSON data and suggests new titles
-- **`rename_issues.sh`** - Bash script that uses GitHub CLI to apply the title changes
+- **`rename_all_issues_agentic.py`** - **NEW** Agentic script that analyzes ALL issues and renames non-descriptive ones
+- **`apply_agentic_renames.sh`** - **NEW** Auto-generated shell script to apply 86 issue renames
+- **`analyze_issues.py`** - Original Python script that analyzes issue JSON data
+- **`rename_issues.sh`** - Original bash script for the first 9 issues
 - **`rename_issues.py`** - Alternative Python script using PyGithub (requires API access)
 
-## Quick Start
+## Quick Start - Agentic Renaming (Recommended)
+
+**This will analyze ALL 200+ issues and rename 86 non-descriptive ones:**
+
+1. Install GitHub CLI if not already installed:
+   ```bash
+   # macOS
+   brew install gh
+   
+   # Linux
+   sudo apt install gh  # Debian/Ubuntu
+   sudo dnf install gh  # Fedora
+   
+   # Windows
+   winget install --id GitHub.cli
+   ```
+
+2. Authenticate with GitHub:
+   ```bash
+   gh auth login
+   ```
+
+3. Run the agentic rename script:
+   ```bash
+   ./scripts/apply_agentic_renames.sh
+   ```
+
+This will:
+- Analyze each issue's content (body, logs, errors, OS, etc.)
+- Skip issues that already have descriptive titles
+- Rename 86 issues with improved titles
+- Work on both open and closed issues
+
+## Alternative: Manual Analysis
 
 ### Option 1: Using GitHub CLI (Recommended)
 
@@ -50,7 +88,7 @@ This directory contains tools to:
    gh auth login
    ```
 
-3. Run the rename script:
+3. Run the rename script (original 9 issues):
    ```bash
    ./scripts/rename_issues.sh
    ```
@@ -67,22 +105,50 @@ python3 scripts/analyze_issues.py /path/to/issues.json
 
 ## How It Works
 
-The analysis script:
+The agentic analysis script (`rename_all_issues_agentic.py`):
 
-1. **Pattern Matching**: Identifies non-descriptive titles using regex patterns:
-   - `^\[Short title\]`
-   - `^\[Title here\.? keep it short\]`
+1. **Smart Title Detection**: Identifies non-descriptive titles using multiple heuristics:
+   - `^\[Short title\]` - Placeholder brackets
+   - `^\[Title here\.? keep it short\]` - Template text
+   - `^Bug:?\s*$` - Just "Bug:" or "Bug"
+   - `^App reports bug\s*$` - Generic auto-report
+   - Titles that are too short and generic
 
 2. **Content Analysis**: Extracts key information from issue bodies:
    - "What happened?" section
    - OS information
    - Error logs and output
-
-3. **Title Generation**: Creates descriptive titles based on:
-   - Type of error (transcription, build, recording, etc.)
-   - Platform (Windows, macOS, Linux)
-   - Specific error messages
+   - Steps to reproduce
    - Language of the report
+
+3. **Intelligent Title Generation**: Creates descriptive titles based on:
+   - **Error Type**: Transcription, build, recording, download, etc.
+   - **Platform**: Windows, macOS, Linux with version info
+   - **Specific Errors**: FFmpeg, model download, GPU issues
+   - **Features**: Diarization, export formats, models
+   - **Language**: Handles English, Hebrew, French reports
+
+4. **Selective Renaming**: Only renames issues that:
+   - Have placeholder or generic titles
+   - Can be improved with content-based analysis
+   - Skips issues with already-descriptive titles
+
+## Results - Agentic Analysis
+
+Out of **200 total issues analyzed**:
+- **114 issues** already have descriptive titles (skipped)
+- **86 issues** need renaming:
+  - 13 open issues
+  - 73 closed issues
+
+### Common Improvements
+
+| Pattern | Count | Example Transformation |
+|---------|-------|------------------------|
+| "App reports bug" → Specific error | 73 | "App reports bug" → "bug: YouTube download fails" |
+| "[Short title]" → Content-based | 5 | "[Short title]" → "bug: Transcription stuck at 0% on Windows 10" |
+| "[Title here. keep it short]" → Analysis | 4 | "[Title here. keep it short]" → "bug: Cannot stop recording on Linux" |
+| "Bug:" → Descriptive | 4 | "Bug:" → "bug: Issue report" |
 
 ## Issues Found and Proposed Changes
 
