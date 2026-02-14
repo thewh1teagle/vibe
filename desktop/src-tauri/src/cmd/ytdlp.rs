@@ -20,9 +20,17 @@ const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 fn get_binary_name() -> &'static str {
     if cfg!(windows) {
-        "yt-dlp.exe"
+        if cfg!(target_arch = "aarch64") {
+            "yt-dlp_arm64.exe"
+        } else {
+            "yt-dlp.exe"
+        }
     } else if cfg!(target_os = "linux") {
-        "yt-dlp_linux"
+        if cfg!(target_arch = "aarch64") {
+            "yt-dlp_linux_aarch64"
+        } else {
+            "yt-dlp_linux"
+        }
     } else {
         "yt-dlp_macos"
     }

@@ -29,14 +29,17 @@ export const llmDefaultMaxTokens = 8192 // https://docs.anthropic.com/en/docs/ab
 export const llmLimitsUrl = 'https://console.anthropic.com/settings/limits'
 export const llmCostUrl = 'https://console.anthropic.com/settings/cost'
 
-export const ytDlpAssetNames = {
-	windows: 'yt-dlp.exe',
-	linux: 'yt-dlp_linux',
-	macos: 'yt-dlp_macos',
-} as const
+export const ytDlpAssetNames: Record<string, string> = {
+	'windows-x86_64': 'yt-dlp.exe',
+	'windows-aarch64': 'yt-dlp_arm64.exe',
+	'linux-x86_64': 'yt-dlp_linux',
+	'linux-aarch64': 'yt-dlp_linux_aarch64',
+	'macos-x86_64': 'yt-dlp_macos',
+	'macos-aarch64': 'yt-dlp_macos',
+}
 
-export function ytDlpDownloadUrl(version: string, platform: keyof typeof ytDlpAssetNames): string {
-	return `https://github.com/yt-dlp/yt-dlp/releases/download/${version}/${ytDlpAssetNames[platform]}`
+export function ytDlpDownloadUrl(version: string, key: string): string {
+	return `https://github.com/yt-dlp/yt-dlp/releases/download/${version}/${ytDlpAssetNames[key]}`
 }
 
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm', 'mxf']
