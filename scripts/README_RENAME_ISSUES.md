@@ -93,7 +93,7 @@ The analysis script:
 | [#908](https://github.com/thewh1teagle/vibe/issues/908) | `[Title here. keep it short]` | `bug: Application doesn't work (Hebrew report)` | Open |
 | [#865](https://github.com/thewh1teagle/vibe/issues/865) | `[Short title] La transcription...` | `bug: Transcription starts but doesn't progress (French report)` | Open |
 | [#830](https://github.com/thewh1teagle/vibe/issues/830) | `[Title here. keep it short]` | `bug: Generic issue report (needs more information)` | Open |
-| [#797](https://github.com/thewh1teagle/vibe/issues/797) | `[Short title]Add soure language...` | `feature: Add source and target language selection options` | Open |
+| [#797](https://github.com/thewh1teagle/vibe/issues/797) | `[Short title]Add source language...` | `feature: Add source and target language selection options` | Open |
 | [#784](https://github.com/thewh1teagle/vibe/issues/784) | `[Title here. keep it short]` | `bug: Cannot stop recording on Linux` | Open |
 | [#767](https://github.com/thewh1teagle/vibe/issues/767) | `[Short title]` | `bug: Issue report` | Open |
 | [#758](https://github.com/thewh1teagle/vibe/issues/758) | `[Short title]` | `bug: Transcription outputs only exclamation marks with GPU` | Open |

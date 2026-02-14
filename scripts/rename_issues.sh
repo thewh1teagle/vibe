@@ -58,8 +58,8 @@ gh issue edit 830 --repo $REPO --title "bug: Generic issue report (needs more in
 echo "  ✓ Updated"
 echo
 
-# Issue #797: [Short title]Add soure language and target language option
-echo "Issue #797: [Short title]Add soure language and target language option"
+# Issue #797: [Short title]Add source language and target language option
+echo "Issue #797: [Short title]Add source language and target language option"
 echo "  → feature: Add source and target language selection options"
 gh issue edit 797 --repo $REPO --title "feature: Add source and target language selection options"
 echo "  ✓ Updated"
