@@ -17,6 +17,12 @@ import re
 import argparse
 from typing import Dict, List, Tuple, Optional
 
+# Constants for title generation
+MAX_SENTENCE_LENGTH = 60
+TRUNCATION_LENGTH = 57
+MIN_BODY_LENGTH = 50
+MIN_TITLE_LENGTH = 10
+
 def is_title_descriptive(title: str, body: str) -> bool:
     """
     Determine if a title is already descriptive enough.
@@ -36,7 +42,7 @@ def is_title_descriptive(title: str, body: str) -> bool:
             return False
     
     # Title is too short and generic
-    if len(title.strip()) < 10 and any(word in title.lower() for word in ['bug', 'issue', 'error', 'problem']):
+    if len(title.strip()) < MIN_TITLE_LENGTH and any(word in title.lower() for word in ['bug', 'issue', 'error', 'problem']):
         return False
     
     # Check if title is just "App reports bug" or similar
@@ -234,14 +240,14 @@ def generate_descriptive_title(issue: Dict, current_title: str) -> Optional[str]
         elif what_happened and what_happened != "a bug happened!" and len(what_happened) > 20:
             # Extract first meaningful sentence
             first_sentence = what_happened.split('.')[0].split('!')[0].split('\n')[0]
-            if len(first_sentence) > 60:
-                first_sentence = first_sentence[:57] + "..."
+            if len(first_sentence) > MAX_SENTENCE_LENGTH:
+                first_sentence = first_sentence[:TRUNCATION_LENGTH] + "..."
             if first_sentence.lower() not in ['a bug happened', 'a bug']:
                 new_title = f"bug: {first_sentence}"
     
     # Last resort for truly empty/generic reports
     if not new_title:
-        if not body or len(body.strip()) < 50:
+        if not body or len(body.strip()) < MIN_BODY_LENGTH:
             new_title = "bug: Generic issue report (needs more information)"
         elif 'crash' in body_lower or 'closes' in body_lower:
             new_title = "bug: Application crashes"
