@@ -54,8 +54,7 @@ if [ -f /etc/os-release ]; then
     if grep -iq "ubuntu\|debian" /etc/os-release; then
         echo "Detected Debian/Ubuntu. Downloading DEB package..."
         wget "$DEB_URL" -O vibe.deb
-        sudo dpkg -i vibe.deb
-        sudo apt-get install -f -y
+        sudo apt-get install -y ./vibe.deb
     elif grep -iq "centos\|fedora\|rhel" /etc/os-release; then
         echo "Detected CentOS/Fedora/RHEL. Downloading RPM package..."
         wget -q "$RPM_URL" -O vibe.rpm
