@@ -17,11 +17,10 @@ jobs:
                     - platform: "macos-latest"
                       args: "--target x86_64-apple-darwin"
                       target_triple: "x86_64-apple-darwin"
-                    # Ubuntu 20.04 for glibc compatibility with older Linux systems
-                    - platform: "ubuntu-20.04"
+                    - platform: "ubuntu-22.04"
                       args: "--target x86_64-unknown-linux-gnu"
                       target_triple: "x86_64-unknown-linux-gnu"
-                    - platform: "ubuntu-20.04-arm"
+                    - platform: "ubuntu-22.04-arm"
                       args: "--target aarch64-unknown-linux-gnu"
                       target_triple: "aarch64-unknown-linux-gnu"
                     - platform: "windows-latest"
