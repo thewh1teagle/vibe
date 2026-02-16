@@ -8,7 +8,7 @@ on:
             - "website/**"
             - "scripts/website_links.py"
     release:
-        types: [released, edited] # fires when pre-release is promoted to latest
+        types: [released]
     workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
