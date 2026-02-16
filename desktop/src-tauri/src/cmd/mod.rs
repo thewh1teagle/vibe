@@ -335,6 +335,15 @@ pub async fn transcribe(
     options: TranscribeOptions,
     sona_state: State<'_, Mutex<SonaState>>,
 ) -> Result<Transcript> {
+    // Validate file exists before attempting transcription
+    let audio_path = PathBuf::from(&options.path);
+    if !audio_path.exists() {
+        bail!("Audio file not found: {}", options.path);
+    }
+    if !audio_path.is_file() {
+        bail!("Path is not a file: {}", options.path);
+    }
+
     let state = sona_state.lock().await;
     let process = state.process.as_ref();
     if process.is_none() {
@@ -370,7 +379,12 @@ pub async fn transcribe(
                 SonaEvent::Progress { progress } => {
                     let _ = set_progress_bar(&app_handle, Some(progress.into()));
                 }
-                SonaEvent::Segment { start, end, text, speaker } => {
+                SonaEvent::Segment {
+                    start,
+                    end,
+                    text,
+                    speaker,
+                } => {
                     let segment = Segment {
                         start: (start * 100.0) as i64,
                         stop: (end * 100.0) as i64,
