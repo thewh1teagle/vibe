@@ -77,7 +77,8 @@ def sign(path: str) -> None:
     jsign_jar = find_jsign_jar()
 
     # Jsign expects the TOTP secret in base64, SSL.com gives it in base32
-    totp_secret_b64 = base64.b64encode(base64.b32decode(totp_secret)).decode()
+    padded = totp_secret + "=" * (-len(totp_secret) % 8)
+    totp_secret_b64 = base64.b64encode(base64.b32decode(padded)).decode()
 
     subprocess.run(
         [
