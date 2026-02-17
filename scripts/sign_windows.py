@@ -38,7 +38,7 @@ import re
 import shutil
 
 APP_NAME = "vibe"
-TIMESTAMP_URL = "http://ts.ssl.com"
+TIMESTAMP_URL = "http://timestamp.sectigo.com"
 
 # Whitelist patterns - only these get signed
 SIGN_PATTERNS: list[re.Pattern[str]] = [
