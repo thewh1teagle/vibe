@@ -30,6 +30,7 @@ Usage:
     }
   }
 """
+import base64
 import subprocess
 import sys
 import os
@@ -75,14 +76,16 @@ def sign(path: str) -> None:
     storepass = f"{username}|{password}"
     jsign_jar = find_jsign_jar()
 
-    # Jsign generates the TOTP code internally from the secret
+    # Jsign expects the TOTP secret in base64, SSL.com gives it in base32
+    totp_secret_b64 = base64.b64encode(base64.b32decode(totp_secret)).decode()
+
     subprocess.run(
         [
             "java", "-jar", jsign_jar, "sign",
             "--storetype", "ESIGNER",
             "--storepass", storepass,
             "--alias", credential_id,
-            "--keypass", totp_secret,
+            "--keypass", totp_secret_b64,
             "--tsaurl", TIMESTAMP_URL,
             path,
         ],
