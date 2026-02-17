@@ -274,11 +274,6 @@ def main() -> int:
             relative_path = os.path.relpath(cwd.parent, original_cwd)
             print(f"cd {relative_path}")
         print("pnpm install")
-        if current_platform == "windows":
-            print(r'$env:LIBCLANG_PATH = "C:\Program Files\LLVM\bin"')
-            print(r'$env:PATH += ";C:\Program Files\CMake\bin"')
-            if has_feature("portable", argv):
-                print("$env:WINDOWS_PORTABLE=1")
         print("pnpm exec tauri build")
 
     if github_env and current_platform == "windows" and has_feature("portable", argv):
@@ -289,11 +284,6 @@ def main() -> int:
     action_arg = next((arg for arg in argv if "--dev" in arg or "--build" in arg), None)
     if action_arg:
         os.chdir(cwd.parent)
-        if current_platform == "windows":
-            os.environ["LIBCLANG_PATH"] = os.environ.get("LIBCLANG_PATH", r"C:\Program Files\LLVM\bin")
-            os.environ["PATH"] = f'{os.environ.get("PATH", "")};C:\\Program Files\\CMake\\bin'
-            if has_feature("portable", argv):
-                os.environ["WINDOWS_PORTABLE"] = "1"
 
         run_cmd("pnpm", "install")
         run_cmd("pnpm", "exec", "tauri", "dev" if "--dev" in action_arg else "build")
