@@ -5,9 +5,10 @@
 			"nsis": {
 				"installerHooks": "vc_redist.nsh"
 			},
-			"certificateThumbprint": "B62EBBA228708C937A2DA3B6718A0F75AEF7B172",
-			"digestAlgorithm": "sha256",
-			"timestampUrl": "http://timestamp.digicert.com"
+			"signCommand": {
+				"cmd": "uv",
+				"args": ["run", "scripts/sign_windows.py", "%1"]
+			}
 		}
 	}
 }
