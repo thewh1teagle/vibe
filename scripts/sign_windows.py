@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.12"
-# dependencies = ["pyotp"]
+# dependencies = []
 # ///
 """
 Windows code signing with SSL.com eSigner via Jsign.
@@ -35,8 +35,6 @@ import sys
 import os
 import re
 import shutil
-
-import pyotp
 
 APP_NAME = "vibe"
 TIMESTAMP_URL = "http://ts.ssl.com"
@@ -74,19 +72,17 @@ def sign(path: str) -> None:
     password = os.environ["SSL_COM_PASSWORD"]
     totp_secret = os.environ["SSL_COM_TOTP_SECRET"]
 
-    totp = pyotp.TOTP(totp_secret)
-    otp_code = totp.now()
-
     storepass = f"{username}|{password}"
     jsign_jar = find_jsign_jar()
 
+    # Jsign generates the TOTP code internally from the secret
     subprocess.run(
         [
             "java", "-jar", jsign_jar, "sign",
             "--storetype", "ESIGNER",
             "--storepass", storepass,
             "--alias", credential_id,
-            "--keypass", otp_code,
+            "--keypass", totp_secret,
             "--tsaurl", TIMESTAMP_URL,
             path,
         ],
