@@ -68,7 +68,7 @@ jobs:
               run: uv run scripts/pre_build.py --target ${{ matrix.target_triple }}
 
             - name: Install Jsign (Windows)
-              if: matrix.platform == 'windows-latest'
+              if: matrix.platform == 'windows-latest' && inputs.sign-windows
               run: choco install jsign -y
 
             - name: Build
