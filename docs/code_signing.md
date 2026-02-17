@@ -85,6 +85,8 @@ This value is your TOTP secret.
 
 ## 5. Verify TOTP works (recommended)
 
+Generate a code and compare it against Google Authenticator at the same moment.
+
 On macOS:
 
 ```
@@ -92,10 +94,13 @@ brew install oath-toolkit
 oathtool --totp -b <BASE32_SECRET>
 ```
 
-The generated 6-digit code should match Google Authenticator
-at the same moment.
+On Windows (with uv):
 
-If it matches, your TOTP setup is correct.
+```powershell
+uv run --with pyotp python -c "import pyotp; print(pyotp.TOTP('<BASE32_SECRET>').now())"
+```
+
+If the 6-digit code matches Google Authenticator, your TOTP setup is correct.
 
 ---
 
