@@ -99,28 +99,65 @@ If it matches, your TOTP setup is correct.
 
 ---
 
-## 6. Minimal signing command (PowerShell)
+## 6. How signing works with Tauri
 
-Set the required environment variables:
+Tauri calls a custom sign command for every binary it wants to sign
+(main exe, sidecars, NSIS plugins, installer, etc.).
+
+We use `scripts/sign_windows.py` as that command. It **whitelists**
+only the files worth signing and skips everything else, keeping us
+under the eSigner monthly signing limit.
+
+What gets signed:
+
+- `vibe.exe` (main app)
+- `vibe-*setup*.exe` (NSIS installer)
+
+What gets skipped:
+
+- Sidecars (ffmpeg, sona, sona-diarize)
+- NSIS plugins and resource DLLs
+
+### Tauri config
+
+In `desktop/src-tauri/tauri.windows.conf.json`:
+
+```json
+"signCommand": {
+  "cmd": "python",
+  "args": ["scripts/sign_windows.py", "%1"]
+}
+```
+
+Tauri passes `%1` as the file path. The script checks the filename
+against the whitelist and either signs or skips.
+
+### Prerequisites
 
 ```
-$env:SSL_COM_CREDENTIAL_ID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-$env:SSL_COM_USERNAME="your@email.com"
-$env:SSL_COM_PASSWORD="your_ssl_com_password"
-$env:SSL_COM_TOTP_SECRET="BASE32_SECRET"
+choco install jsign
+choco install temurin
 ```
 
-Sign a file:
+### Required env vars
 
 ```
-codesigntool sign `  --credential-id $env:SSL_COM_CREDENTIAL_ID`
---input path\to\file.exe
+SSL_COM_CREDENTIAL_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+SSL_COM_USERNAME=your@email.com
+SSL_COM_PASSWORD=your_ssl_com_password
+SSL_COM_TOTP_SECRET=BASE32_SECRET
 ```
 
-Optional verification:
+### Manual signing
 
 ```
-codesigntool verify path\to\file.exe
+uv run scripts/sign_windows.py path\to\file.exe
+```
+
+### Verification
+
+```powershell
+signtool verify /pa /v path\to\file.exe
 ```
 
 ---
@@ -132,6 +169,7 @@ codesigntool verify path\to\file.exe
 - Complete validation
 - Retrieve Credential ID and TOTP secret from Orders
 - Verify TOTP once
-- Use CodeSignTool with environment variables in CI
+- `scripts/sign_windows.py` handles signing via Jsign + whitelist
+- Tauri calls it automatically via `signCommand` in config
 
-That’s it.
+That's it.

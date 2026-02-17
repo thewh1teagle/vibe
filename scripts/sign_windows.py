@@ -13,14 +13,18 @@ Prerequisites:
   choco install temurin  # or any Java runtime
 
 Required env vars:
+  SIGN_ENABLED           - set to "true" to actually sign (default: dry run)
   SSL_COM_CREDENTIAL_ID  - eSigner credential ID
   SSL_COM_USERNAME       - SSL.com account email
   SSL_COM_PASSWORD       - SSL.com account password
   SSL_COM_TOTP_SECRET    - eSigner TOTP base32 secret
 
 Usage:
-  # Set env vars first, then:
+  # Dry run (default):
   uv run scripts/sign_windows.py <file>
+
+  # Real signing:
+  SIGN_ENABLED=true uv run scripts/sign_windows.py <file>
 
   # Or in tauri.conf.json:
   "windows": {
@@ -100,6 +104,11 @@ def main() -> None:
 
     if not any(p.match(basename) for p in SIGN_PATTERNS):
         print(f"[sign] SKIP: {basename}")
+        sys.exit(0)
+
+    dry_run = os.environ.get("SIGN_ENABLED", "").lower() != "true"
+    if dry_run:
+        print(f"[sign] DRY RUN: {basename} (set SIGN_ENABLED=true to sign)")
         sys.exit(0)
 
     print(f"[sign] SIGNING: {basename}")

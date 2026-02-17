@@ -2,6 +2,11 @@ name: Release
 
 on:
     workflow_dispatch:
+        inputs:
+            sign-windows:
+                description: 'Sign Windows binaries with SSL.com'
+                type: boolean
+                default: false
 
 jobs:
     publish-tauri:
@@ -62,14 +67,9 @@ jobs:
             - name: Run pre_build.py on ${{ matrix.platform }}
               run: uv run scripts/pre_build.py --target ${{ matrix.target_triple }}
 
-            - name: Sign Windows artifacts
+            - name: Install Jsign (Windows)
               if: matrix.platform == 'windows-latest'
-              env:
-                WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
-                WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
-              shell: pwsh
-              run: ./scripts/windows_sign.ps1
-
+              run: choco install jsign -y
 
             - name: Build
               uses: tauri-apps/tauri-action@v0
@@ -79,6 +79,11 @@ jobs:
                   TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
                   APTABASE_APP_KEY: ${{ secrets.APTABASE_APP_KEY }}
                   APTABASE_BASE_URL: ${{ secrets.APTABASE_BASE_URL }}
+                  SIGN_ENABLED: ${{ matrix.platform == 'windows-latest' && inputs.sign-windows && 'true' || 'false' }}
+                  SSL_COM_CREDENTIAL_ID: ${{ secrets.SSL_COM_CREDENTIAL_ID }}
+                  SSL_COM_USERNAME: ${{ secrets.SSL_COM_USERNAME }}
+                  SSL_COM_PASSWORD: ${{ secrets.SSL_COM_PASSWORD }}
+                  SSL_COM_TOTP_SECRET: ${{ secrets.SSL_COM_TOTP_SECRET }}
               with:
                   tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
                   releaseName: "v__VERSION__"
