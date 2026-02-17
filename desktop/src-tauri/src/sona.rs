@@ -28,10 +28,21 @@ struct ReadySignal {
 #[serde(rename_all = "snake_case")]
 #[allow(dead_code)]
 pub enum SonaEvent {
-    Progress { progress: i32 },
-    Segment { start: f64, end: f64, text: String, speaker: Option<i32> },
-    Result { text: String },
-    Error { message: String },
+    Progress {
+        progress: i32,
+    },
+    Segment {
+        start: f64,
+        end: f64,
+        text: String,
+        speaker: Option<i32>,
+    },
+    Result {
+        text: String,
+    },
+    Error {
+        message: String,
+    },
 }
 
 impl SonaProcess {
@@ -43,9 +54,7 @@ impl SonaProcess {
         if no_gpu {
             args.push("--no-gpu");
         }
-        cmd.args(&args)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+        cmd.args(&args).stdout(Stdio::piped()).stderr(Stdio::piped());
 
         if let Some(ffmpeg) = ffmpeg_path {
             tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
@@ -85,7 +94,11 @@ impl SonaProcess {
             if stderr_output.is_empty() {
                 return Err(e).context("failed to read sona ready signal");
             }
-            bail!("failed to read sona ready signal: {}\n\nsona stderr: {}", e, stderr_output.trim());
+            bail!(
+                "failed to read sona ready signal: {}\n\nsona stderr: {}",
+                e,
+                stderr_output.trim()
+            );
         }
 
         let signal: ReadySignal = match serde_json::from_str(line.trim()) {
@@ -95,7 +108,11 @@ impl SonaProcess {
                 if stderr_output.is_empty() {
                     bail!("failed to parse sona ready signal: {}", e);
                 }
-                bail!("failed to parse sona ready signal: {}\n\nsona stderr: {}", e, stderr_output.trim());
+                bail!(
+                    "failed to parse sona ready signal: {}\n\nsona stderr: {}",
+                    e,
+                    stderr_output.trim()
+                );
             }
         };
 
@@ -172,13 +189,7 @@ impl SonaProcess {
                 tracing::debug!("retrying load_model (attempt {})", attempt + 1);
                 tokio::time::sleep(std::time::Duration::from_millis(500 * (1 << attempt))).await;
             }
-            match self
-                .client
-                .post(&url)
-                .json(&body)
-                .send()
-                .await
-            {
+            match self.client.post(&url).json(&body).send().await {
                 Ok(resp) => {
                     if !resp.status().is_success() {
                         let body = resp.text().await.unwrap_or_default();
@@ -210,11 +221,7 @@ impl SonaProcess {
         let file = tokio::fs::File::open(&options.path)
             .await
             .context("failed to open audio file")?;
-        let file_len = file
-            .metadata()
-            .await
-            .context("failed to read file metadata")?
-            .len();
+        let file_len = file.metadata().await.context("failed to read file metadata")?.len();
 
         let file_name = Path::new(&options.path)
             .file_name()

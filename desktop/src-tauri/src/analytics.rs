@@ -35,7 +35,7 @@ pub fn is_aptabase_configured() -> bool {
 }
 
 pub fn track_event(app: &App, event_name: &str) {
-    track_event_handle_with_props(&app.handle(), event_name, None);
+    track_event_handle_with_props(app.handle(), event_name, None);
 }
 
 pub fn track_event_handle(app_handle: &AppHandle, event_name: &str) {
