@@ -1,27 +1,45 @@
 # /// script
 # requires-python = ">=3.12"
-# dependencies = []
+# dependencies = ["pyotp"]
 # ///
 """
-Windows code signing script for Tauri's custom signCommand.
+Windows code signing with SSL.com eSigner via Jsign.
 
-Usage in tauri.conf.json:
+Called by Tauri's custom signCommand for each binary.
+Whitelists only installer + main exe, skips everything else.
+
+Prerequisites:
+  choco install jsign
+  choco install temurin  # or any Java runtime
+
+Required env vars:
+  SSL_COM_CREDENTIAL_ID  - eSigner credential ID
+  SSL_COM_USERNAME       - SSL.com account email
+  SSL_COM_PASSWORD       - SSL.com account password
+  SSL_COM_TOTP_SECRET    - eSigner TOTP base32 secret
+
+Usage:
+  # Set env vars first, then:
+  uv run scripts/sign_windows.py <file>
+
+  # Or in tauri.conf.json:
   "windows": {
     "signCommand": {
-      "cmd": "uv",
-      "args": ["run", "scripts/sign_windows.py", "%1"]
+      "cmd": "python",
+      "args": ["scripts/sign_windows.py", "%1"]
     }
   }
-
-Tauri calls this for every binary it wants to sign.
-We whitelist only the files that matter (installer + main app exe)
-and skip everything else to stay under SSL.com OV signing limits.
 """
+import subprocess
 import sys
 import os
 import re
+import shutil
+
+import pyotp
 
 APP_NAME = "vibe"
+TIMESTAMP_URL = "http://ts.ssl.com"
 
 # Whitelist patterns - only these get signed
 SIGN_PATTERNS: list[re.Pattern[str]] = [
@@ -31,22 +49,63 @@ SIGN_PATTERNS: list[re.Pattern[str]] = [
     re.compile(rf"^{re.escape(APP_NAME)}[-_].*setup.*\.exe$", re.IGNORECASE),
 ]
 
-path = sys.argv[1]
-basename = os.path.basename(path)
 
-if not any(p.match(basename) for p in SIGN_PATTERNS):
-    print(f"[sign] SKIP: {basename}")
-    sys.exit(0)
+def find_jsign_jar() -> str:
+    """Find jsign.jar from choco install or PATH."""
+    # Chocolatey default location
+    choco_path = r"C:\ProgramData\chocolatey\lib\jsign\tools\jsign.jar"
+    if os.path.isfile(choco_path):
+        return choco_path
 
-print(f"[sign] SIGNING: {basename}")
+    # Try to find jsign on PATH and look for jar nearby
+    jsign_bin = shutil.which("jsign")
+    if jsign_bin:
+        jar = os.path.join(os.path.dirname(jsign_bin), "jsign.jar")
+        if os.path.isfile(jar):
+            return jar
 
-# TODO: implement SSL.com OV signing
-# Example with CodeSignTool:
-# subprocess.run([
-#     "CodeSignTool.bat", "sign",
-#     "-credential_id", os.environ["SSL_COM_CREDENTIAL_ID"],
-#     "-username", os.environ["SSL_COM_USERNAME"],
-#     "-password", os.environ["SSL_COM_PASSWORD"],
-#     "-totp_secret", os.environ["SSL_COM_TOTP_SECRET"],
-#     "-input_file_path", path,
-# ], check=True)
+    print("[sign] ERROR: jsign.jar not found", file=sys.stderr)
+    sys.exit(1)
+
+
+def sign(path: str) -> None:
+    credential_id = os.environ["SSL_COM_CREDENTIAL_ID"]
+    username = os.environ["SSL_COM_USERNAME"]
+    password = os.environ["SSL_COM_PASSWORD"]
+    totp_secret = os.environ["SSL_COM_TOTP_SECRET"]
+
+    totp = pyotp.TOTP(totp_secret)
+    otp_code = totp.now()
+
+    storepass = f"{username}|{password}"
+    jsign_jar = find_jsign_jar()
+
+    subprocess.run(
+        [
+            "java", "-jar", jsign_jar, "sign",
+            "--storetype", "ESIGNER",
+            "--storepass", storepass,
+            "--alias", credential_id,
+            "--keypass", otp_code,
+            "--tsaurl", TIMESTAMP_URL,
+            path,
+        ],
+        check=True,
+    )
+
+
+def main() -> None:
+    path = sys.argv[1]
+    basename = os.path.basename(path)
+
+    if not any(p.match(basename) for p in SIGN_PATTERNS):
+        print(f"[sign] SKIP: {basename}")
+        sys.exit(0)
+
+    print(f"[sign] SIGNING: {basename}")
+    sign(path)
+    print(f"[sign] OK: {basename}")
+
+
+if __name__ == "__main__":
+    main()
