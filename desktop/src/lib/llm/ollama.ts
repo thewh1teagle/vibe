@@ -32,6 +32,8 @@ export class Ollama implements Llm {
 		const body = JSON.stringify({
 			model: this.config.model,
 			prompt,
+			// Override Modelfile system prompt so user's custom prompt takes effect
+			system: '',
 			stream: false,
 		})
 		const response = await fetch(`${this.config.ollamaBaseUrl}/api/generate`, {

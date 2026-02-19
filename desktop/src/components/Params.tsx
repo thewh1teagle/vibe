@@ -131,6 +131,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 											openaiBaseUrl: llmConfig.openaiBaseUrl,
 											openaiApiKey: llmConfig.openaiApiKey,
 											enabled: llmConfig?.enabled ?? false,
+											prompt: llmConfig.prompt,
 										})
 									}}>
 									<SelectTrigger className="capitalize">
