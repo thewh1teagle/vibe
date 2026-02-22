@@ -22,7 +22,7 @@ Make sure to install XCode from the AppStore and open it once so it will downloa
 Run the pre-build script (downloads the sona sidecar binary and sets up platform deps):
 
 ```console
-uv run scripts/pre_build.py
+uv run --script scripts/pre_build.py
 ```
 
 Install frontend dependencies from `desktop` folder:
@@ -48,14 +48,6 @@ You can also do it all in one step:
 
 ```console
 uv run scripts/pre_build.py --dev   # or --build
-```
-
-## Build sona locally (dev)
-
-Download prebuilt whisper.cpp libs (one-time):
-
-```console
-uv run sona/scripts/download-libs.py
 ```
 
 **Windows only** — install [MSYS2](https://www.msys2.org/), then install MinGW and Vulkan headers:
