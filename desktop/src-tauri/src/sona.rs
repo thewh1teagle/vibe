@@ -364,8 +364,7 @@ pub fn list_gpu_devices(binary_path: &Path) -> Result<Vec<GpuDevice>> {
         bail!("sona devices failed: {}", stderr.trim());
     }
 
-    let devices: Vec<GpuDevice> = serde_json::from_slice(&output.stdout)
-        .context("failed to parse sona devices output")?;
+    let devices: Vec<GpuDevice> = serde_json::from_slice(&output.stdout).context("failed to parse sona devices output")?;
     Ok(devices)
 }
 
