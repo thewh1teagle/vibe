@@ -82,10 +82,6 @@ libc-stdhandle = "=0.1.0"
 # macOS
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.26.1"
-screencapturekit = "1.5.0"
-screencapturekit-sys = "0.2.8"
-objc_id = "0.1"
-core-graphics-helmer-fork = "0.24.0"
 
 [features]
 default = []
