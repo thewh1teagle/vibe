@@ -23,9 +23,6 @@ mod x86_features;
 #[cfg(windows)]
 mod custom_protocol;
 
-#[cfg(target_os = "macos")]
-mod screen_capture_kit;
-
 use eyre::{eyre, Result};
 use tauri_plugin_window_state::StateFlags;
 
