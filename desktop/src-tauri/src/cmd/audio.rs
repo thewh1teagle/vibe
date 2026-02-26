@@ -41,7 +41,6 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
         let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
 
-
         let audio_device = AudioDevice {
             is_default: is_default_in || is_default_out,
             is_input: device.supports_input(),
@@ -77,7 +76,9 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         let config = if is_input {
             device.default_input_config().context("Failed to get default input config")?
         } else {
-            device.default_output_config().context("Failed to get default output config")?
+            device
+                .default_output_config()
+                .context("Failed to get default output config")?
         };
         let spec = wav_spec_from_config(&config);
 
