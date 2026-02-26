@@ -41,11 +41,10 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
         let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
 
-        let is_input = device.default_input_config().is_ok();
 
         let audio_device = AudioDevice {
             is_default: is_default_in || is_default_out,
-            is_input,
+            is_input: device.supports_input(),
             id: device_index.to_string(),
             name,
         };
@@ -60,7 +59,6 @@ unsafe impl Send for StreamHandle {}
 unsafe impl Sync for StreamHandle {}
 
 #[tauri::command]
-/// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
 pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, store_in_documents: bool) -> Result<()> {
     let host = cpal::default_host();
@@ -79,7 +77,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         let config = if is_input {
             device.default_input_config().context("Failed to get default input config")?
         } else {
-            device.default_output_config().context("Failed to get default input config")?
+            device.default_output_config().context("Failed to get default output config")?
         };
         let spec = wav_spec_from_config(&config);
 
