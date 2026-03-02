@@ -79,7 +79,7 @@ pub async fn start_record(
         let device_name = device.name.clone();
         let device = host
             .devices()?
-            .find(|d| d.name().map_or(false, |n| n == device_name))
+            .find(|d| d.description()?.name().is_ok_and(|n| n == device_name))
             .with_context(|| {
                 format!(
                     "Audio device '{}' is no longer available. It may have been disconnected.",
