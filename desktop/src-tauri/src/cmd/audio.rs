@@ -80,7 +80,12 @@ pub async fn start_record(
         let device = host
             .devices()?
             .find(|d| d.name().map_or(false, |n| n == device_name))
-            .with_context(|| format!("Audio device '{}' is no longer available. It may have been disconnected.", device_name))?;
+            .with_context(|| {
+                format!(
+                    "Audio device '{}' is no longer available. It may have been disconnected.",
+                    device_name
+                )
+            })?;
         let config = if is_input {
             device.default_input_config().context("Failed to get default input config")?
         } else {
