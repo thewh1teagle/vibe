@@ -59,7 +59,12 @@ unsafe impl Sync for StreamHandle {}
 
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, store_in_documents: bool, custom_path: Option<String>) -> Result<()> {
+pub async fn start_record(
+    app_handle: AppHandle,
+    devices: Vec<AudioDevice>,
+    store_in_documents: bool,
+    custom_path: Option<String>,
+) -> Result<()> {
     let host = cpal::default_host();
 
     let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();
@@ -73,15 +78,10 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, stor
         let is_input = device.is_input;
         let device_name = device.name.clone();
         let device = host
-			.devices()?
-			.find(|d| {
-				d.description()
-				.ok()
-				.map(|desc| desc.name() == device_name)
-				.unwrap_or(false)
-			})
-			.with_context(|| format!("Audio device '{}' is no longer available.", device_name))?;
-				
+            .devices()?
+            .find(|d| d.description().ok().map(|desc| desc.name() == device_name).unwrap_or(false))
+            .with_context(|| format!("Audio device '{}' is no longer available.", device_name))?;
+
         let config = if is_input {
             device.default_input_config().context("Failed to get default input config")?
         } else {
