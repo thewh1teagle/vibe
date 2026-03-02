@@ -59,12 +59,7 @@ unsafe impl Sync for StreamHandle {}
 
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(
-    app_handle: AppHandle,
-    devices: Vec<AudioDevice>,
-    store_in_documents: bool,
-    custom_path: Option<String>,
-) -> Result<()> {
+pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, store_in_documents: bool, custom_path: Option<String>) -> Result<()> {
     let host = cpal::default_host();
 
     let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();
@@ -78,14 +73,15 @@ pub async fn start_record(
         let is_input = device.is_input;
         let device_name = device.name.clone();
         let device = host
-            .devices()?
-            .find(|d| d.description()?.name().is_ok_and(|n| n == device_name))
-            .with_context(|| {
-                format!(
-                    "Audio device '{}' is no longer available. It may have been disconnected.",
-                    device_name
-                )
-            })?;
+			.devices()?
+			.find(|d| {
+				d.description()
+				.ok()
+				.map(|desc| desc.name() == device_name)
+				.unwrap_or(false)
+			})
+			.with_context(|| format!("Audio device '{}' is no longer available.", device_name))?;
+				
         let config = if is_input {
             device.default_input_config().context("Failed to get default input config")?
         } else {
@@ -108,89 +104,45 @@ pub async fn start_record(
             tracing::error!("An error occurred on stream: {}", err);
         };
 
-        let build_result = if is_input {
-            match config.sample_format() {
-                cpal::SampleFormat::I8 => device.build_input_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Writing input data (I8)");
-                        write_input_data::<i8, i8>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::I16 => device.build_input_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Writing input data (I16)");
-                        write_input_data::<i16, i16>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::I32 => device.build_input_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Writing input data (I32)");
-                        write_input_data::<i32, i32>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::F32 => device.build_input_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Writing input data (F32)");
-                        write_input_data::<f32, f32>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                sample_format => {
-                    bail!("Unsupported sample format '{}'", sample_format)
-                }
-            }
-        } else {
-            match config.sample_format() {
-                cpal::SampleFormat::I8 => device.build_output_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Capturing output data (I8)");
-                        write_input_data::<i8, i8>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::I16 => device.build_output_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Capturing output data (I16)");
-                        write_input_data::<i16, i16>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::I32 => device.build_output_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Capturing output data (I32)");
-                        write_input_data::<i32, i32>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                cpal::SampleFormat::F32 => device.build_output_stream(
-                    &config.into(),
-                    move |data, _: &_| {
-                        tracing::trace!("Capturing output data (F32)");
-                        write_input_data::<f32, f32>(data, &writer_2)
-                    },
-                    err_fn,
-                    None,
-                ),
-                sample_format => {
-                    bail!("Unsupported sample format '{}'", sample_format)
-                }
+        let build_result = match config.sample_format() {
+            cpal::SampleFormat::I8 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    tracing::trace!("Writing input data (I8)");
+                    write_input_data::<i8, i8>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            ),
+            cpal::SampleFormat::I16 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    tracing::trace!("Writing input data (I16)");
+                    write_input_data::<i16, i16>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            ),
+            cpal::SampleFormat::I32 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    tracing::trace!("Writing input data (I32)");
+                    write_input_data::<i32, i32>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            ),
+            cpal::SampleFormat::F32 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| {
+                    tracing::trace!("Writing input data (F32)");
+                    write_input_data::<f32, f32>(data, &writer_2)
+                },
+                err_fn,
+                None,
+            ),
+            sample_format => {
+                bail!("Unsupported sample format '{}'", sample_format)
             }
         };
         let stream = build_result.with_context(|| {
