@@ -199,7 +199,8 @@ pub async fn start_record(
     Ok(())
 }
 
-fn get_output_device_and_config(_host: &cpal::Host, _audio_device: &AudioDevice) -> Result<(Device, SupportedStreamConfig)> {
+#[allow(unused_variables)]
+fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -> Result<(Device, SupportedStreamConfig)> {
     // On macOS, use ScreenCaptureKit host for system audio loopback
     #[cfg(target_os = "macos")]
     {
