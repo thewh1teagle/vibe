@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
+import { isUserError } from '~/lib/sona-errors'
 import { NamedPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
@@ -247,21 +248,33 @@ export function viewModel() {
 				setCurrentIndex(localIndex)
 			} catch (error) {
 				stopKeepAwake()
-				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
-					source: 'batch',
-					error_message: String(error),
-					file_ext: file.name.split('.').pop() ?? 'unknown',
-				})
-				if (isAbortingRef.current) {
-					navigate('/')
-				} else {
-					console.error(`error while transcribe ${file.name}: `, error)
-				}
+				const errorObj = typeof error === 'object' && error !== null ? (error as any) : null
+				const errorCode = errorObj?.code
+				const errorMessage = errorObj?.message || String(error)
 
-				// Stop batch if model is not loaded — all subsequent files will fail too
-				if (String(error).includes('no model loaded')) {
-					toast.error(t('common.no-model-loaded-batch-stopped'))
-					break
+				// Check if this is a user error
+				if (errorCode && isUserError(errorCode)) {
+					// User error: show toast, skip analytics
+					toast.error(`${t('common.error')}: ${errorMessage}`)
+					console.error(`skipping file ${file.name} due to user error: `, error)
+				} else {
+					// Internal error: track analytics
+					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
+						source: 'batch',
+						error_message: errorMessage,
+						file_ext: file.name.split('.').pop() ?? 'unknown',
+					})
+					if (isAbortingRef.current) {
+						navigate('/')
+					} else {
+						console.error(`error while transcribe ${file.name}: `, error)
+					}
+
+					// Stop batch if model is not loaded — all subsequent files will fail too
+					if (String(error).includes('no model loaded')) {
+						toast.error(t('common.no-model-loaded-batch-stopped'))
+						break
+					}
 				}
 
 				localIndex += 1

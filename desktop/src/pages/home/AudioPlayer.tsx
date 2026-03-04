@@ -1,7 +1,6 @@
 import formatDuration from 'format-duration'
 import { useEffect, useRef, useState } from 'react'
 import { Music2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import i18n from '~/lib/i18n'
 import { Button } from '~/components/ui/button'
 
 interface AudioInputProps {
@@ -16,6 +15,8 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 	const [currentDuration, setCurrentDuration] = useState<number>(0)
 	const [totalDuration, setTotalDuration] = useState<number>(0)
 	const rafRef = useRef<number | null>(null)
+	const isSeekingRef = useRef(false)
+	const resumeAfterSeekRef = useRef(false)
 
 	function updateProgressState(position: number, total: number) {
 		const safeTotal = total || 1
@@ -37,7 +38,7 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 
 		const pointerOffset = clientX - rect.left
 		const clampedOffset = Math.min(progressBarWidth, Math.max(0, pointerOffset))
-		const ratio = i18n.dir() === 'rtl' ? (progressBarWidth - clampedOffset) / progressBarWidth : clampedOffset / progressBarWidth
+		const ratio = clampedOffset / progressBarWidth
 		const duration = audio.duration || totalDuration || 0
 		const newTime = ratio * duration
 
@@ -49,6 +50,12 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 
 	function onSeekPointerDown(e: React.PointerEvent<HTMLDivElement>) {
 		e.currentTarget.setPointerCapture(e.pointerId)
+		isSeekingRef.current = true
+		resumeAfterSeekRef.current = !audio.paused
+		if (resumeAfterSeekRef.current) {
+			audio.pause()
+			setPlaying(false)
+		}
 		seekFromClientX(e.clientX, e.currentTarget)
 	}
 
@@ -60,6 +67,12 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 	function onSeekPointerUp(e: React.PointerEvent<HTMLDivElement>) {
 		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
 			e.currentTarget.releasePointerCapture(e.pointerId)
+		}
+		isSeekingRef.current = false
+		if (resumeAfterSeekRef.current) {
+			resumeAfterSeekRef.current = false
+			audio.play()
+			setPlaying(true)
 		}
 	}
 
@@ -86,6 +99,7 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 	}
 
 	function onTimeUpdate(_event: Event) {
+		if (isSeekingRef.current) return
 		updateProgressState(audio.currentTime ?? 0, audio.duration ?? 0)
 	}
 
@@ -99,6 +113,10 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 		}
 
 		const tick = () => {
+			if (isSeekingRef.current) {
+				rafRef.current = requestAnimationFrame(tick)
+				return
+			}
 			updateProgressState(audio.currentTime ?? 0, audio.duration ?? 0)
 			rafRef.current = requestAnimationFrame(tick)
 		}

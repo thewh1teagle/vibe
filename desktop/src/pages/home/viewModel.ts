@@ -19,6 +19,7 @@ import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
+import { isUserError } from '~/lib/sona-errors'
 import { useConfirmExit } from '~/lib/useConfirmExit'
 import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
 import { getX86Features } from '~/lib/x86Features'
@@ -507,12 +508,24 @@ export function viewModel() {
 			if (!abortRef.current) {
 				stopKeepAwake()
 				console.error('error: ', error)
-				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
-					source: 'home',
-					error_message: String(error),
-					file_ext: path.split('.').pop() ?? 'unknown',
-				})
-				setErrorModal?.({ log: String(error), open: true })
+
+				// Check if this is a structured error with code
+				const errorObj = typeof error === 'object' && error !== null ? (error as any) : null
+				const errorCode = errorObj?.code
+				const errorMessage = errorObj?.message || String(error)
+
+				if (errorCode && isUserError(errorCode)) {
+					// User error: show toast, skip analytics and error modal
+					hotToast.error(`${t('common.error')}: ${errorMessage}`, { position: 'bottom-center' })
+				} else {
+					// Internal error: show modal and track analytics
+					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
+						source: 'home',
+						error_message: errorMessage,
+						file_ext: path.split('.').pop() ?? 'unknown',
+					})
+					setErrorModal?.({ log: errorMessage, open: true })
+				}
 				setLoading(false)
 			}
 		} finally {

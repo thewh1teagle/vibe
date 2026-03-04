@@ -49,9 +49,37 @@ pub enum SonaEvent {
         text: String,
     },
     Error {
+        code: Option<String>,
         message: String,
     },
 }
+
+/// Structured error response from sona API (non-streaming).
+#[derive(Debug, Deserialize)]
+struct SonaErrorResponse {
+    error: SonaErrorBody,
+}
+
+#[derive(Debug, Deserialize)]
+struct SonaErrorBody {
+    code: Option<String>,
+    message: String,
+}
+
+/// A structured sona API error that carries the error code through the call chain.
+#[derive(Debug)]
+pub struct SonaApiError {
+    pub code: String,
+    pub message: String,
+}
+
+impl std::fmt::Display for SonaApiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}] {}", self.code, self.message)
+    }
+}
+
+impl std::error::Error for SonaApiError {}
 
 impl SonaProcess {
     pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, diarize_path: Option<&Path>) -> Result<Self> {
@@ -308,6 +336,12 @@ impl SonaProcess {
 
         if !resp.status().is_success() {
             let body = resp.text().await.unwrap_or_default();
+            if let Ok(parsed) = serde_json::from_str::<SonaErrorResponse>(&body) {
+                return Err(eyre::Report::new(SonaApiError {
+                    code: parsed.error.code.unwrap_or_else(|| "internal_error".to_string()),
+                    message: parsed.error.message,
+                }));
+            }
             bail!("sona transcribe failed: {}", body);
         }
 

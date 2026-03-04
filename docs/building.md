@@ -79,6 +79,12 @@ CGO_ENABLED=1 go build -C ../sona -o ../desktop/src-tauri/binaries/sona-$(rustc 
 CGO_ENABLED=1 go build -C ../sona -o ../desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}').exe ./cmd/sona
 ```
 
+Then copy the binary into the dev target so `tauri dev` picks it up immediately:
+
+```console
+cp desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}') target/debug/sona
+```
+
 ## Test
 
 ```console
@@ -197,6 +203,8 @@ Vibe uses [Aptabase](https://aptabase.com/) for analytics. Not required for deve
 export APTABASE_APP_KEY="A-..."
 export APTABASE_BASE_URL="https://..."
 ```
+
+## Gotchas
 
 ## Build faster in dev mode (useful in Windows)
 

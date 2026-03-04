@@ -23,6 +23,28 @@ use tokio::sync::Mutex;
 pub mod audio;
 pub mod ytdlp;
 
+/// Structured error response for Tauri commands
+#[derive(Debug, Serialize, Clone)]
+pub struct CommandError {
+    pub code: String,
+    pub message: String,
+}
+
+impl std::fmt::Display for CommandError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}] {}", self.code, self.message)
+    }
+}
+
+impl From<eyre::Error> for CommandError {
+    fn from(err: eyre::Error) -> Self {
+        CommandError {
+            code: "internal_error".to_string(),
+            message: err.to_string(),
+        }
+    }
+}
+
 /// Return true if there's internet connection
 /// timeout in ms
 #[tauri::command]
@@ -334,20 +356,29 @@ pub async fn transcribe(
     app_handle: tauri::AppHandle,
     options: TranscribeOptions,
     sona_state: State<'_, Mutex<SonaState>>,
-) -> Result<Transcript> {
+) -> Result<Transcript, CommandError> {
     // Validate file exists before attempting transcription
     let audio_path = PathBuf::from(&options.path);
     if !audio_path.exists() {
-        bail!("Audio file not found: {}", options.path);
+        return Err(CommandError {
+            code: "invalid_request".to_string(),
+            message: format!("Audio file not found: {}", options.path),
+        });
     }
     if !audio_path.is_file() {
-        bail!("Path is not a file: {}", options.path);
+        return Err(CommandError {
+            code: "invalid_request".to_string(),
+            message: format!("Path is not a file: {}", options.path),
+        });
     }
 
     let state = sona_state.lock().await;
     let process = state.process.as_ref();
     if process.is_none() {
-        bail!("Please load model first")
+        return Err(CommandError {
+            code: "no_model".to_string(),
+            message: "Please load model first".to_string(),
+        });
     }
     let sona = process.unwrap();
 
@@ -362,7 +393,16 @@ pub async fn transcribe(
 
     let start = std::time::Instant::now();
 
-    let stream = sona.transcribe_stream(&options).await?;
+    let stream = sona.transcribe_stream(&options).await.map_err(|e| {
+        if let Some(api_err) = e.downcast_ref::<crate::sona::SonaApiError>() {
+            CommandError {
+                code: api_err.code.clone(),
+                message: api_err.message.clone(),
+            }
+        } else {
+            CommandError::from(e)
+        }
+    })?;
 
     tokio::pin!(stream);
 
@@ -397,9 +437,12 @@ pub async fn transcribe(
                 SonaEvent::Result { .. } => {
                     tracing::debug!("transcription complete");
                 }
-                SonaEvent::Error { message } => {
+                SonaEvent::Error { code, message } => {
                     tracing::error!("sona transcription error: {}", message);
-                    bail!("transcription error: {}", message);
+                    return Err(CommandError {
+                        code: code.unwrap_or_else(|| "internal_error".to_string()),
+                        message,
+                    });
                 }
             },
             Err(e) => {
