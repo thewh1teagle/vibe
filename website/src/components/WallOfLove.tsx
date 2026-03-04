@@ -112,6 +112,8 @@ export default function WallOfLove() {
 			{/* Mobile: single column vertical marquee */}
 			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
 				<MarqueeColumn supporters={supporters} duration={120} />
+				<div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-background to-transparent" />
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background to-transparent" />
 			</div>
 			{/* Desktop: 3 columns */}
 			<div
@@ -124,6 +126,10 @@ export default function WallOfLove() {
 						<MarqueeColumn key={i} supporters={col} duration={durations[i]} />
 					))}
 				</div>
+				<div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-background to-transparent" />
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent" />
+				<div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
+				<div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
 			</div>
 		</section>
 	)
