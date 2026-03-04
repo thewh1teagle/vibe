@@ -458,7 +458,9 @@ pub fn get_argv() -> Vec<String> {
 
 #[tauri::command]
 pub fn get_default_recording_path(app_handle: AppHandle) -> Result<String> {
-    let path = app_handle.path().document_dir()
+    let path = app_handle
+        .path()
+        .document_dir()
         .map_err(|e| eyre::eyre!("{e:?}"))?
         .join(crate::config::DOCUMENTS_SUBFOLDER);
     Ok(path.to_string_lossy().to_string())

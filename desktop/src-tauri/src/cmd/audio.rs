@@ -59,7 +59,12 @@ unsafe impl Sync for StreamHandle {}
 
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, store_in_documents: bool, custom_path: Option<String>) -> Result<()> {
+pub async fn start_record(
+    app_handle: AppHandle,
+    devices: Vec<AudioDevice>,
+    store_in_documents: bool,
+    custom_path: Option<String>,
+) -> Result<()> {
     let host = cpal::default_host();
 
     let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();

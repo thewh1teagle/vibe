@@ -59,7 +59,11 @@ pub fn get_temp_path(app_handle: AppHandle, ext: String, in_documents: Option<bo
         let dir = if let Some(ref cp) = custom_path {
             PathBuf::from(cp)
         } else {
-            app_handle.path().document_dir().unwrap_or(get_vibe_temp_folder()).join(crate::config::DOCUMENTS_SUBFOLDER)
+            app_handle
+                .path()
+                .document_dir()
+                .unwrap_or(get_vibe_temp_folder())
+                .join(crate::config::DOCUMENTS_SUBFOLDER)
         };
         std::fs::create_dir_all(&dir).ok();
         dir
