@@ -43,7 +43,7 @@ url = "2.5.8"
 showfile = "0.1.1"
 futures = "0.3.31"
 futures-util = "0.3"
-cpal = "0.17.1"
+cpal = { git = "https://github.com/rustdesk-org/cpal", branch = "osx-screencapturekit", features = ["screencapturekit"] }
 hound = "3.5.1"
 rand = "0.9.2"
 

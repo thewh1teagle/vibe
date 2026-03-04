@@ -1,6 +1,6 @@
 use crate::audio_utils::get_vibe_temp_folder;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{FromSample, Sample, Stream};
+use cpal::{Device, FromSample, Sample, SizedSample, Stream, SupportedStreamConfig};
 use eyre::{bail, eyre, Context, ContextCompat, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -76,14 +76,13 @@ pub async fn start_record(
         tracing::debug!("Device ID: {}", device.id);
 
         let is_input = device.is_input;
-        let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
-        let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
-        let config = if is_input {
-            device.default_input_config().context("Failed to get default input config")?
+        let (device, config) = if is_input {
+            let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
+            let dev = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+            let config = dev.default_input_config().context("Failed to get default input config")?;
+            (dev, config)
         } else {
-            device
-                .default_output_config()
-                .context("Failed to get default output config")?
+            get_output_device_and_config(&host, &device)?
         };
         let spec = wav_spec_from_config(&config);
 
@@ -96,51 +95,7 @@ pub async fn start_record(
         stream_writers.push(writer.clone());
         let writer_2 = writer.clone();
 
-        let err_fn = move |err| {
-            tracing::error!("An error occurred on stream: {}", err);
-        };
-
-        let stream = match config.sample_format() {
-            cpal::SampleFormat::I8 => device.build_input_stream(
-                &config.into(),
-                move |data, _: &_| {
-                    tracing::trace!("Writing input data (I8)");
-                    write_input_data::<i8, i8>(data, &writer_2)
-                },
-                err_fn,
-                None,
-            )?,
-            cpal::SampleFormat::I16 => device.build_input_stream(
-                &config.into(),
-                move |data, _: &_| {
-                    tracing::trace!("Writing input data (I16)");
-                    write_input_data::<i16, i16>(data, &writer_2)
-                },
-                err_fn,
-                None,
-            )?,
-            cpal::SampleFormat::I32 => device.build_input_stream(
-                &config.into(),
-                move |data, _: &_| {
-                    tracing::trace!("Writing input data (I32)");
-                    write_input_data::<i32, i32>(data, &writer_2)
-                },
-                err_fn,
-                None,
-            )?,
-            cpal::SampleFormat::F32 => device.build_input_stream(
-                &config.into(),
-                move |data, _: &_| {
-                    tracing::trace!("Writing input data (F32)");
-                    write_input_data::<f32, f32>(data, &writer_2)
-                },
-                err_fn,
-                None,
-            )?,
-            sample_format => {
-                bail!("Unsupported sample format '{}'", sample_format)
-            }
-        };
+        let stream = build_input_stream(&device, config, writer_2)?;
         stream.play()?;
         tracing::debug!("Stream started playing");
 
@@ -244,6 +199,54 @@ pub async fn start_record(
     Ok(())
 }
 
+fn get_output_device_and_config(_host: &cpal::Host, _audio_device: &AudioDevice) -> Result<(Device, SupportedStreamConfig)> {
+    // On macOS, use ScreenCaptureKit host for system audio loopback
+    #[cfg(target_os = "macos")]
+    {
+        let sck_host = cpal::host_from_id(cpal::HostId::ScreenCaptureKit).context("ScreenCaptureKit host not available")?;
+        let device = sck_host
+            .default_input_device()
+            .context("Failed to get ScreenCaptureKit input device")?;
+        let config = device
+            .default_input_config()
+            .context("Failed to get ScreenCaptureKit input config")?;
+        Ok((device, config))
+    }
+    // On other platforms, use the output device directly
+    #[cfg(not(target_os = "macos"))]
+    {
+        let device_id: usize = audio_device.id.parse().context("Failed to parse device ID")?;
+        let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+        let config = device
+            .default_output_config()
+            .context("Failed to get default output config")?;
+        Ok((device, config))
+    }
+}
+
+fn build_input_stream_typed<T>(device: &Device, config: SupportedStreamConfig, writer: WavWriterHandle) -> Result<Stream>
+where
+    T: SizedSample + hound::Sample + FromSample<T> + Mul<Output = T> + Copy,
+{
+    let stream = device.build_input_stream(
+        &config.into(),
+        move |data: &[T], _: &_| write_input_data::<T, T>(data, &writer),
+        |err| tracing::error!("An error occurred on stream: {}", err),
+        None,
+    )?;
+    Ok(stream)
+}
+
+fn build_input_stream(device: &Device, config: SupportedStreamConfig, writer: WavWriterHandle) -> Result<Stream> {
+    match config.sample_format() {
+        cpal::SampleFormat::I8 => build_input_stream_typed::<i8>(device, config, writer),
+        cpal::SampleFormat::I16 => build_input_stream_typed::<i16>(device, config, writer),
+        cpal::SampleFormat::I32 => build_input_stream_typed::<i32>(device, config, writer),
+        cpal::SampleFormat::F32 => build_input_stream_typed::<f32>(device, config, writer),
+        sample_format => bail!("Unsupported sample format '{}'", sample_format),
+    }
+}
+
 fn sample_format(format: cpal::SampleFormat) -> hound::SampleFormat {
     if format.is_float() {
         hound::SampleFormat::Float
@@ -255,7 +258,7 @@ fn sample_format(format: cpal::SampleFormat) -> hound::SampleFormat {
 fn wav_spec_from_config(config: &cpal::SupportedStreamConfig) -> hound::WavSpec {
     hound::WavSpec {
         channels: config.channels() as _,
-        sample_rate: config.sample_rate() as _,
+        sample_rate: config.sample_rate().0,
         bits_per_sample: (config.sample_format().sample_size() * 8) as _,
         sample_format: sample_format(config.sample_format()),
     }
