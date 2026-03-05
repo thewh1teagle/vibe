@@ -199,13 +199,24 @@ pub async fn start_record(
     Ok(())
 }
 
+#[allow(unused_variables)]
 fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -> Result<(Device, SupportedStreamConfig)> {
-    let device_id: usize = audio_device.id.parse().context("Failed to parse device ID")?;
-    let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
-    let config = device
-        .default_output_config()
-        .context("Failed to get default output config")?;
-    Ok((device, config))
+    // On macOS, use the default output device directly — cpal's loopback support
+    // requires this path to build an input stream from an output device.
+    #[cfg(target_os = "macos")]
+    {
+        let device = host.default_output_device().context("Failed to get default output device")?;
+        let config = device.default_output_config().context("Failed to get default output config")?;
+        return Ok((device, config));
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        let device_id: usize = audio_device.id.parse().context("Failed to parse device ID")?;
+        let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+        let config = device.default_output_config().context("Failed to get default output config")?;
+        Ok((device, config))
+    }
 }
 
 fn build_input_stream_typed<T>(device: &Device, config: SupportedStreamConfig, writer: WavWriterHandle) -> Result<Stream>

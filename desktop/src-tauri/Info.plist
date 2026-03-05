@@ -4,10 +4,8 @@
 <dict>
     <key>NSMicrophoneUsageDescription</key>
     <string>This app requires microphone access to record audio.</string>
-    <key>NSScreenCaptureUsageDescription</key>
-    <string>This app requires screen capture access to record the screen.</string>
-    <key>CGRequestScreenCaptureAccess</key>
-    <string>This app requires screen capture access to record the screen.</string>
+    <key>NSAudioCaptureUsageDescription</key>
+    <string>This app requires system audio access to record your device's audio output.</string>
     <key>NSSystemExtensionUsageDescription</key>
     <string>This app requires system extension access to capture audio output.</string>
 </dict>

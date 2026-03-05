@@ -7,6 +7,7 @@ import AudioInput from '~/pages/home/AudioInput'
 import AudioPlayer from './AudioPlayer'
 import ProgressPanel from './ProgressPanel'
 import { viewModel } from './viewModel'
+import { HomeTab } from '~/providers/Preference'
 import AudioDeviceInput from '~/components/AudioDeviceInput'
 import { ReactComponent as FileIcon } from '~/icons/file.svg'
 import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
@@ -42,23 +43,23 @@ export default function Home() {
 			<div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-6">
 				<div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col items-center gap-5">
 					<Tabs
-						value={String(vm.preference.homeTabIndex)}
-						onValueChange={(v) => (v === '2' ? vm.switchToLinkTab() : vm.preference.setHomeTabIndex(Number(v)))}
+						value={vm.preference.homeTab}
+						onValueChange={(v) => (v === 'link' ? vm.switchToLinkTab() : vm.preference.setHomeTab(v as HomeTab))}
 						className="flex flex-col items-center">
 						<TabsList className="h-11 rounded-md border border-border/65 bg-card/55 p-1 shadow-xs">
-							<TabsTrigger value="0" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
+							<TabsTrigger value="record" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
 								<MicrphoneIcon className="h-[18px] w-[18px]" />
 							</TabsTrigger>
-							<TabsTrigger value="1" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
+							<TabsTrigger value="file" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
 								<FileIcon className="h-[18px] w-[18px]" />
 							</TabsTrigger>
-							<TabsTrigger value="2" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
+							<TabsTrigger value="link" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
 								<LinkIcon className="h-[18px] w-[18px]" />
 							</TabsTrigger>
 						</TabsList>
 					</Tabs>
 
-					{vm.preference.homeTabIndex === 0 && (
+					{vm.preference.homeTab === "record" && (
 						<div className="w-full min-w-0 max-w-2xl space-y-4">
 							<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
 							<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
@@ -95,7 +96,7 @@ export default function Home() {
 						</div>
 					)}
 
-					{vm.preference.homeTabIndex === 1 && (
+					{vm.preference.homeTab === "file" && (
 						<div className="w-full min-w-0 max-w-3xl space-y-4">
 							<div className="space-y-3">
 								<LanguageInput />
@@ -186,7 +187,7 @@ export default function Home() {
 						</div>
 					)}
 
-					{vm.preference.homeTabIndex === 2 && (
+					{vm.preference.homeTab === "link" && (
 						<div className="w-full min-w-0 max-w-2xl space-y-4">
 							<Input
 								type="text"
@@ -227,7 +228,7 @@ export default function Home() {
 					)}
 				</div>
 
-				{vm.preference.homeTabIndex === 1 && vm.summarizeSegments && !vm.loading && (
+				{vm.preference.homeTab === "file" && vm.summarizeSegments && !vm.loading && (
 					<div className="flex items-center justify-center gap-2">
 						<Tabs value={vm.transcriptTab} onValueChange={(v) => vm.setTranscriptTab(v as 'transcript' | 'summary')}>
 							<TabsList className="rounded-xl">
@@ -239,7 +240,7 @@ export default function Home() {
 					</div>
 				)}
 
-				{vm.preference.homeTabIndex === 1 && (vm.segments || vm.loading) && (
+				{vm.preference.homeTab === "file" && (vm.segments || vm.loading) && (
 					<div className="mx-auto flex h-[62vh] min-h-[320px] w-full max-w-4xl min-w-0 flex-col overflow-hidden border-t border-border/55 pt-3">
 						<TextArea
 							file={vm.files[0]}

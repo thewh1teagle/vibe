@@ -16,13 +16,8 @@ export async function ensureSystemAudioPermission(): Promise<boolean> {
     return true
   }
 
-  const granted = await invoke<boolean>('check_system_audio_permission')
+  const granted = await invoke<boolean>('request_system_audio_permission')
   if (granted) {
-    return true
-  }
-
-  const requested = await invoke<boolean>('request_system_audio_permission')
-  if (requested) {
     return true
   }
 

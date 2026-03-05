@@ -911,16 +911,17 @@ dependencies = [
 
 [[package]]
 name = "cpal"
-version = "0.17.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8942da362c0f0d895d7cac616263f2f9424edc5687364dfd1d25ef7eba506d7"
+version = "0.18.0"
+source = "git+https://github.com/thewh1teagle/cpal?branch=dev#644ee75026a65dd452ad746edf7e4ca497d98f9b"
 dependencies = [
  "alsa",
+ "block2 0.6.2",
  "coreaudio-rs",
  "dasp_sample",
  "jni",
  "js-sys",
  "libc",
+ "libloading 0.8.9",
  "mach2 0.5.0",
  "ndk",
  "ndk-context",
@@ -2950,15 +2951,6 @@ dependencies = [
  "libc",
  "windows-registry 0.6.1",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "macos-permissions"
-version = "0.1.0"
-dependencies = [
- "block2 0.5.1",
- "core-foundation 0.10.1",
- "libloading 0.8.9",
 ]
 
 [[package]]
@@ -6810,7 +6802,6 @@ dependencies = [
  "hound",
  "libc",
  "libc-stdhandle",
- "macos-permissions",
  "once_cell",
  "openssl",
  "rand 0.9.2",

@@ -11,6 +11,7 @@ import { defaultOllamaConfig, LlmConfig } from '~/lib/llm'
 import { message } from '@tauri-apps/plugin-dialog'
 
 type Direction = 'ltr' | 'rtl'
+export type HomeTab = 'record' | 'file' | 'link'
 
 export interface AdvancedTranscribeOptions {
 	includeSubFolders: boolean
@@ -45,8 +46,8 @@ export interface Preference {
 	customRecordingPath: string | null
 	setCustomRecordingPath: ModifyState<string | null>
 	setLanguageDirections: () => void
-	homeTabIndex: number
-	setHomeTabIndex: ModifyState<number>
+	homeTab: HomeTab
+	setHomeTab: ModifyState<HomeTab>
 
 	llmConfig: LlmConfig
 	setLlmConfig: ModifyState<LlmConfig>
@@ -147,7 +148,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [textFormatSummary, setTextFormatSummary] = useLocalStorage<TextFormat>('prefs_text_format_summary', 'md')
 	const isMounted = useRef<boolean>(false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
-	const [homeTabIndex, setHomeTabIndex] = useLocalStorage<number>('prefs_home_tab_index', 1)
+	const [homeTab, setHomeTab] = useLocalStorage<HomeTab>('prefs_home_tab', 'file')
 
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', defaultOptions.soundOnFinish)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', defaultOptions.focusOnFinish)
@@ -272,8 +273,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setModelPath,
 		theme,
 		setTheme,
-		homeTabIndex,
-		setHomeTabIndex,
+		homeTab,
+		setHomeTab,
 		ffmpegOptions,
 		setFfmpegOptions,
 		ytDlpVersion,

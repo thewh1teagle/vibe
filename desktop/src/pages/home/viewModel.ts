@@ -161,7 +161,7 @@ export function viewModel() {
 					console.error('Failed to fetch latest yt-dlp version', e)
 					cachedYtDlpVersion.current = null
 					if (binaryExists) {
-						preference.setHomeTabIndex(2)
+						preference.setHomeTab("link")
 						return
 					}
 				}
@@ -171,7 +171,7 @@ export function viewModel() {
 			const needsUpdate = !needsInstall && preference.shouldCheckYtDlpVersion && latestVersion !== null && latestVersion !== preference.ytDlpVersion
 
 			if (needsUpdate && skippedYtDlpUpdatePromptRef.current) {
-				preference.setHomeTabIndex(2)
+				preference.setHomeTab("link")
 				return
 			}
 
@@ -203,7 +203,7 @@ export function viewModel() {
 						preference.setYtDlpVersion(versionToDownload)
 						skippedYtDlpUpdatePromptRef.current = false
 						toast.setOpen(false)
-						preference.setHomeTabIndex(2)
+						preference.setHomeTab("link")
 					} catch (e) {
 						console.error(e)
 						setErrorModal?.({ log: String(e), open: true })
@@ -212,10 +212,10 @@ export function viewModel() {
 					if (needsUpdate) {
 						skippedYtDlpUpdatePromptRef.current = true
 					}
-					preference.setHomeTabIndex(2)
+					preference.setHomeTab("link")
 				}
 			} else {
-				preference.setHomeTabIndex(2)
+				preference.setHomeTab("link")
 			}
 		} finally {
 			switchingToLinkRef.current = false
@@ -244,7 +244,7 @@ export function viewModel() {
 				if (hotkeyRecordingActive) return
 				const { name, path } = event.payload
 				setSelectedFolder(null)
-				preference.setHomeTabIndex(1)
+				preference.setHomeTab("file")
 				setFiles([{ name, path }])
 				setIsRecording(false)
 				transcribe(path)
@@ -410,7 +410,6 @@ export function viewModel() {
 
 			cleanup = setupEventListeners()
 			checkModelExists()
-			loadAudioDevices()
 		}
 
 		CheckCpuAndInit()
@@ -419,6 +418,12 @@ export function viewModel() {
 			cleanup?.()
 		}
 	}, [])
+
+	useEffect(() => {
+		if (preference.homeTab === "record") {
+			loadAudioDevices()
+		}
+	}, [preference.homeTab])
 
 	async function startRecord() {
 		if (outputDevice) {
@@ -609,7 +614,7 @@ export function viewModel() {
 					cancelYtDlpRef.current = false
 					return
 				}
-				preference.setHomeTabIndex(1)
+				preference.setHomeTab("file")
 				setFiles([{ name: 'audio.m4a', path: outPath }])
 				transcribe(outPath)
 			} catch (e) {
