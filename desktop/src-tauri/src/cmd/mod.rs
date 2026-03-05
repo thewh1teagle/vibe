@@ -21,6 +21,7 @@ use tauri::{AppHandle, Emitter, Listener, State};
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
 pub mod audio;
+pub mod permissions;
 pub mod ytdlp;
 
 /// Structured error response for Tauri commands

@@ -15,6 +15,7 @@ import { useLocalStorage } from 'usehooks-ts'
 import successSound from '~/assets/success.mp3'
 import { TextFormat } from '~/components/FormatSelect'
 import { AudioDevice } from '~/lib/audio'
+import { ensureSystemAudioPermission } from '~/lib/permissions'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
@@ -420,6 +421,13 @@ export function viewModel() {
 	}, [])
 
 	async function startRecord() {
+		if (outputDevice) {
+			const permitted = await ensureSystemAudioPermission()
+			if (!permitted) {
+				return
+			}
+		}
+
 		startKeepAwake()
 		setSegments(null)
 		setSummarizeSegments(null)

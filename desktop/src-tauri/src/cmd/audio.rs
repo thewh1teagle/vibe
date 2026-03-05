@@ -199,30 +199,13 @@ pub async fn start_record(
     Ok(())
 }
 
-#[allow(unused_variables)]
 fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -> Result<(Device, SupportedStreamConfig)> {
-    // On macOS, use ScreenCaptureKit host for system audio loopback
-    #[cfg(target_os = "macos")]
-    {
-        let sck_host = cpal::host_from_id(cpal::HostId::ScreenCaptureKit).context("ScreenCaptureKit host not available")?;
-        let device = sck_host
-            .default_input_device()
-            .context("Failed to get ScreenCaptureKit input device")?;
-        let config = device
-            .default_input_config()
-            .context("Failed to get ScreenCaptureKit input config")?;
-        Ok((device, config))
-    }
-    // On other platforms, use the output device directly
-    #[cfg(not(target_os = "macos"))]
-    {
-        let device_id: usize = audio_device.id.parse().context("Failed to parse device ID")?;
-        let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
-        let config = device
-            .default_output_config()
-            .context("Failed to get default output config")?;
-        Ok((device, config))
-    }
+    let device_id: usize = audio_device.id.parse().context("Failed to parse device ID")?;
+    let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+    let config = device
+        .default_output_config()
+        .context("Failed to get default output config")?;
+    Ok((device, config))
 }
 
 fn build_input_stream_typed<T>(device: &Device, config: SupportedStreamConfig, writer: WavWriterHandle) -> Result<Stream>
@@ -259,7 +242,7 @@ fn sample_format(format: cpal::SampleFormat) -> hound::SampleFormat {
 fn wav_spec_from_config(config: &cpal::SupportedStreamConfig) -> hound::WavSpec {
     hound::WavSpec {
         channels: config.channels() as _,
-        sample_rate: config.sample_rate().0,
+        sample_rate: config.sample_rate(),
         bits_per_sample: (config.sample_format().sample_size() * 8) as _,
         sample_format: sample_format(config.sample_format()),
     }

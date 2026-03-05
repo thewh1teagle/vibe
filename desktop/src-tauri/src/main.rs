@@ -121,7 +121,10 @@ async fn main() -> Result<()> {
             cmd::ytdlp::get_latest_ytdlp_version,
             cmd::is_crashed_recently,
             cmd::rename_crash_file,
-            cmd::type_text
+            cmd::type_text,
+            cmd::permissions::check_system_audio_permission,
+            cmd::permissions::request_system_audio_permission,
+            cmd::permissions::open_system_audio_settings
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
