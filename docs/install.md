@@ -41,6 +41,21 @@ _Make sure to run the 'Run check` to see that it works_
 
 That's it! Summarization will now be active in Ollama.
 
+## Stable Timestamps (Subtitles / Movies)
+
+Vibe includes a stable timestamp mode for tighter subtitle timing on long-form content.
+
+1. Open `More Options`.
+2. Enable `Stable timestamps`.
+3. If prompted, download the VAD model.
+
+Notes:
+
+- This mode is quality-first and typically around `4x` slower than normal transcription.
+- Best for subtitle creation and movie/video transcript timing.
+- VAD model used by default: `ggml-silero-v6.2.0.bin`
+- Upstream model source: `https://huggingface.co/ggml-org/whisper-vad`
+
 ## Manual Install 🛠️
 
 `MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from Applications once**

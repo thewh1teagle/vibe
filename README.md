@@ -56,6 +56,7 @@
 - 🎤 Transcribe from microphone
 - 🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
 - 👥 Speaker diarization
+- 🎬 Stable timestamps mode for subtitle/movie-grade timing (VAD-backed, slower)
 - 📱 ~iOS & Android support~ (coming soon)
 - 📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
 - 📹 Choose caption length optimized for videos / reels
