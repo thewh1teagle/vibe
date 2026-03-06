@@ -237,6 +237,8 @@ pub struct TranscribeOptions {
     pub best_of: Option<i32>,
     pub beam_size: Option<i32>,
     pub diarize_model: Option<String>,
+    pub stable_timestamps: Option<bool>,
+    pub vad_model: Option<String>,
 }
 
 #[tauri::command]

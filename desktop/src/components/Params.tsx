@@ -103,6 +103,42 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 		return Number.isNaN(n) ? fallback : n
 	}
 
+	async function handleStableTimestampsToggle(checked: boolean) {
+		if (!checked) {
+			preference.setStableTimestampsEnabled(false)
+			return
+		}
+		try {
+			const modelsFolder = await invoke<string>('get_models_folder')
+			const modelPath = await join(modelsFolder, config.vadModelFilename)
+			const exists = await fs.exists(modelPath)
+			if (exists) {
+				preference.setStableTimestampsEnabled(true)
+			} else {
+				const confirmed = await dialog.ask(
+					'Stable timestamps requires a VAD model (~1MB). Download it now?',
+					{ title: 'Stable timestamps', kind: 'info' }
+				)
+				if (confirmed) {
+					toast.setMessage('Downloading VAD model...')
+					toast.setOpen(true)
+					toast.setProgress(0)
+					try {
+						await invoke('download_model', { url: config.vadModelUrl, path: modelPath })
+						preference.setStableTimestampsEnabled(true)
+						hotToast.success(t('common.download-complete'))
+					} finally {
+						toast.setOpen(false)
+						toast.setProgress(null)
+					}
+				}
+			}
+		} catch (e) {
+			console.error('stable timestamps setup failed:', e)
+			hotToast.error(String(e))
+		}
+	}
+
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
@@ -367,6 +403,20 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 							{preference.diarizeEnabled && (
 								<p className="text-sm italic text-muted-foreground">{t('common.diarize-max-speakers-note')}</p>
 							)}
+						</div>
+
+						<div className="h-px bg-border/45" />
+
+						{/* Stable Timestamps Section */}
+						<div className="space-y-4">
+							<h3 className="text-lg font-semibold">Stable timestamps</h3>
+							<div className="flex items-center justify-between">
+								<span className="text-sm font-medium flex items-center gap-1">
+									<InfoTooltip text="Uses VAD per-segment decode for tighter subtitle timing. Around 4x slower; best for movie/long-form transcript work." />
+									Enable stable timestamps
+								</span>
+								<Switch checked={preference.stableTimestampsEnabled} onCheckedChange={handleStableTimestampsToggle} />
+							</div>
 						</div>
 
 						<div className="h-px bg-border/45" />

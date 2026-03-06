@@ -65,6 +65,8 @@ export interface Preference {
 
 	diarizeEnabled: boolean
 	setDiarizeEnabled: ModifyState<boolean>
+	stableTimestampsEnabled: boolean
+	setStableTimestampsEnabled: ModifyState<boolean>
 
 	gpuDevice: number | null
 	setGpuDevice: ModifyState<number | null>
@@ -167,6 +169,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 
 	const [recentLanguages, setRecentLanguages] = useLocalStorage<{ code: string; ts: number }[]>('prefs_recent_languages', [])
 	const [diarizeEnabled, setDiarizeEnabled] = useLocalStorage<boolean>('prefs_diarize_enabled', false)
+	const [stableTimestampsEnabled, setStableTimestampsEnabled] = useLocalStorage<boolean>('prefs_stable_timestamps_enabled', false)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
@@ -287,6 +290,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setRecentLanguages,
 		diarizeEnabled,
 		setDiarizeEnabled,
+		stableTimestampsEnabled,
+		setStableTimestampsEnabled,
 		gpuDevice,
 		setGpuDevice,
 		analyticsEnabled,

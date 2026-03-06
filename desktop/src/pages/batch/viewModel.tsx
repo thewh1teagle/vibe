@@ -164,6 +164,11 @@ export function viewModel() {
 			const modelsFolder = await invoke<string>('get_models_folder')
 			diarize_model = modelsFolder + '/' + config.diarizeModelFilename
 		}
+		let vad_model: string | undefined
+		if (preference.stableTimestampsEnabled) {
+			const modelsFolder = await invoke<string>('get_models_folder')
+			vad_model = modelsFolder + '/' + config.vadModelFilename
+		}
 		setCurrentIndex(localIndex)
 		const loopStartTime = performance.now()
 		for (const file of files) {
@@ -176,6 +181,8 @@ export function viewModel() {
 					path: file.path,
 					...preference.modelOptions,
 					...(diarize_model ? { diarize_model } : {}),
+					...(vad_model ? { vad_model } : {}),
+					...(preference.stableTimestampsEnabled ? { stable_timestamps: true } : {}),
 				}
 				const startTime = performance.now()
 

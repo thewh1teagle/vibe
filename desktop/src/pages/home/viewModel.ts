@@ -495,10 +495,17 @@ export function viewModel() {
 				const modelsFolder = await invoke<string>('get_models_folder')
 				diarize_model = modelsFolder + '/' + config.diarizeModelFilename
 			}
+			let vad_model: string | undefined
+			if (preferenceRef.current.stableTimestampsEnabled) {
+				const modelsFolder = await invoke<string>('get_models_folder')
+				vad_model = modelsFolder + '/' + config.vadModelFilename
+			}
 			const options = {
 				path,
 				...preferenceRef.current.modelOptions,
 				...(diarize_model ? { diarize_model } : {}),
+				...(vad_model ? { vad_model } : {}),
+				...(preferenceRef.current.stableTimestampsEnabled ? { stable_timestamps: true } : {}),
 			}
 			const startTime = performance.now()
 			const res: transcript.Transcript = await invoke('transcribe', {

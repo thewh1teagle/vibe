@@ -23,6 +23,8 @@ export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/do
 
 export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.1.onnx'
 export const diarizeModelUrl = 'https://huggingface.co/altunenes/parakeet-rs/resolve/main/diar_streaming_sortformer_4spk-v2.1.onnx'
+export const vadModelFilename = 'ggml-silero-v6.2.0.bin'
+export const vadModelUrl = 'https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin'
 
 export const llmApiKeyUrl = 'https://console.anthropic.com/settings/keys'
 export const llmDefaultMaxTokens = 8192 // https://docs.anthropic.com/en/docs/about-claude/models

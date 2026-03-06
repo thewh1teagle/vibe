@@ -325,6 +325,14 @@ impl SonaProcess {
                 form = form.text("diarize_model", model.clone());
             }
         }
+        if options.stable_timestamps.unwrap_or(false) {
+            form = form.text("stable_timestamps", "true");
+        }
+        if let Some(ref model) = options.vad_model {
+            if !model.is_empty() {
+                form = form.text("vad_model", model.clone());
+            }
+        }
 
         let resp = self
             .client
