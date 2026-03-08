@@ -69,7 +69,7 @@ export default function Home() {
 							</div>
 
 							{!vm.isRecording ? (
-								<Button onMouseDown={() => vm.startRecord()} className="mt-1 w-full" disabled={!vm.preference.modelPath}>
+								<Button onMouseDown={() => vm.startRecord()} className="mt-1 w-full" disabled={!vm.preference.modelPath || (!vm.inputDevice && !vm.outputDevice)}>
 									{t('common.start-record')}
 								</Button>
 							) : (

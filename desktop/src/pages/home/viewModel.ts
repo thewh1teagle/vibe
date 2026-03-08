@@ -7,7 +7,7 @@ import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { open } from '@tauri-apps/plugin-shell'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { SetStateAction, useContext, useEffect, useRef, useState } from 'react'
 import { toast as hotToast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -60,6 +60,8 @@ export function viewModel() {
 	const preference = usePreferenceProvider()
 	const preferenceRef = useRef(preference)
 	const [devices, setDevices] = useState<AudioDevice[]>([])
+	const [savedInputDeviceId, setSavedInputDeviceId] = useLocalStorage<string | null>('prefs_input_device_id', null)
+	const [savedOutputDeviceId, setSavedOutputDeviceId] = useLocalStorage<string | null>('prefs_output_device_id', null)
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 	const [audioUrl, setAudioUrl] = useState<string>('')
@@ -270,16 +272,31 @@ export function viewModel() {
 		}
 	}
 
+	function setInputDeviceAndSave(value: SetStateAction<AudioDevice | null>) {
+		const device = typeof value === 'function' ? value(inputDevice) : value
+		setSavedInputDeviceId(device?.id ?? '')
+		setInputDevice(device)
+	}
+
+	function setOutputDeviceAndSave(value: SetStateAction<AudioDevice | null>) {
+		const device = typeof value === 'function' ? value(outputDevice) : value
+		setSavedOutputDeviceId(device?.id ?? '')
+		setOutputDevice(device)
+	}
+
 	async function loadAudioDevices() {
 		let newDevices = await invoke<AudioDevice[]>('get_audio_devices')
-		const defaultInput = newDevices.find((d) => d.isDefault && d.isInput)
-		const defaultOutput = newDevices.find((d) => d.isDefault && !d.isInput)
-		if (defaultInput) {
-			setInputDevice(defaultInput)
-		}
-		if (defaultOutput) {
-			setOutputDevice(defaultOutput)
-		}
+		const inputs = newDevices.filter((d) => d.isInput)
+		const outputs = newDevices.filter((d) => !d.isInput)
+		// null = no saved preference → use system default; '' = user explicitly chose none
+		const restoredInput = savedInputDeviceId === null
+			? inputs.find((d) => d.isDefault) ?? null
+			: inputs.find((d) => d.id === savedInputDeviceId) ?? null
+		const restoredOutput = savedOutputDeviceId === null
+			? outputs.find((d) => d.isDefault) ?? null
+			: outputs.find((d) => d.id === savedOutputDeviceId) ?? null
+		setInputDevice(restoredInput)
+		setOutputDevice(restoredOutput)
 		setDevices(newDevices)
 	}
 
@@ -646,9 +663,9 @@ export function viewModel() {
 		devices,
 		setDevices,
 		inputDevice,
-		setInputDevice,
+		setInputDevice: setInputDeviceAndSave,
 		outputDevice,
-		setOutputDevice,
+		setOutputDevice: setOutputDeviceAndSave,
 		isRecording,
 		setIsRecording,
 		startRecord,
