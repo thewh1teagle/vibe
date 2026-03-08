@@ -262,7 +262,7 @@ export function viewModel() {
 				}
 				setFiles(newFiles)
 				if (newFiles.length > 1) {
-					navigate('/batch', { state: { files: newFiles } })
+					navigate('/batch', { state: { files: newFiles.map((f) => f.path) } })
 				}
 			})
 		)
@@ -326,7 +326,7 @@ export function viewModel() {
 			setFiles(newFiles)
 
 			if (newFiles.length > 1) {
-				navigate('/batch', { state: { files: newFiles } })
+				navigate('/batch', { state: { files: newFiles.map((f) => f.path) } })
 			}
 		}
 	}

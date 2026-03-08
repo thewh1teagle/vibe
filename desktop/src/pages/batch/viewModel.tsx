@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/FormatSelect'
 import { Segment, Transcript, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { isUserError } from '~/lib/sona-errors'
-import { NamedPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
+import { NamedPath, pathToNamedPath, startKeepAwake, stopKeepAwake, validPath } from '~/lib/utils'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
@@ -72,6 +72,7 @@ export function viewModel() {
 		if (location?.state?.files) {
 			const newFiles: NamedPath[] = []
 			for (const path of location.state.files) {
+				if (!validPath(path)) continue
 				const name = await basename(path)
 				newFiles.push({ name, path })
 			}
@@ -108,6 +109,7 @@ export function viewModel() {
 		if (selected) {
 			const newFiles: NamedPath[] = []
 			for (const path of selected) {
+				if (!validPath(path)) continue
 				const name = await basename(path)
 				newFiles.push({ name, path })
 			}
