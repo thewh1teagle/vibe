@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import LanguageInput from '~/components/LanguageInput'
-import Layout from '~/components/Layout'
-import ModelOptions from '~/components/Params'
-import BatchPanel from './BatchPanel'
-import { viewModel } from './viewModel'
+import LanguageInput from '~/components/language-input'
+import Layout from '~/components/layout'
+import ModelOptions from '~/components/params'
+import BatchPanel from './batch-panel'
+import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
-import FormatMultiSelect from '~/components/FormatMultiSelect'
+import FormatMultiSelect from '~/components/format-multi-select'
 
 export default function BatchPage() {
 	const vm = viewModel()

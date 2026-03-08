@@ -3,7 +3,7 @@ import { subDays, isAfter } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName } from '~/lib/i18n'
-import { usePreferenceProvider } from '~/providers/Preference'
+import { usePreferenceProvider } from '~/providers/preference'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '~/components/ui/select'
 

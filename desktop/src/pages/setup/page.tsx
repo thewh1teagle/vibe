@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { viewModel } from './viewModel'
+import { viewModel } from './view-model'
 import { Progress } from '~/components/ui/progress'
 import { Spinner } from '~/components/ui/spinner'
 import { Button } from '~/components/ui/button'

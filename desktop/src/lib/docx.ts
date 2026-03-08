@@ -1,6 +1,6 @@
 import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx'
 import { Segment } from './transcript'
-import { formatDuration } from '~/components/HtmlView'
+import { formatDuration } from '~/components/html-view'
 
 export async function toDocx(title: string, segments: Segment[], direction: 'rtl' | 'ltr', speakerLabel: string = 'Speaker') {
 	const isRtl = direction === 'rtl'

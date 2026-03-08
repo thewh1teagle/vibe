@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '~/components/ui/button'
 import { Textarea } from '~/components/ui/textarea'
 import { Sparkles } from 'lucide-react'
-import { promptTemplates, type PromptTemplate } from '~/lib/promptTemplates'
+import { promptTemplates, type PromptTemplate } from '~/lib/prompt-templates'
 
 interface ResummarizeDialogProps {
 	onSubmit: (prompt: string) => void

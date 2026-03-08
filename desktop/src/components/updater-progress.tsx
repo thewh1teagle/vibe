@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { UpdaterContext } from '~/providers/Updater'
+import { UpdaterContext } from '~/providers/updater'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 import { Progress } from '~/components/ui/progress'
 

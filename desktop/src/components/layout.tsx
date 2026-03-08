@@ -1,10 +1,10 @@
 import { ReactNode, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { UpdaterContext } from '~/providers/Updater'
-import AppMenu from './AppMenu'
-import DropModal from './DropModal'
-import SettingsModal from './SettingsModal'
-import PageTransition from './PageTransition'
+import { UpdaterContext } from '~/providers/updater'
+import AppMenu from './app-menu'
+import DropModal from './drop-modal'
+import SettingsModal from './settings-modal'
+import PageTransition from './page-transition'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)

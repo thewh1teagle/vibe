@@ -5,7 +5,7 @@ import { ReactComponent as ChevronUp } from '~/icons/chevron-down.svg'
 import { ReactComponent as ChevronDown } from '~/icons/chevron-up.svg'
 import { ReactComponent as PlayIcon } from '~/icons/play.svg'
 import { NamedPath } from '~/lib/utils'
-import BatchQueue from './BatchQueue'
+import BatchQueue from './batch-queue'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible'
 import { Button } from '~/components/ui/button'
 

@@ -2,7 +2,7 @@ import { ReactNode, createContext, useContext, useEffect, useRef, useState } fro
 import { useLocalStorage } from 'usehooks-ts'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
-import { TextFormat } from '~/components/FormatSelect'
+import { TextFormat } from '~/components/format-select'
 import { ModifyState } from '~/lib/utils'
 import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'

@@ -7,7 +7,7 @@ import { useLocalStorage } from 'usehooks-ts'
 import { AudioDevice } from '~/lib/audio'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
-import { usePreferenceProvider } from '~/providers/Preference'
+import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
 
 // Module-level flag used by home viewModel to skip processing

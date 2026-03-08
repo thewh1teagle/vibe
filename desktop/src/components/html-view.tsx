@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Segment, formatTimestamp } from '~/lib/transcript'
 import { NamedPath } from '~/lib/utils'
-import { Preference } from '~/providers/Preference'
+import { Preference } from '~/providers/preference'
 
 interface HTMLViewProps {
 	segments: Segment[]

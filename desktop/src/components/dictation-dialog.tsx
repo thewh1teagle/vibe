@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHotkeyProvider, type HotkeyOutputMode } from '~/providers/Hotkey'
+import { useHotkeyProvider, type HotkeyOutputMode } from '~/providers/hotkey'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import { Switch } from '~/components/ui/switch'
 import { Input } from '~/components/ui/input'

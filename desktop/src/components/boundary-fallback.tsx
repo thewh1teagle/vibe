@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react'
 import { FallbackProps } from 'react-error-boundary'
-import { ErrorModalContext } from '~/providers/ErrorModal'
-import ErrorModal from './ErrorModal'
+import { ErrorModalContext } from '~/providers/error-modal'
+import ErrorModal from './error-modal'
 
 export function BoundaryFallback({ error }: FallbackProps) {
 	const { setState } = useContext(ErrorModalContext)

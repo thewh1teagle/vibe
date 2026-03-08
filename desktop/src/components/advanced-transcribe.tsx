@@ -5,8 +5,8 @@ import * as dialogExt from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
 import { invoke } from '@tauri-apps/api/core'
 import { useNavigate } from 'react-router-dom'
-import { usePreferenceProvider } from '~/providers/Preference'
-import { InfoTooltip } from './InfoTooltip'
+import { usePreferenceProvider } from '~/providers/preference'
+import { InfoTooltip } from './info-tooltip'
 import { Button } from '~/components/ui/button'
 
 
