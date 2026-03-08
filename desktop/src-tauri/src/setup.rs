@@ -97,16 +97,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
-    tracing::debug!(
-        "CPU Features\n{}",
-        crate::cmd::get_x86_features()
-            .map(|v| serde_json::to_string(&v).unwrap_or_default())
-            .unwrap_or_default()
-    );
-
-    #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows")))]
-    tracing::debug!("CPU feature detection is not supported on this architecture.");
+    tracing::debug!("AVX2: {}", crate::cmd::is_avx2_enabled());
     tracing::debug!("Executable Architecture: {}", std::env::consts::ARCH);
 
     tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());

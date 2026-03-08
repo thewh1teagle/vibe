@@ -17,9 +17,6 @@ mod logging;
 #[cfg(target_os = "macos")]
 mod dock;
 
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
-mod x86_features;
-
 #[cfg(windows)]
 mod custom_protocol;
 
@@ -104,7 +101,6 @@ async fn main() -> Result<()> {
             cmd::get_path_dst,
             cmd::get_logs,
             cmd::open_path,
-            cmd::get_x86_features,
             cmd::get_save_path,
             cmd::get_argv,
             cmd::get_default_recording_path,

@@ -149,6 +149,14 @@ export function viewModel() {
 		if (inProgress) {
 			return
 		}
+
+		const avx2 = await invoke<boolean>('is_avx2_enabled')
+		if (!avx2) {
+			trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
+			await dialog.message(t('common.avx2-not-supported'), { kind: 'error' })
+			return
+		}
+
 		setInProgress(true)
 
 		startKeepAwake()

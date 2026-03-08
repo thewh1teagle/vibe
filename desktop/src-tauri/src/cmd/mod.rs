@@ -92,19 +92,6 @@ pub fn get_commit_hash() -> String {
     env!("COMMIT_HASH").to_string()
 }
 
-#[tauri::command]
-pub fn get_x86_features() -> Option<Value> {
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows"))]
-    {
-        let features: Value = serde_json::to_value(crate::x86_features::X86features::new()).unwrap_or_default();
-        Some(features)
-    }
-
-    #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), target_os = "windows")))]
-    {
-        None
-    }
-}
 
 #[tauri::command]
 pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: String) -> Result<String> {
@@ -530,7 +517,14 @@ pub fn get_rocm_version() -> String {
 
 #[tauri::command]
 pub fn is_avx2_enabled() -> bool {
-    true
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), not(target_os = "macos")))]
+    {
+        is_x86_feature_detected!("avx2")
+    }
+    #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), not(target_os = "macos"))))]
+    {
+        true
+    }
 }
 
 #[tauri::command]

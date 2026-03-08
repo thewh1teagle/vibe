@@ -6,7 +6,6 @@ import { basename } from '@tauri-apps/api/path'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
-import { open } from '@tauri-apps/plugin-shell'
 import { SetStateAction, useContext, useEffect, useRef, useState } from 'react'
 import { toast as hotToast } from 'sonner'
 import { useTranslation } from 'react-i18next'
@@ -23,7 +22,6 @@ import * as transcript from '~/lib/transcript'
 import { isUserError } from '~/lib/sona-errors'
 import { useConfirmExit } from '~/lib/useConfirmExit'
 import { NamedPath, ls, openPath, pathToNamedPath, startKeepAwake, stopKeepAwake } from '~/lib/utils'
-import { getX86Features } from '~/lib/x86Features'
 import * as ytDlp from '~/lib/ytdlp'
 import { ErrorModalContext } from '~/providers/ErrorModal'
 import { useFilesContext } from '~/providers/FilesProvider'
@@ -405,26 +403,6 @@ export function viewModel() {
 		let cleanup: (() => void) | undefined
 
 		async function CheckCpuAndInit() {
-			const features = await getX86Features()
-			if (features) {
-				const unsupported = Object.entries(features || {})
-					.filter(([_, feature]) => feature.enabled && !feature.support)
-					.map(([name]) => name)
-				if (unsupported.length > 0) {
-					// Found unsupported features
-					await dialog.message(
-						`Your CPU is old and doesn't support some features (${unsupported.join(
-							',',
-						)}). Please click OK and read the readme that will open for more information.`,
-						{
-							kind: 'error',
-						},
-					)
-					open(config.unsupportedCpuReadmeURL)
-					return // Don't run anything
-				}
-			}
-
 			cleanup = setupEventListeners()
 			checkModelExists()
 		}
@@ -485,6 +463,13 @@ export function viewModel() {
 	}
 
 	async function transcribe(path: string) {
+		const avx2 = await invoke<boolean>('is_avx2_enabled')
+		if (!avx2) {
+			trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
+			await dialog.message(t('common.avx2-not-supported'), { kind: 'error' })
+			return
+		}
+
 		startKeepAwake()
 
 		setSegments(null)

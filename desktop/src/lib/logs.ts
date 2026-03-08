@@ -29,12 +29,7 @@ export async function getPrettyVersion() {
 export async function getAppInfo() {
 	const appVersion = await getPrettyVersion()
 	const commitHash = await invoke('get_commit_hash')
-	let x86Features = await invoke<string | null>('get_x86_features')
-	if (x86Features) {
-		x86Features = JSON.stringify(x86Features, null, 0)
-	} else {
-		x86Features = 'CPU feature detection is not supported on this architecture.'
-	}
+	const avx2 = await invoke<boolean>('is_avx2_enabled')
 	const arch = os.arch()
 	const platform = os.platform()
 	const kVer = os.version()
@@ -61,7 +56,7 @@ export async function getAppInfo() {
 		`Models: ${models}`,
 		`Default Model: ${defaultModel}`,
 		`Cargo features: ${cargoFeatures.join(', ')}`,
-		`\n\n${x86Features}`,
+		`AVX2: ${avx2}`,
 	].join('\n')
 }
 

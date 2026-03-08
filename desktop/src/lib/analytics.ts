@@ -6,6 +6,7 @@ export const analyticsEvents = {
 	TRANSCRIBE_STARTED: 'transcribe_started',
 	TRANSCRIBE_SUCCEEDED: 'transcribe_succeeded',
 	TRANSCRIBE_FAILED: 'transcribe_failed',
+	AVX2_NOT_SUPPORTED: 'avx2_not_supported',
 } as const
 
 type AnalyticsProps = Record<string, string | number>
