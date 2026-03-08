@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useState } from 'react'
-import { ModifyState } from '~/lib/utils'
+import { ModifyState } from '~/lib/types'
 
 export interface ErrorModalState {
 	open: boolean

@@ -1,6 +1,6 @@
-use crate::audio_utils::get_vibe_temp_folder;
-use crate::utils::LogError;
-use crate::{cmd::get_logs_folder, config, logging::get_log_path};
+use crate::error::LogError;
+use crate::ffmpeg::get_vibe_temp_folder;
+use crate::{cmd::app::get_logs_folder, config, logging::get_log_path};
 use eyre::{eyre, ContextCompat, Result};
 
 pub fn clean_old_logs(app: &tauri::AppHandle) -> Result<()> {

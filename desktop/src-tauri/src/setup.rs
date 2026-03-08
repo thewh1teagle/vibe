@@ -1,15 +1,15 @@
 use crate::{
     cli::{self, is_cli_detected},
     config::STORE_FILENAME,
+    diagnostics::get_issue_url,
+    error::LogError,
     sona::SonaProcess,
-    utils::{get_issue_url, LogError},
 };
 use eyre::eyre;
 use once_cell::sync::Lazy;
 use std::fs;
 use tauri::{App, Manager};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
-use tauri_plugin_shell::ShellExt;
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
 
@@ -21,7 +21,6 @@ pub struct SonaState {
     pub loaded_gpu_device: Option<i32>,
 }
 
-#[allow(deprecated)]
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Create app directories
     let local_app_data_dir = app.path().app_local_data_dir()?;
@@ -78,7 +77,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
                     .title("Vibe Crashed")
                     .buttons(MessageDialogButtons::OkCustom("Report".into()))
                     .show(|_| {});
-                let _ = app_handle.shell().open(get_issue_url(format!("{:?}", info)), None);
+                let _ = tauri_plugin_opener::open_url(get_issue_url(format!("{:?}", info)), None::<&str>);
             }
 
             crash_handler::CrashEventResult::Handled(true)
@@ -97,12 +96,12 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    tracing::debug!("AVX2: {}", crate::cmd::is_avx2_enabled());
+    tracing::debug!("AVX2: {}", crate::cmd::app::is_avx2_enabled());
     tracing::debug!("Executable Architecture: {}", std::env::consts::ARCH);
 
     tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
     tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
-    tracing::debug!("App Info: {}", crate::utils::get_app_info());
+    tracing::debug!("App Info: {}", crate::diagnostics::get_app_info());
 
     let app_handle = app.app_handle().clone();
     if is_cli_detected() {

@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { ModifyState } from '~/lib/utils'
+import { ModifyState } from '~/lib/types'
 
 export interface ToastModalState {
 	open: boolean

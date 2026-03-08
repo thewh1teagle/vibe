@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/style'
 
 const NativeSelect = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(({ className, ...props }, ref) => (
 	<select

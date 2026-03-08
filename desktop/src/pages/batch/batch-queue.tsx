@@ -1,4 +1,5 @@
-import { NamedPath, openPath } from '~/lib/utils'
+import { NamedPath } from '~/lib/types'
+import { openPath } from '~/lib/app'
 import { ReactComponent as CheckIcon } from '~/icons/check.svg'
 import { Progress } from '~/components/ui/progress'
 

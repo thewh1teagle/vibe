@@ -1,15 +1,14 @@
-#![allow(deprecated)]
-
-use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicy::*};
+use objc2::MainThreadMarker;
+use objc2_app_kit::{NSApplication, NSApplicationActivationPolicy};
 
 pub fn set_dock_visible(visible: bool) {
     let policy = if visible {
-        NSApplicationActivationPolicyRegular
+        NSApplicationActivationPolicy::Regular
     } else {
-        NSApplicationActivationPolicyAccessory
+        NSApplicationActivationPolicy::Accessory
     };
     unsafe {
-        let app = NSApp();
-        app.setActivationPolicy_(policy);
+        let mtm = MainThreadMarker::new_unchecked();
+        NSApplication::sharedApplication(mtm).setActivationPolicy(policy);
     }
 }

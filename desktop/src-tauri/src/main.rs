@@ -2,17 +2,18 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod analytics;
-mod audio_utils;
 mod cleaner;
 mod cli;
 mod cmd;
 mod config;
+mod diagnostics;
+mod error;
+mod ffmpeg;
+mod logging;
 mod setup;
 mod sona;
-mod types;
-mod utils;
+mod transcript;
 use tauri::{Emitter, Manager};
-mod logging;
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -23,7 +24,7 @@ mod custom_protocol;
 use eyre::{eyre, Result};
 use tauri_plugin_window_state::StateFlags;
 
-use utils::LogError;
+use error::LogError;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -33,6 +34,7 @@ async fn main() -> Result<()> {
 
     #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
@@ -59,8 +61,7 @@ async fn main() -> Result<()> {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+.plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_notification::init());
 
     if analytics::is_aptabase_configured() {
@@ -82,39 +83,39 @@ async fn main() -> Result<()> {
 
     let app = builder
         .invoke_handler(tauri::generate_handler![
-            cmd::download_file,
-            cmd::get_cargo_features,
-            cmd::transcribe,
-            cmd::glob_files,
-            cmd::download_model,
-            cmd::load_model,
-            cmd::get_gpu_devices,
-            cmd::get_api_base_url,
-            cmd::start_api_server,
-            cmd::stop_api_server,
-            cmd::track_analytics_event,
-            cmd::get_commit_hash,
-            cmd::is_avx2_enabled,
-            cmd::is_online,
-            cmd::get_path_dst,
-            cmd::get_logs,
-            cmd::open_path,
-            cmd::get_save_path,
-            cmd::get_argv,
-            cmd::get_default_recording_path,
+            cmd::download::download_file,
+            cmd::app::get_cargo_features,
+            cmd::transcribe::transcribe,
+            cmd::files::glob_files,
+            cmd::download::download_model,
+            cmd::sona_cmd::load_model,
+            cmd::sona_cmd::get_gpu_devices,
+            cmd::sona_cmd::get_api_base_url,
+            cmd::sona_cmd::start_api_server,
+            cmd::sona_cmd::stop_api_server,
+            cmd::app::track_analytics_event,
+            cmd::app::get_commit_hash,
+            cmd::app::is_avx2_enabled,
+            cmd::app::is_online,
+            cmd::files::get_path_dst,
+            cmd::app::get_logs,
+            cmd::files::open_path,
+            cmd::files::get_save_path,
+            cmd::files::get_argv,
+            cmd::files::get_default_recording_path,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
-            cmd::get_models_folder,
-            cmd::get_logs_folder,
-            cmd::show_log_path,
-            cmd::show_temp_path,
-            cmd::get_ffmpeg_path,
+            cmd::app::get_models_folder,
+            cmd::app::get_logs_folder,
+            cmd::app::show_log_path,
+            cmd::app::show_temp_path,
+            cmd::files::get_ffmpeg_path,
             cmd::ytdlp::download_audio,
             cmd::ytdlp::get_temp_path,
             cmd::ytdlp::get_latest_ytdlp_version,
-            cmd::is_crashed_recently,
-            cmd::rename_crash_file,
-            cmd::type_text,
+            cmd::app::is_crashed_recently,
+            cmd::app::rename_crash_file,
+            cmd::app::type_text,
             cmd::permissions::request_system_audio_permission,
             cmd::permissions::open_system_audio_settings
         ])

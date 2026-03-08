@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { ModifyState, NamedPath, pathToNamedPath } from './utils'
+import { ModifyState, NamedPath } from './types'
+import { pathToNamedPath } from './fs'
 import { ask } from '@tauri-apps/plugin-dialog'
 import { useEffect } from 'react'
 import { listen } from '@tauri-apps/api/event'

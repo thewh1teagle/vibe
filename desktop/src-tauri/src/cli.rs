@@ -4,7 +4,7 @@ use std::process;
 use tauri::AppHandle;
 use tauri_plugin_aptabase::EventTracker;
 
-use crate::cmd::{resolve_diarize_path, resolve_ffmpeg_path, resolve_sona_binary};
+use crate::cmd::sona_cmd::{resolve_diarize_path, resolve_ffmpeg_path, resolve_sona_binary};
 
 /// Attach to console if cli detected in Windows
 #[cfg(all(windows, not(debug_assertions)))]

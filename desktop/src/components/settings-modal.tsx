@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { ModifyState } from '~/lib/utils'
+import { ModifyState } from '~/lib/types'
 import SettingsPage from '~/pages/settings/page'
 
 interface SettingsModalProps {

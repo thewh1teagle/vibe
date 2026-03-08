@@ -1,4 +1,4 @@
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/style'
 
 export default function Mac({ className }: { className?: string }) {
 	return (

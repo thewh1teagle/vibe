@@ -4,9 +4,9 @@ import { DownloadEvent, Update, check as checkUpdate } from '@tauri-apps/plugin-
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ErrorModalContext } from './error-modal'
-import { ModifyState } from '~/lib/utils'
+import { ModifyState } from '~/lib/types'
 import { invoke } from '@tauri-apps/api/core'
-import { open } from '@tauri-apps/plugin-shell'
+import { openUrl as open } from '@tauri-apps/plugin-opener'
 import { latestReleaseURL } from '~/lib/config'
 // Define the context type
 

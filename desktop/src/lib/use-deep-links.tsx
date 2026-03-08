@@ -1,6 +1,7 @@
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import { useTranslation } from 'react-i18next'
-import { ModifyState, NamedPath, pathToNamedPath } from './utils'
+import { ModifyState, NamedPath } from './types'
+import { pathToNamedPath } from './fs'
 import { ask } from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
 import { useNavigate } from 'react-router-dom'

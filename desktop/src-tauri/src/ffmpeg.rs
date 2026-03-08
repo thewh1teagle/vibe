@@ -1,8 +1,20 @@
+use chrono::Local;
 use eyre::{bail, ContextCompat, Result};
+use rand::distr::Alphanumeric;
+use rand::Rng;
 use std::io::Read;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use which::which;
+
+pub fn get_local_time() -> String {
+    let now = Local::now();
+    now.format("%Y-%m-%d %H-%M-%S").to_string()
+}
+
+pub fn random_string(length: usize) -> String {
+    rand::rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
+}
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;

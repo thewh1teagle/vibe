@@ -20,7 +20,6 @@ tauri-plugin-updater = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-process = "2"
 tauri-plugin-os = "2"
-tauri-plugin-shell = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-store = "2"
 tauri-plugin-single-instance = "2"
@@ -31,6 +30,7 @@ tauri-plugin-keepawake = { version = "0.1.1", optional = true }
 tauri-plugin-aptabase = { git = "https://github.com/thewh1teagle/tauri-plugin-aptabase", branch = "deterministic-daily-session" }
 # Unsafe headers required for Ollama (to set Origin)
 tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
+tauri-plugin-opener = "2"
 
 serde_json = { workspace = true }
 eyre = { workspace = true }
@@ -81,7 +81,8 @@ libc-stdhandle = "=0.1.0"
 
 # macOS
 [target.'cfg(target_os = "macos")'.dependencies]
-cocoa = "0.26.1"
+objc2 = "0.6.4"
+objc2-app-kit = { version = "0.3.2", features = ["NSApplication"] }
 
 [features]
 default = []

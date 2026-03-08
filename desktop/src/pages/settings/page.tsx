@@ -1,4 +1,4 @@
-import * as shell from '@tauri-apps/plugin-shell'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '~/components/info-tooltip'
@@ -14,7 +14,7 @@ import { ReactComponent as WrenchIcon } from '~/icons/wrench.svg'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import * as config from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
-import { ModifyState } from '~/lib/utils'
+import { ModifyState } from '~/lib/types'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -289,7 +289,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 								</div>
 								<Button
 									variant="ghost"
-									onMouseDown={() => (apiDocsUrl ? shell.open(apiDocsUrl) : null)}
+									onMouseDown={() => (apiDocsUrl ? openUrl(apiDocsUrl) : null)}
 									disabled={!apiDocsUrl}
 									className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
 									Open API docs <LinkIcon className="h-4 w-4 text-muted-foreground" />
@@ -304,7 +304,7 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 							<div className="divide-y divide-border/45 rounded-lg border border-border/55 bg-background/20">
 								<Button
 									variant="ghost"
-									onMouseDown={() => shell.open(config.aboutURL)}
+									onMouseDown={() => openUrl(config.aboutURL)}
 									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
 									{t('common.project-link')} <LinkIcon className="h-4 w-4 text-muted-foreground" />
 								</Button>
@@ -316,13 +316,13 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 								</Button>
 								<Button
 									variant="ghost"
-									onMouseDown={() => shell.open(config.supportVibeURL)}
+									onMouseDown={() => openUrl(config.supportVibeURL)}
 									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
 									{t('common.support-the-project')} <HeartIcon className="h-4 w-4 fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" />
 								</Button>
 								<Button
 									variant="ghost"
-									onMouseDown={() => shell.open(config.discordURL)}
+									onMouseDown={() => openUrl(config.discordURL)}
 									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
 									{t('common.discord-community')} <DiscordIcon className="h-4 w-4 text-muted-foreground" />
 								</Button>

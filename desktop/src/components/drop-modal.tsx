@@ -4,7 +4,8 @@ import * as webview from '@tauri-apps/api/webview'
 import * as os from '@tauri-apps/plugin-os'
 import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DocumentIcon } from '~/icons/document.svg'
-import { cn, formatLongString, validPath } from '~/lib/utils'
+import { validPath } from '~/lib/media'
+import { cn } from '~/lib/style'
 
 interface Position {
 	x: number
@@ -17,7 +18,7 @@ function Document({ position, path }: { position: Position; path: string }) {
 			className="absolute z-[100000] bg-accent p-4 -translate-x-[50%] -translate-y-[50%] rounded-2xl flex flex-col items-center justify-center gap-4"
 			style={{ left: position.x, top: position.y, cursor: 'grabbing' }}>
 			<DocumentIcon />
-			<p className="text-md font-light font-mono">{formatLongString(path, 10)}</p>
+			<p className="text-md font-light font-mono">{path.length > 10 ? path.substring(0, 10) + '...' : path}</p>
 		</div>
 	)
 }

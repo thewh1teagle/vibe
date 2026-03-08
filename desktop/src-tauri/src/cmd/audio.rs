@@ -1,4 +1,4 @@
-use crate::audio_utils::get_vibe_temp_folder;
+use crate::ffmpeg::get_vibe_temp_folder;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, FromSample, Sample, SizedSample, Stream, SupportedStreamConfig};
 use eyre::{bail, eyre, Context, ContextCompat, Result};
@@ -10,7 +10,8 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, Listener, Manager};
 
-use crate::utils::{get_local_time, random_string, LogError};
+use crate::error::LogError;
+use crate::ffmpeg::{get_local_time, random_string};
 
 type WavWriterHandle = Arc<Mutex<Option<hound::WavWriter<BufWriter<File>>>>>;
 
@@ -24,20 +25,25 @@ pub struct AudioDevice {
 }
 
 #[tauri::command]
-#[allow(deprecated)]
 pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     let host = cpal::default_host();
     let mut audio_devices = Vec::new();
 
-    let default_in = host.default_input_device().map(|e| e.name()).context("name")?;
-    let default_out = host.default_output_device().map(|e| e.name()).context("name")?;
+    let default_in = host
+        .default_input_device()
+        .map(|e| e.description().map(|d| d.to_string()))
+        .context("name")?;
+    let default_out = host
+        .default_output_device()
+        .map(|e| e.description().map(|d| d.to_string()))
+        .context("name")?;
     tracing::debug!("Default Input Device:\n{:?}", default_in);
     tracing::debug!("Default Output Device:\n{:?}", default_out);
 
     let devices = host.devices()?;
     tracing::debug!("Devices: ");
     for (device_index, device) in devices.enumerate() {
-        let name = device.name()?;
+        let name = device.description()?.to_string();
         let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
 
@@ -128,7 +134,7 @@ pub async fn start_record(
         } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
             tracing::debug!("Merging WAV files");
-            crate::audio_utils::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+            crate::ffmpeg::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
             dst
         } else if wav_paths[0].1 > wav_paths[1].1 {
             // First WAV file has a larger sample count, choose it
@@ -141,7 +147,7 @@ pub async fn start_record(
 
         tracing::debug!("Emitting record_finish event");
         let mut normalized = get_vibe_temp_folder().join(format!("{}.wav", get_local_time()));
-        crate::audio_utils::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
+        crate::ffmpeg::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
 
         if store_in_documents {
             if let Some(file_name) = normalized.file_name() {

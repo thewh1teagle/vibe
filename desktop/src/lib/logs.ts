@@ -1,6 +1,6 @@
 import { app } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/core'
-import { ls } from './utils'
+import { ls } from './fs'
 import * as os from '@tauri-apps/plugin-os'
 
 export async function getPrettyVersion() {

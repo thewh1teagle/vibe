@@ -2,7 +2,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from 'react
 import { useLocation } from 'react-router-dom'
 import { useDeepLinks } from '~/lib/use-deep-links'
 import { useSingleInstance } from '~/lib/use-single-instance'
-import { ModifyState, NamedPath } from '~/lib/utils'
+import { ModifyState, NamedPath } from '~/lib/types'
 
 type FilesProviderState = NamedPath[]
 interface FilesProviderContextType {

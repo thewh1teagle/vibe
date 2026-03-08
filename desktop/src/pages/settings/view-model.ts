@@ -1,11 +1,13 @@
 import { invoke } from '@tauri-apps/api/core'
 import { ask, open } from '@tauri-apps/plugin-dialog'
-import * as shell from '@tauri-apps/plugin-shell'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { platform } from '@tauri-apps/plugin-os'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as config from '~/lib/config'
-import { NamedPath, getIssueUrl, ls, resetApp } from '~/lib/utils'
+import { NamedPath } from '~/lib/types'
+import { ls } from '~/lib/fs'
+import { getIssueUrl, resetApp } from '~/lib/app'
 import { usePreferenceProvider } from '~/providers/preference'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
@@ -27,7 +29,7 @@ async function openModelPath() {
 }
 
 async function openModelsUrl() {
-	shell.open(config.modelsDocURL)
+	openUrl(config.modelsDocURL)
 }
 
 async function reportIssue() {
@@ -57,10 +59,10 @@ ${filteredLogs}
 </details>
 `
 		info += `\n\n\n${templatedLogs}`
-		shell.open(await getIssueUrl(info))
+		openUrl(await getIssueUrl(info))
 	} catch (e) {
 		console.error(e)
-		shell.open(await getIssueUrl(`Couldn't get info ${e}`))
+		openUrl(await getIssueUrl(`Couldn't get info ${e}`))
 	}
 }
 

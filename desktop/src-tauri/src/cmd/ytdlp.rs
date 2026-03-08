@@ -1,4 +1,4 @@
-use crate::audio_utils::get_vibe_temp_folder;
+use crate::ffmpeg::get_vibe_temp_folder;
 use eyre::{bail, Context, ContextCompat, Result};
 use serde_json::Value;
 use std::{
@@ -8,9 +8,9 @@ use std::{
 };
 use tauri::{AppHandle, Emitter, Listener, Manager};
 
-use crate::utils::LogError;
+use crate::error::LogError;
 
-use super::get_ffmpeg_path;
+use super::files::get_ffmpeg_path;
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
@@ -71,7 +71,7 @@ pub fn get_temp_path(app_handle: AppHandle, ext: String, in_documents: Option<bo
         get_vibe_temp_folder()
     };
 
-    base_path.push(format!("{}.{}", crate::utils::get_local_time(), ext));
+    base_path.push(format!("{}.{}", crate::ffmpeg::get_local_time(), ext));
     base_path.to_string_lossy().to_string()
 }
 

@@ -1,7 +1,8 @@
-import * as shell from '@tauri-apps/plugin-shell'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
-import { ModifyState, getIssueUrl, resetApp } from '~/lib/utils'
+import { ModifyState } from '~/lib/types'
+import { getIssueUrl, resetApp } from '~/lib/app'
 import { ErrorModalState } from '~/providers/error-modal'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { collectLogs } from '~/lib/logs'
@@ -31,7 +32,7 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 		}
 
 		const url = await getIssueUrl(state?.log + '\n' + info)
-		shell.open(url)
+		openUrl(url)
 	}
 
 	return (

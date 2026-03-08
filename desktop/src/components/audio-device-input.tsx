@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { AudioDevice } from '~/lib/audio'
-import { ModifyState } from '~/lib/utils'
+import { ModifyState } from '~/lib/types'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 

@@ -4,7 +4,7 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { usePreferenceProvider } from '~/providers/preference'
-import * as utils from '~/lib/utils'
+import * as utils from '~/lib/model'
 import * as osExt from '@tauri-apps/plugin-os'
 import * as config from '~/lib/config'
 
