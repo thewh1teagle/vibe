@@ -119,8 +119,6 @@ Your privacy is important to us. Please review our [Privacy Policy](http://thewh
 
 Thanks for [tauri.app](https://tauri.app/) for making the best apps framework I ever seen
 
-Thanks for [wang-bin/avbuild](https://github.com/wang-bin/avbuild) for pre built `ffmpeg`
-
 Thanks for [github.com/whisper.cpp](https://github.com/ggerganov/whisper.cpp) for outstanding interface for the AI model.
 
 Thanks for [openai.com](https://openai.com/) for their amazing [Whisper model](https://openai.com/research/whisper)
