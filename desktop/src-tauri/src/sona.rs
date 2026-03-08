@@ -334,20 +334,14 @@ impl SonaProcess {
             }
         }
 
-        let resp = self
-            .client
-            .post(&url)
-            .multipart(form)
-            .send()
-            .await
-            .map_err(|e| {
-                let stderr = self.recent_stderr();
-                if stderr.is_empty() {
-                    eyre::eyre!("failed to send transcribe request to sona: {}", e)
-                } else {
-                    eyre::eyre!("failed to send transcribe request to sona: {}\n\nsona stderr: {}", e, stderr)
-                }
-            })?;
+        let resp = self.client.post(&url).multipart(form).send().await.map_err(|e| {
+            let stderr = self.recent_stderr();
+            if stderr.is_empty() {
+                eyre::eyre!("failed to send transcribe request to sona: {}", e)
+            } else {
+                eyre::eyre!("failed to send transcribe request to sona: {}\n\nsona stderr: {}", e, stderr)
+            }
+        })?;
 
         if !resp.status().is_success() {
             let body = resp.text().await.unwrap_or_default();

@@ -7,14 +7,10 @@ use tauri::{AppHandle, Manager, Wry};
 use tauri_plugin_store::Store;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Layer, Registry};
 
-use crate::{cmd::is_portable, config, utils::get_current_dir};
+use crate::config;
 
 pub fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
-    let config_path = if is_portable() {
-        get_current_dir()?
-    } else {
-        app.path().app_config_dir()?
-    };
+    let config_path = app.path().app_config_dir()?;
 
     let current_datetime = Local::now();
     let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();

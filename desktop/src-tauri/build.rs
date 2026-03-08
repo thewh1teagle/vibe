@@ -45,13 +45,6 @@ fn main() {
     println!("cargo:rerun-if-env-changed=COMMIT_HASH");
     println!("cargo:rustc-env=COMMIT_HASH={}", hash);
 
-    // Windows portable
-    println!("cargo:rerun-if-env-changed=WINDOWS_PORTABLE");
-    println!(
-        "cargo:rustc-env=WINDOWS_PORTABLE={}",
-        std::env::var("WINDOWS_PORTABLE").unwrap_or_default().trim()
-    );
-
     // Analytics
     println!("cargo:rerun-if-env-changed=APTABASE_KEY");
 

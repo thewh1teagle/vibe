@@ -3,7 +3,7 @@ use crate::config::STORE_FILENAME;
 use crate::setup::SonaState;
 use crate::sona::SonaEvent;
 use crate::types::{Segment, Transcript};
-use crate::utils::{get_current_dir, LogError};
+use crate::utils::LogError;
 use eyre::{bail, Context, ContextCompat, Result};
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
@@ -91,7 +91,6 @@ fn set_progress_bar(app_handle: &tauri::AppHandle, progress: Option<f64>) -> Res
 pub fn get_commit_hash() -> String {
     env!("COMMIT_HASH").to_string()
 }
-
 
 #[tauri::command]
 pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: String) -> Result<String> {
@@ -506,16 +505,6 @@ pub async fn open_path(path: PathBuf) -> Result<()> {
 }
 
 #[tauri::command]
-pub fn get_cuda_version() -> String {
-    String::new()
-}
-
-#[tauri::command]
-pub fn get_rocm_version() -> String {
-    String::new()
-}
-
-#[tauri::command]
 pub fn is_avx2_enabled() -> bool {
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), not(target_os = "macos")))]
     {
@@ -642,19 +631,8 @@ pub fn track_analytics_event(app_handle: tauri::AppHandle, name: String, props: 
 }
 
 #[tauri::command]
-#[allow(clippy::comparison_to_empty)]
-pub fn is_portable() -> bool {
-    env!("WINDOWS_PORTABLE") == "1"
-}
-
-#[tauri::command]
 pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
-    let config_path = if is_portable() {
-        get_current_dir()?
-    } else {
-        app_handle.path().app_config_dir()?
-    };
-    Ok(config_path)
+    Ok(app_handle.path().app_config_dir()?)
 }
 
 #[tauri::command]
@@ -683,9 +661,6 @@ pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     if let Some(models_folder) = models_folder {
         tracing::debug!("models folder: {:?}", models_folder);
         return Ok(models_folder);
-    }
-    if is_portable() {
-        return get_current_dir();
     }
     let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
     Ok(path)

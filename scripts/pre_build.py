@@ -287,11 +287,6 @@ def main() -> int:
         print("pnpm install")
         print("pnpm exec tauri build")
 
-    if github_env and current_platform == "windows" and has_feature("portable", argv):
-        print("Adding ENV WINDOWS_PORTABLE=1")
-        with open(github_env, "a", encoding="utf-8") as file:
-            file.write("WINDOWS_PORTABLE=1\n")
-
     action_arg = next((arg for arg in argv if "--dev" in arg or "--build" in arg), None)
     if action_arg:
         os.chdir(cwd.parent)

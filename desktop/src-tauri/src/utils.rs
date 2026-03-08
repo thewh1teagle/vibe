@@ -1,11 +1,8 @@
 use chrono::Local;
-use eyre::{Context, ContextCompat, Result};
 use rand::distr::Alphanumeric;
 use rand::Rng;
-use std::env;
-use std::path::PathBuf;
 
-use crate::cmd::{get_commit_hash, get_cuda_version, is_avx2_enabled};
+use crate::cmd::{get_commit_hash, is_avx2_enabled};
 
 pub fn get_local_time() -> String {
     let now = Local::now();
@@ -16,15 +13,8 @@ pub fn random_string(length: usize) -> String {
     rand::rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
 }
 
-pub fn get_current_dir() -> Result<PathBuf> {
-    let current_dir = env::current_exe().context("current_dir")?;
-    let current_dir = current_dir.parent().context("current dir parent")?;
-    Ok(current_dir.to_path_buf())
-}
-
 pub fn get_app_info() -> String {
     use tauri_plugin_os::{arch, platform, type_, version};
-    let cuda_version = get_cuda_version();
     let commit = get_commit_hash();
 
     let arch = arch();
@@ -39,7 +29,6 @@ pub fn get_app_info() -> String {
          Platform: {}\n\
          OS: {}\n\
          OS Version: {}\n\
-         Cuda Version: {}\n\
          Models: {}\n\
          AVX2: {}",
         commit,
@@ -47,7 +36,6 @@ pub fn get_app_info() -> String {
         platform,
         os_type,
         os_ver,
-        cuda_version,
         models,
         is_avx2_enabled()
     );

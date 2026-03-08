@@ -206,7 +206,9 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
     #[cfg(target_os = "macos")]
     {
         let device = host.default_output_device().context("Failed to get default output device")?;
-        let config = device.default_output_config().context("Failed to get default output config")?;
+        let config = device
+            .default_output_config()
+            .context("Failed to get default output config")?;
         return Ok((device, config));
     }
 
@@ -214,7 +216,9 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
     {
         let device_id: usize = audio_device.id.parse().context("Failed to parse device ID")?;
         let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
-        let config = device.default_output_config().context("Failed to get default output config")?;
+        let config = device
+            .default_output_config()
+            .context("Failed to get default output config")?;
         Ok((device, config))
     }
 }
