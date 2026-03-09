@@ -115,6 +115,8 @@
 	"max-speakers": "Max speakers",
 	"max-text-ctx": "Maximum context",
 	"max-tokens": "Max Tokens",
+	"max-input-chars": "Max Input Characters",
+	"info-max-input-chars": "Max characters sent to AI per request. Transcripts longer than this are split into chunks, each summarized separately, then merged. Default 24000 ≈ 6000 tokens (fits most local models).",
 	"microphone": "Microphone",
 	"modal-close": "Close",
 	"modal-error-body": "A bug happened!",

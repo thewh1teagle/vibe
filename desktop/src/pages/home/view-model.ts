@@ -18,6 +18,7 @@ import { ensureSystemAudioPermission } from '~/lib/permissions'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { summarizeWithChunking } from '~/lib/llm/chunking'
 import * as transcript from '~/lib/transcript'
 import { isUserError } from '~/lib/sona-errors'
 import { useConfirmExit } from '~/lib/use-confirm-exit'
@@ -572,8 +573,7 @@ export function viewModel() {
 
 		if (newSegments && llm && preferenceRef.current.llmConfig?.enabled) {
 			try {
-				const question = `${preferenceRef.current.llmConfig.prompt.replace('%s', transcript.asText(newSegments, t('common.speaker-prefix')))}`
-				const answerPromise = llm.ask(question)
+				const answerPromise = summarizeWithChunking(llm, newSegments, preferenceRef.current.llmConfig, t('common.speaker-prefix'))
 				hotToast.promise(answerPromise, {
 					loading: t('common.summarize-loading'),
 					error: (error) => {
@@ -597,8 +597,8 @@ export function viewModel() {
 		if (!segments || !llm) return
 		setSummarizing(true)
 		try {
-			const question = prompt.replace('%s', transcript.asText(segments, t('common.speaker-prefix')))
-			const answerPromise = llm.ask(question)
+			const llmConfig = preferenceRef.current.llmConfig
+			const answerPromise = summarizeWithChunking(llm, segments, { ...llmConfig, prompt }, t('common.speaker-prefix'))
 			hotToast.promise(answerPromise, {
 				loading: t('common.summarize-loading'),
 				error: (error) => String(error),
