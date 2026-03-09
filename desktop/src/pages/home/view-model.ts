@@ -18,7 +18,14 @@ import { ensureSystemAudioPermission } from '~/lib/permissions'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
-import { summarizeWithChunking } from '~/lib/llm/chunking'
+import { summarizeWithChunking, type ChunkingProgress } from '~/lib/llm/chunking'
+
+function summarizeProgressMessage(p: ChunkingProgress, t: (key: string, opts?: Record<string, unknown>) => string): string {
+	if (p.phase === 'chunk') {
+		return t('common.summarize-chunk-progress', { current: p.current, total: p.total })
+	}
+	return t('common.summarize-synthesis')
+}
 import * as transcript from '~/lib/transcript'
 import { isUserError } from '~/lib/sona-errors'
 import { useConfirmExit } from '~/lib/use-confirm-exit'
@@ -572,20 +579,17 @@ export function viewModel() {
 		}
 
 		if (newSegments && llm && preferenceRef.current.llmConfig?.enabled) {
+			const toastId = hotToast.loading(t('common.summarize-loading'))
 			try {
-				const answerPromise = summarizeWithChunking(llm, newSegments, preferenceRef.current.llmConfig, t('common.speaker-prefix'))
-				hotToast.promise(answerPromise, {
-					loading: t('common.summarize-loading'),
-					error: (error) => {
-						return String(error)
-					},
-					success: t('common.summarize-success'),
+				const answer = await summarizeWithChunking(llm, newSegments, preferenceRef.current.llmConfig, t('common.speaker-prefix'), (p) => {
+					hotToast.loading(summarizeProgressMessage(p, t), { id: toastId })
 				})
-				const answer = await answerPromise
+				hotToast.success(t('common.summarize-success'), { id: toastId })
 				if (answer) {
 					setSummarizeSegments([{ start: 0, stop: newSegments?.[newSegments?.length - 1].stop ?? 0, text: answer }])
 				}
 			} catch (e) {
+				hotToast.error(String(e), { id: toastId })
 				console.error(e)
 			}
 		}
@@ -596,20 +600,19 @@ export function viewModel() {
 	async function resummarize(prompt: string) {
 		if (!segments || !llm) return
 		setSummarizing(true)
+		const toastId = hotToast.loading(t('common.summarize-loading'))
 		try {
 			const llmConfig = preferenceRef.current.llmConfig
-			const answerPromise = summarizeWithChunking(llm, segments, { ...llmConfig, prompt }, t('common.speaker-prefix'))
-			hotToast.promise(answerPromise, {
-				loading: t('common.summarize-loading'),
-				error: (error) => String(error),
-				success: t('common.summarize-success'),
+			const answer = await summarizeWithChunking(llm, segments, { ...llmConfig, prompt }, t('common.speaker-prefix'), (p) => {
+				hotToast.loading(summarizeProgressMessage(p, t), { id: toastId })
 			})
-			const answer = await answerPromise
+			hotToast.success(t('common.summarize-success'), { id: toastId })
 			if (answer) {
 				setSummarizeSegments([{ start: 0, stop: segments[segments.length - 1]?.stop ?? 0, text: answer }])
 				setTranscriptTab('summary')
 			}
 		} catch (e) {
+			hotToast.error(String(e), { id: toastId })
 			console.error(e)
 		} finally {
 			setSummarizing(false)

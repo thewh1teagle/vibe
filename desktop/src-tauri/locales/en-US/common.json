@@ -179,6 +179,8 @@
 	"stop-and-transcribe": "Stop Recording",
 	"success-action": "Operation succeeded.",
 	"summarize-loading": "Summarizing",
+	"summarize-chunk-progress": "Summarizing part {{current}} of {{total}}...",
+	"summarize-synthesis": "Merging summaries...",
 	"summarize-success": "Summarized",
 	"summary-tab": "Summary",
 	"support-the-project": "Support Vibe",

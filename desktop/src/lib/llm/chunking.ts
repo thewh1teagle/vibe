@@ -2,6 +2,8 @@ import { llmDefaultMaxInputChars } from '~/lib/config'
 import { type Llm, type LlmConfig } from '~/lib/llm'
 import { asText, type Segment } from '~/lib/transcript'
 
+export type ChunkingProgress = { phase: 'chunk'; current: number; total: number } | { phase: 'synthesis'; total: number }
+
 function splitIntoChunks(segments: Segment[], maxCharsPerChunk: number, speakerLabel: string): Segment[][] {
 	const chunks: Segment[][] = []
 	let current: Segment[] = []
@@ -55,7 +57,13 @@ Synthesize them into a unified summary that:
 ${combined}`
 }
 
-export async function summarizeWithChunking(llm: Llm, segments: Segment[], config: LlmConfig, speakerLabel: string): Promise<string> {
+export async function summarizeWithChunking(
+	llm: Llm,
+	segments: Segment[],
+	config: LlmConfig,
+	speakerLabel: string,
+	onProgress?: (progress: ChunkingProgress) => void,
+): Promise<string> {
 	const maxInputChars = config.maxInputChars ?? llmDefaultMaxInputChars
 	const promptTemplate = config.prompt
 	const promptOverhead = promptTemplate.replace('%s', '').length
@@ -80,6 +88,7 @@ export async function summarizeWithChunking(llm: Llm, segments: Segment[], confi
 	const partials: string[] = []
 	let previousSummary: string | null = null
 	for (let i = 0; i < chunks.length; i++) {
+		onProgress?.({ phase: 'chunk', current: i + 1, total: chunks.length })
 		const chunkText = asText(chunks[i], speakerLabel)
 		const prompt = buildChunkPrompt(promptTemplate, chunkText, previousSummary, i, chunks.length)
 		const partial = await llm.ask(prompt)
@@ -88,5 +97,6 @@ export async function summarizeWithChunking(llm: Llm, segments: Segment[], confi
 	}
 
 	// Synthesize all partials into a single coherent summary
+	onProgress?.({ phase: 'synthesis', total: chunks.length })
 	return llm.ask(buildSynthesisPrompt(partials))
 }
