@@ -22,6 +22,8 @@ export interface LlmConfig {
 	// OpenAI Compatible
 	openaiBaseUrl?: string
 	openaiApiKey?: string
+
+	maxInputChars?: number // INPUT char budget per LLM request; triggers chunking when exceeded
 }
 
 export { Ollama, Claude, OpenAICompatible, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig }
