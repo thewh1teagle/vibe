@@ -61,7 +61,7 @@ async fn main() -> Result<()> {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_process::init())
-.plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_notification::init());
 
     if analytics::is_aptabase_configured() {
@@ -122,18 +122,16 @@ async fn main() -> Result<()> {
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
 
-    app.run(|app, event| {
-        if let tauri::RunEvent::ExitRequested { .. } = event {
-            // Kill sona process on app exit
-            let state: tauri::State<'_, tokio::sync::Mutex<setup::SonaState>> = app.state();
-            let mut guard = match state.try_lock() {
-                Ok(guard) => guard,
-                Err(_) => return,
+    app.run(|app, event| match event {
+        tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
+            let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
+            if let Ok(mut guard) = mutex.try_lock() {
+                if let Some(ref mut process) = guard.process {
+                    process.kill();
+                }
             };
-            if let Some(ref mut process) = guard.process {
-                process.kill();
-            }
         }
+        _ => {}
     });
     Ok(())
 }

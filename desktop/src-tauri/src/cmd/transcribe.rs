@@ -72,15 +72,14 @@ pub async fn transcribe(
         });
     }
 
-    let state = sona_state.lock().await;
-    let process = state.process.as_ref();
-    if process.is_none() {
-        return Err(CommandError {
+    let (client, base_url) = {
+        let state = sona_state.lock().await;
+        let process = state.process.as_ref().ok_or_else(|| CommandError {
             code: "no_model".to_string(),
             message: "Please load model first".to_string(),
-        });
-    }
-    let sona = process.unwrap();
+        })?;
+        (process.client(), process.base_url())
+    }; // lock released here, before any I/O
 
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
@@ -93,16 +92,18 @@ pub async fn transcribe(
 
     let start = std::time::Instant::now();
 
-    let stream = sona.transcribe_stream(&options).await.map_err(|e| {
-        if let Some(api_err) = e.downcast_ref::<crate::sona::SonaApiError>() {
-            CommandError {
-                code: api_err.code.clone(),
-                message: api_err.message.clone(),
+    let stream = crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options)
+        .await
+        .map_err(|e| {
+            if let Some(api_err) = e.downcast_ref::<crate::sona::SonaApiError>() {
+                CommandError {
+                    code: api_err.code.clone(),
+                    message: api_err.message.clone(),
+                }
+            } else {
+                CommandError::from(e)
             }
-        } else {
-            CommandError::from(e)
-        }
-    })?;
+        })?;
 
     tokio::pin!(stream);
 

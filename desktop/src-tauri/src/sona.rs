@@ -190,6 +190,10 @@ impl SonaProcess {
         format!("http://127.0.0.1:{}", self.port)
     }
 
+    pub fn client(&self) -> reqwest::Client {
+        self.client.clone()
+    }
+
     pub fn is_alive(&mut self) -> bool {
         matches!(self.child.try_wait(), Ok(None))
     }
@@ -244,10 +248,11 @@ impl SonaProcess {
     }
 
     pub async fn transcribe_stream(
-        &self,
+        client: &reqwest::Client,
+        base_url: &str,
         options: &crate::cmd::TranscribeOptions,
     ) -> Result<impl futures_util::Stream<Item = Result<SonaEvent>>> {
-        let url = format!("{}/v1/audio/transcriptions", self.base_url());
+        let url = format!("{}/v1/audio/transcriptions", base_url);
 
         let file = tokio::fs::File::open(&options.path)
             .await
@@ -334,14 +339,12 @@ impl SonaProcess {
             }
         }
 
-        let resp = self.client.post(&url).multipart(form).send().await.map_err(|e| {
-            let stderr = self.recent_stderr();
-            if stderr.is_empty() {
-                eyre::eyre!("failed to send transcribe request to sona: {}", e)
-            } else {
-                eyre::eyre!("failed to send transcribe request to sona: {}\n\nsona stderr: {}", e, stderr)
-            }
-        })?;
+        let resp = client
+            .post(&url)
+            .multipart(form)
+            .send()
+            .await
+            .map_err(|e| eyre::eyre!("failed to send transcribe request to sona: {}", e))?;
 
         if !resp.status().is_success() {
             let body = resp.text().await.unwrap_or_default();
