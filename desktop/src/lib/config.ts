@@ -28,6 +28,7 @@ export const vadModelUrl = 'https://huggingface.co/ggml-org/whisper-vad/resolve/
 
 export const llmApiKeyUrl = 'https://console.anthropic.com/settings/keys'
 export const llmDefaultMaxTokens = 8192 // https://docs.anthropic.com/en/docs/about-claude/models
+export const llmDefaultMaxInputChars = 24_000 // 24000 chars ≈ 6000 tokens — safe for small local models
 export const llmLimitsUrl = 'https://console.anthropic.com/settings/limits'
 export const llmCostUrl = 'https://console.anthropic.com/settings/cost'
 

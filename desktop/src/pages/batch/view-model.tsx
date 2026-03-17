@@ -20,7 +20,8 @@ import { usePreferenceProvider } from '~/providers/preference'
 import { useFilesContext } from '~/providers/files-provider'
 import { basename } from '@tauri-apps/api/path'
 import { Claude, Ollama, Llm, OpenAICompatible } from '~/lib/llm'
-import * as transcript from '~/lib/transcript'
+import { summarizeWithChunking } from '~/lib/llm/chunking'
+
 import { path } from '@tauri-apps/api'
 import { toDocx } from '~/lib/docx'
 import { toast } from 'sonner'
@@ -235,8 +236,7 @@ export function viewModel() {
 				let llmSegments: Segment[] | null = null
 				if (llm && preference.llmConfig?.enabled) {
 					try {
-						const question = `${preference.llmConfig.prompt.replace('%s', transcript.asText(res.segments, speakerLabel))}`
-						const answer = await llm.ask(question)
+						const answer = await summarizeWithChunking(llm!, res.segments, preference.llmConfig, speakerLabel)
 						if (answer) {
 							llmSegments = [{ start: 0, stop: res.segments?.[res.segments?.length - 1].stop ?? 0, text: answer }]
 						}
