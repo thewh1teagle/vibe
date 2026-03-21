@@ -77,7 +77,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		const config = preferenceRef.current.llmConfig
 		if (!config?.enabled) return null
 		if (config.platform === 'ollama') return new Ollama(config)
-		if (config.platform === 'openai') return new OpenAICompatible(config)
+		if (config.platform === 'openai' || config.platform === 'gemini') return new OpenAICompatible(config)
 		return new Claude(config)
 	}, [])
 

@@ -116,7 +116,7 @@ export function viewModel() {
 		if (preference.llmConfig?.platform === 'ollama') {
 			const llmInstance = new Ollama(preference.llmConfig)
 			setLlm(llmInstance)
-		} else if (preference.llmConfig?.platform === 'openai') {
+		} else if (preference.llmConfig?.platform === 'openai' || preference.llmConfig?.platform === 'gemini') {
 			const llmInstance = new OpenAICompatible(preference.llmConfig)
 			setLlm(llmInstance)
 		} else {

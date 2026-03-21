@@ -13,7 +13,7 @@ import { openUrl as shellOpen } from '@tauri-apps/plugin-opener'
 import { join } from '@tauri-apps/api/path'
 import { toast as hotToast } from 'sonner'
 import * as dialog from '@tauri-apps/plugin-dialog'
-import { Claude, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { Claude, defaultClaudeConfig, defaultGeminiConfig, defaultOllamaConfig, defaultOpenAIConfig, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import { Check, Copy } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
@@ -56,7 +56,12 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 
 	useEffect(() => {
 		const platform = preference.llmConfig?.platform
-		const llmInstance = platform === 'ollama' ? new Ollama(preference.llmConfig) : platform === 'openai' ? new OpenAICompatible(preference.llmConfig) : new Claude(preference.llmConfig)
+		const llmInstance =
+			platform === 'ollama'
+				? new Ollama(preference.llmConfig)
+				: platform === 'openai' || platform === 'gemini'
+					? new OpenAICompatible(preference.llmConfig)
+					: new Claude(preference.llmConfig)
 		setLlm(llmInstance)
 	}, [preference.llmConfig])
 
@@ -169,14 +174,24 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								<Select
 									value={llmConfig?.platform}
 									onValueChange={(value) => {
+										const nextPlatform = value as 'claude' | 'ollama' | 'openai' | 'gemini'
 										const lang = new Intl.DisplayNames([i18n.language], { type: 'language' }).of(i18n.language) ?? 'English'
+										const openAIBaseDefault =
+											nextPlatform === 'gemini' ? defaultGeminiConfig(lang).openaiBaseUrl : defaultOpenAIConfig(lang).openaiBaseUrl
 										const defaults =
-											value === 'ollama' ? defaultOllamaConfig(lang) : value === 'openai' ? defaultOpenAIConfig(lang) : defaultClaudeConfig(lang)
+											nextPlatform === 'ollama'
+												? defaultOllamaConfig(lang)
+												: nextPlatform === 'openai'
+													? defaultOpenAIConfig(lang)
+													: nextPlatform === 'gemini'
+														? defaultGeminiConfig(lang)
+														: defaultClaudeConfig(lang)
 										setLlmConfig({
 											...defaults,
 											ollamaBaseUrl: llmConfig.ollamaBaseUrl,
 											claudeApiKey: llmConfig.claudeApiKey,
-											openaiBaseUrl: llmConfig.openaiBaseUrl,
+											openaiBaseUrl:
+												nextPlatform === 'openai' || nextPlatform === 'gemini' ? openAIBaseDefault : llmConfig.openaiBaseUrl,
 											openaiApiKey: llmConfig.openaiApiKey,
 											enabled: llmConfig?.enabled ?? false,
 										})
@@ -185,9 +200,9 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										{['claude', 'ollama', 'openai'].map((name) => (
+										{['claude', 'ollama', 'openai', 'gemini'].map((name) => (
 											<SelectItem key={name} value={name} className="capitalize">
-												{name === 'openai' ? 'OpenAI Compatible' : name}
+												{name === 'openai' ? 'OpenAI Compatible' : name === 'gemini' ? 'Google Gemini (AI Studio)' : name}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -259,20 +274,20 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								</>
 							)}
 
-							{llmConfig?.platform === 'openai' && (
+							{(llmConfig?.platform === 'openai' || llmConfig?.platform === 'gemini') && (
 								<>
 									<Field label="Base URL">
 										<Input
 											value={llmConfig?.openaiBaseUrl}
 											onChange={(e) => setLlmConfig({ ...preference.llmConfig, openaiBaseUrl: e.target.value })}
-											placeholder="https://api.openai.com/v1"
+											placeholder={llmConfig.platform === 'gemini' ? 'https://generativelanguage.googleapis.com/v1beta/openai/' : 'https://api.openai.com/v1'}
 										/>
 									</Field>
 									<Field label="API Key">
 										<Input
 											value={llmConfig?.openaiApiKey}
 											onChange={(e) => setLlmConfig({ ...preference.llmConfig, openaiApiKey: e.target.value })}
-											placeholder="sk-... (optional for local servers)"
+											placeholder={llmConfig.platform === 'gemini' ? 'AIza... (required)' : 'sk-... (optional for local servers)'}
 											type="text"
 										/>
 									</Field>
@@ -280,7 +295,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 										<Input
 											value={llmConfig?.model}
 											onChange={(e) => setLlmConfig({ ...preference.llmConfig, model: e.target.value })}
-											placeholder="gpt-4o-mini"
+											placeholder={llmConfig.platform === 'gemini' ? 'gemini-2.5-flash' : 'gpt-4o-mini'}
 										/>
 									</Field>
 								</>

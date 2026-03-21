@@ -41,6 +41,20 @@ _Make sure to run the 'Run check` to see that it works_
 
 That's it! Summarization will now be active in Ollama.
 
+## Setting Up Summarization with Google Gemini (AI Studio)
+
+1. Open `More Options` and enable `Summarize`.
+2. Set `Platform` to `Google Gemini (AI Studio)`.
+3. Use the OpenAI-compatible base URL:
+
+```text
+https://generativelanguage.googleapis.com/v1beta/openai/
+```
+
+4. Paste your Google AI Studio API key in `API Key`.
+5. Set a Gemini model name such as `gemini-2.5-flash`.
+6. Run `Run check` to verify your provider settings.
+
 ## Stable Timestamps (Subtitles / Movies)
 
 Vibe includes a stable timestamp mode for tighter subtitle timing on long-form content.

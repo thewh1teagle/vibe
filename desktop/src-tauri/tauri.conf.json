@@ -21,8 +21,8 @@
 		}
 	},
 	"build": {
-		"beforeDevCommand": "pnpm dev",
-		"beforeBuildCommand": "pnpm build",
+		"beforeDevCommand": "corepack pnpm dev",
+		"beforeBuildCommand": "corepack pnpm build",
 		"frontendDist": "../dist",
 		"devUrl": "http://localhost:1420"
 	},

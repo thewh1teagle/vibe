@@ -1,13 +1,13 @@
 import { Claude, deafultConfig as defaultClaudeConfig } from './claude'
 import { Ollama, defaultConfig as defaultOllamaConfig } from './ollama'
-import { OpenAICompatible, defaultConfig as defaultOpenAIConfig } from './openai'
+import { OpenAICompatible, defaultConfig as defaultOpenAIConfig, defaultGeminiConfig } from './openai'
 
 export interface Llm {
 	ask(prompt: string): Promise<string>
 }
 
 export interface LlmConfig {
-	platform: 'ollama' | 'claude' | 'openai'
+	platform: 'ollama' | 'claude' | 'openai' | 'gemini'
 	enabled: boolean
 	prompt: string
 
@@ -24,4 +24,4 @@ export interface LlmConfig {
 	openaiApiKey?: string
 }
 
-export { Ollama, Claude, OpenAICompatible, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig }
+export { Ollama, Claude, OpenAICompatible, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig, defaultGeminiConfig }
