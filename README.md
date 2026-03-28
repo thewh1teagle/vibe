@@ -1,4 +1,6 @@
 <p align="center">
+
+[![gitcgr](https://gitcgr.com/badge/thewh1teagle/vibe.svg)](https://gitcgr.com/thewh1teagle/vibe)
   <a target="blank" href="https://github.com/thewh1teagle/vibe">
     <img
         width="96px"
