@@ -1,10 +1,10 @@
 [package]
 name = "vibe"
 version = "0.0.6"
-description = "Vibe"
-authors = ["@thewh1teagle"]
+description = "RW Vibe"
+authors = ["RW Consultoria"]
 license = "MIT"
-repository = "https://github.com/thewh1teagle/vibe"
+repository = "https://rwconsultoria.com.br/"
 edition = "2021"
 
 [build-dependencies]

@@ -1,8 +1,8 @@
 {
 	"$schema": "./gen/schemas/desktop-schema.json",
-	"productName": "vibe",
+	"productName": "RW Vibe",
 	"version": "3.0.19",
-	"identifier": "github.com.thewh1teagle.vibe",
+	"identifier": "br.com.rwconsultoria.vibe",
 	"app": {
 		"windows": [],
 		"withGlobalTauri": true,
@@ -53,16 +53,15 @@
 	},
 	"plugins": {
 		"updater": {
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
-			"endpoints": [
-				"https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
-			]
+			"pubkey": "",
+			"endpoints": []
 		},
 		"deep-link": {
 			"mobile": [],
 			"desktop": {
 				"schemes": [
-					"vibe"
+					"vibe",
+					"rwvibe"
 				]
 			}
 		}

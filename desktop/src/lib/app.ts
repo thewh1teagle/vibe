@@ -25,9 +25,9 @@ export async function resetApp() {
 }
 
 export async function getIssueUrl(logs: string) {
-	return `https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=App+reports+bug+&logs=${encodeURIComponent(
-		logs,
-	)}`
+	const subject = encodeURIComponent(`${config.appDisplayName} - Relato de problema`)
+	const body = encodeURIComponent(logs)
+	return `mailto:${config.supportEmail}?subject=${subject}&body=${body}`
 }
 
 export async function openPath(path: NamedPath) {
