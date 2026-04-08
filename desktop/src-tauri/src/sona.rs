@@ -357,24 +357,27 @@ impl SonaProcess {
             bail!("sona transcribe failed: {}", body);
         }
 
-        let stream = resp.bytes_stream().map(move |chunk_result| {
+        let stream = resp.bytes_stream().scan(String::new(), move |buffer, chunk_result| async move {
             let chunk = chunk_result.context("error reading sona stream chunk")?;
-            // ndjson: each line is a JSON object
-            let text = String::from_utf8_lossy(&chunk);
+
+            buffer.push_str(&String::from_utf8_lossy(&chunk));
+
             let mut events = Vec::new();
-            for line in text.lines() {
-                let line = line.trim();
+            while let Some(pos) = buffer.find('\n') {
+                let line = buffer[..pos].trim();
+                buffer.drain(..=pos);
+
                 if line.is_empty() {
                     continue;
                 }
+
                 match serde_json::from_str::<SonaEvent>(line) {
                     Ok(event) => events.push(event),
-                    Err(e) => {
-                        tracing::warn!("failed to parse sona event: {} (line: {})", e, line);
-                    }
+                    Err(e) => tracing::warn!("failed to parse sona event: {} (line: {})", e, line),
                 }
             }
-            Ok(events)
+
+            Ok::<_, eyre::Report>(events)
         });
 
         // Flatten Vec<SonaEvent> into individual SonaEvent items
