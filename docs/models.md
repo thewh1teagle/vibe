@@ -1,6 +1,6 @@
-# 🌟 Vibe Models 🌟
+# Modelos (RW Vibe)
 
-Welcome to the Vibe Models page! Here you can find a curated list of suggested models to use with Vibe. To install a model, use the "Magic Setup" link to open it in Vibe, or copy and paste the direct download link in Vibe settings.
+Lista curada de modelos sugeridos para uso no RW Vibe. Para instalar um modelo, use o link “Magic Setup” (deep-link) para abrir no app, ou copie e cole o link direto de download nas configurações.
 
 ## Available Models
 
@@ -61,7 +61,7 @@ Optimised for Norwegian by the [AI Lab at the National Library of Norway](https:
 [🔽 Direct Download (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
 
 More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/NbAiLab/nb-whisper-large).  
-Find the size you want, download the _ggml-model.bin_ file, rename the file, and palce it in vibe's model folder.
+Find the size you want, download the _ggml-model.bin_ file, rename the file, and place it in the RW Vibe model folder.
 
 </details>
 
@@ -77,12 +77,12 @@ Optimised for Swedish by the [Data Lab at the National Library of Sweden](https:
 [🔽 Direct Download (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
 
 More models of smaller sizes are available via [their huggingface download page](https://huggingface.co/KBLab/kb-whisper-large).  
-Find the size you want, download the _ggml-model.bin_ file, rename the file, and palce it in vibe's model folder.
+Find the size you want, download the _ggml-model.bin_ file, rename the file, and place it in the RW Vibe model folder.
 
 </details>
 </details>
 
-Enjoy exploring these models and enhancing your Vibe! 🌐✨
+Esses modelos ajudam a equilibrar qualidade, velocidade e consumo de recursos no RW Vibe.
 
 ### Want More?
 

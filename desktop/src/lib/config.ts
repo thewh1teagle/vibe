@@ -1,12 +1,19 @@
-export const aboutURL = 'https://thewh1teagle.github.io/vibe/'
-export const updateVersionURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
-export const modelsDocURL = 'https://thewh1teagle.github.io/vibe/docs#models'
-export const discordURL = 'https://discord.gg/EcxWSstQN8'
-export const unsupportedCpuReadmeURL = 'https://thewh1teagle.github.io/vibe/docs#install'
-export const supportVibeURL = 'https://thewh1teagle.github.io/vibe/?action=support-vibe'
+const env = import.meta.env
+
+export const companyName = env.VITE_COMPANY_NAME ?? 'RW Consultoria'
+export const appName = env.VITE_APP_NAME ?? 'Vibe'
+export const appDisplayName = env.VITE_APP_DISPLAY_NAME ?? `${appName} | ${companyName}`
+export const supportEmail = env.VITE_SUPPORT_EMAIL ?? 'suporte@rwconsultoria.com.br'
+
+export const aboutURL = env.VITE_ABOUT_URL ?? 'https://rwconsultoria.com.br/'
+export const updateVersionURL = env.VITE_UPDATE_URL ?? aboutURL
+export const modelsDocURL = env.VITE_MODELS_DOC_URL ?? aboutURL
+export const discordURL = env.VITE_COMMUNITY_URL ?? ''
+export const unsupportedCpuReadmeURL = env.VITE_INSTALL_DOC_URL ?? aboutURL
+export const supportVibeURL = env.VITE_SUPPORT_URL ?? `mailto:${supportEmail}`
 export const storeFilename = 'app_config.json'
-export const latestReleaseURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
-export const latestVersionWithoutVulkan = 'https://github.com/thewh1teagle/vibe/releases/download/v2.4.0/vibe_2.4.0_x64-setup.exe'
+export const latestReleaseURL = env.VITE_LATEST_RELEASE_URL ?? updateVersionURL
+export const latestVersionWithoutVulkan = env.VITE_FALLBACK_DOWNLOAD_URL ?? ''
 
 export const modelUrls = {
 	default: [
@@ -18,8 +25,11 @@ export const modelUrls = {
 
 export const embeddingModelFilename = 'wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelFilename = 'segmentation-3.0.onnx'
-export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx'
-export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
+export const embeddingModelUrl =
+	env.VITE_EMBEDDING_MODEL_URL ??
+	'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx'
+export const segmentModelUrl =
+	env.VITE_SEGMENT_MODEL_URL ?? 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
 export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.1.onnx'
 export const diarizeModelUrl = 'https://huggingface.co/altunenes/parakeet-rs/resolve/main/diar_streaming_sortformer_4spk-v2.1.onnx'

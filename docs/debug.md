@@ -1,23 +1,23 @@
-# Troubleshoot vibe crash / error
+# Solução de problemas (RW Vibe)
 
-Try the following, the more you try the better the chance we'll find the cause :)
+Use este checklist para investigar travamentos e erros. Quanto mais informações, mais rápido conseguimos fechar o diagnóstico.
 
-1. Is the audio file valid? try with different one, eg. download [vibe/samples/single.wav](https://github.com/thewh1teagle/vibe/raw/main/samples/single.wav)
-2. Do you have errors? report it with the 'report button'
-3. Do you experience crash without errors? try to run from the terminal with logs enabled:
-4. Do you use other model than the default one? Please use the default one that comes with Vibe when checking.
+1. Confirme se o arquivo de áudio/vídeo é válido (teste com outro arquivo). Um exemplo está em `samples/single.wav`.
+2. Se houver mensagem de erro, use o botão de “Relatar problema” (ele abre um e-mail com logs).
+3. Se o app travar sem mostrar erro, execute pelo terminal com logs habilitados (passos abaixo).
+4. Se estiver usando um modelo diferente do padrão, teste também com o modelo padrão para isolar o problema.
 
 <details>
 <summary>Windows</summary>
 
-a. Open `cmd.exe`
+a. Abra `cmd.exe`
 b. Execute:
 
 ```console
 taskkill /IM vibe.exe /F
 set RUST_BACKTRACE=1
 set RUST_LOG=vibe=debug,whisper_rs=debug
-%localappdata%\vibe\vibe.exe
+%localappdata%\br.com.rwconsultoria.vibe\vibe.exe
 ```
 
 </details>
@@ -26,7 +26,7 @@ set RUST_LOG=vibe=debug,whisper_rs=debug
 <summary>macOS</summary>
 
 ```console
-RUST_LOG=vibe=debug,whisper_rs=debug RUST_BACKTRACE=1 /Applications/vibe.app/Contents/MacOS/vibe
+RUST_LOG=vibe=debug,whisper_rs=debug RUST_BACKTRACE=1 /Applications/RW\ Vibe.app/Contents/MacOS/vibe
 ```
 
 </details>
@@ -34,21 +34,21 @@ RUST_LOG=vibe=debug,whisper_rs=debug RUST_BACKTRACE=1 /Applications/vibe.app/Con
 <details>
 <summary>Linux</summary>
 
-Run it similar to macOS just change the path
+Execute similar ao macOS, apenas ajustando o caminho do binário.
 
 </details>
 
-Does it happens with original Whisper?
+O problema também acontece com o whisper.cpp “puro”?
 
 <details>
 
-1. Download one of the `zip` files from [releases/tag/v1.6.0](https://github.com/ggerganov/whisper.cpp/releases/tag/v1.6.0) (Scroll down and choose `whisper-bin-x64.zip` in `Windows`
-2. Extract them and open the folder, then open explorer in that folder and hit `Ctrl` + `l` in `explorer, type `cmd` and enter
-3. Download [vibe/samples/single.wav](https://github.com/thewh1teagle/vibe/raw/main/samples/single.wav) and place it in the same folder (and check that the file is ok)
-4. Try to transcribe by execute
+1. Baixe um `zip` do whisper.cpp (binário) em https://github.com/ggerganov/whisper.cpp/releases (Windows: prefira `whisper-bin-x64.zip`)
+2. Extraia e abra a pasta
+3. Copie `samples/single.wav` deste repositório para a mesma pasta e valide que ele toca normalmente
+4. Rode um teste básico:
 
 ```console
-main.exe -m "%localappdata%\github.com.thewh1teagle.vibe\ggml-medium.bin" -f "samples_single.wav"
+main.exe -m "<CAMINHO_PARA_SEU_MODELO>.bin" -f "single.wav"
 ```
 
 </details>
@@ -56,19 +56,19 @@ main.exe -m "%localappdata%\github.com.thewh1teagle.vibe\ggml-medium.bin" -f "sa
 <details>
 <summary>App crashing and no even errors!</summary>
 
-In windows, open search menu and search for `Event Viewer`, choose `Windows Logs` -> `Application` and check if there's some error there
+No Windows, abra o `Visualizador de Eventos`, vá em `Logs do Windows` -> `Aplicativo` e verifique erros no horário do travamento.
 
 </details>
 
 <details>
 <summary>Find debug log file</summary>
-If you can't open the app due to crash, try to check any logs in
+Se você não consegue abrir o app por causa do travamento, verifique os logs em:
 
-macOS: `$HOME/Library/Application Support/github.com.thewh1teagle.vibe`
+macOS: `$HOME/Library/Application Support/br.com.rwconsultoria.vibe`
 
-Windows: `%appdata%\github.com.thewh1teagle.vibe`
+Windows: `%appdata%\br.com.rwconsultoria.vibe`
 
-Linux: `~/.config/github.com/thewh1teagle.vibe`
+Linux: `~/.config/br.com.rwconsultoria.vibe`
 
 </details>
 
@@ -85,7 +85,7 @@ winget install neofetch
 neofetch
 ```
 
-3. Copy and paste it in the issue
+3. Copie e cole a saída junto com os logs do app
 
 ## macOS
 
@@ -113,4 +113,4 @@ For `vulkan-1.dll` install [VulkanRT-Installer.exe](https://sdk.lunarg.com/sdk/d
 
 </details>
 
-After you finished, share you results by opening [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=[Short+title]) or just comment in the issue.
+Ao final, envie os resultados pelo botão “Relatar problema” dentro do app (ou encaminhe os logs ao suporte da RW Consultoria).

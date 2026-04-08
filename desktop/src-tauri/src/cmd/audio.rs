@@ -29,27 +29,21 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     let host = cpal::default_host();
     let mut audio_devices = Vec::new();
 
-    let default_in = host
-        .default_input_device()
-        .map(|e| e.description().map(|d| d.to_string()))
-        .context("name")?;
-    let default_out = host
-        .default_output_device()
-        .map(|e| e.description().map(|d| d.to_string()))
-        .context("name")?;
+    let default_in = host.default_input_device().and_then(|d| d.name().ok());
+    let default_out = host.default_output_device().and_then(|d| d.name().ok());
     tracing::debug!("Default Input Device:\n{:?}", default_in);
     tracing::debug!("Default Output Device:\n{:?}", default_out);
 
     let devices = host.devices()?;
     tracing::debug!("Devices: ");
     for (device_index, device) in devices.enumerate() {
-        let name = device.description()?.to_string();
-        let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
-        let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
+        let name = device.name().unwrap_or_else(|_| format!("Device {device_index}"));
+        let is_default_in = default_in.as_ref().map(|d| d == &name).unwrap_or(false);
+        let is_default_out = default_out.as_ref().map(|d| d == &name).unwrap_or(false);
 
         let audio_device = AudioDevice {
             is_default: is_default_in || is_default_out,
-            is_input: device.supports_input(),
+            is_input: device.default_input_config().is_ok(),
             id: device_index.to_string(),
             name,
         };

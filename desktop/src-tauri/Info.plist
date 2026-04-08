@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
     <key>NSMicrophoneUsageDescription</key>
-    <string>This app requires microphone access to record audio.</string>
+    <string>O RW Vibe precisa de acesso ao microfone para gravar áudio.</string>
     <key>NSAudioCaptureUsageDescription</key>
-    <string>This app requires system audio access to record your device's audio output.</string>
+    <string>O RW Vibe precisa de acesso ao áudio do sistema para gravar a saída de áudio do dispositivo.</string>
     <key>NSSystemExtensionUsageDescription</key>
-    <string>This app requires system extension access to capture audio output.</string>
+    <string>O RW Vibe precisa de permissão de extensão do sistema para capturar a saída de áudio.</string>
 </dict>
 </plist>
