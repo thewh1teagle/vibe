@@ -1,113 +1,87 @@
-# Install notes 📝
+# Instalação (RW Vibe)
 
-## System Requirements
+## Requisitos do sistema
 
-Windows: Version `8` or greater.
-
-macOS: Version `13.3` or greater.
-
-Linux: Tested on `ubuntu-22.04+`
+- Windows: versão `8` ou superior
+- macOS: versão `13.3` ou superior
+- Linux: testado em `Ubuntu 22.04+`
 
 Hardware:
-No special requirement. resource usage can be customized through advanced settings in main window.
+não há requisito especial. O consumo de recursos pode ser ajustado nas configurações avançadas do app.
 
-Currently, listening for the audio file isn't supported on `Linux`
+Observações:
 
-In addition you may need to set this environment variable before start it
+- No Linux, “escutar” o áudio do sistema pode não estar disponível dependendo do ambiente.
+- Em alguns cenários no Linux, pode ser necessário definir:
 
 ```console
 export WEBKIT_DISABLE_COMPOSITING_MODE=1
 ```
 
-## Setting Up Summarization with Ollama
+## Sumarização com Ollama (opcional)
 
-1. Install Ollama
-
-Download and install Ollama from https://ollama.com.
-
-2. Install a Model
-
-Once installed, set up a model for summarization. For example, you can install `llama3.1` by running the following command in your terminal:
+1. Instale o Ollama: https://ollama.com
+2. Baixe um modelo (exemplo):
 
 ```console
 ollama run llama3.1
 ```
 
-3. Enable Summarization
+3. No app, habilite a opção de sumarização antes da etapa de transcrição e execute um “check” para validar.
 
-After the model is installed, open the Ollama app. Navigate to More Options and enable Summarize just before the transcription step. You can leave the settings at their default values.
+## Stable Timestamps (legendas / vídeos longos)
 
-_Make sure to run the 'Run check` to see that it works_
+O RW Vibe inclui um modo de timestamps mais estáveis para legendas em conteúdos longos.
 
-That's it! Summarization will now be active in Ollama.
+1. Abra `Mais opções`
+2. Ative `Stable timestamps`
+3. Se solicitado, baixe o modelo VAD
 
-## Stable Timestamps (Subtitles / Movies)
+Notas:
 
-Vibe includes a stable timestamp mode for tighter subtitle timing on long-form content.
+- Esse modo prioriza qualidade e costuma ser mais lento (em torno de `4x`)
+- Modelo VAD padrão: `ggml-silero-v6.2.0.bin`
+- Fonte: https://huggingface.co/ggml-org/whisper-vad
 
-1. Open `More Options`.
-2. Enable `Stable timestamps`.
-3. If prompted, download the VAD model.
+## Instalação offline
 
-Notes:
+Se você precisa usar o app sem internet:
 
-- This mode is quality-first and typically around `4x` slower than normal transcription.
-- Best for subtitle creation and movie/video transcript timing.
-- VAD model used by default: `ggml-silero-v6.2.0.bin`
-- Upstream model source: `https://huggingface.co/ggml-org/whisper-vad`
+1. Abra o aplicativo, cancele o download automático quando solicitado
+2. Vá em `Personalizar` e selecione manualmente o modelo na pasta de modelos
 
-## Manual Install 🛠️
+## macOS: transcrições mais rápidas (2–3x)
 
-`MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from Applications once**
+1. Baixe o `.mlmodelc.zip` compatível com o seu modelo em https://huggingface.co/ggerganov/whisper.cpp/tree/main
+2. Abra a pasta de modelos pelo menu do RW Vibe
+3. Coloque o `.mlmodelc` ao lado do `.bin`
+4. Na primeira execução o app compila o modelo; depois as transcrições tendem a ficar mais rápidas
 
-`MacOS Intel`: install `x64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from Applications once**
+## Windows: erro `msvc140.dll` ausente
 
-`Windows`: install `.exe` file from [releases](https://github.com/thewh1teagle/vibe/releases)
+Instale o Visual C++ Redistributable:
+https://aka.ms/vs/17/release/vc_redist.x64.exe
 
-`Linux`: install `.deb` from [releases](https://github.com/thewh1teagle/vibe/releases) (`Arch` users can use [debtap](https://aur.archlinux.org/packages/debtap))
+## Links especiais para download de modelos (deep-link)
 
-_All models available for manual install. see [Pre built models](https://github.com/thewh1teagle/vibe/releases/tag/v0.0.1)_
-
-## Offline Setup 💾
-
-Offline installation with Vibe is easy: open the app, cancel the download, and navigate to the `Customize` section within settings.
-
-_All models available for manual install. see settings or [Pre built models](https://github.com/thewh1teagle/vibe/releases/tag/v0.0.1)_
-
-## Faster transcriptions on macOS (2-3x) 🌟
-
-1. Download the matching `.mlcmodelc.zip` for your model from https://huggingface.co/ggerganov/whisper.cpp/tree/main
-
-- e.g. `ggml-medium-encoder.mlmodelc.zip` matches `ggml-medium-encoder.bin`
-
-2. Open models path from Vibe settings
-3. Drag and drop the `.mlcmodel.c` file into the models folder so that it is alongside the `.bin` file
-4. Transcribe a file, the first time you use the model it will take longer as it is compiling the model. Every subsequent time it will be faster.
-
-## Error of `msvc140.dll` not found ❌
-
-Download and install [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-
-## Special link to download models in vibe
-
-You can add links to your websites for letting users download your models easily from your website directly to vibe.
-
-The URL should be like
+O app entende links do tipo:
 
 ```
 vibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true
 ```
 
-## Usage on linux server
+Também é aceito:
 
-To use Vibe on linux server you need to install fake display
+```
+rwvibe://download/?url=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true
+```
+
+## Uso em servidor Linux
+
+Para executar em Linux sem ambiente gráfico, pode ser necessário instalar um display virtual:
 
 ```console
 sudo apt-get install xvfb -y
 Xvfb :1 -screen 0 1024x768x24 &
 export DISPLAY=1
-
-wget https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-medium.bin
-wget https://github.com/thewh1teagle/vibe/raw/main/samples/single.wav
-vibe --model ggml-medium.bin --file single.wav
 ```

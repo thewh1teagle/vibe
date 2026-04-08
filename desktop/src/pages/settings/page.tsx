@@ -44,6 +44,9 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 	const vm = viewModel()
 	const apiDocsUrl = vm.apiBaseUrl ? `${vm.apiBaseUrl}/docs` : null
 	const serverActionBusy = vm.isStartingApiServer || vm.isStoppingApiServer
+	const showDiscord = Boolean(config.discordURL)
+	const showSupport = Boolean(config.supportVibeURL)
+	const showAbout = Boolean(config.aboutURL)
 
 	return (
 		<div className="app-shell flex min-h-screen items-start justify-center py-6 md:py-10">
@@ -302,30 +305,37 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 						<SectionTitle title={t('common.general')} />
 						<SectionCard>
 							<div className="divide-y divide-border/45 rounded-lg border border-border/55 bg-background/20">
-								<Button
-									variant="ghost"
-									onMouseDown={() => openUrl(config.aboutURL)}
-									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
-									{t('common.project-link')} <LinkIcon className="h-4 w-4 text-muted-foreground" />
-								</Button>
+								{showAbout && (
+									<Button
+										variant="ghost"
+										onMouseDown={() => openUrl(config.aboutURL)}
+										className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
+										{t('common.project-link')} <LinkIcon className="h-4 w-4 text-muted-foreground" />
+									</Button>
+								)}
 								<Button
 									variant="ghost"
 									onMouseDown={vm.reportIssue}
 									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
-									{t('common.report-issue')} <GithubIcon className="h-4 w-4 text-muted-foreground" />
+									{t('common.report-issue')} <LinkIcon className="h-4 w-4 text-muted-foreground" />
 								</Button>
-								<Button
-									variant="ghost"
-									onMouseDown={() => openUrl(config.supportVibeURL)}
-									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
-									{t('common.support-the-project')} <HeartIcon className="h-4 w-4 fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" />
-								</Button>
-								<Button
-									variant="ghost"
-									onMouseDown={() => openUrl(config.discordURL)}
-									className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
-									{t('common.discord-community')} <DiscordIcon className="h-4 w-4 text-muted-foreground" />
-								</Button>
+								{showSupport && (
+									<Button
+										variant="ghost"
+										onMouseDown={() => openUrl(config.supportVibeURL)}
+										className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
+										{t('common.support-the-project')}{' '}
+										<HeartIcon className="h-4 w-4 fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" />
+									</Button>
+								)}
+								{showDiscord && (
+									<Button
+										variant="ghost"
+										onMouseDown={() => openUrl(config.discordURL)}
+										className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-accent/55">
+										{t('common.discord-community')} <DiscordIcon className="h-4 w-4 text-muted-foreground" />
+									</Button>
+								)}
 							</div>
 						</SectionCard>
 					</div>
