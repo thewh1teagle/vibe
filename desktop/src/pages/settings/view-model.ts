@@ -24,7 +24,7 @@ export interface GpuDevice {
 }
 
 async function openModelPath() {
-	let dst = await invoke<string>('get_models_folder')
+	const dst = await invoke<string>('get_models_folder')
 	invoke('open_path', { path: dst })
 }
 
@@ -45,7 +45,7 @@ async function reportIssue() {
 				try {
 					const parsed = JSON.parse(line) // Deserialize JSON
 					return parsed?.fields?.message || 'No message found' // Extract .message or fallback
-				} catch (e) {
+				} catch (_e) {
 					return 'Invalid JSON' // Handle invalid JSON
 				}
 			})

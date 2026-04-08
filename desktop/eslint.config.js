@@ -10,6 +10,9 @@ export default [
 	...tseslint.configs.recommended,
 	pluginReactConfig,
 	{
+		settings: {
+			react: { version: 'detect' },
+		},
 		rules: {
 			// ignore unsued vars with _ prefix
 			'@typescript-eslint/no-unused-vars': [
@@ -25,6 +28,7 @@ export default [
 				},
 			],
 			'@typescript-eslint/no-explicit-any': 'warn',
+			'react/prop-types': 'off',
 		},
 	},
 	{

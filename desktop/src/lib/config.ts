@@ -6,13 +6,13 @@ export const appDisplayName = env.VITE_APP_DISPLAY_NAME ?? `${appName} | ${compa
 export const supportEmail = env.VITE_SUPPORT_EMAIL ?? 'suporte@rwconsultoria.com.br'
 
 export const aboutURL = env.VITE_ABOUT_URL ?? 'https://rwconsultoria.com.br/'
-export const updateVersionURL = env.VITE_UPDATE_URL ?? ''
-export const modelsDocURL = env.VITE_MODELS_DOC_URL ?? ''
+export const updateVersionURL = env.VITE_UPDATE_URL ?? aboutURL
+export const modelsDocURL = env.VITE_MODELS_DOC_URL ?? aboutURL
 export const discordURL = env.VITE_COMMUNITY_URL ?? ''
-export const unsupportedCpuReadmeURL = env.VITE_INSTALL_DOC_URL ?? ''
+export const unsupportedCpuReadmeURL = env.VITE_INSTALL_DOC_URL ?? aboutURL
 export const supportVibeURL = env.VITE_SUPPORT_URL ?? `mailto:${supportEmail}`
 export const storeFilename = 'app_config.json'
-export const latestReleaseURL = env.VITE_LATEST_RELEASE_URL ?? updateVersionURL ?? ''
+export const latestReleaseURL = env.VITE_LATEST_RELEASE_URL ?? updateVersionURL
 export const latestVersionWithoutVulkan = env.VITE_FALLBACK_DOWNLOAD_URL ?? ''
 
 export const modelUrls = {

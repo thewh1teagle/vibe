@@ -286,7 +286,7 @@ export function viewModel() {
 	}
 
 	async function loadAudioDevices() {
-		let newDevices = await invoke<AudioDevice[]>('get_audio_devices')
+		const newDevices = await invoke<AudioDevice[]>('get_audio_devices')
 		const inputs = newDevices.filter((d) => d.isInput)
 		const outputs = newDevices.filter((d) => !d.isInput)
 		// null = no saved preference → use system default; '' = user explicitly chose none
@@ -437,7 +437,7 @@ export function viewModel() {
 		setTranscriptTab('transcript')
 
 		setIsRecording(true)
-		let devices: AudioDevice[] = []
+		const devices: AudioDevice[] = []
 		if (inputDevice) {
 			devices.push(inputDevice)
 		}
@@ -482,7 +482,7 @@ export function viewModel() {
 		setLoading(true)
 		abortRef.current = false
 
-		var newSegments: transcript.Segment[] = []
+		let newSegments: transcript.Segment[] = []
 		trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_STARTED, {
 			source: 'home',
 		})

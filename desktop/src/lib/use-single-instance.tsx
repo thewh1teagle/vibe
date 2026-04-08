@@ -20,7 +20,7 @@ export function useSingleInstance({ setFiles }: UseSingleInstanceProps) {
 		const platform = await os.platform()
 		await listen<string[]>('single-instance', async (event) => {
 			const argv = event.payload
-			let action = argv?.[1]
+			const action = argv?.[1]
 
 			// vibe://download/?url=google.com
 			// already handled in deep links in macos
