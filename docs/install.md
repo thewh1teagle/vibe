@@ -56,6 +56,12 @@ Notes:
 - VAD model used by default: `ggml-silero-v6.2.0.bin`
 - Upstream model source: `https://huggingface.co/ggml-org/whisper-vad`
 
+## Translating to English
+
+Translation to English works only with Whisper `small`, `medium`, and `large` models. It does not work with Whisper `large-v3-turbo`.
+
+If you need translation, download a supported model from the [models docs](/vibe/docs#models).
+
 ## Manual Install 🛠️
 
 `MacOS Apple silicon`: install `aarch64.dmg` file from [releases](https://github.com/thewh1teagle/vibe/releases) **Don't forget to right click and open from Applications once**

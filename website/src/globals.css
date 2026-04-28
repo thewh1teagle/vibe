@@ -218,7 +218,11 @@
 	}
 	.markdown code,
 	.markdown pre {
-		@apply font-mono bg-[#272727] rounded px-1 py-0.5 text-foreground;
+		@apply font-mono bg-muted rounded px-1 py-0.5 text-foreground;
+	}
+	.dark .markdown code,
+	.dark .markdown pre {
+		@apply bg-[#272727];
 	}
 	.markdown pre {
 		@apply p-2 overflow-x-auto;
