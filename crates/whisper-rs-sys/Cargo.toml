@@ -1,0 +1,16 @@
+[package]
+name = "whisper-rs-sys"
+version = "0.1.0"
+edition = "2024"
+links = "whisper"
+
+[features]
+default = []
+metal = []
+vulkan = []
+
+[build-dependencies]
+bindgen = "0.72.1"
+cc = { version = "1.2.47", features = ["parallel"] }
+cmake = "0.1.54"
+
