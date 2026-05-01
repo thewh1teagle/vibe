@@ -1,0 +1,25 @@
+[package]
+name = "vibe-server"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "vibe-server"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.100"
+axum = { version = "0.8.7", features = ["multipart"] }
+clap = { version = "4.5.53", features = ["derive"] }
+hound = "3.5.1"
+parakeet-rs = { version = "0.3.2", features = ["sortformer"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+tempfile = "3.27.0"
+thiserror = "2.0.18"
+tokio = { version = "1.48.0", features = ["fs", "macros", "net", "rt-multi-thread", "signal", "time"] }
+tokio-stream = "0.1.17"
+tower-http = { version = "0.6.7", features = ["catch-panic", "cors", "trace"] }
+utoipa = { version = "5.4.0", features = ["axum_extras"] }
+utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
+whisper-rs = { workspace = true }

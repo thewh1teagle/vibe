@@ -7,6 +7,7 @@
 *.exe
 *.dylib
 target/
+.models/
 *.old.json
 ffmpeg.framework/
 ffmpeg*-default/

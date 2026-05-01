@@ -1,5 +1,10 @@
 [workspace]
-members = ["desktop/src-tauri"]
+members = [
+	"crates/vibe-server",
+	"crates/whisper-rs",
+	"crates/whisper-rs-sys",
+	"desktop/src-tauri",
+]
 resolver = "2"
 
 [workspace.dependencies]
@@ -7,6 +12,8 @@ eyre = { git = "https://github.com/thewh1teagle/eyre", branch = "feat/report-ser
 	"serialize",
 ] }
 serde_json = "1.0"
+whisper-rs = { path = "crates/whisper-rs" }
+whisper-rs-sys = { path = "crates/whisper-rs-sys" }
 
 # https://v1.tauri.app/v1/guides/building/app-size/#rust-build-time-optimizations
 [profile.release]
