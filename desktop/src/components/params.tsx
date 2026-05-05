@@ -315,6 +315,21 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								/>
 							</Field>
 
+							<Field
+								label={
+									<>
+										<InfoTooltip text={t('common.info-max-input-chars')} />
+										{t('common.max-input-chars')}
+									</>
+								}>
+								<Input
+									type="number"
+									placeholder={String(config.llmDefaultMaxInputChars)}
+									value={llmConfig?.maxInputChars ?? config.llmDefaultMaxInputChars}
+									onChange={(e) => setLlmConfig({ ...llmConfig, maxInputChars: Number(e.target.value) || config.llmDefaultMaxInputChars })}
+								/>
+							</Field>
+
 							<Button onClick={checkLlm} size="sm" className="w-full">
 								{t('common.run-llm-check')}
 							</Button>

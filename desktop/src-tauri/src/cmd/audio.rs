@@ -215,7 +215,7 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
         let config = device
             .default_output_config()
             .context("Failed to get default output config")?;
-        return Ok((device, config));
+        Ok((device, config))
     }
 
     #[cfg(not(target_os = "macos"))]
