@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "Trykk én gang for å starte opptak, trykk igjen for å transkribere.",
 	"hotkey-mode-label": "Modus",
 	"hotkey-record-shortcut": "Registrer snarvei",
-	"hotkey-press-shortcut": "Trykk en tast..."
+	"hotkey-press-shortcut": "Trykk en tast...",
+	"transcription-provider": "Transkripsjonsleverandør",
+	"transcription-provider-info": "Velg hvordan lyd skal transkriberes. Lokal bruker den innebygde modellen (ingen internett nødvendig). Skyleverandører krever en API-nøkkel og internettforbindelse.",
+	"transcription-provider-local": "Lokal (innebygd modell)",
+	"transcription-provider-local-info": "Bruker den lokale modellen lastet i Vibe. Krever ikke internettforbindelse.",
+	"select-transcription-provider": "Velg transkripsjonsleverandør",
+	"api-key": "API-nøkkel",
+	"api-key-placeholder": "Skriv inn din API-nøkkel",
+	"model": "Modell"
 }

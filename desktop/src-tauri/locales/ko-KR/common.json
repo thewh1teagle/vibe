@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "한 번 눌러 녹음 시작, 다시 눌러 받아쓰기합니다.",
 	"hotkey-mode-label": "모드",
 	"hotkey-record-shortcut": "단축키 녹화",
-	"hotkey-press-shortcut": "키를 누르세요..."
+	"hotkey-press-shortcut": "키를 누르세요...",
+	"transcription-provider": "전사 제공자",
+	"transcription-provider-info": "오디오를 전사하는 방법을 선택하세요. 로컬은 내장 모델을 사용합니다 (인터넷 불필요). 클라우드 제공자는 API 키와 인터넷 연결이 필요합니다.",
+	"transcription-provider-local": "로컬 (내장 모델)",
+	"transcription-provider-local-info": "Vibe에 로드된 로컬 모델을 사용합니다. 인터넷 연결이 필요하지 않습니다.",
+	"select-transcription-provider": "전사 제공자 선택",
+	"api-key": "API 키",
+	"api-key-placeholder": "API 키를 입력하세요",
+	"model": "모델"
 }

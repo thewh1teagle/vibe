@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "按一次開始錄音，再按一次進行轉錄。",
 	"hotkey-mode-label": "模式",
 	"hotkey-record-shortcut": "錄製快捷鍵",
-	"hotkey-press-shortcut": "請按下一個鍵..."
+	"hotkey-press-shortcut": "請按下一個鍵...",
+	"transcription-provider": "語音轉錄服務",
+	"transcription-provider-info": "選擇音頻轉錄方式。本地使用內建模型（無需網路）。雲端服務需要API金鑰和網路連線。",
+	"transcription-provider-local": "本地（內建模型）",
+	"transcription-provider-local-info": "使用Vibe中載入的本地模型，無需網路連線。",
+	"select-transcription-provider": "選擇語音轉錄服務",
+	"api-key": "API金鑰",
+	"api-key-placeholder": "輸入您的API金鑰",
+	"model": "模型"
 }

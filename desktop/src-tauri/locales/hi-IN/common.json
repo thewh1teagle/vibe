@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "रिकॉर्डिंग शुरू करने के लिए एक बार दबाएं, प्रतिलेखन के लिए फिर दबाएं।",
 	"hotkey-mode-label": "मोड",
 	"hotkey-record-shortcut": "शॉर्टकट रिकॉर्ड करें",
-	"hotkey-press-shortcut": "एक कुंजी दबाएं..."
+	"hotkey-press-shortcut": "एक कुंजी दबाएं...",
+	"transcription-provider": "ट्रांसक्रिप्शन प्रदाता",
+	"transcription-provider-info": "ऑडियो को ट्रांसक्राइब करने का तरीका चुनें। लोकल इन-बिल्ट मॉडल का उपयोग करता है (इंटरनेट आवश्यक नहीं)। क्लाउड प्रदाताओं के लिए API कुंजी और इंटरनेट कनेक्शन आवश्यक है।",
+	"transcription-provider-local": "लोकल (इन-बिल्ट मॉडल)",
+	"transcription-provider-local-info": "Vibe में लोड लोकल मॉडल का उपयोग करता है। इंटरनेट कनेक्शन आवश्यक नहीं।",
+	"select-transcription-provider": "ट्रांसक्रिप्शन प्रदाता चुनें",
+	"api-key": "API कुंजी",
+	"api-key-placeholder": "अपनी API कुंजी दर्ज करें",
+	"model": "मॉडल"
 }

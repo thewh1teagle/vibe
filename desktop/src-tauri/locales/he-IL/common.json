@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "לחץ פעם אחת להתחלת הקלטה, לחץ שוב לתמלול.",
 	"hotkey-mode-label": "מצב",
 	"hotkey-record-shortcut": "הקלט קיצור דרך",
-	"hotkey-press-shortcut": "לחץ על מקש..."
+	"hotkey-press-shortcut": "לחץ על מקש...",
+	"transcription-provider": "ספק תמלול",
+	"transcription-provider-info": "בחר כיצד האודיו מתומלל. מקומי משתמש במודל המובנה (ללא אינטרנט). ספקי ענן דורשים מפתח API וחיבור לאינטרנט.",
+	"transcription-provider-local": "מקומי (מודל מובנה)",
+	"transcription-provider-local-info": "משתמש במודל המקומי שנטען ב-Vibe. לא נדרש חיבור לאינטרנט.",
+	"select-transcription-provider": "בחר ספק תמלול",
+	"api-key": "מפתח API",
+	"api-key-placeholder": "הזן את מפתח ה-API שלך",
+	"model": "מודל"
 }

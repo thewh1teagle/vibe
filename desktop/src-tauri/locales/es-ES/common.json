@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "Pulse una vez para empezar a grabar, pulse de nuevo para transcribir.",
 	"hotkey-mode-label": "Modo",
 	"hotkey-record-shortcut": "Registrar atajo",
-	"hotkey-press-shortcut": "Pulse una tecla..."
+	"hotkey-press-shortcut": "Pulse una tecla...",
+	"transcription-provider": "Proveedor de transcripción",
+	"transcription-provider-info": "Elija cómo se transcribe el audio. Local usa el modelo integrado (sin conexión a internet). Los proveedores en la nube requieren una clave API y conexión a internet.",
+	"transcription-provider-local": "Local (modelo integrado)",
+	"transcription-provider-local-info": "Usa el modelo local cargado en Vibe. No requiere conexión a internet.",
+	"select-transcription-provider": "Seleccionar proveedor de transcripción",
+	"api-key": "Clave API",
+	"api-key-placeholder": "Introduzca su clave API",
+	"model": "Modelo"
 }

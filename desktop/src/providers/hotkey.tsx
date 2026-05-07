@@ -6,6 +6,7 @@ import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { useLocalStorage } from 'usehooks-ts'
 import { AudioDevice } from '~/lib/audio'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { createTranscriber } from '~/lib/transcription'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
@@ -132,18 +133,33 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			const { path } = event.payload
 
 			try {
-				const modelPath = preferenceRef.current.modelPath
-				if (!modelPath) {
-					throw new Error('No model selected')
-				}
+				const transConfig = preferenceRef.current.transcriptionConfig
+				let resultText: string
 
-				await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
-				const options = {
-					path,
-					...preferenceRef.current.modelOptions,
+				if (transConfig.provider !== 'local') {
+					// Cloud transcription
+					const transcriber = createTranscriber(transConfig)
+					if (!transcriber) {
+						throw new Error('Invalid cloud transcription provider configuration')
+					}
+					const lang = preferenceRef.current.modelOptions.lang || undefined
+					const result = await transcriber.transcribe(path, lang)
+					resultText = transcript.asText(result.segments, t('common.speaker-prefix'))
+				} else {
+					// Local (sona) transcription
+					const modelPath = preferenceRef.current.modelPath
+					if (!modelPath) {
+						throw new Error('No model selected')
+					}
+
+					await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
+					const options = {
+						path,
+						...preferenceRef.current.modelOptions,
+					}
+					const res: transcript.Transcript = await invoke('transcribe', { options })
+					resultText = transcript.asText(res.segments, t('common.speaker-prefix'))
 				}
-				const res: transcript.Transcript = await invoke('transcribe', { options })
-				let resultText = transcript.asText(res.segments, t('common.speaker-prefix'))
 
 				// Optional LLM summarization
 				const llm = createLlm()

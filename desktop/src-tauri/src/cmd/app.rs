@@ -106,11 +106,44 @@ pub fn rename_crash_file() -> Result<()> {
 
 #[tauri::command]
 pub fn type_text(text: String) -> Result<()> {
-    use enigo::{Enigo, Keyboard, Settings};
-    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
+    use enigo::{Enigo, Keyboard, Key, Settings};
     // Small delay to let the user's key release propagate
     std::thread::sleep(std::time::Duration::from_millis(100));
-    enigo.text(&text).map_err(|e| eyre::eyre!("Failed to type text: {}", e))?;
+
+    // Save current clipboard
+    let mut clipboard = arboard::Clipboard::new().context("Failed to access clipboard")?;
+    let saved_clipboard = clipboard.get_text().ok();
+
+    // Set clipboard to our text
+    clipboard.set_text(&text).context("Failed to set clipboard text")?;
+    // Small delay to ensure clipboard is set before pasting
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    // Send Ctrl+V (or Cmd+V on macOS)
+    let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
+    #[cfg(target_os = "macos")]
+    enigo.key(Key::Meta, enigo::Direction::Press).map_err(|e| eyre::eyre!("Failed to press cmd: {}", e))?;
+    #[cfg(not(target_os = "macos"))]
+    enigo.key(Key::Control, enigo::Direction::Press).map_err(|e| eyre::eyre!("Failed to press ctrl: {}", e))?;
+
+    enigo.key(Key::V, enigo::Direction::Click).map_err(|e| eyre::eyre!("Failed to press v: {}", e))?;
+
+    #[cfg(target_os = "macos")]
+    enigo.key(Key::Meta, enigo::Direction::Release).map_err(|e| eyre::eyre!("Failed to release cmd: {}", e))?;
+    #[cfg(not(target_os = "macos"))]
+    enigo.key(Key::Control, enigo::Direction::Release).map_err(|e| eyre::eyre!("Failed to release ctrl: {}", e))?;
+
+    // Wait for paste to complete before restoring clipboard
+    std::thread::sleep(std::time::Duration::from_millis(150));
+
+    // Restore original clipboard
+    let mut clipboard = arboard::Clipboard::new().context("Failed to access clipboard for restore")?;
+    if let Some(saved) = saved_clipboard {
+        let _ = clipboard.set_text(&saved);
+    } else {
+        let _ = clipboard.clear();
+    }
+
     Ok(())
 }
 

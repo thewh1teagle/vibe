@@ -202,5 +202,13 @@
 	"hotkey-mode-toggle-info": "Premeu una vegada per començar a enregistrar, premeu de nou per transcriure.",
 	"hotkey-mode-label": "Mode",
 	"hotkey-record-shortcut": "Registrar drecera",
-	"hotkey-press-shortcut": "Premeu una tecla..."
+	"hotkey-press-shortcut": "Premeu una tecla...",
+	"transcription-provider": "Proveïdor de transcripció",
+	"transcription-provider-info": "Trieu com es transcriu l'àudio. Local utilitza el model integrat (no cal internet). Els proveïdors al núvol requereixen una clau API i connexió a internet.",
+	"transcription-provider-local": "Local (model integrat)",
+	"transcription-provider-local-info": "Utilitza el model local carregat a Vibe. No cal connexió a internet.",
+	"select-transcription-provider": "Seleccioneu el proveïdor de transcripció",
+	"api-key": "Clau API",
+	"api-key-placeholder": "Introduïu la vostra clau API",
+	"model": "Model"
 }

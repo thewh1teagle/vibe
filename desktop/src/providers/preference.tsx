@@ -8,6 +8,7 @@ import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
 import { defaultOllamaConfig, LlmConfig } from '~/lib/llm'
+import { defaultTranscriptionConfig, TranscriptionConfig } from '~/lib/transcription'
 import { message } from '@tauri-apps/plugin-dialog'
 
 type Direction = 'ltr' | 'rtl'
@@ -80,6 +81,9 @@ export interface Preference {
 	setAutoSaveTranscripts: ModifyState<boolean>
 	transcriptsSavePath: string | null
 	setTranscriptsSavePath: ModifyState<string | null>
+
+	transcriptionConfig: TranscriptionConfig
+	setTranscriptionConfig: ModifyState<TranscriptionConfig>
 
 	analyticsEnabled: boolean
 	setAnalyticsEnabled: (value: boolean) => void
@@ -182,6 +186,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [autoTypeAtCursor, setAutoTypeAtCursor] = useLocalStorage<boolean>('prefs_auto_type_at_cursor', false)
 	const [autoSaveTranscripts, setAutoSaveTranscripts] = useLocalStorage<boolean>('prefs_auto_save_transcripts', false)
 	const [transcriptsSavePath, setTranscriptsSavePath] = useLocalStorage<string | null>('prefs_transcripts_save_path', null)
+	const [transcriptionConfig, setTranscriptionConfig] = useLocalStorage<TranscriptionConfig>('prefs_transcription_config', defaultTranscriptionConfig())
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 	useEffect(() => {
@@ -251,6 +256,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setAutoTypeAtCursor(false)
 		setAutoSaveTranscripts(false)
 		setTranscriptsSavePath(null)
+		setTranscriptionConfig(defaultTranscriptionConfig())
 		message(i18n.t('common.success-action'))
 	}
 
@@ -314,6 +320,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setAutoSaveTranscripts,
 		transcriptsSavePath,
 		setTranscriptsSavePath,
+		transcriptionConfig,
+		setTranscriptionConfig,
 		analyticsEnabled,
 		setAnalyticsEnabled,
 	}

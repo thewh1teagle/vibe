@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "Premi una volta per iniziare la registrazione, premi di nuovo per trascrivere.",
 	"hotkey-mode-label": "Modalità",
 	"hotkey-record-shortcut": "Registra scorciatoia",
-	"hotkey-press-shortcut": "Premi un tasto..."
+	"hotkey-press-shortcut": "Premi un tasto...",
+	"transcription-provider": "Provider di trascrizione",
+	"transcription-provider-info": "Scegli come viene trascritto l'audio. Locale usa il modello integrato (nessuna connessione internet). I provider cloud richiedono una chiave API e connessione internet.",
+	"transcription-provider-local": "Locale (modello integrato)",
+	"transcription-provider-local-info": "Usa il modello locale caricato in Vibe. Non richiede connessione internet.",
+	"select-transcription-provider": "Seleziona provider di trascrizione",
+	"api-key": "Chiave API",
+	"api-key-placeholder": "Inserisci la tua chiave API",
+	"model": "Modello"
 }

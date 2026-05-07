@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "Kaydetmeye başlamak için bir kez basın, transkribe etmek için tekrar basın.",
 	"hotkey-mode-label": "Mod",
 	"hotkey-record-shortcut": "Kısayolu kaydet",
-	"hotkey-press-shortcut": "Bir tuşa basın..."
+	"hotkey-press-shortcut": "Bir tuşa basın...",
+	"transcription-provider": "Transkripsiyon Sağlayıcısı",
+	"transcription-provider-info": "Sesin nasıl transkribe edileceğini seçin. Yerel, yerleşik modeli kullanır (internet gerekmez). Bulut sağlayıcıları API anahtarı ve internet bağlantısı gerektirir.",
+	"transcription-provider-local": "Yerel (yerleşik model)",
+	"transcription-provider-local-info": "Vibe'e yüklenmiş yerel modeli kullanır. İnternet bağlantısı gerektirmez.",
+	"select-transcription-provider": "Transkripsiyon sağlayıcısı seçin",
+	"api-key": "API Anahtarı",
+	"api-key-placeholder": "API anahtarınızı girin",
+	"model": "Model"
 }

@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "Nhấn một lần để bắt đầu ghi âm, nhấn lại để phiên âm.",
 	"hotkey-mode-label": "Chế độ",
 	"hotkey-record-shortcut": "Ghi phím tắt",
-	"hotkey-press-shortcut": "Nhấn một phím..."
+	"hotkey-press-shortcut": "Nhấn một phím...",
+	"transcription-provider": "Nhà cung cấp chuyển đổi",
+	"transcription-provider-info": "Chọn cách chuyển đổi âm thanh. Cục bộ sử dụng mô hình tích hợp (không cần internet). Các nhà cung cấp đám mây yêu cầu API key và kết nối internet.",
+	"transcription-provider-local": "Cục bộ (mô hình tích hợp)",
+	"transcription-provider-local-info": "Sử dụng mô hình cục bộ được tải trong Vibe. Không cần kết nối internet.",
+	"select-transcription-provider": "Chọn nhà cung cấp chuyển đổi",
+	"api-key": "API Key",
+	"api-key-placeholder": "Nhập API key của bạn",
+	"model": "Mô hình"
 }

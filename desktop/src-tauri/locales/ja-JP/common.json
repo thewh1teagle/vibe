@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "1回押して録音開始、もう1回押して文字起こしします。",
 	"hotkey-mode-label": "モード",
 	"hotkey-record-shortcut": "ショートカットを記録",
-	"hotkey-press-shortcut": "キーを押してください..."
+	"hotkey-press-shortcut": "キーを押してください...",
+	"transcription-provider": "文字起こしプロバイダー",
+	"transcription-provider-info": "音声の文字起こし方法を選択してください。ローカルは内蔵モデルを使用します（インターネット不要）。クラウドプロバイダーにはAPIキーとインターネット接続が必要です。",
+	"transcription-provider-local": "ローカル（内蔵モデル）",
+	"transcription-provider-local-info": "Vibeに読み込まれたローカルモデルを使用します。インターネット接続は不要です。",
+	"select-transcription-provider": "文字起こしプロバイダーを選択",
+	"api-key": "APIキー",
+	"api-key-placeholder": "APIキーを入力してください",
+	"model": "モデル"
 }

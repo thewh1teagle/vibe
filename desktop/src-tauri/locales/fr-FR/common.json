@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "Appuyez une fois pour commencer l'enregistrement, appuyez à nouveau pour transcrire.",
 	"hotkey-mode-label": "Mode",
 	"hotkey-record-shortcut": "Enregistrer le raccourci",
-	"hotkey-press-shortcut": "Appuyez sur une touche..."
+	"hotkey-press-shortcut": "Appuyez sur une touche...",
+	"transcription-provider": "Fournisseur de transcription",
+	"transcription-provider-info": "Choisissez comment l'audio est transcrit. Local utilise le modèle intégré (sans connexion internet). Les fournisseurs cloud nécessitent une clé API et une connexion internet.",
+	"transcription-provider-local": "Local (modèle intégré)",
+	"transcription-provider-local-info": "Utilise le modèle local chargé dans Vibe. Aucune connexion internet requise.",
+	"select-transcription-provider": "Sélectionner le fournisseur de transcription",
+	"api-key": "Clé API",
+	"api-key-placeholder": "Entrez votre clé API",
+	"model": "Modèle"
 }

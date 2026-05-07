@@ -220,12 +220,12 @@
 	"hotkey-mode-label": "Mode",
 	"hotkey-record-shortcut": "Record Shortcut",
 	"hotkey-press-shortcut": "Press a key...",
-	"transcription-provider": "Transcription Provider",
-	"transcription-provider-info": "Choose how audio is transcribed. Local uses the built-in model (no internet required). Cloud providers require an API key and internet connection.",
-	"transcription-provider-local": "Local (built-in model)",
-	"transcription-provider-local-info": "Uses the local model loaded in Vibe. No internet connection required.",
-	"select-transcription-provider": "Select transcription provider",
-	"api-key": "API Key",
-	"api-key-placeholder": "Enter your API key",
-	"model": "Model"
+	"transcription-provider": "எழுத்துப்படிவாக்க வழங்கி",
+	"transcription-provider-info": "ஆடியோ எவ்வாறு எழுத்துப்படிவாக்கப்படுகிறது என்பதைத் தேர்வுசெய்க. உள்ளூர் உள்ளமைக்கப்பட்ட மாடலைப் பயன்படுத்துகிறது (இணையம் தேவையில்லை). மேகக்கட்ட வழங்கிகளுக்கு API விசை மற்றும் இணைய இணைப்பு தேவை.",
+	"transcription-provider-local": "உள்ளூர் (உள்ளமைக்கப்பட்ட மாடல்)",
+	"transcription-provider-local-info": "Vibe இல் ஏற்றப்பட்ட உள்ளூர் மாடலைப் பயன்படுத்துகிறது. இணைய இணைப்பு தேவையில்லை.",
+	"select-transcription-provider": "எழுத்துப்படிவாக்க வடங்கியைத் தேர்வுசெய்க",
+	"api-key": "API விசை",
+	"api-key-placeholder": "உங்கள் API விசையை உள்ளிடவும்",
+	"model": "மாடல்"
 }

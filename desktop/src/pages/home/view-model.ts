@@ -18,6 +18,7 @@ import { ensureSystemAudioPermission } from '~/lib/permissions'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { createTranscriber } from '~/lib/transcription'
 import * as transcript from '~/lib/transcript'
 import { isUserError } from '~/lib/sona-errors'
 import { useConfirmExit } from '~/lib/use-confirm-exit'
@@ -466,13 +467,6 @@ export function viewModel() {
 	}
 
 	async function transcribe(path: string) {
-		const avx2 = await invoke<boolean>('is_avx2_enabled')
-		if (!avx2) {
-			trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
-			await dialog.message(t('common.avx2-not-supported'), { kind: 'error' })
-			return
-		}
-
 		startKeepAwake()
 
 		setSegments(null)
@@ -487,47 +481,69 @@ export function viewModel() {
 			source: 'home',
 		})
 		try {
-			const modelPath = preferenceRef.current.modelPath
-			if (!modelPath) {
-				throw new Error('No model selected. Please download or select a model first.')
-			}
-			const loadResult = await invoke<string>('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
-			if (loadResult === 'gpu_fallback') {
-				hotToast.warning(t('common.gpu-fallback-to-cpu'), { position: 'bottom-center', duration: 8000 })
-			}
-			let diarize_model: string | undefined
-			if (preferenceRef.current.diarizeEnabled) {
-				const modelsFolder = await invoke<string>('get_models_folder')
-				diarize_model = modelsFolder + '/' + config.diarizeModelFilename
-			}
-			let vad_model: string | undefined
-			if (preferenceRef.current.stableTimestampsEnabled) {
-				const modelsFolder = await invoke<string>('get_models_folder')
-				vad_model = modelsFolder + '/' + config.vadModelFilename
-			}
-			const options = {
-				path,
-				...preferenceRef.current.modelOptions,
-				...(diarize_model ? { diarize_model } : {}),
-				...(vad_model ? { vad_model } : {}),
-				...(preferenceRef.current.stableTimestampsEnabled ? { stable_timestamps: true } : {}),
-			}
+			const transConfig = preferenceRef.current.transcriptionConfig
 			const startTime = performance.now()
-			const res: transcript.Transcript = await invoke('transcribe', {
-				options,
-			})
 
-			// Calcualte time
+			if (transConfig.provider !== 'local') {
+				// Cloud transcription
+				const transcriber = createTranscriber(transConfig)
+				if (!transcriber) {
+					throw new Error('Invalid cloud transcription provider configuration')
+				}
+				const lang = preferenceRef.current.modelOptions.lang || undefined
+				const result = await transcriber.transcribe(path, lang)
+				newSegments = result.segments
+				setSegments(result.segments)
+			} else {
+				// Local (sona) transcription
+				const avx2 = await invoke<boolean>('is_avx2_enabled')
+				if (!avx2) {
+					trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
+					await dialog.message(t('common.avx2-not-supported'), { kind: 'error' })
+					return
+				}
+
+				const modelPath = preferenceRef.current.modelPath
+				if (!modelPath) {
+					throw new Error('No model selected. Please download or select a model first.')
+				}
+				const loadResult = await invoke<string>('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
+				if (loadResult === 'gpu_fallback') {
+					hotToast.warning(t('common.gpu-fallback-to-cpu'), { position: 'bottom-center', duration: 8000 })
+				}
+				let diarize_model: string | undefined
+				if (preferenceRef.current.diarizeEnabled) {
+					const modelsFolder = await invoke<string>('get_models_folder')
+					diarize_model = modelsFolder + '/' + config.diarizeModelFilename
+				}
+				let vad_model: string | undefined
+				if (preferenceRef.current.stableTimestampsEnabled) {
+					const modelsFolder = await invoke<string>('get_models_folder')
+					vad_model = modelsFolder + '/' + config.vadModelFilename
+				}
+				const options = {
+					path,
+					...preferenceRef.current.modelOptions,
+					...(diarize_model ? { diarize_model } : {}),
+					...(vad_model ? { vad_model } : {}),
+					...(preferenceRef.current.stableTimestampsEnabled ? { stable_timestamps: true } : {}),
+				}
+				const res: transcript.Transcript = await invoke('transcribe', {
+					options,
+				})
+				newSegments = res.segments
+				setSegments(res.segments)
+			}
+
+			// Calculate time
 			const total = Math.round((performance.now() - startTime) / 1000)
 			console.info(`Transcribe took ${total} seconds.`)
 
-			newSegments = res.segments
-			setSegments(res.segments)
 			hotToast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
 			trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, {
 				source: 'home',
 				duration_seconds: total,
-				segments_count: res.segments.length,
+				segments_count: newSegments.length,
 			})
 
 			// Auto-type at cursor

@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "Нажмите для начала записи, нажмите снова для транскрибации.",
 	"hotkey-mode-label": "Режим",
 	"hotkey-record-shortcut": "Записать комбинацию",
-	"hotkey-press-shortcut": "Нажмите клавишу..."
+	"hotkey-press-shortcut": "Нажмите клавишу...",
+	"transcription-provider": "Провайдер транскрипции",
+	"transcription-provider-info": "Выберите способ транскрибации. Локальный использует встроенную модель (без интернета). Облачные провайдеры требуют API-ключ и подключение к интернету.",
+	"transcription-provider-local": "Локальный (встроенная модель)",
+	"transcription-provider-local-info": "Использует локальную модель, загруженную в Vibe. Подключение к интернету не требуется.",
+	"select-transcription-provider": "Выберите провайдера транскрипции",
+	"api-key": "API-ключ",
+	"api-key-placeholder": "Введите ваш API-ключ",
+	"model": "Модель"
 }

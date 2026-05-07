@@ -182,5 +182,13 @@
 	"hotkey-mode-toggle-info": "按一次开始录音，再按一次进行转录。",
 	"hotkey-mode-label": "模式",
 	"hotkey-record-shortcut": "录制快捷键",
-	"hotkey-press-shortcut": "请按下一个键..."
+	"hotkey-press-shortcut": "请按下一个键...",
+	"transcription-provider": "语音转录服务",
+	"transcription-provider-info": "选择音频转录方式。本地使用内置模型（无需网络）。云服务需要API密钥和网络连接。",
+	"transcription-provider-local": "本地（内置模型）",
+	"transcription-provider-local-info": "使用Vibe中加载的本地模型，无需网络连接。",
+	"select-transcription-provider": "选择语音转录服务",
+	"api-key": "API密钥",
+	"api-key-placeholder": "输入您的API密钥",
+	"model": "模型"
 }
