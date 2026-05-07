@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "매 받아쓰기 후 받아쓰기 파일을 폴더에 자동으로 저장합니다.",
 	"transcript-save-path": "받아쓰기 저장 경로",
 	"transcript-save-path-info": "받아쓰기 파일을 자동 저장할 위치를 선택하세요. 기본값은 문서/Vibe/Transcripts입니다.",
-	"change-transcripts-path": "변경"
+	"change-transcripts-path": "변경",
+	"hotkey-mode-hold": "길게 누르기",
+	"hotkey-mode-toggle": "토글",
+	"hotkey-mode-hold-info": "키를 길게 눌러 녹음하고, 놓으면 받아쓰기합니다.",
+	"hotkey-mode-toggle-info": "한 번 눌러 녹음 시작, 다시 눌러 받아쓰기합니다.",
+	"hotkey-mode-label": "모드",
+	"hotkey-record-shortcut": "단축키 녹화",
+	"hotkey-press-shortcut": "키를 누르세요..."
 }

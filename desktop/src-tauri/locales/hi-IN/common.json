@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "प्रत्येक प्रतिलेखन के बाद प्रतिलेखन फ़ाइलों को एक फ़ोल्डर में स्वतः सहेजें।",
 	"transcript-save-path": "प्रतिलेखन सहेजने का पथ",
 	"transcript-save-path-info": "चुनें कि प्रतिलेखन फ़ाइलों को कहाँ स्वतः सहेजा जाए। डिफ़ॉल्ट दस्तावेज़/Vibe/Transcripts है।",
-	"change-transcripts-path": "बदलें"
+	"change-transcripts-path": "बदलें",
+	"hotkey-mode-hold": "दबाए रखें",
+	"hotkey-mode-toggle": "टॉगल",
+	"hotkey-mode-hold-info": "रिकॉर्ड करने के लिए कुंजी दबाए रखें, प्रतिलेखन के लिए छोड़ें।",
+	"hotkey-mode-toggle-info": "रिकॉर्डिंग शुरू करने के लिए एक बार दबाएं, प्रतिलेखन के लिए फिर दबाएं।",
+	"hotkey-mode-label": "मोड",
+	"hotkey-record-shortcut": "शॉर्टकट रिकॉर्ड करें",
+	"hotkey-press-shortcut": "एक कुंजी दबाएं..."
 }

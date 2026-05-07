@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "毎回の文字起こし後、文字起こしファイルをフォルダに自動的に保存します。",
 	"transcript-save-path": "文字起こし保存先",
 	"transcript-save-path-info": "文字起こしファイルの自動保存先を選択してください。デフォルトはドキュメント/Vibe/Transcriptsです。",
-	"change-transcripts-path": "変更"
+	"change-transcripts-path": "変更",
+	"hotkey-mode-hold": "長押し",
+	"hotkey-mode-toggle": "トグル",
+	"hotkey-mode-hold-info": "キーを押し続けて録音し、離して文字起こしします。",
+	"hotkey-mode-toggle-info": "1回押して録音開始、もう1回押して文字起こしします。",
+	"hotkey-mode-label": "モード",
+	"hotkey-record-shortcut": "ショートカットを記録",
+	"hotkey-press-shortcut": "キーを押してください..."
 }

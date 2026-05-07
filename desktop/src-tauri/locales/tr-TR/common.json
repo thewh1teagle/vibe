@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Her transkripsiyondan sonra transkripsiyon dosyalarını otomatik olarak bir klasöre kaydet.",
 	"transcript-save-path": "Transkripsiyon kayıt yolu",
 	"transcript-save-path-info": "Transkripsiyon dosyalarının otomatik olarak nereye kaydedileceğini seçin. Varsayılan: Belgeler/Vibe/Transkripsiyonlar.",
-	"change-transcripts-path": "Değiştir"
+	"change-transcripts-path": "Değiştir",
+	"hotkey-mode-hold": "Basılı tut",
+	"hotkey-mode-toggle": "Geçiş",
+	"hotkey-mode-hold-info": "Kaydetmek için tuşu basılı tutun, transkribe etmek için bırakın.",
+	"hotkey-mode-toggle-info": "Kaydetmeye başlamak için bir kez basın, transkribe etmek için tekrar basın.",
+	"hotkey-mode-label": "Mod",
+	"hotkey-record-shortcut": "Kısayolu kaydet",
+	"hotkey-press-shortcut": "Bir tuşa basın..."
 }

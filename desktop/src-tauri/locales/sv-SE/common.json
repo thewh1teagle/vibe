@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Spara transkriptionsfiler automatiskt i en mapp efter varje transkription.",
 	"transcript-save-path": "Sökväg för transkriptionssparande",
 	"transcript-save-path-info": "Välj var transkriptionsfiler ska sparas automatiskt. Standard är Dokument/Vibe/Transkriptioner.",
-	"change-transcripts-path": "Ändra"
+	"change-transcripts-path": "Ändra",
+	"hotkey-mode-hold": "Håll",
+	"hotkey-mode-toggle": "Växla",
+	"hotkey-mode-hold-info": "Håll ner tangenten för att spela in, släpp för att transkribera.",
+	"hotkey-mode-toggle-info": "Tryck en gång för att börja spela in, tryck igen för att transkribera.",
+	"hotkey-mode-label": "Läge",
+	"hotkey-record-shortcut": "Spela in genväg",
+	"hotkey-press-shortcut": "Tryck en tangent..."
 }

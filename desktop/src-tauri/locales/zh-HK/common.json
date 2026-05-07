@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "每次轉錄後自動將轉錄檔案儲存到資料夾。",
 	"transcript-save-path": "轉錄儲存路徑",
 	"transcript-save-path-info": "選擇自動儲存轉錄檔案的位置。預設為 文件/Vibe/Transcripts。",
-	"change-transcripts-path": "更改"
+	"change-transcripts-path": "更改",
+	"hotkey-mode-hold": "按住",
+	"hotkey-mode-toggle": "切換",
+	"hotkey-mode-hold-info": "按住按鍵錄音，放開進行轉錄。",
+	"hotkey-mode-toggle-info": "按一次開始錄音，再按一次進行轉錄。",
+	"hotkey-mode-label": "模式",
+	"hotkey-record-shortcut": "錄製快捷鍵",
+	"hotkey-press-shortcut": "請按下一個鍵..."
 }

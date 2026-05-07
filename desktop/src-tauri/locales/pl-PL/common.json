@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Automatycznie zapisuj pliki transkrypcji w folderze po każdej transkrypcji.",
 	"transcript-save-path": "Ścieżka zapisu transkrypcji",
 	"transcript-save-path-info": "Wybierz, gdzie automatycznie zapisywać pliki transkrypcji. Domyślnie to Dokumenty/Vibe/Transkrypcje.",
-	"change-transcripts-path": "Zmień"
+	"change-transcripts-path": "Zmień",
+	"hotkey-mode-hold": "Przytrzymaj",
+	"hotkey-mode-toggle": "Przełącz",
+	"hotkey-mode-hold-info": "Przytrzymaj klawisz, aby nagrywać, puść, aby transkrybować.",
+	"hotkey-mode-toggle-info": "Naciśnij raz, aby zacząć nagrywanie, naciśnij ponownie, aby transkrybować.",
+	"hotkey-mode-label": "Tryb",
+	"hotkey-record-shortcut": "Nagraj skrót",
+	"hotkey-press-shortcut": "Naciśnij klawisz..."
 }

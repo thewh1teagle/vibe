@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Автоматически сохранять файлы транскрипций в папку после каждой транскрипции.",
 	"transcript-save-path": "Путь сохранения транскрипций",
 	"transcript-save-path-info": "Выберите папку для автосохранения транскрипций. По умолчанию: Документы/Vibe/Transcripts.",
-	"change-transcripts-path": "Изменить"
+	"change-transcripts-path": "Изменить",
+	"hotkey-mode-hold": "Удержание",
+	"hotkey-mode-toggle": "Переключение",
+	"hotkey-mode-hold-info": "Удерживайте клавишу для записи, отпустите для транскрибации.",
+	"hotkey-mode-toggle-info": "Нажмите для начала записи, нажмите снова для транскрибации.",
+	"hotkey-mode-label": "Режим",
+	"hotkey-record-shortcut": "Записать комбинацию",
+	"hotkey-press-shortcut": "Нажмите клавишу..."
 }

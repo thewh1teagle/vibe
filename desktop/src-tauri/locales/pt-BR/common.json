@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Salve automaticamente os arquivos de transcrição em uma pasta após cada transcrição.",
 	"transcript-save-path": "Caminho de salvamento de transcrições",
 	"transcript-save-path-info": "Escolha onde salvar automaticamente os arquivos de transcrição. O padrão é Documentos/Vibe/Transcrições.",
-	"change-transcripts-path": "Alterar"
+	"change-transcripts-path": "Alterar",
+	"hotkey-mode-hold": "Segurar",
+	"hotkey-mode-toggle": "Alternar",
+	"hotkey-mode-hold-info": "Segure a tecla para gravar, solte para transcrever.",
+	"hotkey-mode-toggle-info": "Pressione uma vez para começar a gravar, pressione novamente para transcrever.",
+	"hotkey-mode-label": "Modo",
+	"hotkey-record-shortcut": "Gravar atalho",
+	"hotkey-press-shortcut": "Pressione uma tecla..."
 }

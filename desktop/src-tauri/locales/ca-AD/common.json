@@ -195,5 +195,12 @@
 	"auto-save-transcripts-info": "Desa automàticament els fitxers de transcripció a una carpeta després de cada transcripció.",
 	"transcript-save-path": "Camí de desat de transcripcions",
 	"transcript-save-path-info": "Tria on desar els fitxers de transcripció automàticament. Per defecte és Documents/Vibe/Transcripcions.",
-	"change-transcripts-path": "Canviar"
+	"change-transcripts-path": "Canviar",
+	"hotkey-mode-hold": "Mantenir",
+	"hotkey-mode-toggle": "Commutador",
+	"hotkey-mode-hold-info": "Manteniu la tecla per enregistrar, deixeu anar per transcriure.",
+	"hotkey-mode-toggle-info": "Premeu una vegada per començar a enregistrar, premeu de nou per transcriure.",
+	"hotkey-mode-label": "Mode",
+	"hotkey-record-shortcut": "Registrar drecera",
+	"hotkey-press-shortcut": "Premeu una tecla..."
 }

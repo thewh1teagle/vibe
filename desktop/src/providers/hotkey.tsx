@@ -17,6 +17,7 @@ export let hotkeyRecordingActive = false
 export const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+V'
 
 export type HotkeyOutputMode = 'clipboard' | 'type'
+export type HotkeyMode = 'hold' | 'toggle'
 
 interface HotkeyContextType {
 	hotkeyEnabled: boolean
@@ -25,6 +26,8 @@ interface HotkeyContextType {
 	setHotkeyShortcut: (shortcut: string) => void
 	hotkeyOutputMode: HotkeyOutputMode
 	setHotkeyOutputMode: (mode: HotkeyOutputMode) => void
+	hotkeyMode: HotkeyMode
+	setHotkeyMode: (mode: HotkeyMode) => void
 	isHotkeyRecording: boolean
 }
 
@@ -59,10 +62,13 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
+	const [hotkeyMode, setHotkeyMode] = useLocalStorage<HotkeyMode>('prefs_hotkey_mode', 'hold')
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 
 	const isHotkeyRecordingRef = useRef(false)
+	const isProcessingRef = useRef(false)
 	const hotkeyOutputModeRef = useRef(hotkeyOutputMode)
+	const hotkeyModeRef = useRef(hotkeyMode)
 	const registeredShortcutRef = useRef<string | null>(null)
 
 	useEffect(() => {
@@ -72,6 +78,10 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		hotkeyOutputModeRef.current = hotkeyOutputMode
 	}, [hotkeyOutputMode])
+
+	useEffect(() => {
+		hotkeyModeRef.current = hotkeyMode
+	}, [hotkeyMode])
 
 	const createLlm = useCallback((): Llm | null => {
 		const config = preferenceRef.current.llmConfig
@@ -118,6 +128,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		const unlisten = listen<{ path: string; name: string }>('record_finish', async (event) => {
 			if (!isHotkeyRecordingRef.current) return
 
+			isProcessingRef.current = true
 			const { path } = event.payload
 
 			try {
@@ -157,6 +168,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				console.error('Hotkey transcription error:', error)
 				await notify('Vibe', String(error))
 			} finally {
+				isProcessingRef.current = false
 				isHotkeyRecordingRef.current = false
 				hotkeyRecordingActive = false
 				setIsHotkeyRecording(false)
@@ -187,12 +199,31 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 			if (!hotkeyEnabled || !hotkeyShortcut || cancelled) return
 
+			// RightControl is handled by native keyboard hook, not tauri-plugin-global-shortcut
+			if (hotkeyShortcut === 'ControlRight' || hotkeyShortcut === 'RightControl') {
+				registeredShortcutRef.current = hotkeyShortcut
+				return
+			}
+
 			try {
 				await register(hotkeyShortcut, (event) => {
-					if (event.state === 'Pressed') {
-						handleHotkeyDown()
-					} else if (event.state === 'Released') {
-						handleHotkeyUp()
+					const isPressed = event.state === 'Pressed'
+					const isReleased = event.state === 'Released'
+
+					if (hotkeyModeRef.current === 'toggle') {
+						if (!isPressed) return
+						if (isProcessingRef.current) return
+						if (isHotkeyRecordingRef.current) {
+							handleHotkeyUp()
+						} else {
+							handleHotkeyDown()
+						}
+					} else {
+						if (isPressed) {
+							handleHotkeyDown()
+						} else if (isReleased) {
+							handleHotkeyUp()
+						}
 					}
 				})
 				registeredShortcutRef.current = hotkeyShortcut
@@ -212,6 +243,38 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		}
 	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
 
+	// Listen for native keyboard hook events (RightControl on Windows)
+	useEffect(() => {
+		if (!hotkeyEnabled) return
+		if (hotkeyShortcut !== 'ControlRight' && hotkeyShortcut !== 'RightControl') return
+
+		const unlistenPressed = listen<string>('native-shortcut-pressed', (event) => {
+			if (event.payload !== 'RightControl') return
+			if (hotkeyModeRef.current === 'toggle') {
+				if (isProcessingRef.current) return
+				if (isHotkeyRecordingRef.current) {
+					handleHotkeyUp()
+				} else {
+					handleHotkeyDown()
+				}
+			} else {
+				handleHotkeyDown()
+			}
+		})
+
+		const unlistenReleased = listen<string>('native-shortcut-released', (event) => {
+			if (event.payload !== 'RightControl') return
+			if (hotkeyModeRef.current !== 'toggle') {
+				handleHotkeyUp()
+			}
+		})
+
+		return () => {
+			unlistenPressed.then((fn) => fn())
+			unlistenReleased.then((fn) => fn())
+		}
+	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
+
 	const value: HotkeyContextType = {
 		hotkeyEnabled,
 		setHotkeyEnabled,
@@ -219,6 +282,8 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		setHotkeyShortcut,
 		hotkeyOutputMode,
 		setHotkeyOutputMode,
+		hotkeyMode,
+		setHotkeyMode,
 		isHotkeyRecording,
 	}
 

@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Lagre transkripsjonsfiler automatisk i en mappe etter hver transkripsjon.",
 	"transcript-save-path": "Lagringssti for transkripsjoner",
 	"transcript-save-path-info": "Velg hvor transkripsjonsfiler skal lagres automatisk. Standard er Dokumenter/Vibe/Transkripsjoner.",
-	"change-transcripts-path": "Endre"
+	"change-transcripts-path": "Endre",
+	"hotkey-mode-hold": "Hold",
+	"hotkey-mode-toggle": "Veksle",
+	"hotkey-mode-hold-info": "Hold tasten for å ta opp, slipp for å transkribere.",
+	"hotkey-mode-toggle-info": "Trykk én gang for å starte opptak, trykk igjen for å transkribere.",
+	"hotkey-mode-label": "Modus",
+	"hotkey-record-shortcut": "Registrer snarvei",
+	"hotkey-press-shortcut": "Trykk en tast..."
 }

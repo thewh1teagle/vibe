@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Tự động lưu các tệp bản ghi vào thư mục sau mỗi lần phiên âm.",
 	"transcript-save-path": "Đường dẫn lưu bản ghi",
 	"transcript-save-path-info": "Chọn nơi tự động lưu các tệp bản ghi. Mặc định là Tài liệu/Vibe/Transcripts.",
-	"change-transcripts-path": "Thay đổi"
+	"change-transcripts-path": "Thay đổi",
+	"hotkey-mode-hold": "Giữ",
+	"hotkey-mode-toggle": "Chuyển đổi",
+	"hotkey-mode-hold-info": "Giữ phím để ghi âm, thả để phiên âm.",
+	"hotkey-mode-toggle-info": "Nhấn một lần để bắt đầu ghi âm, nhấn lại để phiên âm.",
+	"hotkey-mode-label": "Chế độ",
+	"hotkey-record-shortcut": "Ghi phím tắt",
+	"hotkey-press-shortcut": "Nhấn một phím..."
 }

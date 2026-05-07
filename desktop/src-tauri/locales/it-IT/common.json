@@ -175,5 +175,12 @@
 	"auto-save-transcripts-info": "Salva automaticamente i file di trascrizione in una cartella dopo ogni trascrizione.",
 	"transcript-save-path": "Percorso salvataggio trascrizioni",
 	"transcript-save-path-info": "Scegli dove salvare automaticamente i file di trascrizione. Il percorso predefinito è Documenti/Vibe/Trascrizioni.",
-	"change-transcripts-path": "Cambia"
+	"change-transcripts-path": "Cambia",
+	"hotkey-mode-hold": "Tieni premuto",
+	"hotkey-mode-toggle": "Commuta",
+	"hotkey-mode-hold-info": "Tieni premuto per registrare, rilascia per trascrivere.",
+	"hotkey-mode-toggle-info": "Premi una volta per iniziare la registrazione, premi di nuovo per trascrivere.",
+	"hotkey-mode-label": "Modalità",
+	"hotkey-record-shortcut": "Registra scorciatoia",
+	"hotkey-press-shortcut": "Premi un tasto..."
 }

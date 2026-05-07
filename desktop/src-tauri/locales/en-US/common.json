@@ -213,5 +213,12 @@
 	"auto-save-transcripts-info": "Automatically save transcript files to a folder after each transcription.",
 	"transcript-save-path": "Transcript Save Path",
 	"transcript-save-path-info": "Choose where to auto-save transcript files. Default is Documents/Vibe/Transcripts.",
-	"change-transcripts-path": "Change"
+	"change-transcripts-path": "Change",
+	"hotkey-mode-hold": "Hold",
+	"hotkey-mode-toggle": "Toggle",
+	"hotkey-mode-hold-info": "Hold the key to record, release to transcribe.",
+	"hotkey-mode-toggle-info": "Press once to start recording, press again to transcribe.",
+	"hotkey-mode-label": "Mode",
+	"hotkey-record-shortcut": "Record Shortcut",
+	"hotkey-press-shortcut": "Press a key..."
 }
