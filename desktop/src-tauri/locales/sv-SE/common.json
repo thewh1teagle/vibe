@@ -168,5 +168,12 @@
 	"use-word-timestamps": "Tidsstämplar per ord",
 	"when-completing-transcription": "När du slutför transkriptionen",
 	"ytdlp-options": "URL -transkriptionsalternativ",
-	"ytdlp-options-info": "Vibe använder ytdlp för URL-transkription."
+	"ytdlp-options-info": "Vibe använder ytdlp för URL-transkription.",
+	"type-at-cursor": "Skriv vid markör",
+	"auto-type-at-cursor": "Skriv transkription vid markör",
+	"auto-save-transcripts": "Spara transkriptioner automatiskt",
+	"auto-save-transcripts-info": "Spara transkriptionsfiler automatiskt i en mapp efter varje transkription.",
+	"transcript-save-path": "Sökväg för transkriptionssparande",
+	"transcript-save-path-info": "Välj var transkriptionsfiler ska sparas automatiskt. Standard är Dokument/Vibe/Transkriptioner.",
+	"change-transcripts-path": "Ändra"
 }

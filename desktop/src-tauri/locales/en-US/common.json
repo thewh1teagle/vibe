@@ -206,5 +206,12 @@
 	"use-word-timestamps": "Timestamps per each word",
 	"when-completing-transcription": "When completing transcription",
 	"ytdlp-options": "URL Transcription Options",
-	"ytdlp-options-info": "Vibe uses ytdlp for URL transcription."
+	"ytdlp-options-info": "Vibe uses ytdlp for URL transcription.",
+	"type-at-cursor": "Type at Cursor",
+	"auto-type-at-cursor": "Type transcription at cursor",
+	"auto-save-transcripts": "Auto-save transcripts",
+	"auto-save-transcripts-info": "Automatically save transcript files to a folder after each transcription.",
+	"transcript-save-path": "Transcript Save Path",
+	"transcript-save-path-info": "Choose where to auto-save transcript files. Default is Documents/Vibe/Transcripts.",
+	"change-transcripts-path": "Change"
 }

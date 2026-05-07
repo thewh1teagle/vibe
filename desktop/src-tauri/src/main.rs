@@ -103,6 +103,7 @@ async fn main() -> Result<()> {
             cmd::files::get_save_path,
             cmd::files::get_argv,
             cmd::files::get_default_recording_path,
+            cmd::files::get_default_transcripts_path,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
             cmd::app::get_models_folder,

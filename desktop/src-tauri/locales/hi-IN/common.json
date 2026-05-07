@@ -168,5 +168,12 @@
 	"use-word-timestamps": "प्रत्येक शब्द के टाइमस्टैम्प",
 	"when-completing-transcription": "लेखन पूरा होने पर",
 	"ytdlp-options": "URL प्रतिलेखन विकल्प",
-	"ytdlp-options-info": "Vibe URL प्रतिलेखन के लिए YTDLP का उपयोग करता है।"
+	"ytdlp-options-info": "Vibe URL प्रतिलेखन के लिए YTDLP का उपयोग करता है।",
+	"type-at-cursor": "कर्सर पर टाइप करें",
+	"auto-type-at-cursor": "कर्सर पर प्रतिलेखन टाइप करें",
+	"auto-save-transcripts": "प्रतिलेखन स्वतः सहेजें",
+	"auto-save-transcripts-info": "प्रत्येक प्रतिलेखन के बाद प्रतिलेखन फ़ाइलों को एक फ़ोल्डर में स्वतः सहेजें।",
+	"transcript-save-path": "प्रतिलेखन सहेजने का पथ",
+	"transcript-save-path-info": "चुनें कि प्रतिलेखन फ़ाइलों को कहाँ स्वतः सहेजा जाए। डिफ़ॉल्ट दस्तावेज़/Vibe/Transcripts है।",
+	"change-transcripts-path": "बदलें"
 }

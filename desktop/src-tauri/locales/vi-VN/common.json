@@ -168,5 +168,12 @@
 	"use-word-timestamps": "Dấu thời gian cho mỗi từ",
 	"when-completing-transcription": "Khi hoàn thành việc chép lại",
 	"ytdlp-options": "Tùy chọn phiên âm URL",
-	"ytdlp-options-info": "Vibe sử dụng YTDLP cho phiên âm URL."
+	"ytdlp-options-info": "Vibe sử dụng YTDLP cho phiên âm URL.",
+	"type-at-cursor": "Nhập tại con trỏ",
+	"auto-type-at-cursor": "Nhập bản ghi tại con trỏ",
+	"auto-save-transcripts": "Tự động lưu bản ghi",
+	"auto-save-transcripts-info": "Tự động lưu các tệp bản ghi vào thư mục sau mỗi lần phiên âm.",
+	"transcript-save-path": "Đường dẫn lưu bản ghi",
+	"transcript-save-path-info": "Chọn nơi tự động lưu các tệp bản ghi. Mặc định là Tài liệu/Vibe/Transcripts.",
+	"change-transcripts-path": "Thay đổi"
 }

@@ -168,5 +168,12 @@
 	"use-word-timestamps": "단어마다 시간 기록하기",
 	"when-completing-transcription": "받아쓰기를 완료했을 때",
 	"ytdlp-options": "URL 받아쓰기 옵션",
-	"ytdlp-options-info": "Vibe는 URL 받아쓰기에 ytdlp를 사용합니다."
+	"ytdlp-options-info": "Vibe는 URL 받아쓰기에 ytdlp를 사용합니다.",
+	"type-at-cursor": "커서에 입력",
+	"auto-type-at-cursor": "받아쓰기를 커서에 입력",
+	"auto-save-transcripts": "받아쓰기 자동 저장",
+	"auto-save-transcripts-info": "매 받아쓰기 후 받아쓰기 파일을 폴더에 자동으로 저장합니다.",
+	"transcript-save-path": "받아쓰기 저장 경로",
+	"transcript-save-path-info": "받아쓰기 파일을 자동 저장할 위치를 선택하세요. 기본값은 문서/Vibe/Transcripts입니다.",
+	"change-transcripts-path": "변경"
 }

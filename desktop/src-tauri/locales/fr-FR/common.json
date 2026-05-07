@@ -168,5 +168,12 @@
 	"use-word-timestamps": "Horodatages pour chaque mot",
 	"when-completing-transcription": "Quand la transcription est terminée",
 	"ytdlp-options": "Options de transcription URL",
-	"ytdlp-options-info": "VIBE utilise YTDLP pour la transcription d'URL."
+	"ytdlp-options-info": "VIBE utilise YTDLP pour la transcription d'URL.",
+	"type-at-cursor": "Écrire au curseur",
+	"auto-type-at-cursor": "Écrire la transcription au curseur",
+	"auto-save-transcripts": "Sauvegarde automatique des transcriptions",
+	"auto-save-transcripts-info": "Sauvegarder automatiquement les fichiers de transcription dans un dossier après chaque transcription.",
+	"transcript-save-path": "Chemin de sauvegarde des transcriptions",
+	"transcript-save-path-info": "Choisissez où sauvegarder automatiquement les fichiers de transcription. Par défaut : Documents/Vibe/Transcriptions.",
+	"change-transcripts-path": "Changer"
 }

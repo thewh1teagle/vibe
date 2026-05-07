@@ -168,5 +168,12 @@
 	"use-word-timestamps": "使用单词级时间戳",
 	"when-completing-transcription": "完成转录时",
 	"ytdlp-options": "URL 转录选项",
-	"ytdlp-options-info": "Vibe 使用 ytdlp 进行 URL 转录。"
+	"ytdlp-options-info": "Vibe 使用 ytdlp 进行 URL 转录。",
+	"type-at-cursor": "在光标处输入",
+	"auto-type-at-cursor": "在光标处输入转录文本",
+	"auto-save-transcripts": "自动保存转录",
+	"auto-save-transcripts-info": "每次转录后自动将转录文件保存到文件夹。",
+	"transcript-save-path": "转录保存路径",
+	"transcript-save-path-info": "选择自动保存转录文件的位置。默认为 文档/Vibe/Transcripts。",
+	"change-transcripts-path": "更改"
 }

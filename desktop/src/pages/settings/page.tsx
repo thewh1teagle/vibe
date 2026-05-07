@@ -114,6 +114,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 								<span className="text-sm font-medium">{t('common.focus-window-on-finish')}</span>
 								<Switch checked={vm.preference.focusOnFinish} onCheckedChange={vm.preference.setFocusOnFinish} />
 							</div>
+							<div className="flex flex-wrap items-center justify-between gap-2 pb-1 pt-4">
+								<span className="text-sm font-medium">{t('common.auto-type-at-cursor')}</span>
+								<Switch checked={vm.preference.autoTypeAtCursor} onCheckedChange={vm.preference.setAutoTypeAtCursor} />
+							</div>
 						</SectionCard>
 					</div>
 					<div className="space-y-2">
@@ -134,6 +138,34 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 									</Button>
 								</div>
 							</div>
+						</SectionCard>
+					</div>
+					<div className="space-y-2">
+						<SectionTitle title={t('common.transcript-save-path')} tip={t('common.transcript-save-path-info')} />
+						<SectionCard>
+							<div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/45 py-2">
+								<span className="text-sm font-medium">{t('common.auto-save-transcripts')}</span>
+								<Switch checked={vm.preference.autoSaveTranscripts} onCheckedChange={vm.preference.setAutoSaveTranscripts} />
+							</div>
+							{vm.preference.autoSaveTranscripts && (
+								<div className="pt-4">
+									<div className="flex items-center justify-between gap-2">
+										<p className="min-w-0 truncate text-sm text-muted-foreground" title={vm.preference.transcriptsSavePath ?? vm.defaultTranscriptsPath}>
+											{vm.preference.transcriptsSavePath ?? vm.defaultTranscriptsPath}
+										</p>
+										<div className="flex shrink-0 items-center gap-2">
+											{vm.preference.transcriptsSavePath && (
+												<Button variant="ghost" size="sm" onMouseDown={vm.resetTranscriptsPath}>
+													{t('common.reset-to-default')}
+												</Button>
+											)}
+											<Button variant="outline" size="sm" onMouseDown={vm.changeTranscriptsPath}>
+												{t('common.change-transcripts-path')}
+											</Button>
+										</div>
+									</div>
+								</div>
+							)}
 						</SectionCard>
 					</div>
 					<div className="space-y-2">

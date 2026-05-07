@@ -25,6 +25,7 @@
     "fs:allow-remove",
     "fs:allow-read-dir",
     "fs:allow-read-text-file",
+    "fs:allow-mkdir",
     "fs:allow-app-write",
     "os:allow-arch",
     "os:allow-platform",

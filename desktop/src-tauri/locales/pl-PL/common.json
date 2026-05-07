@@ -168,5 +168,12 @@
 	"use-word-timestamps": "Znaczniki czasu dla każdego słowa",
 	"when-completing-transcription": "Podczas kończenia transkrypcji",
 	"ytdlp-options": "Opcje transkrypcji adresu URL",
-	"ytdlp-options-info": "Vibe używa ytdlp do transkrypcji adresu URL."
+	"ytdlp-options-info": "Vibe używa ytdlp do transkrypcji adresu URL.",
+	"type-at-cursor": "Wpisz w pozycji kursora",
+	"auto-type-at-cursor": "Wpisz transkrypcję w pozycji kursora",
+	"auto-save-transcripts": "Automatyczne zapisywanie transkrypcji",
+	"auto-save-transcripts-info": "Automatycznie zapisuj pliki transkrypcji w folderze po każdej transkrypcji.",
+	"transcript-save-path": "Ścieżka zapisu transkrypcji",
+	"transcript-save-path-info": "Wybierz, gdzie automatycznie zapisywać pliki transkrypcji. Domyślnie to Dokumenty/Vibe/Transkrypcje.",
+	"change-transcripts-path": "Zmień"
 }

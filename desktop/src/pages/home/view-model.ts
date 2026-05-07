@@ -529,6 +529,37 @@ export function viewModel() {
 				duration_seconds: total,
 				segments_count: res.segments.length,
 			})
+
+			// Auto-type at cursor
+			if (preferenceRef.current.autoTypeAtCursor && newSegments.length > 0) {
+				try {
+					const textContent = transcript.asText(newSegments, t('common.speaker-prefix')).trimEnd()
+					await webview.getCurrentWebviewWindow().minimize()
+					await invoke('type_text', { text: textContent })
+				} catch (e) {
+					console.error('Auto-type at cursor error:', e)
+				}
+			}
+
+			// Auto-save transcript
+			if (preferenceRef.current.autoSaveTranscripts && newSegments.length > 0) {
+				try {
+					const speakerLabel = t('common.speaker-prefix')
+					const textContent = transcript.asText(newSegments, speakerLabel)
+					const saveDir = preferenceRef.current.transcriptsSavePath
+						?? await invoke<string>('get_default_transcripts_path')
+					await fs.mkdir(saveDir, { recursive: true })
+					const srcName = files[0]?.name ?? 'recording'
+					const baseName = srcName.replace(/\.[^.]+$/, '')
+					const savePath = await invoke<string>('get_path_dst', {
+						src: saveDir + '/' + baseName + '.txt',
+						suffix: '.txt',
+					})
+					await fs.writeTextFile(savePath, textContent)
+				} catch (e) {
+					console.error('Auto-save transcript error:', e)
+				}
+			}
 		} catch (error) {
 			if (!abortRef.current) {
 				stopKeepAwake()

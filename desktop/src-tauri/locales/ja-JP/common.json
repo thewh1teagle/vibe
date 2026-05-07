@@ -168,5 +168,12 @@
 	"use-word-timestamps": "単語ごとのタイムスタンプ",
 	"when-completing-transcription": "文字起こし完了時",
 	"ytdlp-options": "URL文字起こしオプション",
-	"ytdlp-options-info": "VibeはURL文字起こしにytdlpを使用します。"
+	"ytdlp-options-info": "VibeはURL文字起こしにytdlpを使用します。",
+	"type-at-cursor": "カーソル位置に入力",
+	"auto-type-at-cursor": "文字起こしをカーソル位置に入力",
+	"auto-save-transcripts": "文字起こしを自動保存",
+	"auto-save-transcripts-info": "毎回の文字起こし後、文字起こしファイルをフォルダに自動的に保存します。",
+	"transcript-save-path": "文字起こし保存先",
+	"transcript-save-path-info": "文字起こしファイルの自動保存先を選択してください。デフォルトはドキュメント/Vibe/Transcriptsです。",
+	"change-transcripts-path": "変更"
 }

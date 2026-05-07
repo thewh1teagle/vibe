@@ -188,5 +188,12 @@
 	"use-word-timestamps": "Marques de temps per cada paraula",
 	"when-completing-transcription": "En completar la transcripció",
 	"ytdlp-options": "Opcions de transcripció d'URL",
-	"ytdlp-options-info": "Vibe utilitza ytdlp per a la transcripció d'URLs."
+	"ytdlp-options-info": "Vibe utilitza ytdlp per a la transcripció d'URLs.",
+	"type-at-cursor": "Escriure al cursor",
+	"auto-type-at-cursor": "Escriure la transcripció al cursor",
+	"auto-save-transcripts": "Desar transcripcions automàticament",
+	"auto-save-transcripts-info": "Desa automàticament els fitxers de transcripció a una carpeta després de cada transcripció.",
+	"transcript-save-path": "Camí de desat de transcripcions",
+	"transcript-save-path-info": "Tria on desar els fitxers de transcripció automàticament. Per defecte és Documents/Vibe/Transcripcions.",
+	"change-transcripts-path": "Canviar"
 }

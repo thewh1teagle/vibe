@@ -168,5 +168,12 @@
 	"use-word-timestamps": "Временные метки для каждого слова",
 	"when-completing-transcription": "При завершении транскрипции",
 	"ytdlp-options": "Опции транскрипции URL",
-	"ytdlp-options-info": "Vibe использует ytdlp для транскрипции URL."
+	"ytdlp-options-info": "Vibe использует ytdlp для транскрипции URL.",
+	"type-at-cursor": "Напечатать в позицию курсора",
+	"auto-type-at-cursor": "Печатать транскрипцию в позицию курсора",
+	"auto-save-transcripts": "Автосохранение транскрипций",
+	"auto-save-transcripts-info": "Автоматически сохранять файлы транскрипций в папку после каждой транскрипции.",
+	"transcript-save-path": "Путь сохранения транскрипций",
+	"transcript-save-path-info": "Выберите папку для автосохранения транскрипций. По умолчанию: Документы/Vibe/Transcripts.",
+	"change-transcripts-path": "Изменить"
 }
