@@ -6,7 +6,9 @@ import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { useLocalStorage } from 'usehooks-ts'
 import { AudioDevice } from '~/lib/audio'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { createTranscriber } from '~/lib/transcription'
 import * as transcript from '~/lib/transcript'
+import * as fs from '@tauri-apps/plugin-fs'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
 
@@ -17,6 +19,7 @@ export let hotkeyRecordingActive = false
 export const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+V'
 
 export type HotkeyOutputMode = 'clipboard' | 'type'
+export type HotkeyMode = 'hold' | 'toggle'
 
 interface HotkeyContextType {
 	hotkeyEnabled: boolean
@@ -25,6 +28,8 @@ interface HotkeyContextType {
 	setHotkeyShortcut: (shortcut: string) => void
 	hotkeyOutputMode: HotkeyOutputMode
 	setHotkeyOutputMode: (mode: HotkeyOutputMode) => void
+	hotkeyMode: HotkeyMode
+	setHotkeyMode: (mode: HotkeyMode) => void
 	isHotkeyRecording: boolean
 }
 
@@ -59,10 +64,13 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
+	const [hotkeyMode, setHotkeyMode] = useLocalStorage<HotkeyMode>('prefs_hotkey_mode', 'hold')
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 
 	const isHotkeyRecordingRef = useRef(false)
+	const isProcessingRef = useRef(false)
 	const hotkeyOutputModeRef = useRef(hotkeyOutputMode)
+	const hotkeyModeRef = useRef(hotkeyMode)
 	const registeredShortcutRef = useRef<string | null>(null)
 
 	useEffect(() => {
@@ -72,6 +80,10 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		hotkeyOutputModeRef.current = hotkeyOutputMode
 	}, [hotkeyOutputMode])
+
+	useEffect(() => {
+		hotkeyModeRef.current = hotkeyMode
+	}, [hotkeyMode])
 
 	const createLlm = useCallback((): Llm | null => {
 		const config = preferenceRef.current.llmConfig
@@ -118,21 +130,37 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		const unlisten = listen<{ path: string; name: string }>('record_finish', async (event) => {
 			if (!isHotkeyRecordingRef.current) return
 
+			isProcessingRef.current = true
 			const { path } = event.payload
 
 			try {
-				const modelPath = preferenceRef.current.modelPath
-				if (!modelPath) {
-					throw new Error('No model selected')
-				}
+				const transConfig = preferenceRef.current.transcriptionConfig
+				let resultText: string
 
-				await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
-				const options = {
-					path,
-					...preferenceRef.current.modelOptions,
+				if (transConfig.provider !== 'local') {
+					// Cloud transcription
+					const transcriber = createTranscriber(transConfig)
+					if (!transcriber) {
+						throw new Error('Invalid cloud transcription provider configuration')
+					}
+					const lang = preferenceRef.current.modelOptions.lang || undefined
+					const result = await transcriber.transcribe(path, lang)
+					resultText = transcript.asText(result.segments, t('common.speaker-prefix'))
+				} else {
+					// Local (sona) transcription
+					const modelPath = preferenceRef.current.modelPath
+					if (!modelPath) {
+						throw new Error('No model selected')
+					}
+
+					await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
+					const options = {
+						path,
+						...preferenceRef.current.modelOptions,
+					}
+					const res: transcript.Transcript = await invoke('transcribe', { options })
+					resultText = transcript.asText(res.segments, t('common.speaker-prefix'))
 				}
-				const res: transcript.Transcript = await invoke('transcribe', { options })
-				let resultText = transcript.asText(res.segments, t('common.speaker-prefix'))
 
 				// Optional LLM summarization
 				const llm = createLlm()
@@ -153,10 +181,28 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					await clipboard.writeText(resultText)
 					await notify('Vibe', t('common.hotkey-transcription-copied'))
 				}
+
+				// Auto-save transcript
+				if (preferenceRef.current.autoSaveTranscripts) {
+					try {
+						const saveDir = preferenceRef.current.transcriptsSavePath
+							?? await invoke<string>('get_default_transcripts_path')
+						await fs.mkdir(saveDir, { recursive: true })
+						const baseName = 'recording'
+						const savePath = await invoke<string>('get_path_dst', {
+							src: saveDir + '/' + baseName + '.txt',
+							suffix: '.txt',
+						})
+						await fs.writeTextFile(savePath, resultText)
+					} catch (e) {
+						console.error('Hotkey auto-save error:', e)
+					}
+				}
 			} catch (error) {
 				console.error('Hotkey transcription error:', error)
 				await notify('Vibe', String(error))
 			} finally {
+				isProcessingRef.current = false
 				isHotkeyRecordingRef.current = false
 				hotkeyRecordingActive = false
 				setIsHotkeyRecording(false)
@@ -187,12 +233,31 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 			if (!hotkeyEnabled || !hotkeyShortcut || cancelled) return
 
+			// RightControl is handled by native keyboard hook, not tauri-plugin-global-shortcut
+			if (hotkeyShortcut === 'ControlRight' || hotkeyShortcut === 'RightControl') {
+				registeredShortcutRef.current = hotkeyShortcut
+				return
+			}
+
 			try {
 				await register(hotkeyShortcut, (event) => {
-					if (event.state === 'Pressed') {
-						handleHotkeyDown()
-					} else if (event.state === 'Released') {
-						handleHotkeyUp()
+					const isPressed = event.state === 'Pressed'
+					const isReleased = event.state === 'Released'
+
+					if (hotkeyModeRef.current === 'toggle') {
+						if (!isPressed) return
+						if (isProcessingRef.current) return
+						if (isHotkeyRecordingRef.current) {
+							handleHotkeyUp()
+						} else {
+							handleHotkeyDown()
+						}
+					} else {
+						if (isPressed) {
+							handleHotkeyDown()
+						} else if (isReleased) {
+							handleHotkeyUp()
+						}
 					}
 				})
 				registeredShortcutRef.current = hotkeyShortcut
@@ -212,6 +277,38 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		}
 	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
 
+	// Listen for native keyboard hook events (RightControl on Windows)
+	useEffect(() => {
+		if (!hotkeyEnabled) return
+		if (hotkeyShortcut !== 'ControlRight' && hotkeyShortcut !== 'RightControl') return
+
+		const unlistenPressed = listen<string>('native-shortcut-pressed', (event) => {
+			if (event.payload !== 'RightControl') return
+			if (hotkeyModeRef.current === 'toggle') {
+				if (isProcessingRef.current) return
+				if (isHotkeyRecordingRef.current) {
+					handleHotkeyUp()
+				} else {
+					handleHotkeyDown()
+				}
+			} else {
+				handleHotkeyDown()
+			}
+		})
+
+		const unlistenReleased = listen<string>('native-shortcut-released', (event) => {
+			if (event.payload !== 'RightControl') return
+			if (hotkeyModeRef.current !== 'toggle') {
+				handleHotkeyUp()
+			}
+		})
+
+		return () => {
+			unlistenPressed.then((fn) => fn())
+			unlistenReleased.then((fn) => fn())
+		}
+	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
+
 	const value: HotkeyContextType = {
 		hotkeyEnabled,
 		setHotkeyEnabled,
@@ -219,6 +316,8 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		setHotkeyShortcut,
 		hotkeyOutputMode,
 		setHotkeyOutputMode,
+		hotkeyMode,
+		setHotkeyMode,
 		isHotkeyRecording,
 	}
 

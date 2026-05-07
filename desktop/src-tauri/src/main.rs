@@ -9,6 +9,7 @@ mod config;
 mod diagnostics;
 mod error;
 mod ffmpeg;
+mod keyboard_hook;
 mod logging;
 mod setup;
 mod sona;
@@ -46,6 +47,7 @@ async fn main() -> Result<()> {
         }))
         .setup(|app| {
             setup::setup(app)?;
+            keyboard_hook::init(app.handle().clone());
             analytics::track_event(app, analytics::events::APP_STARTED);
             Ok(())
         })
@@ -103,6 +105,7 @@ async fn main() -> Result<()> {
             cmd::files::get_save_path,
             cmd::files::get_argv,
             cmd::files::get_default_recording_path,
+            cmd::files::get_default_transcripts_path,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
             cmd::app::get_models_folder,

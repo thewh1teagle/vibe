@@ -2,32 +2,40 @@ use std::env;
 use std::path::{Path, PathBuf};
 
 fn commit_hash() -> String {
-    let output = std::process::Command::new("git")
+    let output = match std::process::Command::new("git")
         .args(["rev-parse", "--short", "HEAD"])
         .output()
-        .unwrap();
-    String::from_utf8(output.stdout).unwrap()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("cargo:warning=git not found: {}", e);
+            return String::from("unknown");
+        }
+    };
+    let hash = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if hash.is_empty() {
+        String::from("unknown")
+    } else {
+        hash
+    }
 }
 
 fn copy_folder(src: &Path, dst: &Path) {
     std::fs::create_dir_all(dst).expect("Failed to create dst directory");
-    if cfg!(unix) {
-        std::process::Command::new("cp")
-            .arg("-rf")
-            .arg(src)
-            .arg(dst.parent().unwrap())
-            .status()
-            .expect("Failed to execute cp command");
+    fn copy_recursive(src: &Path, dst: &Path) {
+        if src.is_dir() {
+            std::fs::create_dir_all(dst).expect("Failed to create dir");
+            for entry in std::fs::read_dir(src).expect("Failed to read dir") {
+                let entry = entry.expect("Failed to read entry");
+                let src_path = entry.path();
+                let dst_path = dst.join(entry.file_name());
+                copy_recursive(&src_path, &dst_path);
+            }
+        } else {
+            std::fs::copy(src, dst).expect("Failed to copy file");
+        }
     }
-
-    if cfg!(windows) {
-        std::process::Command::new("robocopy.exe")
-            .arg("/e")
-            .arg(src)
-            .arg(dst)
-            .status()
-            .expect("Failed to execute robocopy command");
-    }
+    copy_recursive(src, dst);
 }
 
 fn copy_locales() {

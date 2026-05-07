@@ -2,7 +2,7 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlignRight, Check, Copy, Download, Printer } from 'lucide-react'
+import { AlignRight, Check, Copy, Download, Keyboard, Printer } from 'lucide-react'
 import { Segment, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath } from '~/lib/types'
 import { openPath } from '~/lib/app'
@@ -79,6 +79,17 @@ export default function TextArea({
 	const preference = usePreferenceProvider()
 	const [text, setText] = useState('')
 
+	const [typedAtCursor, setTypedAtCursor] = useState(false)
+	const typeAtCursorTimerRef = useRef<number | null>(null)
+
+	useEffect(() => {
+		return () => {
+			if (typeAtCursorTimerRef.current) {
+				window.clearTimeout(typeAtCursorTimerRef.current)
+			}
+		}
+	}, [])
+
 	const speakerLabel = t('common.speaker-prefix')
 	useEffect(() => {
 		if (segments) {
@@ -133,10 +144,32 @@ export default function TextArea({
 		})
 	}
 
+	async function handleTypeAtCursor() {
+		if (!segments || !text) return
+		await invoke('type_text', { text: text.trimEnd() })
+		setTypedAtCursor(true)
+		if (typeAtCursorTimerRef.current) {
+			window.clearTimeout(typeAtCursorTimerRef.current)
+		}
+		typeAtCursorTimerRef.current = window.setTimeout(() => {
+			setTypedAtCursor(false)
+			typeAtCursorTimerRef.current = null
+		}, 1000)
+	}
+
 	return (
 		<div className="flex h-full w-full min-w-0 flex-col overflow-hidden">
 			<div className="flex w-full shrink-0 flex-wrap items-center gap-1 rounded-tl-lg rounded-tr-lg bg-muted p-1">
 				<CopyButton text={text} />
+
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button variant="ghost" size="icon" onMouseDown={handleTypeAtCursor}>
+							{typedAtCursor ? <Check className="h-5 w-5" strokeWidth={2.3} /> : <Keyboard className="h-5 w-5" strokeWidth={2.1} />}
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>{t('common.type-at-cursor')}</TooltipContent>
+				</Tooltip>
 
 				<Tooltip>
 					<TooltipTrigger asChild>

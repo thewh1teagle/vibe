@@ -89,6 +89,17 @@ pub async fn open_path(path: PathBuf) -> Result<()> {
 }
 
 #[tauri::command]
+pub fn get_default_transcripts_path(app_handle: AppHandle) -> Result<String> {
+    let path = app_handle
+        .path()
+        .document_dir()
+        .map_err(|e| eyre::eyre!("{e:?}"))?
+        .join(crate::config::DOCUMENTS_SUBFOLDER)
+        .join(crate::config::TRANSCRIPTS_SUBFOLDER);
+    Ok(path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
 pub fn get_ffmpeg_path() -> String {
     crate::ffmpeg::find_ffmpeg_path()
         .map(|p| p.to_str().unwrap().to_string())

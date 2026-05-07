@@ -114,6 +114,10 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 								<span className="text-sm font-medium">{t('common.focus-window-on-finish')}</span>
 								<Switch checked={vm.preference.focusOnFinish} onCheckedChange={vm.preference.setFocusOnFinish} />
 							</div>
+							<div className="flex flex-wrap items-center justify-between gap-2 pb-1 pt-4">
+								<span className="text-sm font-medium">{t('common.auto-type-at-cursor')}</span>
+								<Switch checked={vm.preference.autoTypeAtCursor} onCheckedChange={vm.preference.setAutoTypeAtCursor} />
+							</div>
 						</SectionCard>
 					</div>
 					<div className="space-y-2">
@@ -134,6 +138,34 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 									</Button>
 								</div>
 							</div>
+						</SectionCard>
+					</div>
+					<div className="space-y-2">
+						<SectionTitle title={t('common.transcript-save-path')} tip={t('common.transcript-save-path-info')} />
+						<SectionCard>
+							<div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/45 py-2">
+								<span className="text-sm font-medium">{t('common.auto-save-transcripts')}</span>
+								<Switch checked={vm.preference.autoSaveTranscripts} onCheckedChange={vm.preference.setAutoSaveTranscripts} />
+							</div>
+							{vm.preference.autoSaveTranscripts && (
+								<div className="pt-4">
+									<div className="flex items-center justify-between gap-2">
+										<p className="min-w-0 truncate text-sm text-muted-foreground" title={vm.preference.transcriptsSavePath ?? vm.defaultTranscriptsPath}>
+											{vm.preference.transcriptsSavePath ?? vm.defaultTranscriptsPath}
+										</p>
+										<div className="flex shrink-0 items-center gap-2">
+											{vm.preference.transcriptsSavePath && (
+												<Button variant="ghost" size="sm" onMouseDown={vm.resetTranscriptsPath}>
+													{t('common.reset-to-default')}
+												</Button>
+											)}
+											<Button variant="outline" size="sm" onMouseDown={vm.changeTranscriptsPath}>
+												{t('common.change-transcripts-path')}
+											</Button>
+										</div>
+									</div>
+								</div>
+							)}
 						</SectionCard>
 					</div>
 					<div className="space-y-2">
@@ -243,6 +275,155 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 										{t('common.change-models-folder')} <WrenchIcon className="h-4 w-4 text-muted-foreground" />
 									</Button>
 								</div>
+							</div>
+						</SectionCard>
+					</div>
+
+					<div className="space-y-2">
+						<SectionTitle title={t('common.transcription-provider')} tip={t('common.transcription-provider-info')} />
+						<SectionCard>
+							<div className="space-y-5">
+								<div className="space-y-2">
+									<Label>{t('common.transcription-provider')}</Label>
+									<Select
+										value={vm.preference.transcriptionConfig.provider}
+										onValueChange={(value) =>
+											vm.preference.setTranscriptionConfig({
+												...vm.preference.transcriptionConfig,
+												provider: value as 'local' | 'groq' | 'openai' | 'elevenlabs',
+											})
+										}>
+										<SelectTrigger>
+											<SelectValue placeholder={t('common.select-transcription-provider')} />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="local">{t('common.transcription-provider-local')}</SelectItem>
+											<SelectItem value="groq">Groq</SelectItem>
+											<SelectItem value="openai">OpenAI</SelectItem>
+											<SelectItem value="elevenlabs">ElevenLabs</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+
+								{vm.preference.transcriptionConfig.provider === 'groq' && (
+									<div className="space-y-3">
+										<div className="space-y-2">
+											<Label>{t('common.api-key')}</Label>
+											<Input
+												type="password"
+												value={vm.preference.transcriptionConfig.groqApiKey}
+												onChange={(e) =>
+													vm.preference.setTranscriptionConfig({
+														...vm.preference.transcriptionConfig,
+														groqApiKey: e.target.value,
+													})
+												}
+												placeholder="gsk_..."
+											/>
+										</div>
+										<div className="space-y-2">
+											<Label>{t('common.model')}</Label>
+											<Select
+												value={vm.preference.transcriptionConfig.groqModel}
+												onValueChange={(value) =>
+													vm.preference.setTranscriptionConfig({
+														...vm.preference.transcriptionConfig,
+														groqModel: value,
+													})
+												}>
+												<SelectTrigger>
+													<SelectValue placeholder={t('common.select-model')} />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="whisper-large-v3">whisper-large-v3</SelectItem>
+													<SelectItem value="whisper-large-v3-turbo">whisper-large-v3-turbo</SelectItem>
+													<SelectItem value="distil-whisper-large-v3-en">distil-whisper-large-v3-en</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+									</div>
+								)}
+
+								{vm.preference.transcriptionConfig.provider === 'openai' && (
+									<div className="space-y-3">
+										<div className="space-y-2">
+											<Label>{t('common.api-key')}</Label>
+											<Input
+												type="password"
+												value={vm.preference.transcriptionConfig.openaiApiKey}
+												onChange={(e) =>
+													vm.preference.setTranscriptionConfig({
+														...vm.preference.transcriptionConfig,
+														openaiApiKey: e.target.value,
+													})
+												}
+												placeholder="sk-..."
+											/>
+										</div>
+										<div className="space-y-2">
+											<Label>{t('common.model')}</Label>
+											<Select
+												value={vm.preference.transcriptionConfig.openaiModel}
+												onValueChange={(value) =>
+													vm.preference.setTranscriptionConfig({
+														...vm.preference.transcriptionConfig,
+														openaiModel: value,
+													})
+												}>
+												<SelectTrigger>
+													<SelectValue placeholder={t('common.select-model')} />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="whisper-1">whisper-1</SelectItem>
+													<SelectItem value="gpt-4o-transcribe">gpt-4o-transcribe</SelectItem>
+													<SelectItem value="gpt-4o-mini-transcribe">gpt-4o-mini-transcribe</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+									</div>
+								)}
+
+								{vm.preference.transcriptionConfig.provider === 'elevenlabs' && (
+									<div className="space-y-3">
+										<div className="space-y-2">
+											<Label>{t('common.api-key')}</Label>
+											<Input
+												type="password"
+												value={vm.preference.transcriptionConfig.elevenlabsApiKey}
+												onChange={(e) =>
+													vm.preference.setTranscriptionConfig({
+														...vm.preference.transcriptionConfig,
+														elevenlabsApiKey: e.target.value,
+													})
+												}
+												placeholder={t('common.api-key-placeholder')}
+											/>
+										</div>
+										<div className="space-y-2">
+											<Label>{t('common.model')}</Label>
+											<Select
+												value={vm.preference.transcriptionConfig.elevenlabsModel}
+												onValueChange={(value) =>
+													vm.preference.setTranscriptionConfig({
+														...vm.preference.transcriptionConfig,
+														elevenlabsModel: value,
+													})
+												}>
+												<SelectTrigger>
+													<SelectValue placeholder={t('common.select-model')} />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="scribe_v1">scribe_v1</SelectItem>
+													<SelectItem value="scribe_v2">scribe_v2</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
+									</div>
+								)}
+
+								{vm.preference.transcriptionConfig.provider === 'local' && (
+									<p className="text-xs text-muted-foreground">{t('common.transcription-provider-local-info')}</p>
+								)}
 							</div>
 						</SectionCard>
 					</div>
