@@ -8,6 +8,7 @@ import { AudioDevice } from '~/lib/audio'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import { createTranscriber } from '~/lib/transcription'
 import * as transcript from '~/lib/transcript'
+import * as fs from '@tauri-apps/plugin-fs'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
 
@@ -179,6 +180,23 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				} else {
 					await clipboard.writeText(resultText)
 					await notify('Vibe', t('common.hotkey-transcription-copied'))
+				}
+
+				// Auto-save transcript
+				if (preferenceRef.current.autoSaveTranscripts) {
+					try {
+						const saveDir = preferenceRef.current.transcriptsSavePath
+							?? await invoke<string>('get_default_transcripts_path')
+						await fs.mkdir(saveDir, { recursive: true })
+						const baseName = 'recording'
+						const savePath = await invoke<string>('get_path_dst', {
+							src: saveDir + '/' + baseName + '.txt',
+							suffix: '.txt',
+						})
+						await fs.writeTextFile(savePath, resultText)
+					} catch (e) {
+						console.error('Hotkey auto-save error:', e)
+					}
 				}
 			} catch (error) {
 				console.error('Hotkey transcription error:', error)
