@@ -1,11 +1,10 @@
-import { ReactNode, createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { useLocalStorage } from 'usehooks-ts'
 import { AudioDevice } from '~/lib/audio'
-import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
@@ -73,14 +72,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		hotkeyOutputModeRef.current = hotkeyOutputMode
 	}, [hotkeyOutputMode])
 
-	const createLlm = useCallback((): Llm | null => {
-		const config = preferenceRef.current.llmConfig
-		if (!config?.enabled) return null
-		if (config.platform === 'ollama') return new Ollama(config)
-		if (config.platform === 'openai') return new OpenAICompatible(config)
-		return new Claude(config)
-	}, [])
-
 	const handleHotkeyDown = useCallback(async () => {
 		if (isHotkeyRecordingRef.current) return
 		try {
@@ -132,20 +123,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					...preferenceRef.current.modelOptions,
 				}
 				const res: transcript.Transcript = await invoke('transcribe', { options })
-				let resultText = transcript.asText(res.segments, t('common.speaker-prefix'))
-
-				// Optional LLM summarization
-				const llm = createLlm()
-				if (llm && preferenceRef.current.llmConfig?.enabled) {
-					try {
-						const question = preferenceRef.current.llmConfig.prompt.replace('%s', resultText)
-						resultText = await llm.ask(question)
-					} catch (e) {
-						console.error('Hotkey LLM error:', e)
-					}
-				}
-
-				resultText = resultText.trim()
+				const resultText = transcript.asText(res.segments, t('common.speaker-prefix')).trim()
 				// Output result
 				if (hotkeyOutputModeRef.current === 'type') {
 					await invoke('type_text', { text: resultText })
@@ -166,7 +144,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		return () => {
 			unlisten.then((fn) => fn())
 		}
-	}, [createLlm, t])
+	}, [t])
 
 	// Register/unregister shortcut
 	useEffect(() => {

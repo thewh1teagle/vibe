@@ -1,25 +1,10 @@
-import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
+import { ReactNode, createContext, useContext, useEffect, useRef } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
-import { load } from '@tauri-apps/plugin-store'
-import * as config from '~/lib/config'
-import { TextFormat } from '~/components/format-select'
 import { ModifyState } from '~/lib/types'
 import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
-import { defaultOllamaConfig, LlmConfig } from '~/lib/llm'
-import { message } from '@tauri-apps/plugin-dialog'
 
-type Direction = 'ltr' | 'rtl'
-export type HomeTab = 'record' | 'file' | 'link'
-
-export interface AdvancedTranscribeOptions {
-	includeSubFolders: boolean
-	skipIfExists: boolean
-	saveNextToAudioFile: boolean
-}
-
-// Define the type of preference
 export interface Preference {
 	displayLanguage: string
 	setDisplayLanguage: ModifyState<string>
@@ -31,12 +16,6 @@ export interface Preference {
 	setModelPath: ModifyState<string | null>
 	skippedSetup: boolean
 	setSkippedSetup: ModifyState<boolean>
-	textAreaDirection: Direction
-	setTextAreaDirection: ModifyState<Direction>
-	textFormatTranscript: TextFormat
-	setTextFormatTranscript: ModifyState<TextFormat>
-	textFormatSummary: TextFormat
-	setTextFormatSummary: ModifyState<TextFormat>
 	modelOptions: ModelOptions
 	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
@@ -46,49 +25,14 @@ export interface Preference {
 	customRecordingPath: string | null
 	setCustomRecordingPath: ModifyState<string | null>
 	setLanguageDirections: () => void
-	homeTab: HomeTab
-	setHomeTab: ModifyState<HomeTab>
-
-	llmConfig: LlmConfig
-	setLlmConfig: ModifyState<LlmConfig>
-	ffmpegOptions: FfmpegOptions
-	setFfmpegOptions: ModifyState<FfmpegOptions>
-	resetOptions: () => void
-	enableSubtitlesPreset: () => void
-	ytDlpVersion: string | null
-	setYtDlpVersion: ModifyState<string | null>
-	shouldCheckYtDlpVersion: boolean
-	setShouldCheckYtDlpVersion: ModifyState<boolean>
-
-	advancedTranscribeOptions: AdvancedTranscribeOptions
-	setAdvancedTranscribeOptions: ModifyState<AdvancedTranscribeOptions>
-
-	diarizeEnabled: boolean
-	setDiarizeEnabled: ModifyState<boolean>
-	stableTimestampsEnabled: boolean
-	setStableTimestampsEnabled: ModifyState<boolean>
-
 	gpuDevice: number | null
 	setGpuDevice: ModifyState<number | null>
-
-	recentLanguages: { code: string; ts: number }[]
-	setRecentLanguages: ModifyState<{ code: string; ts: number }[]>
-
-	analyticsEnabled: boolean
-	setAnalyticsEnabled: (value: boolean) => void
 }
 
-// Create the context
 const PreferenceContext = createContext<Preference | null>(null)
 
-// Custom hook to use the preference context
 export function usePreferenceProvider() {
 	return useContext(PreferenceContext) as Preference
-}
-
-export interface FfmpegOptions {
-	normalize_loudness: boolean
-	custom_command: string | null
 }
 
 export interface ModelOptions {
@@ -110,9 +54,6 @@ const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-sche
 const defaultDisplayLanguage = 'en-US'
 
 const defaultOptions = {
-	soundOnFinish: true,
-	focusOnFinish: true,
-	modelPath: null,
 	modelOptions: {
 		init_prompt: '',
 		verbose: false,
@@ -126,17 +67,9 @@ const defaultOptions = {
 		best_of: 5,
 		beam_size: 5,
 	},
-	ffmpegOptions: {
-		normalize_loudness: false,
-		custom_command: null,
-	},
 	storeRecordInDocuments: true,
-	llmConfig: defaultOllamaConfig(),
-	ytDlpVersion: null,
-	shouldCheckYtDlpVersion: true,
 }
 
-// Preference provider component
 export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const { i18n } = useTranslation()
 	const previ18Language = useRef(i18n.language)
@@ -145,49 +78,15 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
-	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
-	const [textFormatTranscript, setTextFormatTranscript] = useLocalStorage<TextFormat>('prefs_text_format_transcript', 'pdf')
-	const [textFormatSummary, setTextFormatSummary] = useLocalStorage<TextFormat>('prefs_text_format_summary', 'md')
 	const isMounted = useRef<boolean>(false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
-	const [homeTab, setHomeTab] = useLocalStorage<HomeTab>('prefs_home_tab', 'file')
 
-	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', defaultOptions.soundOnFinish)
-	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', defaultOptions.focusOnFinish)
+	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
+	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)
 	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', defaultOptions.modelOptions)
-	const [ffmpegOptions, setFfmpegOptions] = useLocalStorage<FfmpegOptions>('prefs_ffmpeg_options', defaultOptions.ffmpegOptions)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
 	const [customRecordingPath, setCustomRecordingPath] = useLocalStorage<string | null>('prefs_custom_recording_path', null)
-	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
-	const [ytDlpVersion, setYtDlpVersion] = useLocalStorage<string | null>('prefs_ytdlp_version', null)
-	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = useLocalStorage<boolean>('prefs_should_check_ytdlp_version', true)
-	const [advancedTranscribeOptions, setAdvancedTranscribeOptions] = useLocalStorage<AdvancedTranscribeOptions>('prefs_advanced_transcribe_options', {
-		includeSubFolders: false,
-		saveNextToAudioFile: true,
-		skipIfExists: true,
-	})
-
-	const [recentLanguages, setRecentLanguages] = useLocalStorage<{ code: string; ts: number }[]>('prefs_recent_languages', [])
-	const [diarizeEnabled, setDiarizeEnabled] = useLocalStorage<boolean>('prefs_diarize_enabled', false)
-	const [stableTimestampsEnabled, setStableTimestampsEnabled] = useLocalStorage<boolean>('prefs_stable_timestamps_enabled', false)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
-
-	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
-	useEffect(() => {
-		load(config.storeFilename).then((store) => {
-			store.get<boolean>('analytics_enabled').then((val) => {
-				if (val !== null && val !== undefined) {
-					setAnalyticsEnabledLocal(val)
-				}
-			})
-		})
-	}, [])
-	const setAnalyticsEnabled = async (value: boolean) => {
-		setAnalyticsEnabledLocal(value)
-		const store = await load(config.storeFilename)
-		await store.set('analytics_enabled', value)
-		await store.save()
-	}
 
 	useEffect(() => {
 		setIsFirstRun(false)
@@ -205,9 +104,9 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		const name = supportedLanguages[preference.displayLanguage]
 		if (name) {
 			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
-			preference.setTextAreaDirection(i18n.dir())
 		}
 	}
+
 	useEffect(() => {
 		if (!isMounted.current) {
 			isMounted.current = true
@@ -229,28 +128,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		}
 	}, [language, setLanguage])
 
-	function resetOptions() {
-		setSoundOnFinish(defaultOptions.soundOnFinish)
-		setFocusOnFinish(defaultOptions.focusOnFinish)
-		setModelOptions(defaultOptions.modelOptions)
-		setFfmpegOptions(defaultOptions.ffmpegOptions)
-		setStoreRecordInDocuments(defaultOptions.storeRecordInDocuments)
-		setCustomRecordingPath(null)
-		setLlmConfig(defaultOptions.llmConfig)
-		message(i18n.t('common.success-action'))
-	}
-
-	function enableSubtitlesPreset() {
-		setModelOptions({ ...preference.modelOptions, word_timestamps: true, max_sentence_len: 32 })
-		setTextFormatTranscript('srt')
-		message(i18n.t('common.success-action'))
-	}
-
 	const preference: Preference = {
-		enableSubtitlesPreset,
-		llmConfig,
-		resetOptions,
-		setLlmConfig,
 		setLanguageDirections: setLanguageDefaults,
 		modelOptions,
 		setModelOptions,
@@ -258,12 +136,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setStoreRecordInDocuments,
 		customRecordingPath,
 		setCustomRecordingPath,
-		textFormatTranscript,
-		setTextFormatTranscript,
-		textFormatSummary,
-		setTextFormatSummary,
-		textAreaDirection,
-		setTextAreaDirection,
 		skippedSetup,
 		setSkippedSetup,
 		displayLanguage: language,
@@ -276,26 +148,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setModelPath,
 		theme,
 		setTheme,
-		homeTab,
-		setHomeTab,
-		ffmpegOptions,
-		setFfmpegOptions,
-		ytDlpVersion,
-		setYtDlpVersion,
-		shouldCheckYtDlpVersion,
-		setShouldCheckYtDlpVersion,
-		advancedTranscribeOptions,
-		setAdvancedTranscribeOptions,
-		recentLanguages,
-		setRecentLanguages,
-		diarizeEnabled,
-		setDiarizeEnabled,
-		stableTimestampsEnabled,
-		setStableTimestampsEnabled,
 		gpuDevice,
 		setGpuDevice,
-		analyticsEnabled,
-		setAnalyticsEnabled,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

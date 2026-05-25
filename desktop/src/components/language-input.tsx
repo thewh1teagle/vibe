@@ -1,5 +1,4 @@
-
-import { subDays, isAfter } from 'date-fns'
+import { useLocalStorage } from 'usehooks-ts'
 import { useTranslation } from 'react-i18next'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName } from '~/lib/i18n'
@@ -12,6 +11,7 @@ const specialModels = [{ pattern: 'ug.bin', languages: [{ code: 'ug', label: 'Uy
 export default function LanguageInput() {
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
+	const [recentLanguages, setRecentLanguages] = useLocalStorage<{ code: string; ts: number }[]>('prefs_recent_languages', [])
 
 	const entries = Object.entries(WhisperLanguages).map(([name, code]) => {
 		return { label: t(`language.${name}`, { defaultValue: name }), name, code }
@@ -29,14 +29,14 @@ export default function LanguageInput() {
 		preference.setModelOptions({ ...preference.modelOptions, lang: value })
 		if (value !== 'auto') {
 			const now = Date.now()
-			const recent = [{ code: value, ts: now }, ...preference.recentLanguages.filter((r) => r.code !== value)].slice(0, 5)
-			preference.setRecentLanguages(recent)
+			const recent = [{ code: value, ts: now }, ...recentLanguages.filter((r) => r.code !== value)].slice(0, 5)
+			setRecentLanguages(recent)
 		}
 	}
 
-	const cutoff = subDays(new Date(), 7)
+	const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
 	const popularLanguages = [getI18nLanguageName(), 'auto', 'english']
-	const recentCodes = new Set(preference.recentLanguages.filter((r) => isAfter(r.ts, cutoff)).map((r) => r.code))
+	const recentCodes = new Set(recentLanguages.filter((r) => r.ts > cutoff).map((r) => r.code))
 	const recentEntries: { label: string; code: string }[] = []
 	const popularEntries: { label: string; code: string }[] = []
 	const otherEntries: { label: string; code: string }[] = []
@@ -51,8 +51,7 @@ export default function LanguageInput() {
 		}
 	})
 
-	// Sort recent entries by recency order
-	const recentOrder = preference.recentLanguages.map((r) => r.code)
+	const recentOrder = recentLanguages.map((r) => r.code)
 	recentEntries.sort((a, b) => recentOrder.indexOf(a.code) - recentOrder.indexOf(b.code))
 
 	return (
