@@ -2,9 +2,9 @@
 
 Goal: strip Vibe down to only global dictation via hotkey. Target: **Windows only**.
 
-Branch: `simplify-dictation-only`
+Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 
-## Status: [x] Builds ✓ [x] Frontend done [ ] Rust backend [ ] Deps
+## Status: [x] Builds ✓ [x] Frontend done [x] Rust backend done [ ] Deps [ ] i18n
 
 ### Pre-work fix
 
@@ -63,27 +63,42 @@ Branch: `simplify-dictation-only`
 
 ---
 
-## Phase 4: Rust Backend Cleanup [ ]
+## Phase 4: Rust Backend Cleanup ✓
 
-Files to delete:
-- [ ] `cmd/ytdlp.rs` — YouTube download
-- [ ] `cmd/ui.rs` — Progress bar helper
-- [ ] `analytics.rs` — Telemetry
-- [ ] `cleaner.rs` — Temp/log cleanup
-- [ ] `cli.rs` — CLI mode
-- [ ] `custom_protocol.rs` — vibe:// handler
-- [ ] `dock.rs` — macOS dock control
-- [ ] `diagnostics.rs` — App diagnostics
+### Deleted (8 files)
+| File | Reason |
+|------|--------|
+| `analytics.rs` | Telemetry |
+| `cleaner.rs` | Temp/log cleanup |
+| `cli.rs` | CLI mode |
+| `custom_protocol.rs` | vibe:// handler |
+| `dock.rs` | macOS dock control |
+| `diagnostics.rs` | App diagnostics |
+| `cmd/ui.rs` | Progress bar helper |
+| `cmd/ytdlp.rs` | YouTube download |
 
-Files to simplify:
-- [ ] `cmd/app.rs` — Strip unused commands (diagnostics, analytics, etc.)
-- [ ] `cmd/files.rs` — Strip `glob_files`, `get_path_dst`, `get_save_path`, `open_path`
-- [ ] `main.rs` — Remove deleted module registrations and plugin init
-- [ ] `setup.rs` — Remove analytics/cleaner/custom_protocol init
+### Simplified
+| File | What changed |
+|------|--------------|
+| `main.rs` | Removed 8 module declarations, aptabase plugin init, ytdlp/analytics commands |
+| `setup.rs` | Removed cli, diagnostics, cleaner, custom_protocol refs |
+| `cmd/mod.rs` | Removed `pub mod ui` and `pub mod ytdlp` |
+| `cmd/app.rs` | Removed dead functions: get_commit_hash, get_logs_folder, show_log_path, show_temp_path, get_logs, get_cargo_features, track_analytics_event |
+| `cmd/files.rs` | Removed get_argv |
+| `cmd/sona_cmd.rs` | Removed analytics tracking call |
+| `cmd/transcribe.rs` | Removed set_progress_bar calls |
+| `cmd/download.rs` | Removed set_progress_bar calls |
+
+### Removed plugins/deps
+- `tauri-plugin-aptabase` (Rust deps)
+- `tauri-plugin-deep-link` (Rust deps + capabilities)
+- `tauri-plugin-updater` (Rust deps + capabilities)
+
+---
 
 ## Phase 5: Dependencies & Config [ ]
 
-- [ ] `desktop/src-tauri/Cargo.toml` — Remove unused plugins: `deep-link`, `updater`, `notification`, `dialog`, `http`, `aptabase`, `keepawake`
+- [ ] `desktop/src-tauri/Cargo.toml` — Remove remaining unused plugins and deps
 - [ ] `desktop/package.json` — Remove unused npm deps: `docx`, `framer-motion`, `react-markdown`, `format-duration`, `date-fns`
 - [ ] `tauri.conf.json` — Remove unused bundle targets (deb, rpm, dmg, app) + `sona-diarize` external bin
 
