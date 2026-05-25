@@ -1,6 +1,5 @@
 *.wav
 *.opus
-!src/audio/test_audio.wav
 *.srt
 *.vtt
 *.dll
@@ -13,11 +12,9 @@ ffmpeg*-default/
 *.xz
 .DS_Store
 *.pyc
-ffmpeg/
 openblas/
 *.7z
 .env
-!samples/*
 vulkan_sdk/
 vulkan_runtime/
 schemas/
@@ -28,18 +25,12 @@ venv/
 *.onnx
 *.pfx
 *trace*.log
-samples/**/*.txt
 pnpm-workspace.yaml
 desktop/src-tauri/binaries/sona-*
 github-issues/
 dedup_report.json
-ISSUES-REPORT.md
 desktop/src-tauri/binaries/
 !desktop/src-tauri/binaries/.gitkeep
 *.csv
-sona/
-whisper.cpp/
-aptabase-python/
-tauri-plugin-aptabase/
 **/project.inlang/cache/
 **/project.inlang/project_id
