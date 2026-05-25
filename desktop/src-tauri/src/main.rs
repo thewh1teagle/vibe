@@ -9,6 +9,7 @@ mod logging;
 mod setup;
 mod sona;
 mod transcript;
+mod tray;
 use tauri::{Emitter, Manager};
 
 use eyre::{eyre, Result};
@@ -32,6 +33,7 @@ async fn main() -> Result<()> {
 		}))
 		.setup(|app| {
 			setup::setup(app)?;
+			tray::create_tray(app.handle())?;
 			Ok(())
 		})
 		.plugin(
@@ -45,7 +47,15 @@ async fn main() -> Result<()> {
 		.plugin(tauri_plugin_dialog::init())
 		.plugin(tauri_plugin_process::init())
 		.plugin(tauri_plugin_global_shortcut::Builder::new().build())
-		.plugin(tauri_plugin_notification::init());
+		.plugin(tauri_plugin_notification::init())
+		.on_window_event(|window, event| {
+			if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+				if window.label() == "main" {
+					window.hide().ok();
+					api.prevent_close();
+				}
+			}
+		});
 
 	#[cfg(feature = "keepawake")]
 	{
