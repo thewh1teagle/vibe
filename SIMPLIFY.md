@@ -4,7 +4,7 @@ Goal: strip Vibe down to only global dictation via hotkey. Target: **Windows onl
 
 Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 
-## Status: [x] All 6 phases complete
+## Status: [x] All phases complete + final cleanup
 
 ### Pre-work fix
 
@@ -120,3 +120,17 @@ Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 **Setup:** Model download wizard (first run)
 
 **Core:** Global hotkey press → record from default mic → stop → Whisper transcribe → clipboard or type-at-cursor
+
+---
+
+## Final Cleanup ✓
+
+- [x] Removed `design/`, `docs/`, `samples/`, `website/`, `.skills/`, `plans/`
+- [x] Removed `CONTRIBUTE.md`, `SECURITY.md`
+- [x] Removed `desktop/src-tauri/tauri.linux.conf.json`, `tauri.macos.conf.json`, `Info.plist`, `entitlements.plist`
+- [x] Removed 9 unused scripts from `scripts/` (kept only `pre_build.py`)
+- [x] Removed release/website CI workflows (kept only `lint_rust.yml`)
+- [x] Removed GitHub issue templates and FUNDING.yml
+- [x] Updated root `package.json` (removed website from check-types)
+- [x] Updated `AGENTS.md` and `README.md` for the simplified app
+- [x] 162 files, 16,444 lines removed
