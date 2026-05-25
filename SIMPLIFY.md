@@ -4,7 +4,7 @@ Goal: strip Vibe down to only global dictation via hotkey. Target: **Windows onl
 
 Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 
-## Status: [x] Builds ✓ [x] Frontend done [x] Rust backend done [x] Deps done [ ] i18n
+## Status: [x] All 6 phases complete
 
 ### Pre-work fix
 
@@ -102,11 +102,12 @@ Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 - [x] `desktop/package.json` — Removed 11 unused packages: `docx`, `framer-motion`, `react-markdown`, `format-duration`, `date-fns`, `next-themes`, `@formatjs/intl-durationformat`, `deep-link`, `updater`, `keepawake-api`, `npm-check-updates`
 - [x] `tauri.conf.json` — Removed unused bundle targets (deb, rpm, dmg, app), sona-diarize bin, updater+deep-link plugin configs
 
-## Phase 6: i18n & Assets [ ]
+## Phase 6: i18n & Assets ✓
 
-- [ ] Prune unused translation keys from locales
-- [ ] Remove unused language codes from `i18n.ts`
-- [ ] Remove unused SVG icons
+- [x] Removed 21 unused SVG icons (kept 7 in use)
+- [x] Pruned locales: 20 language dirs → en-US only
+- [x] Simplified i18n.ts: single language, no OS detection
+- [x] Removed language picker from settings
 
 ---
 
