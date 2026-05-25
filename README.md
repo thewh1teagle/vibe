@@ -1,6 +1,6 @@
 # Vibe — Global Dictation
 
-Forked from [thewh1teagle/vibe](https://github.com/thewh1teagle/vibe) and simplified to **global dictation only**.
+Forked from [thewh1teagle/vibe](https://github.com/thewh1teagle/vibe) and stripped down to **global dictation only**.
 
 Press a hotkey from anywhere in Windows, speak, and your speech is transcribed via Whisper and output directly to your clipboard or typed at the cursor.
 
@@ -29,15 +29,24 @@ uv run scripts/pre_build.py --target x86_64-pc-windows-msvc
 # Install and run
 cd desktop
 pnpm install
-pnpm exec tauri dev
+pnpm tauri dev
+```
+
+Or from the root folder:
+
+```bash
+pnpm dev
 ```
 
 ## Build
 
 ```bash
-cd desktop
-pnpm exec tauri build
+pnpm build
 ```
+
+## Tray Usage
+
+The app starts minimized to the system tray. Left-click the tray icon to open the window, right-click for "Show" or "Quit". Closing the window hides it back to the tray — the app keeps running with the global hotkey active.
 
 ## How It Works
 
