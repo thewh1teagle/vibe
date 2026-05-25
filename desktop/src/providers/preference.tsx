@@ -50,7 +50,6 @@ export interface ModelOptions {
 	beam_size?: number
 }
 
-const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 const defaultDisplayLanguage = 'en-US'
 
 const defaultOptions = {
@@ -79,7 +78,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const isMounted = useRef<boolean>(false)
-	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
+	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', 'dark')
 
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', true)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', true)

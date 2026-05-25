@@ -5,7 +5,6 @@ import { ReactComponent as ChevronRightIcon } from '~/icons/chevron-right.svg'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as WrenchIcon } from '~/icons/wrench.svg'
-import * as config from '~/lib/config'
 import { ModifyState } from '~/lib/types'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -51,27 +50,6 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 				</div>
 
 				<div className="mt-7 w-full space-y-7">
-					<div className="space-y-2">
-						<SectionTitle title={t('common.theme')} />
-						<SectionCard>
-							<div className="space-y-2">
-								<Label>{t('common.theme')}</Label>
-								<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>
-									<SelectTrigger className="capitalize">
-										<SelectValue placeholder={t('common.select-theme')} />
-									</SelectTrigger>
-									<SelectContent>
-										{config.themes.map((theme) => (
-											<SelectItem key={theme} value={theme} className="capitalize">
-												{t(`common.${theme}`)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</SectionCard>
-					</div>
-
 					<div className="space-y-2">
 						<SectionTitle title={t('common.customize')} />
 						<SectionCard>
