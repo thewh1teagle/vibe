@@ -10,6 +10,7 @@ import { useHotkeyProvider, type HotkeyOutputMode } from '~/providers/hotkey'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Switch } from '~/components/ui/switch'
+import { Separator } from '~/components/ui/separator'
 import { viewModel } from './view-model'
 
 export default function Home() {
@@ -36,47 +37,47 @@ export default function Home() {
 	return (
 		<Layout>
 			<SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-			<div className="w-full max-w-md space-y-6">
+			<div className="w-full max-w-lg space-y-2">
 				{!vm.preference.modelPath && (
-					<div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-center text-sm text-destructive/80">
+					<div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2.5 text-center text-xs text-destructive/80">
 						{t('common.no-model-selected')}
 					</div>
 				)}
 
-				<div className="space-y-2">
-					<div className="flex items-end gap-2">
+				<div className="rounded-2xl border border-border/50 bg-card/70 p-6 shadow-lg shadow-black/5 backdrop-blur-sm">
+					<div className="flex items-end gap-3 mb-5">
 						<div className="flex-1">
 							<LanguageInput />
 						</div>
-						<div className="flex items-center gap-0.5">
-							<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
-							<Button
-								variant="ghost"
-								className="shrink-0 h-9 w-9 rounded-md border border-border/65 text-muted-foreground hover:bg-accent/45 hover:text-foreground"
-								aria-label={t('common.settings')}
-								onClick={() => setSettingsOpen(true)}>
-								<Settings2 className="h-4 w-4" />
-							</Button>
-						</div>
+						<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
+						<Button
+							variant="ghost"
+							className="shrink-0 h-9 w-9 rounded-md border border-border/65 text-muted-foreground hover:bg-accent/45 hover:text-foreground"
+							aria-label={t('common.settings')}
+							onClick={() => setSettingsOpen(true)}>
+							<Settings2 className="h-4 w-4" />
+						</Button>
 					</div>
-				</div>
 
-				<div className="rounded-xl border border-border/60 bg-card/60 p-5 shadow-sm">
-					<div className="flex items-center justify-between mb-4">
-						<div className="flex items-center gap-2.5">
-							<div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+					<Separator className="mb-4" />
+
+					<div className="flex items-center justify-between mb-3">
+						<div className="flex items-center gap-3">
+							<div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
 								<Mic className="h-4 w-4 text-primary" />
 							</div>
 							<div>
 								<h2 className="text-sm font-semibold">{t('common.global-dictation')}</h2>
-								<p className="text-[11px] text-muted-foreground">{hotkey.hotkeyEnabled ? t('common.global-hotkey-description') : t('common.global-dictation-promo-short')}</p>
+								<p className="text-[11px] text-muted-foreground">
+									{hotkey.hotkeyEnabled ? t('common.global-hotkey-description') : t('common.global-dictation-promo-short', 'Press the hotkey and speak')}
+								</p>
 							</div>
 						</div>
 						<Switch checked={hotkey.hotkeyEnabled} onCheckedChange={hotkey.setHotkeyEnabled} />
 					</div>
 
 					{hotkey.hotkeyEnabled && (
-						<div className="space-y-3 border-t border-border/40 pt-4">
+						<div className="space-y-3 rounded-lg border border-border/40 bg-background/50 p-4">
 							<div className="space-y-1.5">
 								<label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
 									<Keyboard className="h-3 w-3" />
@@ -104,7 +105,7 @@ export default function Home() {
 							<div className="space-y-1.5">
 								<label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
 									<Radio className="h-3 w-3" />
-									{'Output'}
+									Output
 								</label>
 								<div className="flex gap-1.5">
 									{(['clipboard', 'type'] as HotkeyOutputMode[]).map((mode) => (
