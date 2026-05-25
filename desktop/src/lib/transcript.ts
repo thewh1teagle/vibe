@@ -70,7 +70,9 @@ export function asVtt(segments: Segment[], speakerLabel: string = 'Speaker') {
 
 export function asText(segments: Segment[], speakerLabel: string = 'Speaker') {
 	return segments.reduce((transcript, segment) => {
-		return transcript + `${speakerPrefix(segment, speakerLabel)}${segment.text.trim()}\n`
+		const text = segment.text.trim().replace(/^[.,!?;:\s]+/, '').trimEnd()
+		if (!text) return transcript
+		return transcript + `${speakerPrefix(segment, speakerLabel)}${text}\n`
 	}, '')
 }
 
