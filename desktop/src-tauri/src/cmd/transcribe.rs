@@ -13,7 +13,7 @@ use std::sync::{
 use tauri::{Emitter, Listener, State};
 use tokio::sync::Mutex;
 
-use super::{ui::set_progress_bar, CommandError};
+use super::CommandError;
 
 #[allow(dead_code)]
 #[derive(Deserialize, Serialize, Clone)]
@@ -85,10 +85,9 @@ pub async fn transcribe(
     let abort_atomic_c = abort_atomic.clone();
 
     let app_handle_c = app_handle.clone();
-    app_handle.listen("abort_transcribe", move |_| {
-        let _ = set_progress_bar(&app_handle_c, None);
-        abort_atomic_c.store(true, Ordering::Relaxed);
-    });
+	app_handle.listen("abort_transcribe", move |_| {
+		abort_atomic_c.store(true, Ordering::Relaxed);
+	});
 
     let start = std::time::Instant::now();
 
@@ -117,9 +116,7 @@ pub async fn transcribe(
 
         match event_result {
             Ok(event) => match event {
-                SonaEvent::Progress { progress } => {
-                    let _ = set_progress_bar(&app_handle, Some(progress.into()));
-                }
+				SonaEvent::Progress { .. } => {}
                 SonaEvent::Segment {
                     start,
                     end,
@@ -151,8 +148,6 @@ pub async fn transcribe(
             }
         }
     }
-
-    let _ = set_progress_bar(&app_handle, None);
 
     let elapsed = start.elapsed();
     let transcript = Transcript {

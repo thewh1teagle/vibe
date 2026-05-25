@@ -6,8 +6,6 @@ pub mod files;
 pub mod permissions;
 pub mod sona_cmd;
 pub mod transcribe;
-pub mod ui;
-pub mod ytdlp;
 
 pub use transcribe::TranscribeOptions;
 

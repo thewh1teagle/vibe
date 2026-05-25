@@ -7,8 +7,6 @@ use std::sync::{
 };
 use tauri::{Emitter, Listener, Manager};
 
-use super::ui::set_progress_bar;
-
 #[tauri::command]
 pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: String) -> Result<String> {
     tracing::debug!("Download model invoked! with path {}", path);
@@ -18,9 +16,7 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: Str
 
     let app_handle_c = app_handle.clone();
 
-    let app_handle_d = app_handle_c.clone();
     app_handle.listen("abort_download", move |_| {
-        set_progress_bar(&app_handle_d, None).log_error();
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
@@ -43,16 +39,12 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: Str
             .context(format!("Error while writing to file {}", path))?;
         downloaded += chunk.len() as u64;
         if total_size > 0 && downloaded > callback_offset + callback_limit {
-            let percentage = (downloaded as f64 / total_size as f64) * 100.0;
-            tracing::trace!("percentage: {}", percentage);
-            set_progress_bar(&app_handle_c, Some(percentage)).log_error();
             if let Some(window) = app_handle_c.get_webview_window("main") {
                 window.emit("download_progress", (downloaded, total_size)).log_error();
             }
             callback_offset = downloaded;
         }
     }
-    set_progress_bar(&app_handle, None)?;
     Ok(path)
 }
 
@@ -65,9 +57,7 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
 
     let app_handle_c = app_handle.clone();
 
-    let app_handle_d = app_handle_c.clone();
     app_handle.listen("abort_download", move |_| {
-        set_progress_bar(&app_handle_d, None).log_error();
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 

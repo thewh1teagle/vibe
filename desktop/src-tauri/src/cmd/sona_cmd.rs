@@ -110,12 +110,6 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
         match spawn_sona() {
             Ok(process) => state_guard.process = Some(process),
             Err(e) => {
-                let error_msg = format!("{:#}", e);
-                crate::analytics::track_event_handle_with_props(
-                    &app_handle,
-                    crate::analytics::events::SONA_SPAWN_FAILED,
-                    Some(serde_json::json!({"error_message": error_msg})),
-                );
                 return Err(e);
             }
         }
