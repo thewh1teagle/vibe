@@ -32,20 +32,18 @@ export default function Home() {
 				{!vm.preference.modelPath && (
 					<p className="text-center text-sm text-muted-foreground">{t('common.no-model-selected')}</p>
 				)}
-				<div className="flex items-center gap-2">
+				<div className="flex items-end gap-2">
 					<div className="flex-1">
 						<LanguageInput />
 					</div>
-					<div className="flex items-center gap-0">
-						<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
-						<Button
-							variant="ghost"
-							className="h-9 w-9 rounded-md border border-border/65 text-muted-foreground hover:bg-accent/45 hover:text-foreground"
-							aria-label={t('common.settings')}
-							onClick={() => setSettingsOpen(true)}>
-							<Settings2 className="h-4 w-4" />
-						</Button>
-					</div>
+					<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
+					<Button
+						variant="ghost"
+						className="shrink-0 h-9 w-9 rounded-md border border-border/65 text-muted-foreground hover:bg-accent/45 hover:text-foreground"
+						aria-label={t('common.settings')}
+						onClick={() => setSettingsOpen(true)}>
+						<Settings2 className="h-4 w-4" />
+					</Button>
 				</div>
 				<DictationDialog />
 			</div>
