@@ -48,6 +48,18 @@ Hotkey press → record from default mic → release → Whisper transcribes →
 
 The app uses [sona](https://github.com/thewh1teagle/sona) — a Go + whisper.cpp HTTP server — as a sidecar binary for transcription.
 
+## Model Download
+
+On first run, the app downloads a Whisper GGML model from HuggingFace:
+
+- Primary: `ggml-large-v3-turbo.bin` (~1.5 GB) — fast and accurate
+- Fallback: `ggml-medium.bin` — smaller, slightly less accurate
+- Source: [ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp)
+
+The model is stored in `%LOCALAPPDATA%\github.com.thewh1teagle.vibe\` and loaded by the sona sidecar. You can also download custom GGML models by pasting a URL in Settings.
+
+> **Tip:** If the download is very slow, turn off your VPN. HuggingFace sometimes throttles VPN traffic.
+
 ## Credits
 
 Built on [Tauri](https://tauri.app/), [whisper.cpp](https://github.com/ggerganov/whisper.cpp), and the original [Vibe](https://github.com/thewh1teagle/vibe) project.

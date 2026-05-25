@@ -23,6 +23,7 @@ function App() {
 						</>
 					)}
 					{(vm.downloadProgress === 0 || vm.isOnline === null) && <Spinner className="h-8 w-8" />}
+					<p className="text-xs text-muted-foreground/60 mt-1">If the download is very slow, try turning off your VPN.</p>
 				</div>
 			</div>
 
