@@ -46,8 +46,7 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 			</DialogTrigger>
 			<DialogContent className="flex h-[85vh] max-h-[85vh] max-w-2xl flex-col gap-0 overflow-hidden rounded-2xl border-border/60 bg-card/95 p-0 shadow-xl">
 				<DialogHeader className="px-6 pb-3 pt-5">
-					<p className="app-kicker">{t('common.more-options')}</p>
-					<DialogTitle className="mt-1 text-2xl font-semibold">{t('common.more-options')}</DialogTitle>
+					<DialogTitle className="text-2xl font-semibold">{t('common.more-options')}</DialogTitle>
 				</DialogHeader>
 				<ScrollArea className="min-h-0 flex-1 px-6 pb-5 pt-2">
 					<div className="space-y-6 pb-6">
