@@ -4,7 +4,7 @@ Goal: strip Vibe down to only global dictation via hotkey. Target: **Windows onl
 
 Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 
-## Status: [x] Builds ✓ [x] Frontend done [x] Rust backend done [ ] Deps [ ] i18n
+## Status: [x] Builds ✓ [x] Frontend done [x] Rust backend done [x] Deps done [ ] i18n
 
 ### Pre-work fix
 
@@ -96,11 +96,11 @@ Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 
 ---
 
-## Phase 5: Dependencies & Config [ ]
+## Phase 5: Dependencies & Config ✓
 
-- [ ] `desktop/src-tauri/Cargo.toml` — Remove remaining unused plugins and deps
-- [ ] `desktop/package.json` — Remove unused npm deps: `docx`, `framer-motion`, `react-markdown`, `format-duration`, `date-fns`
-- [ ] `tauri.conf.json` — Remove unused bundle targets (deb, rpm, dmg, app) + `sona-diarize` external bin
+- [x] `desktop/src-tauri/Cargo.toml` — Removed `url`, `urlencoding` crates
+- [x] `desktop/package.json` — Removed 11 unused packages: `docx`, `framer-motion`, `react-markdown`, `format-duration`, `date-fns`, `next-themes`, `@formatjs/intl-durationformat`, `deep-link`, `updater`, `keepawake-api`, `npm-check-updates`
+- [x] `tauri.conf.json` — Removed unused bundle targets (deb, rpm, dmg, app), sona-diarize bin, updater+deep-link plugin configs
 
 ## Phase 6: i18n & Assets [ ]
 
