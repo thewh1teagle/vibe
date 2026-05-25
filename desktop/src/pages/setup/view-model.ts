@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import { emit, listen } from '@tauri-apps/api/event'
+import { listen } from '@tauri-apps/api/event'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/error-modal'
@@ -95,13 +95,6 @@ export function viewModel() {
 		setIsOnline(isOnlineResponse)
 	}
 
-	async function cancelSetup() {
-		// Cancel and go to settings
-		preference.setSkippedSetup(true)
-		emit('abort_download')
-		navigate('/#settings')
-	}
-
 	useEffect(() => {
 		downloadIfOnline()
 	}, [])
@@ -109,7 +102,6 @@ export function viewModel() {
 	return {
 		modelCompany,
 		navigate,
-		cancelSetup,
 		setErrorModal,
 		downloadProgress,
 		downloadIfOnline,

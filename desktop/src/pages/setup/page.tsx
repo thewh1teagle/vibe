@@ -4,7 +4,6 @@ import { Progress } from '~/components/ui/progress'
 import { Spinner } from '~/components/ui/spinner'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent } from '~/components/ui/dialog'
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 
 function App() {
 	const { t } = useTranslation()
@@ -25,15 +24,6 @@ function App() {
 					)}
 					{(vm.downloadProgress === 0 || vm.isOnline === null) && <Spinner className="h-8 w-8" />}
 				</div>
-
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button variant="ghost" size="sm" className="mt-5 text-destructive text-xs" onClick={vm.cancelSetup}>
-							{t('common.cancel')}
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent>{t('common.info-cancel-download')}</TooltipContent>
-				</Tooltip>
 			</div>
 
 			<Dialog open={vm.isOnline === false}>
@@ -43,9 +33,6 @@ function App() {
 					<div className="mt-5 flex flex-col justify-center gap-2">
 						<Button className="flex-1" onClick={vm.downloadIfOnline}>
 							{t('common.try-again')}
-						</Button>
-						<Button variant="secondary" size="sm" onClick={vm.cancelSetup}>
-							{t('common.i-prefer-manual-setup')}
 						</Button>
 					</div>
 				</DialogContent>
