@@ -29,13 +29,8 @@
 	"bundle": {
 		"active": true,
 		"targets": [
-			"nsis",
-			"deb",
-			"rpm",
-			"dmg",
-			"app"
+			"nsis"
 		],
-		"createUpdaterArtifacts": true,
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",
@@ -44,27 +39,11 @@
 			"icons/icon.ico"
 		],
 		"externalBin": [
-			"binaries/sona",
-			"binaries/sona-diarize"
+			"binaries/sona"
 		],
 		"resources": {
 			"locales": "locales"
 		}
 	},
-	"plugins": {
-		"updater": {
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
-			"endpoints": [
-				"https://github.com/thewh1teagle/vibe/releases/latest/download/latest.json"
-			]
-		},
-		"deep-link": {
-			"mobile": [],
-			"desktop": {
-				"schemes": [
-					"vibe"
-				]
-			}
-		}
-	}
+	"plugins": {}
 }

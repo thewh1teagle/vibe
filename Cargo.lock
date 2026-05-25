@@ -6405,8 +6405,6 @@ dependencies = [
  "tracing",
  "tracing-log",
  "tracing-subscriber",
- "url",
- "urlencoding",
  "which 8.0.2",
  "windows 0.62.2",
  "winreg",
