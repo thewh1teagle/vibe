@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { Switch } from '~/components/ui/switch'
 import { Textarea } from '~/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
@@ -55,14 +54,6 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 						<div className="space-y-4">
 							<h3 className="text-lg font-semibold">{t('common.model-options')}</h3>
 
-							<div className="flex items-center justify-between">
-								<span className="text-sm font-medium flex items-center gap-1">
-									<InfoTooltip text={t('common.info-translate-to-english')} />
-									{t('common.translate-to-english')}
-								</span>
-								<Switch checked={Boolean(options.translate)} onCheckedChange={(checked) => setOptions({ ...options, translate: checked })} />
-							</div>
-
 							<Field
 								label={
 									<>
@@ -76,14 +67,6 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 									className="min-h-[80px]"
 								/>
 							</Field>
-
-							<div className="flex items-center justify-between">
-								<span className="text-sm font-medium flex items-center gap-1">
-									<InfoTooltip text={t('common.info-use-word-timestamps')} />
-									{t('common.use-word-timestamps')}
-								</span>
-								<Switch checked={Boolean(options.word_timestamps)} onCheckedChange={(checked) => setOptions({ ...options, word_timestamps: checked })} />
-							</div>
 
 							<div className="grid grid-cols-2 gap-4">
 								<Field
