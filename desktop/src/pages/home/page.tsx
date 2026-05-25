@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { webviewWindow } from '@tauri-apps/api'
-import { Mic, Settings2 } from 'lucide-react'
+import { Mic, Radio, Keyboard, Settings2 } from 'lucide-react'
 import Layout from '~/components/layout'
 import LanguageInput from '~/components/language-input'
 import ModelOptions from '~/components/params'
@@ -19,7 +19,7 @@ export default function Home() {
 	const [settingsOpen, setSettingsOpen] = useState(false)
 
 	const shortcutKeys = useMemo(() => {
-		const keyMap: Record<string, string> = { CmdOrCtrl: 'Ctrl', Cmd: 'Ctrl', Ctrl: 'Ctrl', Shift: 'Shift', Alt: 'Alt', Option: 'Alt' }
+		const keyMap: Record<string, string> = { CmdOrCtrl: 'Ctrl', Shift: 'Shift', Alt: 'Alt' }
 		return hotkey.hotkeyShortcut.split('+').map((k) => keyMap[k] ?? k)
 	}, [hotkey.hotkeyShortcut])
 
@@ -36,68 +36,93 @@ export default function Home() {
 	return (
 		<Layout>
 			<SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
-			<div className="mx-auto flex w-full min-w-0 max-w-md flex-col gap-3">
+			<div className="w-full max-w-md space-y-6">
 				{!vm.preference.modelPath && (
-					<p className="text-center text-xs text-muted-foreground">{t('common.no-model-selected')}</p>
-				)}
-				<div className="flex items-end gap-2">
-					<div className="flex-1">
-						<LanguageInput />
+					<div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-center text-sm text-destructive/80">
+						{t('common.no-model-selected')}
 					</div>
-					<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
-					<Button
-						variant="ghost"
-						className="shrink-0 h-9 w-9 rounded-md border border-border/65 text-muted-foreground hover:bg-accent/45 hover:text-foreground"
-						aria-label={t('common.settings')}
-						onClick={() => setSettingsOpen(true)}>
-						<Settings2 className="h-4 w-4" />
-					</Button>
+				)}
+
+				<div className="space-y-2">
+					<div className="flex items-end gap-2">
+						<div className="flex-1">
+							<LanguageInput />
+						</div>
+						<div className="flex items-center gap-0.5">
+							<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
+							<Button
+								variant="ghost"
+								className="shrink-0 h-9 w-9 rounded-md border border-border/65 text-muted-foreground hover:bg-accent/45 hover:text-foreground"
+								aria-label={t('common.settings')}
+								onClick={() => setSettingsOpen(true)}>
+								<Settings2 className="h-4 w-4" />
+							</Button>
+						</div>
+					</div>
 				</div>
 
-				<div className="space-y-2 rounded-lg border border-border/60 bg-card/50 px-3 py-2.5">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							<Mic className="h-3.5 w-3.5 text-muted-foreground" />
-							<span className="text-xs font-medium">{t('common.global-dictation')}</span>
+				<div className="rounded-xl border border-border/60 bg-card/60 p-5 shadow-sm">
+					<div className="flex items-center justify-between mb-4">
+						<div className="flex items-center gap-2.5">
+							<div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+								<Mic className="h-4 w-4 text-primary" />
+							</div>
+							<div>
+								<h2 className="text-sm font-semibold">{t('common.global-dictation')}</h2>
+								<p className="text-[11px] text-muted-foreground">{hotkey.hotkeyEnabled ? t('common.global-hotkey-description') : t('common.global-dictation-promo-short')}</p>
+							</div>
 						</div>
 						<Switch checked={hotkey.hotkeyEnabled} onCheckedChange={hotkey.setHotkeyEnabled} />
 					</div>
 
 					{hotkey.hotkeyEnabled && (
-						<>
-							<div className="flex items-center gap-2">
-								<div className="flex items-center gap-1">
-									{shortcutKeys.map((key, i) => (
-										<kbd
-											key={i}
-											className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border/70 bg-background/70 px-1 font-mono text-[10px] font-medium text-foreground/70">
-											{key}
-										</kbd>
+						<div className="space-y-3 border-t border-border/40 pt-4">
+							<div className="space-y-1.5">
+								<label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+									<Keyboard className="h-3 w-3" />
+									{t('common.global-hotkey-shortcut')}
+								</label>
+								<div className="flex items-center gap-2">
+									<div className="flex items-center gap-1">
+										{shortcutKeys.map((key, i) => (
+											<kbd
+												key={i}
+												className="inline-flex h-6 min-w-6 items-center justify-center rounded border border-border bg-muted/50 px-1.5 font-mono text-[11px] font-medium text-foreground/80">
+												{key}
+											</kbd>
+										))}
+									</div>
+									<Input
+										type="text"
+										value={hotkey.hotkeyShortcut}
+										onChange={(e) => hotkey.setHotkeyShortcut(e.target.value)}
+										className="h-7 flex-1 text-xs text-muted-foreground"
+									/>
+								</div>
+							</div>
+
+							<div className="space-y-1.5">
+								<label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+									<Radio className="h-3 w-3" />
+									{'Output'}
+								</label>
+								<div className="flex gap-1.5">
+									{(['clipboard', 'type'] as HotkeyOutputMode[]).map((mode) => (
+										<button
+											key={mode}
+											type="button"
+											onClick={() => hotkey.setHotkeyOutputMode(mode)}
+											className={`flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
+												hotkey.hotkeyOutputMode === mode
+													? 'border-primary/40 bg-primary/8 text-primary shadow-sm'
+													: 'border-border/50 bg-background/30 text-muted-foreground hover:bg-accent/30 hover:text-foreground'
+											}`}>
+											{t(`common.hotkey-output-${mode}`)}
+										</button>
 									))}
 								</div>
-								<Input
-									type="text"
-									value={hotkey.hotkeyShortcut}
-									onChange={(e) => hotkey.setHotkeyShortcut(e.target.value)}
-									className="h-6 flex-1 text-[11px] text-muted-foreground"
-								/>
 							</div>
-							<div className="flex gap-1">
-								{(['clipboard', 'type'] as HotkeyOutputMode[]).map((mode) => (
-									<button
-										key={mode}
-										type="button"
-										onClick={() => hotkey.setHotkeyOutputMode(mode)}
-										className={`flex-1 rounded border px-2 py-1 text-[11px] font-medium transition-colors ${
-											hotkey.hotkeyOutputMode === mode
-												? 'border-primary/50 bg-primary/10 text-primary'
-												: 'border-border/50 bg-background/40 text-muted-foreground hover:bg-accent/30'
-										}`}>
-										{t(`common.hotkey-output-${mode}`)}
-									</button>
-								))}
-							</div>
-						</>
+						</div>
 					)}
 				</div>
 			</div>
