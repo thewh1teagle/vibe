@@ -68,11 +68,6 @@ pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
 }
 
 #[tauri::command]
-pub fn get_argv() -> Vec<String> {
-    std::env::args().collect()
-}
-
-#[tauri::command]
 pub fn get_default_recording_path(app_handle: AppHandle) -> Result<String> {
     let path = app_handle
         .path()

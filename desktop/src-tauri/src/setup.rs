@@ -1,4 +1,4 @@
-use crate::{config::STORE_FILENAME, error::LogError, sona::SonaProcess};
+use crate::{config::STORE_FILENAME, sona::SonaProcess};
 use once_cell::sync::Lazy;
 use std::fs;
 use tauri::{App, Manager};

@@ -1,9 +1,10 @@
 use crate::config::STORE_FILENAME;
 use crate::ffmpeg;
 use eyre::{Context, Result};
+use std::path::PathBuf;
+use tauri::Manager;
+use tauri_plugin_store::StoreExt;
 
-/// Return true if there's internet connection
-/// timeout in ms
 #[tauri::command]
 pub async fn is_online(timeout: Option<u64>) -> Result<bool> {
     let timeout = std::time::Duration::from_millis(timeout.unwrap_or(2000));
@@ -17,14 +18,6 @@ pub async fn is_online(timeout: Option<u64>) -> Result<bool> {
     });
 
     Ok(futures::future::join_all(tasks).await.into_iter().any(|res| res))
-}
-use std::path::PathBuf;
-use tauri::Manager;
-use tauri_plugin_store::StoreExt;
-
-#[tauri::command]
-pub fn get_commit_hash() -> String {
-    env!("COMMIT_HASH").to_string()
 }
 
 #[tauri::command]
@@ -40,29 +33,6 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
-    Ok(app_handle.path().app_config_dir()?)
-}
-
-#[tauri::command]
-pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
-    let log_path = crate::logging::get_log_path(&app_handle)?;
-    if log_path.exists() {
-        showfile::show_path_in_file_manager(log_path);
-    } else if let Some(parent) = log_path.parent() {
-        showfile::show_path_in_file_manager(parent);
-    }
-    Ok(())
-}
-
-#[tauri::command]
-pub async fn show_temp_path() -> Result<()> {
-    let temp_path = ffmpeg::get_vibe_temp_folder();
-    showfile::show_path_in_file_manager(temp_path);
-    Ok(())
-}
-
-#[tauri::command]
 pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     let store = app_handle.store(STORE_FILENAME)?;
 
@@ -73,13 +43,6 @@ pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     }
     let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
     Ok(path)
-}
-
-#[tauri::command]
-pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
-    let path = crate::logging::get_log_path(&app_handle)?;
-    let content = std::fs::read_to_string(path)?;
-    Ok(content)
 }
 
 #[tauri::command]
@@ -101,13 +64,7 @@ pub fn rename_crash_file() -> Result<()> {
 pub fn type_text(text: String) -> Result<()> {
     use enigo::{Enigo, Keyboard, Settings};
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
-    // Small delay to let the user's key release propagate
     std::thread::sleep(std::time::Duration::from_millis(100));
     enigo.text(&text).map_err(|e| eyre::eyre!("Failed to type text: {}", e))?;
     Ok(())
-}
-
-#[tauri::command]
-pub fn get_cargo_features() -> Vec<String> {
-    Vec::new()
 }

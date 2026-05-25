@@ -16,11 +16,9 @@ tauri = { version = "2", features = ["protocol-asset", "devtools"] }
 # Plugins
 tauri-plugin-window-state = "2"
 tauri-plugin-fs = "2"
-tauri-plugin-updater = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-process = "2"
 tauri-plugin-os = "2"
-tauri-plugin-deep-link = "2"
 tauri-plugin-store = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-clipboard-manager = "2"

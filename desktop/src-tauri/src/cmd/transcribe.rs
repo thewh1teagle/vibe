@@ -84,8 +84,7 @@ pub async fn transcribe(
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
 
-    let app_handle_c = app_handle.clone();
-	app_handle.listen("abort_transcribe", move |_| {
+    app_handle.listen("abort_transcribe", move |_| {
 		abort_atomic_c.store(true, Ordering::Relaxed);
 	});
 
