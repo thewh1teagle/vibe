@@ -74,8 +74,8 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 	tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
 
 	let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
-		.inner_size(800.0, 700.0)
-		.min_inner_size(800.0, 700.0)
+		.inner_size(480.0, 320.0)
+		.min_inner_size(400.0, 300.0)
 		.center()
 		.title("Vibe")
 		.resizable(true)

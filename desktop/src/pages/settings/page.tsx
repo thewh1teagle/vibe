@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 
 function SectionTitle({ title }: { title: string }) {
 	return (
-		<div className="mb-3 mt-8 flex items-center gap-1 px-1 first:mt-1">
-			<span className="text-sm font-semibold tracking-wide text-foreground/95">{title}</span>
+		<div className="mb-2 mt-4 flex items-center gap-1 px-1 first:mt-0">
+			<span className="text-sm font-semibold text-foreground/95">{title}</span>
 		</div>
 	)
 }
@@ -26,7 +26,7 @@ export default function SettingsPage() {
 	const vm = viewModel()
 
 	return (
-		<div className="pb-6">
+		<div>
 			<SectionTitle title={t('common.customize')} />
 			<SectionCard>
 				<div className="space-y-5">

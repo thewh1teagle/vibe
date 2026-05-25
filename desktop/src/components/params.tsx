@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModifyState } from '~/lib/types'
 import { InfoTooltip } from './info-tooltip'
+import { SlidersHorizontal } from 'lucide-react'
 import { ModelOptions as IModelOptions, usePreferenceProvider } from '~/providers/preference'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
@@ -18,8 +19,8 @@ interface ParamsProps {
 
 function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
 	return (
-		<div className="space-y-2 w-full">
-			<Label className="flex items-center gap-1">{label}</Label>
+		<div className="space-y-1 w-full">
+			<Label className="flex items-center gap-1 text-sm">{label}</Label>
 			{children}
 		</div>
 	)
@@ -40,18 +41,19 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 			<DialogTrigger asChild>
 				<Button
 					variant="ghost"
-					className="mt-1 h-9 rounded-md border border-border/65 px-3 text-sm font-medium text-muted-foreground hover:bg-accent/45 hover:text-foreground">
-					{t('common.more-options')}
+					className="h-9 w-9 rounded-md border border-border/65 text-muted-foreground hover:bg-accent/45 hover:text-foreground"
+					aria-label={t('common.more-options')}>
+					<SlidersHorizontal className="h-4 w-4" />
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="flex h-[85vh] max-h-[85vh] max-w-2xl flex-col gap-0 overflow-hidden rounded-2xl border-border/60 bg-card/95 p-0 shadow-xl">
-				<DialogHeader className="px-6 pb-3 pt-5">
-					<DialogTitle className="text-2xl font-semibold">{t('common.more-options')}</DialogTitle>
+			<DialogContent className="flex max-h-[80vh] max-w-lg flex-col gap-0 overflow-hidden rounded-2xl border-border/60 bg-card/95 p-0 shadow-xl">
+				<DialogHeader className="px-4 pb-2 pt-4">
+					<DialogTitle className="text-lg font-semibold">{t('common.more-options')}</DialogTitle>
 				</DialogHeader>
-				<ScrollArea className="min-h-0 flex-1 px-6 pb-5 pt-2">
-					<div className="space-y-6 pb-6">
-						<div className="space-y-4">
-							<h3 className="text-lg font-semibold">{t('common.model-options')}</h3>
+				<ScrollArea className="min-h-0 flex-1 px-4 pb-4">
+					<div className="space-y-3">
+						<div className="space-y-3">
+							<h3 className="text-base font-semibold">{t('common.model-options')}</h3>
 
 							<Field
 								label={

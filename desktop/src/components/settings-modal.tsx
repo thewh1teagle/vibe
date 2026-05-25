@@ -10,11 +10,11 @@ interface SettingsModalProps {
 export default function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="flex h-[85vh] max-h-[85vh] max-w-2xl flex-col gap-0 overflow-hidden rounded-2xl border-border/60 bg-card/95 p-0 shadow-xl">
-				<DialogHeader className="px-6 pb-3 pt-5">
-					<DialogTitle className="text-2xl font-semibold">Settings</DialogTitle>
+			<DialogContent className="flex max-h-[80vh] max-w-lg flex-col gap-0 overflow-hidden rounded-2xl border-border/60 bg-card/95 p-0 shadow-xl">
+				<DialogHeader className="px-4 pb-2 pt-4">
+					<DialogTitle className="text-lg font-semibold">Settings</DialogTitle>
 				</DialogHeader>
-				<ScrollArea className="min-h-0 flex-1 px-6 pb-5 pt-2">
+				<ScrollArea className="min-h-0 flex-1 px-4 pb-4">
 					<SettingsPage />
 				</ScrollArea>
 			</DialogContent>
