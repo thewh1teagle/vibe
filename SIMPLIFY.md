@@ -1,131 +1,106 @@
 # Simplify Plan: Dictation-Only
 
-Goal: strip Vibe down to only global dictation + in-app recording. Keep: language selection, mic+system audio, customizable hotkey, clipboard/type output, GPU acceleration. Target: **Windows only**.
+Goal: strip Vibe down to only global dictation via hotkey. Target: **Windows only**.
 
-## Status: [ ] Buildings? ✓
+Branch: `simplify-dictation-only`
 
-Built successfully on `simplify-dictation-only` branch with one fix:
-- Replaced private `thewh1teagle/cpal` fork with upstream `cpal = "0.17"`
-- Simplified `cmd/permissions.rs` (macOS-specific fork functions removed)
+## Status: [x] Builds ✓ [x] Frontend done [ ] Rust backend [ ] Deps
 
-## Execution Order
+### Pre-work fix
 
-### Phase 1: Safe Cuts (leaf files, no dependencies on them)
+- [x] Replaced private `thewh1teagle/cpal` fork → upstream `cpal = "0.17"` (Windows unaffected)
 
-| # | File | Action | Status |
-|---|------|--------|--------|
-| 1 | `desktop/src/pages/batch/` | DELETE (entire dir) | [ ] |
-| 2 | `desktop/src/components/advanced-transcribe.tsx` | DELETE | [ ] |
-| 3 | `desktop/src/components/drop-modal.tsx` | DELETE | [ ] |
-| 4 | `desktop/src/components/format-select.tsx` | DELETE | [ ] |
-| 5 | `desktop/src/components/format-multi-select.tsx` | DELETE | [ ] |
-| 6 | `desktop/src/components/html-view.tsx` | DELETE | [ ] |
-| 7 | `desktop/src/components/resummarize-dialog.tsx` | DELETE | [ ] |
-| 8 | `desktop/src/lib/llm/` | DELETE (entire dir) | [ ] |
-| 9 | `desktop/src/lib/ytdlp.ts` | DELETE | [ ] |
-| 10 | `desktop/src/lib/docx.ts` | DELETE | [ ] |
-| 11 | `desktop/src/lib/prompt-templates.ts` | DELETE | [ ] |
-| 12 | `desktop/src/lib/use-deep-links.tsx` | DELETE | [ ] |
-| 13 | `desktop/src/lib/use-confirm-exit.ts` | DELETE | [ ] |
-| 14 | `desktop/src/lib/media.ts` | DELETE | [ ] |
-| 15 | `desktop/src/lib/analytics.ts` | DELETE | [ ] |
-| 16 | `desktop/src/providers/files-provider.tsx` | DELETE | [ ] |
-| 17 | `desktop/src/providers/updater.tsx` | DELETE | [ ] |
-| 18 | `desktop/src/components/updater-progress.tsx` | DELETE | [ ] |
-| 19 | `desktop/src/components/page-transition.tsx` | DELETE | [ ] |
-| 20 | `desktop/src/lib/keep-awake.ts` | DELETE | [ ] |
-| 21 | `desktop/src/icons/` unused icons | DELETE | [ ] |
+---
 
-### Phase 2: Import Cleanup (remove references to deleted files)
+## Phase 1-3: Frontend Simplification ✓
 
-| # | File | Action | Status |
-|---|------|--------|--------|
-| 22 | `desktop/src/app.tsx` | Remove: batch route, updater/file providers, deleted component imports | [ ] |
-| 23 | `desktop/src/pages/home/page.tsx` | Remove: file/link tabs, deleted component imports | [ ] |
-| 24 | `desktop/src/pages/home/view-model.ts` | Strip: yt-dlp, file mode, drag-drop. Keep: record flow | [ ] |
-| 25 | `desktop/src/providers/preference.tsx` | Remove: llmConfig, ytDlp, ffmpegOptions, textFormat*, homeTab, advancedTranscribe*, diarize, stableTimestamps, recentLanguages, analytics | [ ] |
-| 26 | `desktop/src/providers/hotkey.tsx` | Remove: LLM summarize after transcription | [ ] |
-| 27 | `desktop/src/providers/toast.tsx` | Simplify or delete | [ ] |
-| 28 | `desktop/src/components/params.tsx` | Strip: LLM, diarization, stable timestamps, FFmpeg, presets. Keep: model options | [ ] |
-| 29 | `desktop/src/components/text-area.tsx` | DELETE (dictation uses clipboard/type, not in-app display) or simplify | [ ] |
-| 30 | `desktop/src/lib/transcript.ts` | Simplify: keep asText(), remove format converters | [ ] |
+### Deleted (28 files)
+| Dir/File | Reason |
+|----------|--------|
+| `pages/batch/` (4 files) | Batch transcribe |
+| `pages/home/audio-input.tsx` | File drop zone |
+| `pages/home/audio-player.tsx` | Inline audio player |
+| `pages/home/progress-panel.tsx` | Progress bar |
+| `pages/home/audio-visualizer.tsx` | Waveform |
+| `components/advanced-transcribe.tsx` | Dead code |
+| `components/audio-device-input.tsx` | Hotkey uses default mic |
+| `components/drop-modal.tsx` | Drag-drop |
+| `components/format-select.tsx` | Format picker |
+| `components/format-multi-select.tsx` | Multi-format |
+| `components/html-view.tsx` | HTML preview |
+| `components/resummarize-dialog.tsx` | Re-summarize |
+| `components/text-area.tsx` | Transcript output |
+| `components/page-transition.tsx` | Animation |
+| `components/updater-progress.tsx` | Update toast |
+| `lib/llm/` (4 files) | Claude/Ollama/OpenAI |
+| `lib/ytdlp.ts` | YouTube download |
+| `lib/docx.ts` | DOCX export |
+| `lib/prompt-templates.ts` | LLM prompts |
+| `lib/use-deep-links.tsx` | Deep links |
+| `lib/use-confirm-exit.ts` | Exit guard |
+| `lib/media.ts` | File validation |
+| `lib/analytics.ts` | Telemetry |
+| `lib/use-store-value.ts` | Unused hook |
+| `lib/keep-awake.ts` | Sleep prevention |
+| `lib/permissions.ts` | Audio permissions |
+| `providers/files-provider.tsx` | File state |
+| `providers/updater.tsx` | Auto-update |
 
-### Phase 3: Settings & Pages Cleanup
+### Simplified
+| File | What changed |
+|------|--------------|
+| `app.tsx` | Removed batch route, updater + file providers |
+| `home/page.tsx` | Tabs removed. Now: language + dictation dialog + model options only |
+| `home/view-model.ts` | 693→70 lines. Only model check + crash check |
+| `providers/hotkey.tsx` | Removed LLM summarization |
+| `providers/preference.tsx` | 302→130 lines. Removed: llm, ffmpeg, yt-Dlp, diarize, timestamps, analytics, text formats |
+| `components/params.tsx` | 622→196 lines. Removed: LLM, diarize, timestamps, FFmpeg, presets, translate, word-timestamps |
+| `components/language-input.tsx` | Only 3 options: Auto, English, Dansk |
+| `components/layout.tsx` | Removed drop-modal, page-transition, updater refs |
+| `components/app-menu.tsx` | Removed updater (now just Settings + Back) |
+| `settings/page.tsx` | Removed: sound/focus, recording path, yt-dlp, API server, general, analytics, advanced |
+| `settings/view-model.ts` | 264→85 lines. Only model/GPU/settings |
 
-| # | File | Action | Status |
-|---|------|--------|--------|
-| 31 | `desktop/src/pages/settings/page.tsx` | Strip: theme, sound/focus, recording path, yt-dlp, API server, general links, analytics, advanced | [ ] |
-| 32 | `desktop/src/pages/settings/view-model.ts` | Strip unused state | [ ] |
-| 33 | `desktop/src/pages/setup/` | Keep: model download wizard | [ ] |
-| 34 | `desktop/src/components/settings-modal.tsx` | Update for simplified settings | [ ] |
-| 35 | `desktop/src/components/layout.tsx` | Remove unused components from layout | [ ] |
-| 36 | `desktop/src/components/app-menu.tsx` | Simplify menu items | [ ] |
+---
 
-### Phase 4: Rust Backend Cleanup
+## Phase 4: Rust Backend Cleanup [ ]
 
-| # | File | Action | Status |
-|---|------|--------|--------|
-| 37 | `desktop/src-tauri/src/cmd/ytdlp.rs` | DELETE | [ ] |
-| 38 | `desktop/src-tauri/src/cmd/ui.rs` | DELETE | [ ] |
-| 39 | `desktop/src-tauri/src/analytics.rs` | DELETE | [ ] |
-| 40 | `desktop/src-tauri/src/cleaner.rs` | DELETE | [ ] |
-| 41 | `desktop/src-tauri/src/cli.rs` | DELETE | [ ] |
-| 42 | `desktop/src-tauri/src/custom_protocol.rs` | DELETE | [ ] |
-| 43 | `desktop/src-tauri/src/dock.rs` | DELETE | [ ] |
-| 44 | `desktop/src-tauri/src/diagnostics.rs` | DELETE | [ ] |
-| 45 | `desktop/src-tauri/src/cmd/app.rs` | Strip: diagnostics commands | [ ] |
-| 46 | `desktop/src-tauri/src/cmd/files.rs` | Simplify: keep get_default_recording_path, get_ffmpeg_path | [ ] |
-| 47 | `desktop/src-tauri/src/main.rs` | Remove deleted modules and plugin registrations | [ ] |
-| 48 | `desktop/src-tauri/src/setup.rs` | Remove analytics, cleaner, custom_protocol init | [ ] |
+Files to delete:
+- [ ] `cmd/ytdlp.rs` — YouTube download
+- [ ] `cmd/ui.rs` — Progress bar helper
+- [ ] `analytics.rs` — Telemetry
+- [ ] `cleaner.rs` — Temp/log cleanup
+- [ ] `cli.rs` — CLI mode
+- [ ] `custom_protocol.rs` — vibe:// handler
+- [ ] `dock.rs` — macOS dock control
+- [ ] `diagnostics.rs` — App diagnostics
 
-### Phase 5: Dependencies & Config
+Files to simplify:
+- [ ] `cmd/app.rs` — Strip unused commands (diagnostics, analytics, etc.)
+- [ ] `cmd/files.rs` — Strip `glob_files`, `get_path_dst`, `get_save_path`, `open_path`
+- [ ] `main.rs` — Remove deleted module registrations and plugin init
+- [ ] `setup.rs` — Remove analytics/cleaner/custom_protocol init
 
-| # | File | Action | Status |
-|---|------|--------|--------|
-| 49 | `desktop/src-tauri/Cargo.toml` | Remove unused plugins and deps | [ ] |
-| 50 | `desktop/package.json` | Remove unused npm deps | [ ] |
-| 51 | `desktop/src-tauri/tauri.conf.json` | Remove unused plugin configs, bundle targets | [ ] |
-| 52 | `desktop/src-tauri/capabilities/` | Clean up permissions for removed plugins | [ ] |
+## Phase 5: Dependencies & Config [ ]
 
-### Phase 6: i18n & Assets
+- [ ] `desktop/src-tauri/Cargo.toml` — Remove unused plugins: `deep-link`, `updater`, `notification`, `dialog`, `http`, `aptabase`, `keepawake`
+- [ ] `desktop/package.json` — Remove unused npm deps: `docx`, `framer-motion`, `react-markdown`, `format-duration`, `date-fns`
+- [ ] `tauri.conf.json` — Remove unused bundle targets (deb, rpm, dmg, app) + `sona-diarize` external bin
 
-| # | File | Action | Status |
-|---|------|--------|--------|
-| 53 | `desktop/src-tauri/locales/*/common.json` | Prune unused translation keys | [ ] |
-| 54 | `desktop/src/lib/i18n.ts` | Remove unused language codes if any | [ ] |
-| 55 | Unused icons in `desktop/src/icons/` | DELETE | [ ] |
-| 56 | `desktop/src/assets/whisper-languages.json` | Keep (needed for language selector) | [ ] |
-| 57 | `desktop/src/assets/success.mp3` | Keep (sound on finish) | [ ] |
+## Phase 6: i18n & Assets [ ]
 
-## Kept (unchanged)
+- [ ] Prune unused translation keys from locales
+- [ ] Remove unused language codes from `i18n.ts`
+- [ ] Remove unused SVG icons
 
-- `components/dictation-dialog.tsx` — dictation UI panel
-- `components/language-input.tsx` — language selector
-- `components/audio-device-input.tsx` — mic/speaker selection
-- `components/info-tooltip.tsx`
-- `components/error-modal.tsx`, `error-modal-with-context.tsx`, `boundary-fallback.tsx`
-- `providers/hotkey.tsx` — global hotkey engine (simplify: remove LLM summarize)
-- `providers/preference.tsx` — preferences (simplify)
-- `providers/error-modal.tsx` — error handling
-- `lib/i18n.ts`, `lib/config.ts`, `lib/types.ts`, `lib/sona-errors.ts`, `lib/transcript.ts`
-- `lib/use-single-instance.tsx`
-- `cmd/audio.rs` — audio recording
-- `cmd/sona_cmd.rs` — sona process + model loading
-- `cmd/transcribe.rs` — transcription
-- `cmd/app.rs` — type_text, get_models_folder
-- `cmd/files.rs` — get_default_recording_path, get_ffmpeg_path
-- `cmd/download.rs` — model download
-- `cmd/permissions.rs` — audio permissions
-- `ffmpeg.rs` — audio normalization
-- `sona.rs` — sona HTTP client
-- `config.rs`, `error.rs`, `logging.rs`, `setup.rs`, `main.rs`
-- `transcript.rs`
-- `pages/setup/` — model download wizard
-- All `ui/` primitives (button, switch, select, dialog, etc.)
-- i18n infrastructure
+---
 
-## Notes
+## What Remains in the App
 
-- **cpal fork**: Replaced `thewh1teagle/cpal` (private) with upstream `cpal = "0.17"`. macOS audio permissions won't work but Windows is unaffected.
-- **sona-diarize**: Not needed for dictation, but kept in build config for now (removing it can come later).
-- **LLM summarization**: Removed from hotkey provider and settings. Only Whisper transcription remains.
+**Main page:** Language picker (auto/en/da) → Dictation dialog (hotkey toggle, shortcut, clipboard/type) → More options (model params)
+
+**Settings:** Language + Theme → Model download/select + GPU device
+
+**Setup:** Model download wizard (first run)
+
+**Core:** Global hotkey press → record from default mic → stop → Whisper transcribe → clipboard or type-at-cursor
