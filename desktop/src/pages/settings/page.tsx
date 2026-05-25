@@ -6,7 +6,6 @@ import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as WrenchIcon } from '~/icons/wrench.svg'
 import * as config from '~/lib/config'
-import { supportedLanguages } from '~/lib/i18n'
 import { ModifyState } from '~/lib/types'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -53,41 +52,22 @@ export default function SettingsPage({ setVisible }: SettingsPageProps) {
 
 				<div className="mt-7 w-full space-y-7">
 					<div className="space-y-2">
-						<SectionTitle title={`${t('common.language')} & ${t('common.theme')}`} />
+						<SectionTitle title={t('common.theme')} />
 						<SectionCard>
-							<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-								<div className="space-y-2">
-									<Label>{t('common.language')}</Label>
-									<Select
-										value={supportedLanguages[vm.preference.displayLanguage] ? vm.preference.displayLanguage : 'en-US'}
-										onValueChange={(value) => vm.preference.setDisplayLanguage(value)}>
-										<SelectTrigger className="capitalize">
-											<SelectValue placeholder={t('common.select-language')} />
-										</SelectTrigger>
-										<SelectContent>
-											{Object.entries(supportedLanguages).map(([code, name], index) => (
-												<SelectItem key={index} value={code} className="capitalize">
-													{code === i18n.language ? t(`language.${name}`) : name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-								<div className="space-y-2">
-									<Label>{t('common.theme')}</Label>
-									<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>
-										<SelectTrigger className="capitalize">
-											<SelectValue placeholder={t('common.select-theme')} />
-										</SelectTrigger>
-										<SelectContent>
-											{config.themes.map((theme) => (
-												<SelectItem key={theme} value={theme} className="capitalize">
-													{t(`common.${theme}`)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
+							<div className="space-y-2">
+								<Label>{t('common.theme')}</Label>
+								<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>
+									<SelectTrigger className="capitalize">
+										<SelectValue placeholder={t('common.select-theme')} />
+									</SelectTrigger>
+									<SelectContent>
+										{config.themes.map((theme) => (
+											<SelectItem key={theme} value={theme} className="capitalize">
+												{t(`common.${theme}`)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
 							</div>
 						</SectionCard>
 					</div>
