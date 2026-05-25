@@ -14,7 +14,7 @@ Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 
 ## Phase 1-3: Frontend Simplification ✓
 
-### Deleted (28 files)
+### Deleted (30 files)
 | Dir/File | Reason |
 |----------|--------|
 | `pages/batch/` (4 files) | Batch transcribe |
@@ -45,20 +45,22 @@ Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 | `lib/permissions.ts` | Audio permissions |
 | `providers/files-provider.tsx` | File state |
 | `providers/updater.tsx` | Auto-update |
+| `components/dictation-dialog.tsx` | Replaced with inline controls |
+| `components/app-menu.tsx` | Replaced with settings gear button |
 
 ### Simplified
 | File | What changed |
 |------|--------------|
 | `app.tsx` | Removed batch route, updater + file providers |
-| `home/page.tsx` | Tabs removed. Now: language + dictation dialog + model options only |
-| `home/view-model.ts` | 693→70 lines. Only model check + crash check |
+| `home/page.tsx` | Tabs removed. Now: language + inline dictation controls (toggle/shortcut/output) in card |
+| `home/view-model.ts` | 693→53 lines. Only model check + crash check |
 | `providers/hotkey.tsx` | Removed LLM summarization |
 | `providers/preference.tsx` | 302→130 lines. Removed: llm, ffmpeg, yt-Dlp, diarize, timestamps, analytics, text formats |
-| `components/params.tsx` | 622→196 lines. Removed: LLM, diarize, timestamps, FFmpeg, presets, translate, word-timestamps |
+| `components/params.tsx` | 622→20 lines. Slim icon trigger button only (content moved to settings dialog) |
 | `components/language-input.tsx` | Only 3 options: Auto, English, Dansk |
-| `components/layout.tsx` | Removed drop-modal, page-transition, updater refs |
-| `components/app-menu.tsx` | Removed updater (now just Settings + Back) |
-| `settings/page.tsx` | Removed: sound/focus, recording path, yt-dlp, API server, general, analytics, advanced |
+| `components/layout.tsx` | Centered mic icon + title, gradient background, polished design |
+| `components/settings-modal.tsx` | Uses Radix Dialog for settings |
+| `settings/page.tsx` | Renamed to page-window.tsx. Removed: theme picker, customize title, borders |
 | `settings/view-model.ts` | 264→85 lines. Only model/GPU/settings |
 
 ---
@@ -113,9 +115,11 @@ Branches: `simplify-dictation-only` (merged), `simplify-rust-backend` (current)
 
 ## What Remains in the App
 
-**Main page:** Language picker (auto/en/da) → Dictation dialog (hotkey toggle, shortcut, clipboard/type) → More options (model params)
+**Main page (fancy-v1):** Centered mic icon + title → Language picker + model params + settings gear → Inline dictation controls (enable toggle, shortcut input, clipboard/type output) inside a rounded card
 
-**Settings:** Language + Theme → Model download/select + GPU device
+**Settings modal:** Model download/select + GPU device + model folder links
+
+**More Options modal:** Model parameters (prompt, threads, temperature, sampling strategy, etc.)
 
 **Setup:** Model download wizard (first run)
 

@@ -11,7 +11,9 @@ Press a hotkey from anywhere in Windows, speak, and your speech is transcribed v
 - Output to clipboard or type at cursor
 - Auto-detects or manually selects language (auto / English / Danish)
 - GPU acceleration support
-- Light / dark theme
+- Dark theme (always on)
+- Inline dictation controls (toggle, shortcut, output mode)
+- Compact language picker (auto / English / Danish)
 
 ## Prerequisites
 
