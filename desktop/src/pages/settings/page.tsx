@@ -1,4 +1,3 @@
-import { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
@@ -9,27 +8,13 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
-function SectionTitle({ title }: { title: string }) {
-	return (
-		<div className="mb-2 mt-4 flex items-center gap-1 px-1 first:mt-0">
-			<span className="text-sm font-semibold text-foreground/95">{title}</span>
-		</div>
-	)
-}
-
-function SectionCard({ children }: { children: ReactNode }) {
-	return <div className="rounded-xl border border-border/70 bg-card/92 p-4 text-card-foreground shadow-xs">{children}</div>
-}
-
 export default function SettingsPage() {
 	const { t } = useTranslation()
 	const vm = viewModel()
 
 	return (
 		<div>
-			<SectionTitle title={t('common.customize')} />
-			<SectionCard>
-				<div className="space-y-5">
+			<div className="space-y-4">
 					<div className="space-y-2">
 						<Label>{t('common.download-model')}</Label>
 						<div className="flex items-center gap-2">
@@ -133,8 +118,7 @@ export default function SettingsPage() {
 							{t('common.change-models-folder')} <WrenchIcon className="h-4 w-4 text-muted-foreground" />
 						</Button>
 					</div>
-				</div>
-			</SectionCard>
+			</div>
 		</div>
 	)
 }
