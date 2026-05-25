@@ -45,10 +45,10 @@ export default function Home() {
 							</div>
 							<Button
 								variant="ghost"
-								size="icon"
-								className="h-9 w-9 rounded-md"
+								className="mt-1 h-9 rounded-md border border-border/65 px-3 text-sm font-medium text-muted-foreground hover:bg-accent/45 hover:text-foreground"
 								onClick={() => setSettingsVisible(true)}>
-								<Settings2 className="h-4 w-4" />
+								<Settings2 className="h-4 w-4 mr-1.5" />
+								{t('common.settings')}
 							</Button>
 						</div>
 					</div>

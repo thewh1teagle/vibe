@@ -25,8 +25,8 @@ export default function SettingsModal({ visible, setVisible }: SettingsModalProp
 	if (!visible) return null
 
 	return (
-		<div className="fixed inset-0 z-50 overflow-hidden bg-background/70 backdrop-blur-2xl">
-			<div className="h-full overflow-y-auto overscroll-contain">
+		<div className="fixed inset-0 z-50 bg-background/70 backdrop-blur-2xl">
+			<div className="fixed inset-0 overflow-y-auto overscroll-contain">
 				<SettingsPage setVisible={setVisible} />
 			</div>
 		</div>
