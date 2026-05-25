@@ -13,7 +13,7 @@ import { viewModel } from './view-model'
 export default function Home() {
 	const { t } = useTranslation()
 	const vm = viewModel()
-	const [settingsVisible, setSettingsVisible] = useState(false)
+	const [settingsOpen, setSettingsOpen] = useState(false)
 
 	async function showWindow() {
 		const currentWindow = webviewWindow.getCurrentWebviewWindow()
@@ -27,7 +27,7 @@ export default function Home() {
 
 	return (
 		<Layout>
-			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} />}
+			<SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 			<div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-6">
 				<div className="mx-auto flex w-full min-w-0 max-w-2xl flex-col items-center gap-5">
 					<div className="w-full min-w-0 space-y-4">
@@ -46,7 +46,7 @@ export default function Home() {
 							<Button
 								variant="ghost"
 								className="mt-1 h-9 rounded-md border border-border/65 px-3 text-sm font-medium text-muted-foreground hover:bg-accent/45 hover:text-foreground"
-								onClick={() => setSettingsVisible(true)}>
+								onClick={() => setSettingsOpen(true)}>
 								<Settings2 className="h-4 w-4 mr-1.5" />
 								{t('common.settings')}
 							</Button>
