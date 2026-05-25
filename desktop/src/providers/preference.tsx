@@ -56,7 +56,7 @@ const defaultOptions = {
 	modelOptions: {
 		init_prompt: '',
 		verbose: false,
-		lang: 'en',
+		lang: 'auto',
 		n_threads: 4,
 		temperature: 0.4,
 		max_text_ctx: undefined,

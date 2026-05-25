@@ -55,7 +55,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const preference = usePreferenceProvider()
 	const preferenceRef = useRef(preference)
 
-	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
+	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', true)
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
