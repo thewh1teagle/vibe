@@ -31,17 +31,17 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
 
     let default_in = host
         .default_input_device()
-        .map(|e| e.description().map(|d| d.to_string()))
+        .map(|e| e.description().map(|d| d.name().to_string()))
         .context("name")?;
     let default_out = host
         .default_output_device()
-        .map(|e| e.description().map(|d| d.to_string()))
+        .map(|e| e.description().map(|d| d.name().to_string()))
         .context("name")?;
     tracing::debug!("Default Input Device:\n{:?}", default_in);
     tracing::debug!("Default Output Device:\n{:?}", default_out);
 
     for device in host.devices()? {
-        let name = device.description()?.to_string();
+        let name = device.description()?.name().to_string();
         let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
 
@@ -83,7 +83,7 @@ pub async fn start_record(
         let (device, config) = if is_input {
             let dev = host
                 .devices()?
-                .find(|d| d.description().map(|n| n == device.name).unwrap_or(false))
+                .find(|d| d.description().map(|n| n.name() == device.name).unwrap_or(false))
                 .context("Failed to find input device by name")?;
             let config = dev.default_input_config().context("Failed to get default input config")?;
             (dev, config)
@@ -231,7 +231,7 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
     {
         let device = host
             .devices()?
-            .find(|d| d.description().map(|n| n == audio_device.name).unwrap_or(false))
+            .find(|d| d.description().map(|n| n.name() == audio_device.name).unwrap_or(false))
             .context("Failed to find output device by name")?;
         let config = device
             .default_output_config()
