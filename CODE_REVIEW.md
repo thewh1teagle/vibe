@@ -117,7 +117,19 @@
 | `.vscode/settings.json` | Enabled `rust-analyzer.checkOnSave` with clippy |
 | `sona.rs:296` | Temperature `0.0` no longer silently dropped (`> 0.0` → `>= 0.0`) |
 
-**Concurrency:**
+### 9. Medium fixes — robustness & deduplication
+
+| File | Change |
+|------|--------|
+| `cmd/audio.rs` | Device ID: switched from index-based (`nth(id)`) to name-based lookup — stable across device changes |
+| `cmd/audio.rs` | Merge logic: generalized from hardcoded 0/1 indices to filter non-empty files, works with any number of devices |
+| `cmd/transcribe.rs:145` | Stream errors now returned to caller instead of silently swallowed |
+| `cmd/transcribe.rs:126-127` | Integer truncation → rounding (`(x * 100.0).round() as i64`) |
+| `sona.rs:170-174` | Stderr buffer: replaced hard 8KB cutoff with 16KB ring buffer that drains oldest lines |
+| `cmd/download.rs` | Extracted shared `download_stream` helper, `download_model` and `download_file` are now thin wrappers |
+| `Cargo.toml` | Pinned eyre fork to commit `8a0b71c` instead of floating branch |
+
+### 10. Concurrency & React state fixes
 
 | File | Change |
 |------|--------|
@@ -155,15 +167,7 @@
 
 ### MEDIUM
 
-| # | File | Issue |
-|---|------|-------|
-| 7 | `cmd/audio.rs:86-87` | Device ID is index-based, unstable across device changes |
-| 8 | `cmd/audio.rs:126-146` | Hardcoded index 0/1 in merge logic — panics with 0 or 3+ devices |
-| 9 | `cmd/transcribe.rs:145-147` | Stream errors silently swallowed — user gets partial transcript with no failure indication |
-| 10 | `sona.rs:170-174` | Stderr buffer stops at 8KB, silently discards new lines |
-| 11 | `cmd/transcribe.rs:126-127` | Integer truncation instead of rounding (`as i64` vs `.round() as i64`) |
-| 12 | `cmd/download.rs:11-49` vs `52-91` | ~90% duplicated code between `download_model` and `download_file` |
-| 13 | `Cargo.toml:6` | Custom eyre fork on unpinned feature branch — can break if force-pushed |
+No remaining medium issues.
 
 ### LOW
 

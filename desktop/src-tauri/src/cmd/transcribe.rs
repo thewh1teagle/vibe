@@ -123,8 +123,8 @@ pub async fn transcribe(
                     speaker,
                 } => {
                     let segment = Segment {
-                        start: (start * 100.0) as i64,
-                        stop: (end * 100.0) as i64,
+                        start: (start * 100.0).round() as i64,
+                        stop: (end * 100.0).round() as i64,
                         text,
                         speaker,
                     };
@@ -144,6 +144,8 @@ pub async fn transcribe(
             },
             Err(e) => {
                 tracing::error!("stream error: {:?}", e);
+                app_handle.unlisten(listener_id);
+                return Err(CommandError::from(e));
             }
         }
     }

@@ -40,9 +40,7 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     tracing::debug!("Default Input Device:\n{:?}", default_in);
     tracing::debug!("Default Output Device:\n{:?}", default_out);
 
-    let devices = host.devices()?;
-    tracing::debug!("Devices: ");
-    for (device_index, device) in devices.enumerate() {
+    for device in host.devices()? {
         let name = device.description()?.to_string();
         let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
@@ -50,7 +48,7 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
         let audio_device = AudioDevice {
             is_default: is_default_in || is_default_out,
             is_input: device.supports_input(),
-            id: device_index.to_string(),
+            id: name.clone(),
             name,
         };
         audio_devices.push(audio_device);
@@ -83,8 +81,10 @@ pub async fn start_record(
 
         let is_input = device.is_input;
         let (device, config) = if is_input {
-            let device_id: usize = device.id.parse().context("Failed to parse device ID")?;
-            let dev = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+            let dev = host
+                .devices()?
+                .find(|d| d.description().map(|n| n == device.name).unwrap_or(false))
+                .context("Failed to find input device by name")?;
             let config = dev.default_input_config().context("Failed to get default input config")?;
             (dev, config)
         } else {
@@ -136,20 +136,22 @@ pub async fn start_record(
             }
         }
 
-        let dst = if wav_paths.len() == 1 {
-            wav_paths[0].0.clone()
-        } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
+        // Find the best non-empty WAV file, or merge if multiple have data
+        let non_empty: Vec<(PathBuf, u32)> = wav_paths.iter().filter(|(_, len)| *len > 0).cloned().collect();
+        let dst = if non_empty.len() <= 1 {
+            // 0 or 1 non-empty files — use the best available
+            non_empty
+                .first()
+                .map(|(p, _)| p.clone())
+                .unwrap_or_else(|| wav_paths[0].0.clone())
+        } else {
+            // Multiple non-empty files — merge first two
             let dst = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
             tracing::debug!("Merging WAV files");
-            crate::ffmpeg::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
+            crate::ffmpeg::merge_wav_files(non_empty[0].0.clone(), non_empty[1].0.clone(), dst.clone())
+                .map_err(|e| eyre!("{e:?}"))
+                .log_error();
             dst
-        } else if wav_paths[0].1 > wav_paths[1].1 {
-            // First WAV file has a larger sample count, choose it
-            wav_paths[0].0.clone()
-        } else {
-            // Second WAV file has a larger sample count or both have non-positive sample counts,
-            // choose the second WAV file or fallback to the first one
-            wav_paths[1].0.clone()
         };
 
         tracing::debug!("Emitting record_finish event");
@@ -227,8 +229,10 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
 
     #[cfg(not(target_os = "macos"))]
     {
-        let device_id: usize = audio_device.id.parse().context("Failed to parse device ID")?;
-        let device = host.devices()?.nth(device_id).context("Failed to get device by ID")?;
+        let device = host
+            .devices()?
+            .find(|d| d.description().map(|n| n == audio_device.name).unwrap_or(false))
+            .context("Failed to find output device by name")?;
         let config = device
             .default_output_config()
             .context("Failed to get default output config")?;
