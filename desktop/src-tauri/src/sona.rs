@@ -168,8 +168,13 @@ impl SonaProcess {
                 while reader.read_line(&mut line).unwrap_or(0) > 0 {
                     tracing::debug!("sona stderr: {}", line.trim());
                     if let Ok(mut buf) = buf_clone.lock() {
-                        if buf.len() < 8192 {
-                            buf.push_str(&line);
+                        buf.push_str(&line);
+                        // Keep only the last 16KB to avoid unbounded growth
+                        if buf.len() > 16384 {
+                            let drain_end = buf.len() - 16384;
+                            if let Some(newline_pos) = buf[drain_end..].find('\n') {
+                                buf.drain(..drain_end + newline_pos + 1);
+                            }
                         }
                     }
                     line.clear();
@@ -180,8 +185,8 @@ impl SonaProcess {
         Ok(Self {
             port: signal.port,
             child,
-            // Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
-            client: reqwest::Client::builder().no_proxy().build().unwrap(),
+			// Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
+            client: reqwest::Client::builder().no_proxy().build().context("failed to build HTTP client")?,
             stderr_buf,
         })
     }
@@ -293,7 +298,7 @@ impl SonaProcess {
             }
         }
         if let Some(t) = options.temperature {
-            if t > 0.0 {
+            if t >= 0.0 {
                 form = form.text("temperature", t.to_string());
             }
         }

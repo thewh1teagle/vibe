@@ -2,15 +2,13 @@ import { useContext, useEffect } from 'react'
 import { FallbackProps } from 'react-error-boundary'
 import { ErrorModalContext } from '~/providers/error-modal'
 import ErrorModal from './error-modal'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 
 export function BoundaryFallback({ error }: FallbackProps) {
 	const { setState } = useContext(ErrorModalContext)
 
 	useEffect(() => {
-		// In case of error in first renders show the window
-		// Tauri API from import won't be available...
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const currentWindow = (window as any).__TAURI__.webviewWindow.getCurrentWebviewWindow()
+		const currentWindow = getCurrentWindow()
 		currentWindow.show()
 		currentWindow.setFocus()
 	}, [])

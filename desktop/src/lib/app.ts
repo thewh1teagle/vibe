@@ -24,7 +24,7 @@ export async function resetApp() {
 	}
 }
 
-export async function getIssueUrl(logs: string) {
+export function getIssueUrl(logs: string) {
 	return `https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=App+reports+bug+&logs=${encodeURIComponent(
 		logs,
 	)}`

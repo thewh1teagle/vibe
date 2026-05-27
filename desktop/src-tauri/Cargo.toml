@@ -1,6 +1,6 @@
 [package]
 name = "vibe"
-version = "0.0.6"
+version = "3.0.19"
 description = "Vibe"
 authors = ["@thewh1teagle"]
 license = "MIT"
@@ -24,7 +24,6 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-notification = "2"
-tauri-plugin-keepawake = { version = "0.1.1", optional = true }
 # Unsafe headers required for Ollama (to set Origin)
 tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
 tauri-plugin-opener = "2"
@@ -54,7 +53,6 @@ glob = "0.3.3"
 
 chrono = "0.4.43"
 crash-handler = "0.7.0"
-bytemuck = "1.24.0"
 which = "8"
 enigo = "0.3"
 
@@ -81,4 +79,3 @@ objc2-app-kit = { version = "0.3.2", features = ["NSApplication"] }
 
 [features]
 default = []
-keepawake = ["dep:tauri-plugin-keepawake"]

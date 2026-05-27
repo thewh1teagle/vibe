@@ -57,11 +57,6 @@ async fn main() -> Result<()> {
 			}
 		});
 
-	#[cfg(feature = "keepawake")]
-	{
-		builder = builder.plugin(tauri_plugin_keepawake::init());
-	}
-
 	let app = builder
 		.invoke_handler(tauri::generate_handler![
 			cmd::download::download_file,
@@ -95,11 +90,21 @@ async fn main() -> Result<()> {
 	app.run(|app, event| match event {
 		tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
 			let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
-			if let Ok(mut guard) = mutex.try_lock() {
-				if let Some(ref mut process) = guard.process {
-					process.kill();
+			tokio::task::block_in_place(|| {
+				let handle = tokio::runtime::Handle::current();
+				match handle.block_on(async {
+					tokio::time::timeout(std::time::Duration::from_secs(2), mutex.lock()).await
+				}) {
+					Ok(mut guard) => {
+						if let Some(ref mut process) = guard.process {
+							process.kill();
+						}
+					}
+					Err(_) => {
+						eprintln!("failed to acquire sona state lock on exit, sona process may be orphaned");
+					}
 				}
-			};
+			});
 		}
 		_ => {}
 	});

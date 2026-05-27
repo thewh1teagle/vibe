@@ -250,7 +250,6 @@ def main() -> int:
     argv = sys.argv[1:]
     target_triple = parse_target_arg(argv)
     download_sona(script_root, target_triple)
-    download_diarize(script_root, target_triple)
 
     platform_map = {
         "Windows": "windows",

@@ -29,7 +29,6 @@ const EXECUTABLE_NAME: &str = "ffmpeg.exe";
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 pub fn get_vibe_temp_folder() -> PathBuf {
-    use chrono::Local;
     let current_datetime = Local::now();
     let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();
     let dir = std::env::temp_dir().join(format!("vibe_temp_{}", formatted_datetime));
@@ -46,7 +45,7 @@ pub fn find_ffmpeg_path() -> Option<PathBuf> {
 
     let cwd = std::env::current_dir().ok()?;
     let ffmpeg_in_cwd = cwd.join(EXECUTABLE_NAME);
-    if ffmpeg_in_cwd.is_file() && ffmpeg_in_cwd.exists() {
+    if ffmpeg_in_cwd.is_file() {
         return Some(ffmpeg_in_cwd);
     }
 
@@ -100,7 +99,7 @@ pub fn normalize(input: PathBuf, output: PathBuf, additional_ffmpeg_args: Option
     if !pid.wait()?.success() {
         let mut stderr_output = String::new();
         if let Some(ref mut stderr) = pid.stderr {
-            stderr.take(1000).read_to_string(&mut stderr_output)?;
+            stderr.take(4096).read_to_string(&mut stderr_output)?;
         }
         bail!("unable to convert file: {:?} args: {:?}", stderr_output, cmd.get_args());
     }

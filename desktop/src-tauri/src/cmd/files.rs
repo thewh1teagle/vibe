@@ -28,7 +28,7 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
             }
         }
         Err(e) => {
-            eprintln!("Failed to read pattern {}: {}", search_pattern, e);
+            tracing::error!("Failed to read pattern {}: {}", search_pattern, e);
         }
     }
 
@@ -86,6 +86,6 @@ pub async fn open_path(path: PathBuf) -> Result<()> {
 #[tauri::command]
 pub fn get_ffmpeg_path() -> String {
     crate::ffmpeg::find_ffmpeg_path()
-        .map(|p| p.to_str().unwrap().to_string())
+        .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_default()
 }

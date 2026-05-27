@@ -88,49 +88,57 @@ pub fn resolve_diarize_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
 #[tauri::command]
 pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
     let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
-    let mut state_guard = sona_state.lock().await;
 
-    // Check if model already loaded with same gpu_device
-    if let Some(ref loaded_path) = state_guard.loaded_model_path {
-        if *loaded_path == model_path && state_guard.loaded_gpu_device == gpu_device {
-            tracing::debug!("model already loaded, skipping");
-            return Ok(model_path);
-        }
-    }
+    // Phase 1: Check state and spawn sona if needed (hold lock briefly)
+    let needs_load = {
+        let mut state_guard = sona_state.lock().await;
 
-    let spawn_sona = || -> Result<crate::sona::SonaProcess> {
-        let binary_path = resolve_sona_binary(&app_handle)?;
-        let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        let diarize_path = resolve_diarize_path(&app_handle);
-        crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())
-    };
-
-    // Spawn sona if not running
-    if state_guard.process.is_none() {
-        match spawn_sona() {
-            Ok(process) => state_guard.process = Some(process),
-            Err(e) => {
-                return Err(e);
+        // Check if model already loaded with same gpu_device
+        if let Some(ref loaded_path) = state_guard.loaded_model_path {
+            if *loaded_path == model_path && state_guard.loaded_gpu_device == gpu_device {
+                tracing::debug!("model already loaded, skipping");
+                return Ok(model_path);
             }
         }
+
+        // Spawn sona if not running
+        if state_guard.process.is_none() {
+            let binary_path = resolve_sona_binary(&app_handle)?;
+            let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
+            let diarize_path = resolve_diarize_path(&app_handle);
+            let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
+            state_guard.process = Some(process);
+        }
+        true
+    }; // lock released here
+
+    if !needs_load {
+        return Ok(model_path);
     }
 
-    // Load model via HTTP
+    // Phase 2: Load model via HTTP (outside lock — doesn't block other commands)
     let load_result = {
-        let sona = state_guard.process.as_mut().unwrap();
+        let mut state_guard = sona_state.lock().await;
+        let sona = state_guard.process.as_mut().context("sona process missing")?;
         sona.load_model(&model_path, gpu_device, false).await
     };
 
+    // Phase 3: Handle GPU fallback and update state
     let gpu_fallback = match load_result {
         Ok(()) => false,
         Err(e) => {
             tracing::warn!("model load failed with GPU enabled, falling back to CPU: {:#}", e);
 
-            // Kill existing process and respawn, then reload with no_gpu
+            let mut state_guard = sona_state.lock().await;
+
+            // Kill existing process and respawn
             if let Some(mut old) = state_guard.process.take() {
                 old.kill();
             }
-            let process = spawn_sona().context("failed to respawn sona")?;
+            let binary_path = resolve_sona_binary(&app_handle)?;
+            let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
+            let diarize_path = resolve_diarize_path(&app_handle);
+            let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
             state_guard.process = Some(process);
 
             let sona = state_guard.process.as_mut().unwrap();
@@ -138,8 +146,13 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
             true
         }
     };
-    state_guard.loaded_model_path = Some(model_path.clone());
-    state_guard.loaded_gpu_device = gpu_device;
+
+    // Phase 4: Update loaded model state
+    {
+        let mut state_guard = sona_state.lock().await;
+        state_guard.loaded_model_path = Some(model_path.clone());
+        state_guard.loaded_gpu_device = gpu_device;
+    }
 
     if gpu_fallback {
         Ok("gpu_fallback".to_string())

@@ -17,24 +17,30 @@ export function viewModel() {
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
 	const [modelCompany, setModelCompany] = useState('OpenAI')
+	const unlistenRef = useRef<(() => void) | null>(null)
 
-	function handleProgressEvenets() {
+	function handleProgressEvents() {
 		listen('download_progress', (event) => {
-			// event.event is the event name (useful if you want to use a single callback fn for multiple event types)
-			// event.payload is the payload object
 			const [current, total] = event.payload as [number, number]
 			const newDownloadProgress = Number(current / total) * 100
 
 			if (newDownloadProgress > downloadProgressRef.current) {
-				// for some reason it jumps if not
 				setDownloadProgress(newDownloadProgress)
 				downloadProgressRef.current = newDownloadProgress
 			}
+		}).then((unlisten) => {
+			unlistenRef.current = unlisten
 		})
 	}
 
+	useEffect(() => {
+		return () => {
+			unlistenRef.current?.()
+		}
+	}, [])
+
 	async function downloadModel() {
-		handleProgressEvenets()
+		handleProgressEvents()
 
 		let lastError = null
 

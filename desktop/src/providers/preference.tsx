@@ -32,7 +32,9 @@ export interface Preference {
 const PreferenceContext = createContext<Preference | null>(null)
 
 export function usePreferenceProvider() {
-	return useContext(PreferenceContext) as Preference
+	const ctx = useContext(PreferenceContext)
+	if (!ctx) throw new Error('usePreferenceProvider must be used within PreferenceProvider')
+	return ctx
 }
 
 export interface ModelOptions {
@@ -73,8 +75,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const { i18n } = useTranslation()
 	const previ18Language = useRef(i18n.language)
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
-	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
-
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const isMounted = useRef<boolean>(false)
@@ -86,10 +86,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
 	const [customRecordingPath, setCustomRecordingPath] = useLocalStorage<string | null>('prefs_custom_recording_path', null)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
-
-	useEffect(() => {
-		setIsFirstRun(false)
-	}, [])
 
 	useEffect(() => {
 		if (theme === 'dark') {
@@ -111,7 +107,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			isMounted.current = true
 			return
 		}
-		if (previ18Language.current != i18n.language || isFirstRun) {
+		if (previ18Language.current != i18n.language) {
 			previ18Language.current = i18n.language
 			setLanguageDefaults()
 		}

@@ -67,11 +67,7 @@
       "identifier": "fs:scope",
       "allow": [
         {
-          "path": "**",
-          "requireLiteralLeadingDot": false
-        },
-        {
-          "path": "$HOME/**",
+          "path": "$RESOURCE/**",
           "requireLiteralLeadingDot": false
         },
         {
@@ -93,6 +89,10 @@
         {
           "path": "$DATA/**",
           "requireLiteralLeadingDot": false
+        },
+        {
+          "path": "$HOME/Documents/**",
+          "requireLiteralLeadingDot": false
         }
       ]
     },
@@ -100,7 +100,13 @@
       "identifier": "http:default",
       "allow": [
         {
-          "url": "*://**:*/**"
+          "url": "https://huggingface.co/**"
+        },
+        {
+          "url": "https://github.com/**"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/**"
         }
       ]
     },

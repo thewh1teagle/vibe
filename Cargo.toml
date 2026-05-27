@@ -3,7 +3,7 @@ members = ["desktop/src-tauri"]
 resolver = "2"
 
 [workspace.dependencies]
-eyre = { git = "https://github.com/thewh1teagle/eyre", branch = "feat/report-serialize-backtrace", features = [
+eyre = { git = "https://github.com/thewh1teagle/eyre", rev = "8a0b71c8de62efcab7408fff8e6dc29ba7e5b59a", features = [
 	"serialize",
 ] }
 serde_json = "1.0"

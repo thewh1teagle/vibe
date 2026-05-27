@@ -30,7 +30,9 @@ interface HotkeyContextType {
 const HotkeyContext = createContext<HotkeyContextType | null>(null)
 
 export function useHotkeyProvider() {
-	return useContext(HotkeyContext) as HotkeyContextType
+	const ctx = useContext(HotkeyContext)
+	if (!ctx) throw new Error('useHotkeyProvider must be used within HotkeyProvider')
+	return ctx
 }
 
 async function ensureNotificationPermission(): Promise<boolean> {

@@ -32,7 +32,12 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 		let mut app_handle = STATIC_APP.lock().expect("lock");
 		*app_handle = Some(app.handle().clone());
 	}
-	crate::logging::setup_logging(app.handle(), store).unwrap();
+	match crate::logging::setup_logging(app.handle(), store) {
+		Ok(()) => {}
+		Err(e) => {
+			eprintln!("logging already initialized or failed: {}", e);
+		}
+	}
 	tracing::debug!("Vibe App Running");
 
 	let _handler = crash_handler::CrashHandler::attach(unsafe {

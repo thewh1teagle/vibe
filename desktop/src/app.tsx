@@ -14,11 +14,15 @@ import { ToastProvider } from './providers/toast'
 import { Toaster } from '~/components/ui/sonner'
 import { TooltipProvider } from '~/components/ui/tooltip'
 import { DirectionProvider } from '~/components/ui/direction'
+import { useEffect } from 'react'
 
 export default function App() {
 	const { i18n } = useTranslation()
 	const dir = i18n.dir()
-	document.body.dir = dir
+
+	useEffect(() => {
+		document.body.dir = dir
+	}, [dir])
 
 	return (
 		<DirectionProvider dir={dir}>
