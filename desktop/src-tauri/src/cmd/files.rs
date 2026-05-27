@@ -28,7 +28,7 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
             }
         }
         Err(e) => {
-            eprintln!("Failed to read pattern {}: {}", search_pattern, e);
+            tracing::error!("Failed to read pattern {}: {}", search_pattern, e);
         }
     }
 

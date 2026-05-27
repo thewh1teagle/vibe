@@ -3,7 +3,7 @@ import { viewModel } from './view-model'
 import { Progress } from '~/components/ui/progress'
 import { Spinner } from '~/components/ui/spinner'
 import { Button } from '~/components/ui/button'
-import { Dialog, DialogContent } from '~/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 
 function App() {
 	const { t } = useTranslation()
@@ -29,7 +29,9 @@ function App() {
 
 			<Dialog open={vm.isOnline === false}>
 				<DialogContent>
-					<div className="text-center text-2xl font-semibold">{t('common.no-connection')}</div>
+					<DialogHeader>
+						<DialogTitle>{t('common.no-connection')}</DialogTitle>
+					</DialogHeader>
 					<p className="mt-3 text-center text-muted-foreground">{t('common.info-manual-download')}</p>
 					<div className="mt-5 flex flex-col justify-center gap-2">
 						<Button className="flex-1" onClick={vm.downloadIfOnline}>

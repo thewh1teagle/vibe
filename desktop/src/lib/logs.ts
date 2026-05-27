@@ -52,8 +52,8 @@ export async function collectLogs() {
 		const logs: string = await invoke<string>('get_logs')
 		const filteredLogs = logs
 			.split('\n')
-			.filter((l) => l.toLowerCase().includes('error')) // Filter lines with "debug"
-			.slice(-10) // Take the last 3 lines
+			.filter((l) => l.toLowerCase().includes('error')) // Filter lines containing "error"
+			.slice(-10) // Take the last 10 lines
 			.map((line) => {
 				try {
 					const parsed = JSON.parse(line) // Deserialize JSON

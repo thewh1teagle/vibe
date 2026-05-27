@@ -5,7 +5,7 @@ export function InfoTooltip({ text }: { text: string }) {
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
-				<span>
+				<span tabIndex={0} role="button" aria-label="More info">
 					<InfoIcon className="w-5 h-5" />
 				</span>
 			</TooltipTrigger>

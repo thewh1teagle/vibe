@@ -48,7 +48,7 @@
 | `use-single-instance.tsx:46` | Fixed `if (newFiles)` (always truthy on `[]`) → `if (newFiles.length > 0)` |
 | `use-single-instance.tsx` | Moved listener into `useEffect` with proper cleanup return |
 
-### 6. Quick wins — dead code, CI & config fixes
+### 6. Dead code, CI & config fixes
 
 **Dead code removed:**
 
@@ -79,6 +79,29 @@
 | `components.json` | `"utils": "~/lib/utils"` → `"utils": "~/lib/style"` (file actually exists) |
 | `package.json` | `"@tauri-apps/cli": "~2.10.0"` → `"~2.11.0"` (match API version) |
 | `eslint.config.js` | Removed `eslint-plugin-react` import (not installed), removed duplicate `sourceType` config, removed orphaned react rules |
+| `Cargo.toml` | Version `"0.0.6"` → `"3.0.19"` (synced with `tauri.conf.json`) |
+
+### 7. Accessibility & code quality
+
+**Accessibility:**
+
+| File | Change |
+|------|--------|
+| `error-modal.tsx` | Copy icon: `onMouseDown` → `onClick`, added `tabIndex={0}`, `role="button"`, `aria-label` |
+| `error-modal.tsx` | Report button: `onMouseDown` → `onClick` |
+| `settings/page.tsx` | 3 buttons: `onMouseDown` → `onClick` |
+| `info-tooltip.tsx` | Tooltip `<span>`: added `tabIndex={0}`, `role="button"`, `aria-label="More info"` |
+| `spinner.tsx` | Added `role="status"`, `aria-label="Loading"` |
+| `setup/page.tsx` | Offline dialog: added proper `<DialogTitle>` and `<DialogHeader>` |
+
+**Code quality:**
+
+| File | Change |
+|------|--------|
+| `ffmpeg.rs:32` | Removed duplicate `use chrono::Local` import |
+| `files.rs:31` | `eprintln!` → `tracing::error!` |
+| `logs.ts:55-56` | Fixed comments: "debug" → "error", "3 lines" → "10 lines" |
+| `preference.tsx` | Removed wasted `isFirstRun` localStorage read/write |
 
 ---
 
@@ -108,36 +131,26 @@
 
 | # | File | Issue |
 |---|------|-------|
-| 11 | `cmd/audio.rs:62-64` | `StreamHandle` unsafe Send+Sync with no safety comment |
-| 12 | `cmd/audio.rs:86-87` | Device ID is index-based, unstable across device changes |
-| 13 | `cmd/audio.rs:126-146` | Hardcoded index 0/1 in merge logic — panics with 0 or 3+ devices |
-| 14 | `cmd/transcribe.rs:145-147` | Stream errors silently swallowed — user gets partial transcript with no failure indication |
-| 15 | `sona.rs:170-174` | Stderr buffer stops at 8KB, silently discards new lines |
-| 16 | `cmd/transcribe.rs:126-127` | Integer truncation instead of rounding (`as i64` vs `.round() as i64`) |
-| 17 | `cmd/download.rs:11-49` vs `52-91` | ~90% duplicated code between `download_model` and `download_file` |
-| 18 | `Cargo.toml:6` | Custom eyre fork on unpinned feature branch — can break if force-pushed |
-| 19 | `tauri.conf.json:4` vs `Cargo.toml:3` | Version mismatch: `3.0.19` vs `0.0.6` |
-| 20 | Various UI files | `onMouseDown` handlers not keyboard accessible, should be `onClick` |
-| 21 | `info-tooltip.tsx:8-10` | Tooltip trigger is `<span>` without `tabIndex` — keyboard users can't reach it |
-| 22 | `spinner.tsx:4` | No `role="status"` or `aria-label` — screen readers don't announce loading |
-| 23 | `setup/page.tsx:30-40` | Missing `<DialogTitle>` in offline dialog — breaks accessible name |
-| 24 | `preference.tsx:76,91` | `isFirstRun` localStorage is wasted — always `false` when checked |
+| 11 | `cmd/audio.rs:86-87` | Device ID is index-based, unstable across device changes |
+| 12 | `cmd/audio.rs:126-146` | Hardcoded index 0/1 in merge logic — panics with 0 or 3+ devices |
+| 13 | `cmd/transcribe.rs:145-147` | Stream errors silently swallowed — user gets partial transcript with no failure indication |
+| 14 | `sona.rs:170-174` | Stderr buffer stops at 8KB, silently discards new lines |
+| 15 | `cmd/transcribe.rs:126-127` | Integer truncation instead of rounding (`as i64` vs `.round() as i64`) |
+| 16 | `cmd/download.rs:11-49` vs `52-91` | ~90% duplicated code between `download_model` and `download_file` |
+| 17 | `Cargo.toml:6` | Custom eyre fork on unpinned feature branch — can break if force-pushed |
 
 ### LOW
 
 | # | File | Issue |
 |---|------|-------|
-| 25 | `ffmpeg.rs:1,32` | Duplicate `use chrono::Local` import |
-| 26 | `ffmpeg.rs:49` | Redundant `is_file() && exists()` check |
-| 27 | `ffmpeg.rs:103` | Only reads first 1000 bytes of stderr |
-| 28 | `cmd/files.rs:31` | `eprintln!` instead of `tracing::error!` |
-| 29 | `cmd/permissions.rs:2-4` | Stub always returns `true` |
-| 30 | `sona.rs:296-298` | Temperature `0.0` silently dropped |
-| 31 | `Cargo.toml:56` | `bytemuck` dependency appears unused |
-| 32 | `app.ts:27` | `getIssueUrl` is unnecessarily async |
-| 33 | `logs.ts:55-56` | Comments say "debug"/"3 lines" but code filters "error"/takes 10 |
-| 34 | `package.json:63` | `vite-plugin-svgr` in deps instead of devDeps |
-| 35 | `.gitignore:13,22` | Duplicate `.DS_Store` entry |
-| 36 | Various UI files | Hardcoded English strings bypass i18n (`"Settings"`, `"Global dictation"`, `"Output"`, etc.) |
-| 37 | `vscode/settings.json:9` | `rust-analyzer.checkOnSave: false` — disables most useful rust-analyzer feature |
-| 38 | `components/ui/select.tsx`, `popover.tsx`, `scroll-area.tsx`, `card.tsx` | Use 2-space indentation instead of tabs |
+| 18 | `ffmpeg.rs:49` | Redundant `is_file() && exists()` check |
+| 19 | `ffmpeg.rs:103` | Only reads first 1000 bytes of stderr |
+| 20 | `cmd/permissions.rs:2-4` | Stub always returns `true` |
+| 21 | `sona.rs:296-298` | Temperature `0.0` silently dropped |
+| 22 | `Cargo.toml:56` | `bytemuck` dependency appears unused |
+| 23 | `app.ts:27` | `getIssueUrl` is unnecessarily async |
+| 24 | `package.json:63` | `vite-plugin-svgr` in deps instead of devDeps |
+| 25 | `.gitignore:13,22` | Duplicate `.DS_Store` entry |
+| 26 | Various UI files | Hardcoded English strings bypass i18n (`"Settings"`, `"Output"`, etc.) |
+| 27 | `vscode/settings.json:9` | `rust-analyzer.checkOnSave: false` — disables most useful rust-analyzer feature |
+| 28 | `components/ui/select.tsx`, `popover.tsx`, `scroll-area.tsx`, `card.tsx` | Use 2-space indentation instead of tabs |

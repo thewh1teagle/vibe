@@ -29,7 +29,6 @@ const EXECUTABLE_NAME: &str = "ffmpeg.exe";
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 pub fn get_vibe_temp_folder() -> PathBuf {
-    use chrono::Local;
     let current_datetime = Local::now();
     let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();
     let dir = std::env::temp_dir().join(format!("vibe_temp_{}", formatted_datetime));

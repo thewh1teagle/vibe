@@ -101,19 +101,19 @@ export default function SettingsPage() {
 					<div className="space-y-1 pt-1">
 						<Button
 							variant="ghost"
-							onMouseDown={vm.openModelsUrl}
+							onClick={vm.openModelsUrl}
 							className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
 							{t('common.download-models-link')} <LinkIcon className="h-4 w-4 text-muted-foreground" />
 						</Button>
 						<Button
 							variant="ghost"
-							onMouseDown={vm.openModelPath}
+							onClick={vm.openModelPath}
 							className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
 							{t('common.models-folder')} <FolderIcon className="h-4 w-4 text-muted-foreground" />
 						</Button>
 						<Button
 							variant="ghost"
-							onMouseDown={vm.changeModelsFolder}
+							onClick={vm.changeModelsFolder}
 							className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
 							{t('common.change-models-folder')} <WrenchIcon className="h-4 w-4 text-muted-foreground" />
 						</Button>

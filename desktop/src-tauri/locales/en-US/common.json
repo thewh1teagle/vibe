@@ -3,6 +3,7 @@
 	"ask-for-download-model": "Would you like to download the model from the website",
 	"change-models-folder": "Change Models Folder",
 	"characters": "characters",
+	"copy": "Copy",
 	"crashed-recently": "Since the app is crashed recently, the GPU is disabled. you can enable it in the settings.",
 	"download-model": "Download model",
 	"download-models-link": "Download Models",
