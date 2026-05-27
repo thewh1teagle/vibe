@@ -31,7 +31,7 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 			info = `Couldn't get info: ${e}`
 		}
 
-		const url = await getIssueUrl(state?.log + '\n' + info)
+		const url = getIssueUrl(state?.log + '\n' + info)
 		openUrl(url)
 	}
 

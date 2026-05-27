@@ -53,7 +53,6 @@ glob = "0.3.3"
 
 chrono = "0.4.43"
 crash-handler = "0.7.0"
-bytemuck = "1.24.0"
 which = "8"
 enigo = "0.3"
 

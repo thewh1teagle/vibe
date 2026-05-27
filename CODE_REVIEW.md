@@ -103,7 +103,19 @@
 | `logs.ts:55-56` | Fixed comments: "debug" → "error", "3 lines" → "10 lines" |
 | `preference.tsx` | Removed wasted `isFirstRun` localStorage read/write |
 
-### 8. Concurrency & React state fixes
+### 8. Low-hanging cleanup
+
+| File | Change |
+|------|--------|
+| `Cargo.toml` | Removed unused `bytemuck` dependency |
+| `ffmpeg.rs:48` | Removed redundant `is_file() && exists()` → `is_file()` |
+| `ffmpeg.rs:102` | Increased stderr read limit from 1000 → 4096 bytes |
+| `app.ts:27` | `getIssueUrl`: `async` → sync (no await inside) |
+| `error-modal.tsx` | Removed unnecessary `await` on `getIssueUrl` |
+| `package.json` | Moved `vite-plugin-svgr` from deps → devDeps |
+| `.gitignore` | Removed duplicate `.DS_Store` entry |
+| `.vscode/settings.json` | Enabled `rust-analyzer.checkOnSave` with clippy |
+| `sona.rs:296` | Temperature `0.0` no longer silently dropped (`> 0.0` → `>= 0.0`) |
 
 **Concurrency:**
 
@@ -157,14 +169,6 @@
 
 | # | File | Issue |
 |---|------|-------|
-| 14 | `ffmpeg.rs:49` | Redundant `is_file() && exists()` check |
-| 15 | `ffmpeg.rs:103` | Only reads first 1000 bytes of stderr |
-| 16 | `cmd/permissions.rs:2-4` | Stub always returns `true` |
-| 17 | `sona.rs:296-298` | Temperature `0.0` silently dropped |
-| 18 | `Cargo.toml:56` | `bytemuck` dependency appears unused |
-| 19 | `app.ts:27` | `getIssueUrl` is unnecessarily async |
-| 20 | `package.json:63` | `vite-plugin-svgr` in deps instead of devDeps |
-| 21 | `.gitignore:13,22` | Duplicate `.DS_Store` entry |
-| 22 | Various UI files | Hardcoded English strings bypass i18n (`"Settings"`, `"Output"`, etc.) |
-| 23 | `vscode/settings.json:9` | `rust-analyzer.checkOnSave: false` — disables most useful rust-analyzer feature |
-| 24 | `components/ui/select.tsx`, `popover.tsx`, `scroll-area.tsx`, `card.tsx` | Use 2-space indentation instead of tabs |
+| 14 | `cmd/permissions.rs:2-4` | Stub always returns `true` |
+| 15 | `components/ui/select.tsx`, `popover.tsx`, `scroll-area.tsx`, `card.tsx` | Use 2-space indentation instead of tabs |
+| 16 | Various UI files | Hardcoded English strings bypass i18n (`"Settings"`, `"Output"`, etc.) |

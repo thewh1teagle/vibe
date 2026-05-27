@@ -293,7 +293,7 @@ impl SonaProcess {
             }
         }
         if let Some(t) = options.temperature {
-            if t > 0.0 {
+            if t >= 0.0 {
                 form = form.text("temperature", t.to_string());
             }
         }
