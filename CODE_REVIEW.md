@@ -103,6 +103,24 @@
 | `logs.ts:55-56` | Fixed comments: "debug" → "error", "3 lines" → "10 lines" |
 | `preference.tsx` | Removed wasted `isFirstRun` localStorage read/write |
 
+### 8. Concurrency & React state fixes
+
+**Concurrency:**
+
+| File | Change |
+|------|--------|
+| `cmd/sona_cmd.rs` | Refactored `load_model` into 4 phases: check+spawn (lock), HTTP load (lock), GPU fallback (lock), update state (lock). Lock held briefly per phase instead of across entire function |
+| `cmd/app.rs` | `type_text`: `std::thread::sleep` → `tokio::time::sleep`, made function `async` |
+
+**React state:**
+
+| File | Change |
+|------|--------|
+| `preference.tsx` | `useContext(X) as Type` → null check + descriptive `throw new Error` |
+| `hotkey.tsx` | Same null context cast fix |
+| `toast.tsx` | Same null context cast fix |
+| `params.tsx` | Removed `usePreferenceProvider` — all reads/writes now go through `options`/`setOptions` props. Single source of truth, no stale closures |
+
 ---
 
 ## Remaining Issues
@@ -120,37 +138,33 @@
 | # | File | Issue |
 |---|------|-------|
 | 4 | `setup.rs:9` | **Global `STATIC_APP` with `std::sync::Mutex`** — if crash occurs while another thread holds mutex, it's poisoned and crash dialog won't show |
-| 5 | `cmd/sona_cmd.rs:91,120` | **Tokio mutex held across `.await`** — blocks all other commands needing `SonaState` during network calls |
-| 6 | `cmd/app.rs:67` | **`thread::sleep` in async context** — blocks tokio worker thread for 100ms in `type_text` |
-| 7 | `tauri.conf.json:8` | **`withGlobalTauri: true`** — exposes entire Tauri IPC API on `window.__TAURI__` to any script. Requires CSP to be safe |
-| 8 | `preference.tsx:35`, `hotkey.tsx:33`, `toast.tsx:17` | **Null context cast** — `useContext(X) as Type` silently returns null if component renders outside provider |
-| 9 | `hotkey.tsx:14` | **Module-level mutable state** — `export let hotkeyRecordingActive` bypasses React reactivity, consumers get stale snapshot |
-| 10 | `params.tsx:138-178` | **Stale closures** — reads from `preference.modelOptions` but writes via `setOptions` props, two divergent update paths |
+| 5 | `tauri.conf.json:8` | **`withGlobalTauri: true`** — exposes entire Tauri IPC API on `window.__TAURI__` to any script. Requires CSP to be safe |
+| 6 | `hotkey.tsx:14` | **Module-level mutable state** — `export let hotkeyRecordingActive` bypasses React reactivity, consumers get stale snapshot |
 
 ### MEDIUM
 
 | # | File | Issue |
 |---|------|-------|
-| 11 | `cmd/audio.rs:86-87` | Device ID is index-based, unstable across device changes |
-| 12 | `cmd/audio.rs:126-146` | Hardcoded index 0/1 in merge logic — panics with 0 or 3+ devices |
-| 13 | `cmd/transcribe.rs:145-147` | Stream errors silently swallowed — user gets partial transcript with no failure indication |
-| 14 | `sona.rs:170-174` | Stderr buffer stops at 8KB, silently discards new lines |
-| 15 | `cmd/transcribe.rs:126-127` | Integer truncation instead of rounding (`as i64` vs `.round() as i64`) |
-| 16 | `cmd/download.rs:11-49` vs `52-91` | ~90% duplicated code between `download_model` and `download_file` |
-| 17 | `Cargo.toml:6` | Custom eyre fork on unpinned feature branch — can break if force-pushed |
+| 7 | `cmd/audio.rs:86-87` | Device ID is index-based, unstable across device changes |
+| 8 | `cmd/audio.rs:126-146` | Hardcoded index 0/1 in merge logic — panics with 0 or 3+ devices |
+| 9 | `cmd/transcribe.rs:145-147` | Stream errors silently swallowed — user gets partial transcript with no failure indication |
+| 10 | `sona.rs:170-174` | Stderr buffer stops at 8KB, silently discards new lines |
+| 11 | `cmd/transcribe.rs:126-127` | Integer truncation instead of rounding (`as i64` vs `.round() as i64`) |
+| 12 | `cmd/download.rs:11-49` vs `52-91` | ~90% duplicated code between `download_model` and `download_file` |
+| 13 | `Cargo.toml:6` | Custom eyre fork on unpinned feature branch — can break if force-pushed |
 
 ### LOW
 
 | # | File | Issue |
 |---|------|-------|
-| 18 | `ffmpeg.rs:49` | Redundant `is_file() && exists()` check |
-| 19 | `ffmpeg.rs:103` | Only reads first 1000 bytes of stderr |
-| 20 | `cmd/permissions.rs:2-4` | Stub always returns `true` |
-| 21 | `sona.rs:296-298` | Temperature `0.0` silently dropped |
-| 22 | `Cargo.toml:56` | `bytemuck` dependency appears unused |
-| 23 | `app.ts:27` | `getIssueUrl` is unnecessarily async |
-| 24 | `package.json:63` | `vite-plugin-svgr` in deps instead of devDeps |
-| 25 | `.gitignore:13,22` | Duplicate `.DS_Store` entry |
-| 26 | Various UI files | Hardcoded English strings bypass i18n (`"Settings"`, `"Output"`, etc.) |
-| 27 | `vscode/settings.json:9` | `rust-analyzer.checkOnSave: false` — disables most useful rust-analyzer feature |
-| 28 | `components/ui/select.tsx`, `popover.tsx`, `scroll-area.tsx`, `card.tsx` | Use 2-space indentation instead of tabs |
+| 14 | `ffmpeg.rs:49` | Redundant `is_file() && exists()` check |
+| 15 | `ffmpeg.rs:103` | Only reads first 1000 bytes of stderr |
+| 16 | `cmd/permissions.rs:2-4` | Stub always returns `true` |
+| 17 | `sona.rs:296-298` | Temperature `0.0` silently dropped |
+| 18 | `Cargo.toml:56` | `bytemuck` dependency appears unused |
+| 19 | `app.ts:27` | `getIssueUrl` is unnecessarily async |
+| 20 | `package.json:63` | `vite-plugin-svgr` in deps instead of devDeps |
+| 21 | `.gitignore:13,22` | Duplicate `.DS_Store` entry |
+| 22 | Various UI files | Hardcoded English strings bypass i18n (`"Settings"`, `"Output"`, etc.) |
+| 23 | `vscode/settings.json:9` | `rust-analyzer.checkOnSave: false` — disables most useful rust-analyzer feature |
+| 24 | `components/ui/select.tsx`, `popover.tsx`, `scroll-area.tsx`, `card.tsx` | Use 2-space indentation instead of tabs |

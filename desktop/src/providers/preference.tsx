@@ -32,7 +32,9 @@ export interface Preference {
 const PreferenceContext = createContext<Preference | null>(null)
 
 export function usePreferenceProvider() {
-	return useContext(PreferenceContext) as Preference
+	const ctx = useContext(PreferenceContext)
+	if (!ctx) throw new Error('usePreferenceProvider must be used within PreferenceProvider')
+	return ctx
 }
 
 export interface ModelOptions {

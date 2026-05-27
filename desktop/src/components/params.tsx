@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ModifyState } from '~/lib/types'
 import { InfoTooltip } from './info-tooltip'
 import { SlidersHorizontal } from 'lucide-react'
-import { ModelOptions as IModelOptions, usePreferenceProvider } from '~/providers/preference'
+import { ModelOptions as IModelOptions } from '~/providers/preference'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import { ScrollArea } from '~/components/ui/scroll-area'
@@ -28,7 +28,6 @@ function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
 
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const [open, setOpen] = useState(false)
-	const preference = usePreferenceProvider()
 	const { t } = useTranslation()
 
 	function parseIntOr(value: string, fallback: number) {
@@ -135,11 +134,11 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 											{t('common.sampling-strategy')}
 										</>
 									}>
-									<Select
-										value={preference.modelOptions.sampling_strategy}
-										onValueChange={(value) =>
-											preference.setModelOptions({ ...preference.modelOptions, sampling_strategy: value as 'greedy' | 'beam search' })
-										}>
+								<Select
+									value={options.sampling_strategy}
+									onValueChange={(value) =>
+										setOptions({ ...options, sampling_strategy: value as 'greedy' | 'beam search' })
+									}>
 										<SelectTrigger className="capitalize">
 											<SelectValue />
 										</SelectTrigger>
@@ -156,21 +155,21 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								<Field
 									label={
 										<>
-											<InfoTooltip text={preference.modelOptions.sampling_strategy === 'greedy'
+											<InfoTooltip text={options.sampling_strategy === 'greedy'
 												? "Top candidates in Greedy mode (default: 5) — higher = better accuracy, slower."
 												: "Paths explored in Beam Search (default: 5) — higher = better accuracy, slower."} />
-											{preference.modelOptions.sampling_strategy === 'greedy' ? 'Best of' : 'Beam size'}
+											{options.sampling_strategy === 'greedy' ? 'Best of' : 'Beam size'}
 										</>
 									}>
 									<Input
 										type="number"
 										step={1}
-										value={preference.modelOptions.sampling_strategy === 'greedy'
-											? (preference.modelOptions.best_of ?? 5)
-											: (preference.modelOptions.beam_size ?? 5)}
+										value={options.sampling_strategy === 'greedy'
+											? (options.best_of ?? 5)
+											: (options.beam_size ?? 5)}
 										onChange={(e) => {
 											const val = parseIntOr(e.target.value, 5)
-											if (preference.modelOptions.sampling_strategy === 'greedy') {
+											if (options.sampling_strategy === 'greedy') {
 												setOptions({ ...options, best_of: val })
 											} else {
 												setOptions({ ...options, beam_size: val })

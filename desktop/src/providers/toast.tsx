@@ -14,7 +14,9 @@ export interface ToastModalState {
 export const ToastContext = createContext<ToastModalState | null>(null)
 
 export function useToastProvider() {
-	return useContext(ToastContext) as ToastModalState
+	const ctx = useContext(ToastContext)
+	if (!ctx) throw new Error('useToastProvider must be used within ToastProvider')
+	return ctx
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
