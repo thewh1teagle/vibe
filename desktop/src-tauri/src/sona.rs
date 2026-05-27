@@ -180,8 +180,8 @@ impl SonaProcess {
         Ok(Self {
             port: signal.port,
             child,
-            // Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
-            client: reqwest::Client::builder().no_proxy().build().unwrap(),
+			// Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
+            client: reqwest::Client::builder().no_proxy().build().context("failed to build HTTP client")?,
             stderr_buf,
         })
     }

@@ -1,0 +1,143 @@
+# Code Review — Vibe Desktop
+
+## Changes Made (fix/code-review-top-issues)
+
+### 1. Security — HTTP & Filesystem scope hardening
+
+**`capabilities/main.json`**
+- Restricted fs scope from `"**"` (full disk) to specific directories: `$RESOURCE/**`, `$APPCONFIG/**`, `$APPDATA/**`, `$APPLOCALDATA/**`, `$CONFIG/**`, `$DATA/**`, `$HOME/Documents/**`
+- Restricted HTTP scope from `*://**:*/**` (any host) to `huggingface.co/**`, `github.com/**`, `raw.githubusercontent.com/**` only
+
+**`boundary-fallback.tsx`**
+- Replaced unsafe `(window as any).__TAURI__` hack with proper `getCurrentWindow()` import from `@tauri-apps/api/window`
+
+> **Note:** CSP and asset protocol were reverted to original (`csp: null`, `"**"` scope) as they broke i18n locale loading. Needs a separate focused effort to enable CSP without blocking Tauri IPC.
+
+### 2. Panic prevention — `unwrap()`/`expect()` replaced with proper error handling
+
+| File | Line | Change |
+|------|------|--------|
+| `cmd/audio.rs:124` | `expect("lock")`/`expect("writer")` | Replaced with `match` + `continue` on failure |
+| `sona.rs:184` | `Client::builder().build().unwrap()` | Replaced with `.context("...")?` |
+| `setup.rs:35` | `setup_logging(...).unwrap()` | Replaced with `match` + `eprintln!` fallback |
+| `build.rs:5-9` | `Command::new("git").output().unwrap()` | Graceful fallback to `"unknown"` |
+| `build.rs:18` | `dst.parent().unwrap()` | `if let Some(parent)` guard |
+| `build.rs:24-29` | robocopy exit codes 0-7 treated as failures | Proper exit code check (`>= 8` = error) |
+| `build.rs:36` | Fragile 3-level `OUT_DIR` parent traversal | Dynamic walk-up to find `debug`/`release` dir |
+| `files.rs:89` | `to_str().unwrap()` on path | Changed to `to_string_lossy()` |
+
+### 3. Event listener leaks — properly cleaned up
+
+| File | Change |
+|------|--------|
+| `setup/view-model.ts` | Store `listen()` unlisten ref, clean up in `useEffect` return. Fixed typo `handleProgressEvenets` → `handleProgressEvents` |
+| `cmd/download.rs` | Store `listener_id`, call `app_handle.unlisten()` after download completes (both `download_model` and `download_file`) |
+| `cmd/transcribe.rs` | Store `listener_id`, call `app_handle.unlisten()` after transcription completes |
+
+### 4. Orphaned sona process on exit
+
+**`main.rs`**
+- Replaced `try_lock()` (which silently fails if lock is held) with `block_in_place` + `blocking_lock` with 2-second timeout
+- Prints error to stderr if lock can't be acquired
+
+### 5. React correctness
+
+| File | Change |
+|------|--------|
+| `app.tsx:21` | Moved `document.body.dir = dir` from render body into `useEffect(() => { ... }, [dir])` |
+| `use-single-instance.tsx:46` | Fixed `if (newFiles)` (always truthy on `[]`) → `if (newFiles.length > 0)` |
+| `use-single-instance.tsx` | Moved listener into `useEffect` with proper cleanup return |
+
+### 6. Quick wins — dead code, CI & config fixes
+
+**Dead code removed:**
+
+| File | What |
+|------|------|
+| `Cargo.toml` | Removed `tauri-plugin-keepawake` optional dependency and feature flag |
+| `main.rs` | Removed `#[cfg(feature = "keepawake")]` plugin init block |
+| `pre_build.py` | Removed `download_diarize()` call and `DIARIZE_ASSET_MAP` (sona-diarize binaries no longer bundled) |
+| `common.json` | Removed **161 dead translation keys** (kept only 48 used keys + 3 missing keys added) |
+| `lib/config.ts` | Removed 6 dead URL exports (`aboutURL`, `updateVersionURL`, `discordURL`, `unsupportedCpuReadmeURL`, `supportVibeURL`, `latestReleaseURL`, `latestVersionWithoutVulkan`) and 8 dead model constants (`embeddingModel*`, `segmentModel*`, `diarizeModel*`, `vadModel*`) |
+| `extensions.json` | Removed Svelte extension recommendation (landing website was deleted) |
+| `launch.json` | Removed `vibe_core` debug config (package doesn't exist), removed stale `FFMPEG_DIR`/`OPENBLAS_PATH`/`LIBCLANG_PATH` env vars from release config |
+
+**CI fixes (`lint_rust.yml`):**
+
+| Fix | Before | After |
+|-----|--------|-------|
+| Trigger path | `'.github/workflows/lint.yml'` (wrong name) | `'.github/workflows/lint_rust.yml'` |
+| Phantom path | `'cli/src/**'` (deleted directory) | Removed |
+| Runner | `macos-latest` | `windows-latest` |
+| Lockfile | `pnpm install` | `pnpm install --frozen-lockfile` |
+
+**Config fixes:**
+
+| File | Fix |
+|------|-----|
+| `components.json` | `"rtl": true` → `"rtl": false` |
+| `components.json` | `"utils": "~/lib/utils"` → `"utils": "~/lib/style"` (file actually exists) |
+| `package.json` | `"@tauri-apps/cli": "~2.10.0"` → `"~2.11.0"` (match API version) |
+| `eslint.config.js` | Removed `eslint-plugin-react` import (not installed), removed duplicate `sourceType` config, removed orphaned react rules |
+
+---
+
+## Remaining Issues
+
+### CRITICAL
+
+| # | File | Issue |
+|---|------|-------|
+| 1 | `cmd/audio.rs:62-64` | **Unsafe `Send + Sync` on `StreamHandle`** — no safety justification, potential data race if cpal changes internals |
+| 2 | `tauri.conf.json:20` | **CSP disabled (`null`)** — no defense against XSS. Attempted fix broke i18n; needs careful CSP that allows Tauri IPC protocols (`ipc:`, `asset:`, `tauri.localhost`) |
+| 3 | `tauri.conf.json:12-14` | **Asset protocol scope `"**"`** — frontend can read any file on disk. Needs scoping to `$RESOURCE/**` + app directories without breaking i18n |
+
+### HIGH
+
+| # | File | Issue |
+|---|------|-------|
+| 4 | `setup.rs:9` | **Global `STATIC_APP` with `std::sync::Mutex`** — if crash occurs while another thread holds mutex, it's poisoned and crash dialog won't show |
+| 5 | `cmd/sona_cmd.rs:91,120` | **Tokio mutex held across `.await`** — blocks all other commands needing `SonaState` during network calls |
+| 6 | `cmd/app.rs:67` | **`thread::sleep` in async context** — blocks tokio worker thread for 100ms in `type_text` |
+| 7 | `tauri.conf.json:8` | **`withGlobalTauri: true`** — exposes entire Tauri IPC API on `window.__TAURI__` to any script. Requires CSP to be safe |
+| 8 | `preference.tsx:35`, `hotkey.tsx:33`, `toast.tsx:17` | **Null context cast** — `useContext(X) as Type` silently returns null if component renders outside provider |
+| 9 | `hotkey.tsx:14` | **Module-level mutable state** — `export let hotkeyRecordingActive` bypasses React reactivity, consumers get stale snapshot |
+| 10 | `params.tsx:138-178` | **Stale closures** — reads from `preference.modelOptions` but writes via `setOptions` props, two divergent update paths |
+
+### MEDIUM
+
+| # | File | Issue |
+|---|------|-------|
+| 11 | `cmd/audio.rs:62-64` | `StreamHandle` unsafe Send+Sync with no safety comment |
+| 12 | `cmd/audio.rs:86-87` | Device ID is index-based, unstable across device changes |
+| 13 | `cmd/audio.rs:126-146` | Hardcoded index 0/1 in merge logic — panics with 0 or 3+ devices |
+| 14 | `cmd/transcribe.rs:145-147` | Stream errors silently swallowed — user gets partial transcript with no failure indication |
+| 15 | `sona.rs:170-174` | Stderr buffer stops at 8KB, silently discards new lines |
+| 16 | `cmd/transcribe.rs:126-127` | Integer truncation instead of rounding (`as i64` vs `.round() as i64`) |
+| 17 | `cmd/download.rs:11-49` vs `52-91` | ~90% duplicated code between `download_model` and `download_file` |
+| 18 | `Cargo.toml:6` | Custom eyre fork on unpinned feature branch — can break if force-pushed |
+| 19 | `tauri.conf.json:4` vs `Cargo.toml:3` | Version mismatch: `3.0.19` vs `0.0.6` |
+| 20 | Various UI files | `onMouseDown` handlers not keyboard accessible, should be `onClick` |
+| 21 | `info-tooltip.tsx:8-10` | Tooltip trigger is `<span>` without `tabIndex` — keyboard users can't reach it |
+| 22 | `spinner.tsx:4` | No `role="status"` or `aria-label` — screen readers don't announce loading |
+| 23 | `setup/page.tsx:30-40` | Missing `<DialogTitle>` in offline dialog — breaks accessible name |
+| 24 | `preference.tsx:76,91` | `isFirstRun` localStorage is wasted — always `false` when checked |
+
+### LOW
+
+| # | File | Issue |
+|---|------|-------|
+| 25 | `ffmpeg.rs:1,32` | Duplicate `use chrono::Local` import |
+| 26 | `ffmpeg.rs:49` | Redundant `is_file() && exists()` check |
+| 27 | `ffmpeg.rs:103` | Only reads first 1000 bytes of stderr |
+| 28 | `cmd/files.rs:31` | `eprintln!` instead of `tracing::error!` |
+| 29 | `cmd/permissions.rs:2-4` | Stub always returns `true` |
+| 30 | `sona.rs:296-298` | Temperature `0.0` silently dropped |
+| 31 | `Cargo.toml:56` | `bytemuck` dependency appears unused |
+| 32 | `app.ts:27` | `getIssueUrl` is unnecessarily async |
+| 33 | `logs.ts:55-56` | Comments say "debug"/"3 lines" but code filters "error"/takes 10 |
+| 34 | `package.json:63` | `vite-plugin-svgr` in deps instead of devDeps |
+| 35 | `.gitignore:13,22` | Duplicate `.DS_Store` entry |
+| 36 | Various UI files | Hardcoded English strings bypass i18n (`"Settings"`, `"Global dictation"`, `"Output"`, etc.) |
+| 37 | `vscode/settings.json:9` | `rust-analyzer.checkOnSave: false` — disables most useful rust-analyzer feature |
+| 38 | `components/ui/select.tsx`, `popover.tsx`, `scroll-area.tsx`, `card.tsx` | Use 2-space indentation instead of tabs |

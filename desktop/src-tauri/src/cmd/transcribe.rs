@@ -84,7 +84,7 @@ pub async fn transcribe(
     let abort_atomic = Arc::new(AtomicBool::new(false));
     let abort_atomic_c = abort_atomic.clone();
 
-    app_handle.listen("abort_transcribe", move |_| {
+    let listener_id = app_handle.listen("abort_transcribe", move |_| {
 		abort_atomic_c.store(true, Ordering::Relaxed);
 	});
 
@@ -149,6 +149,8 @@ pub async fn transcribe(
     }
 
     let elapsed = start.elapsed();
+    app_handle.unlisten(listener_id);
+
     let transcript = Transcript {
         processing_time_sec: elapsed.as_secs(),
         segments,

@@ -7,7 +7,6 @@
 		"dbaeumer.vscode-eslint", // Integrates ESLint JavaScript into VS Code
 		"esbenp.prettier-vscode", // Code formatter using prettier,
 		"inlang.vs-code-extension", // Sherlock – i18n inspector for translations
-		"svelte.svelte-vscode", // Svelte used in landing website
 		"tamasfe.even-better-toml", // Toml used in cargo files
 		"github.vscode-github-actions" // Github actions control
 	]

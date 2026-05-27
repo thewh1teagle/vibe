@@ -7,20 +7,6 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug unit tests in library 'vibe_core'",
-			"cargo": {
-				"args": ["test", "--no-run", "--lib", "--package=vibe_core"],
-				"filter": {
-					"name": "vibe_core",
-					"kind": "lib"
-				}
-			},
-			"args": [],
-			"cwd": "${workspaceFolder}"
-		},
-		{
-			"type": "lldb",
-			"request": "launch",
 			"name": "Debug executable 'vibe'",
 			"cargo": {
 				"args": ["build", "--bin=vibe", "--package=vibe"],
@@ -41,13 +27,6 @@
 				"filter": {
 					"name": "vibe",
 					"kind": "bin"
-				},
-				"env": {
-					"FFMPEG_DIR": "${workspaceFolder}\\desktop\\src-tauri\\ffmpeg",
-					"OPENBLAS_PATH": "${workspaceFolder}\\desktop\\src-tauri\\openblas",
-					"LIBCLANG_PATH": "C:\\Program Files\\LLVM\\bin",
-					"PATH": "${env:PATH};${workspaceFolder}\\desktop\\src-tauri\\openblas\\bin;${workspaceFolder}\\desktop\\src-tauri\\ffmpeg\\bin\\x64",
-					"RUSTFLAGS": "-L ${workspaceFolder}\\desktop\\src-tauri\\openblas\\lib"
 				}
 			},
 			"args": [],

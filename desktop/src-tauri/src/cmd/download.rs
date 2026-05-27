@@ -16,14 +16,21 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: Str
 
     let app_handle_c = app_handle.clone();
 
-    app_handle.listen("abort_download", move |_| {
+    let listener_id = app_handle.listen("abort_download", move |_| {
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
+    let result = download_model_inner(app_handle_c, &url, &path, &abort_atomic).await;
+
+    app_handle.unlisten(listener_id);
+    result
+}
+
+async fn download_model_inner(app_handle: tauri::AppHandle, url: &str, path: &str, abort_atomic: &Arc<AtomicBool>) -> Result<String> {
     let client = reqwest::Client::new();
-    let res = client.get(&url).send().await?.error_for_status()?;
+    let res = client.get(url).send().await?.error_for_status()?;
     let total_size = res.content_length().unwrap_or(0);
-    let mut file = std::fs::File::create(&path).context(format!("Failed to create file {}", path))?;
+    let mut file = std::fs::File::create(path).context(format!("Failed to create file {}", path))?;
     let mut downloaded: u64 = 0;
     let callback_limit: u64 = 1024 * 1024 * 2;
     let mut callback_offset: u64 = 0;
@@ -39,13 +46,13 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: Str
             .context(format!("Error while writing to file {}", path))?;
         downloaded += chunk.len() as u64;
         if total_size > 0 && downloaded > callback_offset + callback_limit {
-            if let Some(window) = app_handle_c.get_webview_window("main") {
+            if let Some(window) = app_handle.get_webview_window("main") {
                 window.emit("download_progress", (downloaded, total_size)).log_error();
             }
             callback_offset = downloaded;
         }
     }
-    Ok(path)
+    Ok(path.to_string())
 }
 
 #[tauri::command]
@@ -57,14 +64,21 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
 
     let app_handle_c = app_handle.clone();
 
-    app_handle.listen("abort_download", move |_| {
+    let listener_id = app_handle.listen("abort_download", move |_| {
         abort_atomic_c.store(true, Ordering::Relaxed);
     });
 
+    let result = download_file_inner(app_handle_c, &url, &path, &abort_atomic).await;
+
+    app_handle.unlisten(listener_id);
+    result
+}
+
+async fn download_file_inner(app_handle: tauri::AppHandle, url: &str, path: &str, abort_atomic: &Arc<AtomicBool>) -> Result<()> {
     let client = reqwest::Client::new();
-    let res = client.get(&url).send().await?.error_for_status()?;
+    let res = client.get(url).send().await?.error_for_status()?;
     let total_size = res.content_length().unwrap_or(0);
-    let mut file = std::fs::File::create(&path).context(format!("Failed to create file {}", path))?;
+    let mut file = std::fs::File::create(path).context(format!("Failed to create file {}", path))?;
     let mut downloaded: u64 = 0;
     let callback_limit: u64 = 1024 * 1024 * 2;
     let mut callback_offset: u64 = 0;
@@ -82,7 +96,7 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
         if total_size > 0 && downloaded > callback_offset + callback_limit {
             let percentage = (downloaded as f64 / total_size as f64) * 100.0;
             tracing::trace!("percentage: {}", percentage);
-            if let Some(window) = app_handle_c.get_webview_window("main") {
+            if let Some(window) = app_handle.get_webview_window("main") {
                 window.emit("download_progress", (downloaded, total_size)).log_error();
             }
             callback_offset = downloaded;

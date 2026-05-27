@@ -24,7 +24,6 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-notification = "2"
-tauri-plugin-keepawake = { version = "0.1.1", optional = true }
 # Unsafe headers required for Ollama (to set Origin)
 tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
 tauri-plugin-opener = "2"
@@ -81,4 +80,3 @@ objc2-app-kit = { version = "0.3.2", features = ["NSApplication"] }
 
 [features]
 default = []
-keepawake = ["dep:tauri-plugin-keepawake"]

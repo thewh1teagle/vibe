@@ -120,9 +120,16 @@ pub async fn start_record(
                 if let Some(stream) = stream {
                     tracing::debug!("Pausing stream");
                     stream.0.pause().map_err(|e| eyre!("{:?}", e)).log_error();
-                    tracing::debug!("Finalizing writer");
-                    let writer = writer.lock().expect("lock").take().expect("writer");
-                    let written = writer.len();
+				tracing::debug!("Finalizing writer");
+					let Ok(mut guard) = writer.lock() else {
+                        tracing::error!("writer mutex poisoned");
+                        continue;
+                    };
+                    let Some(writer) = guard.take() else {
+                        tracing::error!("writer already taken");
+                        continue;
+                    };
+					let written = writer.len();
                     wav_paths[i] = (wav_paths[i].0.clone(), written);
                     writer.finalize().map_err(|e| eyre!("{:?}", e)).log_error();
                 }
