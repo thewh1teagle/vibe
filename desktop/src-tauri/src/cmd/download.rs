@@ -56,18 +56,3 @@ pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: Str
     result?;
     Ok(path)
 }
-
-#[tauri::command]
-pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: String) -> Result<()> {
-    tracing::debug!("Download file invoked! with path {}", path);
-
-    let abort_atomic = Arc::new(AtomicBool::new(false));
-    let abort_atomic_c = abort_atomic.clone();
-    let listener_id = app_handle.listen("abort_download", move |_| {
-        abort_atomic_c.store(true, Ordering::Relaxed);
-    });
-
-    let result = download_stream(&app_handle, &url, &path, &abort_atomic).await;
-    app_handle.unlisten(listener_id);
-    result
-}
