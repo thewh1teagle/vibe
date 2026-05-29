@@ -39,7 +39,6 @@ export function usePreferenceProvider() {
 
 export interface ModelOptions {
 	lang: string
-	verbose: boolean
 	n_threads?: number
 	init_prompt?: string
 	temperature?: number
@@ -57,7 +56,6 @@ const defaultDisplayLanguage = 'en-US'
 const defaultOptions = {
 	modelOptions: {
 		init_prompt: '',
-		verbose: false,
 		lang: 'auto',
 		n_threads: 4,
 		temperature: 0.4,

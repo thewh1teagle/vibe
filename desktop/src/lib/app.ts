@@ -1,8 +1,6 @@
-import { invoke } from '@tauri-apps/api/core'
 import * as fsExt from '@tauri-apps/plugin-fs'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from './config'
-import { NamedPath } from './types'
 
 export async function resetApp() {
 	const modelPath = localStorage.getItem('prefs_model_path')
@@ -30,6 +28,4 @@ export function getIssueUrl(logs: string) {
 	)}`
 }
 
-export async function openPath(path: NamedPath) {
-	await invoke('open_path', { path: path.path })
-}
+

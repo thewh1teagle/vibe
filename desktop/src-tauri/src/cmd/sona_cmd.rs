@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use tauri::{Manager, State};
 use tokio::sync::Mutex;
 
-pub fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
+pub(crate) fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     // Try to find sona binary in the app's resource directory (sidecar)
     let resource_dir = app_handle.path().resource_dir().context("get resource dir")?;
 
@@ -53,7 +53,7 @@ pub fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     bail!("sona binary not found")
 }
 
-pub fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
+pub(crate) fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
     let resource_dir = app_handle.path().resource_dir().ok()?;
 
     #[cfg(target_os = "windows")]
@@ -69,7 +69,7 @@ pub fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
     None
 }
 
-pub fn resolve_diarize_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
+pub(crate) fn resolve_diarize_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
     let resource_dir = app_handle.path().resource_dir().ok()?;
 
     #[cfg(target_os = "windows")]

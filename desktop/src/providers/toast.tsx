@@ -1,8 +1,8 @@
-import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
+import { ReactNode, createContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ModifyState } from '~/lib/types'
 
-export interface ToastModalState {
+interface ToastModalState {
 	open: boolean
 	setOpen: ModifyState<boolean>
 	message: string
@@ -11,13 +11,7 @@ export interface ToastModalState {
 	setProgress: ModifyState<number | null>
 }
 
-export const ToastContext = createContext<ToastModalState | null>(null)
-
-export function useToastProvider() {
-	const ctx = useContext(ToastContext)
-	if (!ctx) throw new Error('useToastProvider must be used within ToastProvider')
-	return ctx
-}
+const ToastContext = createContext<ToastModalState | null>(null)
 
 export function ToastProvider({ children }: { children: ReactNode }) {
 	const [open, setOpen] = useState(false)

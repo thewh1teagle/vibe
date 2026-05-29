@@ -9,11 +9,8 @@ import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
 
-// Module-level flag used by home viewModel to skip processing
-// when hotkey-triggered recording finishes
-export let hotkeyRecordingActive = false
 
-export const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+V'
+const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+V'
 
 export type HotkeyOutputMode = 'clipboard' | 'type'
 
@@ -85,7 +82,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			}
 
 			isHotkeyRecordingRef.current = true
-			hotkeyRecordingActive = true
 			setIsHotkeyRecording(true)
 
 			await invoke('start_record', {
@@ -96,7 +92,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		} catch (error) {
 			console.error('Hotkey start_record error:', error)
 			isHotkeyRecordingRef.current = false
-			hotkeyRecordingActive = false
 			setIsHotkeyRecording(false)
 		}
 	}, [])
@@ -138,7 +133,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				await notify('Vibe', String(error))
 			} finally {
 				isHotkeyRecordingRef.current = false
-				hotkeyRecordingActive = false
 				setIsHotkeyRecording(false)
 			}
 		})

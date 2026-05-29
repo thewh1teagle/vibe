@@ -47,9 +47,7 @@ reqwest = { version = "0.13", features = ["multipart", "stream", "json"] }
 
 # Log
 tracing = { version = "0.1.44", features = ["log"] }
-tracing-log = "0.2.0"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter", "json"] }
-glob = "0.3.3"
 
 chrono = "0.4.43"
 crash-handler = "0.7.0"
