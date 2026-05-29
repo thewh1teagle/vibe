@@ -5,89 +5,91 @@ use tauri::{App, Manager};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tokio::sync::Mutex;
 
-pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
+static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
 
 pub struct SonaState {
-	pub process: Option<SonaProcess>,
-	pub loaded_model_path: Option<String>,
-	pub loaded_gpu_device: Option<i32>,
+    pub process: Option<SonaProcess>,
+    pub loaded_model_path: Option<String>,
+    pub loaded_gpu_device: Option<i32>,
 }
 
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
-	let local_app_data_dir = app.path().app_local_data_dir()?;
-	let app_config_dir = app.path().app_config_dir()?;
-	fs::create_dir_all(&local_app_data_dir).unwrap_or_else(|_| panic!("cant create local app data directory at {}", local_app_data_dir.display()));
-	fs::create_dir_all(&app_config_dir).unwrap_or_else(|_| panic!("cant create app config directory at {}", app_config_dir.display()));
+    let local_app_data_dir = app.path().app_local_data_dir()?;
+    let app_config_dir = app.path().app_config_dir()?;
+    fs::create_dir_all(&local_app_data_dir)
+        .unwrap_or_else(|_| panic!("cant create local app data directory at {}", local_app_data_dir.display()));
+    fs::create_dir_all(&app_config_dir)
+        .unwrap_or_else(|_| panic!("cant create app config directory at {}", app_config_dir.display()));
 
-	app.manage(Mutex::new(SonaState {
-		process: None,
-		loaded_model_path: None,
-		loaded_gpu_device: None,
-	}));
+    app.manage(Mutex::new(SonaState {
+        process: None,
+        loaded_model_path: None,
+        loaded_gpu_device: None,
+    }));
 
-	{
-		let mut app_handle = STATIC_APP.lock().expect("lock");
-		*app_handle = Some(app.handle().clone());
-	}
-	match crate::logging::setup_logging(app.handle()) {
-		Ok(()) => {}
-		Err(e) => {
-			eprintln!("logging already initialized or failed: {}", e);
-		}
-	}
-	tracing::debug!("Vibe App Running");
+    {
+        let mut app_handle = STATIC_APP.lock().expect("lock");
+        *app_handle = Some(app.handle().clone());
+    }
+    match crate::logging::setup_logging(app.handle()) {
+        Ok(()) => {}
+        Err(e) => {
+            eprintln!("logging already initialized or failed: {}", e);
+        }
+    }
+    tracing::debug!("Vibe App Running");
 
-	let _handler = crash_handler::CrashHandler::attach(unsafe {
-		crash_handler::make_crash_event(move |cc: &crash_handler::CrashContext| {
-			#[cfg(windows)]
-			{
-				tracing::error!("Crash exception code: {}", cc.exception_code);
-			}
-			#[cfg(target_os = "macos")]
-			{
-				tracing::error!("Crash exception code: {:?}", cc.exception);
-			}
-			#[cfg(target_os = "linux")]
-			{
-				tracing::error!("Crash exception code: {:?}", cc.siginfo);
-			}
+    let _handler = crash_handler::CrashHandler::attach(unsafe {
+        crash_handler::make_crash_event(move |cc: &crash_handler::CrashContext| {
+            #[cfg(windows)]
+            {
+                tracing::error!("Crash exception code: {}", cc.exception_code);
+            }
+            #[cfg(target_os = "macos")]
+            {
+                tracing::error!("Crash exception code: {:?}", cc.exception);
+            }
+            #[cfg(target_os = "linux")]
+            {
+                tracing::error!("Crash exception code: {:?}", cc.siginfo);
+            }
 
-			if let Some(app_handle) = STATIC_APP.lock().expect("lock").as_ref() {
-				app_handle
-					.dialog()
-					.message("App crashed with error. Please register to Github and then click report.")
-					.kind(tauri_plugin_dialog::MessageDialogKind::Error)
-					.title("Vibe Crashed")
-					.buttons(MessageDialogButtons::OkCustom("Report".into()))
-					.show(|_| {});
-			}
+            if let Some(app_handle) = STATIC_APP.lock().expect("lock").as_ref() {
+                app_handle
+                    .dialog()
+                    .message("App crashed with error. Please register to Github and then click report.")
+                    .kind(tauri_plugin_dialog::MessageDialogKind::Error)
+                    .title("Vibe Crashed")
+                    .buttons(MessageDialogButtons::OkCustom("Report".into()))
+                    .show(|_| {});
+            }
 
-			crash_handler::CrashEventResult::Handled(true)
-		})
-	});
+            crash_handler::CrashEventResult::Handled(true)
+        })
+    });
 
-	if let Ok(version) = tauri::webview_version() {
-		tracing::debug!("webview version: {}", version);
-	}
+    if let Ok(version) = tauri::webview_version() {
+        tracing::debug!("webview version: {}", version);
+    }
 
-	tracing::debug!("AVX2: {}", crate::cmd::app::is_avx2_enabled());
-	tracing::debug!("Executable Architecture: {}", std::env::consts::ARCH);
-	tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
-	tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
+    tracing::debug!("AVX2: {}", crate::cmd::app::is_avx2_enabled());
+    tracing::debug!("Executable Architecture: {}", std::env::consts::ARCH);
+    tracing::debug!("APP VERSION: {}", app.package_info().version.to_string());
+    tracing::debug!("COMMIT HASH: {}", env!("COMMIT_HASH"));
 
-	let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
-		.inner_size(600.0, 560.0)
-		.min_inner_size(480.0, 420.0)
-		.center()
-		.title("Vibe")
-		.resizable(true)
-		.focused(true)
-		.shadow(true)
-		.visible(false)
-		.build();
-	if let Err(error) = result {
-		tracing::error!("{:?}", error);
-	}
+    let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+        .inner_size(600.0, 560.0)
+        .min_inner_size(480.0, 420.0)
+        .center()
+        .title("Vibe")
+        .resizable(true)
+        .focused(true)
+        .shadow(true)
+        .visible(false)
+        .build();
+    if let Err(error) = result {
+        tracing::error!("{:?}", error);
+    }
 
-	Ok(())
+    Ok(())
 }

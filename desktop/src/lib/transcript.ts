@@ -1,12 +1,5 @@
-export interface Duration {
-	secs: number
-	nanos: number
-}
-
 export interface Transcript {
-	processing_time?: Duration
 	segments: Segment[]
-	word_segments?: Segment[]
 }
 
 export interface Segment {
@@ -22,7 +15,10 @@ function speakerPrefix(segment: Segment, label: string): string {
 
 export function asText(segments: Segment[], speakerLabel: string = 'Speaker') {
 	return segments.reduce((transcript, segment) => {
-		const text = segment.text.trim().replace(/^[.,!?;:\s]+/, '').trimEnd()
+		const text = segment.text
+			.trim()
+			.replace(/^[.,!?;:\s]+/, '')
+			.trimEnd()
 		if (!text) return transcript
 		return transcript + `${speakerPrefix(segment, speakerLabel)}${text}\n`
 	}, '')

@@ -68,8 +68,8 @@ pub async fn transcribe(
     let abort_atomic_c = abort_atomic.clone();
 
     let listener_id = app_handle.listen("abort_transcribe", move |_| {
-		abort_atomic_c.store(true, Ordering::Relaxed);
-	});
+        abort_atomic_c.store(true, Ordering::Relaxed);
+    });
 
     let start = std::time::Instant::now();
 
@@ -98,7 +98,7 @@ pub async fn transcribe(
 
         match event_result {
             Ok(event) => match event {
-				SonaEvent::Progress { .. } => {}
+                SonaEvent::Progress { .. } => {}
                 SonaEvent::Segment {
                     start,
                     end,

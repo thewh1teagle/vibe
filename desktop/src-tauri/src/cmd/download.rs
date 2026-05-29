@@ -7,12 +7,7 @@ use std::sync::{
 };
 use tauri::{Emitter, Listener, Manager};
 
-async fn download_stream(
-    app_handle: &tauri::AppHandle,
-    url: &str,
-    path: &str,
-    abort_atomic: &Arc<AtomicBool>,
-) -> Result<()> {
+async fn download_stream(app_handle: &tauri::AppHandle, url: &str, path: &str, abort_atomic: &Arc<AtomicBool>) -> Result<()> {
     let client = reqwest::Client::new();
     let res = client.get(url).send().await?.error_for_status()?;
     let total_size = res.content_length().unwrap_or(0);

@@ -2404,16 +2404,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 
 [[package]]
-name = "libc-stdhandle"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6dac2473dc28934c5e0b82250dab231c9d3b94160d91fe9ff483323b05797551"
-dependencies = [
- "cc",
- "libc",
-]
-
-[[package]]
 name = "libdbus-sys"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5814,8 +5804,6 @@ dependencies = [
  "futures",
  "futures-util",
  "hound",
- "libc",
- "libc-stdhandle",
  "objc2 0.6.4",
  "objc2-app-kit 0.3.2",
  "once_cell",
@@ -5844,8 +5832,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "which",
- "windows 0.62.2",
- "winreg",
 ]
 
 [[package]]
