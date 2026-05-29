@@ -1,4 +1,9 @@
 use serde::Serialize;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
+use tauri::Listener;
 pub mod app;
 pub mod audio;
 pub mod download;
@@ -23,9 +28,48 @@ impl std::fmt::Display for CommandError {
 
 impl From<eyre::Error> for CommandError {
     fn from(err: eyre::Error) -> Self {
-        CommandError {
-            code: "internal_error".to_string(),
-            message: err.to_string(),
+        if let Some(api_err) = err.downcast_ref::<crate::sona::SonaApiError>() {
+            CommandError {
+                code: api_err.code.clone(),
+                message: api_err.message.clone(),
+            }
+        } else {
+            CommandError {
+                code: "internal_error".to_string(),
+                message: err.to_string(),
+            }
         }
+    }
+}
+
+/// RAII guard that listens for an abort event and unlistens on drop.
+pub(crate) struct AbortGuard {
+    app: tauri::AppHandle,
+    id: tauri::EventId,
+    flag: Arc<AtomicBool>,
+}
+
+impl AbortGuard {
+    pub(crate) fn new(app: &tauri::AppHandle, event: &str) -> Self {
+        let flag = Arc::new(AtomicBool::new(false));
+        let flag_c = flag.clone();
+        let id = app.listen(event, move |_| {
+            flag_c.store(true, Ordering::Relaxed);
+        });
+        Self {
+            app: app.clone(),
+            id,
+            flag,
+        }
+    }
+
+    pub(crate) fn is_aborted(&self) -> bool {
+        self.flag.load(Ordering::Relaxed)
+    }
+}
+
+impl Drop for AbortGuard {
+    fn drop(&mut self) {
+        self.app.unlisten(self.id);
     }
 }

@@ -1,13 +1,11 @@
 use crate::error::LogError;
 use eyre::{Context, Result};
 use futures_util::StreamExt;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-use tauri::{Emitter, Listener, Manager};
+use tauri::{Emitter, Manager};
 
-async fn download_stream(app_handle: &tauri::AppHandle, url: &str, path: &str, abort_atomic: &Arc<AtomicBool>) -> Result<()> {
+use super::AbortGuard;
+
+async fn download_stream(app_handle: &tauri::AppHandle, url: &str, path: &str, abort: &AbortGuard) -> Result<()> {
     let client = reqwest::Client::new();
     let res = client.get(url).send().await?.error_for_status()?;
     let total_size = res.content_length().unwrap_or(0);
@@ -18,7 +16,7 @@ async fn download_stream(app_handle: &tauri::AppHandle, url: &str, path: &str, a
     let mut stream = res.bytes_stream();
 
     while let Some(item) = stream.next().await {
-        if abort_atomic.load(Ordering::Relaxed) {
+        if abort.is_aborted() {
             break;
         }
         let chunk = item.context("Error while downloading file")?;
@@ -40,14 +38,7 @@ async fn download_stream(app_handle: &tauri::AppHandle, url: &str, path: &str, a
 pub async fn download_model(app_handle: tauri::AppHandle, url: String, path: String) -> Result<String> {
     tracing::debug!("Download model invoked! with path {}", path);
 
-    let abort_atomic = Arc::new(AtomicBool::new(false));
-    let abort_atomic_c = abort_atomic.clone();
-    let listener_id = app_handle.listen("abort_download", move |_| {
-        abort_atomic_c.store(true, Ordering::Relaxed);
-    });
-
-    let result = download_stream(&app_handle, &url, &path, &abort_atomic).await;
-    app_handle.unlisten(listener_id);
-    result?;
+    let abort = AbortGuard::new(&app_handle, "abort_download");
+    download_stream(&app_handle, &url, &path, &abort).await?;
     Ok(path)
 }

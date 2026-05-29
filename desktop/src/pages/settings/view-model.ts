@@ -5,7 +5,7 @@ import { platform } from '@tauri-apps/plugin-os'
 import { useEffect, useState } from 'react'
 import * as config from '~/lib/config'
 import { NamedPath } from '~/lib/types'
-import { ls } from '~/lib/fs'
+import { listModels } from '~/lib/fs'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useNavigate } from 'react-router-dom'
 import { load } from '@tauri-apps/plugin-store'
@@ -42,17 +42,13 @@ export function viewModel() {
 	}
 
 	async function loadModels() {
-		const modelsFolder = await invoke<string>('get_models_folder')
-		const entries = await ls(modelsFolder)
-		const found = entries.filter((e) => e.name?.endsWith('.bin'))
+		const found = await listModels()
 		setModels(found)
 	}
 
 	async function getDefaultModel() {
 		if (!preference.modelPath) {
-			const modelsFolder = await invoke<string>('get_models_folder')
-			let files = await ls(modelsFolder)
-			files = files.filter((f) => f.name.endsWith('.bin'))
+			const files = await listModels()
 			if (files.length > 0) {
 				preference.setModelPath(files[0].path)
 			}

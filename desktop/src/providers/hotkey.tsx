@@ -120,7 +120,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					...preferenceRef.current.modelOptions,
 				}
 				const res: transcript.Transcript = await invoke('transcribe', { options })
-				const resultText = transcript.asText(res.segments, t('common.speaker-prefix')).trim().replace(/^[.,!?;:\s]+/, '').trimEnd()
+				const resultText = transcript.asText(res.segments, t('common.speaker-prefix')).trim()
 				// Output result
 				if (hotkeyOutputModeRef.current === 'type') {
 					await invoke('type_text', { text: resultText })

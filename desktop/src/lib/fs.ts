@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core'
 import * as pathExt from '@tauri-apps/api/path'
 import * as fsExt from '@tauri-apps/plugin-fs'
 import { NamedPath } from './types'
@@ -10,4 +11,10 @@ export async function ls(where: string): Promise<NamedPath[]> {
 		paths.push({ name: entry.name, path: abs })
 	}
 	return paths
+}
+
+export async function listModels(): Promise<NamedPath[]> {
+	const modelsFolder = await invoke<string>('get_models_folder')
+	const entries = await ls(modelsFolder)
+	return entries.filter((e) => e.name?.endsWith('.bin'))
 }

@@ -6,14 +6,10 @@ use eyre::Result;
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
-use tauri::{Emitter, Listener, State};
+use tauri::{Emitter, State};
 use tokio::sync::Mutex;
 
-use super::CommandError;
+use super::{AbortGuard, CommandError};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct TranscribeOptions {
@@ -40,7 +36,6 @@ pub async fn transcribe(
     options: TranscribeOptions,
     sona_state: State<'_, Mutex<SonaState>>,
 ) -> Result<Transcript, CommandError> {
-    // Validate file exists before attempting transcription
     let audio_path = PathBuf::from(&options.path);
     if !audio_path.exists() {
         return Err(CommandError {
@@ -62,36 +57,21 @@ pub async fn transcribe(
             message: "Please load model first".to_string(),
         })?;
         (process.client(), process.base_url())
-    }; // lock released here, before any I/O
+    };
 
-    let abort_atomic = Arc::new(AtomicBool::new(false));
-    let abort_atomic_c = abort_atomic.clone();
-
-    let listener_id = app_handle.listen("abort_transcribe", move |_| {
-        abort_atomic_c.store(true, Ordering::Relaxed);
-    });
-
+    let abort = AbortGuard::new(&app_handle, "abort_transcribe");
     let start = std::time::Instant::now();
 
     let stream = crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options)
         .await
-        .map_err(|e| {
-            if let Some(api_err) = e.downcast_ref::<crate::sona::SonaApiError>() {
-                CommandError {
-                    code: api_err.code.clone(),
-                    message: api_err.message.clone(),
-                }
-            } else {
-                CommandError::from(e)
-            }
-        })?;
+        .map_err(CommandError::from)?;
 
     tokio::pin!(stream);
 
     let mut segments = Vec::new();
 
     while let Some(event_result) = stream.next().await {
-        if abort_atomic.load(Ordering::Relaxed) {
+        if abort.is_aborted() {
             tracing::debug!("transcription aborted by user");
             break;
         }
@@ -127,19 +107,15 @@ pub async fn transcribe(
             },
             Err(e) => {
                 tracing::error!("stream error: {:?}", e);
-                app_handle.unlisten(listener_id);
                 return Err(CommandError::from(e));
             }
         }
     }
 
     let elapsed = start.elapsed();
-    app_handle.unlisten(listener_id);
 
-    let transcript = Transcript {
+    Ok(Transcript {
         processing_time_sec: elapsed.as_secs(),
         segments,
-    };
-
-    Ok(transcript)
+    })
 }
