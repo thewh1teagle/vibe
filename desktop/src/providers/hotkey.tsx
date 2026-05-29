@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
@@ -192,15 +192,18 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		}
 	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
 
-	const value: HotkeyContextType = {
-		hotkeyEnabled,
-		setHotkeyEnabled,
-		hotkeyShortcut,
-		setHotkeyShortcut,
-		hotkeyOutputMode,
-		setHotkeyOutputMode,
-		isHotkeyRecording,
-	}
+	const value: HotkeyContextType = useMemo(
+		() => ({
+			hotkeyEnabled,
+			setHotkeyEnabled,
+			hotkeyShortcut,
+			setHotkeyShortcut,
+			hotkeyOutputMode,
+			setHotkeyOutputMode,
+			isHotkeyRecording,
+		}),
+		[hotkeyEnabled, setHotkeyEnabled, hotkeyShortcut, setHotkeyShortcut, hotkeyOutputMode, setHotkeyOutputMode, isHotkeyRecording],
+	)
 
 	return <HotkeyContext.Provider value={value}>{children}</HotkeyContext.Provider>
 }

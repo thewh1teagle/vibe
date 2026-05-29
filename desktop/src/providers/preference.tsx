@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext, useEffect, useRef } from 'react'
+import { ReactNode, createContext, useContext, useEffect, useMemo, useRef } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { ModifyState } from '~/lib/types'
 import { supportedLanguages } from '~/lib/i18n'
@@ -123,29 +123,54 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		}
 	}, [language, setLanguage])
 
-	const preference: Preference = {
-		setLanguageDirections: setLanguageDefaults,
-		modelOptions,
-		setModelOptions,
-		storeRecordInDocuments,
-		setStoreRecordInDocuments,
-		customRecordingPath,
-		setCustomRecordingPath,
-		skippedSetup,
-		setSkippedSetup,
-		displayLanguage: language,
-		setDisplayLanguage: setLanguage,
-		soundOnFinish,
-		setSoundOnFinish,
-		focusOnFinish,
-		setFocusOnFinish,
-		modelPath,
-		setModelPath,
-		theme,
-		setTheme,
-		gpuDevice,
-		setGpuDevice,
-	}
+	const preference: Preference = useMemo(
+		() => ({
+			setLanguageDirections: setLanguageDefaults,
+			modelOptions,
+			setModelOptions,
+			storeRecordInDocuments,
+			setStoreRecordInDocuments,
+			customRecordingPath,
+			setCustomRecordingPath,
+			skippedSetup,
+			setSkippedSetup,
+			displayLanguage: language,
+			setDisplayLanguage: setLanguage,
+			soundOnFinish,
+			setSoundOnFinish,
+			focusOnFinish,
+			setFocusOnFinish,
+			modelPath,
+			setModelPath,
+			theme,
+			setTheme,
+			gpuDevice,
+			setGpuDevice,
+		}),
+		[
+			language,
+			modelPath,
+			skippedSetup,
+			modelOptions,
+			theme,
+			soundOnFinish,
+			focusOnFinish,
+			storeRecordInDocuments,
+			customRecordingPath,
+			gpuDevice,
+			setLanguage,
+			setModelPath,
+			setSkippedSetup,
+			setModelOptions,
+			setTheme,
+			setSoundOnFinish,
+			setFocusOnFinish,
+			setStoreRecordInDocuments,
+			setCustomRecordingPath,
+			setGpuDevice,
+			setLanguageDefaults,
+		],
+	)
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>
 }
