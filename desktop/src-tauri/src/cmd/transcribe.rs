@@ -19,7 +19,6 @@ use super::CommandError;
 pub struct TranscribeOptions {
     pub path: String,
     pub lang: Option<String>,
-    pub verbose: Option<bool>,
     pub n_threads: Option<i32>,
     pub init_prompt: Option<String>,
     pub temperature: Option<f32>,

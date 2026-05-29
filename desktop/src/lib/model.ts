@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import * as pathExt from '@tauri-apps/api/path'
 import * as fsExt from '@tauri-apps/plugin-fs'
-export function randomString(length: number, prefix: string, suffix: string) {
+function randomString(length: number, prefix: string, suffix: string) {
 	const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
 	let result = prefix
 	for (let i = 0; i < length; i++) {
@@ -10,7 +10,7 @@ export function randomString(length: number, prefix: string, suffix: string) {
 	return result + suffix
 }
 
-export async function getFilenameFromUrl(url: string) {
+async function getFilenameFromUrl(url: string) {
 	const urlObj = new URL(url)
 	const fileName = urlObj.pathname.split('/').pop() || ''
 	return fileName

@@ -1,9 +1,8 @@
-use crate::{config::STORE_FILENAME, sona::SonaProcess};
+use crate::sona::SonaProcess;
 use once_cell::sync::Lazy;
 use std::fs;
 use tauri::{App, Manager};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
-use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
 
 pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
@@ -26,13 +25,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 		loaded_gpu_device: None,
 	}));
 
-	let store = app.store(STORE_FILENAME)?;
-
 	{
 		let mut app_handle = STATIC_APP.lock().expect("lock");
 		*app_handle = Some(app.handle().clone());
 	}
-	match crate::logging::setup_logging(app.handle(), store) {
+	match crate::logging::setup_logging(app.handle()) {
 		Ok(()) => {}
 		Err(e) => {
 			eprintln!("logging already initialized or failed: {}", e);

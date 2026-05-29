@@ -8,12 +8,6 @@ export const supportedLanguages: { [key: string]: string } = {
 	'en-US': 'english',
 }
 export const supportedLanguageKeys = Object.keys(supportedLanguages)
-export const supportedLanguageValues = Object.values(supportedLanguages)
-
-export function getI18nLanguageName() {
-	return 'english'
-}
-
 const LanguageDetector: LanguageDetectorAsyncModule = {
 	type: 'languageDetector',
 	async: true,

@@ -3,7 +3,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { ls } from './fs'
 import * as os from '@tauri-apps/plugin-os'
 
-export async function getPrettyVersion() {
+async function getPrettyVersion() {
 	const appVersion = await app.getVersion()
 	const appName = await app.getName()
 	let version = `${appName} ${appVersion}`
@@ -14,7 +14,7 @@ export async function getPrettyVersion() {
 	return version
 }
 
-export async function getAppInfo() {
+async function getAppInfo() {
 	const appVersion = await getPrettyVersion()
 	const arch = os.arch()
 	const platform = os.platform()

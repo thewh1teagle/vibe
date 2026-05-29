@@ -42,8 +42,6 @@ export function viewModel() {
 	async function downloadModel() {
 		handleProgressEvents()
 
-		let lastError = null
-
 		try {
 			let urls = []
 
@@ -79,11 +77,10 @@ export function viewModel() {
 					}
 				} catch (err) {
 					console.error(`[model] Failed to download from ${url}:`, err)
-					lastError = err
 				}
 			}
 
-			throw new Error(`All model downloads failed. Last error: ${lastError}`)
+			throw new Error('All model downloads failed')
 		} catch (err) {
 			console.error(`[model] Unhandled error:`, err)
 			setErrorModal?.({ open: true, log: String(err) })
