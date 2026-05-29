@@ -16,13 +16,10 @@ export async function getPrettyVersion() {
 
 export async function getAppInfo() {
 	const appVersion = await getPrettyVersion()
-	const commitHash = await invoke('get_commit_hash')
-	const avx2 = await invoke<boolean>('is_avx2_enabled')
 	const arch = os.arch()
 	const platform = os.platform()
-	const kVer = os.version()
-	const osType = os.type()
 	const osVer = os.version()
+	const osType = os.type()
 	const configPath = await invoke<string>('get_models_folder')
 	const entries = await ls(configPath)
 	const models = entries
@@ -30,48 +27,21 @@ export async function getAppInfo() {
 		.map((e) => e.name)
 		.join(', ')
 	const defaultModel = localStorage.getItem('prefs_model_path')?.split('/')?.pop() ?? 'Not Found'
-	const cargoFeatures = (await invoke<string[]>('get_cargo_features')) || 'n/a'
 	return [
 		`App Version: ${appVersion}`,
-		`Commit Hash: ${commitHash}`,
 		`Arch: ${arch}`,
 		`Platform: ${platform}`,
-		`Kernel Version: ${kVer}`,
+		`Kernel Version: ${osVer}`,
 		`OS: ${osType}`,
 		`OS Version: ${osVer}`,
 		`Models: ${models}`,
 		`Default Model: ${defaultModel}`,
-		`Cargo features: ${cargoFeatures.join(', ')}`,
-		`AVX2: ${avx2}`,
 	].join('\n')
 }
 
 export async function collectLogs() {
 	try {
-		let info = await getAppInfo()
-		const logs: string = await invoke<string>('get_logs')
-		const filteredLogs = logs
-			.split('\n')
-			.filter((l) => l.toLowerCase().includes('error')) // Filter lines containing "error"
-			.slice(-10) // Take the last 10 lines
-			.map((line) => {
-				try {
-					const parsed = JSON.parse(line) // Deserialize JSON
-					return parsed?.fields?.message || 'No message found' // Extract .message or fallback
-				} catch (e) {
-					return 'Invalid JSON' // Handle invalid JSON
-				}
-			})
-			.join('\n')
-		const templatedLogs = `<details>
-<summary>logs</summary>
-
-\`\`\`console
-${filteredLogs}
-\`\`\`
-</details>
-`
-		info += `\n\n\n${templatedLogs}`
+		const info = await getAppInfo()
 		return info
 	} catch (e) {
 		console.error(e)

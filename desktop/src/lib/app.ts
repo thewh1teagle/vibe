@@ -5,7 +5,7 @@ import * as config from './config'
 import { NamedPath } from './types'
 
 export async function resetApp() {
-	const modelPath = localStorage.getItem('model_path')
+	const modelPath = localStorage.getItem('prefs_model_path')
 	try {
 		const store = await load(config.storeFilename)
 		await store.clear()
