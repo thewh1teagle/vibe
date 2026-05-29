@@ -5,6 +5,7 @@ use rand::Rng;
 use std::io::Read;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::sync::OnceLock;
 use which::which;
 
 pub fn get_local_time() -> String {
@@ -28,14 +29,18 @@ const EXECUTABLE_NAME: &str = "ffmpeg.exe";
 #[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-pub fn get_vibe_temp_folder() -> PathBuf {
-    let current_datetime = Local::now();
-    let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();
-    let dir = std::env::temp_dir().join(format!("vibe_temp_{}", formatted_datetime));
-    if std::fs::create_dir_all(&dir).is_ok() {
-        return dir;
-    }
-    std::env::temp_dir()
+static VIBE_TEMP_FOLDER: OnceLock<PathBuf> = OnceLock::new();
+
+pub fn get_vibe_temp_folder() -> &'static PathBuf {
+    VIBE_TEMP_FOLDER.get_or_init(|| {
+        let current_datetime = Local::now();
+        let formatted_datetime = current_datetime.format("%Y-%m-%d").to_string();
+        let dir = std::env::temp_dir().join(format!("vibe_temp_{}", formatted_datetime));
+        if std::fs::create_dir_all(&dir).is_ok() {
+            return dir;
+        }
+        std::env::temp_dir()
+    })
 }
 
 pub fn find_ffmpeg_path() -> Option<PathBuf> {

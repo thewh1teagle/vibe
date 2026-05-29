@@ -107,12 +107,8 @@ export function viewModel() {
 
 	return {
 		modelCompany,
-		navigate,
-		setErrorModal,
 		downloadProgress,
 		downloadIfOnline,
-		setDownloadProgress,
-		downloadProgressRef,
 		isOnline,
 		location,
 	}

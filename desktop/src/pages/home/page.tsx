@@ -69,7 +69,11 @@ export default function Home() {
 							<div>
 								<h2 className="text-sm font-semibold">{t('common.global-dictation')}</h2>
 								<p className="text-[11px] text-muted-foreground">
-									{hotkey.hotkeyEnabled ? t('common.global-hotkey-description') : t('common.global-dictation-promo-short', 'Press the hotkey and speak')}
+									{vm.isModelPreloading
+										? t('common.model-loading', 'Loading model...')
+										: hotkey.hotkeyEnabled
+											? t('common.global-hotkey-description')
+											: t('common.global-dictation-promo-short', 'Press the hotkey and speak')}
 								</p>
 							</div>
 						</div>

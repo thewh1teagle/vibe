@@ -26,14 +26,14 @@ function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
 	)
 }
 
+function parseIntOr(value: string, fallback: number) {
+	const n = parseInt(value, 10)
+	return Number.isNaN(n) ? fallback : n
+}
+
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const [open, setOpen] = useState(false)
 	const { t } = useTranslation()
-
-	function parseIntOr(value: string, fallback: number) {
-		const n = parseInt(value, 10)
-		return Number.isNaN(n) ? fallback : n
-	}
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>

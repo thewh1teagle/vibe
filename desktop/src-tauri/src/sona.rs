@@ -362,33 +362,32 @@ impl SonaProcess {
             bail!("sona transcribe failed: {}", body);
         }
 
-        let stream = resp.bytes_stream().map(move |chunk_result| {
-            let chunk = chunk_result.context("error reading sona stream chunk")?;
-            // ndjson: each line is a JSON object
-            let text = String::from_utf8_lossy(&chunk);
+        let stream = resp.bytes_stream().scan(String::new(), |line_buf, chunk_result| {
+            let chunk = match chunk_result {
+                Ok(c) => c,
+                Err(e) => return futures_util::future::ready(Some(vec![Err(eyre::eyre!("error reading sona stream chunk: {}", e))])),
+            };
+            line_buf.push_str(&String::from_utf8_lossy(&chunk));
             let mut events = Vec::new();
-            for line in text.lines() {
-                let line = line.trim();
+            while let Some(newline_pos) = line_buf.find('\n') {
+                let line = line_buf[..newline_pos].trim().to_string();
+                line_buf.drain(..newline_pos + 1);
                 if line.is_empty() {
                     continue;
                 }
-                match serde_json::from_str::<SonaEvent>(line) {
-                    Ok(event) => events.push(event),
+                match serde_json::from_str::<SonaEvent>(&line) {
+                    Ok(event) => events.push(Ok(event)),
                     Err(e) => {
                         tracing::warn!("failed to parse sona event: {} (line: {})", e, line);
                     }
                 }
             }
-            Ok(events)
+            futures_util::future::ready(Some(events))
         });
 
-        // Flatten Vec<SonaEvent> into individual SonaEvent items
-        let flat_stream = stream.flat_map(|result: Result<Vec<SonaEvent>>| {
-            let items: Vec<Result<SonaEvent>> = match result {
-                Ok(events) => events.into_iter().map(Ok).collect(),
-                Err(e) => vec![Err(e)],
-            };
-            futures_util::stream::iter(items)
+        // Flatten Vec<Result<SonaEvent>> into individual Result<SonaEvent> items
+        let flat_stream = stream.flat_map(|events: Vec<Result<SonaEvent>>| {
+            futures_util::stream::iter(events)
         });
 
         Ok(flat_stream)
