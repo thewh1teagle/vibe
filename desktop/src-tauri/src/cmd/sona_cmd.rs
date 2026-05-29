@@ -53,82 +53,56 @@ pub(crate) fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathB
     bail!("sona binary not found")
 }
 
-pub(crate) fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
+pub(crate) fn resolve_sidecar_binary(app_handle: &tauri::AppHandle, name: &str) -> Option<PathBuf> {
     let resource_dir = app_handle.path().resource_dir().ok()?;
+    let ext = if cfg!(windows) { ".exe" } else { "" };
+    let path = resource_dir.join(format!("{}{}", name, ext));
+    path.exists().then_some(path)
+}
 
-    #[cfg(target_os = "windows")]
-    let binary_name = "ffmpeg.exe";
-    #[cfg(not(target_os = "windows"))]
-    let binary_name = "ffmpeg";
-
-    let sidecar_path = resource_dir.join(binary_name);
-    if sidecar_path.exists() {
-        return Some(sidecar_path);
-    }
-
-    None
+pub(crate) fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
+    resolve_sidecar_binary(app_handle, "ffmpeg")
 }
 
 pub(crate) fn resolve_diarize_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
-    let resource_dir = app_handle.path().resource_dir().ok()?;
-
-    #[cfg(target_os = "windows")]
-    let binary_name = "sona-diarize.exe";
-    #[cfg(not(target_os = "windows"))]
-    let binary_name = "sona-diarize";
-
-    let sidecar_path = resource_dir.join(binary_name);
-    if sidecar_path.exists() {
-        return Some(sidecar_path);
-    }
-
-    None
+    resolve_sidecar_binary(app_handle, "sona-diarize")
 }
 
-#[tauri::command]
-pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
-    let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
-
-    // Check if already loaded
-    {
-        let state_guard = sona_state.lock().await;
-        if let Some(ref loaded_path) = state_guard.loaded_model_path {
-            if *loaded_path == model_path && state_guard.loaded_gpu_device == gpu_device {
-                tracing::debug!("model already loaded, skipping");
-                return Ok(model_path);
-            }
-        }
+async fn ensure_sona_spawned(state: &Mutex<SonaState>, app_handle: &tauri::AppHandle) -> Result<()> {
+    let mut state_guard = state.lock().await;
+    if state_guard.process.is_none() {
+        let binary_path = resolve_sona_binary(app_handle)?;
+        let ffmpeg_path = resolve_ffmpeg_path(app_handle);
+        let diarize_path = resolve_diarize_path(app_handle);
+        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
+        state_guard.process = Some(process);
     }
-
-    let gpu_fallback = ensure_model_loaded_with_fallback(&app_handle, &sona_state, &model_path, gpu_device).await?;
-
-    if gpu_fallback {
-        Ok("gpu_fallback".to_string())
-    } else {
-        Ok(model_path)
-    }
+    Ok(())
 }
 
-/// Like `ensure_model_loaded` but returns whether GPU fallback occurred.
-async fn ensure_model_loaded_with_fallback(
+async fn respawn_sona(state: &Mutex<SonaState>, app_handle: &tauri::AppHandle) -> Result<()> {
+    let mut state_guard = state.lock().await;
+    if let Some(mut old) = state_guard.process.take() {
+        old.kill();
+    }
+    let binary_path = resolve_sona_binary(app_handle)?;
+    let ffmpeg_path = resolve_ffmpeg_path(app_handle);
+    let diarize_path = resolve_diarize_path(app_handle);
+    let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
+    state_guard.process = Some(process);
+    Ok(())
+}
+
+/// Spawns sona if needed and loads the model with GPU fallback to CPU.
+/// Returns `true` if GPU fallback to CPU occurred.
+async fn ensure_model_loaded(
     app_handle: &tauri::AppHandle,
     sona_state: &Mutex<SonaState>,
     model_path: &str,
     gpu_device: Option<i32>,
 ) -> Result<bool> {
-    // Spawn sona if needed
-    {
-        let mut state_guard = sona_state.lock().await;
-        if state_guard.process.is_none() {
-            let binary_path = resolve_sona_binary(app_handle)?;
-            let ffmpeg_path = resolve_ffmpeg_path(app_handle);
-            let diarize_path = resolve_diarize_path(app_handle);
-            let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
-            state_guard.process = Some(process);
-        }
-    }
+    ensure_sona_spawned(sona_state, app_handle).await?;
 
-    // Try loading with GPU
     let load_result = {
         let mut state_guard = sona_state.lock().await;
         let sona = state_guard.process.as_mut().context("sona process missing")?;
@@ -144,16 +118,9 @@ async fn ensure_model_loaded_with_fallback(
         }
         Err(e) => {
             tracing::warn!("GPU load failed, trying CPU: {:#}", e);
-            let mut state_guard = sona_state.lock().await;
-            if let Some(mut old) = state_guard.process.take() {
-                old.kill();
-            }
-            let binary_path = resolve_sona_binary(app_handle)?;
-            let ffmpeg_path = resolve_ffmpeg_path(app_handle);
-            let diarize_path = resolve_diarize_path(app_handle);
-            let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
-            state_guard.process = Some(process);
+            respawn_sona(sona_state, app_handle).await?;
 
+            let mut state_guard = sona_state.lock().await;
             let sona = state_guard.process.as_mut().unwrap();
             sona.load_model(model_path, gpu_device, true).await?;
             state_guard.loaded_model_path = Some(model_path.to_string());
@@ -164,10 +131,32 @@ async fn ensure_model_loaded_with_fallback(
 }
 
 #[tauri::command]
+pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
+    let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
+
+    {
+        let state_guard = sona_state.lock().await;
+        if let Some(ref loaded_path) = state_guard.loaded_model_path {
+            if *loaded_path == model_path && state_guard.loaded_gpu_device == gpu_device {
+                tracing::debug!("model already loaded, skipping");
+                return Ok(model_path);
+            }
+        }
+    }
+
+    let gpu_fallback = ensure_model_loaded(&app_handle, &sona_state, &model_path, gpu_device).await?;
+
+    if gpu_fallback {
+        Ok("gpu_fallback".to_string())
+    } else {
+        Ok(model_path)
+    }
+}
+
+#[tauri::command]
 pub async fn preload_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<()> {
     let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
 
-    // Skip if already loaded
     {
         let state_guard = sona_state.lock().await;
         if let Some(ref loaded_path) = state_guard.loaded_model_path {
@@ -188,61 +177,6 @@ pub async fn preload_model(app_handle: tauri::AppHandle, model_path: String, gpu
     });
 
     Ok(())
-}
-
-/// Shared helper that spawns sona if needed and loads the model with GPU fallback to CPU.
-async fn ensure_model_loaded(
-    app_handle: &tauri::AppHandle,
-    sona_state: &Mutex<SonaState>,
-    model_path: &str,
-    gpu_device: Option<i32>,
-) -> Result<()> {
-    // Spawn sona if needed
-    {
-        let mut state_guard = sona_state.lock().await;
-        if state_guard.process.is_none() {
-            let binary_path = resolve_sona_binary(app_handle)?;
-            let ffmpeg_path = resolve_ffmpeg_path(app_handle);
-            let diarize_path = resolve_diarize_path(app_handle);
-            let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
-            state_guard.process = Some(process);
-        }
-    }
-
-    // Try loading with GPU
-    let load_result = {
-        let mut state_guard = sona_state.lock().await;
-        let sona = state_guard.process.as_mut().context("sona process missing")?;
-        sona.load_model(model_path, gpu_device, false).await
-    };
-
-    match load_result {
-        Ok(()) => {
-            let mut state_guard = sona_state.lock().await;
-            state_guard.loaded_model_path = Some(model_path.to_string());
-            state_guard.loaded_gpu_device = gpu_device;
-            Ok(())
-        }
-        Err(e) => {
-            // GPU fallback to CPU
-            tracing::warn!("GPU load failed, trying CPU: {:#}", e);
-            let mut state_guard = sona_state.lock().await;
-            if let Some(mut old) = state_guard.process.take() {
-                old.kill();
-            }
-            let binary_path = resolve_sona_binary(app_handle)?;
-            let ffmpeg_path = resolve_ffmpeg_path(app_handle);
-            let diarize_path = resolve_diarize_path(app_handle);
-            let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
-            state_guard.process = Some(process);
-
-            let sona = state_guard.process.as_mut().unwrap();
-            sona.load_model(model_path, gpu_device, true).await?;
-            state_guard.loaded_model_path = Some(model_path.to_string());
-            state_guard.loaded_gpu_device = gpu_device;
-            Ok(())
-        }
-    }
 }
 
 #[tauri::command]

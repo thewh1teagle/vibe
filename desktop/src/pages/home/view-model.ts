@@ -1,11 +1,10 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useEffect, useState } from 'react'
-import { path } from '@tauri-apps/api'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { ls } from '~/lib/fs'
+import { listModels } from '~/lib/fs'
 import { usePreferenceProvider } from '~/providers/preference'
 
 export function viewModel() {
@@ -28,9 +27,7 @@ export function viewModel() {
 
 	async function checkModelExists(): Promise<string | null> {
 		try {
-			const configPath = await invoke<string>('get_models_folder')
-			const entries = await ls(configPath)
-			const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
+			const filtered = await listModels()
 			if (filtered.length === 0) {
 				if (!preference.skippedSetup) {
 					navigate('/setup')
@@ -39,7 +36,7 @@ export function viewModel() {
 			} else {
 				let resolvedPath = preference.modelPath
 				if (!resolvedPath || !(await fs.exists(resolvedPath))) {
-					resolvedPath = await path.join(configPath, filtered[0].name)
+					resolvedPath = filtered[0].path
 					preference.setModelPath(resolvedPath)
 				}
 				return resolvedPath

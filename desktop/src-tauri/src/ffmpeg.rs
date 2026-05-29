@@ -1,21 +1,10 @@
 use chrono::Local;
 use eyre::{bail, ContextCompat, Result};
-use rand::distr::Alphanumeric;
-use rand::Rng;
 use std::io::Read;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::OnceLock;
 use which::which;
-
-pub fn get_local_time() -> String {
-    let now = Local::now();
-    now.format("%Y-%m-%d %H-%M-%S").to_string()
-}
-
-pub fn random_string(length: usize) -> String {
-    rand::rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
-}
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
@@ -26,8 +15,16 @@ const EXECUTABLE_NAME: &str = "ffmpeg";
 #[cfg(windows)]
 const EXECUTABLE_NAME: &str = "ffmpeg.exe";
 
-#[cfg(windows)]
-const CREATE_NO_WINDOW: u32 = 0x08000000;
+pub fn get_local_time() -> String {
+    let now = Local::now();
+    now.format("%Y-%m-%d %H-%M-%S").to_string()
+}
+
+pub fn random_string(length: usize) -> String {
+    use rand::distr::Alphanumeric;
+    use rand::Rng;
+    rand::rng().sample_iter(&Alphanumeric).take(length).map(char::from).collect()
+}
 
 static VIBE_TEMP_FOLDER: OnceLock<PathBuf> = OnceLock::new();
 
@@ -98,7 +95,7 @@ pub fn normalize(input: PathBuf, output: PathBuf, additional_ffmpeg_args: Option
     let cmd = cmd.stdin(Stdio::null());
 
     #[cfg(windows)]
-    let cmd = cmd.creation_flags(CREATE_NO_WINDOW);
+    let cmd = cmd.creation_flags(crate::config::CREATE_NO_WINDOW);
 
     let mut pid = cmd.spawn()?;
     if !pid.wait()?.success() {
@@ -138,7 +135,7 @@ pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     .stdin(Stdio::null());
 
     #[cfg(windows)]
-    cmd.creation_flags(CREATE_NO_WINDOW);
+    cmd.creation_flags(crate::config::CREATE_NO_WINDOW);
 
     let mut pid = cmd.spawn()?;
     if !pid.wait()?.success() {
