@@ -1,153 +1,92 @@
-# Code Review — Vibe Desktop
+# Dead Code Review
 
-## Changes Made (fix/code-review-top-issues)
+**Date:** 2026-05-29
+**Scope:** All source files in `desktop/src/` (TS/TSX) and `desktop/src-tauri/src/` (Rust), plus `desktop/src-tauri/Cargo.toml`
 
-### 1. Security — HTTP & Filesystem scope hardening
+## Summary
 
-**`capabilities/main.json`**
-- Restricted fs scope from `"**"` (full disk) to specific directories: `$RESOURCE/**`, `$APPCONFIG/**`, `$APPDATA/**`, `$APPLOCALDATA/**`, `$CONFIG/**`, `$DATA/**`, `$HOME/Documents/**`
-- Restricted HTTP scope from `*://**:*/**` (any host) to `huggingface.co/**`, `github.com/**`, `raw.githubusercontent.com/**` only
+| Category | Count |
+|----------|-------|
+| Unused imports | 0 |
+| Dead functions | 1 |
+| Dead exports (never imported externally) | 7 |
+| Unused files | 1 |
+| Unused variables | 1 |
+| Unused dependencies | 2 |
+| Unnecessary `pub` visibility | 3 |
+| Commented-out code | 1 |
+| Unreferenced struct field | 1 |
+| **Total** | **17** |
 
-**`boundary-fallback.tsx`**
-- Replaced unsafe `(window as any).__TAURI__` hack with proper `getCurrentWindow()` import from `@tauri-apps/api/window`
+## Findings
 
-> **Note:** CSP and asset protocol were reverted to original (`csp: null`, `"**"` scope) as they broke i18n locale loading. Needs a separate focused effort to enable CSP without blocking Tauri IPC.
+### Dead functions
 
-### 2. Panic prevention — `unwrap()`/`expect()` replaced with proper error handling
+- `desktop/src/lib/app.ts:33` — `openPath()` exported but never imported by any file. The Rust command `open_path` exists but this TS wrapper is unused.
 
-| File | Line | Change |
-|------|------|--------|
-| `cmd/audio.rs:124` | `expect("lock")`/`expect("writer")` | Replaced with `match` + `continue` on failure |
-| `sona.rs:184` | `Client::builder().build().unwrap()` | Replaced with `.context("...")?` |
-| `setup.rs:35` | `setup_logging(...).unwrap()` | Replaced with `match` + `eprintln!` fallback |
-| `build.rs:5-9` | `Command::new("git").output().unwrap()` | Graceful fallback to `"unknown"` |
-| `build.rs:18` | `dst.parent().unwrap()` | `if let Some(parent)` guard |
-| `build.rs:24-29` | robocopy exit codes 0-7 treated as failures | Proper exit code check (`>= 8` = error) |
-| `build.rs:36` | Fragile 3-level `OUT_DIR` parent traversal | Dynamic walk-up to find `debug`/`release` dir |
-| `files.rs:89` | `to_str().unwrap()` on path | Changed to `to_string_lossy()` |
+### Dead exports (never imported by any other file)
 
-### 3. Event listener leaks — properly cleaned up
+- `desktop/src/lib/i18n.ts:11` — `supportedLanguageValues` exported but never imported. Only `supportedLanguages` and `supportedLanguageKeys` are used externally.
+- `desktop/src/lib/i18n.ts:13` — `getI18nLanguageName()` exported but never imported. Always returns `'english'` — appears to be a leftover from multi-language support.
+- `desktop/src/lib/style.ts:8` — `cx()` exported but never imported. All components import `cn()` from the same file. `cx` is a simpler filter+join but nothing uses it.
+- `desktop/src/lib/sona-errors.ts:1` — `sonaErrorCodes` exported but never imported by any file.
+- `desktop/src/lib/sona-errors.ts:13` — `isUserError()` exported but never imported by any file.
+- `desktop/src/lib/fs.ts:5` — `pathToNamedPath()` exported but never imported. Only `ls` is imported from this module.
+- `desktop/src/providers/toast.tsx:5` — `ToastModalState` interface exported but never imported. Only `ToastProvider` is imported externally (by `app.tsx`).
+- `desktop/src/providers/toast.tsx:14` — `ToastContext` exported but never imported externally. Used only within `toast.tsx` itself.
+- `desktop/src/providers/toast.tsx:16` — `useToastProvider()` exported but never imported externally. The file exports `ToastProvider` (used by `app.tsx`) but `useToastProvider` is never called by any consumer.
 
-| File | Change |
-|------|--------|
-| `setup/view-model.ts` | Store `listen()` unlisten ref, clean up in `useEffect` return. Fixed typo `handleProgressEvenets` → `handleProgressEvents` |
-| `cmd/download.rs` | Store `listener_id`, call `app_handle.unlisten()` after download completes (both `download_model` and `download_file`) |
-| `cmd/transcribe.rs` | Store `listener_id`, call `app_handle.unlisten()` after transcription completes |
+**Note:** `hotkeyRecordingActive` (`desktop/src/providers/hotkey.tsx:14`) and `DEFAULT_HOTKEY_SHORTCUT` (`desktop/src/providers/hotkey.tsx:16`) are exported but only used within `hotkey.tsx` itself. They are not imported by any other file. However, `hotkeyRecordingActive` is module-level mutable state read by the home view-model pattern — marking as "possibly unused export" since removing `export` is safe but the variable itself is used.
 
-### 4. Orphaned sona process on exit
+### Unused files
 
-**`main.rs`**
-- Replaced `try_lock()` (which silently fails if lock is held) with `block_in_place` + `blocking_lock` with 2-second timeout
-- Prints error to stderr if lock can't be acquired
+- `desktop/src/lib/sona-errors.ts` — entire file is dead. Neither `sonaErrorCodes` nor `isUserError` is imported anywhere. The file defines error code constants and a type guard that no code calls.
 
-### 5. React correctness
+### Unused variables
 
-| File | Change |
-|------|--------|
-| `app.tsx:21` | Moved `document.body.dir = dir` from render body into `useEffect(() => { ... }, [dir])` |
-| `use-single-instance.tsx:46` | Fixed `if (newFiles)` (always truthy on `[]`) → `if (newFiles.length > 0)` |
-| `use-single-instance.tsx` | Moved listener into `useEffect` with proper cleanup return |
+- `desktop/src/pages/setup/view-model.ts:45` — `lastError` assigned in catch block (`lastError = err`) but only used in a template literal on line 86 (`throw new Error(... ${lastError})`). Could be inlined as `String(err)`.
 
-### 6. Dead code, CI & config fixes
+### Unused dependencies (Cargo.toml)
 
-**Dead code removed:**
+- `desktop/src-tauri/Cargo.toml:52` — `glob = "0.3.3"` declared as direct dependency but never imported (`use glob` or `extern crate glob`) in any `.rs` file. It's already a transitive dependency of `tauri`.
+- `desktop/src-tauri/Cargo.toml:50` — `tracing-log = "0.2.0"` declared as direct dependency but never imported. Already pulled in transitively by `tracing-subscriber`, and the `log` feature on `tracing` (line 49) already enables the log compatibility bridge.
 
-| File | What |
-|------|------|
-| `Cargo.toml` | Removed `tauri-plugin-keepawake` optional dependency and feature flag |
-| `main.rs` | Removed `#[cfg(feature = "keepawake")]` plugin init block |
-| `pre_build.py` | Removed `download_diarize()` call and `DIARIZE_ASSET_MAP` (sona-diarize binaries no longer bundled) |
-| `common.json` | Removed **161 dead translation keys** (kept only 48 used keys + 3 missing keys added) |
-| `lib/config.ts` | Removed 6 dead URL exports (`aboutURL`, `updateVersionURL`, `discordURL`, `unsupportedCpuReadmeURL`, `supportVibeURL`, `latestReleaseURL`, `latestVersionWithoutVulkan`) and 8 dead model constants (`embeddingModel*`, `segmentModel*`, `diarizeModel*`, `vadModel*`) |
-| `extensions.json` | Removed Svelte extension recommendation (landing website was deleted) |
-| `launch.json` | Removed `vibe_core` debug config (package doesn't exist), removed stale `FFMPEG_DIR`/`OPENBLAS_PATH`/`LIBCLANG_PATH` env vars from release config |
+### Unnecessary `pub` visibility
 
-**CI fixes (`lint_rust.yml`):**
+- `desktop/src-tauri/src/cmd/sona_cmd.rs:7` — `pub fn resolve_sona_binary` is `pub` but only called within `sona_cmd.rs` itself (lines 123, 151, 204, 233, 250). Could be `pub(crate)` or `fn`.
+- `desktop/src-tauri/src/cmd/sona_cmd.rs:56` — `pub fn resolve_ffmpeg_path` is `pub` but only called within `sona_cmd.rs` itself (lines 124, 152, 205, 234). Could be `pub(crate)` or `fn`.
+- `desktop/src-tauri/src/cmd/sona_cmd.rs:72` — `pub fn resolve_diarize_path` is `pub` but only called within `sona_cmd.rs` itself (lines 125, 153, 206, 235). Could be `pub(crate)` or `fn`.
 
-| Fix | Before | After |
-|-----|--------|-------|
-| Trigger path | `'.github/workflows/lint.yml'` (wrong name) | `'.github/workflows/lint_rust.yml'` |
-| Phantom path | `'cli/src/**'` (deleted directory) | Removed |
-| Runner | `macos-latest` | `windows-latest` |
-| Lockfile | `pnpm install` | `pnpm install --frozen-lockfile` |
+### Commented-out code
 
-**Config fixes:**
+- `desktop/src-tauri/src/logging.rs:37-41` — 5 lines of commented-out store preference check (`if store.get("prefs_log_to_file")...`). Dead code from a removed feature. Also, the `_store` parameter on line 28 is unused (prefixed with `_`).
 
-| File | Fix |
-|------|-----|
-| `components.json` | `"rtl": true` → `"rtl": false` |
-| `components.json` | `"utils": "~/lib/utils"` → `"utils": "~/lib/style"` (file actually exists) |
-| `package.json` | `"@tauri-apps/cli": "~2.10.0"` → `"~2.11.0"` (match API version) |
-| `eslint.config.js` | Removed `eslint-plugin-react` import (not installed), removed duplicate `sourceType` config, removed orphaned react rules |
-| `Cargo.toml` | Version `"0.0.6"` → `"3.0.19"` (synced with `tauri.conf.json`) |
+### Unreferenced struct field
 
-### 7. Accessibility & code quality
+- `desktop/src-tauri/src/cmd/transcribe.rs:22` — `pub verbose: Option<bool>` in `TranscribeOptions` is deserialized from the frontend but never read in any Rust code. May be intentional (frontend sends it for forward-compat) but worth confirming.
 
-**Accessibility:**
+### Possibly unused (not flagged as dead)
 
-| File | Change |
-|------|--------|
-| `error-modal.tsx` | Copy icon: `onMouseDown` → `onClick`, added `tabIndex={0}`, `role="button"`, `aria-label` |
-| `error-modal.tsx` | Report button: `onMouseDown` → `onClick` |
-| `settings/page.tsx` | 3 buttons: `onMouseDown` → `onClick` |
-| `info-tooltip.tsx` | Tooltip `<span>`: added `tabIndex={0}`, `role="button"`, `aria-label="More info"` |
-| `spinner.tsx` | Added `role="status"`, `aria-label="Loading"` |
-| `setup/page.tsx` | Offline dialog: added proper `<DialogTitle>` and `<DialogHeader>` |
+- `desktop/src/lib/model.ts:4` — `randomString()` and `desktop/src/lib/model.ts:13` — `getFilenameFromUrl()` are exported but only used internally within `downloadModel()` in the same file. The `export` keyword is unnecessary but the functions themselves are used.
+- `desktop/src/lib/logs.ts:6` — `getPrettyVersion()` and `desktop/src/lib/logs.ts:17` — `getAppInfo()` are exported but only called by `collectLogs()` in the same file. Only `collectLogs` is imported externally. The `export` on these two is unnecessary.
+- `desktop/src-tauri/src/cmd/mod.rs:6` — `pub mod permissions` declares an empty module (`permissions.rs` has 0 lines of code). The module exists but contains nothing. Appears to be a stub for a future feature.
 
-**Code quality:**
+### Not flagged (intentional patterns)
 
-| File | Change |
-|------|--------|
-| `ffmpeg.rs:32` | Removed duplicate `use chrono::Local` import |
-| `files.rs:31` | `eprintln!` → `tracing::error!` |
-| `logs.ts:55-56` | Fixed comments: "debug" → "error", "3 lines" → "10 lines" |
-| `preference.tsx` | Removed wasted `isFirstRun` localStorage read/write |
+- `#[allow(dead_code)]` on `SonaEvent` (`sona.rs:37`) — variants are matched in `transcribe.rs`. The `allow` is for serde, not actual dead code.
+- `#[allow(dead_code)]` on `ReadySignal.status` (`sona.rs:29`) — field is deserialized but never read. Intentional `allow`.
+- All `#[tauri::command]` functions — used via IPC from the frontend, not dead.
 
-### 8. Low-hanging cleanup
+## Previous Report Status
 
-| File | Change |
-|------|--------|
-| `Cargo.toml` | Removed unused `bytemuck` dependency |
-| `ffmpeg.rs:48` | Removed redundant `is_file() && exists()` → `is_file()` |
-| `ffmpeg.rs:102` | Increased stderr read limit from 1000 → 4096 bytes |
-| `app.ts:27` | `getIssueUrl`: `async` → sync (no await inside) |
-| `error-modal.tsx` | Removed unnecessary `await` on `getIssueUrl` |
-| `package.json` | Moved `vite-plugin-svgr` from deps → devDeps |
-| `.gitignore` | Removed duplicate `.DS_Store` entry |
-| `.vscode/settings.json` | Enabled `rust-analyzer.checkOnSave` with clippy |
-| `sona.rs:296` | Temperature `0.0` no longer silently dropped (`> 0.0` → `>= 0.0`) |
+Comparing with the existing `CODE_REVIEW.md` (which documented fixes made in the `fix/code-review-top-issues` branch):
 
-### 9. Medium fixes — robustness & deduplication
-
-| File | Change |
-|------|--------|
-| `cmd/audio.rs` | Device ID: switched from index-based (`nth(id)`) to name-based lookup — stable across device changes |
-| `cmd/audio.rs` | Merge logic: generalized from hardcoded 0/1 indices to filter non-empty files, works with any number of devices |
-| `cmd/transcribe.rs:145` | Stream errors now returned to caller instead of silently swallowed |
-| `cmd/transcribe.rs:126-127` | Integer truncation → rounding (`(x * 100.0).round() as i64`) |
-| `sona.rs:170-174` | Stderr buffer: replaced hard 8KB cutoff with 16KB ring buffer that drains oldest lines |
-| `cmd/download.rs` | Extracted shared `download_stream` helper, `download_model` and `download_file` are now thin wrappers |
-| `Cargo.toml` | Pinned eyre fork to commit `8a0b71c` instead of floating branch |
-
-### 10. Concurrency & React state fixes
-
-| File | Change |
-|------|--------|
-| `cmd/sona_cmd.rs` | Refactored `load_model` into 4 phases: check+spawn (lock), HTTP load (lock), GPU fallback (lock), update state (lock). Lock held briefly per phase instead of across entire function |
-| `cmd/app.rs` | `type_text`: `std::thread::sleep` → `tokio::time::sleep`, made function `async` |
-
-**React state:**
-
-| File | Change |
-|------|--------|
-| `preference.tsx` | `useContext(X) as Type` → null check + descriptive `throw new Error` |
-| `hotkey.tsx` | Same null context cast fix |
-| `toast.tsx` | Same null context cast fix |
-| `params.tsx` | Removed `usePreferenceProvider` — all reads/writes now go through `options`/`setOptions` props. Single source of truth, no stale closures |
+- **Previously fixed:** All 10 categories of issues documented in the old report have been addressed (dead translation keys, dead URL exports, dead model constants, keepawake plugin, etc.)
+- **New findings:** All 17 findings above are newly identified and were not covered in the previous review
 
 ---
 
-## Remaining Issues
+## Remaining Issues (from previous review, still open)
 
 ### CRITICAL
 
@@ -164,10 +103,6 @@
 | 4 | `setup.rs:9` | **Global `STATIC_APP` with `std::sync::Mutex`** — if crash occurs while another thread holds mutex, it's poisoned and crash dialog won't show |
 | 5 | `tauri.conf.json:8` | **`withGlobalTauri: true`** — exposes entire Tauri IPC API on `window.__TAURI__` to any script. Requires CSP to be safe |
 | 6 | `hotkey.tsx:14` | **Module-level mutable state** — `export let hotkeyRecordingActive` bypasses React reactivity, consumers get stale snapshot |
-
-### MEDIUM
-
-No remaining medium issues.
 
 ### LOW
 
