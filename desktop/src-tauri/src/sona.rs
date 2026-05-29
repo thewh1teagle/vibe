@@ -35,7 +35,7 @@ struct ReadySignal {
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
 #[allow(dead_code)]
-pub enum SonaEvent {
+pub(crate) enum SonaEvent {
     Progress {
         progress: i32,
     },
@@ -68,9 +68,9 @@ struct SonaErrorBody {
 
 /// A structured sona API error that carries the error code through the call chain.
 #[derive(Debug)]
-pub struct SonaApiError {
-    pub code: String,
-    pub message: String,
+pub(crate) struct SonaApiError {
+    pub(crate) code: String,
+    pub(crate) message: String,
 }
 
 impl std::fmt::Display for SonaApiError {
@@ -185,8 +185,11 @@ impl SonaProcess {
         Ok(Self {
             port: signal.port,
             child,
-			// Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
-            client: reqwest::Client::builder().no_proxy().build().context("failed to build HTTP client")?,
+            // Bypass system proxy for localhost (avoids corporate proxy blocking sona requests)
+            client: reqwest::Client::builder()
+                .no_proxy()
+                .build()
+                .context("failed to build HTTP client")?,
             stderr_buf,
         })
     }
@@ -365,7 +368,9 @@ impl SonaProcess {
         let stream = resp.bytes_stream().scan(String::new(), |line_buf, chunk_result| {
             let chunk = match chunk_result {
                 Ok(c) => c,
-                Err(e) => return futures_util::future::ready(Some(vec![Err(eyre::eyre!("error reading sona stream chunk: {}", e))])),
+                Err(e) => {
+                    return futures_util::future::ready(Some(vec![Err(eyre::eyre!("error reading sona stream chunk: {}", e))]))
+                }
             };
             line_buf.push_str(&String::from_utf8_lossy(&chunk));
             let mut events = Vec::new();
@@ -386,9 +391,7 @@ impl SonaProcess {
         });
 
         // Flatten Vec<Result<SonaEvent>> into individual Result<SonaEvent> items
-        let flat_stream = stream.flat_map(|events: Vec<Result<SonaEvent>>| {
-            futures_util::stream::iter(events)
-        });
+        let flat_stream = stream.flat_map(|events: Vec<Result<SonaEvent>>| futures_util::stream::iter(events));
 
         Ok(flat_stream)
     }

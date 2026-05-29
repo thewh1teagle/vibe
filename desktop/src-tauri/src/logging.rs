@@ -7,7 +7,7 @@ use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Layer, Registry};
 
 use crate::config;
 
-pub fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
+fn get_log_path(app: &AppHandle) -> Result<PathBuf> {
     let config_path = app.path().app_config_dir()?;
 
     let current_datetime = Local::now();
