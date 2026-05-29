@@ -1,4 +1,3 @@
-import '@fontsource/roboto'
 import { invoke } from '@tauri-apps/api/core'
 import { useEffect } from 'react'
 import { path } from '@tauri-apps/api'

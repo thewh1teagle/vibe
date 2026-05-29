@@ -15,22 +15,6 @@ use tokio::sync::Mutex;
 
 use super::CommandError;
 
-#[allow(dead_code)]
-#[derive(Deserialize, Serialize, Clone)]
-pub struct FfmpegOptions {
-    pub normalize_loudness: bool,
-    pub custom_command: Option<String>,
-}
-
-impl Default for FfmpegOptions {
-    fn default() -> Self {
-        Self {
-            normalize_loudness: true,
-            custom_command: None,
-        }
-    }
-}
-
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct TranscribeOptions {
     pub path: String,
