@@ -27,6 +27,8 @@ export interface Preference {
 	setLanguageDirections: () => void
 	gpuDevice: number | null
 	setGpuDevice: ModifyState<number | null>
+	rawOutput: boolean
+	setRawOutput: ModifyState<boolean>
 }
 
 const PreferenceContext = createContext<Preference | null>(null)
@@ -84,6 +86,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
 	const [customRecordingPath, setCustomRecordingPath] = useLocalStorage<string | null>('prefs_custom_recording_path', null)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
+	const [rawOutput, setRawOutput] = useLocalStorage<boolean>('prefs_raw_output', false)
 
 	useEffect(() => {
 		if (theme === 'dark') {
@@ -144,6 +147,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setTheme,
 			gpuDevice,
 			setGpuDevice,
+			rawOutput,
+			setRawOutput,
 		}),
 		[
 			language,
@@ -156,6 +161,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			storeRecordInDocuments,
 			customRecordingPath,
 			gpuDevice,
+			rawOutput,
 			setLanguage,
 			setModelPath,
 			setSkippedSetup,
@@ -166,6 +172,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setStoreRecordInDocuments,
 			setCustomRecordingPath,
 			setGpuDevice,
+			setRawOutput,
 			setLanguageDefaults,
 		],
 	)
