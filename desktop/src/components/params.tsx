@@ -5,7 +5,7 @@ import { InfoTooltip } from './info-tooltip'
 import { SlidersHorizontal } from 'lucide-react'
 import { ModelOptions as IModelOptions } from '~/providers/preference'
 import { Button } from '~/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -45,14 +45,13 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 					<SlidersHorizontal className="h-4 w-4" />
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="flex max-h-[80vh] max-w-lg flex-col gap-0 overflow-hidden rounded-2xl border-border/60 bg-card/95 p-0 shadow-xl">
-				<DialogHeader className="px-4 pb-2 pt-4">
-					<DialogTitle className="text-lg font-semibold">{t('common.more-options')}</DialogTitle>
-				</DialogHeader>
-				<ScrollArea className="min-h-0 flex-1 px-4 pb-4">
+			<DialogContent className="fixed inset-0 left-0 top-0 flex !h-screen !w-screen !translate-x-0 !translate-y-0 flex-col gap-0 overflow-hidden !rounded-none !border-0 !bg-background !p-0 !shadow-none !max-h-screen">
+				<div className="flex items-center justify-between px-6 pt-6 pb-2">
+					<DialogTitle className="text-lg font-semibold">{t('common.model-options')}</DialogTitle>
+				</div>
+				<ScrollArea className="min-h-0 flex-1 px-6 pb-6">
 					<div className="space-y-3">
 						<div className="space-y-3">
-							<h3 className="text-base font-semibold">{t('common.model-options')}</h3>
 
 							<Field
 								label={

@@ -1,5 +1,5 @@
 import SettingsPage from '~/pages/settings/page'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '~/components/ui/dialog'
 import { ScrollArea } from '~/components/ui/scroll-area'
 
 interface SettingsModalProps {
@@ -10,11 +10,11 @@ interface SettingsModalProps {
 export default function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="flex max-h-[80vh] max-w-lg flex-col gap-0 overflow-hidden rounded-2xl border-border/60 bg-card/95 p-0 shadow-xl">
-				<DialogHeader className="px-4 pb-2 pt-4">
+			<DialogContent className="fixed inset-0 left-0 top-0 flex !h-screen !w-screen !translate-x-0 !translate-y-0 flex-col gap-0 overflow-hidden !rounded-none !border-0 !bg-background !p-0 !shadow-none !max-h-screen">
+				<div className="flex items-center justify-between px-6 pt-6 pb-2">
 					<DialogTitle className="text-lg font-semibold">Settings</DialogTitle>
-				</DialogHeader>
-				<ScrollArea className="min-h-0 flex-1 px-4 pb-4">
+				</div>
+				<ScrollArea className="min-h-0 flex-1 px-6 pb-6">
 					<SettingsPage />
 				</ScrollArea>
 			</DialogContent>
