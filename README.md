@@ -9,10 +9,12 @@ Press a hotkey from anywhere in Windows, speak, and your speech is transcribed v
 - Global hotkey dictation (default: `Ctrl+Shift+V`)
 - Offline transcription via Whisper (no data leaves your device)
 - Output to clipboard or type at cursor
+- Raw text mode (no line breaks between segments)
 - Auto-detects or manually selects language (auto / English / Danish)
 - GPU acceleration support
-- Dark theme (always on)
+- Light/dark theme
 - System tray — minimizes to tray, runs in the background
+- Model preloaded on app start for instant first dictation
 
 ## Prerequisites
 
@@ -51,6 +53,7 @@ The app starts minimized to the system tray. Left-click the tray icon to open th
 ## How It Works
 
 ```
+App start → preload model in background → ready
 Hotkey press → record from default mic → release → Whisper transcribes → clipboard or type
 ```
 
