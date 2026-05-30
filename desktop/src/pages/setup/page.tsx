@@ -10,25 +10,23 @@ function App() {
 	const vm = viewModel()
 
 	return (
-		<div className="app-shell flex min-h-screen items-center justify-center">
-			<div className="app-panel w-full max-w-xl text-center">
-				<p className="app-kicker mb-2">{t('common.setup', { defaultValue: 'Setup' })}</p>
-				<div className="text-balance text-2xl font-semibold md:text-3xl">{t('common.downloading-model', { company: vm.modelCompany })}</div>
+		<div className="flex min-h-screen flex-col items-center justify-center px-6">
+			<p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground/70">{t('common.setup', { defaultValue: 'Setup' })}</p>
+			<div className="text-balance text-2xl font-semibold md:text-3xl">{t('common.downloading-model', { company: vm.modelCompany })}</div>
 
-				<div className="mt-6 flex flex-col items-center gap-3">
-					{vm.downloadProgress > 0 && (
-						<>
-							<Progress className="w-full max-w-sm" value={vm.downloadProgress} />
-							{!vm?.location?.state?.downloadURL && <p className="text-sm text-muted-foreground">{t('common.this-happens-once')}</p>}
-						</>
-					)}
-					{(vm.downloadProgress === 0 || vm.isOnline === null) && <Spinner className="h-8 w-8" />}
-					<p className="text-xs text-muted-foreground/60 mt-1">If the download is very slow, try turning off your VPN.</p>
-				</div>
+			<div className="mt-6 flex flex-col items-center gap-3">
+				{vm.downloadProgress > 0 && (
+					<>
+						<Progress className="w-full max-w-sm" value={vm.downloadProgress} />
+						{!vm?.location?.state?.downloadURL && <p className="text-sm text-muted-foreground">{t('common.this-happens-once')}</p>}
+					</>
+				)}
+				{(vm.downloadProgress === 0 || vm.isOnline === null) && <Spinner className="h-8 w-8" />}
+				<p className="text-xs text-muted-foreground/60 mt-1">If the download is very slow, try turning off your VPN.</p>
 			</div>
 
 			<Dialog open={vm.isOnline === false}>
-				<DialogContent>
+				<DialogContent className="max-w-sm rounded-xl">
 					<DialogHeader>
 						<DialogTitle>{t('common.no-connection')}</DialogTitle>
 					</DialogHeader>
