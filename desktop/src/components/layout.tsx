@@ -14,7 +14,6 @@ export default function Layout({ children }: { children: ReactNode }) {
 						</svg>
 					</div>
 					<h1 className="text-2xl font-semibold tracking-tight">{t('common.app-title')}</h1>
-					<p className="mt-1 text-sm text-muted-foreground/70">Global dictation</p>
 				</div>
 				{children}
 			</div>
