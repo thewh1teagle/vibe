@@ -12,7 +12,7 @@ Press a hotkey from anywhere in Windows, speak, and your speech is transcribed v
 - Raw text mode (no line breaks between segments)
 - Auto-detects or manually selects language (auto / English / Danish)
 - GPU acceleration support
-- Light/dark theme
+- Dark theme
 - System tray — minimizes to tray, runs in the background
 - Model preloaded on app start for instant first dictation
 
