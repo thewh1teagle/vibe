@@ -5,19 +5,27 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { usePreferenceProvider } from '~/providers/preference'
 import * as utils from '~/lib/model'
-import * as osExt from '@tauri-apps/plugin-os'
+import { listModels } from '~/lib/fs'
 import * as config from '~/lib/config'
 
 export function viewModel() {
 	const location = useLocation()
 	const [downloadProgress, setDownloadProgress] = useState(0)
 	const [isOnline, setIsOnline] = useState<boolean | null>(null)
+	const [isDownloading, setIsDownloading] = useState(false)
+	const [hasLocalModels, setHasLocalModels] = useState(false)
 	const downloadProgressRef = useRef(0)
+	const cancelledRef = useRef(false)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
 	const [modelCompany, setModelCompany] = useState('OpenAI')
 	const unlistenRef = useRef<(() => void) | null>(null)
+	const [hasAttempted, setHasAttempted] = useState(false)
+
+	useEffect(() => {
+		listModels().then((models) => setHasLocalModels(models.length > 0))
+	}, [])
 
 	function handleProgressEvents() {
 		listen('download_progress', (event) => {
@@ -39,36 +47,29 @@ export function viewModel() {
 		}
 	}, [])
 
-	async function downloadModel() {
+	async function performDownload() {
 		handleProgressEvents()
+		setIsDownloading(true)
 
 		try {
-			let urls = []
+			let urls: string[]
+			let company: string
 
-			// Determine model URLs
 			if (location?.state?.downloadURL) {
 				urls = [location.state.downloadURL]
-				console.log(`[model] Using provided model URL: ${urls[0]}`)
-				if (urls[0].includes('ivrit')) {
-					setModelCompany('ivrit.ai')
-				}
+				company = urls[0].includes('ivrit') ? 'ivrit.ai' : 'OpenAI'
 			} else {
-				urls = [...config.modelUrls.default]
-				const locale = await osExt.locale()
-				console.log(`[locale] Detected locale: ${locale}`)
-
-				if (locale?.endsWith('-IL')) {
-					console.log(`[model] Prioritizing Hebrew models`)
-					urls.unshift(...config.modelUrls.hebrew)
-					setModelCompany('ivrit.ai')
-				}
+				const preset = config.modelPresets.find((p) => p.id === preference.selectedModelPreset) ?? config.modelPresets[0]
+				urls = [...preset.urls]
+				company = 'OpenAI'
 			}
+			setModelCompany(company)
 
-			// Try downloading from each URL
 			for (const url of urls) {
 				try {
 					console.log(`[model] Attempting to download from: ${url}`)
 					const path = await utils.downloadModel(url)
+					if (cancelledRef.current) return
 					if (path) {
 						console.log(`[model] Download succeeded: ${path}`)
 						preference.setModelPath(path)
@@ -82,31 +83,48 @@ export function viewModel() {
 
 			throw new Error('All model downloads failed')
 		} catch (err) {
-			console.error(`[model] Unhandled error:`, err)
-			setErrorModal?.({ open: true, log: String(err) })
+			if (!cancelledRef.current) {
+				console.error(`[model] Unhandled error:`, err)
+				setErrorModal?.({ open: true, log: String(err) })
+				setIsDownloading(false)
+			}
 		}
 	}
 
-	async function downloadIfOnline() {
-		// Check if online
+	async function startDownload() {
+		setHasAttempted(true)
+		setDownloadProgress(0)
+		downloadProgressRef.current = 0
 		const isOnlineResponse = await invoke<boolean>('is_online')
-		// If online download model
-		if (isOnlineResponse) {
-			downloadModel()
-		}
-		// Update UI
 		setIsOnline(isOnlineResponse)
+		if (isOnlineResponse) {
+			performDownload()
+		}
 	}
 
-	useEffect(() => {
-		downloadIfOnline()
-	}, [])
+	function goBack() {
+		navigate('/')
+	}
+
+	function cancelDownload() {
+		cancelledRef.current = true
+		setIsDownloading(false)
+		navigate('/')
+	}
 
 	return {
 		modelCompany,
 		downloadProgress,
-		downloadIfOnline,
 		isOnline,
+		isDownloading,
+		hasAttempted,
+		hasLocalModels,
+		presets: config.modelPresets,
+		selectedPresetId: preference.selectedModelPreset,
+		setSelectedPresetId: preference.setSelectedModelPreset,
+		startDownload,
+		goBack,
+		cancelDownload,
 		location,
 	}
 }

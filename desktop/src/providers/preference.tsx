@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useMemo, useRef } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { ModifyState } from '~/lib/types'
+import { ModelPresetId, defaultModelPresetId } from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +15,8 @@ export interface Preference {
 	setFocusOnFinish: ModifyState<boolean>
 	modelPath: string | null
 	setModelPath: ModifyState<string | null>
+	selectedModelPreset: ModelPresetId
+	setSelectedModelPreset: ModifyState<ModelPresetId>
 	skippedSetup: boolean
 	setSkippedSetup: ModifyState<boolean>
 	modelOptions: ModelOptions
@@ -76,6 +79,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const previ18Language = useRef(i18n.language)
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
+	const [selectedModelPreset, setSelectedModelPreset] = useLocalStorage<ModelPresetId>('prefs_model_preset', defaultModelPresetId)
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const isMounted = useRef<boolean>(false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', 'dark')
@@ -143,6 +147,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setFocusOnFinish,
 			modelPath,
 			setModelPath,
+			selectedModelPreset,
+			setSelectedModelPreset,
 			theme,
 			setTheme,
 			gpuDevice,
@@ -153,6 +159,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		[
 			language,
 			modelPath,
+			selectedModelPreset,
 			skippedSetup,
 			modelOptions,
 			theme,
@@ -164,6 +171,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			rawOutput,
 			setLanguage,
 			setModelPath,
+			setSelectedModelPreset,
 			setSkippedSetup,
 			setModelOptions,
 			setTheme,

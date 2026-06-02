@@ -1,14 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import * as pathExt from '@tauri-apps/api/path'
 import * as fsExt from '@tauri-apps/plugin-fs'
-function randomString(length: number, prefix: string, suffix: string) {
-	const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-	let result = prefix
-	for (let i = 0; i < length; i++) {
-		result += chars.charAt(Math.floor(Math.random() * chars.length))
-	}
-	return result + suffix
-}
 
 async function getFilenameFromUrl(url: string) {
 	const urlObj = new URL(url)
@@ -22,10 +14,9 @@ export async function downloadModel(url: string) {
 		filename = 'ggml-model.bin'
 	}
 	const modelsFolder = await invoke<string>('get_models_folder')
-	let modelPath = await pathExt.join(modelsFolder, filename)
+	const modelPath = await pathExt.join(modelsFolder, filename)
 	if (await fsExt.exists(modelPath)) {
-		filename = randomString(8, 'ggml-model_', '.bin')
-		modelPath = await pathExt.join(modelsFolder, filename)
+		return modelPath
 	}
 	await invoke('download_model', { url, path: modelPath })
 	return modelPath

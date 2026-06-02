@@ -4,6 +4,7 @@ import { openUrl } from '@tauri-apps/plugin-opener'
 import { platform } from '@tauri-apps/plugin-os'
 import { useEffect, useState } from 'react'
 import * as config from '~/lib/config'
+import { ModelPresetId } from '~/lib/config'
 import { NamedPath } from '~/lib/types'
 import { listModels } from '~/lib/fs'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -29,16 +30,13 @@ async function openModelsUrl() {
 export function viewModel() {
 	const [models, setModels] = useState<NamedPath[]>([])
 	const preference = usePreferenceProvider()
-	const [downloadURL, setDownloadURL] = useState('')
 	const [gpuDevices, setGpuDevices] = useState<GpuDevice[]>([])
 	const isMacOS = platform() === 'macos'
 	const navigate = useNavigate()
 
-	async function downloadModel() {
-		if (!downloadURL) {
-			return
-		}
-		navigate('/setup', { state: { downloadURL } })
+	async function selectPresetForDownload(presetId: string) {
+		preference.setSelectedModelPreset(presetId as ModelPresetId)
+		navigate('/setup')
 	}
 
 	async function loadModels() {
@@ -83,15 +81,14 @@ export function viewModel() {
 	}, [])
 
 	return {
-		downloadModel,
-		downloadURL,
-		setDownloadURL,
 		preference,
 		openModelPath,
 		openModelsUrl,
 		models,
 		loadModels,
 		changeModelsFolder,
+		presets: config.modelPresets,
+		selectPresetForDownload,
 		gpuDevices,
 		isMacOS,
 	}
