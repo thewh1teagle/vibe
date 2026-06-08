@@ -68,3 +68,16 @@ pub async fn type_text(text: String) -> Result<()> {
     enigo.text(&text).map_err(|e| eyre::eyre!("Failed to type text: {}", e))?;
     Ok(())
 }
+
+#[tauri::command]
+pub async fn test_groq_key(api_key: String) -> Result<bool> {
+    let client = reqwest::Client::new();
+    let resp = client
+        .get("https://api.groq.com/openai/v1/models")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await
+        .context("failed to connect to Groq API")?;
+
+    Ok(resp.status().is_success())
+}

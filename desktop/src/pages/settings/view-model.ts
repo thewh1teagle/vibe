@@ -31,6 +31,7 @@ export function viewModel() {
 	const [models, setModels] = useState<NamedPath[]>([])
 	const preference = usePreferenceProvider()
 	const [gpuDevices, setGpuDevices] = useState<GpuDevice[]>([])
+	const [groqKeyStatus, setGroqKeyStatus] = useState<'idle' | 'success' | 'failed'>('idle')
 	const isMacOS = platform() === 'macos'
 	const navigate = useNavigate()
 
@@ -74,6 +75,17 @@ export function viewModel() {
 		}
 	}
 
+	async function testGroqKey() {
+		if (!preference.groqApiKey) return
+		try {
+			const valid = await invoke<boolean>('test_groq_key', { apiKey: preference.groqApiKey })
+			setGroqKeyStatus(valid ? 'success' : 'failed')
+		} catch (error) {
+			console.error(error)
+			setGroqKeyStatus('failed')
+		}
+	}
+
 	useEffect(() => {
 		loadModels()
 		getDefaultModel()
@@ -91,5 +103,7 @@ export function viewModel() {
 		selectPresetForDownload,
 		gpuDevices,
 		isMacOS,
+		testGroqKey,
+		groqKeyStatus,
 	}
 }

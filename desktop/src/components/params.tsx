@@ -4,6 +4,7 @@ import { ModifyState } from '~/lib/types'
 import { InfoTooltip } from './info-tooltip'
 import { SlidersHorizontal } from 'lucide-react'
 import { ModelOptions as IModelOptions } from '~/providers/preference'
+import { usePreferenceProvider } from '~/providers/preference'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import { ScrollArea } from '~/components/ui/scroll-area'
@@ -34,6 +35,8 @@ function parseIntOr(value: string, fallback: number) {
 export default function ModelOptions({ options, setOptions }: ParamsProps) {
 	const [open, setOpen] = useState(false)
 	const { t } = useTranslation()
+	const preference = usePreferenceProvider()
+	const isGroq = preference.transcriptionProvider === 'groq'
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -52,7 +55,6 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 				<ScrollArea className="min-h-0 flex-1 px-6 pb-6">
 					<div className="space-y-3">
 						<div className="space-y-3">
-
 							<Field
 								label={
 									<>
@@ -71,32 +73,6 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 								<Field
 									label={
 										<>
-											<InfoTooltip text={t('common.info-max-sentence-len')} />
-											{t('common.max-sentence-len')}
-										</>
-									}>
-									<Input
-										type="number"
-										value={options.max_sentence_len}
-										onChange={(e) => {
-											setOptions({ ...options, max_sentence_len: parseIntOr(e.target.value, 1) })
-										}}
-									/>
-								</Field>
-
-								<Field
-									label={
-										<>
-											<InfoTooltip text={t('common.info-threads')} />
-											{t('common.threads')}
-										</>
-									}>
-									<Input type="number" value={options.n_threads} onChange={(e) => setOptions({ ...options, n_threads: parseIntOr(e.target.value, 1) })} />
-								</Field>
-
-								<Field
-									label={
-										<>
 											<InfoTooltip text={t('common.info-temperature')} />
 											{t('common.temperature')}
 										</>
@@ -109,74 +85,112 @@ export default function ModelOptions({ options, setOptions }: ParamsProps) {
 									/>
 								</Field>
 
-								<Field
-									label={
-										<>
-											<InfoTooltip text={t('common.info-max-text-ctx')} />
-											{t('common.max-text-ctx')}
-										</>
-									}>
-									<Input
-										type="number"
-										step={1}
-										value={options.max_text_ctx ?? 0}
-										onChange={(e) => setOptions({ ...options, max_text_ctx: parseIntOr(e.target.value, 0) })}
-									/>
-								</Field>
+								{!isGroq && (
+									<Field
+										label={
+											<>
+												<InfoTooltip text={t('common.info-max-sentence-len')} />
+												{t('common.max-sentence-len')}
+											</>
+										}>
+										<Input
+											type="number"
+											value={options.max_sentence_len}
+											onChange={(e) => {
+												setOptions({ ...options, max_sentence_len: parseIntOr(e.target.value, 1) })
+											}}
+										/>
+									</Field>
+								)}
+
+								{!isGroq && (
+									<Field
+										label={
+											<>
+												<InfoTooltip text={t('common.info-threads')} />
+												{t('common.threads')}
+											</>
+										}>
+										<Input
+											type="number"
+											value={options.n_threads}
+											onChange={(e) => setOptions({ ...options, n_threads: parseIntOr(e.target.value, 1) })}
+										/>
+									</Field>
+								)}
+
+								{!isGroq && (
+									<Field
+										label={
+											<>
+												<InfoTooltip text={t('common.info-max-text-ctx')} />
+												{t('common.max-text-ctx')}
+											</>
+										}>
+										<Input
+											type="number"
+											step={1}
+											value={options.max_text_ctx ?? 0}
+											onChange={(e) => setOptions({ ...options, max_text_ctx: parseIntOr(e.target.value, 0) })}
+										/>
+									</Field>
+								)}
 							</div>
 
-							<div className="grid grid-cols-2 gap-4">
-								<Field
-									label={
-										<>
-											<InfoTooltip text="Greedy vs Beam Search: Default is Beam Search (Size 5, Patience -1), which evaluates 5 possible sequences at each step for more accurate results, but is slower. Greedy, on the other hand, selects the best token from the top 5 at each step, making it faster but potentially less accurate." />
-											{t('common.sampling-strategy')}
-										</>
-									}>
-								<Select
-									value={options.sampling_strategy}
-									onValueChange={(value) =>
-										setOptions({ ...options, sampling_strategy: value as 'greedy' | 'beam search' })
-									}>
-										<SelectTrigger className="capitalize">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{['beam search', 'greedy'].map((name) => (
-												<SelectItem key={name} value={name} className="capitalize">
-													{name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</Field>
+							{!isGroq && (
+								<div className="grid grid-cols-2 gap-4">
+									<Field
+										label={
+											<>
+												<InfoTooltip text="Greedy vs Beam Search: Default is Beam Search (Size 5, Patience -1), which evaluates 5 possible sequences at each step for more accurate results, but is slower. Greedy, on the other hand, selects the best token from the top 5 at each step, making it faster but potentially less accurate." />
+												{t('common.sampling-strategy')}
+											</>
+										}>
+										<Select
+											value={options.sampling_strategy}
+											onValueChange={(value) => setOptions({ ...options, sampling_strategy: value as 'greedy' | 'beam search' })}>
+											<SelectTrigger className="capitalize">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{['beam search', 'greedy'].map((name) => (
+													<SelectItem key={name} value={name} className="capitalize">
+														{name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</Field>
 
-								<Field
-									label={
-										<>
-											<InfoTooltip text={options.sampling_strategy === 'greedy'
-												? "Top candidates in Greedy mode (default: 5) — higher = better accuracy, slower."
-												: "Paths explored in Beam Search (default: 5) — higher = better accuracy, slower."} />
-											{options.sampling_strategy === 'greedy' ? 'Best of' : 'Beam size'}
-										</>
-									}>
-									<Input
-										type="number"
-										step={1}
-										value={options.sampling_strategy === 'greedy'
-											? (options.best_of ?? 5)
-											: (options.beam_size ?? 5)}
-										onChange={(e) => {
-											const val = parseIntOr(e.target.value, 5)
-											if (options.sampling_strategy === 'greedy') {
-												setOptions({ ...options, best_of: val })
-											} else {
-												setOptions({ ...options, beam_size: val })
-											}
-										}}
-									/>
-								</Field>
-							</div>
+									<Field
+										label={
+											<>
+												<InfoTooltip
+													text={
+														options.sampling_strategy === 'greedy'
+															? 'Top candidates in Greedy mode (default: 5) — higher = better accuracy, slower.'
+															: 'Paths explored in Beam Search (default: 5) — higher = better accuracy, slower.'
+													}
+												/>
+												{options.sampling_strategy === 'greedy' ? 'Best of' : 'Beam size'}
+											</>
+										}>
+										<Input
+											type="number"
+											step={1}
+											value={options.sampling_strategy === 'greedy' ? (options.best_of ?? 5) : (options.beam_size ?? 5)}
+											onChange={(e) => {
+												const val = parseIntOr(e.target.value, 5)
+												if (options.sampling_strategy === 'greedy') {
+													setOptions({ ...options, best_of: val })
+												} else {
+													setOptions({ ...options, beam_size: val })
+												}
+											}}
+										/>
+									</Field>
+								</div>
+							)}
 						</div>
 					</div>
 				</ScrollArea>

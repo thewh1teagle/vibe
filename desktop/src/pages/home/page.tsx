@@ -38,7 +38,7 @@ export default function Home() {
 		<Layout>
 			<SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
 			<div className="w-full space-y-4">
-				{!vm.preference.modelPath && (
+				{vm.preference.transcriptionProvider === 'local' && !vm.preference.modelPath && (
 					<div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2.5 text-center text-xs text-destructive/80">
 						{t('common.no-model-selected')}
 					</div>
@@ -127,11 +127,13 @@ export default function Home() {
 							</div>
 						</div>
 
-						<div className="flex items-center justify-between">
-							<label className="text-[11px] font-medium text-muted-foreground">
-								{t('common.raw-output', 'Raw text (no line breaks)')}
-							</label>
-							<Switch checked={vm.preference.rawOutput} onCheckedChange={vm.preference.setRawOutput} />
+						<div className={`flex items-center justify-between ${vm.preference.transcriptionProvider === 'groq' ? 'opacity-50' : ''}`}>
+							<label className="text-[11px] font-medium text-muted-foreground">{t('common.raw-output', 'Raw text (no line breaks)')}</label>
+							<Switch
+								checked={vm.preference.rawOutput}
+								onCheckedChange={vm.preference.setRawOutput}
+								disabled={vm.preference.transcriptionProvider === 'groq'}
+							/>
 						</div>
 					</div>
 				)}

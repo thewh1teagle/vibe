@@ -60,6 +60,7 @@ export function viewModel() {
 
 	useEffect(() => {
 		checkIfCrashedRecently()
+		if (preference.transcriptionProvider === 'groq') return
 		checkModelExists().then((modelPath) => {
 			if (modelPath) {
 				preloadModel(modelPath)

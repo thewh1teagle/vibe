@@ -5,6 +5,7 @@ mod cmd;
 mod config;
 mod error;
 mod ffmpeg;
+mod groq;
 mod logging;
 mod setup;
 mod sona;
@@ -73,6 +74,7 @@ async fn main() -> Result<()> {
             cmd::app::is_crashed_recently,
             cmd::app::rename_crash_file,
             cmd::app::type_text,
+            cmd::app::test_groq_key,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");

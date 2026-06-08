@@ -6,6 +6,8 @@ import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
 
+export type TranscriptionProvider = 'local' | 'groq'
+
 export interface Preference {
 	displayLanguage: string
 	setDisplayLanguage: ModifyState<string>
@@ -32,6 +34,10 @@ export interface Preference {
 	setGpuDevice: ModifyState<number | null>
 	rawOutput: boolean
 	setRawOutput: ModifyState<boolean>
+	transcriptionProvider: TranscriptionProvider
+	setTranscriptionProvider: ModifyState<TranscriptionProvider>
+	groqApiKey: string
+	setGroqApiKey: ModifyState<string>
 }
 
 const PreferenceContext = createContext<Preference | null>(null)
@@ -91,6 +97,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [customRecordingPath, setCustomRecordingPath] = useLocalStorage<string | null>('prefs_custom_recording_path', null)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
 	const [rawOutput, setRawOutput] = useLocalStorage<boolean>('prefs_raw_output', false)
+	const [transcriptionProvider, setTranscriptionProvider] = useLocalStorage<TranscriptionProvider>('prefs_transcription_provider', 'local')
+	const [groqApiKey, setGroqApiKey] = useLocalStorage<string>('prefs_groq_api_key', '')
 
 	useEffect(() => {
 		if (theme === 'dark') {
@@ -155,6 +163,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setGpuDevice,
 			rawOutput,
 			setRawOutput,
+			transcriptionProvider,
+			setTranscriptionProvider,
+			groqApiKey,
+			setGroqApiKey,
 		}),
 		[
 			language,
@@ -169,6 +181,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			customRecordingPath,
 			gpuDevice,
 			rawOutput,
+			transcriptionProvider,
+			groqApiKey,
 			setLanguage,
 			setModelPath,
 			setSelectedModelPreset,
@@ -181,6 +195,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setCustomRecordingPath,
 			setGpuDevice,
 			setRawOutput,
+			setTranscriptionProvider,
+			setGroqApiKey,
 			setLanguageDefaults,
 		],
 	)
