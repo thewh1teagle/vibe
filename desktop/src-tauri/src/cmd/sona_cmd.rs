@@ -185,3 +185,16 @@ pub async fn get_gpu_devices(app_handle: tauri::AppHandle) -> Result<Vec<crate::
     let devices = crate::sona::list_gpu_devices(&binary_path)?;
     Ok(devices)
 }
+
+#[tauri::command]
+pub async fn unload_model(app_handle: tauri::AppHandle) -> Result<()> {
+    let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
+    let mut state_guard = sona_state.lock().await;
+    if let Some(mut process) = state_guard.process.take() {
+        process.kill();
+        tracing::debug!("sona process killed (provider switched)");
+    }
+    state_guard.loaded_model_path = None;
+    state_guard.loaded_gpu_device = None;
+    Ok(())
+}

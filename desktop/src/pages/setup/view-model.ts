@@ -3,7 +3,7 @@ import { listen } from '@tauri-apps/api/event'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/error-modal'
-import { usePreferenceProvider } from '~/providers/preference'
+import { usePreferenceProvider, type TranscriptionProvider } from '~/providers/preference'
 import * as utils from '~/lib/model'
 import { listModels } from '~/lib/fs'
 import * as config from '~/lib/config'
@@ -22,6 +22,7 @@ export function viewModel() {
 	const [modelCompany, setModelCompany] = useState('OpenAI')
 	const unlistenRef = useRef<(() => void) | null>(null)
 	const [hasAttempted, setHasAttempted] = useState(false)
+	const [groqKeyStatus, setGroqKeyStatus] = useState<'idle' | 'success' | 'failed'>('idle')
 
 	useEffect(() => {
 		listModels().then((models) => setHasLocalModels(models.length > 0))
@@ -112,6 +113,25 @@ export function viewModel() {
 		navigate('/')
 	}
 
+	function setProvider(provider: TranscriptionProvider) {
+		preference.setTranscriptionProvider(provider)
+		setGroqKeyStatus('idle')
+	}
+
+	async function testGroqKey() {
+		if (!preference.groqApiKey) return
+		try {
+			const valid = await invoke<boolean>('test_groq_key', { apiKey: preference.groqApiKey })
+			setGroqKeyStatus(valid ? 'success' : 'failed')
+		} catch {
+			setGroqKeyStatus('failed')
+		}
+	}
+
+	function startWithGroq() {
+		navigate('/')
+	}
+
 	return {
 		modelCompany,
 		downloadProgress,
@@ -126,5 +146,12 @@ export function viewModel() {
 		goBack,
 		cancelDownload,
 		location,
+		provider: preference.transcriptionProvider,
+		setProvider,
+		groqApiKey: preference.groqApiKey,
+		setGroqApiKey: preference.setGroqApiKey,
+		groqKeyStatus,
+		testGroqKey,
+		startWithGroq,
 	}
 }

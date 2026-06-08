@@ -57,15 +57,15 @@ pnpm exec tauri build
 
 ## Commands
 
-| What | Command | Where |
-|------|---------|-------|
-| Rust tests | `cargo test -- --nocapture` | root |
-| Rust format | `cargo fmt` | root |
-| Rust lint | `cargo clippy --all-targets -- -D warnings` | root |
-| JS format | `pnpm run format` | root |
-| JS format check | `pnpm run format:check` | root |
-| TypeScript check | `pnpm run check-types` | root (desktop only) |
-| desktop lint | `pnpm lint` | `desktop/` |
+| What             | Command                                     | Where               |
+| ---------------- | ------------------------------------------- | ------------------- |
+| Rust tests       | `cargo test -- --nocapture`                 | root                |
+| Rust format      | `cargo fmt`                                 | root                |
+| Rust lint        | `cargo clippy --all-targets -- -D warnings` | root                |
+| JS format        | `pnpm run format`                           | root                |
+| JS format check  | `pnpm run format:check`                     | root                |
+| TypeScript check | `pnpm run check-types`                      | root (desktop only) |
+| desktop lint     | `pnpm lint`                                 | `desktop/`          |
 
 ## Code Style
 

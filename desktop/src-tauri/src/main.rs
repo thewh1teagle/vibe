@@ -5,6 +5,7 @@ mod cmd;
 mod config;
 mod error;
 mod ffmpeg;
+mod groq;
 mod logging;
 mod setup;
 mod sona;
@@ -64,6 +65,7 @@ async fn main() -> Result<()> {
             cmd::sona_cmd::load_model,
             cmd::sona_cmd::preload_model,
             cmd::sona_cmd::get_gpu_devices,
+            cmd::sona_cmd::unload_model,
             cmd::app::is_avx2_enabled,
             cmd::app::is_online,
             cmd::files::open_path,
@@ -73,6 +75,7 @@ async fn main() -> Result<()> {
             cmd::app::is_crashed_recently,
             cmd::app::rename_crash_file,
             cmd::app::type_text,
+            cmd::app::test_groq_key,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");

@@ -9,7 +9,6 @@ import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
 
-
 const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+V'
 
 export type HotkeyOutputMode = 'clipboard' | 'type'
@@ -109,18 +108,29 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			const { path } = event.payload
 
 			try {
-				const modelPath = preferenceRef.current.modelPath
-				if (!modelPath) {
-					throw new Error('No model selected')
+				const pref = preferenceRef.current
+				const isGroq = pref.transcriptionProvider === 'groq'
+
+				if (isGroq) {
+					if (!pref.groqApiKey) {
+						throw new Error('Groq API key is required')
+					}
+				} else {
+					const modelPath = pref.modelPath
+					if (!modelPath) {
+						throw new Error('No model selected')
+					}
+					await invoke('load_model', { modelPath, gpuDevice: pref.gpuDevice })
 				}
 
-				await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
 				const options = {
 					path,
-					...preferenceRef.current.modelOptions,
+					...pref.modelOptions,
+					provider: pref.transcriptionProvider,
+					...(isGroq ? { groq_api_key: pref.groqApiKey } : {}),
 				}
 				const res: transcript.Transcript = await invoke('transcribe', { options })
-				const resultText = transcript.asText(res.segments, t('common.speaker-prefix'), preferenceRef.current.rawOutput).trim()
+				const resultText = transcript.asText(res.segments, t('common.speaker-prefix'), pref.rawOutput).trim()
 				// Output result
 				if (hotkeyOutputModeRef.current === 'type') {
 					await invoke('type_text', { text: resultText })

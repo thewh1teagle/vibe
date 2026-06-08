@@ -29,9 +29,7 @@ export function viewModel() {
 		try {
 			const filtered = await listModels()
 			if (filtered.length === 0) {
-				if (!preference.skippedSetup) {
-					navigate('/setup')
-				}
+				navigate('/setup')
 				return null
 			} else {
 				let resolvedPath = preference.modelPath
@@ -60,6 +58,7 @@ export function viewModel() {
 
 	useEffect(() => {
 		checkIfCrashedRecently()
+		if (preference.transcriptionProvider === 'groq') return
 		checkModelExists().then((modelPath) => {
 			if (modelPath) {
 				preloadModel(modelPath)

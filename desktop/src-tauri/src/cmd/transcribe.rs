@@ -11,6 +11,14 @@ use tokio::sync::Mutex;
 
 use super::{AbortGuard, CommandError};
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum TranscriptionProvider {
+    #[default]
+    Local,
+    Groq,
+}
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct TranscribeOptions {
     pub path: String,
@@ -28,6 +36,10 @@ pub struct TranscribeOptions {
     pub diarize_model: Option<String>,
     pub stable_timestamps: Option<bool>,
     pub vad_model: Option<String>,
+    #[serde(default)]
+    pub provider: TranscriptionProvider,
+    #[serde(skip_serializing)]
+    pub groq_api_key: Option<String>,
 }
 
 #[tauri::command]
@@ -50,6 +62,36 @@ pub async fn transcribe(
         });
     }
 
+    // Route to Groq cloud provider if selected
+    if options.provider == TranscriptionProvider::Groq {
+        let api_key = options.groq_api_key.as_deref().ok_or_else(|| CommandError {
+            code: "invalid_request".to_string(),
+            message: "Groq API key is required".to_string(),
+        })?;
+        if api_key.is_empty() {
+            return Err(CommandError {
+                code: "invalid_request".to_string(),
+                message: "Groq API key is required".to_string(),
+            });
+        }
+
+        tracing::debug!("transcribing via Groq API");
+        let result = crate::groq::transcribe(api_key, &options.path, &options)
+            .await
+            .map_err(|e| CommandError {
+                code: "groq_error".to_string(),
+                message: e.to_string(),
+            })?;
+
+        // Emit segments for real-time UI updates
+        for segment in &result.segments {
+            app_handle.emit_to("main", "new_segment", segment.clone()).log_error();
+        }
+
+        return Ok(result);
+    }
+
+    // Default: local sona transcription
     let (client, base_url) = {
         let state = sona_state.lock().await;
         let process = state.process.as_ref().ok_or_else(|| CommandError {
@@ -85,12 +127,8 @@ pub async fn transcribe(
                     text,
                     speaker,
                 } => {
-                    let segment = Segment {
-                        start: (start * 100.0).round() as i64,
-                        stop: (end * 100.0).round() as i64,
-                        text,
-                        speaker,
-                    };
+                    let mut segment = Segment::from_secs(start, end, text);
+                    segment.speaker = speaker;
                     app_handle.emit_to("main", "new_segment", segment.clone()).log_error();
                     segments.push(segment);
                 }

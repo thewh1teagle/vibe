@@ -6,6 +6,8 @@ import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
 
+export type TranscriptionProvider = 'local' | 'groq'
+
 export interface Preference {
 	displayLanguage: string
 	setDisplayLanguage: ModifyState<string>
@@ -17,8 +19,6 @@ export interface Preference {
 	setModelPath: ModifyState<string | null>
 	selectedModelPreset: ModelPresetId
 	setSelectedModelPreset: ModifyState<ModelPresetId>
-	skippedSetup: boolean
-	setSkippedSetup: ModifyState<boolean>
 	modelOptions: ModelOptions
 	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
@@ -32,6 +32,10 @@ export interface Preference {
 	setGpuDevice: ModifyState<number | null>
 	rawOutput: boolean
 	setRawOutput: ModifyState<boolean>
+	transcriptionProvider: TranscriptionProvider
+	setTranscriptionProvider: ModifyState<TranscriptionProvider>
+	groqApiKey: string
+	setGroqApiKey: ModifyState<string>
 }
 
 const PreferenceContext = createContext<Preference | null>(null)
@@ -80,7 +84,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [selectedModelPreset, setSelectedModelPreset] = useLocalStorage<ModelPresetId>('prefs_model_preset', defaultModelPresetId)
-	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const isMounted = useRef<boolean>(false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', 'dark')
 
@@ -91,6 +94,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [customRecordingPath, setCustomRecordingPath] = useLocalStorage<string | null>('prefs_custom_recording_path', null)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
 	const [rawOutput, setRawOutput] = useLocalStorage<boolean>('prefs_raw_output', false)
+	const [transcriptionProvider, setTranscriptionProvider] = useLocalStorage<TranscriptionProvider>('prefs_transcription_provider', 'local')
+	const [groqApiKey, setGroqApiKey] = useLocalStorage<string>('prefs_groq_api_key', '')
 
 	useEffect(() => {
 		if (theme === 'dark') {
@@ -137,8 +142,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setStoreRecordInDocuments,
 			customRecordingPath,
 			setCustomRecordingPath,
-			skippedSetup,
-			setSkippedSetup,
 			displayLanguage: language,
 			setDisplayLanguage: setLanguage,
 			soundOnFinish,
@@ -155,12 +158,15 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setGpuDevice,
 			rawOutput,
 			setRawOutput,
+			transcriptionProvider,
+			setTranscriptionProvider,
+			groqApiKey,
+			setGroqApiKey,
 		}),
 		[
 			language,
 			modelPath,
 			selectedModelPreset,
-			skippedSetup,
 			modelOptions,
 			theme,
 			soundOnFinish,
@@ -169,10 +175,11 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			customRecordingPath,
 			gpuDevice,
 			rawOutput,
+			transcriptionProvider,
+			groqApiKey,
 			setLanguage,
 			setModelPath,
 			setSelectedModelPreset,
-			setSkippedSetup,
 			setModelOptions,
 			setTheme,
 			setSoundOnFinish,
@@ -181,6 +188,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setCustomRecordingPath,
 			setGpuDevice,
 			setRawOutput,
+			setTranscriptionProvider,
+			setGroqApiKey,
 			setLanguageDefaults,
 		],
 	)
