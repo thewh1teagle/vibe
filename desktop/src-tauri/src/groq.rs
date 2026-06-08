@@ -4,10 +4,13 @@ use eyre::{bail, Context, Result};
 use reqwest::multipart;
 use serde::Deserialize;
 use std::path::Path;
+use std::time::Duration;
 use tokio_util::io::ReaderStream;
 
 const GROQ_API_URL: &str = "https://api.groq.com/openai/v1/audio/transcriptions";
+const GROQ_MODELS_URL: &str = "https://api.groq.com/openai/v1/models";
 const GROQ_MODEL: &str = "whisper-large-v3-turbo";
+const GROQ_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[derive(Debug, Deserialize)]
 struct GroqSegment {
@@ -27,36 +30,48 @@ struct GroqTranscriptionResponse {
 }
 
 #[derive(Debug, Deserialize)]
-struct GroqErrorResponse {
-    error: GroqErrorBody,
+struct ApiErrorResponse {
+    error: ApiErrorBody,
 }
 
 #[derive(Debug, Deserialize)]
-struct GroqErrorBody {
+struct ApiErrorBody {
     #[allow(dead_code)]
     message: String,
 }
 
-pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) -> Result<Transcript> {
+fn groq_client() -> reqwest::Client {
+    reqwest::Client::builder().timeout(GROQ_TIMEOUT).build().unwrap_or_default()
+}
+
+pub async fn test_api_key(api_key: &str) -> Result<bool> {
+    let client = groq_client();
+    let resp = client
+        .get(GROQ_MODELS_URL)
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await
+        .context("failed to connect to Groq API")?;
+    Ok(resp.status().is_success())
+}
+
+async fn file_multipart_part(path: &str) -> Result<multipart::Part> {
     let audio_path = Path::new(path);
-    if !audio_path.exists() {
-        bail!("Audio file not found: {}", path);
-    }
-
-    let client = reqwest::Client::new();
-    let start = std::time::Instant::now();
-
     let file = tokio::fs::File::open(path).await.context("failed to open audio file")?;
     let file_len = file.metadata().await.context("failed to read file metadata")?.len();
-
     let file_name = audio_path.file_name().unwrap_or_default().to_string_lossy().to_string();
-
     let stream = ReaderStream::new(file);
     let body = reqwest::Body::wrap_stream(stream);
-
-    let file_part = multipart::Part::stream_with_length(body, file_len)
+    Ok(multipart::Part::stream_with_length(body, file_len)
         .file_name(file_name)
-        .mime_str("application/octet-stream")?;
+        .mime_str("application/octet-stream")?)
+}
+
+pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) -> Result<Transcript> {
+    let client = groq_client();
+    let start = std::time::Instant::now();
+
+    let file_part = file_multipart_part(path).await?;
 
     let mut form = multipart::Form::new()
         .part("file", file_part)
@@ -71,10 +86,6 @@ pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) 
     }
 
     if options.translate.unwrap_or(false) {
-        // Groq uses a separate /translations endpoint, but we can use the
-        // translate field on the transcriptions endpoint via prompt guidance.
-        // For now, we'll just pass the translate option - Groq's whisper
-        // doesn't have a native translate flag, so we skip it.
         tracing::debug!("translate requested but not supported by Groq API, skipping");
     }
 
@@ -85,7 +96,7 @@ pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) 
     }
 
     if let Some(t) = options.temperature {
-        if t >= 0.0 {
+        if t.is_finite() && t >= 0.0 {
             form = form.text("temperature", t.to_string());
         }
     }
@@ -101,7 +112,7 @@ pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) 
     if !resp.status().is_success() {
         let status = resp.status();
         let body = resp.text().await.unwrap_or_default();
-        if let Ok(parsed) = serde_json::from_str::<GroqErrorResponse>(&body) {
+        if let Ok(parsed) = serde_json::from_str::<ApiErrorResponse>(&body) {
             bail!("Groq API error ({}): {}", status, parsed.error.message);
         }
         bail!("Groq API error ({}): {}", status, body);
@@ -112,12 +123,7 @@ pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) 
     let segments: Vec<Segment> = groq_resp
         .segments
         .into_iter()
-        .map(|s| Segment {
-            start: (s.start * 100.0).round() as i64,
-            stop: (s.end * 100.0).round() as i64,
-            text: s.text.trim().to_string(),
-            speaker: None,
-        })
+        .map(|s| Segment::from_secs(s.start, s.end, s.text.trim().to_string()))
         .collect();
 
     let elapsed = start.elapsed();

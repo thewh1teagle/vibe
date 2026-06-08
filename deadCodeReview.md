@@ -2,11 +2,11 @@
 
 ## Status (2026-06-08)
 
-| Metric | Count |
-|--------|-------|
-| Open | 8 |
-| Fixed since last | — |
-| New | 8 |
+| Metric           | Count |
+| ---------------- | ----- |
+| Open             | 8     |
+| Fixed since last | —     |
+| New              | 8     |
 
 ---
 

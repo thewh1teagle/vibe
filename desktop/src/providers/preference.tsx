@@ -19,8 +19,6 @@ export interface Preference {
 	setModelPath: ModifyState<string | null>
 	selectedModelPreset: ModelPresetId
 	setSelectedModelPreset: ModifyState<ModelPresetId>
-	skippedSetup: boolean
-	setSkippedSetup: ModifyState<boolean>
 	modelOptions: ModelOptions
 	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
@@ -86,7 +84,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
 	const [selectedModelPreset, setSelectedModelPreset] = useLocalStorage<ModelPresetId>('prefs_model_preset', defaultModelPresetId)
-	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const isMounted = useRef<boolean>(false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', 'dark')
 
@@ -145,8 +142,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setStoreRecordInDocuments,
 			customRecordingPath,
 			setCustomRecordingPath,
-			skippedSetup,
-			setSkippedSetup,
 			displayLanguage: language,
 			setDisplayLanguage: setLanguage,
 			soundOnFinish,
@@ -172,7 +167,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			language,
 			modelPath,
 			selectedModelPreset,
-			skippedSetup,
 			modelOptions,
 			theme,
 			soundOnFinish,
@@ -186,7 +180,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setLanguage,
 			setModelPath,
 			setSelectedModelPreset,
-			setSkippedSetup,
 			setModelOptions,
 			setTheme,
 			setSoundOnFinish,

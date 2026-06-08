@@ -11,6 +11,14 @@ use tokio::sync::Mutex;
 
 use super::{AbortGuard, CommandError};
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum TranscriptionProvider {
+    #[default]
+    Local,
+    Groq,
+}
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct TranscribeOptions {
     pub path: String,
@@ -28,7 +36,9 @@ pub struct TranscribeOptions {
     pub diarize_model: Option<String>,
     pub stable_timestamps: Option<bool>,
     pub vad_model: Option<String>,
-    pub provider: Option<String>,
+    #[serde(default)]
+    pub provider: TranscriptionProvider,
+    #[serde(skip_serializing)]
     pub groq_api_key: Option<String>,
 }
 
@@ -53,7 +63,7 @@ pub async fn transcribe(
     }
 
     // Route to Groq cloud provider if selected
-    if options.provider.as_deref() == Some("groq") {
+    if options.provider == TranscriptionProvider::Groq {
         let api_key = options.groq_api_key.as_deref().ok_or_else(|| CommandError {
             code: "invalid_request".to_string(),
             message: "Groq API key is required".to_string(),
@@ -117,12 +127,8 @@ pub async fn transcribe(
                     text,
                     speaker,
                 } => {
-                    let segment = Segment {
-                        start: (start * 100.0).round() as i64,
-                        stop: (end * 100.0).round() as i64,
-                        text,
-                        speaker,
-                    };
+                    let mut segment = Segment::from_secs(start, end, text);
+                    segment.speaker = speaker;
                     app_handle.emit_to("main", "new_segment", segment.clone()).log_error();
                     segments.push(segment);
                 }

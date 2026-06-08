@@ -65,6 +65,7 @@ async fn main() -> Result<()> {
             cmd::sona_cmd::load_model,
             cmd::sona_cmd::preload_model,
             cmd::sona_cmd::get_gpu_devices,
+            cmd::sona_cmd::unload_model,
             cmd::app::is_avx2_enabled,
             cmd::app::is_online,
             cmd::files::open_path,

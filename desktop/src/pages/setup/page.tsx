@@ -4,6 +4,7 @@ import { Progress } from '~/components/ui/progress'
 import { Spinner } from '~/components/ui/spinner'
 import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
+import { Input } from '~/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 
@@ -16,24 +17,70 @@ function App() {
 		<div className="flex min-h-screen flex-col items-center justify-center px-6">
 			<p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground/70">{t('common.setup', { defaultValue: 'Setup' })}</p>
 
-			{!vm.isDownloading ? (
-				<>
-					<div className="text-balance text-2xl font-semibold md:text-3xl">{t('common.model-select-prompt')}</div>
-					<div className="mt-6 w-full max-w-sm space-y-3">
-						<Label>{t('common.select-model')}</Label>
-						<Select value={vm.selectedPresetId} onValueChange={(value) => vm.setSelectedPresetId(value as typeof vm.selectedPresetId)}>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{vm.presets.map((preset) => (
-									<SelectItem key={preset.id} value={preset.id}>
-										{t(preset.nameKey)}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						<p className="text-sm text-muted-foreground">{t(selectedPreset.descriptionKey)}</p>
+			<div className="text-balance text-2xl font-semibold md:text-3xl">{t('common.model-select-prompt')}</div>
+
+			<div className="mt-6 w-full max-w-sm space-y-4">
+				<div className="space-y-2">
+					<Label>{t('common.provider')}</Label>
+					<div className="flex gap-1.5">
+						{(['local', 'groq'] as const).map((p) => (
+							<button
+								key={p}
+								type="button"
+								onClick={() => vm.setProvider(p)}
+								className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
+									vm.provider === p
+										? 'border-primary/40 bg-primary/8 text-primary shadow-sm'
+										: 'border-border/50 bg-background/30 text-muted-foreground hover:bg-accent/30 hover:text-foreground'
+								}`}>
+								{t(`common.provider-${p}`)}
+							</button>
+						))}
+					</div>
+				</div>
+
+				{vm.provider === 'groq' ? (
+					<div className="space-y-3">
+						<div className="space-y-2">
+							<Label>{t('common.groq-api-key')}</Label>
+							<p className="text-[11px] text-muted-foreground">{t('common.groq-api-key-description')}</p>
+							<div className="flex items-center gap-2">
+								<Input
+									type="password"
+									value={vm.groqApiKey}
+									onChange={(e) => vm.setGroqApiKey(e.target.value)}
+									placeholder={t('common.groq-api-key-placeholder')}
+									className="flex-1"
+								/>
+								<Button variant="outline" size="sm" onClick={vm.testGroqKey} disabled={!vm.groqApiKey}>
+									{t('common.test-key')}
+								</Button>
+							</div>
+							{vm.groqKeyStatus === 'success' && <p className="text-[11px] text-green-500">{t('common.groq-test-success')}</p>}
+							{vm.groqKeyStatus === 'failed' && <p className="text-[11px] text-destructive">{t('common.groq-test-failed')}</p>}
+						</div>
+						<Button className="w-full" onClick={vm.startWithGroq} disabled={!vm.groqApiKey || vm.groqKeyStatus !== 'success'}>
+							{t('common.get-started', { defaultValue: 'Get started' })}
+						</Button>
+					</div>
+				) : !vm.isDownloading ? (
+					<div className="space-y-3">
+						<div className="space-y-2">
+							<Label>{t('common.select-model')}</Label>
+							<Select value={vm.selectedPresetId} onValueChange={(value) => vm.setSelectedPresetId(value as typeof vm.selectedPresetId)}>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{vm.presets.map((preset) => (
+										<SelectItem key={preset.id} value={preset.id}>
+											{t(preset.nameKey)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<p className="text-sm text-muted-foreground">{t(selectedPreset.descriptionKey)}</p>
+						</div>
 						<Button className="w-full" onClick={vm.startDownload}>
 							{t('common.model-download')}
 						</Button>
@@ -43,12 +90,9 @@ function App() {
 							</Button>
 						)}
 					</div>
-				</>
-			) : (
-				<>
-					<div className="text-balance text-2xl font-semibold md:text-3xl">{t('common.downloading-model', { company: vm.modelCompany })}</div>
-
+				) : (
 					<div className="mt-6 flex flex-col items-center gap-3">
+						<div className="text-balance text-2xl font-semibold md:text-3xl">{t('common.downloading-model', { company: vm.modelCompany })}</div>
 						{vm.downloadProgress > 0 && (
 							<>
 								<Progress className="w-full max-w-sm" value={vm.downloadProgress} />
@@ -61,8 +105,8 @@ function App() {
 							{t('common.cancel')}
 						</Button>
 					</div>
-				</>
-			)}
+				)}
+			</div>
 
 			<Dialog open={vm.isOnline === false && vm.hasAttempted}>
 				<DialogContent className="max-w-sm rounded-xl">

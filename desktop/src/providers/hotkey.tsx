@@ -126,7 +126,8 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				const options = {
 					path,
 					...pref.modelOptions,
-					...(isGroq ? { provider: 'groq', groq_api_key: pref.groqApiKey } : {}),
+					provider: pref.transcriptionProvider,
+					...(isGroq ? { groq_api_key: pref.groqApiKey } : {}),
 				}
 				const res: transcript.Transcript = await invoke('transcribe', { options })
 				const resultText = transcript.asText(res.segments, t('common.speaker-prefix'), pref.rawOutput).trim()

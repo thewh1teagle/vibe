@@ -162,12 +162,21 @@
 	}
 
 	html {
-		font-family: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+		font-family:
+			'SF Pro Text',
+			'SF Pro Display',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Helvetica Neue',
+			Arial,
+			sans-serif;
 	}
 
 	body {
 		@apply bg-background text-foreground;
-		font-feature-settings: 'rlig' 1, 'calt' 1;
+		font-feature-settings:
+			'rlig' 1,
+			'calt' 1;
 		background-image: linear-gradient(180deg, hsl(210 32% 97%) 0%, hsl(210 28% 95%) 100%);
 		overflow-x: hidden;
 	}

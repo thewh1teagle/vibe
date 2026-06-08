@@ -17,6 +17,7 @@
 	"global-hotkey-shortcut": "Shortcut",
 	"gpu-device": "GPU Device",
 	"gpu-device-placeholder": "Auto (leave empty)",
+	"get-started": "Get started",
 	"groq-api-key": "Groq API Key",
 	"groq-api-key-placeholder": "gsk_...",
 	"groq-api-key-description": "Get a free API key at console.groq.com",

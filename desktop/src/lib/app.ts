@@ -27,5 +27,3 @@ export function getIssueUrl(logs: string) {
 		logs,
 	)}`
 }
-
-

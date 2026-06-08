@@ -87,10 +87,17 @@ export function viewModel() {
 	}
 
 	useEffect(() => {
+		if (preference.transcriptionProvider === 'groq') return
 		loadModels()
 		getDefaultModel()
 		loadGpuDevices()
-	}, [])
+	}, [preference.transcriptionProvider])
+
+	useEffect(() => {
+		if (preference.transcriptionProvider === 'groq') {
+			invoke('unload_model').catch((e) => console.error('Failed to unload model:', e))
+		}
+	}, [preference.transcriptionProvider])
 
 	return {
 		preference,

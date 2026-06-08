@@ -29,9 +29,7 @@ export function viewModel() {
 		try {
 			const filtered = await listModels()
 			if (filtered.length === 0) {
-				if (!preference.skippedSetup) {
-					navigate('/setup')
-				}
+				navigate('/setup')
 				return null
 			} else {
 				let resolvedPath = preference.modelPath

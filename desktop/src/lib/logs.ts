@@ -14,15 +14,13 @@ async function getPrettyVersion() {
 	return version
 }
 
-	async function getAppInfo() {
+async function getAppInfo() {
 	const appVersion = await getPrettyVersion()
 	const arch = os.arch()
 	const platform = os.platform()
 	const osVer = os.version()
 	const osType = os.type()
-	const models = (await listModels())
-		.map((e) => e.name)
-		.join(', ')
+	const models = (await listModels()).map((e) => e.name).join(', ')
 	const defaultModel = localStorage.getItem('prefs_model_path')?.split('/')?.pop() ?? 'Not Found'
 	return [
 		`App Version: ${appVersion}`,
