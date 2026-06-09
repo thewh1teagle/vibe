@@ -60,7 +60,7 @@ jobs:
               with:
                   projectPath: desktop
                   tagName: ${{ github.ref_name }}
-                  releaseName: 'Vibe ${{ github.ref_name }}'
+                  releaseName: 'Vibe Simplify ${{ github.ref_name }}'
                   releaseBody: 'See the assets below to download and install.'
                   releaseDraft: true
                   prerelease: false
