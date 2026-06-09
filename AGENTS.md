@@ -80,6 +80,30 @@ pnpm exec tauri build
 - Only **Rust lint CI** (fmt + clippy) runs on PRs that touch `desktop/src-tauri/**`.
 - No automated JS lint or typecheck in CI — run `pnpm run format:check` and `pnpm run check-types` manually.
 
+## Release
+
+Releases happen via GitHub Actions when you push a git tag. Does **not** run on every commit.
+
+### How to release
+
+1. Update version in `desktop/src-tauri/tauri.conf.json` and `desktop/src-tauri/Cargo.toml`
+2. Commit: `git commit -am "v1.0.1: describe changes"`
+3. Tag and push:
+   ```bash
+   git tag v1.0.1
+   git push origin main --tags
+   ```
+4. GitHub Actions builds EXE + NSIS installer automatically
+5. A **draft release** appears on GitHub → go to Releases → edit and press "Publish"
+
+### Manual trigger
+
+Go to Actions → Release → "Run workflow" button. Builds without creating a release.
+
+### Workflow file
+
+`.github/workflows/release.yml` — uses `tauri-apps/tauri-action` on `windows-latest`.
+
 ## Gotchas
 
 - **sona sidecar is required**: If `pre_build.py` wasn't run, the Tauri build fails or the app won't transcribe.
