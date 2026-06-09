@@ -1,0 +1,66 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - 'v*'
+    workflow_dispatch:
+
+env:
+    RUST_BACKTRACE: 1
+    CARGO_PROFILE_DEV_DEBUG: 0
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: write
+
+jobs:
+    release:
+        runs-on: windows-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: desktop/package.json
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: desktop/pnpm-lock.yaml
+
+            - name: Setup uv
+              uses: astral-sh/setup-uv@v5
+
+            - name: Download sona sidecar
+              run: uv run scripts/pre_build.py --target x86_64-pc-windows-msvc
+
+            - name: Install node deps
+              run: pnpm install --frozen-lockfile
+              working-directory: ./desktop
+
+            - uses: Swatinem/rust-cache@v2
+              with:
+                  workspaces: desktop/src-tauri
+
+            - name: Build and release
+              uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  projectPath: desktop
+                  tagName: ${{ github.ref_name }}
+                  releaseName: 'Vibe ${{ github.ref_name }}'
+                  releaseBody: 'See the assets below to download and install.'
+                  releaseDraft: true
+                  prerelease: false

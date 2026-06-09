@@ -1,6 +1,6 @@
 [package]
 name = "vibe"
-version = "3.0.19"
+version = "1.0.0"
 description = "Vibe"
 authors = ["@thewh1teagle"]
 license = "MIT"
