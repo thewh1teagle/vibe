@@ -1,14 +1,16 @@
-# Vibe — Global Dictation
+# Vibe Simplify — Global Dictation
 
 Forked from [thewh1teagle/vibe](https://github.com/thewh1teagle/vibe) and stripped down to **global dictation only**.
 
-Press a hotkey from anywhere in Windows, speak, and your speech is transcribed via Whisper and output directly to your clipboard or typed at the cursor.
+Press a hotkey from anywhere in Windows, speak, and your speech is transcribed and output directly to your clipboard or typed at the cursor.
 
 ## Features
 
 - Global hotkey dictation (default: `Ctrl+Shift+V`)
-- Offline transcription via Whisper (no data leaves your device)
+- **Local transcription** via Whisper (offline, no data leaves your device)
+- **Groq cloud transcription** (fast, online, requires API key)
 - Output to clipboard or type at cursor
+- Model selection — choose between local Whisper models or Groq cloud
 - Raw text mode (no line breaks between segments)
 - Auto-detects or manually selects language (auto / English / Danish)
 - GPU acceleration support
@@ -59,7 +61,9 @@ Hotkey press → record from default mic → release → Whisper transcribes →
 
 The app uses [sona](https://github.com/thewh1teagle/sona) — a Go + whisper.cpp HTTP server — as a sidecar binary for transcription.
 
-## Model Download
+## Transcription Options
+
+### Local (Whisper)
 
 On first run, the app downloads a Whisper GGML model from HuggingFace:
 
@@ -70,6 +74,10 @@ On first run, the app downloads a Whisper GGML model from HuggingFace:
 The model is stored in `%LOCALAPPDATA%\github.com.thewh1teagle.vibe\` and loaded by the sona sidecar. You can also download custom GGML models by pasting a URL in Settings.
 
 > **Tip:** If the download is very slow, turn off your VPN. HuggingFace sometimes throttles VPN traffic.
+
+### Groq Cloud
+
+Fast cloud transcription via [Groq](https://groq.com/). Requires a free API key — enter it in Settings or during setup. Transcription runs on Groq's servers with very low latency.
 
 ## Credits
 
