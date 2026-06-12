@@ -4,17 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force && npm run seed"
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force && npm run seed",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/csv-stringify": "^1.4.3",
+    "@types/pg": "^8.20.0",
     "better-sqlite3": "^12.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -24,6 +29,7 @@
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.17.0",
     "next": "16.2.9",
+    "pg": "^8.21.0",
     "prisma": "^7.8.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",

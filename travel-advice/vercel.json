@@ -4,5 +4,19 @@
       "path": "/api/cron/scrape",
       "schedule": "0 */6 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/cron/scrape/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/export/pdf/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/export/excel/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/export/csv/route.ts": {
+      "maxDuration": 30
+    }
+  }
 }

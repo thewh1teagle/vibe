@@ -24,6 +24,13 @@ export function ExportButtons({ iso }: Props) {
         <Download className="w-3.5 h-3.5" />
         Excel
       </a>
+      <a
+        href={`/api/export/pdf${base}`}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors"
+      >
+        <Download className="w-3.5 h-3.5" />
+        PDF
+      </a>
     </div>
   );
 }

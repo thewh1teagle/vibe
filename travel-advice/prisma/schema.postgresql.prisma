@@ -1,0 +1,84 @@
+// Productie-schema voor PostgreSQL (Vercel / Neon / Supabase)
+// Gebruik dit bestand op Vercel:
+//   1. Kopieer dit bestand naar prisma/schema.prisma
+//   2. Pas prisma.config.ts aan (zie opmerkingen aldaar)
+//   3. Voer `npx prisma migrate deploy` uit
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Country {
+  isoAlpha2  String      @id @map("iso_alpha2")
+  isoAlpha3  String      @unique @map("iso_alpha3")
+  nameNl     String      @map("name_nl")
+  nameEn     String      @map("name_en")
+  regionNl   String      @map("region_nl")
+  regionEn   String      @map("region_en")
+  latitude   Float?
+  longitude  Float?
+  nlwwSlug   String?     @map("nlww_slug")
+  advisories Advisory[]
+
+  @@map("countries")
+}
+
+model Source {
+  id             String      @id
+  nameNl         String      @map("name_nl")
+  nameEn         String      @map("name_en")
+  countryIso2    String      @map("country_iso2")
+  flagEmoji      String      @map("flag_emoji")
+  baseUrl        String      @map("base_url")
+  fetchMethod    String      @map("fetch_method")
+  active         Boolean     @default(true)
+  fetchIntervalH Int         @default(6) @map("fetch_interval_h")
+  priority       Int         @default(1)
+  advisories     Advisory[]
+  scrapeLogs     ScrapeLog[]
+
+  @@map("sources")
+}
+
+model Advisory {
+  id                String    @id @default(cuid())
+  sourceId          String    @map("source_id")
+  destIso2          String    @map("dest_iso2")
+  rawLevel          String    @map("raw_level")
+  normalizedLevel   String    @map("normalized_level")
+  summary           String    @default("")
+  risks             String    @default("[]")
+  officialUpdatedAt DateTime? @map("official_updated_at")
+  scrapedAt         DateTime  @map("scraped_at")
+  sourceUrl         String    @map("source_url")
+  isStale           Boolean   @default(false) @map("is_stale")
+
+  source      Source  @relation(fields: [sourceId], references: [id])
+  destination Country @relation(fields: [destIso2], references: [isoAlpha2])
+
+  @@unique([sourceId, destIso2])
+  @@index([destIso2])
+  @@index([normalizedLevel])
+  @@map("advisories")
+}
+
+model ScrapeLog {
+  id                String    @id @default(cuid())
+  sourceId          String    @map("source_id")
+  startedAt         DateTime  @map("started_at")
+  finishedAt        DateTime? @map("finished_at")
+  status            String    @default("running")
+  errorMessage      String?   @map("error_message")
+  advisoriesTotal   Int       @default(0) @map("advisories_total")
+  advisoriesNew     Int       @default(0) @map("advisories_new")
+  advisoriesUpdated Int       @default(0) @map("advisories_updated")
+  durationMs        Int?      @map("duration_ms")
+
+  source Source @relation(fields: [sourceId], references: [id])
+
+  @@map("scrape_logs")
+}
