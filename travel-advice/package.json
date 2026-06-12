@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node -e \"if(process.env.DATABASE_URL?.startsWith('postgres')){require('fs').copyFileSync('prisma/schema.postgresql.prisma','prisma/schema.prisma')}\" && prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx prisma/seed.ts",
