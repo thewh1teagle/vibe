@@ -1,0 +1,12 @@
+name: Trigger Scrape
+on:
+  workflow_dispatch:
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger scrape endpoint
+        run: |
+          curl -s -X POST https://project-7dan4.vercel.app/api/cron/scrape \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
