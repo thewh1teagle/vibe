@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { formatDateNl } from "@/lib/format";
 import { clsx } from "clsx";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 const STATUS_LABELS: Record<string, string> = {
   success: "✅ OK",

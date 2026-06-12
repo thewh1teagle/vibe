@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import { CountrySearch } from "@/components/CountrySearch";
 import { RiskDot } from "@/components/RiskBadge";
