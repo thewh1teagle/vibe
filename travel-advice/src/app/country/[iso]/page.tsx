@@ -1,0 +1,303 @@
+import { prisma } from "@/lib/db";
+import { notFound } from "next/navigation";
+import {
+  buildConsensus,
+  buildDeviations,
+  buildComparativeAnalysis,
+  buildRecencyAnalysis,
+} from "@/lib/analysis";
+import { LEVEL_LABELS_NL } from "@/lib/normalize-risk";
+import { formatDateNl, ageDays } from "@/lib/format";
+import { RiskBadge } from "@/components/RiskBadge";
+import { ExportButtons } from "@/components/ExportButtons";
+import type { AdvisoryRow, NormalizedLevel } from "@/types";
+import Link from "next/link";
+import { ExternalLink, AlertTriangle, Info, TrendingUp } from "lucide-react";
+import { clsx } from "clsx";
+
+export const revalidate = 3600;
+
+const CONSENSUS_COLORS: Record<NormalizedLevel, string> = {
+  green: "bg-emerald-50 border-emerald-200 text-emerald-900",
+  yellow: "bg-yellow-50 border-yellow-200 text-yellow-900",
+  orange: "bg-orange-50 border-orange-200 text-orange-900",
+  red: "bg-red-50 border-red-200 text-red-900",
+  unknown: "bg-gray-50 border-gray-200 text-gray-700",
+};
+
+const LEVEL_BAR_COLORS: Record<NormalizedLevel, string> = {
+  green: "bg-emerald-400",
+  yellow: "bg-yellow-400",
+  orange: "bg-orange-400",
+  red: "bg-red-500",
+  unknown: "bg-gray-300",
+};
+
+export default async function CountryPage({
+  params,
+}: {
+  params: Promise<{ iso: string }>;
+}) {
+  const { iso } = await params;
+  const isoUpper = iso.toUpperCase();
+
+  const country = await prisma.country.findUnique({
+    where: { isoAlpha2: isoUpper },
+    include: {
+      advisories: {
+        include: { source: true },
+        orderBy: { source: { priority: "asc" } },
+      },
+    },
+  });
+
+  if (!country) notFound();
+
+  const advisories: AdvisoryRow[] = country.advisories.map((a) => ({
+    id: a.id,
+    sourceId: a.sourceId,
+    sourceNameNl: a.source.nameNl,
+    sourceNameEn: a.source.nameEn,
+    sourceFlagEmoji: a.source.flagEmoji,
+    destIso2: a.destIso2,
+    rawLevel: a.rawLevel,
+    normalizedLevel: a.normalizedLevel as NormalizedLevel,
+    summary: a.summary,
+    risks: JSON.parse(a.risks || "[]"),
+    officialUpdatedAt: a.officialUpdatedAt,
+    scrapedAt: a.scrapedAt,
+    sourceUrl: a.sourceUrl,
+    isStale: a.isStale,
+  }));
+
+  if (advisories.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Link href="/" className="text-sm text-blue-600 hover:underline">← Terug</Link>
+        <h1 className="text-2xl font-bold">{country.nameNl}</h1>
+        <p className="text-gray-500">Nog geen reisadviezen beschikbaar voor dit land.</p>
+      </div>
+    );
+  }
+
+  const consensus = buildConsensus(advisories);
+  const deviations = buildDeviations(advisories, consensus);
+  const comparativeAnalysis = buildComparativeAnalysis(advisories, deviations);
+  const recency = buildRecencyAnalysis(advisories);
+  const totalSources = consensus.totalSources;
+
+  return (
+    <div className="space-y-8">
+      {/* Breadcrumb */}
+      <div className="flex items-center justify-between">
+        <Link href="/" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+          ← Overzicht
+        </Link>
+        <ExportButtons iso={isoUpper} />
+      </div>
+
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">{country.nameNl}</h1>
+        <p className="text-gray-500 mt-1">{country.regionNl} · ISO: {country.isoAlpha2}</p>
+      </div>
+
+      {/* Consensus */}
+      <div className={clsx("rounded-xl border p-5 space-y-4", CONSENSUS_COLORS[consensus.mostCommon])}>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <p className="text-sm font-medium opacity-70">Consensusniveau</p>
+            <div className="mt-1">
+              <RiskBadge level={consensus.mostCommon} size="lg" />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-4 text-center">
+            {(["green", "yellow", "orange", "red"] as NormalizedLevel[]).map((l) => (
+              <div key={l}>
+                <div className="text-2xl font-bold">{consensus.counts[l]}</div>
+                <div className="text-xs opacity-70">{LEVEL_LABELS_NL[l]}</div>
+                <div className={clsx("h-1.5 rounded-full mt-1", LEVEL_BAR_COLORS[l])}
+                  style={{ opacity: consensus.counts[l] > 0 ? 1 : 0.2 }} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-4 text-sm">
+          <span><strong>Strengste:</strong> <RiskBadge level={consensus.strictest} size="sm" /></span>
+          <span><strong>Mildste:</strong> <RiskBadge level={consensus.mildest} size="sm" /></span>
+          <span className="opacity-70">{totalSources} van {8} bronnen beschikbaar</span>
+        </div>
+      </div>
+
+      {/* Advisories table */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold text-gray-900">Adviezen per overheid</h2>
+        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 text-left">
+                <th className="px-4 py-3 font-semibold text-gray-600 w-44">Overheid</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 w-36">Niveau</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Officiële classificatie &amp; risico's</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 w-36">Datums</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 w-12">Bron</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {advisories.map((adv) => {
+                const isDeviation = deviations.some((d) => d.sourceId === adv.sourceId);
+                const deviation = deviations.find((d) => d.sourceId === adv.sourceId);
+                const age = ageDays(adv.officialUpdatedAt);
+                const isOld = age !== null && age > 90;
+
+                return (
+                  <tr
+                    key={adv.id}
+                    className={clsx(
+                      "hover:bg-gray-50 transition-colors",
+                      isDeviation && deviation?.direction === "stricter" && "bg-red-50/40",
+                      isDeviation && deviation?.direction === "milder" && "bg-blue-50/30"
+                    )}
+                  >
+                    <td className="px-4 py-3">
+                      <span className="font-medium text-gray-900">
+                        {adv.sourceFlagEmoji} {adv.sourceNameNl}
+                      </span>
+                      {deviation && (
+                        <div className="text-xs mt-0.5 text-orange-600 font-medium">
+                          {deviation.direction === "stricter" ? "↑ Strenger" : "↓ Milder"}
+                          {deviation.levelsDiff >= 2 && " ⚠"}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <RiskBadge level={adv.normalizedLevel} size="sm" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-gray-500 italic text-xs mb-1">{adv.rawLevel}</p>
+                      {adv.summary && (
+                        <p className="text-gray-800 leading-relaxed mb-1.5">{adv.summary}</p>
+                      )}
+                      {adv.risks.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {adv.risks.map((r) => (
+                            <span key={r} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {adv.isStale && (
+                        <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> Mogelijk verouderd
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-500 space-y-1">
+                      <div>
+                        <span className="font-medium">Wijziging:</span>{" "}
+                        <span className={clsx(isOld && "text-amber-600 font-medium")}>
+                          {formatDateNl(adv.officialUpdatedAt)}
+                          {isOld && " ⚠"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Opgehaald:</span>{" "}
+                        {formatDateNl(adv.scrapedAt)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <a
+                        href={adv.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 text-blue-500 hover:text-blue-700 transition-colors"
+                        title="Officiële bron"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Deviations */}
+      {deviations.length > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 space-y-2">
+          <h2 className="font-semibold text-amber-900 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" /> Afwijkingen
+          </h2>
+          <ul className="space-y-1.5 text-sm text-amber-800">
+            {deviations.map((d) => (
+              <li key={d.sourceId} className="flex items-start gap-2">
+                <span>{d.flagEmoji}</span>
+                <span>
+                  <strong>{d.sourceNameNl}</strong> adviseert{" "}
+                  <RiskBadge level={d.level} size="sm" /> —{" "}
+                  {d.levelsDiff} niveau{d.levelsDiff > 1 ? "s" : ""}{" "}
+                  {d.direction === "stricter" ? "strenger" : "milder"} dan de meerderheid
+                  {d.levelsDiff >= 2 && " (significant)"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Comparative analysis */}
+      {comparativeAnalysis.length > 0 && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-5 space-y-2">
+          <h2 className="font-semibold text-blue-900 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4" /> Vergelijkende analyse
+          </h2>
+          <ul className="space-y-1.5 text-sm text-blue-800 list-disc list-inside">
+            {comparativeAnalysis.map((bullet, i) => (
+              <li key={i}>{bullet}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Recency */}
+      <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-3">
+        <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+          <Info className="w-4 h-4" /> Actualiteitsanalyse
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+          <div>
+            <p className="text-gray-500">Meest recent bijgewerkt</p>
+            <p className="font-medium text-gray-900">
+              {recency.mostRecent
+                ? `${recency.mostRecent.nameNl} — ${formatDateNl(recency.mostRecent.date)}`
+                : "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500">Oudste advies</p>
+            <p className={clsx("font-medium", recency.oldest && ageDays(recency.oldest.date)! > 90 ? "text-amber-600" : "text-gray-900")}>
+              {recency.oldest
+                ? `${recency.oldest.nameNl} — ${formatDateNl(recency.oldest.date)}`
+                : "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500">Gemiddelde leeftijd</p>
+            <p className="font-medium text-gray-900">
+              {recency.averageAgeDays !== null ? `${recency.averageAgeDays} dagen` : "—"}
+            </p>
+          </div>
+        </div>
+        {recency.staleCount > 0 && (
+          <p className="text-amber-600 text-sm flex items-center gap-1.5">
+            <AlertTriangle className="w-4 h-4" />
+            {recency.staleCount} bron{recency.staleCount > 1 ? "nen hebben" : " heeft"} mogelijk verouderde data
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
