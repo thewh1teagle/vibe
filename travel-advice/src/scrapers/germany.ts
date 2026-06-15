@@ -40,12 +40,14 @@ const ISO3_TO_ISO2: Record<string, string> = {
 };
 
 interface AACountry {
-  countryCode: string; // ISO alpha-3
+  countryCode: string;     // ISO alpha-2 (e.g. "GQ")
+  iso3CountryCode?: string; // ISO alpha-3 (e.g. "GNQ")
   warning: boolean;
   partialWarning: boolean;
   situationWarning: boolean;
+  situationPartWarning?: boolean;
   content?: { text?: { value?: string } };
-  lastModified?: string;
+  lastModified?: number;
   reportUrl?: string;
 }
 
@@ -65,8 +67,8 @@ export const germanyScraper: Scraper = async () => {
     const advisories: RawAdvisory[] = [];
 
     for (const c of countries) {
-      const iso2 = ISO3_TO_ISO2[c.countryCode];
-      if (!iso2) continue;
+      const iso2 = c.countryCode?.toUpperCase();
+      if (!iso2 || iso2.length !== 2) continue;
 
       const rawLevel = flagsToRaw(c.warning, c.partialWarning, c.situationWarning);
       const normalizedLevel = normalizeLevel("germany", rawLevel);
