@@ -2,6 +2,31 @@ import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 import type { NormalizedLevel } from "@/types";
 
+// Fallback for countries where FCDO API returns iso2: null
+const SLUG_TO_ISO2: Record<string, string> = {
+  "united-arab-emirates": "AE", "saudi-arabia": "SA", "qatar": "QA",
+  "bahrain": "BH", "kuwait": "KW", "oman": "OM", "jordan": "JO",
+  "lebanon": "LB", "iraq": "IQ", "iran": "IR", "syria": "SY",
+  "yemen": "YE", "israel": "IL", "egypt": "EG", "libya": "LY",
+  "tunisia": "TN", "algeria": "DZ", "morocco": "MA", "sudan": "SD",
+  "south-sudan": "SS", "ethiopia": "ET", "somalia": "SO", "kenya": "KE",
+  "nigeria": "NG", "ghana": "GH", "senegal": "SN", "ivory-coast": "CI",
+  "cameroon": "CM", "democratic-republic-congo": "CD", "angola": "AO",
+  "mozambique": "MZ", "zimbabwe": "ZW", "zambia": "ZM", "tanzania": "TZ",
+  "uganda": "UG", "rwanda": "RW", "madagascar": "MG", "south-africa": "ZA",
+  "pakistan": "PK", "india": "IN", "bangladesh": "BD", "sri-lanka": "LK",
+  "nepal": "NP", "afghanistan": "AF", "myanmar": "MM",
+  "cambodia": "KH", "laos": "LA", "vietnam": "VN", "philippines": "PH",
+  "indonesia": "ID", "malaysia": "MY", "thailand": "TH", "china": "CN",
+  "north-korea": "KP", "russia": "RU", "ukraine": "UA", "belarus": "BY",
+  "turkey": "TR", "georgia": "GE", "armenia": "AM", "azerbaijan": "AZ",
+  "kazakhstan": "KZ", "uzbekistan": "UZ", "turkmenistan": "TM",
+  "tajikistan": "TJ", "kyrgyzstan": "KG", "mongolia": "MN",
+  "venezuela": "VE", "colombia": "CO", "ecuador": "EC", "peru": "PE",
+  "bolivia": "BO", "brazil": "BR", "argentina": "AR", "chile": "CL",
+  "mexico": "MX", "cuba": "CU", "haiti": "HT", "jamaica": "JM",
+};
+
 interface FCDOContentResponse {
   base_path: string;
   updated_at?: string;
@@ -28,18 +53,26 @@ function pickWorstLevel(alertStatuses: string[]): { rawLevel: string; normalized
     return { rawLevel: "No advice against travel", normalizedLevel: "green" };
   }
 
-  let worstRaw = alertStatuses[0];
-  let worstNormalized: NormalizedLevel = "unknown";
+  // FCDO uses underscore slugs; map directly to normalized levels
+  const SLUG_MAP: Record<string, NormalizedLevel> = {
+    "no_travel_advice": "green",
+    "avoid_all_but_essential_travel_to_parts_of_country": "yellow",
+    "avoid_all_but_essential_travel_to_whole_country": "orange",
+    "avoid_all_travel_to_parts_of_country": "orange",
+    "avoid_all_travel_to_whole_country": "red",
+  };
+
+  let worstRaw = alertStatuses[0] ?? "no_travel_advice";
+  let worstNormalized: NormalizedLevel = "green";
 
   for (const status of alertStatuses) {
-    const normalized = normalizeLevel("uk", status);
+    const normalized = SLUG_MAP[status] ?? normalizeLevel("uk", status);
     if (SEVERITY[normalized] > SEVERITY[worstNormalized]) {
       worstNormalized = normalized;
       worstRaw = status;
     }
   }
 
-  if (worstNormalized === "unknown") worstNormalized = "green";
   return { rawLevel: worstRaw, normalizedLevel: worstNormalized };
 }
 
@@ -115,7 +148,8 @@ export const ukScraper: Scraper = async () => {
         if (!res.ok) return null;
 
         const page: FCDOContentResponse = await res.json();
-        const iso2 = page.details?.country?.iso2?.toUpperCase();
+        // API sometimes omits iso2; fall back to slug-based lookup
+        const iso2 = (page.details?.country?.iso2 ?? SLUG_TO_ISO2[slug])?.toUpperCase();
         if (!iso2) return null;
 
         const alertStatuses = page.details?.alert_status ?? [];
