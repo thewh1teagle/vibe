@@ -2,11 +2,22 @@ import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
 // Maps Auswärtiges Amt boolean flags to a raw level string
-function flagsToRaw(warning: boolean, partialWarning: boolean, situationWarning: boolean, situationPartWarning: boolean): string {
+// Falls back to content text analysis when all flags are false
+function flagsToRaw(warning: boolean, partialWarning: boolean, situationWarning: boolean, situationPartWarning: boolean, contentHtml?: string): string {
   if (warning) return "Reisewarnung";
   if (partialWarning) return "Teilreisewarnung";
   if (situationPartWarning) return "Von nicht notwendigen Reisen abraten";
   if (situationWarning) return "Erhöhte Vorsicht";
+
+  // Fallback: parse content text for warning phrases the flags may have missed
+  if (contentHtml) {
+    const text = contentHtml.replace(/<[^>]+>/g, " ").toLowerCase();
+    if (/reisewarnung|wird dringend abgeraten|von reisen.*wird abgeraten/.test(text)) return "Reisewarnung";
+    if (/teilreisewarnung|teile.*wird abgeraten/.test(text)) return "Teilreisewarnung";
+    if (/nicht notwendigen reisen|abraten/.test(text)) return "Von nicht notwendigen Reisen abraten";
+    if (/erhöhte vorsicht|besondere vorsicht/.test(text)) return "Erhöhte Vorsicht";
+  }
+
   return "Keine besonderen Sicherheitshinweise";
 }
 
@@ -71,11 +82,9 @@ export const germanyScraper: Scraper = async () => {
       const iso2 = c.countryCode?.toUpperCase();
       if (!iso2 || iso2.length !== 2) continue;
 
-      const rawLevel = flagsToRaw(c.warning, c.partialWarning, c.situationWarning, c.situationPartWarning ?? false);
-      const normalizedLevel = normalizeLevel("germany", rawLevel);
-
-      // Extract plain-text summary from first paragraph of HTML content
       const htmlText = c.content?.text?.value ?? "";
+      const rawLevel = flagsToRaw(c.warning, c.partialWarning, c.situationWarning, c.situationPartWarning ?? false, htmlText);
+      const normalizedLevel = normalizeLevel("germany", rawLevel);
       const summary = htmlText
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")

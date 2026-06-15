@@ -53,23 +53,24 @@ function pickWorstLevel(alertStatuses: string[]): { rawLevel: string; normalized
     return { rawLevel: "No advice against travel", normalizedLevel: "green" };
   }
 
-  // FCDO uses underscore slugs; map directly to normalized levels
-  const SLUG_MAP: Record<string, NormalizedLevel> = {
-    "no_travel_advice": "green",
-    "avoid_all_but_essential_travel_to_parts_of_country": "yellow",
-    "avoid_all_but_essential_travel_to_whole_country": "orange",
-    "avoid_all_travel_to_parts_of_country": "orange",
-    "avoid_all_travel_to_whole_country": "red",
+  // FCDO uses underscore slugs; map to normalized levels and human-readable labels
+  const SLUG_MAP: Record<string, { level: NormalizedLevel; label: string }> = {
+    "no_travel_advice": { level: "green", label: "No advice against travel" },
+    "avoid_all_but_essential_travel_to_parts_of_country": { level: "yellow", label: "Advise against all but essential travel to parts" },
+    "avoid_all_but_essential_travel_to_whole_country": { level: "orange", label: "Advise against all but essential travel" },
+    "avoid_all_travel_to_parts_of_country": { level: "orange", label: "Advise against all travel to parts" },
+    "avoid_all_travel_to_whole_country": { level: "red", label: "Advise against all travel" },
   };
 
-  let worstRaw = alertStatuses[0] ?? "no_travel_advice";
+  let worstRaw = SLUG_MAP[alertStatuses[0]]?.label ?? alertStatuses[0] ?? "No advice against travel";
   let worstNormalized: NormalizedLevel = "green";
 
   for (const status of alertStatuses) {
-    const normalized = SLUG_MAP[status] ?? normalizeLevel("uk", status);
+    const entry = SLUG_MAP[status];
+    const normalized = entry?.level ?? normalizeLevel("uk", status);
     if (SEVERITY[normalized] > SEVERITY[worstNormalized]) {
       worstNormalized = normalized;
-      worstRaw = status;
+      worstRaw = entry?.label ?? status;
     }
   }
 
