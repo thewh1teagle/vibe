@@ -5,15 +5,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Test Sweden country list
-        continue-on-error: true
+      - name: Check Canada advisory-state values
         run: |
-          echo "=== Sweden landen pagina links ==="
-          curl -s --http1.1 --max-time 20 -L -A "Mozilla/5.0" \
-            "https://www.regeringen.se/uds-reseinformation/reseinformation-for-olika-lander/" \
-            | grep -o 'href="/uds-reseinformation/[^"]*"' | head -20
-          echo ""
-          echo "=== Sweden avradan pagina ==="
-          curl -s --http1.1 --max-time 20 -L -A "Mozilla/5.0" \
-            "https://www.regeringen.se/uds-reseinformation/avradan---nar-ud-avrader-fran-resor/" \
-            | grep -o 'href="/uds-reseinformation/[^"]*"' | head -20
+          echo "=== Canada UAE (should be high warning) ==="
+          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ae.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state']); print('eng:', d['data'].get('eng',{}))"
+          echo "=== Canada Syria (should be do not travel) ==="
+          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-sy.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
+          echo "=== Canada Germany (should be normal) ==="
+          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-de.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
+          echo "=== Canada Ukraine (should be avoid all) ==="
+          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ua.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
+          echo "=== Germany UAE flags ==="
+          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+for k,v in d['response'].items():
+    if v.get('countryCode') == 'AE':
+        print('UAE:', v)
+        break
+"
