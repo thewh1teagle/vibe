@@ -82,9 +82,14 @@ function extractLevelFromHtml(html: string): string {
 }
 
 function extractSummary(html: string): string {
+  // Remove script and style blocks first
+  const clean = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "");
+
   // Extract text from the main advice section
-  const match = html.match(/class="[^"]*conseil[^"]*"[^>]*>([\s\S]{0,2000})/i);
-  const text = (match?.[1] ?? html.slice(0, 2000))
+  const match = clean.match(/class="[^"]*conseil[^"]*"[^>]*>([\s\S]{0,2000})/i);
+  const text = (match?.[1] ?? clean.slice(0, 2000))
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
