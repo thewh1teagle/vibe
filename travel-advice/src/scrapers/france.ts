@@ -82,21 +82,21 @@ function extractLevelFromHtml(html: string): string {
 }
 
 function extractSummary(html: string): string {
-  // Find the level label in raw HTML, then extract surrounding plain text
+  // Strip all HTML first, then find the level keyword and extract surrounding text
+  const plain = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
   for (const { pattern } of LEVEL_SELECTORS) {
-    const match = html.match(pattern);
+    const match = plain.match(pattern);
     if (match && match.index !== undefined) {
-      // Take a window of HTML around the match and strip tags
-      const window = html.slice(Math.max(0, match.index - 200), match.index + 1500);
-      const text = window
-        .replace(/<script[\s\S]*?<\/script>/gi, "")
-        .replace(/<style[\s\S]*?<\/style>/gi, "")
-        .replace(/<link[^>]*>/gi, "")
-        .replace(/<[^>]*>/g, " ")
-        .replace(/&[a-z#0-9]+;/gi, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-      if (text.length > 20) return text.slice(0, 300);
+      const start = Math.max(0, match.index - 50);
+      const snippet = plain.slice(start, start + 350).trim();
+      if (snippet.length > 20) return snippet.slice(0, 300);
     }
   }
   return "";
