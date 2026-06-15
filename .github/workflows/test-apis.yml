@@ -5,29 +5,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Test Australia
+      - name: Test Sweden regeringen.se
         continue-on-error: true
         run: |
-          echo "=== AU sitemap ==="
-          curl -s --http1.1 --max-time 15 -A "Mozilla/5.0" "https://www.smartraveller.gov.au/sitemap.xml" | grep -i "destination" | head -5 || echo "geen output"
-          echo "=== AU /destinations/thailand ==="
-          curl -s --http1.1 --max-time 15 -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations/thailand" | grep -i "level\|caution\|alert\|do not" | head -5 || echo "geen output"
-          echo "=== AU API json ==="
-          curl -s --http1.1 --max-time 15 -o /dev/null -w "%{http_code}" -A "Mozilla/5.0" "https://www.smartraveller.gov.au/api/v1/destinations" || echo "error"
-
-      - name: Test Canada
-        continue-on-error: true
-        run: |
-          echo "=== Canada TH (30s timeout) ==="
-          curl -s --http1.1 --max-time 30 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-th.json" | head -c 300 || echo "TIMEOUT/ERROR"
-
-      - name: Test Sweden
-        continue-on-error: true
-        run: |
-          echo "=== Sweden reseråd page ==="
-          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" -o /dev/null -w "%{http_code} %{url_effective}" "https://www.swedenabroad.se/sv/utrikesdepartementet/reserad/" || echo "error"
+          echo "=== Sweden index page ==="
+          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/" | grep -o 'href="[^"]*uds-reseinformation[^"]*"' | head -10 || echo "geen links"
           echo ""
-          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" -o /dev/null -w "%{http_code} %{url_effective}" "https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/" || echo "error"
+          echo "=== Sweden ud-resklar page ==="
+          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/ud-resklar/" | grep -i "thailand\|avr\|land\|länder" | head -5 || echo "geen match"
           echo ""
-          echo "=== Sweden homepage links ==="
-          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" "https://www.swedenabroad.se" | grep -o 'href="[^"]*reseråd[^"]*\|href="[^"]*reseinformation[^"]*"' | head -5 || echo "geen match"
+          echo "=== Sweden country page attempt ==="
+          curl -s --http1.1 --max-time 15 -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/thailand/"
+          echo ""
+          curl -s --http1.1 --max-time 15 -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/ud-resklar/thailand/"
