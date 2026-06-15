@@ -82,20 +82,24 @@ function extractLevelFromHtml(html: string): string {
 }
 
 function extractSummary(html: string): string {
-  const text = html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<link[^>]*>/gi, "")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  // Skip past page title area to get to actual advisory content
-  const titleEnd = text.search(/France Diplomatie/i);
-  const content = titleEnd > 0 ? text.slice(titleEnd + 20) : text;
-  return content.trim().slice(0, 300);
+  // Find the level label in raw HTML, then extract surrounding plain text
+  for (const { pattern } of LEVEL_SELECTORS) {
+    const match = html.match(pattern);
+    if (match && match.index !== undefined) {
+      // Take a window of HTML around the match and strip tags
+      const window = html.slice(Math.max(0, match.index - 200), match.index + 1500);
+      const text = window
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/<style[\s\S]*?<\/style>/gi, "")
+        .replace(/<link[^>]*>/gi, "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&[a-z#0-9]+;/gi, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (text.length > 20) return text.slice(0, 300);
+    }
+  }
+  return "";
 }
 
 export const franceScraper: Scraper = async () => {

@@ -5,29 +5,56 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Canada advisory-state values
+      - name: Check Germany UAE full entry
         run: |
-          echo "=== Canada UAE (should be high warning) ==="
-          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ae.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state']); print('eng:', d['data'].get('eng',{}))"
-          echo "=== Canada Syria (should be do not travel) ==="
-          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-sy.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
-          echo "=== Canada Germany (should be normal) ==="
-          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-de.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
-          echo "=== Canada Ukraine (should be avoid all) ==="
-          curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ua.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
-
-      - name: Check Germany UAE flags
-        run: |
-          echo "=== Germany UAE flags ==="
+          echo "=== Germany UAE full flags + content snippet ==="
           curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
 for k,v in d['response'].items():
     if v.get('countryCode') == 'AE':
-        print('UAE key:', k)
+        print('key:', k)
         print('warning:', v.get('warning'))
         print('partialWarning:', v.get('partialWarning'))
         print('situationWarning:', v.get('situationWarning'))
         print('situationPartWarning:', v.get('situationPartWarning'))
+        text = v.get('content',{}).get('text',{}).get('value','')[:500]
+        print('content snippet:', text)
         break
+"
+
+      - name: Check UK UAE via content API
+        run: |
+          echo "=== UK UAE alert_status ==="
+          curl -s "https://www.gov.uk/api/content/foreign-travel-advice/united-arab-emirates" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('alert_status:', d.get('details',{}).get('alert_status'))
+print('iso2:', d.get('details',{}).get('country',{}).get('iso2'))
+print('updated_at:', d.get('updated_at'))
+"
+
+      - name: Check US UAE RSS
+        run: |
+          echo "=== US RSS for UAE ==="
+          curl -s "https://travel.state.gov/content/travel/en/traveladvisories/RSS.xml" | python3 -c "
+import sys
+content = sys.stdin.read()
+lines = content.split('\n')
+in_ae = False
+for i,l in enumerate(lines):
+    if 'arab' in l.lower() or 'ARE' in l or 'AE' in l:
+        print(lines[max(0,i-2):i+5])
+        break
+" 2>/dev/null || echo "No UAE found in RSS"
+
+      - name: Check Canada UAE state
+        run: |
+          echo "=== Canada UAE advisory-state ==="
+          curl -s --http1.1 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ae.json" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+print('state:', d['data']['advisory-state'])
+text = d['data'].get('eng',{}).get('advisory-text','')[:200]
+print('text:', text)
 "
