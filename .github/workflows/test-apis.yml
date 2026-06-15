@@ -5,16 +5,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Test Sweden regeringen.se
+      - name: Test Sweden country list
         continue-on-error: true
         run: |
-          echo "=== Sweden index page ==="
-          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/" | grep -o 'href="[^"]*uds-reseinformation[^"]*"' | head -10 || echo "geen links"
+          echo "=== Sweden landen pagina links ==="
+          curl -s --http1.1 --max-time 20 -L -A "Mozilla/5.0" \
+            "https://www.regeringen.se/uds-reseinformation/reseinformation-for-olika-lander/" \
+            | grep -o 'href="/uds-reseinformation/[^"]*"' | head -20
           echo ""
-          echo "=== Sweden ud-resklar page ==="
-          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/ud-resklar/" | grep -i "thailand\|avr\|land\|länder" | head -5 || echo "geen match"
-          echo ""
-          echo "=== Sweden country page attempt ==="
-          curl -s --http1.1 --max-time 15 -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/thailand/"
-          echo ""
-          curl -s --http1.1 --max-time 15 -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.regeringen.se/uds-reseinformation/ud-resklar/thailand/"
+          echo "=== Sweden avradan pagina ==="
+          curl -s --http1.1 --max-time 20 -L -A "Mozilla/5.0" \
+            "https://www.regeringen.se/uds-reseinformation/avradan---nar-ud-avrader-fran-resor/" \
+            | grep -o 'href="/uds-reseinformation/[^"]*"' | head -20
