@@ -6,21 +6,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Germany UAE flags
+        continue-on-error: true
         run: |
           echo "=== Germany UAE ==="
-          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d['response']; ae=[v for v in r.values() if v.get('countryCode')=='AE']; print(ae[0] if ae else 'NOT FOUND')"
+          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d['response']; ae=[v for v in r.values() if isinstance(v,dict) and v.get('countryCode')=='AE']; print(ae[0] if ae else 'NOT FOUND')"
 
       - name: Check UK UAE
+        continue-on-error: true
         run: |
           echo "=== UK UAE ==="
           curl -s "https://www.gov.uk/api/content/foreign-travel-advice/united-arab-emirates" | python3 -c "import json,sys; d=json.load(sys.stdin); print('alert_status:', d.get('details',{}).get('alert_status')); print('iso2:', d.get('details',{}).get('country',{}).get('iso2'))"
 
       - name: Check Canada UAE
+        continue-on-error: true
         run: |
           echo "=== Canada UAE ==="
           curl -s --http1.1 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ae.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state']); print('text:', d['data'].get('eng',{}).get('advisory-text','')[:300])"
 
       - name: Check Denmark UAE
+        continue-on-error: true
         run: |
           echo "=== Denmark UAE ==="
           curl -s -L "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/de-forenede-arabiske-emirater" | python3 -c "import sys; h=sys.stdin.read(); idx=h.lower().find('vær'); print(h[idx:idx+200] if idx>=0 else 'keyword not found'); idx2=h.lower().find('undgå'); print(h[idx2:idx2+200] if idx2>=0 else 'undgå not found')"
