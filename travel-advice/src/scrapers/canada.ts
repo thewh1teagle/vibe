@@ -54,14 +54,25 @@ async function fetchCountry(iso2: string): Promise<RawAdvisory | null> {
   if (!data) return null;
 
   const state = data["advisory-state"];
-  const rawLevel = STATE_TO_RAW[state];
-  if (!rawLevel) return null;
-
-  const normalizedLevel = normalizeLevel("canada", rawLevel);
   const eng = data.eng;
   const slug = eng?.["url-slug"] ?? iso2.toLowerCase();
   const advisoryText = eng?.["advisory-text"] ?? "";
   const summary = advisoryText.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 400);
+
+  // Use advisory-text to detect level if it starts with a known phrase (more reliable than state number)
+  const TEXT_LEVELS: Array<{ phrase: string; rawLevel: string }> = [
+    { phrase: "avoid all travel", rawLevel: "Avoid all travel" },
+    { phrase: "avoid non-essential travel", rawLevel: "Avoid non-essential travel" },
+    { phrase: "exercise a high degree of caution", rawLevel: "Exercise a high degree of caution" },
+    { phrase: "take normal security precautions", rawLevel: "Take normal security precautions" },
+  ];
+  const summaryLower = summary.toLowerCase();
+  const textDetected = TEXT_LEVELS.find(({ phrase }) => summaryLower.startsWith(phrase));
+  const stateRaw = STATE_TO_RAW[state];
+  if (!stateRaw) return null;
+  const rawLevel = textDetected?.rawLevel ?? stateRaw;
+
+  const normalizedLevel = normalizeLevel("canada", rawLevel);
   const risks = eng?.risks ?? [];
 
   const friendlyDate = eng?.["friendly-date"];

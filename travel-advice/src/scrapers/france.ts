@@ -82,18 +82,20 @@ function extractLevelFromHtml(html: string): string {
 }
 
 function extractSummary(html: string): string {
-  // Remove script and style blocks first
-  const clean = html
+  const text = html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "");
-
-  // Extract text from the main advice section
-  const match = clean.match(/class="[^"]*conseil[^"]*"[^>]*>([\s\S]{0,2000})/i);
-  const text = (match?.[1] ?? clean.slice(0, 2000))
-    .replace(/<[^>]+>/g, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<link[^>]*>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  return text.slice(0, 300);
+
+  // Skip past page title area to get to actual advisory content
+  const titleEnd = text.search(/France Diplomatie/i);
+  const content = titleEnd > 0 ? text.slice(titleEnd + 20) : text;
+  return content.trim().slice(0, 300);
 }
 
 export const franceScraper: Scraper = async () => {
