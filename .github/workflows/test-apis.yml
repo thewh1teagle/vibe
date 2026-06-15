@@ -5,27 +5,29 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Test Australia smartraveller
+      - name: Test Australia
+        continue-on-error: true
         run: |
-          echo "=== AU main site ==="
-          curl -s -A "Mozilla/5.0" "https://www.smartraveller.gov.au/sitemap.xml" | grep -i "destination" | head -5
-          echo "=== AU API attempt ==="
-          curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0" "https://www.smartraveller.gov.au/api/destinations"
-          echo ""
-          curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations.json"
-          echo ""
-          curl -s -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations/thailand" | grep -i "level\|caution\|travel" | head -5
+          echo "=== AU sitemap ==="
+          curl -s --http1.1 --max-time 15 -A "Mozilla/5.0" "https://www.smartraveller.gov.au/sitemap.xml" | grep -i "destination" | head -5 || echo "geen output"
+          echo "=== AU /destinations/thailand ==="
+          curl -s --http1.1 --max-time 15 -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations/thailand" | grep -i "level\|caution\|alert\|do not" | head -5 || echo "geen output"
+          echo "=== AU API json ==="
+          curl -s --http1.1 --max-time 15 -o /dev/null -w "%{http_code}" -A "Mozilla/5.0" "https://www.smartraveller.gov.au/api/v1/destinations" || echo "error"
 
-      - name: Test Canada with timeout
+      - name: Test Canada
+        continue-on-error: true
         run: |
-          echo "=== Canada TH ==="
-          curl -s --max-time 30 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-th.json" | head -c 300 || echo "TIMEOUT"
+          echo "=== Canada TH (30s timeout) ==="
+          curl -s --http1.1 --max-time 30 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-th.json" | head -c 300 || echo "TIMEOUT/ERROR"
 
-      - name: Test Sweden new URL
+      - name: Test Sweden
+        continue-on-error: true
         run: |
-          echo "=== Sweden new travel advice page ==="
-          curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.swedenabroad.se/sv/utrikesdepartementet/reserad/reserad-per-land/"
+          echo "=== Sweden reseråd page ==="
+          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" -o /dev/null -w "%{http_code} %{url_effective}" "https://www.swedenabroad.se/sv/utrikesdepartementet/reserad/" || echo "error"
           echo ""
-          curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.swedenabroad.se/sv/utrikesdepartementet/reserad/"
+          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" -o /dev/null -w "%{http_code} %{url_effective}" "https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/" || echo "error"
           echo ""
-          curl -s -L -A "Mozilla/5.0" "https://www.swedenabroad.se" | grep -i "reseråd\|reseinformation\|travel" | head -5
+          echo "=== Sweden homepage links ==="
+          curl -s --http1.1 --max-time 15 -L -A "Mozilla/5.0" "https://www.swedenabroad.se" | grep -o 'href="[^"]*reseråd[^"]*\|href="[^"]*reseinformation[^"]*"' | head -5 || echo "geen match"
