@@ -87,7 +87,7 @@ export const germanyScraper: Scraper = async () => {
         normalizedLevel,
         summary,
         risks: [],
-        officialUpdatedAt: c.lastModified ? new Date(c.lastModified) : null,
+        officialUpdatedAt: c.lastModified ? new Date(c.lastModified * 1000) : null,
         sourceUrl: c.reportUrl ?? `https://www.auswaertiges-amt.de/de/service/laender-reiseinformationen/${iso2.toLowerCase()}`,
       });
     }

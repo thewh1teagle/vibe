@@ -5,40 +5,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Test UK FCDO (new endpoint)
+      - name: Test Australia smartraveller
         run: |
-          echo "=== UK content API ==="
-          curl -s "https://www.gov.uk/api/content/foreign-travel-advice" | head -c 800
+          echo "=== AU main site ==="
+          curl -s -A "Mozilla/5.0" "https://www.smartraveller.gov.au/sitemap.xml" | grep -i "destination" | head -5
+          echo "=== AU API attempt ==="
+          curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0" "https://www.smartraveller.gov.au/api/destinations"
           echo ""
-          echo "=== UK search with different params ==="
-          curl -s "https://www.gov.uk/api/search.json?filter_document_type=travel_advice&count=3" | head -c 800
+          curl -s -o /dev/null -w "%{http_code}" -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations.json"
+          echo ""
+          curl -s -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations/thailand" | grep -i "level\|caution\|travel" | head -5
 
-      - name: Test US RSS items
+      - name: Test Canada with timeout
         run: |
-          echo "=== US item links ==="
-          curl -s -A "Mozilla/5.0" "https://travel.state.gov/_res/rss/TAsTWs.xml" | grep -o '<link>[^<]*</link>' | head -5
+          echo "=== Canada TH ==="
+          curl -s --max-time 30 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-th.json" | head -c 300 || echo "TIMEOUT"
 
-      - name: Test Germany lastModified type
+      - name: Test Sweden new URL
         run: |
-          echo "=== Germany lastModified ==="
-          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "import json,sys; d=json.load(sys.stdin); items=list(d['response'].values()); print(items[0])"
-
-      - name: Test Canada
-        run: |
-          echo "=== Canada ==="
-          curl -s "https://data.international.gc.ca/travel-voyage/countries/cta-cap-th.json" | head -c 500
-
-      - name: Test Australia
-        run: |
-          echo "=== Australia ==="
-          curl -s -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations-export" | head -c 800
-
-      - name: Test Sweden
-        run: |
-          echo "=== Sweden ==="
-          curl -s -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-            "https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/thailand/reseinformation/" \
-            | grep -i "avr\|försiktig\|särskild\|resenär" | head -5 || echo "geen match gevonden"
-          echo "=== Sweden HTTP status ==="
-          curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" \
-            "https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/thailand/reseinformation/"
+          echo "=== Sweden new travel advice page ==="
+          curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.swedenabroad.se/sv/utrikesdepartementet/reserad/reserad-per-land/"
+          echo ""
+          curl -s -o /dev/null -w "%{http_code}" -L -A "Mozilla/5.0" "https://www.swedenabroad.se/sv/utrikesdepartementet/reserad/"
+          echo ""
+          curl -s -L -A "Mozilla/5.0" "https://www.swedenabroad.se" | grep -i "reseråd\|reseinformation\|travel" | head -5
