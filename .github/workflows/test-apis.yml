@@ -5,56 +5,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Germany UAE full entry
+      - name: Check Germany UAE flags
         run: |
-          echo "=== Germany UAE full flags + content snippet ==="
-          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "
-import json,sys
-d=json.load(sys.stdin)
-for k,v in d['response'].items():
-    if v.get('countryCode') == 'AE':
-        print('key:', k)
-        print('warning:', v.get('warning'))
-        print('partialWarning:', v.get('partialWarning'))
-        print('situationWarning:', v.get('situationWarning'))
-        print('situationPartWarning:', v.get('situationPartWarning'))
-        text = v.get('content',{}).get('text',{}).get('value','')[:500]
-        print('content snippet:', text)
-        break
-"
+          echo "=== Germany UAE ==="
+          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d['response']; ae=[v for v in r.values() if v.get('countryCode')=='AE']; print(ae[0] if ae else 'NOT FOUND')"
 
-      - name: Check UK UAE via content API
+      - name: Check UK UAE
         run: |
-          echo "=== UK UAE alert_status ==="
-          curl -s "https://www.gov.uk/api/content/foreign-travel-advice/united-arab-emirates" | python3 -c "
-import json,sys
-d=json.load(sys.stdin)
-print('alert_status:', d.get('details',{}).get('alert_status'))
-print('iso2:', d.get('details',{}).get('country',{}).get('iso2'))
-print('updated_at:', d.get('updated_at'))
-"
+          echo "=== UK UAE ==="
+          curl -s "https://www.gov.uk/api/content/foreign-travel-advice/united-arab-emirates" | python3 -c "import json,sys; d=json.load(sys.stdin); print('alert_status:', d.get('details',{}).get('alert_status')); print('iso2:', d.get('details',{}).get('country',{}).get('iso2'))"
 
-      - name: Check US UAE RSS
+      - name: Check Canada UAE
         run: |
-          echo "=== US RSS for UAE ==="
-          curl -s "https://travel.state.gov/content/travel/en/traveladvisories/RSS.xml" | python3 -c "
-import sys
-content = sys.stdin.read()
-lines = content.split('\n')
-in_ae = False
-for i,l in enumerate(lines):
-    if 'arab' in l.lower() or 'ARE' in l or 'AE' in l:
-        print(lines[max(0,i-2):i+5])
-        break
-" 2>/dev/null || echo "No UAE found in RSS"
+          echo "=== Canada UAE ==="
+          curl -s --http1.1 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ae.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state']); print('text:', d['data'].get('eng',{}).get('advisory-text','')[:300])"
 
-      - name: Check Canada UAE state
+      - name: Check Denmark UAE
         run: |
-          echo "=== Canada UAE advisory-state ==="
-          curl -s --http1.1 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ae.json" | python3 -c "
-import json,sys
-d=json.load(sys.stdin)
-print('state:', d['data']['advisory-state'])
-text = d['data'].get('eng',{}).get('advisory-text','')[:200]
-print('text:', text)
-"
+          echo "=== Denmark UAE ==="
+          curl -s -L "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/de-forenede-arabiske-emirater" | python3 -c "import sys; h=sys.stdin.read(); idx=h.lower().find('vær'); print(h[idx:idx+200] if idx>=0 else 'keyword not found'); idx2=h.lower().find('undgå'); print(h[idx2:idx2+200] if idx2>=0 else 'undgå not found')"
