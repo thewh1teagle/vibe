@@ -31,14 +31,18 @@ const NORMALIZATION: Record<string, NormalizationMap> = {
   },
   canada: {
     "take normal security precautions": "green",
+    "exercise normal security precautions": "green",
     "exercise a high degree of caution": "yellow",
     "avoid non-essential travel": "orange",
     "avoid all travel": "red",
   },
   germany: {
     "keine besonderen sicherheitshinweise": "green",
+    "besondere vorsicht": "yellow",
     "erhöhte vorsicht": "yellow",
+    "von reisen wird abgeraten": "orange",
     "von nicht notwendigen reisen abraten": "orange",
+    "von nicht notwendigen reisen wird abgeraten": "orange",
     "teilreisewarnung": "orange",
     "reisewarnung": "red",
   },
@@ -52,9 +56,13 @@ const NORMALIZATION: Record<string, NormalizationMap> = {
   },
   denmark: {
     "ingen særlige advarsler": "green",
+    "vær opmærksom": "green",
     "vær forsigtig": "yellow",
+    "vær ekstra opmærksom": "yellow",
     "fraråd ikke-nødvendige rejser": "orange",
+    "undgå ikke-nødvendige rejser": "orange",
     "rejse frarådes": "red",
+    "undgå alle rejser": "red",
   },
   sweden: {
     "inga särskilda restriktioner": "green",
