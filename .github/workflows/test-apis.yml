@@ -1,0 +1,36 @@
+name: Test Scraper APIs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test UK FCDO
+        run: |
+          echo "=== UK ==="
+          curl -s "https://www.gov.uk/api/search.json?filter_document_type=travel_advice&count=5&fields=link,title" | head -c 500
+
+      - name: Test Germany AA
+        run: |
+          echo "=== Germany ==="
+          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | head -c 500
+
+      - name: Test US State RSS
+        run: |
+          echo "=== US ==="
+          curl -s -A "Mozilla/5.0" "https://travel.state.gov/_res/rss/TAsTWs.xml" | head -c 500
+
+      - name: Test Canada
+        run: |
+          echo "=== Canada ==="
+          curl -s "https://data.international.gc.ca/travel-voyage/countries/cta-cap-th.json" | head -c 500
+
+      - name: Test Australia
+        run: |
+          echo "=== Australia ==="
+          curl -s -A "Mozilla/5.0" "https://www.smartraveller.gov.au/destinations-export" | head -c 500
+
+      - name: Test Sweden
+        run: |
+          echo "=== Sweden ==="
+          curl -s -A "Mozilla/5.0" "https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/thailand/reseinformation/" | grep -i "avr\|försiktig\|särskild" | head -5 || echo "geen match"
