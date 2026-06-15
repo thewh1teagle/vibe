@@ -15,12 +15,19 @@ jobs:
           curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-de.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
           echo "=== Canada Ukraine (should be avoid all) ==="
           curl -s --http1.1 --max-time 20 "https://data.international.gc.ca/travel-voyage/countries/cta-cap-ua.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print('state:', d['data']['advisory-state'])"
+
+      - name: Check Germany UAE flags
+        run: |
           echo "=== Germany UAE flags ==="
           curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
 for k,v in d['response'].items():
     if v.get('countryCode') == 'AE':
-        print('UAE:', v)
+        print('UAE key:', k)
+        print('warning:', v.get('warning'))
+        print('partialWarning:', v.get('partialWarning'))
+        print('situationWarning:', v.get('situationWarning'))
+        print('situationPartWarning:', v.get('situationPartWarning'))
         break
 "

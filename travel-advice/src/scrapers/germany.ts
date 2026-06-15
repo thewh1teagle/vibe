@@ -2,9 +2,10 @@ import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
 // Maps Auswärtiges Amt boolean flags to a raw level string
-function flagsToRaw(warning: boolean, partialWarning: boolean, situationWarning: boolean): string {
+function flagsToRaw(warning: boolean, partialWarning: boolean, situationWarning: boolean, situationPartWarning: boolean): string {
   if (warning) return "Reisewarnung";
   if (partialWarning) return "Teilreisewarnung";
+  if (situationPartWarning) return "Von nicht notwendigen Reisen abraten";
   if (situationWarning) return "Erhöhte Vorsicht";
   return "Keine besonderen Sicherheitshinweise";
 }
@@ -70,7 +71,7 @@ export const germanyScraper: Scraper = async () => {
       const iso2 = c.countryCode?.toUpperCase();
       if (!iso2 || iso2.length !== 2) continue;
 
-      const rawLevel = flagsToRaw(c.warning, c.partialWarning, c.situationWarning);
+      const rawLevel = flagsToRaw(c.warning, c.partialWarning, c.situationWarning, c.situationPartWarning ?? false);
       const normalizedLevel = normalizeLevel("germany", rawLevel);
 
       // Extract plain-text summary from first paragraph of HTML content
