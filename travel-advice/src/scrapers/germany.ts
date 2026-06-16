@@ -52,8 +52,9 @@ const ISO3_TO_ISO2: Record<string, string> = {
 };
 
 interface AACountry {
-  countryCode: string;     // ISO alpha-2 (e.g. "GQ")
-  iso3CountryCode?: string; // ISO alpha-3 (e.g. "GNQ")
+  countryCode: string;
+  iso3CountryCode?: string;
+  countryName?: string;
   warning: boolean;
   partialWarning: boolean;
   situationWarning: boolean;
@@ -61,6 +62,18 @@ interface AACountry {
   content?: { text?: { value?: string } };
   lastModified?: number;
   reportUrl?: string;
+}
+
+function buildAaUrl(countryName: string | undefined, iso2: string): string {
+  if (countryName) {
+    const slug = countryName
+      .toLowerCase()
+      .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    return `https://www.auswaertiges-amt.de/de/laenderinformationen/${slug}-node`;
+  }
+  return `https://www.auswaertiges-amt.de/de/laenderinformationen/${iso2.toLowerCase()}-node`;
 }
 
 export const germanyScraper: Scraper = async () => {
@@ -98,7 +111,7 @@ export const germanyScraper: Scraper = async () => {
         summary,
         risks: [],
         officialUpdatedAt: c.lastModified ? new Date(c.lastModified * 1000) : null,
-        sourceUrl: c.reportUrl ?? `https://www.auswaertiges-amt.de/de/service/laender-reiseinformationen/${iso2.toLowerCase()}`,
+        sourceUrl: c.reportUrl ?? buildAaUrl(c.countryName, iso2),
       });
     }
 

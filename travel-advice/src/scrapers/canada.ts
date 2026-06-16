@@ -1,32 +1,20 @@
 import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
-interface CanadaResponse {
-  data: {
-    "country-iso": string;
-    "advisory-state": number; // 1=normal, 2=caution, 3=avoid non-essential, 4=avoid all
-    "has-content": number;
-    eng?: {
-      name?: string;
-      "url-slug"?: string;
-      "friendly-date"?: string;
-      "advisory-text"?: string;
-      risks?: string[];
-    };
-  };
-}
+const BASE_JSON = "https://data.international.gc.ca/travel-voyage/countries";
+const BASE_HTML = "https://travel.gc.ca/destinations";
+const BATCH_SIZE = 5;
+const BATCH_DELAY_MS = 500;
+const REQUEST_TIMEOUT_MS = 20_000;
 
-const STATE_TO_RAW: Record<number, string> = {
-  1: "Take normal security precautions",
-  2: "Exercise a high degree of caution",
-  3: "Avoid non-essential travel",
-  4: "Avoid all travel",
-};
-
-const BASE_URL = "https://data.international.gc.ca/travel-voyage/countries";
-const BATCH_SIZE = 10;
-const BATCH_DELAY_MS = 200;
-const REQUEST_TIMEOUT_MS = 15_000;
+// Advisory level patterns on travel.gc.ca HTML pages
+const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
+  { pattern: /avoid all travel/i, rawLevel: "Avoid all travel" },
+  { pattern: /avoid non-essential travel/i, rawLevel: "Avoid non-essential travel" },
+  { pattern: /exercise a high degree of caution/i, rawLevel: "Exercise a high degree of caution" },
+  { pattern: /take normal security precautions/i, rawLevel: "Take normal security precautions" },
+  { pattern: /exercise normal security precautions/i, rawLevel: "Exercise normal security precautions" },
+];
 
 const ALL_ISO2 = [
   "AF","AL","DZ","AD","AO","AG","AR","AM","AU","AT","AZ","BS","BH","BD","BB","BY","BE","BZ",
@@ -42,50 +30,79 @@ const ALL_ISO2 = [
   "UG","UA","AE","GB","US","UY","UZ","VU","VE","VN","YE","ZM","ZW","PS",
 ];
 
+function extractLevelFromHtml(html: string): string | null {
+  const plain = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ");
+  for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
+    if (pattern.test(plain)) return rawLevel;
+  }
+  return null;
+}
+
+function extractSummaryFromHtml(html: string, levelText: string): string {
+  const plain = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const idx = plain.toLowerCase().indexOf(levelText.toLowerCase());
+  if (idx >= 0) return plain.slice(idx, idx + 350).trim().slice(0, 300);
+  return plain.slice(0, 300);
+}
+
+function extractDateFromHtml(html: string): Date | null {
+  const match = html.match(/<time[^>]+datetime="([^"]+)"/i)
+    ?? html.match(/(\d{4}-\d{2}-\d{2})/);
+  if (!match) return null;
+  const d = new Date(match[1]);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 async function fetchCountry(iso2: string): Promise<RawAdvisory | null> {
-  const res = await fetch(
-    `${BASE_URL}/cta-cap-${iso2.toLowerCase()}.json`,
-    { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) }
-  );
+  // First get slug from JSON API (fast, just need url-slug field)
+  let slug = iso2.toLowerCase();
+  try {
+    const jsonRes = await fetch(`${BASE_JSON}/cta-cap-${iso2.toLowerCase()}.json`, {
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (jsonRes.ok) {
+      const json = await jsonRes.json();
+      slug = json?.data?.eng?.["url-slug"] ?? slug;
+    }
+  } catch { /* use default slug */ }
+
+  // Fetch HTML page for actual current advisory level
+  const htmlUrl = `${BASE_HTML}/${slug}`;
+  const res = await fetch(htmlUrl, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
+      Accept: "text/html",
+    },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
   if (!res.ok) return null;
 
-  const json: CanadaResponse = await res.json();
-  const data = json.data;
-  if (!data) return null;
-
-  const state = data["advisory-state"];
-  const eng = data.eng;
-  const slug = eng?.["url-slug"] ?? iso2.toLowerCase();
-  const advisoryText = eng?.["advisory-text"] ?? "";
-  const summary = advisoryText.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 400);
-
-  // Use advisory-text to detect level if it starts with a known phrase (more reliable than state number)
-  const TEXT_LEVELS: Array<{ phrase: string; rawLevel: string }> = [
-    { phrase: "avoid all travel", rawLevel: "Avoid all travel" },
-    { phrase: "avoid non-essential travel", rawLevel: "Avoid non-essential travel" },
-    { phrase: "exercise a high degree of caution", rawLevel: "Exercise a high degree of caution" },
-    { phrase: "take normal security precautions", rawLevel: "Take normal security precautions" },
-  ];
-  const summaryLower = summary.toLowerCase();
-  const textDetected = TEXT_LEVELS.find(({ phrase }) => summaryLower.startsWith(phrase));
-  const stateRaw = STATE_TO_RAW[state];
-  if (!stateRaw) return null;
-  const rawLevel = textDetected?.rawLevel ?? stateRaw;
+  const html = await res.text();
+  const rawLevel = extractLevelFromHtml(html);
+  if (!rawLevel) return null;
 
   const normalizedLevel = normalizeLevel("canada", rawLevel);
-  const risks = eng?.risks ?? [];
-
-  const friendlyDate = eng?.["friendly-date"];
-  const officialUpdatedAt = friendlyDate ? new Date(friendlyDate) : null;
+  const summary = extractSummaryFromHtml(html, rawLevel);
+  const officialUpdatedAt = extractDateFromHtml(html);
 
   return {
     destIso2: iso2.toUpperCase(),
     rawLevel,
     normalizedLevel,
     summary,
-    risks,
-    officialUpdatedAt: officialUpdatedAt && !isNaN(officialUpdatedAt.getTime()) ? officialUpdatedAt : null,
-    sourceUrl: `https://travel.gc.ca/destinations/${slug}`,
+    risks: [],
+    officialUpdatedAt,
+    sourceUrl: htmlUrl,
   };
 }
 
