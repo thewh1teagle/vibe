@@ -5,8 +5,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Germany UAE content text
+      - name: Check Germany UAE reportUrl and all fields
         continue-on-error: true
         run: |
-          echo "=== Germany UAE content text ==="
-          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d['response']; ae=[v for v in r.values() if isinstance(v,dict) and v.get('countryCode')=='AE']; c=ae[0].get('content',{}) if ae else {}; t=c.get('text',{}).get('value','') if isinstance(c,dict) else ''; print('content length:', len(t)); print('content[:800]:', t[:800])"
+          echo "=== Germany UAE all fields ==="
+          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d['response']; ae=[v for v in r.values() if isinstance(v,dict) and v.get('countryCode')=='AE']; e=ae[0] if ae else {}; [print(k,'=',v) for k,v in e.items() if k!='content']"
