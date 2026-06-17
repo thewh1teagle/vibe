@@ -5,8 +5,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Germany UAE reportUrl and all fields
+      - name: Check US advisory JSON endpoint
         continue-on-error: true
         run: |
-          echo "=== Germany UAE all fields ==="
-          curl -s "https://www.auswaertiges-amt.de/opendata/travelwarning" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d['response']; ae=[v for v in r.values() if isinstance(v,dict) and v.get('countryCode')=='AE']; e=ae[0] if ae else {}; [print(k,'=',v) for k,v in e.items() if k!='content']"
+          echo "=== US travel advisory list page ==="
+          curl -s -L "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html" | python3 -c "import sys; h=sys.stdin.read(); print('length:', len(h)); idx=h.lower().find('arab'); print('arab:', h[idx:idx+300] if idx>=0 else 'not found')"
+
+      - name: Check Denmark UAE page response
+        continue-on-error: true
+        run: |
+          echo "=== Denmark UAE response ==="
+          curl -s -L -o /dev/null -w 'status: %{http_code}\nurl: %{url_effective}\n' "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/de-forenede-arabiske-emirater"
+          echo "=== First 500 chars ==="
+          curl -s -L "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/de-forenede-arabiske-emirater" | head -c 500
