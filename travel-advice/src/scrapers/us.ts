@@ -1,12 +1,10 @@
 import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
-// New URL format: /destination.{iso3lower}.html
-const DEST_NEW_REGEX = /destination\.([a-z]{3})\.html/i;
-// Old URL format: /{country}-travel-advisory.html (fallback via title)
-const LEVEL_REGEX = /Level\s+(\d+):\s+([^.<]+)/i;
+const LIST_URL = "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html";
+const LEVEL_REGEX = /Level\s+(\d+):\s+([^<]+)/i;
+const DEST_ISO3_REGEX = /destination\.([a-z]{3})\.html/i;
 
-// ISO alpha-3 → alpha-2 lookup for US RSS new URL format
 const ISO3_TO_ISO2: Record<string, string> = {
   afg:"AF",alb:"AL",dza:"DZ",and:"AD",ago:"AO",atg:"AG",arg:"AR",arm:"AM",
   aus:"AU",aut:"AT",aze:"AZ",bhs:"BS",bhr:"BH",bgd:"BD",brb:"BB",blr:"BY",
@@ -35,88 +33,64 @@ const ISO3_TO_ISO2: Record<string, string> = {
   yem:"YE",zmb:"ZM",zwe:"ZW",pse:"PS",vat:"VA",
 };
 
-interface RSSItem {
-  title: string;
-  link: string;
-  description: string;
-  pubDate?: string;
-}
-
-async function parseRSS(xml: string): Promise<RSSItem[]> {
-  const items: RSSItem[] = [];
-  const itemMatches = xml.matchAll(/<item>([\s\S]*?)<\/item>/g);
-
-  for (const match of itemMatches) {
-    const block = match[1];
-    const get = (tag: string) =>
-      block.match(new RegExp(`<${tag}[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/${tag}>`))?.[1]?.trim() ?? "";
-
-    items.push({
-      title: get("title"),
-      link: get("link"),
-      description: get("description"),
-      pubDate: get("pubDate"),
-    });
-  }
-  return items;
-}
-
-function extractRisks(text: string): string[] {
-  const keywords = [
-    "terrorism", "crime", "kidnapping", "civil unrest", "health",
-    "natural disasters", "demonstrations", "piracy", "political instability",
-  ];
-  return keywords.filter((k) => text.toLowerCase().includes(k));
-}
-
 export const usScraper: Scraper = async () => {
   const scrapedAt = new Date();
 
   try {
-    const res = await fetch(
-      "https://travel.state.gov/_res/rss/TAsTWs.xml",
-      {
-        headers: { "User-Agent": "Mozilla/5.0 travel-comparator/1.0" },
-        signal: AbortSignal.timeout(30_000),
-      }
-    );
+    const res = await fetch(LIST_URL, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
+        Accept: "text/html",
+      },
+      signal: AbortSignal.timeout(30_000),
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const xml = await res.text();
-    const items = await parseRSS(xml);
-
+    const html = await res.text();
     const advisories: RawAdvisory[] = [];
 
-    for (const item of items) {
-      // Try new URL format: destination.{iso3}.html
-      const newMatch = item.link.match(DEST_NEW_REGEX);
-      let iso2: string | undefined;
+    // Parse table rows: each row has a country link, level, and date
+    const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+    let rowMatch;
 
-      if (newMatch) {
-        iso2 = ISO3_TO_ISO2[newMatch[1].toLowerCase()];
-      }
+    while ((rowMatch = rowRegex.exec(html)) !== null) {
+      const row = rowMatch[1];
 
+      // Extract country link and ISO3 from href
+      const linkMatch = row.match(/<a[^>]+href="([^"]*destination\.([a-z]{3})\.html[^"]*)"/i)
+        ?? row.match(/<a[^>]+href="([^"]*-travel-advisory\.html[^"]*)"/i);
+      if (!linkMatch) continue;
+
+      const href = linkMatch[1];
+      const iso3 = linkMatch[2]?.toLowerCase();
+      const iso2 = iso3 ? ISO3_TO_ISO2[iso3] : undefined;
       if (!iso2) continue;
 
-      // Extract level from title (e.g. "Venezuela - Level 4: Do Not Travel")
-      const levelMatch = (item.title + " " + item.description).match(LEVEL_REGEX);
-      const rawLevel = levelMatch
-        ? `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`
-        : "Level 1: Exercise Normal Precautions";
+      // Extract level
+      const levelMatch = row.match(LEVEL_REGEX);
+      if (!levelMatch) continue;
 
+      const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
       const normalizedLevel = normalizeLevel("us", rawLevel);
-      const text = item.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-      const summary = text.slice(0, 300);
-      const risks = extractRisks(text);
+
+      // Extract date
+      const dateMatch = row.match(/(\w+ \d{1,2},\s*\d{4})/);
+      const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
+
+      // Extract country name for summary
+      const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/);
+      const countryName = nameMatch?.[1]?.trim() ?? "";
+
+      const sourceUrl = href.startsWith("http") ? href : `https://travel.state.gov${href}`;
 
       advisories.push({
-        destIso2: iso2.toUpperCase(),
+        destIso2: iso2,
         rawLevel,
         normalizedLevel,
-        summary,
-        risks,
-        officialUpdatedAt: item.pubDate ? new Date(item.pubDate) : null,
-        sourceUrl: item.link.startsWith("http") ? item.link : `https://travel.state.gov${item.link}`,
+        summary: `${countryName}: ${rawLevel}`,
+        risks: [],
+        officialUpdatedAt: officialUpdatedAt && !isNaN(officialUpdatedAt.getTime()) ? officialUpdatedAt : null,
+        sourceUrl,
       });
     }
 
