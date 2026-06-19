@@ -27,15 +27,6 @@ SONA_ASSET_MAP = {
     "x86_64-pc-windows-msvc": ("sona-windows-amd64-with-ffmpeg.zip", "sona.exe", "ffmpeg.exe"),
 }
 
-# Raw sona-diarize binaries (no archive). Not available for x86_64-apple-darwin
-# because ort lacks prebuilt ONNX Runtime binaries for that target.
-DIARIZE_ASSET_MAP = {
-    "aarch64-apple-darwin": "sona-diarize-darwin-arm64",
-    "x86_64-unknown-linux-gnu": "sona-diarize-linux-amd64",
-    "aarch64-unknown-linux-gnu": "sona-diarize-linux-arm64",
-    "x86_64-pc-windows-msvc": "sona-diarize-windows-amd64.exe",
-}
-
 HOST_TRIPLE_MAP = {
     ("Darwin", "arm64"): "aarch64-apple-darwin",
     ("Darwin", "x86_64"): "x86_64-apple-darwin",
@@ -43,10 +34,6 @@ HOST_TRIPLE_MAP = {
     ("Linux", "aarch64"): "aarch64-unknown-linux-gnu",
     ("Windows", "AMD64"): "x86_64-pc-windows-msvc",
 }
-
-
-def has_feature(name: str, args: list[str]) -> bool:
-    return f"--{name}" in args or name in args
 
 
 def run_cmd(*args: str) -> None:
@@ -172,73 +159,6 @@ def download_sona(script_root: Path, target_triple: str | None) -> None:
 
     print(f"Extracted sona sidecar to {sona_dest}")
     print(f"Extracted ffmpeg sidecar to {ffmpeg_dest}")
-
-
-def download_diarize(script_root: Path, target_triple: str | None) -> None:
-    resolved_target = target_triple or detect_host_target()
-    if not resolved_target:
-        return
-
-    asset_name = DIARIZE_ASSET_MAP.get(resolved_target)
-    if not asset_name:
-        # Create a stub so Tauri can bundle externalBin without error.
-        # On macOS/Linux we compile a native Mach-O/ELF binary so codesign works.
-        is_windows = resolved_target.endswith("windows-msvc")
-        sidecar = f"sona-diarize-{resolved_target}" + (".exe" if is_windows else "")
-        binaries_dir = script_root.parent / "desktop" / "src-tauri" / "binaries"
-        dest = binaries_dir / sidecar
-        if not dest.exists():
-            binaries_dir.mkdir(parents=True, exist_ok=True)
-            if is_windows:
-                dest.write_text("@echo off\necho sona-diarize is not supported on this platform\nexit /b 1\n")
-            else:
-                # Compile a native stub binary so macOS codesign can sign it
-                c_src = binaries_dir / "_stub.c"
-                c_src.write_text(
-                    '#include <stdio.h>\n'
-                    'int main(void) {\n'
-                    '    fprintf(stderr, "sona-diarize is not supported on this platform\\n");\n'
-                    '    return 1;\n'
-                    '}\n'
-                )
-                import subprocess
-                subprocess.run(["cc", "-o", str(dest), str(c_src)], check=True)
-                c_src.unlink()
-            print(f"Created sona-diarize stub at {dest} (not available for '{resolved_target}')")
-        return
-
-    repo_root = script_root.parent
-    version_file = repo_root / ".sona-version"
-    try:
-        tag = version_file.read_text(encoding="utf-8").strip()
-    except OSError:
-        return
-
-    if not tag:
-        return
-
-    is_windows = resolved_target.endswith("windows-msvc")
-    sidecar = f"sona-diarize-{resolved_target}" + (".exe" if is_windows else "")
-    binaries_dir = repo_root / "desktop" / "src-tauri" / "binaries"
-    dest = binaries_dir / sidecar
-
-    if dest.exists():
-        print(f"sona-diarize sidecar already exists at {dest}; skipping download.")
-        return
-
-    binaries_dir.mkdir(parents=True, exist_ok=True)
-    url = f"https://github.com/thewh1teagle/sona/releases/download/{tag}/{asset_name}"
-
-    try:
-        with httpx.Client(follow_redirects=True, timeout=120) as client:
-            data = download_with_progress(client, url, "sona-diarize")
-        dest.write_bytes(data)
-        if not is_windows:
-            dest.chmod(dest.stat().st_mode | 0o111)
-        print(f"Downloaded sona-diarize sidecar to {dest}")
-    except Exception as exc:
-        print(f"Warning: Failed to download sona-diarize from {url}: {exc}")
-        print("Diarization support will not be available in this build.")
 
 
 def main() -> int:
