@@ -4,3 +4,6 @@ package-lock.json
 yarn.lock
 *.yaml
 *.yml
+
+# Static report docs
+Docs/

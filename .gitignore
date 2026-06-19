@@ -19,6 +19,7 @@ vulkan_sdk/
 vulkan_runtime/
 schemas/
 node_modules/
+package-lock.json
 venv/
 *.bin
 *.onnx

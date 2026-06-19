@@ -1,4 +1,5 @@
 export const modelsDocURL = 'https://thewh1teagle.github.io/vibe/docs/#models'
+export const groqConsoleURL = 'https://console.groq.com/keys'
 export const storeFilename = 'app_config.json'
 
 export type ModelPresetId = 'small' | 'medium' | 'large'

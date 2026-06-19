@@ -38,6 +38,10 @@ export default function SettingsPage() {
 					<div className="space-y-2">
 						<Label>{t('common.groq-api-key')}</Label>
 						<p className="text-[11px] text-muted-foreground">{t('common.groq-api-key-description')}</p>
+						<Button variant="link" size="sm" className="h-auto p-0 text-[11px]" onClick={vm.openGroqConsole}>
+							{t('common.groq-get-api-key')}
+							<LinkIcon className="h-3 w-3" />
+						</Button>
 						<div className="flex items-center gap-2">
 							<Input
 								type="password"

@@ -64,17 +64,12 @@ pub(crate) fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathB
     resolve_sidecar_binary(app_handle, "ffmpeg")
 }
 
-pub(crate) fn resolve_diarize_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
-    resolve_sidecar_binary(app_handle, "sona-diarize")
-}
-
 async fn ensure_sona_spawned(state: &Mutex<SonaState>, app_handle: &tauri::AppHandle) -> Result<()> {
     let mut state_guard = state.lock().await;
     if state_guard.process.is_none() {
         let binary_path = resolve_sona_binary(app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(app_handle);
-        let diarize_path = resolve_diarize_path(app_handle);
-        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
+        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?;
         state_guard.process = Some(process);
     }
     Ok(())
@@ -87,8 +82,7 @@ async fn respawn_sona(state: &Mutex<SonaState>, app_handle: &tauri::AppHandle) -
     }
     let binary_path = resolve_sona_binary(app_handle)?;
     let ffmpeg_path = resolve_ffmpeg_path(app_handle);
-    let diarize_path = resolve_diarize_path(app_handle);
-    let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), diarize_path.as_deref())?;
+    let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?;
     state_guard.process = Some(process);
     Ok(())
 }

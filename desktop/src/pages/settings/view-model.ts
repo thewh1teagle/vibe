@@ -27,6 +27,10 @@ async function openModelsUrl() {
 	openUrl(config.modelsDocURL)
 }
 
+async function openGroqConsole() {
+	openUrl(config.groqConsoleURL)
+}
+
 export function viewModel() {
 	const [models, setModels] = useState<NamedPath[]>([])
 	const preference = usePreferenceProvider()
@@ -103,6 +107,7 @@ export function viewModel() {
 		preference,
 		openModelPath,
 		openModelsUrl,
+		openGroqConsole,
 		models,
 		loadModels,
 		changeModelsFolder,

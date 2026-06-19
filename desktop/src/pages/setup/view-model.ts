@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ErrorModalContext } from '~/providers/error-modal'
@@ -132,6 +133,10 @@ export function viewModel() {
 		navigate('/')
 	}
 
+	function openGroqConsole() {
+		openUrl(config.groqConsoleURL)
+	}
+
 	return {
 		modelCompany,
 		downloadProgress,
@@ -153,5 +158,6 @@ export function viewModel() {
 		groqKeyStatus,
 		testGroqKey,
 		startWithGroq,
+		openGroqConsole,
 	}
 }
