@@ -10,7 +10,6 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { BoundaryFallback } from './components/boundary-fallback'
 import ErrorModalWithContext from './components/error-modal-with-context'
 import { HotkeyProvider } from './providers/hotkey'
-import { ToastProvider } from './providers/toast'
 import { Toaster } from '~/components/ui/sonner'
 import { TooltipProvider } from '~/components/ui/tooltip'
 import { DirectionProvider } from '~/components/ui/direction'
@@ -30,16 +29,14 @@ export default function App() {
 				<ErrorModalProvider>
 					<PreferenceProvider>
 						<TooltipProvider>
-							<ToastProvider>
-								<HotkeyProvider>
-									<ErrorModalWithContext />
-									<Routes>
-										<Route path="/" element={<HomePage />} />
-										<Route path="/setup" element={<SetupPage />} />
-									</Routes>
-								</HotkeyProvider>
-								<Toaster position="bottom-right" />
-							</ToastProvider>
+							<HotkeyProvider>
+								<ErrorModalWithContext />
+								<Routes>
+									<Route path="/" element={<HomePage />} />
+									<Route path="/setup" element={<SetupPage />} />
+								</Routes>
+							</HotkeyProvider>
+							<Toaster position="bottom-right" />
 						</TooltipProvider>
 					</PreferenceProvider>
 				</ErrorModalProvider>
