@@ -7,6 +7,7 @@ import { Label } from '~/components/ui/label'
 import { Input } from '~/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '~/components/ui/dialog'
+import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 
 function App() {
 	const { t } = useTranslation()
@@ -44,6 +45,10 @@ function App() {
 						<div className="space-y-2">
 							<Label>{t('common.groq-api-key')}</Label>
 							<p className="text-[11px] text-muted-foreground">{t('common.groq-api-key-description')}</p>
+							<Button variant="link" size="sm" className="h-auto p-0 text-[11px]" onClick={vm.openGroqConsole}>
+								{t('common.groq-get-api-key')}
+								<LinkIcon className="h-3 w-3" />
+							</Button>
 							<div className="flex items-center gap-2">
 								<Input
 									type="password"
