@@ -29,21 +29,22 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     let host = cpal::default_host();
     let mut audio_devices = Vec::new();
 
+    // A missing default input/output device is not an error — the user may simply
+    // have no output device plugged in (e.g. DAC powered off) while still wanting
+    // to capture from a microphone. Just leave the corresponding default unset.
     let default_in = host
         .default_input_device()
-        .map(|e| e.description().map(|d| d.name().to_string()))
-        .context("name")?;
+        .and_then(|e| e.description().ok().map(|d| d.name().to_string()));
     let default_out = host
         .default_output_device()
-        .map(|e| e.description().map(|d| d.name().to_string()))
-        .context("name")?;
+        .and_then(|e| e.description().ok().map(|d| d.name().to_string()));
     tracing::debug!("Default Input Device:\n{:?}", default_in);
     tracing::debug!("Default Output Device:\n{:?}", default_out);
 
     for device in host.devices()? {
         let name = device.description()?.name().to_string();
-        let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
-        let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
+        let is_default_in = default_in.as_ref().is_some_and(|d| d == &name);
+        let is_default_out = default_out.as_ref().is_some_and(|d| d == &name);
 
         let audio_device = AudioDevice {
             is_default: is_default_in || is_default_out,
