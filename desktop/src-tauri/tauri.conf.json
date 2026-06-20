@@ -1,7 +1,7 @@
 {
 	"$schema": "./gen/schemas/desktop-schema.json",
 	"productName": "vibe-simplify",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"identifier": "github.com.thewh1teagle.vibe",
 	"app": {
 		"windows": [],
