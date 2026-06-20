@@ -16,10 +16,17 @@ pub struct SonaState {
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let local_app_data_dir = app.path().app_local_data_dir()?;
     let app_config_dir = app.path().app_config_dir()?;
-    fs::create_dir_all(&local_app_data_dir)
-        .unwrap_or_else(|_| panic!("cant create local app data directory at {}", local_app_data_dir.display()));
-    fs::create_dir_all(&app_config_dir)
-        .unwrap_or_else(|_| panic!("cant create app config directory at {}", app_config_dir.display()));
+    fs::create_dir_all(&local_app_data_dir).map_err(|e| -> Box<dyn std::error::Error> {
+        format!(
+            "failed to create local app data directory at {}: {}",
+            local_app_data_dir.display(),
+            e
+        )
+        .into()
+    })?;
+    fs::create_dir_all(&app_config_dir).map_err(|e| -> Box<dyn std::error::Error> {
+        format!("failed to create app config directory at {}: {}", app_config_dir.display(), e).into()
+    })?;
 
     app.manage(Mutex::new(SonaState {
         process: None,
@@ -39,7 +46,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     }
     tracing::debug!("Vibe App Running");
 
-    let _handler = crash_handler::CrashHandler::attach(unsafe {
+    let handler = crash_handler::CrashHandler::attach(unsafe {
         crash_handler::make_crash_event(move |cc: &crash_handler::CrashContext| {
             #[cfg(windows)]
             {
@@ -57,7 +64,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             if let Some(app_handle) = STATIC_APP.lock().expect("lock").as_ref() {
                 app_handle
                     .dialog()
-                    .message("App crashed with error. Please register to Github and then click report.")
+                    .message("App crashed with error. Please report this on GitHub.")
                     .kind(tauri_plugin_dialog::MessageDialogKind::Error)
                     .title("Vibe Crashed")
                     .buttons(MessageDialogButtons::OkCustom("Report".into()))
@@ -67,6 +74,9 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             crash_handler::CrashEventResult::Handled(true)
         })
     });
+    // Keep the crash handler alive for the entire process lifetime.
+    // Dropping `CrashHandler` detaches it, so we forget it here to prevent that.
+    std::mem::forget(handler);
 
     if let Ok(version) = tauri::webview_version() {
         tracing::debug!("webview version: {}", version);
@@ -88,7 +98,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         .visible(false)
         .build();
     if let Err(error) = result {
-        tracing::error!("{:?}", error);
+        return Err(format!("failed to build main window: {:?}", error).into());
     }
 
     Ok(())

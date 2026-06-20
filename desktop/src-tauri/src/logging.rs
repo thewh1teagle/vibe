@@ -32,14 +32,13 @@ pub fn setup_logging(app: &AppHandle) -> Result<()> {
             .with_filter(EnvFilter::from_default_env()),
     );
 
-    // Enable logs by default. TODO: remove?
     let rust_log = env::var("RUST_LOG").unwrap_or_else(|_| config::DEFAULT_LOG_DIRECTIVE.to_owned());
 
     let path = get_log_path(app)?;
     let file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open(path.clone())
+        .open(&path)
         .context(format!("failed to open file at {}", path.display()))?;
     tracing::subscriber::set_global_default(
         sub.with(

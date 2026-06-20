@@ -3,7 +3,7 @@ import { load } from '@tauri-apps/plugin-store'
 import * as config from './config'
 
 export async function resetApp() {
-	const modelPath = localStorage.getItem('prefs_model_path')
+	const modelPath = localStorage.getItem(config.PREF_KEY_MODEL_PATH)
 	try {
 		const store = await load(config.storeFilename)
 		await store.clear()
@@ -23,7 +23,5 @@ export async function resetApp() {
 }
 
 export function getIssueUrl(logs: string) {
-	return `https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=App+reports+bug+&logs=${encodeURIComponent(
-		logs,
-	)}`
+	return `https://github.com/thewh1teagle/vibe/issues/new?labels=bug&template=bug_report.yaml&title=App+reports+bug+&logs=${encodeURIComponent(logs)}`
 }

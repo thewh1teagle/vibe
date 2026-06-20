@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useMemo, useRef } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { ModifyState } from '~/lib/types'
-import { ModelPresetId, defaultModelPresetId } from '~/lib/config'
+import { ModelPresetId, defaultModelPresetId, PREF_KEY_MODEL_PATH } from '~/lib/config'
 import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
 import { useTranslation } from 'react-i18next'
@@ -82,7 +82,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const { i18n } = useTranslation()
 	const previ18Language = useRef(i18n.language)
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
-	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
+	const [modelPath, setModelPath] = useLocalStorage<string | null>(PREF_KEY_MODEL_PATH, null)
 	const [selectedModelPreset, setSelectedModelPreset] = useLocalStorage<ModelPresetId>('prefs_model_preset', defaultModelPresetId)
 	const isMounted = useRef<boolean>(false)
 	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', 'dark')
@@ -106,9 +106,9 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}, [theme])
 
 	function setLanguageDefaults() {
-		const name = supportedLanguages[preference.displayLanguage]
+		const name = supportedLanguages[language]
 		if (name) {
-			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
+			setModelOptions({ ...modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
 		}
 	}
 

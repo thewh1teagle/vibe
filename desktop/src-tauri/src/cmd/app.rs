@@ -5,12 +5,16 @@ use std::path::PathBuf;
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
 
+const CRASH_FILENAME: &str = "crash.txt";
+const CRASH_FILENAME_OLD: &str = "crash.1.txt";
+const ONLINE_CHECK_TARGETS: [&str; 4] = ["1.1.1.1:80", "1.1.1.1:53", "8.8.8.8:53", "8.8.8.8:80"];
+const TYPE_TEXT_FOCUS_DELAY_MS: u64 = 100;
+
 #[tauri::command]
 pub async fn is_online(timeout: Option<u64>) -> Result<bool> {
     let timeout = std::time::Duration::from_millis(timeout.unwrap_or(2000));
-    let targets = ["1.1.1.1:80", "1.1.1.1:53", "8.8.8.8:53", "8.8.8.8:80"];
 
-    let tasks = targets.iter().map(|addr| async move {
+    let tasks = ONLINE_CHECK_TARGETS.iter().map(|addr| async move {
         tokio::time::timeout(timeout, tokio::net::TcpStream::connect(addr))
             .await
             .map(|res| res.is_ok())
@@ -47,24 +51,27 @@ pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
 
 #[tauri::command]
 pub fn is_crashed_recently() -> bool {
-    tracing::debug!("checking path {}", ffmpeg::get_vibe_temp_folder().join("crash.txt").display());
-    ffmpeg::get_vibe_temp_folder().join("crash.txt").exists()
+    tracing::debug!(
+        "checking path {}",
+        ffmpeg::get_vibe_temp_folder().join(CRASH_FILENAME).display()
+    );
+    ffmpeg::get_vibe_temp_folder().join(CRASH_FILENAME).exists()
 }
 
 #[tauri::command]
 pub fn rename_crash_file() -> Result<()> {
     std::fs::rename(
-        ffmpeg::get_vibe_temp_folder().join("crash.txt"),
-        ffmpeg::get_vibe_temp_folder().join("crash.1.txt"),
+        ffmpeg::get_vibe_temp_folder().join(CRASH_FILENAME),
+        ffmpeg::get_vibe_temp_folder().join(CRASH_FILENAME_OLD),
     )
-    .context("Can't delete file")
+    .context("Failed to rename crash file")
 }
 
 #[tauri::command]
 pub async fn type_text(text: String) -> Result<()> {
     use enigo::{Enigo, Keyboard, Settings};
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
-    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(TYPE_TEXT_FOCUS_DELAY_MS)).await;
     enigo.text(&text).map_err(|e| eyre::eyre!("Failed to type text: {}", e))?;
     Ok(())
 }

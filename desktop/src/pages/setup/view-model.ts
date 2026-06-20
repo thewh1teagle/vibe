@@ -29,8 +29,11 @@ export function viewModel() {
 		listModels().then((models) => setHasLocalModels(models.length > 0))
 	}, [])
 
-	function handleProgressEvents() {
-		listen('download_progress', (event) => {
+	async function handleProgressEvents() {
+		// Unregister any previous listener before attaching a new one
+		unlistenRef.current?.()
+		unlistenRef.current = null
+		const unlisten = await listen('download_progress', (event) => {
 			const [current, total] = event.payload as [number, number]
 			const newDownloadProgress = Number(current / total) * 100
 
@@ -38,9 +41,8 @@ export function viewModel() {
 				setDownloadProgress(newDownloadProgress)
 				downloadProgressRef.current = newDownloadProgress
 			}
-		}).then((unlisten) => {
-			unlistenRef.current = unlisten
 		})
+		unlistenRef.current = unlisten
 	}
 
 	useEffect(() => {
@@ -50,7 +52,7 @@ export function viewModel() {
 	}, [])
 
 	async function performDownload() {
-		handleProgressEvents()
+		await handleProgressEvents()
 		setIsDownloading(true)
 
 		try {
@@ -69,11 +71,9 @@ export function viewModel() {
 
 			for (const url of urls) {
 				try {
-					console.log(`[model] Attempting to download from: ${url}`)
 					const path = await utils.downloadModel(url)
 					if (cancelledRef.current) return
 					if (path) {
-						console.log(`[model] Download succeeded: ${path}`)
 						preference.setModelPath(path)
 						navigate('/')
 						return

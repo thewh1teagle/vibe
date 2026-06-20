@@ -26,8 +26,7 @@ i18n.use(LanguageDetector)
 			const resourcePath = `./locales/${language}`
 			const languageDirectory = await resolveResource(resourcePath)
 			const files = await fs.readDir(languageDirectory)
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const translations: any = {}
+			const translations: Record<string, Record<string, unknown>> = {}
 			await Promise.all(
 				files.map(async (file) => {
 					const filePath = `${languageDirectory}/${file.name}`

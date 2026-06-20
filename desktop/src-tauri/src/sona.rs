@@ -7,6 +7,9 @@ use std::path::Path;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 
+const STDERR_BUFFER_CAP: usize = 16384;
+const LOAD_MODEL_MAX_ATTEMPTS: u32 = 3;
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GpuDevice {
     pub index: i32,
@@ -86,8 +89,9 @@ impl SonaProcess {
         tracing::debug!("spawning sona at {}", binary_path.display());
 
         let mut cmd = Command::new(binary_path);
-        let args = vec!["serve", "--port", "0"];
-        cmd.args(&args).stdout(Stdio::piped()).stderr(Stdio::piped());
+        cmd.args(["serve", "--port", "0"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
 
         if let Some(ffmpeg) = ffmpeg_path {
             tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
@@ -164,9 +168,9 @@ impl SonaProcess {
                     tracing::debug!("sona stderr: {}", line.trim());
                     if let Ok(mut buf) = buf_clone.lock() {
                         buf.push_str(&line);
-                        // Keep only the last 16KB to avoid unbounded growth
-                        if buf.len() > 16384 {
-                            let drain_end = buf.len() - 16384;
+                        // Keep only the last STDERR_BUFFER_CAP bytes to avoid unbounded growth
+                        if buf.len() > STDERR_BUFFER_CAP {
+                            let drain_end = buf.len() - STDERR_BUFFER_CAP;
                             if let Some(newline_pos) = buf[drain_end..].find('\n') {
                                 buf.drain(..drain_end + newline_pos + 1);
                             }
@@ -215,7 +219,7 @@ impl SonaProcess {
             body["no_gpu"] = serde_json::json!(true);
         }
         let mut last_err = None;
-        for attempt in 0..3 {
+        for attempt in 0..LOAD_MODEL_MAX_ATTEMPTS {
             if attempt > 0 {
                 if !self.is_alive() {
                     let stderr = self.recent_stderr();
@@ -230,8 +234,8 @@ impl SonaProcess {
             match self.client.post(&url).json(&body).send().await {
                 Ok(resp) => {
                     if !resp.status().is_success() {
-                        let body = resp.text().await.unwrap_or_default();
-                        bail!("sona load_model failed: {}", body);
+                        let resp_body = resp.text().await.unwrap_or_default();
+                        bail!("sona load_model failed: {}", resp_body);
                     }
                     tracing::debug!("sona model loaded: {}", path);
                     return Ok(());
@@ -242,7 +246,10 @@ impl SonaProcess {
             }
         }
         let stderr = self.recent_stderr();
-        let base_err = Err(last_err.unwrap()).context("failed to send load_model request to sona after 3 attempts");
+        let base_err = Err(last_err.unwrap()).context(format!(
+            "failed to send load_model request to sona after {} attempts",
+            LOAD_MODEL_MAX_ATTEMPTS
+        ));
         if stderr.is_empty() {
             base_err
         } else {

@@ -103,8 +103,8 @@ export default function SettingsPage() {
 									<SelectValue placeholder={t('common.select-model')} />
 								</SelectTrigger>
 								<SelectContent>
-									{vm.models.map((model, index) => (
-										<SelectItem key={index} value={model.path}>
+									{vm.models.map((model) => (
+										<SelectItem key={model.path} value={model.path}>
 											{model.name}
 										</SelectItem>
 									))}

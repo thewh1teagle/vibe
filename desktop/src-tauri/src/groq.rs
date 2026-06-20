@@ -40,12 +40,12 @@ struct ApiErrorBody {
     message: String,
 }
 
-fn groq_client() -> reqwest::Client {
-    reqwest::Client::builder().timeout(GROQ_TIMEOUT).build().unwrap_or_default()
+fn groq_client() -> Result<reqwest::Client> {
+    Ok(reqwest::Client::builder().timeout(GROQ_TIMEOUT).build()?)
 }
 
 pub async fn test_api_key(api_key: &str) -> Result<bool> {
-    let client = groq_client();
+    let client = groq_client()?;
     let resp = client
         .get(GROQ_MODELS_URL)
         .header("Authorization", format!("Bearer {}", api_key))
@@ -68,7 +68,7 @@ async fn file_multipart_part(path: &str) -> Result<multipart::Part> {
 }
 
 pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) -> Result<Transcript> {
-    let client = groq_client();
+    let client = groq_client()?;
     let start = std::time::Instant::now();
 
     let file_part = file_multipart_part(path).await?;

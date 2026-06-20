@@ -104,40 +104,9 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		const unlisten = listen<{ path: string; name: string }>('record_finish', async (event) => {
 			if (!isHotkeyRecordingRef.current) return
-
 			const { path } = event.payload
-
 			try {
-				const pref = preferenceRef.current
-				const isGroq = pref.transcriptionProvider === 'groq'
-
-				if (isGroq) {
-					if (!pref.groqApiKey) {
-						throw new Error('Groq API key is required')
-					}
-				} else {
-					const modelPath = pref.modelPath
-					if (!modelPath) {
-						throw new Error('No model selected')
-					}
-					await invoke('load_model', { modelPath, gpuDevice: pref.gpuDevice })
-				}
-
-				const options = {
-					path,
-					...pref.modelOptions,
-					provider: pref.transcriptionProvider,
-					...(isGroq ? { groq_api_key: pref.groqApiKey } : {}),
-				}
-				const res: transcript.Transcript = await invoke('transcribe', { options })
-				const resultText = transcript.asText(res.segments, t('common.speaker-prefix'), pref.rawOutput).trim()
-				// Output result
-				if (hotkeyOutputModeRef.current === 'type') {
-					await invoke('type_text', { text: resultText })
-				} else {
-					await clipboard.writeText(resultText)
-					await notify('Vibe', t('common.hotkey-transcription-copied'))
-				}
+				await processTranscription(path)
 			} catch (error) {
 				console.error('Hotkey transcription error:', error)
 				await notify('Vibe', String(error))
@@ -150,7 +119,41 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		return () => {
 			unlisten.then((fn) => fn())
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [t])
+
+	async function processTranscription(path: string) {
+		const pref = preferenceRef.current
+		const isGroq = pref.transcriptionProvider === 'groq'
+
+		if (isGroq) {
+			if (!pref.groqApiKey) {
+				throw new Error('Groq API key is required')
+			}
+		} else {
+			const modelPath = pref.modelPath
+			if (!modelPath) {
+				throw new Error('No model selected')
+			}
+			await invoke('load_model', { modelPath, gpuDevice: pref.gpuDevice })
+		}
+
+		const options = {
+			path,
+			...pref.modelOptions,
+			provider: pref.transcriptionProvider,
+			...(isGroq ? { groq_api_key: pref.groqApiKey } : {}),
+		}
+		const res: transcript.Transcript = await invoke('transcribe', { options })
+		const resultText = transcript.asText(res.segments, t('common.speaker-prefix'), pref.rawOutput).trim()
+
+		if (hotkeyOutputModeRef.current === 'type') {
+			await invoke('type_text', { text: resultText })
+		} else {
+			await clipboard.writeText(resultText)
+			await notify('Vibe', t('common.hotkey-transcription-copied'))
+		}
+	}
 
 	// Register/unregister shortcut
 	useEffect(() => {

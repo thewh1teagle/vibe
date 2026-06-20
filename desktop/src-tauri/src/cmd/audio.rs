@@ -100,9 +100,9 @@ pub async fn start_record(
         let writer = hound::WavWriter::create(path.clone(), spec)?;
         let writer = Arc::new(Mutex::new(Some(writer)));
         stream_writers.push(writer.clone());
-        let writer_2 = writer.clone();
+        let writer_for_stream = writer.clone();
 
-        let stream = build_input_stream(&device, config, writer_2)?;
+        let stream = build_input_stream(&device, config, writer_for_stream)?;
         stream.play()?;
         tracing::debug!("Stream started playing");
 
@@ -113,6 +113,7 @@ pub async fn start_record(
 
     let app_handle_clone = app_handle.clone();
     app_handle.once("stop_record", move |_event| {
+        // 1. Pause streams and finalize WAV writers
         for (i, stream_handle) in stream_handles.iter().enumerate() {
             let stream_handle = stream_handle.lock().map_err(|e| eyre!("{:?}", e)).log_error();
             if let Some(mut stream_handle) = stream_handle {
@@ -121,8 +122,8 @@ pub async fn start_record(
                 if let Some(stream) = stream {
                     tracing::debug!("Pausing stream");
                     stream.0.pause().map_err(|e| eyre!("{:?}", e)).log_error();
-				tracing::debug!("Finalizing writer");
-					let Ok(mut guard) = writer.lock() else {
+                    tracing::debug!("Finalizing writer");
+                    let Ok(mut guard) = writer.lock() else {
                         tracing::error!("writer mutex poisoned");
                         continue;
                     };
@@ -130,14 +131,14 @@ pub async fn start_record(
                         tracing::error!("writer already taken");
                         continue;
                     };
-					let written = writer.len();
+                    let written = writer.len();
                     wav_paths[i] = (wav_paths[i].0.clone(), written);
                     writer.finalize().map_err(|e| eyre!("{:?}", e)).log_error();
                 }
             }
         }
 
-        // Find the best non-empty WAV file, or merge if multiple have data
+        // 2. Pick the best non-empty WAV file, or merge if multiple have data
         let non_empty: Vec<(PathBuf, u32)> = wav_paths.iter().filter(|(_, len)| *len > 0).cloned().collect();
         let dst = if non_empty.len() <= 1 {
             // 0 or 1 non-empty files — use the best available
@@ -149,70 +150,113 @@ pub async fn start_record(
             // Multiple non-empty files — merge first two
             let dst = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
             tracing::debug!("Merging WAV files");
-            crate::ffmpeg::merge_wav_files(non_empty[0].0.clone(), non_empty[1].0.clone(), dst.clone())
-                .map_err(|e| eyre!("{e:?}"))
-                .log_error();
+            if let Err(e) = crate::ffmpeg::merge_wav_files(non_empty[0].0.clone(), non_empty[1].0.clone(), dst.clone()) {
+                tracing::error!("Failed to merge WAV files: {:?}", e);
+                app_handle_clone
+                    .emit("record_error", json!({"message": format!("Failed to merge audio: {}", e)}))
+                    .map_err(|e| eyre!("{e:?}"))
+                    .log_error();
+                return;
+            }
             dst
         };
 
-        tracing::debug!("Emitting record_finish event");
-        let mut normalized = get_vibe_temp_folder().join(format!("{}.wav", get_local_time()));
-        crate::ffmpeg::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
-
-        if store_in_documents {
-            if let Some(file_name) = normalized.file_name() {
-                let save_dir = if let Some(ref cp) = custom_path {
-                    Some(PathBuf::from(cp))
-                } else {
-                    app_handle_clone.path().document_dir().map(|d| d.join(crate::config::DOCUMENTS_SUBFOLDER)).map_err(|e| eyre!("{e:?}")).log_error()
-                };
-                if let Some(save_dir) = save_dir {
-                    let target_path = save_dir.join(file_name);
-                    if std::fs::create_dir_all(&save_dir)
-                        .context("Failed to create recording directory")
-                        .map_err(|e| eyre!("{e:?}"))
-                        .is_ok()
-                    {
-                        let moved = std::fs::rename(&normalized, &target_path)
-                            .context("Failed to move file to directory")
-                            .map_err(|e| eyre!("{e:?}"))
-                            .is_ok();
-                        let copied = if moved {
-                            false
-                        } else {
-                            // Cross-filesystem moves can fail; copy as fallback.
-                            std::fs::copy(&normalized, &target_path)
-                                .context("Failed to copy file to directory")
-                                .map_err(|e| eyre!("{e:?}"))
-                                .is_ok()
-                        };
-
-                        if moved || copied {
-                            if copied {
-                                std::fs::remove_file(&normalized).map_err(|e| eyre!("{e:?}")).log_error();
-                            }
-                            normalized = target_path;
-                        }
-                    }
-                }
-            } else {
-                tracing::error!("Failed to retrieve file name from destination path");
-            }
+        // 3. Normalize audio for transcription (fatal if it fails — don't emit a path to a missing file)
+        let normalized = get_vibe_temp_folder().join(format!("{}.wav", get_local_time()));
+        if let Err(e) = crate::ffmpeg::normalize(dst.clone(), normalized.clone(), None) {
+            tracing::error!("Failed to normalize audio: {:?}", e);
+            app_handle_clone
+                .emit("record_error", json!({"message": format!("Failed to process audio: {}", e)}))
+                .map_err(|e| eyre!("{e:?}"))
+                .log_error();
+            return;
         }
 
-        // Clean files
+        // 4. Optionally save to documents folder
+        let final_path = save_recording_to_documents(normalized, store_in_documents, custom_path.as_deref(), &app_handle_clone);
+
+        // 5. Clean up temp files
         for (path, _) in wav_paths {
             if path.exists() {
-                std::fs::remove_file(path).map_err(|e| eyre!("{e:?}")).log_error();
+                let _ = std::fs::remove_file(path);
             }
         }
-        app_handle_clone.emit(
-            "record_finish",
-            json!({"path": normalized.to_string_lossy(), "name": normalized.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),
-        ).map_err(|e| eyre!("{e:?}")).log_error();
+
+        // 6. Emit the finished event with the final path
+        tracing::debug!("Emitting record_finish event");
+        app_handle_clone
+            .emit(
+                "record_finish",
+                json!({
+                    "path": final_path.to_string_lossy(),
+                    "name": final_path.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()
+                }),
+            )
+            .map_err(|e| eyre!("{e:?}"))
+            .log_error();
     });
 
     Ok(())
+}
+
+/// Save a normalized recording to the documents folder (or a custom path) if requested.
+/// Returns the final path of the recording (either the saved location or the original path).
+fn save_recording_to_documents(
+    normalized: PathBuf,
+    store_in_documents: bool,
+    custom_path: Option<&str>,
+    app_handle: &AppHandle,
+) -> PathBuf {
+    if !store_in_documents {
+        return normalized;
+    }
+
+    let Some(file_name) = normalized.file_name() else {
+        tracing::error!("Failed to retrieve file name from destination path");
+        return normalized;
+    };
+
+    let save_dir = match custom_path {
+        Some(cp) => Some(PathBuf::from(cp)),
+        None => app_handle
+            .path()
+            .document_dir()
+            .map(|d| d.join(crate::config::DOCUMENTS_SUBFOLDER))
+            .map_err(|e| {
+                tracing::error!("Failed to resolve documents directory: {:?}", e);
+            })
+            .ok(),
+    };
+
+    let Some(save_dir) = save_dir else {
+        return normalized;
+    };
+
+    let target_path = save_dir.join(file_name);
+
+    if let Err(e) = std::fs::create_dir_all(&save_dir) {
+        tracing::error!("Failed to create recording directory: {:?}", e);
+        return normalized;
+    }
+
+    let moved = std::fs::rename(&normalized, &target_path).is_ok();
+    let copied = if moved {
+        false
+    } else {
+        match std::fs::copy(&normalized, &target_path) {
+            Ok(_) => true,
+            Err(e) => {
+                tracing::error!("Failed to copy file to documents: {:?}", e);
+                return normalized;
+            }
+        }
+    };
+
+    if copied {
+        let _ = std::fs::remove_file(&normalized);
+    }
+
+    target_path
 }
 
 #[allow(unused_variables)]

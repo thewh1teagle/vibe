@@ -59,7 +59,7 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 					</Button>
 				</div>
 				<DialogFooter>
-					<Button variant="secondary" onClick={() => setState?.({ log: '', open: false })}>
+					<Button variant="secondary" onClick={() => setState({ log: '', open: false })}>
 						{t('common.modal-close')}
 					</Button>
 				</DialogFooter>

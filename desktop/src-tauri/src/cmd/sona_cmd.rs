@@ -115,7 +115,7 @@ async fn ensure_model_loaded(
             respawn_sona(sona_state, app_handle).await?;
 
             let mut state_guard = sona_state.lock().await;
-            let sona = state_guard.process.as_mut().unwrap();
+            let sona = state_guard.process.as_mut().context("sona process missing after respawn")?;
             sona.load_model(model_path, gpu_device, true).await?;
             state_guard.loaded_model_path = Some(model_path.to_string());
             state_guard.loaded_gpu_device = gpu_device;

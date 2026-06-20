@@ -33,3 +33,16 @@ export const modelPresets: ModelPreset[] = [
 ]
 
 export const defaultModelPresetId: ModelPresetId = 'large'
+
+export interface TranscriptionLanguage {
+	code: string
+	label: string
+}
+
+export const transcriptionLanguages: TranscriptionLanguage[] = [
+	{ code: 'auto', label: 'Auto' },
+	{ code: 'en', label: 'English' },
+	{ code: 'da', label: 'Dansk' },
+]
+
+export const PREF_KEY_MODEL_PATH = 'prefs_model_path'

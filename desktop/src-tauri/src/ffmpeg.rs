@@ -70,6 +70,8 @@ pub fn find_ffmpeg_path() -> Option<PathBuf> {
     None
 }
 
+/// Re-encode audio for transcription: 16 kHz mono PCM s16le WAV.
+/// Whisper models require this format for accurate transcription.
 pub fn normalize(input: PathBuf, output: PathBuf, additional_ffmpeg_args: Option<Vec<String>>) -> Result<()> {
     let ffmpeg_path = find_ffmpeg_path().context("ffmpeg not found")?;
     tracing::debug!("ffmpeg path is {}", ffmpeg_path.display());
@@ -77,7 +79,7 @@ pub fn normalize(input: PathBuf, output: PathBuf, additional_ffmpeg_args: Option
     let mut cmd = Command::new(ffmpeg_path);
     let cmd = cmd.stderr(Stdio::piped()).args([
         "-i",
-        input.to_str().context("tostr")?,
+        input.to_str().context("failed to convert input path to UTF-8")?,
         "-ar",
         "16000",
         "-ac",
@@ -88,7 +90,13 @@ pub fn normalize(input: PathBuf, output: PathBuf, additional_ffmpeg_args: Option
 
     cmd.args(additional_ffmpeg_args.unwrap_or_default());
 
-    cmd.args([output.to_str().context("tostr")?, "-hide_banner", "-y", "-loglevel", "error"]);
+    cmd.args([
+        output.to_str().context("failed to convert output path to UTF-8")?,
+        "-hide_banner",
+        "-y",
+        "-loglevel",
+        "error",
+    ]);
 
     tracing::debug!("cmd: {:?}", cmd);
 
@@ -97,10 +105,10 @@ pub fn normalize(input: PathBuf, output: PathBuf, additional_ffmpeg_args: Option
     #[cfg(windows)]
     let cmd = cmd.creation_flags(crate::config::CREATE_NO_WINDOW);
 
-    let mut pid = cmd.spawn()?;
-    if !pid.wait()?.success() {
+    let mut child = cmd.spawn()?;
+    if !child.wait()?.success() {
         let mut stderr_output = String::new();
-        if let Some(ref mut stderr) = pid.stderr {
+        if let Some(ref mut stderr) = child.stderr {
             stderr.take(4096).read_to_string(&mut stderr_output)?;
         }
         bail!("unable to convert file: {:?} args: {:?}", stderr_output, cmd.get_args());
@@ -119,9 +127,9 @@ pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     let mut cmd = Command::new(ffmpeg_path);
     cmd.args([
         "-i",
-        a.to_str().context("tostr")?,
+        a.to_str().context("failed to convert first input path to UTF-8")?,
         "-i",
-        b.to_str().context("tostr")?,
+        b.to_str().context("failed to convert second input path to UTF-8")?,
         "-filter_complex",
         "amix=inputs=2:duration=shortest",
         "-ac",
@@ -137,8 +145,8 @@ pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
     #[cfg(windows)]
     cmd.creation_flags(crate::config::CREATE_NO_WINDOW);
 
-    let mut pid = cmd.spawn()?;
-    if !pid.wait()?.success() {
+    let mut child = cmd.spawn()?;
+    if !child.wait()?.success() {
         bail!("unable to merge files");
     }
     Ok(())

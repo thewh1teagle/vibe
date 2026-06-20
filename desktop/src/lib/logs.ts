@@ -1,6 +1,7 @@
 import { app } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/core'
 import { listModels } from './fs'
+import * as config from './config'
 import * as os from '@tauri-apps/plugin-os'
 
 async function getPrettyVersion() {
@@ -21,7 +22,7 @@ async function getAppInfo() {
 	const osVer = os.version()
 	const osType = os.type()
 	const models = (await listModels()).map((e) => e.name).join(', ')
-	const defaultModel = localStorage.getItem('prefs_model_path')?.split('/')?.pop() ?? 'Not Found'
+	const defaultModel = localStorage.getItem(config.PREF_KEY_MODEL_PATH)?.split('/')?.pop() ?? 'Not Found'
 	return [
 		`App Version: ${appVersion}`,
 		`Arch: ${arch}`,

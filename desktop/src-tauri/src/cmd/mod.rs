@@ -52,9 +52,9 @@ pub(crate) struct AbortGuard {
 impl AbortGuard {
     pub(crate) fn new(app: &tauri::AppHandle, event: &str) -> Self {
         let flag = Arc::new(AtomicBool::new(false));
-        let flag_c = flag.clone();
+        let abort_flag = flag.clone();
         let id = app.listen(event, move |_| {
-            flag_c.store(true, Ordering::Relaxed);
+            abort_flag.store(true, Ordering::Relaxed);
         });
         Self {
             app: app.clone(),
