@@ -11,7 +11,7 @@ Press a hotkey from anywhere in Windows, speak, and your speech is transcribed a
 - **Groq cloud transcription** (fast, online, requires API key)
 - Output to clipboard or type at cursor
 - Model selection — choose between local Whisper models or Groq cloud
-- Raw text mode (no line breaks between segments)
+- Raw text mode for clipboard output (no line breaks between segments) — type-at-cursor always strips line breaks
 - Auto-detects or manually selects language (auto / English / Danish)
 - GPU acceleration support
 - Dark theme
