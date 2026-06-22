@@ -35,6 +35,11 @@ Preserve exactly:\n\
 Output strictly the cleaned text. No preamble, no code fences, no labels.";
 
 #[derive(Debug, Deserialize)]
+struct ChatResponse {
+    choices: Vec<ChatChoice>,
+}
+
+#[derive(Debug, Deserialize)]
 struct ChatChoice {
     message: ChatMessage,
 }
@@ -45,8 +50,8 @@ struct ChatMessage {
 }
 
 #[derive(Debug, Deserialize)]
-struct ChatResponse {
-    choices: Vec<ChatChoice>,
+struct ApiError {
+    error: ApiErrorBody,
 }
 
 #[derive(Debug, Deserialize)]
@@ -54,17 +59,8 @@ struct ApiErrorBody {
     message: String,
 }
 
-#[derive(Debug, Deserialize)]
-struct ApiErrorResponse {
-    error: ApiErrorBody,
-}
-
-fn cleanup_client() -> Result<reqwest::Client> {
-    Ok(reqwest::Client::builder().timeout(CLEANUP_TIMEOUT).build()?)
-}
-
 pub async fn cleanup_text(text: &str, api_key: &str) -> Result<String> {
-    let client = cleanup_client()?;
+    let client = reqwest::Client::builder().timeout(CLEANUP_TIMEOUT).build()?;
     let payload = serde_json::json!({
         "model": CLEANUP_MODEL,
         "temperature": 0.0,
@@ -84,17 +80,16 @@ pub async fn cleanup_text(text: &str, api_key: &str) -> Result<String> {
     let status = resp.status();
     if !status.is_success() {
         let body = resp.text().await.unwrap_or_default();
-        if let Ok(parsed) = serde_json::from_str::<ApiErrorResponse>(&body) {
+        if let Ok(parsed) = serde_json::from_str::<ApiError>(&body) {
             eyre::bail!("Groq cleanup error ({}): {}", status, parsed.error.message);
         }
         eyre::bail!("Groq cleanup error ({}): {}", status, body);
     }
     let body: ChatResponse = resp.json().await.context("failed to parse Groq cleanup response")?;
-    let content = body
+    Ok(body
         .choices
         .into_iter()
         .next()
         .map(|c| c.message.content.trim().to_string())
-        .unwrap_or_default();
-    Ok(content)
+        .unwrap_or_default())
 }
