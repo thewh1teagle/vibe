@@ -72,6 +72,7 @@ pub async fn type_text(text: String) -> Result<()> {
     use enigo::{Enigo, Keyboard, Settings};
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
     tokio::time::sleep(std::time::Duration::from_millis(TYPE_TEXT_FOCUS_DELAY_MS)).await;
+    let text = text.replace('\n', " ");
     enigo.text(&text).map_err(|e| eyre::eyre!("Failed to type text: {}", e))?;
     Ok(())
 }
