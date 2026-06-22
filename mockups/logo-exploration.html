@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vibe Simplify — Logo exploration</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #0b0b0f;
+  color: #e5e5e5;
+  padding: 48px 32px;
+}
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.sub {
+  color: #888;
+  margin-bottom: 48px;
+  font-size: 14px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  max-width: 1400px;
+}
+.card {
+  background: #16161d;
+  border: 1px solid #26262f;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.tile {
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tile svg { width: 100%; height: 100%; }
+.dark { background: #0b0b0f; }
+.light { background: #f5f5f7; border-radius: 12px; }
+.color { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 48px 0 16px;
+  color: #ccc;
+}
+</style>
+</head>
+<body>
+<h1>vibe-simplify — logo exploration</h1>
+<p class="sub">10 directions · shown on dark, light, and color backgrounds. Click to inspect SVG source.</p>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="label">01 — V monogram</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#7c3aed" stroke-width="4"/>
+        <path d="M30 28 L50 70 L70 28" fill="none" stroke="#7c3aed" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#4f46e5" stroke-width="4"/>
+        <path d="M30 28 L50 70 L70 28" fill="none" stroke="#4f46e5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">02 — VS monogram</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="6" width="88" height="88" rx="20" fill="#7c3aed"/>
+        <text x="50" y="68" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="56" font-weight="700" fill="#fff" letter-spacing="-2">vs</text>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="6" width="88" height="88" rx="20" fill="#4f46e5"/>
+        <text x="50" y="68" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="56" font-weight="700" fill="#fff" letter-spacing="-2">vs</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">03 — outline mic</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="20" width="20" height="40" rx="10" fill="none" stroke="#7c3aed" stroke-width="4"/>
+        <path d="M28 48 Q28 68 50 68 Q72 68 72 48" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
+        <line x1="50" y1="68" x2="50" y2="82" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
+        <line x1="38" y1="82" x2="62" y2="82" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="20" width="20" height="40" rx="10" fill="none" stroke="#4f46e5" stroke-width="4"/>
+        <path d="M28 48 Q28 68 50 68 Q72 68 72 48" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+        <line x1="50" y1="68" x2="50" y2="82" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+        <line x1="38" y1="82" x2="62" y2="82" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">04 — mic with wave</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="42" y="20" width="16" height="34" rx="8" fill="#7c3aed"/>
+        <path d="M30 50 Q30 68 50 68 Q70 68 70 50" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
+        <line x1="50" y1="68" x2="50" y2="82" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+        <line x1="40" y1="82" x2="60" y2="82" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+        <path d="M76 40 Q80 50 76 60" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <path d="M82 34 Q88 50 82 66" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="42" y="20" width="16" height="34" rx="8" fill="#4f46e5"/>
+        <path d="M30 50 Q30 68 50 68 Q70 68 70 50" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+        <line x1="50" y1="68" x2="50" y2="82" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+        <line x1="40" y1="82" x2="60" y2="82" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+        <path d="M76 40 Q80 50 76 60" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <path d="M82 34 Q88 50 82 66" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">05 — wave becomes quote</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 50 Q20 30 30 50 T50 50 T70 50 T90 50" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+        <text x="20" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#7c3aed">"</text>
+        <text x="62" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#7c3aed">"</text>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 50 Q20 30 30 50 T50 50 T70 50 T90 50" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+        <text x="20" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#4f46e5">"</text>
+        <text x="62" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#4f46e5">"</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">06 — speech bubble</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 28 Q20 18 30 18 L70 18 Q80 18 80 28 L80 60 Q80 70 70 70 L42 70 L28 84 L32 70 L30 70 Q20 70 20 60 Z" fill="#7c3aed"/>
+        <circle cx="36" cy="44" r="4" fill="#fff"/>
+        <circle cx="50" cy="44" r="4" fill="#fff"/>
+        <circle cx="64" cy="44" r="4" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 28 Q20 18 30 18 L70 18 Q80 18 80 28 L80 60 Q80 70 70 70 L42 70 L28 84 L32 70 L30 70 Q20 70 20 60 Z" fill="#4f46e5"/>
+        <circle cx="36" cy="44" r="4" fill="#fff"/>
+        <circle cx="50" cy="44" r="4" fill="#fff"/>
+        <circle cx="64" cy="44" r="4" fill="#fff"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">07 — typographic</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+        <text x="100" y="68" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="48" font-weight="600" fill="#7c3aed" letter-spacing="-2">vibe</text>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+        <text x="100" y="68" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="48" font-weight="600" fill="#4f46e5" letter-spacing="-2">vibe</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">08 — gradient circle</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g8" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#4f46e5"/>
+            <stop offset="1" stop-color="#ec4899"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="44" fill="url(#g8)"/>
+        <text x="50" y="68" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="52" font-weight="700" fill="#fff">v</text>
+      </svg>
+    </div>
+    <div class="tile color">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="44" fill="#fff" opacity="0.15"/>
+        <text x="50" y="68" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="52" font-weight="700" fill="#fff">v</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">09 — soundbar</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="40" width="6" height="20" rx="3" fill="#7c3aed"/>
+        <rect x="32" y="28" width="6" height="44" rx="3" fill="#7c3aed"/>
+        <rect x="44" y="36" width="6" height="28" rx="3" fill="#7c3aed"/>
+        <rect x="56" y="20" width="6" height="60" rx="3" fill="#7c3aed"/>
+        <rect x="68" y="32" width="6" height="36" rx="3" fill="#7c3aed"/>
+        <rect x="80" y="42" width="6" height="16" rx="3" fill="#7c3aed"/>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="40" width="6" height="20" rx="3" fill="#4f46e5"/>
+        <rect x="32" y="28" width="6" height="44" rx="3" fill="#4f46e5"/>
+        <rect x="44" y="36" width="6" height="28" rx="3" fill="#4f46e5"/>
+        <rect x="56" y="20" width="6" height="60" rx="3" fill="#4f46e5"/>
+        <rect x="68" y="32" width="6" height="36" rx="3" fill="#4f46e5"/>
+        <rect x="80" y="42" width="6" height="16" rx="3" fill="#4f46e5"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">10 — spark / cursor</div>
+    <div class="tile dark">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 20 L30 70 L40 60 L48 80 L56 76 L48 56 L62 56 Z" fill="#7c3aed" stroke="#7c3aed" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="tile light">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 20 L30 70 L40 60 L48 80 L56 76 L48 56 L62 56 Z" fill="#4f46e5" stroke="#4f46e5" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
