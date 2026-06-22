@@ -127,14 +127,12 @@ export default function Home() {
 							</div>
 						</div>
 
-						<div className={`flex items-center justify-between ${vm.preference.transcriptionProvider === 'groq' ? 'opacity-50' : ''}`}>
-							<label className="text-[11px] font-medium text-muted-foreground">{t('common.raw-output', 'Raw text (no line breaks)')}</label>
-							<Switch
-								checked={vm.preference.rawOutput}
-								onCheckedChange={vm.preference.setRawOutput}
-								disabled={vm.preference.transcriptionProvider === 'groq'}
-							/>
-						</div>
+						{hotkey.hotkeyOutputMode === 'clipboard' && (
+							<div className="flex items-center justify-between">
+								<label className="text-[11px] font-medium text-muted-foreground">{t('common.raw-output', 'Raw text (no line breaks)')}</label>
+								<Switch checked={vm.preference.rawOutput} onCheckedChange={vm.preference.setRawOutput} />
+							</div>
+						)}
 					</div>
 				)}
 			</div>
