@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { webviewWindow } from '@tauri-apps/api'
-import { Radio, Keyboard, Settings2 } from 'lucide-react'
-import { Logo } from '~/components/logo'
+import { Mic, Radio, Keyboard, Settings2 } from 'lucide-react'
 import Layout from '~/components/layout'
 import LanguageInput from '~/components/language-input'
 import ModelOptions from '~/components/params'
@@ -63,8 +62,8 @@ export default function Home() {
 
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-3">
-						<div className="flex h-9 w-9 items-center justify-center">
-							<Logo size={36} />
+						<div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+							<Mic className="h-4 w-4 text-primary" />
 						</div>
 						<div>
 							<h2 className="text-sm font-semibold">{t('common.global-dictation')}</h2>
