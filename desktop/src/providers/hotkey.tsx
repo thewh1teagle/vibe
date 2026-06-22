@@ -77,6 +77,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
 			if (!defaultInput) {
 				console.error('No default input device found')
+				await notify('Vibe — No microphone', 'Connect a microphone and try again.')
 				return
 			}
 
@@ -92,6 +93,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			console.error('Hotkey start_record error:', error)
 			isHotkeyRecordingRef.current = false
 			setIsHotkeyRecording(false)
+			await notify('Vibe — Recording failed', String(error))
 		}
 	}, [])
 
@@ -152,15 +154,27 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				const cleaned = await invoke<string>('cleanup_transcript', { text: resultText, apiKey: pref.groqApiKey })
 				if (cleaned) resultText = cleaned
 			} catch (e) {
-				console.warn('cleanup_transcript failed, using raw text:', e)
+				console.error('cleanup_transcript failed, using raw text:', e)
+				await notify('Vibe — AI cleanup failed', 'Using raw transcript. Check your Groq API key or rate limits.')
 			}
 		}
 
 		if (hotkeyOutputModeRef.current === 'type') {
-			await invoke('type_text', { text: resultText })
+			try {
+				await invoke('type_text', { text: resultText })
+			} catch (e) {
+				console.error('type_text failed, falling back to clipboard:', e)
+				await clipboard.writeText(resultText)
+				await notify('Vibe — Typing failed, copied to clipboard', String(e))
+			}
 		} else {
-			await clipboard.writeText(resultText)
-			await notify('Vibe', t('common.hotkey-transcription-copied'))
+			try {
+				await clipboard.writeText(resultText)
+				await notify('Vibe', t('common.hotkey-transcription-copied'))
+			} catch (e) {
+				console.error('clipboard write failed:', e)
+				await notify('Vibe — Clipboard failed', String(e))
+			}
 		}
 	}
 
