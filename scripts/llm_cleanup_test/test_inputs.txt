@@ -1,0 +1,24 @@
+# Danish speech-to-text cleanup — test inputs
+# Each line is one STT sample. Lines starting with # are ignored.
+# These are realistic Whisper transcriptions with typical errors:
+# misspelled technical terms, filler words, missing punctuation,
+# homophones, missing word boundaries, mixed Danish/English.
+
+øh jeg skal lige tjekke gethub repositoriet fordi der var en pull request fra mikkel som handlede om at fikse en bug i typescript koden
+altså vi skal mødes i morgen ikk fordi ham der anders han kommer og så skal vi snakke om det her nye projekt
+jeg har lige bestilt en kop kaffe og så ringede mor og så glemte jeg at svare hende
+vi bruger react og tailwind og så har vi en api der henter data fra postgres
+hej med dig
+jeg hedder mikkel
+og jeg arbejder som udvikler
+mødet er den tredje maj klokken halv ti og der skal være fem personer
+de gik der hen og så kom de hjem igen
+send mig en mail på mikkel at vibe dot code
+vi skal lige lave en code review på den her pull request
+øh altså jeg tænkte at vi måske kunne hm prøve at ligesom se på det her ikk osse
+kan du huske at få bestilt nye batterier til fjernbetjeningen
+jeg har sat en reminder i kalenderen den fjortende juni klokken nitten tredive
+react komponenten modtager en prop der hedder on click og så kalder den handle submit
+i går aftes da jeg sad og kodede så kom der en mail fra github om at min pipeline var faldet
+hun spurgte om jeg havde lyst til at tage med ud at spise i aften eller måske i weekenden
+øhm projektet går ud på at vi skal bygge en lille app der tracker ens daglige vaner og så visualiserer det som en graf

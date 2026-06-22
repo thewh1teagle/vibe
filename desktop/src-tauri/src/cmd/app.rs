@@ -81,3 +81,8 @@ pub async fn type_text(text: String) -> Result<()> {
 pub async fn test_groq_key(api_key: String) -> Result<bool> {
     crate::groq::test_api_key(&api_key).await
 }
+
+#[tauri::command]
+pub async fn cleanup_transcript(text: String, api_key: String) -> Result<String> {
+    crate::cleanup::cleanup_text(&text, &api_key).await
+}

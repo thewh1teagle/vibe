@@ -34,3 +34,4 @@ desktop/src-tauri/binaries/
 *.csv
 **/project.inlang/cache/
 **/project.inlang/project_id
+scripts/llm_cleanup_test/results/

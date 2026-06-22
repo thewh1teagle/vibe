@@ -133,6 +133,13 @@ export default function Home() {
 								<Switch checked={vm.preference.rawOutput} onCheckedChange={vm.preference.setRawOutput} />
 							</div>
 						)}
+
+						{vm.preference.transcriptionProvider === 'groq' && (
+							<div className="flex items-center justify-between">
+								<label className="text-[11px] font-medium text-muted-foreground">{t('common.llm-cleanup', 'AI cleanup (Groq only)')}</label>
+								<Switch checked={vm.preference.llmCleanup} onCheckedChange={vm.preference.setLlmCleanup} />
+							</div>
+						)}
 					</div>
 				)}
 			</div>

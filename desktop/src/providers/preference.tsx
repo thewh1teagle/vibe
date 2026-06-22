@@ -36,6 +36,8 @@ export interface Preference {
 	setTranscriptionProvider: ModifyState<TranscriptionProvider>
 	groqApiKey: string
 	setGroqApiKey: ModifyState<string>
+	llmCleanup: boolean
+	setLlmCleanup: ModifyState<boolean>
 }
 
 const PreferenceContext = createContext<Preference | null>(null)
@@ -96,6 +98,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [rawOutput, setRawOutput] = useLocalStorage<boolean>('prefs_raw_output', false)
 	const [transcriptionProvider, setTranscriptionProvider] = useLocalStorage<TranscriptionProvider>('prefs_transcription_provider', 'local')
 	const [groqApiKey, setGroqApiKey] = useLocalStorage<string>('prefs_groq_api_key', '')
+	const [llmCleanup, setLlmCleanup] = useLocalStorage<boolean>('prefs_llm_cleanup', false)
 
 	useEffect(() => {
 		if (theme === 'dark') {
@@ -162,6 +165,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setTranscriptionProvider,
 			groqApiKey,
 			setGroqApiKey,
+			llmCleanup,
+			setLlmCleanup,
 		}),
 		[
 			language,
@@ -177,6 +182,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			rawOutput,
 			transcriptionProvider,
 			groqApiKey,
+			llmCleanup,
 			setLanguage,
 			setModelPath,
 			setSelectedModelPreset,

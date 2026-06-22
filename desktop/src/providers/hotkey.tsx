@@ -145,7 +145,16 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			...(isGroq ? { groq_api_key: pref.groqApiKey } : {}),
 		}
 		const res: transcript.Transcript = await invoke('transcribe', { options })
-		const resultText = transcript.asText(res.segments, t('common.speaker-prefix'), pref.rawOutput).trim()
+		let resultText = transcript.asText(res.segments, t('common.speaker-prefix'), pref.rawOutput).trim()
+
+		if (isGroq && pref.llmCleanup) {
+			try {
+				const cleaned = await invoke<string>('cleanup_transcript', { text: resultText, apiKey: pref.groqApiKey })
+				if (cleaned) resultText = cleaned
+			} catch (e) {
+				console.warn('cleanup_transcript failed, using raw text:', e)
+			}
+		}
 
 		if (hotkeyOutputModeRef.current === 'type') {
 			await invoke('type_text', { text: resultText })

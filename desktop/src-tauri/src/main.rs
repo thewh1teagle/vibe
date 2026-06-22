@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod cleanup;
 mod cmd;
 mod config;
 mod error;
@@ -76,6 +77,7 @@ async fn main() -> Result<()> {
             cmd::app::rename_crash_file,
             cmd::app::type_text,
             cmd::app::test_groq_key,
+            cmd::app::cleanup_transcript,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
