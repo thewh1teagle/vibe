@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Vibe — Design mockups</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html,
+			body {
+				font-family: 'Inter', system-ui, -apple-system, sans-serif;
+				background: #06070a;
+				color: #e4e7ec;
+				min-height: 100vh;
+			}
+			header {
+				padding: 32px 32px 24px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			header h1 {
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: -0.01em;
+			}
+			header p {
+				font-size: 12.5px;
+				color: #98a2b3;
+				margin-top: 4px;
+			}
+			.section {
+				padding: 28px 32px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.section-head {
+				display: flex;
+				align-items: baseline;
+				gap: 12px;
+				margin-bottom: 18px;
+			}
+			.section-head h2 {
+				font-size: 13px;
+				font-weight: 600;
+				color: #e4e7ec;
+				letter-spacing: -0.005em;
+			}
+			.section-head .tag {
+				font-size: 10px;
+				font-weight: 700;
+				color: #22d3ee;
+				letter-spacing: 0.12em;
+			}
+			.section-head .desc {
+				font-size: 11.5px;
+				color: #6c7383;
+				margin-left: auto;
+			}
+			.grid {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 1px;
+				background: rgba(255, 255, 255, 0.06);
+			}
+			.cell {
+				background: #06070a;
+				padding: 22px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 14px;
+			}
+			.cell h3 {
+				font-size: 12.5px;
+				font-weight: 600;
+				color: #e4e7ec;
+				letter-spacing: -0.005em;
+			}
+			.cell p {
+				font-size: 11px;
+				color: #6c7383;
+				text-align: center;
+				max-width: 480px;
+			}
+			.cell .num {
+				font-size: 10px;
+				font-weight: 700;
+				color: #22d3ee;
+				letter-spacing: 0.1em;
+			}
+			.cell .meta {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 4px;
+			}
+			.iframe {
+				width: 480px;
+				height: 470px;
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				border-radius: 14px;
+				overflow: hidden;
+				background: #0a0c12;
+				box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+			}
+			.iframe iframe {
+				width: 100%;
+				height: 100%;
+				border: 0;
+			}
+			@media (max-width: 1100px) {
+				.grid {
+					grid-template-columns: 1fr;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>Vibe — design directions</h1>
+			<p>Two groups, same component structure. The first group varies only the accent color. The second group varies the entire visual language.</p>
+		</header>
+
+		<section class="section">
+			<div class="section-head">
+				<span class="tag">GROUP A</span>
+				<h2>Color variations</h2>
+				<span class="desc">Same dark-premium language, different accent</span>
+			</div>
+			<div class="grid">
+				<div class="cell">
+					<div class="meta">
+						<span class="num">01</span>
+						<h3>Local · Cyan</h3>
+						<p>Linear / Raycast reference. Clean and developer-focused.</p>
+					</div>
+					<div class="iframe"><iframe src="1-dark-local-cyan.html"></iframe></div>
+				</div>
+
+				<div class="cell">
+					<div class="meta">
+						<span class="num">02</span>
+						<h3>Local · Indigo</h3>
+						<p>Cooler indigo accent. Slightly more "premium SaaS" feel.</p>
+					</div>
+					<div class="iframe"><iframe src="2-dark-local-indigo.html"></iframe></div>
+				</div>
+
+				<div class="cell">
+					<div class="meta">
+						<span class="num">03</span>
+						<h3>Local · Emerald</h3>
+						<p>Emerald accent that matches the existing "Local" green badge.</p>
+					</div>
+					<div class="iframe"><iframe src="3-dark-local-emerald.html"></iframe></div>
+				</div>
+
+				<div class="cell">
+					<div class="meta">
+						<span class="num">04</span>
+						<h3>Groq Cloud · Amber</h3>
+						<p>The Groq / API path. Orange-amber accent, "API" indicator on the badge, Raw output toggle disabled with an "N/A · API" hint.</p>
+					</div>
+					<div class="iframe"><iframe src="4-dark-groq-amber.html"></iframe></div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section">
+			<div class="section-head">
+				<span class="tag">GROUP B</span>
+				<h2>Unique visual languages</h2>
+				<span class="desc">Same structure, completely different design vocabularies</span>
+			</div>
+			<div class="grid">
+				<div class="cell">
+					<div class="meta">
+						<span class="num">05</span>
+						<h3>Brutalist Mono</h3>
+						<p>Sharp corners, monospace, B&W with one acid-green accent. Strict developer's tool.</p>
+					</div>
+					<div class="iframe"><iframe src="5-brutalist-mono.html"></iframe></div>
+				</div>
+
+				<div class="cell">
+					<div class="meta">
+						<span class="num">06</span>
+						<h3>Phosphor CRT</h3>
+						<p>Green phosphor on black, scanlines, monospace, blinking-cursor terminal aesthetic.</p>
+					</div>
+					<div class="iframe"><iframe src="6-phosphor-crt.html"></iframe></div>
+				</div>
+
+				<div class="cell">
+					<div class="meta">
+						<span class="num">07</span>
+						<h3>Glassmorphism (dark)</h3>
+						<p>Real frosted glass panels over a vibrant magenta/indigo/cyan aurora. Color shows through.</p>
+					</div>
+					<div class="iframe"><iframe src="7-glass-dark.html"></iframe></div>
+				</div>
+
+				<div class="cell">
+					<div class="meta">
+						<span class="num">08</span>
+						<h3>Blueprint</h3>
+						<p>Technical drawing aesthetic — grid background, crosshair markers, dimension callouts, blueprint blue.</p>
+					</div>
+					<div class="iframe"><iframe src="8-blueprint.html"></iframe></div>
+				</div>
+			</div>
+		</section>
+	</body>
+</html>

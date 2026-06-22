@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Vibe — Blueprint</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html,
+			body {
+				height: 100%;
+				font-family: 'Inter', system-ui, -apple-system, sans-serif;
+				color: #e8f1ff;
+				-webkit-font-smoothing: antialiased;
+			}
+
+			/* Blueprint backdrop with grid */
+			.page {
+				min-height: 100vh;
+				display: grid;
+				place-items: center;
+				padding: 40px 16px;
+				background-color: #0d2640;
+				background-image:
+					linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+					linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+					linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+					linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+				background-size:
+					20px 20px,
+					20px 20px,
+					100px 100px,
+					100px 100px;
+				position: relative;
+				overflow: hidden;
+			}
+			.window {
+				width: 480px;
+				height: 470px;
+				background: rgba(13, 38, 64, 0.85);
+				border: 1px solid rgba(77, 208, 225, 0.35);
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+				position: relative;
+				border-radius: 2px;
+				box-shadow:
+					0 0 0 1px rgba(77, 208, 225, 0.08),
+					0 30px 60px -20px rgba(0, 0, 0, 0.6),
+					0 0 50px rgba(77, 208, 225, 0.1);
+			}
+
+			/* Crosshair corner markers */
+			.crosshair {
+				position: absolute;
+				width: 12px;
+				height: 12px;
+				border-color: rgba(77, 208, 225, 0.6);
+				z-index: 2;
+			}
+			.crosshair.tl {
+				top: 8px;
+				left: 8px;
+				border-top: 1px solid;
+				border-left: 1px solid;
+			}
+			.crosshair.tr {
+				top: 8px;
+				right: 8px;
+				border-top: 1px solid;
+				border-right: 1px solid;
+			}
+			.crosshair.bl {
+				bottom: 8px;
+				left: 8px;
+				border-bottom: 1px solid;
+				border-left: 1px solid;
+			}
+			.crosshair.br {
+				bottom: 8px;
+				right: 8px;
+				border-bottom: 1px solid;
+				border-right: 1px solid;
+			}
+
+			.titlebar {
+				height: 30px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0 24px;
+				border-bottom: 1px solid rgba(77, 208, 225, 0.25);
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 9.5px;
+				font-weight: 500;
+				letter-spacing: 0.08em;
+				color: rgba(77, 208, 225, 0.7);
+				text-transform: uppercase;
+			}
+			.titlebar .meta {
+				display: flex;
+				gap: 14px;
+			}
+			.titlebar .meta span::before {
+				content: '// ';
+				opacity: 0.5;
+			}
+			.content {
+				padding: 18px 24px 22px;
+				display: flex;
+				flex-direction: column;
+				gap: 14px;
+				flex: 1;
+				overflow: hidden;
+			}
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+			.brand .logo {
+				width: 34px;
+				height: 34px;
+				border: 1px solid rgba(77, 208, 225, 0.6);
+				display: grid;
+				place-items: center;
+				background: rgba(77, 208, 225, 0.06);
+				position: relative;
+			}
+			.brand .logo::before,
+			.brand .logo::after {
+				content: '';
+				position: absolute;
+				background: rgba(77, 208, 225, 0.6);
+			}
+			.brand .logo::before {
+				top: -3px;
+				left: 50%;
+				width: 1px;
+				height: 3px;
+				transform: translateX(-50%);
+			}
+			.brand .logo::after {
+				left: -3px;
+				top: 50%;
+				width: 3px;
+				height: 1px;
+				transform: translateY(-50%);
+			}
+			.brand .logo svg {
+				width: 16px;
+				height: 16px;
+				color: #4dd0e1;
+			}
+			.brand h1 {
+				font-size: 16px;
+				font-weight: 600;
+				letter-spacing: -0.01em;
+				color: #e8f1ff;
+			}
+			.brand .ref {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 9.5px;
+				color: rgba(77, 208, 225, 0.7);
+				letter-spacing: 0.08em;
+				margin-top: 1px;
+			}
+			.badge {
+				margin-left: auto;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 9.5px;
+				font-weight: 600;
+				letter-spacing: 0.08em;
+				padding: 4px 8px;
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				color: #6ee7b7;
+				border: 1px solid rgba(110, 231, 183, 0.4);
+				background: rgba(110, 231, 183, 0.05);
+			}
+			.badge::before {
+				content: '●';
+				color: #34d399;
+				font-size: 8px;
+			}
+			.row {
+				display: flex;
+				gap: 0;
+				align-items: stretch;
+				border: 1px solid rgba(77, 208, 225, 0.3);
+				border-radius: 2px;
+			}
+			.select {
+				flex: 1;
+				height: 34px;
+				padding: 0 24px 0 10px;
+				font-size: 12px;
+				font-weight: 500;
+				color: #e8f1ff;
+				background: rgba(13, 38, 64, 0.5);
+				border: 0;
+				border-right: 1px solid rgba(77, 208, 225, 0.3);
+				appearance: none;
+				background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='9' height='9' viewBox='0 0 24 24' fill='none' stroke='%234dd0e1' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+				background-repeat: no-repeat;
+				background-position: right 9px center;
+			}
+			.select:focus {
+				outline: 0;
+				background: rgba(77, 208, 225, 0.08);
+			}
+			.iconbtn {
+				width: 34px;
+				display: grid;
+				place-items: center;
+				background: rgba(13, 38, 64, 0.5);
+				border: 0;
+				color: rgba(77, 208, 225, 0.8);
+				cursor: pointer;
+				transition: all 0.15s ease;
+			}
+			.iconbtn:hover {
+				background: rgba(77, 208, 225, 0.15);
+				color: #4dd0e1;
+			}
+			.iconbtn svg {
+				width: 14px;
+				height: 14px;
+			}
+			.section-marker {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 9.5px;
+				font-weight: 600;
+				color: rgba(77, 208, 225, 0.7);
+				letter-spacing: 0.1em;
+			}
+			.section-marker::before {
+				content: '▸';
+				color: #4dd0e1;
+			}
+			.section-marker::after {
+				content: '';
+				flex: 1;
+				height: 1px;
+				background: repeating-linear-gradient(
+					90deg,
+					rgba(77, 208, 225, 0.4) 0,
+					rgba(77, 208, 225, 0.4) 4px,
+					transparent 4px,
+					transparent 8px
+				);
+			}
+			.dictation {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				padding: 8px 0;
+			}
+			.dictation .icon {
+				width: 34px;
+				height: 34px;
+				border: 1px solid rgba(77, 208, 225, 0.6);
+				display: grid;
+				place-items: center;
+				background: rgba(77, 208, 225, 0.06);
+				border-radius: 50%;
+				position: relative;
+			}
+			.dictation .icon::after {
+				content: '';
+				position: absolute;
+				inset: -4px;
+				border: 1px dashed rgba(77, 208, 225, 0.3);
+				border-radius: 50%;
+			}
+			.dictation .icon svg {
+				width: 14px;
+				height: 14px;
+				color: #4dd0e1;
+			}
+			.dictation .text {
+				flex: 1;
+			}
+			.dictation .text h2 {
+				font-size: 12.5px;
+				font-weight: 600;
+				color: #e8f1ff;
+				letter-spacing: -0.005em;
+			}
+			.dictation .text p {
+				font-size: 11px;
+				color: rgba(232, 241, 255, 0.55);
+				margin-top: 1px;
+			}
+			.switch {
+				width: 36px;
+				height: 18px;
+				border-radius: 2px;
+				background: rgba(13, 38, 64, 0.5);
+				border: 1px solid rgba(77, 208, 225, 0.4);
+				position: relative;
+				cursor: pointer;
+				flex-shrink: 0;
+			}
+			.switch::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 18px;
+				height: 18px;
+				background: rgba(77, 208, 225, 0.2);
+				transition: all 0.15s ease;
+			}
+			.switch::after {
+				content: 'I';
+				position: absolute;
+				top: 50%;
+				left: 5px;
+				transform: translateY(-50%);
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 7.5px;
+				font-weight: 700;
+				color: rgba(77, 208, 225, 0.6);
+				z-index: 1;
+			}
+			.switch.on {
+				background: rgba(77, 208, 225, 0.15);
+				border-color: #4dd0e1;
+			}
+			.switch.on::before {
+				transform: translateX(18px);
+				background: #4dd0e1;
+			}
+			.switch.on::after {
+				content: 'O';
+				left: auto;
+				right: 5px;
+				color: #0d2640;
+			}
+			.card {
+				border: 1px solid rgba(77, 208, 225, 0.25);
+				border-radius: 2px;
+				padding: 12px 14px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+				background: rgba(13, 38, 64, 0.4);
+				position: relative;
+			}
+			.field {
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+				position: relative;
+			}
+			.field-id {
+				position: absolute;
+				top: -1px;
+				right: -1px;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 8px;
+				color: rgba(77, 208, 225, 0.5);
+				letter-spacing: 0.08em;
+			}
+			.field label {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				font-size: 10px;
+				font-weight: 600;
+				color: rgba(77, 208, 225, 0.85);
+				letter-spacing: 0.04em;
+			}
+			.field label svg {
+				width: 10px;
+				height: 10px;
+			}
+			.keys {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
+			.kbd {
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 10px;
+				font-weight: 600;
+				color: #e8f1ff;
+				padding: 4px 7px;
+				min-width: 22px;
+				text-align: center;
+				background: rgba(13, 38, 64, 0.6);
+				border: 1px solid rgba(77, 208, 225, 0.4);
+			}
+			.kbd-input {
+				flex: 1;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 10px;
+				color: #4dd0e1;
+				padding: 5px 8px;
+				background: rgba(13, 38, 64, 0.6);
+				border: 1px solid rgba(77, 208, 225, 0.4);
+				outline: none;
+			}
+			.modes {
+				display: flex;
+				gap: 0;
+				border: 1px solid rgba(77, 208, 225, 0.4);
+			}
+			.mode {
+				flex: 1;
+				padding: 7px 0;
+				text-align: center;
+				font-size: 11px;
+				font-weight: 600;
+				cursor: pointer;
+				background: rgba(13, 38, 64, 0.5);
+				border: 0;
+				border-right: 1px solid rgba(77, 208, 225, 0.4);
+				color: rgba(232, 241, 255, 0.6);
+				transition: all 0.15s ease;
+			}
+			.mode:last-child {
+				border-right: 0;
+			}
+			.mode:hover {
+				background: rgba(77, 208, 225, 0.1);
+				color: #e8f1ff;
+			}
+			.mode.active {
+				background: #4dd0e1;
+				color: #0d2640;
+			}
+			.toggle-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding-top: 4px;
+				border-top: 1px dashed rgba(77, 208, 225, 0.2);
+				margin-top: 2px;
+			}
+			.toggle-row .lbl {
+				font-size: 11px;
+				font-weight: 500;
+				color: rgba(232, 241, 255, 0.7);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page">
+			<div class="window">
+				<div class="crosshair tl"></div>
+				<div class="crosshair tr"></div>
+				<div class="crosshair bl"></div>
+				<div class="crosshair br"></div>
+
+				<div class="titlebar">
+					<div class="meta">
+						<span>VIBE-001</span>
+						<span>SCALE 1:1</span>
+					</div>
+					<div>REV.A · 2026</div>
+				</div>
+				<div class="content">
+					<div class="brand">
+						<div class="logo">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+							</svg>
+						</div>
+						<div>
+							<h1>Vibe</h1>
+							<div class="ref">DICTATION.APP / MAIN</div>
+						</div>
+						<span class="badge">LOCAL</span>
+					</div>
+
+					<div class="row">
+						<select class="select">
+							<option>Auto-detect (English)</option>
+						</select>
+						<select class="select">
+							<option>Whisper Large v3</option>
+						</select>
+						<button class="iconbtn" aria-label="Settings">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+								<path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.65.86 1.04 1.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
+							</svg>
+						</button>
+					</div>
+
+					<div class="section-marker">SECTION 02 — GLOBAL DICTATION</div>
+
+					<div class="dictation">
+						<div class="icon">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+							</svg>
+						</div>
+						<div class="text">
+							<h2>Global dictation</h2>
+							<p>Press the hotkey and speak</p>
+						</div>
+						<div class="switch on"></div>
+					</div>
+
+					<div class="card">
+						<div class="field">
+							<span class="field-id">/01</span>
+							<label>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="2" y="6" width="20" height="12" rx="2" />
+									<path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01" />
+								</svg>
+								Global hotkey shortcut
+							</label>
+							<div class="keys">
+								<span class="kbd">Ctrl</span>
+								<span class="kbd">Shift</span>
+								<span class="kbd">D</span>
+								<input class="kbd-input" value="Ctrl+Shift+D" readonly />
+							</div>
+						</div>
+
+						<div class="field">
+							<span class="field-id">/02</span>
+							<label>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="2" />
+									<path d="M16.24 7.76a6 6 0 010 8.49M7.76 16.24a6 6 0 010-8.49M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14" />
+								</svg>
+								Output
+							</label>
+							<div class="modes">
+								<button class="mode active">Clipboard</button>
+								<button class="mode">Type</button>
+							</div>
+						</div>
+
+						<div class="toggle-row">
+							<span class="lbl">Raw text (no line breaks)</span>
+							<div class="switch"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

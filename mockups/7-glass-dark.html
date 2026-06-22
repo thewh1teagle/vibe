@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Vibe — Glass (dark)</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html,
+			body {
+				height: 100%;
+				font-family: 'Inter', system-ui, -apple-system, sans-serif;
+				color: #f4f4f5;
+				-webkit-font-smoothing: antialiased;
+				font-feature-settings: 'cv11', 'ss01';
+			}
+
+			/* Vibrant aurora backdrop — colorful blobs that show through glass */
+			.page {
+				min-height: 100vh;
+				display: grid;
+				place-items: center;
+				padding: 40px 16px;
+				background: #0d0716;
+				position: relative;
+				overflow: hidden;
+			}
+			.blob {
+				position: absolute;
+				border-radius: 50%;
+				filter: blur(80px);
+				pointer-events: none;
+			}
+			.b1 {
+				width: 480px;
+				height: 480px;
+				background: #e879f9;
+				top: -160px;
+				left: -100px;
+				opacity: 0.85;
+			}
+			.b2 {
+				width: 520px;
+				height: 520px;
+				background: #6366f1;
+				top: 20%;
+				right: -180px;
+				opacity: 0.85;
+			}
+			.b3 {
+				width: 460px;
+				height: 460px;
+				background: #06b6d4;
+				bottom: -180px;
+				left: 25%;
+				opacity: 0.85;
+			}
+			.b4 {
+				width: 320px;
+				height: 320px;
+				background: #f43f5e;
+				top: 55%;
+				left: 5%;
+				opacity: 0.7;
+			}
+			.window {
+				width: 480px;
+				height: 470px;
+				border-radius: 20px;
+				background: rgba(255, 255, 255, 0.08);
+				backdrop-filter: blur(30px) saturate(180%);
+				-webkit-backdrop-filter: blur(30px) saturate(180%);
+				border: 1px solid rgba(255, 255, 255, 0.18);
+				box-shadow:
+					0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+					0 1px 0 rgba(255, 255, 255, 0.25) inset,
+					0 30px 60px -20px rgba(0, 0, 0, 0.5);
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+				position: relative;
+			}
+			.titlebar {
+				height: 34px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0 14px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+				background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+			}
+			.titlebar .dots {
+				display: flex;
+				gap: 6px;
+			}
+			.titlebar .dot {
+				width: 11px;
+				height: 11px;
+				border-radius: 50%;
+				border: 1px solid rgba(255, 255, 255, 0.15);
+			}
+			.dot.r {
+				background: rgba(255, 95, 87, 0.7);
+			}
+			.dot.y {
+				background: rgba(254, 188, 46, 0.7);
+			}
+			.dot.g {
+				background: rgba(40, 200, 64, 0.7);
+			}
+			.titlebar .name {
+				font-size: 11px;
+				font-weight: 500;
+				color: rgba(255, 255, 255, 0.6);
+				letter-spacing: 0.01em;
+			}
+			.content {
+				padding: 18px 20px 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 13px;
+				flex: 1;
+				overflow: hidden;
+			}
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+			.brand .logo {
+				width: 36px;
+				height: 36px;
+				border-radius: 50%;
+				display: grid;
+				place-items: center;
+				background: rgba(255, 255, 255, 0.12);
+				border: 1px solid rgba(255, 255, 255, 0.25);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.3),
+					0 8px 24px -8px rgba(232, 121, 249, 0.6);
+				backdrop-filter: blur(10px);
+			}
+			.brand .logo svg {
+				width: 18px;
+				height: 18px;
+				color: #fff;
+				filter: drop-shadow(0 0 4px rgba(232, 121, 249, 0.7));
+			}
+			.brand h1 {
+				font-size: 16px;
+				font-weight: 600;
+				letter-spacing: -0.015em;
+				color: #fff;
+			}
+			.badge {
+				margin-left: auto;
+				font-size: 10.5px;
+				font-weight: 600;
+				letter-spacing: 0.02em;
+				padding: 4px 10px;
+				border-radius: 999px;
+				display: inline-flex;
+				align-items: center;
+				gap: 5px;
+				color: #6ee7b7;
+				background: rgba(16, 185, 129, 0.18);
+				border: 1px solid rgba(110, 231, 183, 0.35);
+				backdrop-filter: blur(8px);
+			}
+			.badge::before {
+				content: '';
+				width: 5px;
+				height: 5px;
+				border-radius: 50%;
+				background: #34d399;
+				box-shadow: 0 0 8px #34d399;
+			}
+			.row {
+				display: flex;
+				gap: 8px;
+				align-items: stretch;
+			}
+			.select {
+				flex: 1;
+				height: 36px;
+				border-radius: 12px;
+				padding: 0 30px 0 12px;
+				font-size: 12.5px;
+				font-weight: 500;
+				color: #fff;
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.15);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.15),
+					0 4px 16px -4px rgba(0, 0, 0, 0.15);
+				backdrop-filter: blur(10px);
+				appearance: none;
+				background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' opacity='0.7'><polyline points='6 9 12 15 18 9'/></svg>");
+				background-repeat: no-repeat;
+				background-position: right 10px center;
+				transition: all 0.15s ease;
+			}
+			.select:hover {
+				background: rgba(255, 255, 255, 0.15);
+				border-color: rgba(255, 255, 255, 0.25);
+			}
+			.iconbtn {
+				width: 36px;
+				height: 36px;
+				border-radius: 12px;
+				display: grid;
+				place-items: center;
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.15);
+				color: rgba(255, 255, 255, 0.75);
+				cursor: pointer;
+				transition: all 0.15s ease;
+				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+				backdrop-filter: blur(10px);
+			}
+			.iconbtn:hover {
+				background: rgba(255, 255, 255, 0.2);
+				color: #fff;
+			}
+			.iconbtn svg {
+				width: 15px;
+				height: 15px;
+			}
+			.divider {
+				height: 1px;
+				background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+			}
+			.dictation {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+			}
+			.dictation .icon {
+				width: 36px;
+				height: 36px;
+				border-radius: 50%;
+				display: grid;
+				place-items: center;
+				background: linear-gradient(135deg, rgba(232, 121, 249, 0.4), rgba(99, 102, 241, 0.4));
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.4),
+					0 0 24px -4px rgba(232, 121, 249, 0.7);
+			}
+			.dictation .icon svg {
+				width: 15px;
+				height: 15px;
+				color: #fff;
+				filter: drop-shadow(0 0 4px rgba(232, 121, 249, 0.8));
+			}
+			.dictation .text h2 {
+				font-size: 13px;
+				font-weight: 600;
+				color: #fff;
+				letter-spacing: -0.005em;
+			}
+			.dictation .text p {
+				font-size: 11.5px;
+				color: rgba(255, 255, 255, 0.55);
+				margin-top: 1px;
+			}
+			.switch {
+				width: 38px;
+				height: 22px;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.12);
+				border: 1px solid rgba(255, 255, 255, 0.18);
+				position: relative;
+				cursor: pointer;
+				flex-shrink: 0;
+				transition: all 0.2s ease;
+				box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+			}
+			.switch::after {
+				content: '';
+				position: absolute;
+				top: 1px;
+				left: 1px;
+				width: 18px;
+				height: 18px;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.95);
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+				transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+			.switch.on {
+				background: linear-gradient(135deg, rgba(232, 121, 249, 0.5), rgba(99, 102, 241, 0.5));
+				border-color: rgba(232, 121, 249, 0.5);
+				box-shadow: 0 0 18px -2px rgba(232, 121, 249, 0.6);
+			}
+			.switch.on::after {
+				transform: translateX(16px);
+			}
+			.card {
+				border-radius: 14px;
+				padding: 14px;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				backdrop-filter: blur(20px);
+				-webkit-backdrop-filter: blur(20px);
+				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+			.field label {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				font-size: 10.5px;
+				font-weight: 600;
+				color: rgba(255, 255, 255, 0.6);
+				letter-spacing: 0.01em;
+				margin-bottom: 6px;
+			}
+			.field label svg {
+				width: 11px;
+				height: 11px;
+			}
+			.keys {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+			.kbd {
+				font-family: 'JetBrains Mono', ui-monospace, monospace;
+				font-size: 10.5px;
+				font-weight: 600;
+				color: #fff;
+				padding: 4px 8px;
+				min-width: 24px;
+				text-align: center;
+				border-radius: 7px;
+				background: rgba(255, 255, 255, 0.12);
+				border: 1px solid rgba(255, 255, 255, 0.18);
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.2),
+					0 1px 2px rgba(0, 0, 0, 0.1);
+				backdrop-filter: blur(10px);
+			}
+			.kbd-input {
+				flex: 1;
+				font-family: 'JetBrains Mono', ui-monospace, monospace;
+				font-size: 10.5px;
+				color: rgba(255, 255, 255, 0.55);
+				padding: 5px 9px;
+				border-radius: 7px;
+				background: rgba(255, 255, 255, 0.08);
+				border: 1px solid rgba(255, 255, 255, 0.15);
+				outline: none;
+			}
+			.modes {
+				display: flex;
+				gap: 6px;
+			}
+			.mode {
+				flex: 1;
+				padding: 7px 0;
+				text-align: center;
+				font-size: 11.5px;
+				font-weight: 600;
+				border-radius: 9px;
+				cursor: pointer;
+				transition: all 0.15s ease;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				color: rgba(255, 255, 255, 0.6);
+				backdrop-filter: blur(10px);
+			}
+			.mode:hover {
+				background: rgba(255, 255, 255, 0.12);
+				color: #fff;
+				border-color: rgba(255, 255, 255, 0.2);
+			}
+			.mode.active {
+				background: linear-gradient(135deg, rgba(232, 121, 249, 0.3), rgba(99, 102, 241, 0.3));
+				border: 1px solid rgba(232, 121, 249, 0.5);
+				color: #fff;
+				box-shadow:
+					inset 0 1px 0 rgba(255, 255, 255, 0.25),
+					0 0 20px -4px rgba(232, 121, 249, 0.6);
+			}
+			.toggle-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding-top: 2px;
+			}
+			.toggle-row .lbl {
+				font-size: 11.5px;
+				font-weight: 500;
+				color: rgba(255, 255, 255, 0.6);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page">
+			<div class="blob b1"></div>
+			<div class="blob b2"></div>
+			<div class="blob b3"></div>
+			<div class="blob b4"></div>
+
+			<div class="window">
+				<div class="titlebar">
+					<div class="dots">
+						<span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+					</div>
+					<div class="name">Vibe</div>
+					<div style="width: 52px"></div>
+				</div>
+				<div class="content">
+					<div class="brand">
+						<div class="logo">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+							</svg>
+						</div>
+						<h1>Vibe</h1>
+						<span class="badge">Local</span>
+					</div>
+					<div class="row">
+						<select class="select">
+							<option>Auto-detect (English)</option>
+						</select>
+						<select class="select">
+							<option>Whisper Large v3</option>
+						</select>
+						<button class="iconbtn" aria-label="Settings">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+								<path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.65.86 1.04 1.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
+							</svg>
+						</button>
+					</div>
+					<div class="divider"></div>
+					<div class="dictation">
+						<div class="icon">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+							</svg>
+						</div>
+						<div class="text">
+							<h2>Global dictation</h2>
+							<p>Press the hotkey and speak</p>
+						</div>
+						<div class="switch on"></div>
+					</div>
+					<div class="card">
+						<div class="field">
+							<label>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="2" y="6" width="20" height="12" rx="2" />
+									<path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01" />
+								</svg>
+								Global hotkey shortcut
+							</label>
+							<div class="keys">
+								<span class="kbd">Ctrl</span>
+								<span class="kbd">Shift</span>
+								<span class="kbd">D</span>
+								<input class="kbd-input" value="Ctrl+Shift+D" readonly />
+							</div>
+						</div>
+						<div class="field">
+							<label>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="2" />
+									<path d="M16.24 7.76a6 6 0 010 8.49M7.76 16.24a6 6 0 010-8.49M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14" />
+								</svg>
+								Output
+							</label>
+							<div class="modes">
+								<button class="mode active">Clipboard</button>
+								<button class="mode">Type</button>
+							</div>
+						</div>
+						<div class="toggle-row">
+							<span class="lbl">Raw text (no line breaks)</span>
+							<div class="switch"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
