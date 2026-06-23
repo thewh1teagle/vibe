@@ -27,4 +27,4 @@ venv/
 *.bin
 *.onnx
 *.pfx
-*trace*.log
+*trace*.log.claude/
