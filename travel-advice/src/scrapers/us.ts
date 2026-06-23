@@ -3,8 +3,6 @@ import type { Scraper, RawAdvisory } from "./types";
 
 const LIST_URL = "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html";
 const LEVEL_REGEX = /Level\s+(\d+):\s+([^<]+)/i;
-const DEST_ISO3_REGEX = /destination\.([a-z]{3})\.html/i;
-
 const ISO3_TO_ISO2: Record<string, string> = {
   afg:"AF",alb:"AL",dza:"DZ",and:"AD",ago:"AO",atg:"AG",arg:"AR",arm:"AM",
   aus:"AU",aut:"AT",aze:"AZ",bhs:"BS",bhr:"BH",bgd:"BD",brb:"BB",blr:"BY",
@@ -49,35 +47,62 @@ export const usScraper: Scraper = async () => {
     const html = await res.text();
     const advisories: RawAdvisory[] = [];
 
-    // Parse table rows: each row has a country link, level, and date
+    const NAME_TO_ISO2: Record<string, string> = {
+      "united arab emirates":"AE","saudi arabia":"SA","israel, the west bank and gaza":"IL",
+      "south korea":"KR","north korea":"KP","czech republic":"CZ","ivory coast":"CI",
+      "cote d'ivoire":"CI","eswatini":"SZ","timor-leste":"TL","cabo verde":"CV",
+      "the bahamas":"BS","the gambia":"GM","trinidad and tobago":"TT",
+      "antigua and barbuda":"AG","saint kitts and nevis":"KN","saint lucia":"LC",
+      "saint vincent and the grenadines":"VC","bosnia and herzegovina":"BA",
+      "north macedonia":"MK","papua new guinea":"PG","solomon islands":"SB",
+      "marshall islands":"MH","sao tome and principe":"ST","equatorial guinea":"GQ",
+      "central african republic":"CF","democratic republic of the congo":"CD",
+      "republic of the congo":"CG","south sudan":"SS","sierra leone":"SL",
+      "guinea-bissau":"GW","burkina faso":"BF","new zealand":"NZ",
+      "south africa":"ZA","sri lanka":"LK","costa rica":"CR","el salvador":"SV",
+      "dominican republic":"DO",
+    };
+
     const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
     let rowMatch;
 
     while ((rowMatch = rowRegex.exec(html)) !== null) {
       const row = rowMatch[1];
 
-      // Extract country link and ISO3 from href
-      const linkMatch = row.match(/<a[^>]+href="([^"]*destination\.([a-z]{3})\.html[^"]*)"/i)
-        ?? row.match(/<a[^>]+href="([^"]*-travel-advisory\.html[^"]*)"/i);
+      const linkMatch = row.match(/<a[^>]+href="([^"]*)"/i);
       if (!linkMatch) continue;
 
       const href = linkMatch[1];
-      const iso3 = linkMatch[2]?.toLowerCase();
-      const iso2 = iso3 ? ISO3_TO_ISO2[iso3] : undefined;
+      const iso3Match = href.match(/destination\.([a-z]{3})\.html/i);
+      let iso2: string | undefined;
+      if (iso3Match) {
+        iso2 = ISO3_TO_ISO2[iso3Match[1].toLowerCase()];
+      }
+
+      if (!iso2) {
+        const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/);
+        const name = nameMatch?.[1]?.trim().toLowerCase();
+        if (name) {
+          iso2 = NAME_TO_ISO2[name];
+          if (!iso2) {
+            const simple = Object.entries(ISO3_TO_ISO2).find(([, v]) =>
+              name === v.toLowerCase() || name.replace(/[^a-z]/g, "") === v.toLowerCase()
+            );
+            if (simple) iso2 = simple[1];
+          }
+        }
+      }
       if (!iso2) continue;
 
-      // Extract level
       const levelMatch = row.match(LEVEL_REGEX);
       if (!levelMatch) continue;
 
       const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
       const normalizedLevel = normalizeLevel("us", rawLevel);
 
-      // Extract date
       const dateMatch = row.match(/(\w+ \d{1,2},\s*\d{4})/);
       const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
 
-      // Extract country name for summary
       const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/);
       const countryName = nameMatch?.[1]?.trim() ?? "";
 

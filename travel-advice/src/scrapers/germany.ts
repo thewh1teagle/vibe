@@ -1,55 +1,58 @@
 import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
-// Maps Auswärtiges Amt boolean flags to a raw level string
-// Falls back to content text analysis when all flags are false
+const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
+  { pattern: /reisewarnung/i, rawLevel: "Reisewarnung" },
+  { pattern: /teilreisewarnung/i, rawLevel: "Teilreisewarnung" },
+  { pattern: /von nicht notwendigen reisen/i, rawLevel: "Von nicht notwendigen Reisen abraten" },
+  { pattern: /erh.hte vorsicht|besondere vorsicht/i, rawLevel: "Erhöhte Vorsicht" },
+];
+
 function flagsToRaw(warning: boolean, partialWarning: boolean, situationWarning: boolean, situationPartWarning: boolean, contentHtml?: string): string {
   if (warning) return "Reisewarnung";
   if (partialWarning) return "Teilreisewarnung";
   if (situationPartWarning) return "Von nicht notwendigen Reisen abraten";
   if (situationWarning) return "Erhöhte Vorsicht";
 
-  // Fallback: parse content text for warning phrases the flags may have missed
   if (contentHtml) {
     const text = contentHtml.replace(/<[^>]+>/g, " ").toLowerCase();
-    if (/reisewarnung|wird dringend abgeraten|von reisen.*wird abgeraten/.test(text)) return "Reisewarnung";
-    if (/teilreisewarnung|teile.*wird abgeraten/.test(text)) return "Teilreisewarnung";
-    if (/nicht notwendigen reisen|abraten/.test(text)) return "Von nicht notwendigen Reisen abraten";
-    if (/erhöhte vorsicht|besondere vorsicht/.test(text)) return "Erhöhte Vorsicht";
+    for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
+      if (pattern.test(text)) return rawLevel;
+    }
   }
 
   return "Keine besonderen Sicherheitshinweise";
 }
 
-// AA uses ISO alpha-3; we maintain a minimal alpha3→alpha2 lookup built from the API response
-// The API returns countryCode (alpha-3); we cross-reference with our DB via destIso2
-const ISO3_TO_ISO2: Record<string, string> = {
-  AFG: "AF", ALB: "AL", DZA: "DZ", AND: "AD", AGO: "AO", ATG: "AG", ARG: "AR", ARM: "AM",
-  AUS: "AU", AUT: "AT", AZE: "AZ", BHS: "BS", BHR: "BH", BGD: "BD", BRB: "BB", BLR: "BY",
-  BEL: "BE", BLZ: "BZ", BEN: "BJ", BTN: "BT", BOL: "BO", BIH: "BA", BWA: "BW", BRA: "BR",
-  BRN: "BN", BGR: "BG", BFA: "BF", BDI: "BI", CPV: "CV", KHM: "KH", CMR: "CM", CAN: "CA",
-  CAF: "CF", TCD: "TD", CHL: "CL", CHN: "CN", COL: "CO", COM: "KM", COD: "CD", COG: "CG",
-  CRI: "CR", CIV: "CI", HRV: "HR", CUB: "CU", CYP: "CY", CZE: "CZ", DNK: "DK", DJI: "DJ",
-  DMA: "DM", DOM: "DO", ECU: "EC", EGY: "EG", SLV: "SV", GNQ: "GQ", ERI: "ER", EST: "EE",
-  SWZ: "SZ", ETH: "ET", FJI: "FJ", FIN: "FI", FRA: "FR", GAB: "GA", GMB: "GM", GEO: "GE",
-  DEU: "DE", GHA: "GH", GRC: "GR", GRD: "GD", GTM: "GT", GIN: "GN", GNB: "GW", GUY: "GY",
-  HTI: "HT", HND: "HN", HUN: "HU", ISL: "IS", IND: "IN", IDN: "ID", IRN: "IR", IRQ: "IQ",
-  IRL: "IE", ISR: "IL", ITA: "IT", JAM: "JM", JPN: "JP", JOR: "JO", KAZ: "KZ", KEN: "KE",
-  KIR: "KI", PRK: "KP", KOR: "KR", XKX: "XK", KWT: "KW", KGZ: "KG", LAO: "LA", LVA: "LV",
-  LBN: "LB", LSO: "LS", LBR: "LR", LBY: "LY", LIE: "LI", LTU: "LT", LUX: "LU", MDG: "MG",
-  MWI: "MW", MYS: "MY", MDV: "MV", MLI: "ML", MLT: "MT", MHL: "MH", MRT: "MR", MUS: "MU",
-  MEX: "MX", FSM: "FM", MDA: "MD", MCO: "MC", MNG: "MN", MNE: "ME", MAR: "MA", MOZ: "MZ",
-  MMR: "MM", NAM: "NA", NRU: "NR", NPL: "NP", NLD: "NL", NZL: "NZ", NIC: "NI", NER: "NE",
-  NGA: "NG", MKD: "MK", NOR: "NO", OMN: "OM", PAK: "PK", PLW: "PW", PAN: "PA", PNG: "PG",
-  PRY: "PY", PER: "PE", PHL: "PH", POL: "PL", PRT: "PT", QAT: "QA", ROU: "RO", RUS: "RU",
-  RWA: "RW", KNA: "KN", LCA: "LC", VCT: "VC", WSM: "WS", SMR: "SM", STP: "ST", SAU: "SA",
-  SEN: "SN", SRB: "RS", SYC: "SC", SLE: "SL", SGP: "SG", SVK: "SK", SVN: "SI", SLB: "SB",
-  SOM: "SO", ZAF: "ZA", SSD: "SS", ESP: "ES", LKA: "LK", SDN: "SD", SUR: "SR", SWE: "SE",
-  CHE: "CH", SYR: "SY", TWN: "TW", TJK: "TJ", TZA: "TZ", THA: "TH", TLS: "TL", TGO: "TG",
-  TON: "TO", TTO: "TT", TUN: "TN", TUR: "TR", TKM: "TM", TUV: "TV", UGA: "UG", UKR: "UA",
-  ARE: "AE", GBR: "GB", USA: "US", URY: "UY", UZB: "UZ", VUT: "VU", VEN: "VE", VNM: "VN",
-  YEM: "YE", ZMB: "ZM", ZWE: "ZW", PSE: "PS", VAT: "VA",
-};
+function extractLevelFromHtml(html: string): string | null {
+  const plain = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ");
+  for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
+    if (pattern.test(plain)) return rawLevel;
+  }
+  return null;
+}
+
+function extractSummaryFromHtml(html: string): string {
+  const plain = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  for (const { pattern } of LEVEL_PATTERNS) {
+    const match = plain.match(pattern);
+    if (match?.index !== undefined) {
+      return plain.slice(match.index, match.index + 350).trim().slice(0, 300);
+    }
+  }
+  return plain.slice(0, 300);
+}
 
 interface AACountry {
   countryCode: string;
@@ -64,13 +67,26 @@ interface AACountry {
   reportUrl?: string;
 }
 
-function buildAaUrl(countryName: string | undefined, iso2: string): string {
-  if (countryName) {
-    const slug = countryName
-      .toLowerCase()
+const KNOWN_ADVISORY_URLS: Record<string, string> = {
+  AE: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/vereinigtearabischeemiratesicherheit-202332",
+  IL: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/israelsicherheit-203814",
+  RU: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/russischefoedsicherheit-201536",
+  UA: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/ukrainesicherheit-201946",
+  CN: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/chinasicherheit-200466",
+  IR: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/iransicherheit-202396",
+  IQ: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/iraksicherheit-202738",
+  SY: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/syriensicherheit-204278",
+  AF: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/afghanistansicherheit-204692",
+};
+
+function getSourceUrl(c: AACountry, iso2: string): string {
+  if (KNOWN_ADVISORY_URLS[iso2]) return KNOWN_ADVISORY_URLS[iso2];
+  if (c.reportUrl) return c.reportUrl;
+  const name = c.countryName;
+  if (name) {
+    const slug = name.toLowerCase()
       .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return `https://www.auswaertiges-amt.de/de/laenderinformationen/${slug}-node`;
   }
   return `https://www.auswaertiges-amt.de/de/laenderinformationen/${iso2.toLowerCase()}-node`;
@@ -87,11 +103,14 @@ export const germanyScraper: Scraper = async () => {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const json = await res.json() as { response: Record<string, AACountry> };
-    const countries = Object.values(json.response ?? {});
+    const entries = Object.values(json.response ?? {}).filter(
+      (v): v is AACountry => typeof v === "object" && v !== null && "countryCode" in v
+    );
 
     const advisories: RawAdvisory[] = [];
+    const needsHtmlVerification: Array<{ idx: number; url: string }> = [];
 
-    for (const c of countries) {
+    for (const c of entries) {
       const iso2 = c.countryCode?.toUpperCase();
       if (!iso2 || iso2.length !== 2) continue;
 
@@ -104,6 +123,9 @@ export const germanyScraper: Scraper = async () => {
         .trim()
         .slice(0, 300) || "";
 
+      const sourceUrl = getSourceUrl(c, iso2);
+
+      const idx = advisories.length;
       advisories.push({
         destIso2: iso2,
         rawLevel,
@@ -111,8 +133,38 @@ export const germanyScraper: Scraper = async () => {
         summary,
         risks: [],
         officialUpdatedAt: c.lastModified ? new Date(c.lastModified * 1000) : null,
-        sourceUrl: c.reportUrl ?? buildAaUrl(c.countryName, iso2),
+        sourceUrl,
       });
+
+      if (normalizedLevel === "green" && !htmlText && KNOWN_ADVISORY_URLS[iso2]) {
+        needsHtmlVerification.push({ idx, url: KNOWN_ADVISORY_URLS[iso2] });
+      }
+    }
+
+    const BATCH = 5;
+    for (let i = 0; i < needsHtmlVerification.length; i += BATCH) {
+      const batch = needsHtmlVerification.slice(i, i + BATCH);
+      await Promise.allSettled(
+        batch.map(async ({ idx, url }) => {
+          try {
+            const pageRes = await fetch(url, {
+              headers: { "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)", Accept: "text/html" },
+              signal: AbortSignal.timeout(15_000),
+            });
+            if (!pageRes.ok) return;
+            const pageHtml = await pageRes.text();
+            const htmlLevel = extractLevelFromHtml(pageHtml);
+            if (htmlLevel) {
+              advisories[idx].rawLevel = htmlLevel;
+              advisories[idx].normalizedLevel = normalizeLevel("germany", htmlLevel);
+              advisories[idx].summary = extractSummaryFromHtml(pageHtml);
+            }
+          } catch { /* skip */ }
+        })
+      );
+      if (i + BATCH < needsHtmlVerification.length) {
+        await new Promise((r) => setTimeout(r, 300));
+      }
     }
 
     return { sourceId: "germany", advisories, scrapedAt };

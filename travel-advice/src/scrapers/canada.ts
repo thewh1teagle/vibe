@@ -64,16 +64,27 @@ function extractLevelFromHtml(html: string): string | null {
 }
 
 function extractSummary(html: string, levelText: string): string {
-  const plain = html
+  // Try to find the advisory section specifically
+  const section = html.match(/<section[^>]*id="advisory"[^>]*>([\s\S]*?)<\/section>/i)
+    ?? html.match(/<div[^>]*class="[^"]*advisory[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+  const source = section?.[1] ?? html;
+  const plain = source
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
   const idx = plain.toLowerCase().indexOf(levelText.toLowerCase());
-  if (idx >= 0) return plain.slice(idx, idx + 300).trim();
-  return "";
+  if (idx >= 0) {
+    let text = plain.slice(idx, idx + 500);
+    // Cut off at navigation markers
+    const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Risk level Disclaimer)/i);
+    if (cutoff > 30) text = text.slice(0, cutoff);
+    return text.trim().slice(0, 300);
+  }
+  return levelText;
 }
 
 function extractDate(html: string): Date | null {

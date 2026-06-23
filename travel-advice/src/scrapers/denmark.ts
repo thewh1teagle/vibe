@@ -63,10 +63,14 @@ function extractLevel(html: string): string {
 }
 
 function extractSummary(html: string): string {
-  const match = html.match(/<div[^>]*class="[^"]*field--name-body[^"]*"[^>]*>([\s\S]{0,3000})/i)
-    ?? html.match(/<article[^>]*>([\s\S]{0,3000})/i);
-  const text = (match?.[1] ?? html.slice(0, 2000))
-    .replace(/<[^>]+>/g, " ")
+  const clean = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "");
+  const match = clean.match(/<div[^>]*class="[^"]*field--name-body[^"]*"[^>]*>([\s\S]{0,3000})/i)
+    ?? clean.match(/<article[^>]*>([\s\S]{0,3000})/i);
+  const text = (match?.[1] ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
   return text.slice(0, 300);
