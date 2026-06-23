@@ -9,11 +9,11 @@ Press a hotkey from anywhere in Windows, speak, and your speech is transcribed a
 - Global hotkey dictation (default: `Ctrl+Shift+V`)
 - **Local transcription** via Whisper (offline, no data leaves your device)
 - **Groq cloud transcription** (fast, online, requires API key)
-- Optional **AI cleanup** of Groq transcripts (fixes spelling, punctuation, filler words via `llama-3.3-70b-versatile`)
+- Optional **AI cleanup** of Groq transcripts (fixes spelling, punctuation, filler words; translates to the selected output language)
 - Output to clipboard or type at cursor
 - Model selection — choose between local Whisper models or Groq cloud
 - Raw text mode for clipboard output (no line breaks between segments) — type-at-cursor always strips line breaks
-- Auto-detects or manually selects language (auto / English / Danish)
+- **Output language** selector (auto / English / Danish) — when set to English or Danish, AI cleanup will also translate into that language
 - GPU acceleration support
 - Dark theme
 - System tray — minimizes to tray, runs in the background
@@ -80,7 +80,7 @@ The model is stored in `%LOCALAPPDATA%\github.com.thewh1teagle.vibe\` and loaded
 
 Fast cloud transcription via [Groq](https://groq.com/). Requires a free API key — enter it in Settings or during setup. Transcription runs on Groq's servers with very low latency.
 
-**AI cleanup** (optional): when enabled, the raw transcript is post-processed by Groq's `llama-3.3-70b-versatile` chat model. The LLM fixes common STT artefacts — spelling (`Gethub` → `GitHub`), punctuation, filler words (`øh`, `altså`, `hm`), and capitalization — without changing the meaning. If the cleanup call fails, the raw transcript is used as a fallback. Adds ~200ms of latency. Disabled by default; enable in the home screen under "AI cleanup (Groq only)".
+**AI cleanup** (optional): when enabled, the raw transcript is post-processed by Groq's `llama-3.3-70b-versatile` chat model. The LLM fixes common STT artefacts — spelling (`Gethub` → `GitHub`), punctuation, filler words (`øh`, `altså`, `hm` for Danish; `um`, `uh`, `like` for English), and capitalization — and, when a non-Auto **Output language** is selected, translates the dictated text into that language. If the cleanup call fails, the raw transcript is used as a fallback. Adds ~200ms of latency. Disabled by default; enable in the home screen under "AI cleanup (Groq only)".
 
 ## Credits
 
