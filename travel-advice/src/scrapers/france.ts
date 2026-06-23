@@ -94,7 +94,7 @@ function extractSummary(html: string): string {
   for (const { pattern } of LEVEL_SELECTORS) {
     const match = plain.match(pattern);
     if (match && match.index !== undefined) {
-      const start = Math.max(0, match.index - 50);
+      const start = match.index;
       const snippet = plain.slice(start, start + 350).trim();
       if (snippet.length > 20) return snippet.slice(0, 300);
     }

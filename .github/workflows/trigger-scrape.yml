@@ -4,9 +4,14 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      matrix:
+        source: [germany, uk, us, france, denmark, canada]
     steps:
-      - name: Trigger scrape endpoint
+      - name: Scrape ${{ matrix.source }}
         run: |
-          curl -s -X POST https://project-7dan4.vercel.app/api/cron/scrape \
+          echo "=== Scraping ${{ matrix.source }} ==="
+          curl -s -X POST "https://project-7dan4.vercel.app/api/cron/scrape?source=${{ matrix.source }}" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json"

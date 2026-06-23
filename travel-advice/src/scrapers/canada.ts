@@ -1,13 +1,11 @@
 import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
-const BASE_JSON = "https://data.international.gc.ca/travel-voyage/countries";
 const BASE_HTML = "https://travel.gc.ca/destinations";
-const BATCH_SIZE = 5;
-const BATCH_DELAY_MS = 500;
-const REQUEST_TIMEOUT_MS = 20_000;
+const BATCH_SIZE = 10;
+const BATCH_DELAY_MS = 200;
+const REQUEST_TIMEOUT_MS = 15_000;
 
-// Advisory level patterns on travel.gc.ca HTML pages
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /avoid all travel/i, rawLevel: "Avoid all travel" },
   { pattern: /avoid non-essential travel/i, rawLevel: "Avoid non-essential travel" },
@@ -16,19 +14,42 @@ const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /exercise normal security precautions/i, rawLevel: "Exercise normal security precautions" },
 ];
 
-const ALL_ISO2 = [
-  "AF","AL","DZ","AD","AO","AG","AR","AM","AU","AT","AZ","BS","BH","BD","BB","BY","BE","BZ",
-  "BJ","BT","BO","BA","BW","BR","BN","BG","BF","BI","CV","KH","CM","CF","TD","CL","CN","CO",
-  "KM","CD","CG","CR","CI","HR","CU","CY","CZ","DJ","DM","DO","EC","EG","SV","GQ","ER","EE",
-  "SZ","ET","FJ","FI","FR","GA","GM","GE","DE","GH","GR","GD","GT","GN","GW","GY","HT","HN",
-  "HU","IS","IN","ID","IR","IQ","IE","IL","IT","JM","JP","JO","KZ","KE","KI","KP","KR","XK",
-  "KW","KG","LA","LV","LB","LS","LR","LY","LI","LT","LU","MG","MW","MY","MV","ML","MT","MH",
-  "MR","MU","MX","FM","MD","MC","MN","ME","MA","MZ","MM","NA","NR","NP","NL","NZ","NI","NE",
-  "NG","MK","NO","OM","PK","PW","PA","PG","PY","PE","PH","PL","PT","QA","RO","RU","RW","KN",
-  "LC","VC","WS","SM","ST","SA","SN","RS","SC","SL","SG","SK","SI","SB","SO","ZA","SS","ES",
-  "LK","SD","SR","SE","CH","SY","TW","TJ","TZ","TH","TL","TG","TO","TT","TN","TR","TM","TV",
-  "UG","UA","AE","GB","US","UY","UZ","VU","VE","VN","YE","ZM","ZW","PS",
-];
+const ISO2_TO_SLUG: Record<string, string> = {
+  AF:"afghanistan",AL:"albania",DZ:"algeria",AD:"andorra",AO:"angola",AG:"antigua-and-barbuda",
+  AR:"argentina",AM:"armenia",AU:"australia",AT:"austria",AZ:"azerbaijan",BS:"bahamas",
+  BH:"bahrain",BD:"bangladesh",BB:"barbados",BY:"belarus",BE:"belgium",BZ:"belize",
+  BJ:"benin",BT:"bhutan",BO:"bolivia",BA:"bosnia-and-herzegovina",BW:"botswana",BR:"brazil",
+  BN:"brunei",BG:"bulgaria",BF:"burkina-faso",BI:"burundi",CV:"cabo-verde",KH:"cambodia",
+  CM:"cameroon",CF:"central-african-republic",TD:"chad",CL:"chile",CN:"china",CO:"colombia",
+  KM:"comoros",CD:"democratic-republic-congo",CG:"congo",CR:"costa-rica",CI:"cote-d-ivoire",
+  HR:"croatia",CU:"cuba",CY:"cyprus",CZ:"czech-republic",DJ:"djibouti",DM:"dominica",
+  DO:"dominican-republic",EC:"ecuador",EG:"egypt",SV:"el-salvador",GQ:"equatorial-guinea",
+  ER:"eritrea",EE:"estonia",SZ:"eswatini",ET:"ethiopia",FJ:"fiji",FI:"finland",FR:"france",
+  GA:"gabon",GM:"gambia",GE:"georgia",DE:"germany",GH:"ghana",GR:"greece",GD:"grenada",
+  GT:"guatemala",GN:"guinea",GW:"guinea-bissau",GY:"guyana",HT:"haiti",HN:"honduras",
+  HU:"hungary",IS:"iceland",IN:"india",ID:"indonesia",IR:"iran",IQ:"iraq",IE:"ireland",
+  IL:"israel-the-west-bank-and-the-gaza-strip",IT:"italy",JM:"jamaica",JP:"japan",JO:"jordan",
+  KZ:"kazakhstan",KE:"kenya",KI:"kiribati",KP:"north-korea",KR:"south-korea",XK:"kosovo",
+  KW:"kuwait",KG:"kyrgyzstan",LA:"laos",LV:"latvia",LB:"lebanon",LS:"lesotho",LR:"liberia",
+  LY:"libya",LI:"liechtenstein",LT:"lithuania",LU:"luxembourg",MG:"madagascar",MW:"malawi",
+  MY:"malaysia",MV:"maldives",ML:"mali",MT:"malta",MH:"marshall-islands",MR:"mauritania",
+  MU:"mauritius",MX:"mexico",FM:"micronesia",MD:"moldova",MC:"monaco",MN:"mongolia",
+  ME:"montenegro",MA:"morocco",MZ:"mozambique",MM:"myanmar",NA:"namibia",NR:"nauru",
+  NP:"nepal",NL:"netherlands",NZ:"new-zealand",NI:"nicaragua",NE:"niger",NG:"nigeria",
+  MK:"north-macedonia",NO:"norway",OM:"oman",PK:"pakistan",PW:"palau",PA:"panama",
+  PG:"papua-new-guinea",PY:"paraguay",PE:"peru",PH:"philippines",PL:"poland",PT:"portugal",
+  QA:"qatar",RO:"romania",RU:"russia",RW:"rwanda",KN:"saint-kitts-and-nevis",
+  LC:"saint-lucia",VC:"saint-vincent-and-the-grenadines",WS:"samoa",SM:"san-marino",
+  ST:"sao-tome-and-principe",SA:"saudi-arabia",SN:"senegal",RS:"serbia",SC:"seychelles",
+  SL:"sierra-leone",SG:"singapore",SK:"slovakia",SI:"slovenia",SB:"solomon-islands",
+  SO:"somalia",ZA:"south-africa",SS:"south-sudan",ES:"spain",LK:"sri-lanka",SD:"sudan",
+  SR:"suriname",SE:"sweden",CH:"switzerland",SY:"syria",TW:"taiwan",TJ:"tajikistan",
+  TZ:"tanzania",TH:"thailand",TL:"timor-leste",TG:"togo",TO:"tonga",
+  TT:"trinidad-and-tobago",TN:"tunisia",TR:"turkey",TM:"turkmenistan",TV:"tuvalu",
+  UG:"uganda",UA:"ukraine",AE:"united-arab-emirates",GB:"united-kingdom",US:"united-states",
+  UY:"uruguay",UZ:"uzbekistan",VU:"vanuatu",VE:"venezuela",VN:"vietnam",YE:"yemen",
+  ZM:"zambia",ZW:"zimbabwe",PS:"palestinian-territories",
+};
 
 function extractLevelFromHtml(html: string): string | null {
   const plain = html
@@ -42,7 +63,7 @@ function extractLevelFromHtml(html: string): string | null {
   return null;
 }
 
-function extractSummaryFromHtml(html: string, levelText: string): string {
+function extractSummary(html: string, levelText: string): string {
   const plain = html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
@@ -51,34 +72,24 @@ function extractSummaryFromHtml(html: string, levelText: string): string {
     .replace(/\s+/g, " ")
     .trim();
   const idx = plain.toLowerCase().indexOf(levelText.toLowerCase());
-  if (idx >= 0) return plain.slice(idx, idx + 350).trim().slice(0, 300);
-  return plain.slice(0, 300);
+  if (idx >= 0) return plain.slice(idx, idx + 300).trim();
+  return "";
 }
 
-function extractDateFromHtml(html: string): Date | null {
+function extractDate(html: string): Date | null {
   const match = html.match(/<time[^>]+datetime="([^"]+)"/i)
-    ?? html.match(/(\d{4}-\d{2}-\d{2})/);
+    ?? html.match(/Last updated:\s*([A-Za-z]+ \d{1,2},\s*\d{4})/i);
   if (!match) return null;
   const d = new Date(match[1]);
   return isNaN(d.getTime()) ? null : d;
 }
 
 async function fetchCountry(iso2: string): Promise<RawAdvisory | null> {
-  // First get slug from JSON API (fast, just need url-slug field)
-  let slug = iso2.toLowerCase();
-  try {
-    const jsonRes = await fetch(`${BASE_JSON}/cta-cap-${iso2.toLowerCase()}.json`, {
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (jsonRes.ok) {
-      const json = await jsonRes.json();
-      slug = json?.data?.eng?.["url-slug"] ?? slug;
-    }
-  } catch { /* use default slug */ }
+  const slug = ISO2_TO_SLUG[iso2];
+  if (!slug) return null;
 
-  // Fetch HTML page for actual current advisory level
-  const htmlUrl = `${BASE_HTML}/${slug}`;
-  const res = await fetch(htmlUrl, {
+  const url = `${BASE_HTML}/${slug}`;
+  const res = await fetch(url, {
     headers: {
       "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
       Accept: "text/html",
@@ -91,27 +102,24 @@ async function fetchCountry(iso2: string): Promise<RawAdvisory | null> {
   const rawLevel = extractLevelFromHtml(html);
   if (!rawLevel) return null;
 
-  const normalizedLevel = normalizeLevel("canada", rawLevel);
-  const summary = extractSummaryFromHtml(html, rawLevel);
-  const officialUpdatedAt = extractDateFromHtml(html);
-
   return {
-    destIso2: iso2.toUpperCase(),
+    destIso2: iso2,
     rawLevel,
-    normalizedLevel,
-    summary,
+    normalizedLevel: normalizeLevel("canada", rawLevel),
+    summary: extractSummary(html, rawLevel),
     risks: [],
-    officialUpdatedAt,
-    sourceUrl: htmlUrl,
+    officialUpdatedAt: extractDate(html),
+    sourceUrl: url,
   };
 }
 
 export const canadaScraper: Scraper = async () => {
   const scrapedAt = new Date();
   const advisories: RawAdvisory[] = [];
+  const iso2s = Object.keys(ISO2_TO_SLUG);
 
-  for (let i = 0; i < ALL_ISO2.length; i += BATCH_SIZE) {
-    const batch = ALL_ISO2.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < iso2s.length; i += BATCH_SIZE) {
+    const batch = iso2s.slice(i, i + BATCH_SIZE);
     const results = await Promise.allSettled(batch.map(fetchCountry));
 
     for (const result of results) {
@@ -120,7 +128,7 @@ export const canadaScraper: Scraper = async () => {
       }
     }
 
-    if (i + BATCH_SIZE < ALL_ISO2.length) {
+    if (i + BATCH_SIZE < iso2s.length) {
       await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
     }
   }

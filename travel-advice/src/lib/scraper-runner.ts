@@ -19,6 +19,13 @@ export async function runAllScrapers(): Promise<
   return results;
 }
 
+export async function runScraperBySource(sourceId: string) {
+  if (!SCRAPERS[sourceId]) {
+    throw new Error(`Unknown source: ${sourceId}`);
+  }
+  return [await runScraper(sourceId)];
+}
+
 async function runScraper(sourceId: string) {
   const scraper = SCRAPERS[sourceId];
   const startedAt = new Date();
