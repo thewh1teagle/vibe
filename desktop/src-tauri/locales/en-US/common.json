@@ -33,7 +33,7 @@
 	"info-prompt": "Make transcripts better by writing expected words.",
 	"info-temperature": "Higher values lead to more unique words; lower values stick to common ones. Usually set around 0.4 for a balanced result.",
 	"info-threads": "Increase CPU for faster decoding; balance speed with resource usage. Recommended: 4",
-	"language": "Language",
+	"language": "Output language",
 	"leftover": "Left",
 	"max-sentence-len": "Max Sentence Length",
 	"max-text-ctx": "Maximum context",

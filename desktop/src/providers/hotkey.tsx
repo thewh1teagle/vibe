@@ -151,7 +151,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 		if (isGroq && pref.llmCleanup) {
 			try {
-				const cleaned = await invoke<string>('cleanup_transcript', { text: resultText, apiKey: pref.groqApiKey })
+				const cleaned = await invoke<string>('cleanup_transcript', { text: resultText, lang: pref.modelOptions.lang, apiKey: pref.groqApiKey })
 				if (cleaned) resultText = cleaned
 			} catch (e) {
 				console.error('cleanup_transcript failed, using raw text:', e)
