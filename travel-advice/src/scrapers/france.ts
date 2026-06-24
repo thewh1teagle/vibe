@@ -1,12 +1,6 @@
 import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
-// France publishes a JSON-based sitemap / country list we can use to discover slugs
-// Fallback: use the diplomatie.gouv.fr country index page
-const INDEX_URL = "https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/conseils-par-pays-destination/";
-
-// Matches the color-coded risk band in the page HTML
-// e.g. <span class="label label-danger">Déconseillé sauf raison impérative</span>
 const LEVEL_SELECTORS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /formellement d.conseill./i, rawLevel: "Formellement déconseillé" },
   { pattern: /d.conseill.[\s\S]{0,20}sauf raison imp.rative/i, rawLevel: "Déconseillé sauf raison impérative" },
@@ -16,13 +10,6 @@ const LEVEL_SELECTORS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /s.curit. normale/i, rawLevel: "Sécurité normale" },
 ];
 
-// Country slug → ISO alpha-2 mapping (extracted from the French index page link pattern)
-// URL pattern: /fr/conseils-aux-voyageurs/conseils-par-pays-destination/{slug}/
-const SLUG_COUNTRY_PATTERN = /conseils-par-pays-destination\/([a-z0-9-]+)\//g;
-
-// We also need ISO mapping; France uses their own slugs
-// This is a best-effort lookup table for common destinations
-// The scraper tries to discover slugs from the index, then fetches each
 const KNOWN_ISO_SLUGS: Record<string, string> = {
   "afghanistan": "AF", "albanie": "AL", "algerie": "DZ", "allemagne": "DE",
   "andorre": "AD", "angola": "AO", "arabie-saoudite": "SA", "argentine": "AR",
@@ -67,19 +54,11 @@ const KNOWN_ISO_SLUGS: Record<string, string> = {
   "slovaquie": "SK", "slovenie": "SI", "somalie": "SO", "soudan": "SD",
   "soudan-du-sud": "SS", "sri-lanka": "LK", "suede": "SE", "suisse": "CH",
   "surinam": "SR", "syrie": "SY", "tadjikistan": "TJ", "taiwan": "TW",
-  "tanzanie": "TZ", "tchad": "TD", "thaïlande": "TH", "timor-leste": "TL",
+  "tanzanie": "TZ", "tchad": "TD", "thailande": "TH", "timor-leste": "TL",
   "togo": "TG", "tonga": "TO", "trinite-et-tobago": "TT", "tunisie": "TN",
   "turkmenistan": "TM", "turquie": "TR", "tuvalu": "TV",
   "ukraine": "UA", "uruguay": "UY", "vanuatu": "VU", "venezuela": "VE",
   "viet-nam": "VN", "yemen": "YE", "zambie": "ZM", "zimbabwe": "ZW",
-};
-
-const DISPLAY_URLS: Record<string, string> = {
-  AE: "https://www.diplomatie.gouv.fr/fr/information-par-pays/emirats-arabes-unis/conseils-aux-voyageurs-securite",
-  IL: "https://www.diplomatie.gouv.fr/fr/information-par-pays/israel-territoires-palestiniens/conseils-aux-voyageurs-securite",
-  RU: "https://www.diplomatie.gouv.fr/fr/information-par-pays/russie/conseils-aux-voyageurs-securite",
-  UA: "https://www.diplomatie.gouv.fr/fr/information-par-pays/ukraine/conseils-aux-voyageurs-securite",
-  CN: "https://www.diplomatie.gouv.fr/fr/information-par-pays/chine/conseils-aux-voyageurs-securite",
 };
 
 function extractLevelFromHtml(html: string): string {
@@ -90,10 +69,12 @@ function extractLevelFromHtml(html: string): string {
 }
 
 function extractSummary(html: string): string {
-  // Strip all HTML first, then find the level keyword and extract surrounding text
   const plain = html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
@@ -102,8 +83,7 @@ function extractSummary(html: string): string {
   for (const { pattern } of LEVEL_SELECTORS) {
     const match = plain.match(pattern);
     if (match && match.index !== undefined) {
-      const start = match.index;
-      const snippet = plain.slice(start, start + 350).trim();
+      const snippet = plain.slice(match.index, match.index + 350).trim();
       if (snippet.length > 20) return snippet.slice(0, 300);
     }
   }
@@ -122,22 +102,35 @@ export const franceScraper: Scraper = async () => {
     await Promise.all(
       batch.map(async ([slug, iso2]) => {
         try {
-          const url = `https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/conseils-par-pays-destination/${slug}/`;
-          const res = await fetch(url, {
+          const infoUrl = `https://www.diplomatie.gouv.fr/fr/information-par-pays/${slug}/conseils-aux-voyageurs-securite`;
+          const fallbackUrl = `https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/conseils-par-pays-destination/${slug}/`;
+
+          let res = await fetch(infoUrl, {
             headers: {
               "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
               Accept: "text/html",
             },
             signal: AbortSignal.timeout(15_000),
           });
-          if (!res.ok) return;
+          let usedUrl = infoUrl;
+
+          if (!res.ok) {
+            res = await fetch(fallbackUrl, {
+              headers: {
+                "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
+                Accept: "text/html",
+              },
+              signal: AbortSignal.timeout(15_000),
+            });
+            usedUrl = fallbackUrl;
+            if (!res.ok) return;
+          }
 
           const html = await res.text();
           const rawLevel = extractLevelFromHtml(html);
           const normalizedLevel = normalizeLevel("france", rawLevel);
           const summary = extractSummary(html);
 
-          // Try to extract a date from meta or page
           const dateMatch = html.match(/<meta[^>]+property="article:modified_time"[^>]+content="([^"]+)"/i)
             ?? html.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
           let officialUpdatedAt: Date | null = null;
@@ -153,14 +146,13 @@ export const franceScraper: Scraper = async () => {
             summary,
             risks: [],
             officialUpdatedAt,
-            sourceUrl: DISPLAY_URLS[iso2] ?? url,
+            sourceUrl: usedUrl,
           });
         } catch {
           // Skip individual country failures
         }
       })
     );
-    // Small delay to avoid rate limiting
     if (i + BATCH < slugEntries.length) {
       await new Promise((r) => setTimeout(r, 500));
     }

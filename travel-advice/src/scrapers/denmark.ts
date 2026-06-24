@@ -67,16 +67,17 @@ function extractSummary(html: string): string {
     .replace(/<head[\s\S]*?<\/head>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<svg[\s\S]*?<\/svg>/gi, "")
     .replace(/<nav[\s\S]*?<\/nav>/gi, "")
     .replace(/<header[\s\S]*?<\/header>/gi, "")
     .replace(/<footer[\s\S]*?<\/footer>/gi, "");
   const match = clean.match(/<div[^>]*class="[^"]*field--name-body[^"]*"[^>]*>([\s\S]{0,3000})/i)
-    ?? clean.match(/<main[^>]*>([\s\S]{0,3000})/i)
-    ?? clean.match(/<article[^>]*>([\s\S]{0,3000})/i);
+    ?? clean.match(/<main[^>]*>([\s\S]{0,3000})/i);
   const text = (match?.[1] ?? "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
+    .replace(/\b(Del på?|Facebook|Twitter|LinkedIn|X \(Twitter\)|Del med)\b.*$/i, "")
     .trim();
   return text.slice(0, 300);
 }
