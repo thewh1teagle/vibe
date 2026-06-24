@@ -18,6 +18,49 @@ import { clsx } from "clsx";
 
 export const revalidate = 3600;
 
+const RAW_LEVEL_NL: Record<string, string> = {
+  "no advice against travel": "Geen negatief reisadvies",
+  "advise against all but essential travel to parts": "Alleen noodzakelijke reizen (delen)",
+  "advise against all but essential travel": "Alleen noodzakelijke reizen",
+  "advise against all travel to parts": "Niet reizen (delen)",
+  "advise against all travel": "Niet reizen",
+  "level 1: exercise normal precautions": "Normale voorzorgsmaatregelen",
+  "level 2: exercise increased caution": "Verhoogde voorzichtigheid",
+  "level 3: reconsider travel": "Reis heroverwegen",
+  "level 4: do not travel": "Niet reizen",
+  "take normal security precautions": "Normale veiligheidsmaatregelen",
+  "exercise normal security precautions": "Normale veiligheidsmaatregelen",
+  "exercise a high degree of caution": "Hoge mate van voorzichtigheid",
+  "avoid non-essential travel": "Vermijd niet-essentiële reizen",
+  "avoid all travel": "Vermijd alle reizen",
+  "keine besonderen sicherheitshinweise": "Geen bijzondere waarschuwingen",
+  "erhöhte vorsicht": "Verhoogde voorzichtigheid",
+  "teilreisewarnung": "Gedeeltelijke reiswaarschuwing",
+  "reisewarnung": "Reiswaarschuwing",
+  "von nicht notwendigen reisen abraten": "Niet-noodzakelijke reizen afgeraden",
+  "sécurité normale": "Normale veiligheid",
+  "vigilance normale": "Normale waakzaamheid",
+  "vigilance renforcée": "Verhoogde waakzaamheid",
+  "déconseillé sauf raison impérative": "Afgeraden tenzij noodzakelijk",
+  "déconseillé": "Afgeraden",
+  "formellement déconseillé": "Sterk afgeraden",
+  "ingen særlige advarsler": "Geen bijzondere waarschuwingen",
+  "vær forsigtig": "Wees voorzichtig",
+  "vær opmærksom": "Wees oplettend",
+  "vær ekstra opmærksom": "Wees extra oplettend",
+  "fraråd ikke-nødvendige rejser": "Niet-noodzakelijke reizen afgeraden",
+  "rejse frarådes": "Reizen afgeraden",
+};
+
+function translateRawLevel(rawLevel: string): string | null {
+  const key = rawLevel.toLowerCase().trim();
+  if (RAW_LEVEL_NL[key]) return RAW_LEVEL_NL[key];
+  for (const [pattern, translation] of Object.entries(RAW_LEVEL_NL)) {
+    if (key.includes(pattern) || pattern.includes(key)) return translation;
+  }
+  return null;
+}
+
 const CONSENSUS_COLORS: Record<NormalizedLevel, string> = {
   green: "bg-emerald-50 border-emerald-200 text-emerald-900",
   yellow: "bg-yellow-50 border-yellow-200 text-yellow-900",
@@ -138,8 +181,9 @@ export default async function CountryPage({
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-left">
                 <th className="px-4 py-3 font-semibold text-gray-600 w-44">Overheid</th>
-                <th className="px-4 py-3 font-semibold text-gray-600 w-36">Niveau</th>
-                <th className="px-4 py-3 font-semibold text-gray-600">Officiële classificatie &amp; risico's</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 w-28">Niveau</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 w-56">Officiële classificatie</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Samenvatting</th>
                 <th className="px-4 py-3 font-semibold text-gray-600 w-36">Datums</th>
                 <th className="px-4 py-3 font-semibold text-gray-600 w-12">Bron</th>
               </tr>
@@ -175,23 +219,29 @@ export default async function CountryPage({
                       <RiskBadge level={adv.normalizedLevel} size="sm" />
                     </td>
                     <td className="px-4 py-3">
-                      <p className="text-gray-500 italic text-xs mb-1">{adv.rawLevel}</p>
+                      <p className="text-gray-800 font-medium text-sm">{adv.rawLevel}</p>
+                      {(() => {
+                        const nl = translateRawLevel(adv.rawLevel);
+                        return nl ? <p className="text-gray-500 text-xs mt-0.5">{nl}</p> : null;
+                      })()}
+                      {adv.isStale && (
+                        <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> Mogelijk verouderd
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
                       {adv.summary && (
-                        <p className="text-gray-800 leading-relaxed mb-1.5">{adv.summary}</p>
+                        <p className="text-gray-700 text-xs leading-relaxed line-clamp-3">{adv.summary}</p>
                       )}
                       {adv.risks.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1 mt-1">
                           {adv.risks.map((r) => (
                             <span key={r} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
                               {r}
                             </span>
                           ))}
                         </div>
-                      )}
-                      {adv.isStale && (
-                        <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> Mogelijk verouderd
-                        </p>
                       )}
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-500 space-y-1">
