@@ -7,7 +7,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        source: [germany, uk, us, france, denmark, canada]
+        source: [germany, uk, us, france, denmark, canada, australia, sweden]
     steps:
       - name: Scrape ${{ matrix.source }}
         run: |

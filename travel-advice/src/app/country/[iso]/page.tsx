@@ -50,6 +50,13 @@ const RAW_LEVEL_NL: Record<string, string> = {
   "vær ekstra opmærksom": "Wees extra oplettend",
   "fraråd ikke-nødvendige rejser": "Niet-noodzakelijke reizen afgeraden",
   "rejse frarådes": "Reizen afgeraden",
+  "exercise normal safety precautions": "Normale veiligheidsmaatregelen",
+  "reconsider your need to travel": "Heroverweeg of reizen noodzakelijk is",
+  "do not travel": "Niet reizen",
+  "inga särskilda restriktioner": "Geen bijzondere beperkingen",
+  "var försiktig": "Wees voorzichtig",
+  "avråd från icke nödvändiga resor": "Niet-noodzakelijke reizen afgeraden",
+  "avråd från resor": "Reizen afgeraden",
 };
 
 function translateRawLevel(rawLevel: string): string | null {
