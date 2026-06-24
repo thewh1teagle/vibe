@@ -79,9 +79,8 @@ function extractSummary(html: string, levelText: string): string {
   const idx = plain.toLowerCase().indexOf(levelText.toLowerCase());
   if (idx >= 0) {
     let text = plain.slice(idx, idx + 500);
-    // Cut off at navigation markers
-    const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Risk level Disclaimer)/i);
-    if (cutoff > 30) text = text.slice(0, cutoff);
+    const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Risk level|Disclaimer|Safety and security|Entry and exit|Health|Laws and culture|Natural disasters)/i);
+    if (cutoff > 10) text = text.slice(0, cutoff);
     return text.trim().slice(0, 300);
   }
   return levelText;

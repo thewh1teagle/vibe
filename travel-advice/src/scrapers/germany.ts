@@ -2,10 +2,10 @@ import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /reisewarnung/i, rawLevel: "Reisewarnung" },
   { pattern: /teilreisewarnung/i, rawLevel: "Teilreisewarnung" },
-  { pattern: /von nicht notwendigen reisen/i, rawLevel: "Von nicht notwendigen Reisen abraten" },
-  { pattern: /erh.hte vorsicht|besondere vorsicht/i, rawLevel: "Erhöhte Vorsicht" },
+  { pattern: /reisewarnung/i, rawLevel: "Reisewarnung" },
+  { pattern: /von nicht notwendigen reisen|nicht notwendige reisen/i, rawLevel: "Von nicht notwendigen Reisen abraten" },
+  { pattern: /erh.hte vorsicht|besondere vorsicht|sicherheitshinweise beachten/i, rawLevel: "Erhöhte Vorsicht" },
 ];
 
 function flagsToRaw(warning: boolean, partialWarning: boolean, situationWarning: boolean, situationPartWarning: boolean, contentHtml?: string): string {
