@@ -131,12 +131,17 @@ export const franceScraper: Scraper = async () => {
           const normalizedLevel = normalizeLevel("france", rawLevel);
           const summary = extractSummary(html);
 
-          const dateMatch = html.match(/<meta[^>]+property="article:modified_time"[^>]+content="([^"]+)"/i)
-            ?? html.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
           let officialUpdatedAt: Date | null = null;
-          if (dateMatch) {
-            const d = new Date(dateMatch[1]);
+          const metaDate = html.match(/<meta[^>]+property="article:modified_time"[^>]+content="([^"]+)"/i);
+          if (metaDate) {
+            const d = new Date(metaDate[1]);
             if (!isNaN(d.getTime())) officialUpdatedAt = d;
+          } else {
+            const frDate = html.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (frDate) {
+              const d = new Date(`${frDate[3]}-${frDate[2].padStart(2, "0")}-${frDate[1].padStart(2, "0")}`);
+              if (!isNaN(d.getTime())) officialUpdatedAt = d;
+            }
           }
 
           advisories.push({

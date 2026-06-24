@@ -128,6 +128,8 @@ export const denmarkScraper: Scraper = async () => {
           const normalizedLevel = normalizeLevel("denmark", rawLevel);
           const summary = extractSummary(html);
 
+          if (/ingen rejsevejledning/i.test(summary)) return;
+
           const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i);
           const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
 
