@@ -55,6 +55,22 @@ const KNOWN_ISO_SLUGS: Record<string, string> = {
   "yemen": "YE", "zambia": "ZM", "zimbabwe": "ZW",
 };
 
+const NO_ADVISORY_PATTERNS = [
+  /vi har ingen rejsevejledning/i,
+  /ingen rejsevejledning for/i,
+  /der er ikke udarbejdet/i,
+  /ikke.*rejsevejledning/i,
+];
+
+function hasNoAdvisory(html: string): boolean {
+  const text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ");
+  return NO_ADVISORY_PATTERNS.some((p) => p.test(text));
+}
+
 function extractLevel(html: string): string {
   for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
     if (pattern.test(html)) return rawLevel;
@@ -105,6 +121,9 @@ export const denmarkScraper: Scraper = async () => {
           if (!res.ok) return;
 
           const html = await res.text();
+
+          if (hasNoAdvisory(html)) return;
+
           const rawLevel = extractLevel(html);
           const normalizedLevel = normalizeLevel("denmark", rawLevel);
           const summary = extractSummary(html);

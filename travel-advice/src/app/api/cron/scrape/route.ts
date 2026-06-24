@@ -3,7 +3,7 @@ import { runAllScrapers, runScraperBySource } from "@/lib/scraper-runner";
 
 export const maxDuration = 300;
 
-const VALID_SOURCES = ["uk", "us", "germany", "canada", "france", "denmark"];
+const VALID_SOURCES = ["uk", "us", "germany", "canada", "france", "denmark", "australia", "sweden"];
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("authorization")?.replace("Bearer ", "");

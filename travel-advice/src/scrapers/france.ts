@@ -4,10 +4,10 @@ import type { Scraper, RawAdvisory } from "./types";
 const LEVEL_SELECTORS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /formellement d.conseill./i, rawLevel: "Formellement déconseillé" },
   { pattern: /d.conseill.[\s\S]{0,20}sauf raison imp.rative/i, rawLevel: "Déconseillé sauf raison impérative" },
-  { pattern: /d.conseill./i, rawLevel: "Déconseillé" },
   { pattern: /vigilance renforc.e/i, rawLevel: "Vigilance renforcée" },
   { pattern: /vigilance normale/i, rawLevel: "Vigilance normale" },
   { pattern: /s.curit. normale/i, rawLevel: "Sécurité normale" },
+  { pattern: /d.conseill./i, rawLevel: "Déconseillé" },
 ];
 
 const KNOWN_ISO_SLUGS: Record<string, string> = {
