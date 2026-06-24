@@ -74,6 +74,14 @@ const KNOWN_ISO_SLUGS: Record<string, string> = {
   "viet-nam": "VN", "yemen": "YE", "zambie": "ZM", "zimbabwe": "ZW",
 };
 
+const DISPLAY_URLS: Record<string, string> = {
+  AE: "https://www.diplomatie.gouv.fr/fr/information-par-pays/emirats-arabes-unis/conseils-aux-voyageurs-securite",
+  IL: "https://www.diplomatie.gouv.fr/fr/information-par-pays/israel-territoires-palestiniens/conseils-aux-voyageurs-securite",
+  RU: "https://www.diplomatie.gouv.fr/fr/information-par-pays/russie/conseils-aux-voyageurs-securite",
+  UA: "https://www.diplomatie.gouv.fr/fr/information-par-pays/ukraine/conseils-aux-voyageurs-securite",
+  CN: "https://www.diplomatie.gouv.fr/fr/information-par-pays/chine/conseils-aux-voyageurs-securite",
+};
+
 function extractLevelFromHtml(html: string): string {
   for (const { pattern, rawLevel } of LEVEL_SELECTORS) {
     if (pattern.test(html)) return rawLevel;
@@ -145,7 +153,7 @@ export const franceScraper: Scraper = async () => {
             summary,
             risks: [],
             officialUpdatedAt,
-            sourceUrl: url,
+            sourceUrl: DISPLAY_URLS[iso2] ?? url,
           });
         } catch {
           // Skip individual country failures
