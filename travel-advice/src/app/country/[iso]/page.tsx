@@ -15,6 +15,7 @@ import type { AdvisoryRow, NormalizedLevel } from "@/types";
 import Link from "next/link";
 import { ExternalLink, AlertTriangle, Info, TrendingUp } from "lucide-react";
 import { clsx } from "clsx";
+import { SOURCES } from "@/config/sources";
 
 export const revalidate = 3600;
 
@@ -196,24 +197,27 @@ export default async function CountryPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {advisories.map((adv) => {
-                const isDeviation = deviations.some((d) => d.sourceId === adv.sourceId);
-                const deviation = deviations.find((d) => d.sourceId === adv.sourceId);
-                const age = ageDays(adv.officialUpdatedAt);
+              {SOURCES.map((src) => {
+                const adv = advisories.find((a) => a.sourceId === src.id);
+                const noAdvisory = adv?.normalizedLevel === "unknown" && adv?.rawLevel === "Geen reisadvies beschikbaar";
+                const isDeviation = adv ? deviations.some((d) => d.sourceId === adv.sourceId) : false;
+                const deviation = adv ? deviations.find((d) => d.sourceId === adv.sourceId) : undefined;
+                const age = adv ? ageDays(adv.officialUpdatedAt) : null;
                 const isOld = age !== null && age > 90;
 
                 return (
                   <tr
-                    key={adv.id}
+                    key={src.id}
                     className={clsx(
                       "hover:bg-gray-50 transition-colors",
                       isDeviation && deviation?.direction === "stricter" && "bg-red-50/40",
-                      isDeviation && deviation?.direction === "milder" && "bg-blue-50/30"
+                      isDeviation && deviation?.direction === "milder" && "bg-blue-50/30",
+                      (!adv || noAdvisory) && "opacity-60"
                     )}
                   >
                     <td className="px-4 py-3">
                       <span className="font-medium text-gray-900">
-                        {adv.sourceFlagEmoji} {adv.sourceNameNl}
+                        {src.flagEmoji} {src.nameNl}
                       </span>
                       {deviation && (
                         <div className="text-xs mt-0.5 text-orange-600 font-medium">
@@ -223,57 +227,81 @@ export default async function CountryPage({
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <RiskBadge level={adv.normalizedLevel} size="sm" />
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="text-gray-800 font-medium text-sm">{adv.rawLevel}</p>
-                      {(() => {
-                        const nl = translateRawLevel(adv.rawLevel);
-                        return nl ? <p className="text-gray-500 text-xs mt-0.5">{nl}</p> : null;
-                      })()}
-                      {adv.isStale && (
-                        <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" /> Mogelijk verouderd
-                        </p>
+                      {adv && !noAdvisory ? (
+                        <RiskBadge level={adv.normalizedLevel} size="sm" />
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
-                      {adv.summary && (
-                        <p className="text-gray-700 text-xs leading-relaxed line-clamp-3">{adv.summary}</p>
-                      )}
-                      {adv.risks.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {adv.risks.map((r) => (
-                            <span key={r} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
-                              {r}
-                            </span>
-                          ))}
-                        </div>
+                    <td className="px-4 py-3" colSpan={noAdvisory || !adv ? 2 : 1}>
+                      {noAdvisory ? (
+                        <p className="text-gray-400 text-sm italic">Geen reisadvies beschikbaar voor dit land</p>
+                      ) : !adv ? (
+                        <p className="text-gray-400 text-sm italic">Niet beschikbaar</p>
+                      ) : (
+                        <>
+                          <p className="text-gray-800 font-medium text-sm">{adv.rawLevel}</p>
+                          {(() => {
+                            const nl = translateRawLevel(adv.rawLevel);
+                            return nl ? <p className="text-gray-500 text-xs mt-0.5">{nl}</p> : null;
+                          })()}
+                          {adv.isStale && (
+                            <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" /> Mogelijk verouderd
+                            </p>
+                          )}
+                        </>
                       )}
                     </td>
+                    {!noAdvisory && adv && (
+                      <td className="px-4 py-3">
+                        {adv.summary && (
+                          <p className="text-gray-700 text-xs leading-relaxed line-clamp-3">{adv.summary}</p>
+                        )}
+                        {adv.risks.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {adv.risks.map((r) => (
+                              <span key={r} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                                {r}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-xs text-gray-500 space-y-1">
-                      <div>
-                        <span className="font-medium">Wijziging:</span>{" "}
-                        <span className={clsx(isOld && "text-amber-600 font-medium")}>
-                          {formatDateNl(adv.officialUpdatedAt)}
-                          {isOld && " ⚠"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium">Opgehaald:</span>{" "}
-                        {formatDateNl(adv.scrapedAt)}
-                      </div>
+                      {adv ? (
+                        <>
+                          <div>
+                            <span className="font-medium">Wijziging:</span>{" "}
+                            <span className={clsx(isOld && "text-amber-600 font-medium")}>
+                              {formatDateNl(adv.officialUpdatedAt)}
+                              {isOld && " ⚠"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Opgehaald:</span>{" "}
+                            {formatDateNl(adv.scrapedAt)}
+                          </div>
+                        </>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <a
-                        href={adv.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 text-blue-500 hover:text-blue-700 transition-colors"
-                        title="Officiële bron"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
+                      {adv?.sourceUrl ? (
+                        <a
+                          href={adv.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 text-blue-500 hover:text-blue-700 transition-colors"
+                          title="Officiële bron"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
                     </td>
                   </tr>
                 );

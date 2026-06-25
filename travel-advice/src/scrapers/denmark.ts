@@ -122,13 +122,23 @@ export const denmarkScraper: Scraper = async () => {
 
           const html = await res.text();
 
-          if (hasNoAdvisory(html)) return;
+          const noAdvisory = hasNoAdvisory(html);
+          const rawLevel = noAdvisory ? "Geen reisadvies beschikbaar" : extractLevel(html);
+          const normalizedLevel = noAdvisory ? "unknown" : normalizeLevel("denmark", rawLevel);
+          const summary = noAdvisory ? "" : extractSummary(html);
 
-          const rawLevel = extractLevel(html);
-          const normalizedLevel = normalizeLevel("denmark", rawLevel);
-          const summary = extractSummary(html);
-
-          if (/ingen rejsevejledning/i.test(summary)) return;
+          if (!noAdvisory && /ingen rejsevejledning/i.test(summary)) {
+            advisories.push({
+              destIso2: iso2,
+              rawLevel: "Geen reisadvies beschikbaar",
+              normalizedLevel: "unknown",
+              summary: "",
+              risks: [],
+              officialUpdatedAt: null,
+              sourceUrl: url,
+            });
+            return;
+          }
 
           const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i);
           const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
