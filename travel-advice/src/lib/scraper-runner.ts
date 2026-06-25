@@ -113,5 +113,10 @@ async function upsertAdvisories(
     }
   }
 
+  const scrapedIso2s = new Set(advisories.map((a) => a.destIso2));
+  await prisma.advisory.deleteMany({
+    where: { sourceId, destIso2: { notIn: [...scrapedIso2s] } },
+  });
+
   return { inserted, updated };
 }
