@@ -126,12 +126,14 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		try {
 			await new Promise((r) => setTimeout(r, 50))
 			const clipText = await clipboard.readText()
+			console.log('[fix-text] input:', JSON.stringify(clipText))
 			if (!clipText || !clipText.trim()) {
 				await notify('Vibe — Fix text', 'Clipboard is empty. Copy some text first.')
 				return
 			}
 
 			const fixed = await invoke<string>('fix_text', { text: clipText, mode: pref.fixTextMode, apiKey: pref.groqApiKey })
+			console.log('[fix-text] output:', JSON.stringify(fixed))
 			if (fixed) {
 				await clipboard.writeText(fixed)
 				await notify('Vibe — Text fixed', 'Corrected text copied to clipboard.')

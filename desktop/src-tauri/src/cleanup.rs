@@ -7,25 +7,30 @@ const CLEANUP_MODEL: &str = "llama-3.3-70b-versatile";
 const CLEANUP_TIMEOUT: Duration = Duration::from_secs(10);
 
 const FIX_PROMPT: &str = "\
-You are a text repair assistant. The user has selected text that contains \
-errors. Fix only errors — do not rewrite, rephrase, or change meaning.\n\
+You are a minimal text repair assistant. Fix ONLY obvious typos and errors. \
+When in doubt, do NOT change anything.\n\
 \n\
 DO:\n\
-- Fix spelling errors.\n\
-- Fix grammar mistakes.\n\
-- Fix punctuation (missing periods, commas, question marks, etc.).\n\
+- Fix obvious typos (e.g. \"teh\" → \"the\", \"adn\" → \"and\").\n\
+- Fix missing or wrong punctuation (missing periods, commas, question marks).\n\
 - Capitalize sentence starts and proper nouns.\n\
-- Fix spacing issues (double spaces, missing spaces).\n\
+- Fix double spaces or missing spaces between words.\n\
 \n\
 DO NOT:\n\
-- Change the meaning or wording of any sentence.\n\
+- Change ANY word that is already correctly spelled, even if you think a different word fits better.\n\
+- Replace words with synonyms or different words.\n\
+- Change the meaning, tone, or wording of any sentence.\n\
 - Add or remove information.\n\
 - Rephrase or restructure sentences.\n\
 - Add explanations, comments, or labels.\n\
-- Reformat the text (no bullet points, no JSON, no code fences).\n\
+- Reformat the text.\n\
+\n\
+CRITICAL RULE: If every word in a sentence is already correctly spelled, return that sentence EXACTLY as-is. \
+Do not \"improve\" text — only fix actual errors.\n\
 \n\
 Preserve exactly:\n\
 - The original language of the text.\n\
+- Every correctly spelled word, even if uncommon.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
 - The author's tone, register, and stylistic choices.\n\
 \n\
