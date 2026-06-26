@@ -196,8 +196,8 @@ export default function Home() {
 									<label className="text-[11px] font-medium text-muted-foreground">{t('common.fix-text-mode', 'Mode')}</label>
 									<div className="flex gap-1.5">
 										{[
-											{ id: 'fix', label: t('common.fix-mode-fix', 'Fix errors') },
-											{ id: 'improve', label: t('common.fix-mode-improve', 'Improve') },
+											{ id: 'fix', label: t('common.fix-mode-fix', 'Fix') },
+											{ id: 'rewrite', label: t('common.fix-mode-rewrite', 'Rewrite') },
 											{ id: 'formal', label: t('common.fix-mode-formal', 'Formal') },
 											{ id: 'casual', label: t('common.fix-mode-casual', 'Casual') },
 										].map((mode) => (

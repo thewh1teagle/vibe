@@ -7,68 +7,62 @@ const CLEANUP_MODEL: &str = "llama-3.3-70b-versatile";
 const CLEANUP_TIMEOUT: Duration = Duration::from_secs(10);
 
 const FIX_PROMPT: &str = "\
-You are a minimal text repair assistant. Fix ONLY obvious typos and errors. \
-When in doubt, do NOT change anything.\n\
+You are a text repair assistant. Fix errors and improve clarity while \
+preserving the original meaning. Keep changes minimal and faithful.\n\
 \n\
 DO:\n\
-- Fix obvious typos (e.g. \"teh\" → \"the\", \"adn\" → \"and\").\n\
-- Fix missing or wrong punctuation (missing periods, commas, question marks).\n\
+- Fix obvious typos and spelling errors.\n\
+- Fix missing or wrong punctuation (periods, commas, question marks).\n\
 - Capitalize sentence starts and proper nouns.\n\
 - Fix double spaces or missing spaces between words.\n\
+- Improve unclear or awkward phrasing where it is a minor fix.\n\
 \n\
 DO NOT:\n\
-- Change ANY word that is already correctly spelled, even if you think a different word fits better.\n\
-- Replace words with synonyms or different words.\n\
 - Change the meaning, tone, or wording of any sentence.\n\
 - Add or remove information.\n\
-- Rephrase or restructure sentences.\n\
+- Restructure sentences or change word order significantly.\n\
+- Replace words with synonyms unless fixing an error.\n\
 - Add explanations, comments, or labels.\n\
 - Reformat the text.\n\
-\n\
-CRITICAL RULE: If every word in a sentence is already correctly spelled, return that sentence EXACTLY as-is. \
-Do not \"improve\" text — only fix actual errors.\n\
+- Translate to any language other than Danish or English.\n\
 \n\
 CRITICAL RULE: You MUST return the ENTIRE text, every sentence, every paragraph. \
-Never output only a portion of the input. If only one sentence has errors, still return all sentences.\n\
-\n\
-CRITICAL RULE: Keep the text in its original language. If translation is ever needed, \
-only translate to Danish or English — never to any other language.\n\
+Never output only a portion of the input.\n\
 \n\
 Preserve exactly:\n\
 - The original language of the text.\n\
-- Every correctly spelled word, even if uncommon.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
-- All technical terms, software jargon, and commonly used English loanwords in their original form. Tech vocabulary is universally understood and should never be translated.\n\
+- All technical terms, software jargon, and commonly used English loanwords in their original form.\n\
 - The author's tone, register, and stylistic choices.\n\
 \n\
-Output strictly the full corrected text. No preamble, no labels.";
+Output strictly the corrected text. No preamble, no labels.";
 
-const IMPROVE_PROMPT: &str = "\
-You are a writing improvement assistant. The user has selected text that may \
-contain errors and unclear phrasing. Fix errors and improve clarity while \
-preserving the original meaning.\n\
+const REWRITE_PROMPT: &str = "\
+You are a professional editor. Rewrite the text to be clearer, more engaging, \
+and better structured while maintaining the original meaning. You may \
+restructure sentences, improve word choice, and enhance readability.\n\
 \n\
 DO:\n\
-- Fix spelling, grammar, and punctuation errors.\n\
-- Improve unclear or awkward phrasing for better readability.\n\
-- Simplify overly complex sentences where possible.\n\
+- Fix any spelling, grammar, and punctuation errors.\n\
+- Restructure sentences for better clarity and flow.\n\
+- Improve word choice where it makes the text stronger.\n\
 - Ensure logical flow between sentences.\n\
+- Make the text more engaging and readable.\n\
 \n\
 DO NOT:\n\
 - Change the meaning or add new information.\n\
 - Remove content the author included.\n\
 - Add explanations, comments, or labels.\n\
 - Reformat the text (no bullet points, no JSON, no code fences).\n\
-- Over-rewrite — keep changes minimal and faithful to the original.\n\
 - Translate to any language other than Danish or English.\n\
 \n\
 Preserve exactly:\n\
 - The original language of the text.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
-- All technical terms, software jargon, and commonly used English loanwords in their original form. Tech vocabulary is universally understood and should never be translated.\n\
+- All technical terms, software jargon, and commonly used English loanwords in their original form.\n\
 - The author's core intent and message.\n\
 \n\
-Output strictly the improved text. No preamble, no labels.";
+Output strictly the rewritten text. No preamble, no labels.";
 
 const FORMAL_PROMPT: &str = "\
 You are a tone adjustment assistant. The user has selected text and wants it \
@@ -299,7 +293,7 @@ pub async fn cleanup_text(text: &str, lang: &str, api_key: &str) -> Result<Strin
 
 fn build_fix_prompt(mode: &str) -> &'static str {
     match mode.trim() {
-        "improve" => IMPROVE_PROMPT,
+        "rewrite" => REWRITE_PROMPT,
         "formal" => FORMAL_PROMPT,
         "casual" => CASUAL_PROMPT,
         _ => FIX_PROMPT,
