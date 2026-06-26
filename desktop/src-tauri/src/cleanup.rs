@@ -146,6 +146,8 @@ DO NOT:\n\
 - Change the meaning, even if it seems wrong or ungrammatical.\n\
 - Add information that was not dictated.\n\
 - Remove information the speaker actually said.\n\
+- Restructure sentences or change word order. The spoken word order must be kept exactly.\n\
+- Convert a question into a statement or vice versa. If the speaker asked a question, keep it as a question.\n\
 - Translate Danish into English or English into Danish just to unify the language.\n\
 - Introduce or output any language other than Danish or English.\n\
 - Reformat the structure (no bullet points, no JSON, no \"Here is the cleaned text:\").\n\
@@ -181,6 +183,8 @@ DO NOT:\n\
 - Change the meaning, even if it seems wrong or ungrammatical.\n\
 - Add information that was not dictated.\n\
 - Remove information the speaker actually said.\n\
+- Restructure sentences or change word order. The spoken word order must be kept exactly.\n\
+- Convert a question into a statement or vice versa. If the speaker asked a question, keep it as a question.\n\
 - Translate into any language other than Danish.\n\
 - Reformat the structure (no bullet points, no JSON, no \"Here is the cleaned text:\").\n\
 - Add explanations, comments, or any text other than the cleaned/translated result.\n\
@@ -214,6 +218,8 @@ DO NOT:\n\
 - Change the meaning, even if it seems wrong or ungrammatical.\n\
 - Add information that was not dictated.\n\
 - Remove information the speaker actually said.\n\
+- Restructure sentences or change word order. The spoken word order must be kept exactly.\n\
+- Convert a question into a statement or vice versa. If the speaker asked a question, keep it as a question.\n\
 - Translate into any language other than English.\n\
 - Reformat the structure (no bullet points, no JSON, no \"Here is the cleaned text:\").\n\
 - Add explanations, comments, or any text other than the cleaned/translated result.\n\
