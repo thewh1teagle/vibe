@@ -28,13 +28,16 @@ DO NOT:\n\
 CRITICAL RULE: If every word in a sentence is already correctly spelled, return that sentence EXACTLY as-is. \
 Do not \"improve\" text — only fix actual errors.\n\
 \n\
+CRITICAL RULE: You MUST return the ENTIRE text, every sentence, every paragraph. \
+Never output only a portion of the input. If only one sentence has errors, still return all sentences.\n\
+\n\
 Preserve exactly:\n\
 - The original language of the text.\n\
 - Every correctly spelled word, even if uncommon.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
 - The author's tone, register, and stylistic choices.\n\
 \n\
-Output strictly the corrected text. No preamble, no labels.";
+Output strictly the full corrected text. No preamble, no labels.";
 
 const IMPROVE_PROMPT: &str = "\
 You are a writing improvement assistant. The user has selected text that may \
@@ -243,12 +246,12 @@ struct ApiErrorBody {
 }
 
 // Sends a user text to Groq with a given system prompt and returns the response.
-async fn call_groq(system_prompt: &str, user_text: &str, api_key: &str, label: &str) -> Result<String> {
+async fn call_groq(system_prompt: &str, user_text: &str, api_key: &str, label: &str, max_tokens: u32) -> Result<String> {
     let client = reqwest::Client::builder().timeout(CLEANUP_TIMEOUT).build()?;
     let payload = serde_json::json!({
         "model": CLEANUP_MODEL,
         "temperature": 0.0,
-        "max_tokens": 1024,
+        "max_tokens": max_tokens,
         "messages": [
             { "role": "system", "content": system_prompt },
             { "role": "user", "content": user_text },
@@ -281,7 +284,7 @@ async fn call_groq(system_prompt: &str, user_text: &str, api_key: &str, label: &
 // Sends the dictated text to Groq for cleanup with a system prompt tailored
 // to the user's selected output language.
 pub async fn cleanup_text(text: &str, lang: &str, api_key: &str) -> Result<String> {
-    call_groq(&build_system_prompt(lang), text, api_key, "cleanup").await
+    call_groq(&build_system_prompt(lang), text, api_key, "cleanup", 1024).await
 }
 
 fn build_fix_prompt(mode: &str) -> &'static str {
@@ -294,5 +297,8 @@ fn build_fix_prompt(mode: &str) -> &'static str {
 }
 
 pub async fn fix_text(text: &str, mode: &str, api_key: &str) -> Result<String> {
-    call_groq(build_fix_prompt(mode), text, api_key, "fix").await
+    // Estimate tokens: ~4 chars per token, give 2x headroom for output, cap at 8192
+    let estimated_tokens = (text.len() as u32) / 4;
+    let max_tokens = (estimated_tokens * 2).clamp(1024, 8192);
+    call_groq(build_fix_prompt(mode), text, api_key, "fix", max_tokens).await
 }
