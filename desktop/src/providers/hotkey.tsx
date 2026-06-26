@@ -125,30 +125,23 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		isFixTextProcessingRef.current = true
 		setIsFixTextProcessing(true)
 		try {
-			// Read clipboard via Rust backend to avoid Tauri plugin caching
-			const clipText = await invoke<string>('read_clipboard')
-
-			console.log('[fix-text] input:', JSON.stringify(clipText?.slice(0, 100)))
-			if (!clipText || !clipText.trim()) {
-				await notify('Vibe — Fix text', 'Clipboard is empty. Copy some text first.')
-				return
-			}
-
-			if (clipText === lastFixTextOutputRef.current) {
-				await notify('Vibe — Fix text', 'Clipboard unchanged. Copy new text first.')
-				return
-			}
-
-			const fixed = await invoke<string>('fix_text', { text: clipText, mode: pref.fixTextMode, apiKey: pref.groqApiKey })
+			const fixed = await invoke<string>('fix_selected_text', {
+				mode: pref.fixTextMode,
+				apiKey: pref.groqApiKey,
+			})
 			console.log('[fix-text] output:', JSON.stringify(fixed?.slice(0, 100)))
 			if (fixed) {
 				lastFixTextOutputRef.current = fixed
-				await clipboard.writeText(fixed)
 				await notify('Vibe — Text fixed', 'Corrected text copied to clipboard.')
 			}
 		} catch (e) {
-			console.error('fix_text failed:', e)
-			await notify('Vibe — Fix text failed', 'Check your Groq API key or rate limits.')
+			console.error('fix_selected_text failed:', e)
+			const msg = String(e)
+			if (msg.includes('empty')) {
+				await notify('Vibe — Fix text', 'No text selected. Select text or copy some first.')
+			} else {
+				await notify('Vibe — Fix text failed', 'Check your Groq API key or rate limits.')
+			}
 		} finally {
 			isFixTextProcessingRef.current = false
 			setIsFixTextProcessing(false)

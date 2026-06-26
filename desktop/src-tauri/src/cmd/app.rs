@@ -97,3 +97,74 @@ pub fn read_clipboard(app: tauri::AppHandle) -> Result<String> {
     use tauri_plugin_clipboard_manager::ClipboardExt;
     app.clipboard().read_text().context("Failed to read clipboard")
 }
+
+#[tauri::command]
+pub async fn fix_selected_text(mode: String, api_key: String, app: tauri::AppHandle) -> Result<String> {
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+    use enigo::{Enigo, Key, Keyboard, Settings};
+
+    let clipboard = app.clipboard();
+
+    // Step 1: Save current clipboard content
+    let original = clipboard
+        .read_text()
+        .unwrap_or_default();
+
+    // Step 2: Write a unique marker so we can detect if Ctrl+C actually copied something
+    let marker = format!("__vibe_marker_{}__", std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis());
+    clipboard
+        .write_text(&marker)
+        .map_err(|e| eyre::eyre!("Failed to write marker to clipboard: {:?}", e))?;
+
+    // Step 3: Let the marker propagate
+    tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+
+    // Step 4: Simulate Ctrl+C to copy any selected text
+    let mut enigo = Enigo::new(&Settings::default())
+        .map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
+    enigo
+        .key(Key::Control, enigo::Direction::Press)
+        .map_err(|e| eyre::eyre!("Failed to press Control: {}", e))?;
+    enigo
+        .key(Key::Unicode('c'), enigo::Direction::Click)
+        .map_err(|e| eyre::eyre!("Failed to click C: {}", e))?;
+    enigo
+        .key(Key::Control, enigo::Direction::Release)
+        .map_err(|e| eyre::eyre!("Failed to release Control: {}", e))?;
+
+    // Step 5: Let the copy complete
+    tokio::time::sleep(std::time::Duration::from_millis(250)).await;
+
+    // Step 6: Read clipboard after Ctrl+C
+    let after_copy = clipboard
+        .read_text()
+        .map_err(|e| eyre::eyre!("Failed to read clipboard after copy: {:?}", e))?;
+
+    // Step 7: Decide what text to use
+    let text_to_fix = if after_copy != marker && !after_copy.trim().is_empty() {
+        // Clipboard changed from marker → Ctrl+C copied something
+        after_copy
+    } else {
+        // No selection → try original clipboard content
+        if !original.trim().is_empty() {
+            original
+        } else {
+            // Restore clipboard and bail
+            let _ = clipboard.write_text(&original);
+            eyre::bail!("No text selected and clipboard is empty");
+        }
+    };
+
+    // Step 8: Send to LLM
+    let fixed = crate::cleanup::fix_text(&text_to_fix, &mode, &api_key).await?;
+
+    // Step 9: Write result to clipboard
+    clipboard
+        .write_text(&fixed)
+        .map_err(|e| eyre::eyre!("Failed to write result to clipboard: {:?}", e))?;
+
+    Ok(fixed)
+}
