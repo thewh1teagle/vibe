@@ -129,7 +129,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				mode: pref.fixTextMode,
 				apiKey: pref.groqApiKey,
 			})
-			console.debug('[fix-text] output:', JSON.stringify(fixed?.slice(0, 100)))
+			console.log('[fix-text] output:', JSON.stringify(fixed?.slice(0, 100)))
 			if (fixed) {
 				lastFixTextOutputRef.current = fixed
 				await notify('Vibe — Text fixed', 'Corrected text copied to clipboard.')
