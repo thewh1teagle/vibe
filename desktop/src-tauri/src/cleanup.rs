@@ -35,6 +35,7 @@ Preserve exactly:\n\
 - The original language of the text.\n\
 - Every correctly spelled word, even if uncommon.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- Technical terms and industry jargon in their original form (e.g. \"pull request\", \"container\", \"API\", \"endpoint\", \"pipeline\", \"backend\", \"frontend\", \"framework\", \"dependency\", \"repository\").\n\
 - The author's tone, register, and stylistic choices.\n\
 \n\
 Output strictly the full corrected text. No preamble, no labels.";
@@ -60,6 +61,7 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The original language of the text.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- Technical terms and industry jargon in their original form (e.g. \"pull request\", \"container\", \"API\", \"endpoint\", \"pipeline\", \"backend\", \"frontend\", \"framework\", \"dependency\", \"repository\").\n\
 - The author's core intent and message.\n\
 \n\
 Output strictly the improved text. No preamble, no labels.";
@@ -85,6 +87,7 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The original language of the text.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- Technical terms and industry jargon in their original form (e.g. \"pull request\", \"container\", \"API\", \"endpoint\", \"pipeline\", \"backend\", \"frontend\", \"framework\", \"dependency\", \"repository\").\n\
 - The author's core intent and message.\n\
 \n\
 Output strictly the formal text. No preamble, no labels.";
@@ -110,6 +113,7 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The original language of the text.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- Technical terms and industry jargon in their original form (e.g. \"pull request\", \"container\", \"API\", \"endpoint\", \"pipeline\", \"backend\", \"frontend\", \"framework\", \"dependency\", \"repository\").\n\
 - The author's core intent and message.\n\
 \n\
 Output strictly the casual text. No preamble, no labels.";
@@ -140,6 +144,7 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The original language of the text.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- Technical terms and industry jargon in their original form (e.g. \"pull request\", \"container\", \"API\", \"endpoint\", \"pipeline\", \"backend\", \"frontend\", \"framework\", \"dependency\", \"repository\").\n\
 - The speaker's tone, register, and any intentional stylistic choices.\n\
 \n\
 Output strictly the cleaned text. No preamble, no code fences, no labels.";
@@ -173,6 +178,7 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The meaning of the original text (translated faithfully into Danish).\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- Technical terms and industry jargon in English (e.g. \"pull request\", \"container\", \"API\", \"endpoint\", \"pipeline\", \"backend\", \"frontend\", \"framework\", \"dependency\", \"repository\" — do NOT translate these to Danish).\n\
 - The speaker's tone, register, and any intentional stylistic choices (adapted to Danish).\n\
 \n\
 Output strictly the result. No preamble, no code fences, no labels.";
@@ -205,6 +211,7 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The meaning of the original text (translated faithfully into English).\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- Technical terms and industry jargon in their original form.\n\
 - The speaker's tone, register, and any intentional stylistic choices (adapted to English).\n\
 \n\
 Output strictly the result. No preamble, no code fences, no labels.";
