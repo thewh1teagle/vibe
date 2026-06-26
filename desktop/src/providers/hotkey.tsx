@@ -63,6 +63,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const isHotkeyRecordingRef = useRef(false)
 	const isFixTextProcessingRef = useRef(false)
 	const lastFixTextCallRef = useRef(0)
+	const lastFixTextOutputRef = useRef('')
 	const hotkeyOutputModeRef = useRef(hotkeyOutputMode)
 	const registeredShortcutRef = useRef<string | null>(null)
 	const registeredFixShortcutRef = useRef<string | null>(null)
@@ -124,17 +125,30 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		isFixTextProcessingRef.current = true
 		setIsFixTextProcessing(true)
 		try {
-			await new Promise((r) => setTimeout(r, 50))
-			const clipText = await clipboard.readText()
-			console.log('[fix-text] input:', JSON.stringify(clipText))
+			await new Promise((r) => setTimeout(r, 150))
+			let clipText = await clipboard.readText()
+
+			// If clipboard still has our last output, wait a bit and retry
+			if (clipText && clipText === lastFixTextOutputRef.current) {
+				await new Promise((r) => setTimeout(r, 200))
+				clipText = await clipboard.readText()
+			}
+
+			console.log('[fix-text] input:', JSON.stringify(clipText?.slice(0, 80)))
 			if (!clipText || !clipText.trim()) {
 				await notify('Vibe — Fix text', 'Clipboard is empty. Copy some text first.')
 				return
 			}
 
+			if (clipText === lastFixTextOutputRef.current) {
+				await notify('Vibe — Fix text', 'Clipboard unchanged. Copy new text first.')
+				return
+			}
+
 			const fixed = await invoke<string>('fix_text', { text: clipText, mode: pref.fixTextMode, apiKey: pref.groqApiKey })
-			console.log('[fix-text] output:', JSON.stringify(fixed))
+			console.log('[fix-text] output:', JSON.stringify(fixed?.slice(0, 80)))
 			if (fixed) {
+				lastFixTextOutputRef.current = fixed
 				await clipboard.writeText(fixed)
 				await notify('Vibe — Text fixed', 'Corrected text copied to clipboard.')
 			}
