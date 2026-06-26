@@ -86,3 +86,8 @@ pub async fn test_groq_key(api_key: String) -> Result<bool> {
 pub async fn cleanup_transcript(text: String, lang: String, api_key: String) -> Result<String> {
     crate::cleanup::cleanup_text(&text, &lang, &api_key).await
 }
+
+#[tauri::command]
+pub async fn fix_text(text: String, mode: String, api_key: String) -> Result<String> {
+    crate::cleanup::fix_text(&text, &mode, &api_key).await
+}

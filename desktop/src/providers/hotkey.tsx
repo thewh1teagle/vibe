@@ -21,6 +21,7 @@ interface HotkeyContextType {
 	hotkeyOutputMode: HotkeyOutputMode
 	setHotkeyOutputMode: (mode: HotkeyOutputMode) => void
 	isHotkeyRecording: boolean
+	isFixTextProcessing: boolean
 }
 
 const HotkeyContext = createContext<HotkeyContextType | null>(null)
@@ -57,10 +58,14 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
+	const [isFixTextProcessing, setIsFixTextProcessing] = useState(false)
 
 	const isHotkeyRecordingRef = useRef(false)
+	const isFixTextProcessingRef = useRef(false)
+	const lastFixTextCallRef = useRef(0)
 	const hotkeyOutputModeRef = useRef(hotkeyOutputMode)
 	const registeredShortcutRef = useRef<string | null>(null)
+	const registeredFixShortcutRef = useRef<string | null>(null)
 
 	useEffect(() => {
 		preferenceRef.current = preference
@@ -100,6 +105,41 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const handleHotkeyUp = useCallback(async () => {
 		if (!isHotkeyRecordingRef.current) return
 		await emit('stop_record')
+	}, [])
+
+	const handleFixText = useCallback(async () => {
+		const now = Date.now()
+		if (now - lastFixTextCallRef.current < 1000) return
+		lastFixTextCallRef.current = now
+		if (isFixTextProcessingRef.current) return
+		const pref = preferenceRef.current
+		if (!pref.fixTextEnabled) return
+		if (!pref.groqApiKey) {
+			await notify('Vibe — Fix text', 'Groq API key is required. Set it in settings.')
+			return
+		}
+
+		isFixTextProcessingRef.current = true
+		setIsFixTextProcessing(true)
+		try {
+			const clipText = await clipboard.readText()
+			if (!clipText || !clipText.trim()) {
+				await notify('Vibe — Fix text', 'Clipboard is empty. Copy some text first.')
+				return
+			}
+
+			const fixed = await invoke<string>('fix_text', { text: clipText, mode: pref.fixTextMode, apiKey: pref.groqApiKey })
+			if (fixed) {
+				await clipboard.writeText(fixed)
+				await notify('Vibe — Text fixed', 'Corrected text copied to clipboard.')
+			}
+		} catch (e) {
+			console.error('fix_text failed:', e)
+			await notify('Vibe — Fix text failed', 'Check your Groq API key or rate limits.')
+		} finally {
+			isFixTextProcessingRef.current = false
+			setIsFixTextProcessing(false)
+		}
 	}, [])
 
 	// Listen for record_finish and process when hotkey-triggered
@@ -222,6 +262,48 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		}
 	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
 
+	// Register/unregister fix-text shortcut
+	useEffect(() => {
+		let cancelled = false
+		const shortcut = preference.fixTextShortcut
+
+		async function setupFixShortcut() {
+			if (registeredFixShortcutRef.current) {
+				try {
+					if (await isRegistered(registeredFixShortcutRef.current)) {
+						await unregister(registeredFixShortcutRef.current)
+					}
+				} catch (e) {
+					console.error('Failed to unregister fix shortcut:', e)
+				}
+				registeredFixShortcutRef.current = null
+			}
+
+			if (!preference.fixTextEnabled || !shortcut || !preference.groqApiKey || cancelled) return
+
+			try {
+				await register(shortcut, (event) => {
+					if (event.state === 'Pressed') {
+						handleFixText()
+					}
+				})
+				registeredFixShortcutRef.current = shortcut
+			} catch (e) {
+				console.error('Failed to register fix shortcut:', e)
+			}
+		}
+
+		setupFixShortcut()
+
+		return () => {
+			cancelled = true
+			if (registeredFixShortcutRef.current) {
+				unregister(registeredFixShortcutRef.current).catch(console.error)
+				registeredFixShortcutRef.current = null
+			}
+		}
+	}, [preference.fixTextEnabled, preference.fixTextShortcut, preference.groqApiKey, handleFixText])
+
 	const value: HotkeyContextType = useMemo(
 		() => ({
 			hotkeyEnabled,
@@ -231,8 +313,9 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			hotkeyOutputMode,
 			setHotkeyOutputMode,
 			isHotkeyRecording,
+			isFixTextProcessing,
 		}),
-		[hotkeyEnabled, setHotkeyEnabled, hotkeyShortcut, setHotkeyShortcut, hotkeyOutputMode, setHotkeyOutputMode, isHotkeyRecording],
+		[hotkeyEnabled, setHotkeyEnabled, hotkeyShortcut, setHotkeyShortcut, hotkeyOutputMode, setHotkeyOutputMode, isHotkeyRecording, isFixTextProcessing],
 	)
 
 	return <HotkeyContext.Provider value={value}>{children}</HotkeyContext.Provider>

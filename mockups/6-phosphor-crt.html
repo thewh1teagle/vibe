@@ -6,10 +6,7 @@
 		<title>Vibe — Phosphor CRT</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-			rel="stylesheet"
-		/>
+		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 		<style>
 			* {
 				box-sizing: border-box;
@@ -36,13 +33,7 @@
 				content: '';
 				position: absolute;
 				inset: 0;
-				background: repeating-linear-gradient(
-					0deg,
-					rgba(0, 0, 0, 0) 0,
-					rgba(0, 0, 0, 0) 2px,
-					rgba(0, 0, 0, 0.35) 2px,
-					rgba(0, 0, 0, 0.35) 3px
-				);
+				background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0.35) 2px, rgba(0, 0, 0, 0.35) 3px);
 				pointer-events: none;
 				z-index: 1;
 			}
@@ -114,7 +105,9 @@
 				display: grid;
 				place-items: center;
 				background: rgba(0, 255, 136, 0.05);
-				box-shadow: 0 0 8px rgba(0, 255, 136, 0.3) inset, 0 0 6px rgba(0, 255, 136, 0.2);
+				box-shadow:
+					0 0 8px rgba(0, 255, 136, 0.3) inset,
+					0 0 6px rgba(0, 255, 136, 0.2);
 			}
 			.brand .logo svg {
 				width: 14px;
@@ -148,8 +141,13 @@
 				animation: pulse 1.4s ease-in-out infinite;
 			}
 			@keyframes pulse {
-				0%, 100% { opacity: 1; }
-				50% { opacity: 0.3; }
+				0%,
+				100% {
+					opacity: 1;
+				}
+				50% {
+					opacity: 0.3;
+				}
 			}
 			.row {
 				display: flex;
@@ -386,7 +384,8 @@
 					<div class="brand">
 						<div class="logo">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
-								<path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+								<path
+									d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
 							</svg>
 						</div>
 						<h1>VIBE</h1>
@@ -403,7 +402,8 @@
 						<button class="iconbtn" aria-label="Settings">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
 								<path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-								<path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.65.86 1.04 1.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
+								<path
+									d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.65.86 1.04 1.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" />
 							</svg>
 						</button>
 					</div>
@@ -411,7 +411,8 @@
 					<div class="dictation">
 						<div class="icon">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
-								<path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+								<path
+									d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
 							</svg>
 						</div>
 						<div class="text">

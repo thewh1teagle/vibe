@@ -89,10 +89,10 @@ Releases happen via GitHub Actions when you push a git tag. Does **not** run on 
 1. Update version in `desktop/src-tauri/tauri.conf.json` and `desktop/src-tauri/Cargo.toml`
 2. Commit: `git commit -am "v1.0.1: describe changes"`
 3. Tag and push:
-   ```bash
-   git tag v1.0.1
-   git push origin main --tags
-   ```
+    ```bash
+    git tag v1.0.1
+    git push origin main --tags
+    ```
 4. GitHub Actions builds EXE + NSIS installer automatically
 5. A **draft release** appears on GitHub → go to Releases → edit and press "Publish"
 

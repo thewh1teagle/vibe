@@ -1,280 +1,338 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Vibe Simplify — Wave → Quote variations</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: #0b0b0f;
-  color: #e5e5e5;
-  padding: 48px 32px;
-}
-h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
-.sub { color: #888; margin-bottom: 48px; font-size: 14px; }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
-  max-width: 1400px;
-}
-.card {
-  background: #16161d;
-  border: 1px solid #26262f;
-  border-radius: 12px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-.label { font-size: 12px; font-weight: 500; color: #888; text-align: center; }
-.tile { width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; }
-.tile svg { width: 100%; height: 100%; }
-.dark { background: #0b0b0f; }
-.light { background: #f5f5f7; border-radius: 12px; }
-</style>
-</head>
-<body>
-<h1>wave → quote — variations</h1>
-<p class="sub">Same idea, different shapes. Each shown on dark and light.</p>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Vibe Simplify — Wave → Quote variations</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			body {
+				font-family:
+					ui-sans-serif,
+					system-ui,
+					-apple-system,
+					'Segoe UI',
+					Roboto,
+					sans-serif;
+				background: #0b0b0f;
+				color: #e5e5e5;
+				padding: 48px 32px;
+			}
+			h1 {
+				font-size: 28px;
+				font-weight: 600;
+				margin-bottom: 8px;
+			}
+			.sub {
+				color: #888;
+				margin-bottom: 48px;
+				font-size: 14px;
+			}
+			.grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+				gap: 24px;
+				max-width: 1400px;
+			}
+			.card {
+				background: #16161d;
+				border: 1px solid #26262f;
+				border-radius: 12px;
+				padding: 24px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 16px;
+			}
+			.label {
+				font-size: 12px;
+				font-weight: 500;
+				color: #888;
+				text-align: center;
+			}
+			.tile {
+				width: 160px;
+				height: 160px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.tile svg {
+				width: 100%;
+				height: 100%;
+			}
+			.dark {
+				background: #0b0b0f;
+			}
+			.light {
+				background: #f5f5f7;
+				border-radius: 12px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>wave → quote — variations</h1>
+		<p class="sub">Same idea, different shapes. Each shown on dark and light.</p>
 
-<div class="grid">
+		<div class="grid">
+			<div class="card">
+				<div class="label">A — original<br />wave above, quote below</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M10 30 Q20 10 30 30 T50 30 T70 30 T90 30" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" opacity="0.5" />
+						<text x="20" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#7c3aed">"</text>
+						<text x="62" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#7c3aed">"</text>
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M10 30 Q20 10 30 30 T50 30 T70 30 T90 30" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" opacity="0.5" />
+						<text x="20" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#4f46e5">"</text>
+						<text x="62" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#4f46e5">"</text>
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">A — original<br>wave above, quote below</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 30 Q20 10 30 30 T50 30 T70 30 T90 30" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
-        <text x="20" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#7c3aed">"</text>
-        <text x="62" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#7c3aed">"</text>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 30 Q20 10 30 30 T50 30 T70 30 T90 30" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
-        <text x="20" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#4f46e5">"</text>
-        <text x="62" y="80" font-family="Georgia, serif" font-size="50" font-weight="700" fill="#4f46e5">"</text>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">B — quote contains the wave</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="14" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#7c3aed">"</text>
+						<text x="60" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#7c3aed">"</text>
+						<path d="M28 55 Q34 40 40 55 T52 55 T64 55" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="14" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#4f46e5">"</text>
+						<text x="60" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#4f46e5">"</text>
+						<path d="M28 55 Q34 40 40 55 T52 55 T64 55" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">B — quote contains the wave</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="14" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#7c3aed">"</text>
-        <text x="60" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#7c3aed">"</text>
-        <path d="M28 55 Q34 40 40 55 T52 55 T64 55" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="14" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#4f46e5">"</text>
-        <text x="60" y="75" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#4f46e5">"</text>
-        <path d="M28 55 Q34 40 40 55 T52 55 T64 55" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">C — wave morphs into quote</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M10 50 Q20 30 30 50 T50 50" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+						<text x="40" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
+						<text x="76" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M10 50 Q20 30 30 50 T50 50" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+						<text x="40" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
+						<text x="76" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">C — wave morphs into quote</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 50 Q20 30 30 50 T50 50" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
-        <text x="40" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
-        <text x="76" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 50 Q20 30 30 50 T50 50" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
-        <text x="40" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
-        <text x="76" y="78" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">D — wave as underline of quote</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="14" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#7c3aed">"</text>
+						<text x="60" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#7c3aed">"</text>
+						<path d="M10 85 Q20 75 30 85 T50 85 T70 85 T90 85" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="14" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#4f46e5">"</text>
+						<text x="60" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#4f46e5">"</text>
+						<path d="M10 85 Q20 75 30 85 T50 85 T70 85 T90 85" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">D — wave as underline of quote</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="14" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#7c3aed">"</text>
-        <text x="60" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#7c3aed">"</text>
-        <path d="M10 85 Q20 75 30 85 T50 85 T70 85 T90 85" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="14" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#4f46e5">"</text>
-        <text x="60" y="65" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#4f46e5">"</text>
-        <path d="M10 85 Q20 75 30 85 T50 85 T70 85 T90 85" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">E — big quote, small wave inside</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="10" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#7c3aed">"</text>
+						<text x="64" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#7c3aed">"</text>
+						<path d="M30 55 Q36 45 42 55 T54 55 T66 55" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" opacity="0.7" />
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="10" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#4f46e5">"</text>
+						<text x="64" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#4f46e5">"</text>
+						<path d="M30 55 Q36 45 42 55 T54 55 T66 55" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" opacity="0.7" />
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">E — big quote, small wave inside</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="10" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#7c3aed">"</text>
-        <text x="64" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#7c3aed">"</text>
-        <path d="M30 55 Q36 45 42 55 T54 55 T66 55" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="10" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#4f46e5">"</text>
-        <text x="64" y="82" font-family="Georgia, serif" font-size="78" font-weight="700" fill="#4f46e5">"</text>
-        <path d="M30 55 Q36 45 42 55 T54 55 T66 55" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">F — stacked: wave on top, quote below</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M15 35 Q25 20 35 35 T55 35 T75 35 T85 35" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" />
+						<text x="22" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#7c3aed">"</text>
+						<text x="62" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#7c3aed">"</text>
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M15 35 Q25 20 35 35 T55 35 T75 35 T85 35" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" />
+						<text x="22" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#4f46e5">"</text>
+						<text x="62" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#4f46e5">"</text>
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">F — stacked: wave on top, quote below</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 35 Q25 20 35 35 T55 35 T75 35 T85 35" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
-        <text x="22" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#7c3aed">"</text>
-        <text x="62" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#7c3aed">"</text>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 35 Q25 20 35 35 T55 35 T75 35 T85 35" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
-        <text x="22" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#4f46e5">"</text>
-        <text x="62" y="82" font-family="Georgia, serif" font-size="44" font-weight="700" fill="#4f46e5">"</text>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">G — single quote with wave</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="32" y="80" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#7c3aed">"</text>
+						<path d="M14 30 Q26 18 38 30 T62 30" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="32" y="80" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#4f46e5">"</text>
+						<path d="M14 30 Q26 18 38 30 T62 30" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">G — single quote with wave</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="32" y="80" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#7c3aed">"</text>
-        <path d="M14 30 Q26 18 38 30 T62 30" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="32" y="80" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#4f46e5">"</text>
-        <path d="M14 30 Q26 18 38 30 T62 30" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">H — wave IS the quote shape</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path
+							d="M20 25 Q20 75 35 75 L35 80 M30 80 L40 80"
+							fill="none"
+							stroke="#7c3aed"
+							stroke-width="5"
+							stroke-linecap="round"
+							stroke-linejoin="round" />
+						<path
+							d="M55 25 Q55 75 70 75 L70 80 M65 80 L75 80"
+							fill="none"
+							stroke="#7c3aed"
+							stroke-width="5"
+							stroke-linecap="round"
+							stroke-linejoin="round" />
+						<path d="M14 30 Q24 18 34 30 T54 30" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" opacity="0.5" />
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path
+							d="M20 25 Q20 75 35 75 L35 80 M30 80 L40 80"
+							fill="none"
+							stroke="#4f46e5"
+							stroke-width="5"
+							stroke-linecap="round"
+							stroke-linejoin="round" />
+						<path
+							d="M55 25 Q55 75 70 75 L70 80 M65 80 L75 80"
+							fill="none"
+							stroke="#4f46e5"
+							stroke-width="5"
+							stroke-linecap="round"
+							stroke-linejoin="round" />
+						<path d="M14 30 Q24 18 34 30 T54 30" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" opacity="0.5" />
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">H — wave IS the quote shape</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 25 Q20 75 35 75 L35 80 M30 80 L40 80" fill="none" stroke="#7c3aed" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55 25 Q55 75 70 75 L70 80 M65 80 L75 80" fill="none" stroke="#7c3aed" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14 30 Q24 18 34 30 T54 30" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 25 Q20 75 35 75 L35 80 M30 80 L40 80" fill="none" stroke="#4f46e5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M55 25 Q55 75 70 75 L70 80 M65 80 L75 80" fill="none" stroke="#4f46e5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14 30 Q24 18 34 30 T54 30" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">I — wave → solid quote</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8 30 Q18 12 28 30 T48 30" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round" />
+						<rect x="44" y="22" width="6" height="22" fill="#7c3aed" opacity="0.4" />
+						<text x="48" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#7c3aed">"</text>
+						<text x="70" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#7c3aed">"</text>
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8 30 Q18 12 28 30 T48 30" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" />
+						<rect x="44" y="22" width="6" height="22" fill="#4f46e5" opacity="0.4" />
+						<text x="48" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#4f46e5">"</text>
+						<text x="70" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#4f46e5">"</text>
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">I — wave → solid quote</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 30 Q18 12 28 30 T48 30" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"/>
-        <rect x="44" y="22" width="6" height="22" fill="#7c3aed" opacity="0.4"/>
-        <text x="48" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#7c3aed">"</text>
-        <text x="70" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#7c3aed">"</text>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 30 Q18 12 28 30 T48 30" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
-        <rect x="44" y="22" width="6" height="22" fill="#4f46e5" opacity="0.4"/>
-        <text x="48" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#4f46e5">"</text>
-        <text x="70" y="85" font-family="Georgia, serif" font-size="60" font-weight="700" fill="#4f46e5">"</text>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">J — three waves to triple quote</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="14" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed" opacity="0.5">"</text>
+						<text x="14" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed" opacity="0.5">"</text>
+						<text x="14" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed" opacity="0.5">"</text>
+						<text x="50" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
+						<text x="50" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
+						<text x="50" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="14" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5" opacity="0.5">"</text>
+						<text x="14" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5" opacity="0.5">"</text>
+						<text x="14" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5" opacity="0.5">"</text>
+						<text x="50" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
+						<text x="50" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
+						<text x="50" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">J — three waves to triple quote</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="14" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed" opacity="0.5">"</text>
-        <text x="14" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed" opacity="0.5">"</text>
-        <text x="14" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed" opacity="0.5">"</text>
-        <text x="50" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
-        <text x="50" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
-        <text x="50" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#7c3aed">"</text>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="14" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5" opacity="0.5">"</text>
-        <text x="14" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5" opacity="0.5">"</text>
-        <text x="14" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5" opacity="0.5">"</text>
-        <text x="50" y="80" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
-        <text x="50" y="55" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
-        <text x="50" y="30" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#4f46e5">"</text>
-      </svg>
-    </div>
-  </div>
+			<div class="card">
+				<div class="label">K — flat wave through quote</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8 50 Q20 35 32 50 T56 50 T80 50 T92 50" fill="none" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" />
+						<text x="14" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#7c3aed" opacity="0.35">"</text>
+						<text x="68" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#7c3aed" opacity="0.35">"</text>
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8 50 Q20 35 32 50 T56 50 T80 50 T92 50" fill="none" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round" />
+						<text x="14" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#4f46e5" opacity="0.35">"</text>
+						<text x="68" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#4f46e5" opacity="0.35">"</text>
+					</svg>
+				</div>
+			</div>
 
-  <div class="card">
-    <div class="label">K — flat wave through quote</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 50 Q20 35 32 50 T56 50 T80 50 T92 50" fill="none" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round"/>
-        <text x="14" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#7c3aed" opacity="0.35">"</text>
-        <text x="68" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#7c3aed" opacity="0.35">"</text>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 50 Q20 35 32 50 T56 50 T80 50 T92 50" fill="none" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round"/>
-        <text x="14" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#4f46e5" opacity="0.35">"</text>
-        <text x="68" y="80" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#4f46e5" opacity="0.35">"</text>
-      </svg>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="label">L — quote with soundbar inside</div>
-    <div class="tile dark">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="10" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#7c3aed">"</text>
-        <text x="64" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#7c3aed">"</text>
-        <rect x="30" y="50" width="3" height="14" rx="1.5" fill="#7c3aed" opacity="0.7"/>
-        <rect x="37" y="44" width="3" height="26" rx="1.5" fill="#7c3aed" opacity="0.7"/>
-        <rect x="44" y="48" width="3" height="18" rx="1.5" fill="#7c3aed" opacity="0.7"/>
-        <rect x="51" y="40" width="3" height="34" rx="1.5" fill="#7c3aed" opacity="0.7"/>
-        <rect x="58" y="46" width="3" height="22" rx="1.5" fill="#7c3aed" opacity="0.7"/>
-        <rect x="65" y="50" width="3" height="14" rx="1.5" fill="#7c3aed" opacity="0.7"/>
-      </svg>
-    </div>
-    <div class="tile light">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="10" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#4f46e5">"</text>
-        <text x="64" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#4f46e5">"</text>
-        <rect x="30" y="50" width="3" height="14" rx="1.5" fill="#4f46e5" opacity="0.7"/>
-        <rect x="37" y="44" width="3" height="26" rx="1.5" fill="#4f46e5" opacity="0.7"/>
-        <rect x="44" y="48" width="3" height="18" rx="1.5" fill="#4f46e5" opacity="0.7"/>
-        <rect x="51" y="40" width="3" height="34" rx="1.5" fill="#4f46e5" opacity="0.7"/>
-        <rect x="58" y="46" width="3" height="22" rx="1.5" fill="#4f46e5" opacity="0.7"/>
-        <rect x="65" y="50" width="3" height="14" rx="1.5" fill="#4f46e5" opacity="0.7"/>
-      </svg>
-    </div>
-  </div>
-
-</div>
-
-</body>
+			<div class="card">
+				<div class="label">L — quote with soundbar inside</div>
+				<div class="tile dark">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="10" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#7c3aed">"</text>
+						<text x="64" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#7c3aed">"</text>
+						<rect x="30" y="50" width="3" height="14" rx="1.5" fill="#7c3aed" opacity="0.7" />
+						<rect x="37" y="44" width="3" height="26" rx="1.5" fill="#7c3aed" opacity="0.7" />
+						<rect x="44" y="48" width="3" height="18" rx="1.5" fill="#7c3aed" opacity="0.7" />
+						<rect x="51" y="40" width="3" height="34" rx="1.5" fill="#7c3aed" opacity="0.7" />
+						<rect x="58" y="46" width="3" height="22" rx="1.5" fill="#7c3aed" opacity="0.7" />
+						<rect x="65" y="50" width="3" height="14" rx="1.5" fill="#7c3aed" opacity="0.7" />
+					</svg>
+				</div>
+				<div class="tile light">
+					<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+						<text x="10" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#4f46e5">"</text>
+						<text x="64" y="82" font-family="Georgia, serif" font-size="74" font-weight="700" fill="#4f46e5">"</text>
+						<rect x="30" y="50" width="3" height="14" rx="1.5" fill="#4f46e5" opacity="0.7" />
+						<rect x="37" y="44" width="3" height="26" rx="1.5" fill="#4f46e5" opacity="0.7" />
+						<rect x="44" y="48" width="3" height="18" rx="1.5" fill="#4f46e5" opacity="0.7" />
+						<rect x="51" y="40" width="3" height="34" rx="1.5" fill="#4f46e5" opacity="0.7" />
+						<rect x="58" y="46" width="3" height="22" rx="1.5" fill="#4f46e5" opacity="0.7" />
+						<rect x="65" y="50" width="3" height="14" rx="1.5" fill="#4f46e5" opacity="0.7" />
+					</svg>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

@@ -6,6 +6,106 @@ const GROQ_CHAT_URL: &str = "https://api.groq.com/openai/v1/chat/completions";
 const CLEANUP_MODEL: &str = "llama-3.3-70b-versatile";
 const CLEANUP_TIMEOUT: Duration = Duration::from_secs(10);
 
+const FIX_PROMPT: &str = "\
+You are a text repair assistant. The user has selected text that contains \
+errors. Fix only errors — do not rewrite, rephrase, or change meaning.\n\
+\n\
+DO:\n\
+- Fix spelling errors.\n\
+- Fix grammar mistakes.\n\
+- Fix punctuation (missing periods, commas, question marks, etc.).\n\
+- Capitalize sentence starts and proper nouns.\n\
+- Fix spacing issues (double spaces, missing spaces).\n\
+\n\
+DO NOT:\n\
+- Change the meaning or wording of any sentence.\n\
+- Add or remove information.\n\
+- Rephrase or restructure sentences.\n\
+- Add explanations, comments, or labels.\n\
+- Reformat the text (no bullet points, no JSON, no code fences).\n\
+\n\
+Preserve exactly:\n\
+- The original language of the text.\n\
+- Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- The author's tone, register, and stylistic choices.\n\
+\n\
+Output strictly the corrected text. No preamble, no labels.";
+
+const IMPROVE_PROMPT: &str = "\
+You are a writing improvement assistant. The user has selected text that may \
+contain errors and unclear phrasing. Fix errors and improve clarity while \
+preserving the original meaning.\n\
+\n\
+DO:\n\
+- Fix spelling, grammar, and punctuation errors.\n\
+- Improve unclear or awkward phrasing for better readability.\n\
+- Simplify overly complex sentences where possible.\n\
+- Ensure logical flow between sentences.\n\
+\n\
+DO NOT:\n\
+- Change the meaning or add new information.\n\
+- Remove content the author included.\n\
+- Add explanations, comments, or labels.\n\
+- Reformat the text (no bullet points, no JSON, no code fences).\n\
+- Over-rewrite — keep changes minimal and faithful to the original.\n\
+\n\
+Preserve exactly:\n\
+- The original language of the text.\n\
+- Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- The author's core intent and message.\n\
+\n\
+Output strictly the improved text. No preamble, no labels.";
+
+const FORMAL_PROMPT: &str = "\
+You are a tone adjustment assistant. The user has selected text and wants it \
+in a more formal register. Fix errors and adjust the tone to be professional \
+and formal while preserving meaning.\n\
+\n\
+DO:\n\
+- Fix spelling, grammar, and punctuation errors.\n\
+- Replace casual/informal expressions with formal equivalents.\n\
+- Use professional vocabulary and sentence structure.\n\
+- Ensure proper grammar and complete sentences.\n\
+\n\
+DO NOT:\n\
+- Change the meaning or add new information.\n\
+- Remove content the author included.\n\
+- Add explanations, comments, or labels.\n\
+- Reformat the text (no bullet points, no JSON, no code fences).\n\
+- Make it sound robotic — keep it natural but professional.\n\
+\n\
+Preserve exactly:\n\
+- The original language of the text.\n\
+- Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- The author's core intent and message.\n\
+\n\
+Output strictly the formal text. No preamble, no labels.";
+
+const CASUAL_PROMPT: &str = "\
+You are a tone adjustment assistant. The user has selected text and wants it \
+in a more casual, relaxed register. Fix errors and adjust the tone to be \
+conversational while preserving meaning.\n\
+\n\
+DO:\n\
+- Fix spelling, grammar, and punctuation errors.\n\
+- Replace stiff or overly formal expressions with natural, everyday language.\n\
+- Use contractions and conversational phrasing where appropriate.\n\
+- Keep sentences readable and natural-sounding.\n\
+\n\
+DO NOT:\n\
+- Change the meaning or add new information.\n\
+- Remove content the author included.\n\
+- Add explanations, comments, or labels.\n\
+- Reformat the text (no bullet points, no JSON, no code fences).\n\
+- Make it too slangy — keep it relaxed but clear.\n\
+\n\
+Preserve exactly:\n\
+- The original language of the text.\n\
+- Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
+- The author's core intent and message.\n\
+\n\
+Output strictly the casual text. No preamble, no labels.";
+
 // "auto" mode — clean up the dictated text in whatever language the speaker
 // used, without translating.
 const SYSTEM_PROMPT_PRESERVE: &str = "\
@@ -137,17 +237,16 @@ struct ApiErrorBody {
     message: String,
 }
 
-// Sends the dictated text to Groq for cleanup with a system prompt tailored
-// to the user's selected output language.
-pub async fn cleanup_text(text: &str, lang: &str, api_key: &str) -> Result<String> {
+// Sends a user text to Groq with a given system prompt and returns the response.
+async fn call_groq(system_prompt: &str, user_text: &str, api_key: &str, label: &str) -> Result<String> {
     let client = reqwest::Client::builder().timeout(CLEANUP_TIMEOUT).build()?;
     let payload = serde_json::json!({
         "model": CLEANUP_MODEL,
         "temperature": 0.0,
         "max_tokens": 1024,
         "messages": [
-            { "role": "system", "content": build_system_prompt(lang) },
-            { "role": "user", "content": text },
+            { "role": "system", "content": system_prompt },
+            { "role": "user", "content": user_text },
         ],
     });
     let resp = client
@@ -156,20 +255,39 @@ pub async fn cleanup_text(text: &str, lang: &str, api_key: &str) -> Result<Strin
         .json(&payload)
         .send()
         .await
-        .context("failed to send cleanup request to Groq")?;
+        .context(format!("failed to send {label} request to Groq"))?;
     let status = resp.status();
     if !status.is_success() {
         let body = resp.text().await.unwrap_or_default();
         if let Ok(parsed) = serde_json::from_str::<ApiError>(&body) {
-            eyre::bail!("Groq cleanup error ({}): {}", status, parsed.error.message);
+            eyre::bail!("Groq {label} error ({}): {}", status, parsed.error.message);
         }
-        eyre::bail!("Groq cleanup error ({}): {}", status, body);
+        eyre::bail!("Groq {label} error ({}): {}", status, body);
     }
-    let body: ChatResponse = resp.json().await.context("failed to parse Groq cleanup response")?;
+    let body: ChatResponse = resp.json().await.context(format!("failed to parse Groq {label} response"))?;
     Ok(body
         .choices
         .into_iter()
         .next()
         .map(|c| c.message.content.trim().to_string())
         .unwrap_or_default())
+}
+
+// Sends the dictated text to Groq for cleanup with a system prompt tailored
+// to the user's selected output language.
+pub async fn cleanup_text(text: &str, lang: &str, api_key: &str) -> Result<String> {
+    call_groq(&build_system_prompt(lang), text, api_key, "cleanup").await
+}
+
+fn build_fix_prompt(mode: &str) -> &'static str {
+    match mode.trim() {
+        "improve" => IMPROVE_PROMPT,
+        "formal" => FORMAL_PROMPT,
+        "casual" => CASUAL_PROMPT,
+        _ => FIX_PROMPT,
+    }
+}
+
+pub async fn fix_text(text: &str, mode: &str, api_key: &str) -> Result<String> {
+    call_groq(build_fix_prompt(mode), text, api_key, "fix").await
 }

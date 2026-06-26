@@ -38,6 +38,12 @@ export interface Preference {
 	setGroqApiKey: ModifyState<string>
 	llmCleanup: boolean
 	setLlmCleanup: ModifyState<boolean>
+	fixTextEnabled: boolean
+	setFixTextEnabled: ModifyState<boolean>
+	fixTextShortcut: string
+	setFixTextShortcut: ModifyState<string>
+	fixTextMode: string
+	setFixTextMode: ModifyState<string>
 }
 
 const PreferenceContext = createContext<Preference | null>(null)
@@ -99,6 +105,9 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [transcriptionProvider, setTranscriptionProvider] = useLocalStorage<TranscriptionProvider>('prefs_transcription_provider', 'local')
 	const [groqApiKey, setGroqApiKey] = useLocalStorage<string>('prefs_groq_api_key', '')
 	const [llmCleanup, setLlmCleanup] = useLocalStorage<boolean>('prefs_llm_cleanup', false)
+	const [fixTextEnabled, setFixTextEnabled] = useLocalStorage<boolean>('prefs_fix_text_enabled', true)
+	const [fixTextShortcut, setFixTextShortcut] = useLocalStorage<string>('prefs_fix_text_shortcut', 'CmdOrCtrl+Shift+Space')
+	const [fixTextMode, setFixTextMode] = useLocalStorage<string>('prefs_fix_text_mode', 'fix')
 
 	useEffect(() => {
 		if (theme === 'dark') {
@@ -167,6 +176,12 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setGroqApiKey,
 			llmCleanup,
 			setLlmCleanup,
+			fixTextEnabled,
+			setFixTextEnabled,
+			fixTextShortcut,
+			setFixTextShortcut,
+			fixTextMode,
+			setFixTextMode,
 		}),
 		[
 			language,
@@ -183,6 +198,9 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			transcriptionProvider,
 			groqApiKey,
 			llmCleanup,
+			fixTextEnabled,
+			fixTextShortcut,
+			fixTextMode,
 			setLanguage,
 			setModelPath,
 			setSelectedModelPreset,
@@ -196,6 +214,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			setRawOutput,
 			setTranscriptionProvider,
 			setGroqApiKey,
+			setLlmCleanup,
+			setFixTextEnabled,
+			setFixTextShortcut,
+			setFixTextMode,
 			setLanguageDefaults,
 		],
 	)
