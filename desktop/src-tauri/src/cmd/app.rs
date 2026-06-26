@@ -107,7 +107,7 @@ pub async fn fix_selected_text(mode: String, api_key: String, app: tauri::AppHan
 
     // Step 1: Save current clipboard content
     let original = clipboard.read_text().unwrap_or_default();
-    tracing::info!("[fix-text] step1 original clipboard: {} chars", original.len());
+    tracing::debug!("[fix-text] step1 original clipboard: {} chars", original.len());
 
     // Step 2: Write a unique marker so we can detect if Ctrl+C actually copied something
     let marker = format!("__vibe_marker_{}__", std::time::SystemTime::now()
@@ -117,7 +117,7 @@ pub async fn fix_selected_text(mode: String, api_key: String, app: tauri::AppHan
     clipboard
         .write_text(&marker)
         .map_err(|e| eyre::eyre!("Failed to write marker to clipboard: {:?}", e))?;
-    tracing::info!("[fix-text] step2 marker written");
+    tracing::debug!("[fix-text] step2 marker written");
 
     // Step 3: Let the marker propagate
     tokio::time::sleep(std::time::Duration::from_millis(50)).await;
@@ -131,7 +131,7 @@ pub async fn fix_selected_text(mode: String, api_key: String, app: tauri::AppHan
         .map_err(|e| eyre::eyre!("Failed to click C: {}", e))?;
     enigo.key(Key::Control, enigo::Direction::Release)
         .map_err(|e| eyre::eyre!("Failed to release Control: {}", e))?;
-    tracing::info!("[fix-text] step4 Ctrl+C simulated");
+    tracing::debug!("[fix-text] step4 Ctrl+C simulated");
 
     // Step 5: Let the copy complete
     tokio::time::sleep(std::time::Duration::from_millis(250)).await;
@@ -140,19 +140,19 @@ pub async fn fix_selected_text(mode: String, api_key: String, app: tauri::AppHan
     let after_copy = clipboard
         .read_text()
         .map_err(|e| eyre::eyre!("Failed to read clipboard after copy: {:?}", e))?;
-    tracing::info!("[fix-text] step6 after_copy: {}, marker match: {}", after_copy.len(), after_copy == marker);
+    tracing::debug!("[fix-text] step6 after_copy: {}, marker match: {}", after_copy.len(), after_copy == marker);
 
     // Step 7: Decide what text to use
     let text_to_fix = if after_copy != marker && !after_copy.trim().is_empty() {
-        tracing::info!("[fix-text] step7 using copied text ({} chars)", after_copy.len());
+        tracing::debug!("[fix-text] step7 using copied text ({} chars)", after_copy.len());
         after_copy
     } else {
         // Check: did Ctrl+C change clipboard at all?
         if after_copy == marker {
-            tracing::info!("[fix-text] step7 Ctrl+C did not change clipboard → falling back to original");
+            tracing::debug!("[fix-text] step7 Ctrl+C did not change clipboard -> falling back to original");
         }
         if !original.trim().is_empty() {
-            tracing::info!("[fix-text] step7 using original clipboard ({} chars)", original.len());
+            tracing::debug!("[fix-text] step7 using original clipboard ({} chars)", original.len());
             original
         } else {
             let _ = clipboard.write_text(&original);
@@ -161,15 +161,15 @@ pub async fn fix_selected_text(mode: String, api_key: String, app: tauri::AppHan
     };
 
     // Step 8: Send to LLM
-    tracing::info!("[fix-text] step8 sending to LLM ({} chars, mode={})", text_to_fix.len(), mode);
+    tracing::debug!("[fix-text] step8 sending to LLM ({} chars, mode={})", text_to_fix.len(), mode);
     let fixed = crate::cleanup::fix_text(&text_to_fix, &mode, &api_key).await?;
-    tracing::info!("[fix-text] step8 LLM returned {} chars", fixed.len());
+    tracing::debug!("[fix-text] step8 LLM returned {} chars", fixed.len());
 
     // Step 9: Write result to clipboard
     clipboard
         .write_text(&fixed)
         .map_err(|e| eyre::eyre!("Failed to write result to clipboard: {:?}", e))?;
-    tracing::info!("[fix-text] step9 result written to clipboard");
+    tracing::debug!("[fix-text] step9 result written to clipboard");
 
     Ok(fixed)
 }
