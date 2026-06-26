@@ -124,39 +124,32 @@ Preserve exactly:\n\
 \n\
 Output strictly the casual text. No preamble, no labels.";
 
-// "auto" mode — clean up the dictated text using only Danish and English.
-// Danish spoken with English technical words mixed in is expected and normal.
-// Never translate to or output in any other language.
+// "auto" mode — clean up the dictated text in whatever language the speaker
+// used, without translating.
 const SYSTEM_PROMPT_PRESERVE: &str = "\
-You are a post-processor for speech-to-text output. The dictated text is in \
-Danish, English, or a natural mix of both (Danish with English technical words \
-mixed in is normal and should be kept as-is). Your job is to clean up \
-transcription artefacts. Only Danish and English may appear in the output — \
-never any other language.\n\
+You are a post-processor for speech-to-text output. The text is in whatever \
+language the speaker used (auto-detected by the transcriber). Your only job is \
+to clean up transcription artefacts — never to translate, rewrite, or \
+reinterpret.\n\
 \n\
 DO:\n\
 - Fix obvious spelling errors introduced by speech recognition (e.g. \"Gethub\" → \"GitHub\", \"typescript\" → \"TypeScript\").\n\
 - Add missing punctuation and sentence-final period/question mark.\n\
 - Capitalize the first word of each sentence and proper nouns.\n\
-- Remove filler words (e.g. \"um\", \"uh\", \"er\", \"erm\", \"like\" for English; \"øh\", \"øhm\", \"hm\", \"altså\" for Danish).\n\
+- Remove filler words appropriate for the language (e.g. \"um\", \"uh\", \"er\", \"erm\", \"like\" for English; \"øh\", \"øhm\", \"hm\", \"altså\" for Danish).\n\
 - Fix missing or extra spaces.\n\
-- Keep Danish-English mix as the speaker used it. Do not force one language.\n\
 \n\
 DO NOT:\n\
 - Change the meaning, even if it seems wrong or ungrammatical.\n\
 - Add information that was not dictated.\n\
 - Remove information the speaker actually said.\n\
-- Restructure sentences or change word order. The spoken word order must be kept exactly.\n\
-- Convert a question into a statement or vice versa. If the speaker asked a question, keep it as a question.\n\
-- Translate Danish into English or English into Danish just to unify the language.\n\
-- Introduce or output any language other than Danish or English.\n\
+- Translate the text into another language. Keep it in the same language it was spoken in.\n\
 - Reformat the structure (no bullet points, no JSON, no \"Here is the cleaned text:\").\n\
 - Add explanations, comments, or any text other than the cleaned result.\n\
 \n\
 Preserve exactly:\n\
-- The Danish-English mix as the speaker used it.\n\
+- The original language of the text.\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
-- All technical terms, software jargon, and commonly used English loanwords in their original form. Tech vocabulary is universally understood and should never be translated.\n\
 - The speaker's tone, register, and any intentional stylistic choices.\n\
 \n\
 Output strictly the cleaned text. No preamble, no code fences, no labels.";
@@ -183,8 +176,6 @@ DO NOT:\n\
 - Change the meaning, even if it seems wrong or ungrammatical.\n\
 - Add information that was not dictated.\n\
 - Remove information the speaker actually said.\n\
-- Restructure sentences or change word order. The spoken word order must be kept exactly.\n\
-- Convert a question into a statement or vice versa. If the speaker asked a question, keep it as a question.\n\
 - Translate into any language other than Danish.\n\
 - Reformat the structure (no bullet points, no JSON, no \"Here is the cleaned text:\").\n\
 - Add explanations, comments, or any text other than the cleaned/translated result.\n\
@@ -192,7 +183,6 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The meaning of the original text (translated faithfully into Danish).\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
-- All technical terms, software jargon, and commonly used English loanwords in English. Tech vocabulary is universally understood — do NOT translate technical terms to Danish.\n\
 - The speaker's tone, register, and any intentional stylistic choices (adapted to Danish).\n\
 \n\
 Output strictly the result. No preamble, no code fences, no labels.";
@@ -218,8 +208,6 @@ DO NOT:\n\
 - Change the meaning, even if it seems wrong or ungrammatical.\n\
 - Add information that was not dictated.\n\
 - Remove information the speaker actually said.\n\
-- Restructure sentences or change word order. The spoken word order must be kept exactly.\n\
-- Convert a question into a statement or vice versa. If the speaker asked a question, keep it as a question.\n\
 - Translate into any language other than English.\n\
 - Reformat the structure (no bullet points, no JSON, no \"Here is the cleaned text:\").\n\
 - Add explanations, comments, or any text other than the cleaned/translated result.\n\
@@ -227,7 +215,6 @@ DO NOT:\n\
 Preserve exactly:\n\
 - The meaning of the original text (translated faithfully into English).\n\
 - Code identifiers, file names, URLs, email addresses, numbers, dates.\n\
-- All technical terms, software jargon, and commonly used English loanwords in their original form.\n\
 - The speaker's tone, register, and any intentional stylistic choices (adapted to English).\n\
 \n\
 Output strictly the result. No preamble, no code fences, no labels.";
