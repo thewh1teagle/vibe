@@ -106,7 +106,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [groqApiKey, setGroqApiKey] = useLocalStorage<string>('prefs_groq_api_key', '')
 	const [llmCleanup, setLlmCleanup] = useLocalStorage<boolean>('prefs_llm_cleanup', false)
 	const [fixTextEnabled, setFixTextEnabled] = useLocalStorage<boolean>('prefs_fix_text_enabled', true)
-	const [fixTextShortcut, setFixTextShortcut] = useLocalStorage<string>('prefs_fix_text_shortcut', 'CmdOrCtrl+Shift+Space')
+	const [fixTextShortcut, setFixTextShortcut] = useLocalStorage<string>('prefs_fix_text_shortcut', 'CmdOrCtrl+Space')
 	const [fixTextMode, setFixTextMode] = useLocalStorage<string>('prefs_fix_text_mode', 'fix')
 
 	useEffect(() => {
