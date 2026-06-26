@@ -7,6 +7,7 @@ Press a hotkey from anywhere in Windows, speak, and your speech is transcribed a
 ## Features
 
 - Global hotkey dictation (default: `Ctrl+Shift+V`)
+- **Fix text** hotkey (default: `Ctrl+Space`) — select text anywhere, press hotkey, LLM fixes or rewrites it, result copied to clipboard. Four modes: Fix, Rewrite, Formal, Casual
 - **Local transcription** via Whisper (offline, no data leaves your device)
 - **Groq cloud transcription** (fast, online, requires API key)
 - Optional **AI cleanup** of Groq transcripts (fixes spelling, punctuation, filler words; translates to the selected output language)
@@ -56,11 +57,11 @@ The app starts minimized to the system tray. Left-click the tray icon to open th
 ## How It Works
 
 ```
-App start → preload model in background → ready
-Hotkey press → record from default mic → release → Whisper transcribes → clipboard or type
+Dictation:  Hotkey press → record from default mic → release → Whisper transcribes → clipboard or type
+Fix text:   Select text → Ctrl+Space → simulates Ctrl+C → LLM fixes text → clipboard
 ```
 
-The app uses [sona](https://github.com/thewh1teagle/sona) — a Go + whisper.cpp HTTP server — as a sidecar binary for transcription.
+The app uses [sona](https://github.com/thewh1teagle/sona) — a Go + whisper.cpp HTTP server — as a sidecar binary for transcription. Fix text uses Groq's `llama-3.3-70b-versatile` model.
 
 ## Transcription Options
 
@@ -81,6 +82,21 @@ The model is stored in `%LOCALAPPDATA%\github.com.thewh1teagle.vibe\` and loaded
 Fast cloud transcription via [Groq](https://groq.com/). Requires a free API key — enter it in Settings or during setup. Transcription runs on Groq's servers with very low latency.
 
 **AI cleanup** (optional): when enabled, the raw transcript is post-processed by Groq's `llama-3.3-70b-versatile` chat model. The LLM fixes common STT artefacts — spelling (`Gethub` → `GitHub`), punctuation, filler words (`øh`, `altså`, `hm` for Danish; `um`, `uh`, `like` for English), and capitalization — and, when a non-Auto **Output language** is selected, translates the dictated text into that language. If the cleanup call fails, the raw transcript is used as a fallback. Adds ~200ms of latency. Disabled by default; enable in the home screen under "AI cleanup (Groq only)".
+
+## Fix Text
+
+Select text in any application, press `Ctrl+Space`, and the LLM will fix or rewrite it. The result is copied to your clipboard — paste it with `Ctrl+V`.
+
+Requires a Groq API key (same as cloud transcription). Enable/disable and change the hotkey in the home screen.
+
+### Modes
+
+| Mode | What it does |
+|------|-------------|
+| **Fix** | Corrects errors + minor clarity improvements (conservative) |
+| **Rewrite** | Restructures for clarity and engagement (aggressive) |
+| **Formal** | Makes the tone professional |
+| **Casual** | Makes the tone relaxed |
 
 ## Credits
 

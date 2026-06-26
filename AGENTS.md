@@ -2,7 +2,10 @@
 
 ## Architecture
 
-Vibe is a **Tauri v2** desktop app (Rust backend + React/TypeScript frontend). It bundles a Go transcription engine called **sona** as a sidecar binary. The app provides global hotkey dictation: press hotkey, speak, Whisper transcribes, output to clipboard or type-at-cursor.
+Vibe is a **Tauri v2** desktop app (Rust backend + React/TypeScript frontend). It bundles a Go transcription engine called **sona** as a sidecar binary. The app provides:
+
+- **Global hotkey dictation**: press hotkey, speak, Whisper transcribes, output to clipboard or type-at-cursor
+- **Fix text**: select text anywhere, press `Ctrl+Space`, LLM fixes/rewrites it, result goes to clipboard
 
 Target: **Windows only** (x86_64-pc-windows-msvc).
 
