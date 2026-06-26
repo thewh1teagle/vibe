@@ -5797,6 +5797,7 @@ name = "vibe"
 version = "1.2.1"
 dependencies = [
  "chrono",
+ "clipboard-win",
  "cpal",
  "crash-handler",
  "enigo",

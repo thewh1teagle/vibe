@@ -60,6 +60,7 @@ openssl = { version = "0.10.75", features = ["vendored"] }
 
 # Windows
 [target.'cfg(windows)'.dependencies]
+clipboard-win = "5"
 
 # macOS
 [target.'cfg(target_os = "macos")'.dependencies]

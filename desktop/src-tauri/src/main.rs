@@ -79,6 +79,7 @@ async fn main() -> Result<()> {
             cmd::app::test_groq_key,
             cmd::app::cleanup_transcript,
             cmd::app::fix_text,
+            cmd::app::read_clipboard,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");

@@ -91,3 +91,9 @@ pub async fn cleanup_transcript(text: String, lang: String, api_key: String) -> 
 pub async fn fix_text(text: String, mode: String, api_key: String) -> Result<String> {
     crate::cleanup::fix_text(&text, &mode, &api_key).await
 }
+
+#[tauri::command]
+pub fn read_clipboard() -> Result<String> {
+    use clipboard_win::{formats, get_clipboard};
+    get_clipboard(formats::Unicode).context("Failed to read clipboard")
+}

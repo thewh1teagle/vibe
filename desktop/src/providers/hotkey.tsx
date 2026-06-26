@@ -125,16 +125,10 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		isFixTextProcessingRef.current = true
 		setIsFixTextProcessing(true)
 		try {
-			await new Promise((r) => setTimeout(r, 150))
-			let clipText = await clipboard.readText()
+			// Read clipboard via Rust backend to avoid Tauri plugin caching
+			const clipText = await invoke<string>('read_clipboard')
 
-			// If clipboard still has our last output, wait a bit and retry
-			if (clipText && clipText === lastFixTextOutputRef.current) {
-				await new Promise((r) => setTimeout(r, 200))
-				clipText = await clipboard.readText()
-			}
-
-			console.log('[fix-text] input:', JSON.stringify(clipText?.slice(0, 80)))
+			console.log('[fix-text] input:', JSON.stringify(clipText?.slice(0, 100)))
 			if (!clipText || !clipText.trim()) {
 				await notify('Vibe — Fix text', 'Clipboard is empty. Copy some text first.')
 				return
@@ -146,7 +140,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			}
 
 			const fixed = await invoke<string>('fix_text', { text: clipText, mode: pref.fixTextMode, apiKey: pref.groqApiKey })
-			console.log('[fix-text] output:', JSON.stringify(fixed?.slice(0, 80)))
+			console.log('[fix-text] output:', JSON.stringify(fixed?.slice(0, 100)))
 			if (fixed) {
 				lastFixTextOutputRef.current = fixed
 				await clipboard.writeText(fixed)
@@ -301,12 +295,15 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			if (!preference.fixTextEnabled || !shortcut || !preference.groqApiKey || cancelled) return
 
 			try {
+				console.log('[fix-text] registering shortcut:', shortcut)
 				await register(shortcut, (event) => {
+					console.log('[fix-text] shortcut event:', event.state)
 					if (event.state === 'Pressed') {
 						handleFixText()
 					}
 				})
 				registeredFixShortcutRef.current = shortcut
+				console.log('[fix-text] shortcut registered OK')
 			} catch (e) {
 				console.error('Failed to register fix shortcut:', e)
 			}
