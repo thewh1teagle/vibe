@@ -77,6 +77,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 	const handleHotkeyDown = useCallback(async () => {
 		if (isHotkeyRecordingRef.current) return
+		if (isFixTextProcessingRef.current) return
 		try {
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
 			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
@@ -112,6 +113,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		if (now - lastFixTextCallRef.current < 1000) return
 		lastFixTextCallRef.current = now
 		if (isFixTextProcessingRef.current) return
+		if (isHotkeyRecordingRef.current) return
 		const pref = preferenceRef.current
 		if (!pref.fixTextEnabled) return
 		if (!pref.groqApiKey) {
@@ -122,6 +124,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		isFixTextProcessingRef.current = true
 		setIsFixTextProcessing(true)
 		try {
+			await new Promise((r) => setTimeout(r, 50))
 			const clipText = await clipboard.readText()
 			if (!clipText || !clipText.trim()) {
 				await notify('Vibe — Fix text', 'Clipboard is empty. Copy some text first.')
