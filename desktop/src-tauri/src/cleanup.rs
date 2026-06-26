@@ -31,6 +31,9 @@ Do not \"improve\" text — only fix actual errors.\n\
 CRITICAL RULE: You MUST return the ENTIRE text, every sentence, every paragraph. \
 Never output only a portion of the input. If only one sentence has errors, still return all sentences.\n\
 \n\
+CRITICAL RULE: Keep the text in its original language. If translation is ever needed, \
+only translate to Danish or English — never to any other language.\n\
+\n\
 Preserve exactly:\n\
 - The original language of the text.\n\
 - Every correctly spelled word, even if uncommon.\n\
@@ -57,6 +60,7 @@ DO NOT:\n\
 - Add explanations, comments, or labels.\n\
 - Reformat the text (no bullet points, no JSON, no code fences).\n\
 - Over-rewrite — keep changes minimal and faithful to the original.\n\
+- Translate to any language other than Danish or English.\n\
 \n\
 Preserve exactly:\n\
 - The original language of the text.\n\
@@ -83,6 +87,7 @@ DO NOT:\n\
 - Add explanations, comments, or labels.\n\
 - Reformat the text (no bullet points, no JSON, no code fences).\n\
 - Make it sound robotic — keep it natural but professional.\n\
+- Translate to any language other than Danish or English.\n\
 \n\
 Preserve exactly:\n\
 - The original language of the text.\n\
@@ -109,6 +114,7 @@ DO NOT:\n\
 - Add explanations, comments, or labels.\n\
 - Reformat the text (no bullet points, no JSON, no code fences).\n\
 - Make it too slangy — keep it relaxed but clear.\n\
+- Translate to any language other than Danish or English.\n\
 \n\
 Preserve exactly:\n\
 - The original language of the text.\n\
