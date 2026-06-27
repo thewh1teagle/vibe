@@ -289,9 +289,6 @@ impl SonaProcess {
                 form = form.text("language", lang.clone());
             }
         }
-        if options.translate.unwrap_or(false) {
-            form = form.text("translate", "true");
-        }
         if let Some(ref p) = options.init_prompt {
             if !p.is_empty() {
                 form = form.text("prompt", p.clone());

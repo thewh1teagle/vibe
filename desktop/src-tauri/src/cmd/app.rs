@@ -93,12 +93,6 @@ pub async fn fix_text(text: String, mode: String, api_key: String) -> Result<Str
 }
 
 #[tauri::command]
-pub fn read_clipboard(app: tauri::AppHandle) -> Result<String> {
-    use tauri_plugin_clipboard_manager::ClipboardExt;
-    app.clipboard().read_text().context("Failed to read clipboard")
-}
-
-#[tauri::command]
 pub async fn fix_selected_text(mode: String, api_key: String, app: tauri::AppHandle) -> Result<String> {
     use tauri_plugin_clipboard_manager::ClipboardExt;
     use enigo::{Enigo, Key, Keyboard, Settings};

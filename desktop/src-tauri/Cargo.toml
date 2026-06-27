@@ -61,10 +61,5 @@ openssl = { version = "0.10.75", features = ["vendored"] }
 # Windows
 [target.'cfg(windows)'.dependencies]
 
-# macOS
-[target.'cfg(target_os = "macos")'.dependencies]
-objc2 = "0.6.4"
-objc2-app-kit = { version = "0.3.2", features = ["NSApplication"] }
-
 [features]
 default = []

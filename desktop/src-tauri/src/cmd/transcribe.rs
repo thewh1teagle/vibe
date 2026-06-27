@@ -26,7 +26,6 @@ pub struct TranscribeOptions {
     pub n_threads: Option<i32>,
     pub init_prompt: Option<String>,
     pub temperature: Option<f32>,
-    pub translate: Option<bool>,
     pub max_text_ctx: Option<i32>,
     pub word_timestamps: Option<bool>,
     pub max_sentence_len: Option<i32>,

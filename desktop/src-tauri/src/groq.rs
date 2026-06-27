@@ -14,8 +14,6 @@ const GROQ_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[derive(Debug, Deserialize)]
 struct GroqSegment {
-    #[allow(dead_code)]
-    id: Option<i32>,
     start: f64,
     end: f64,
     text: String,
@@ -83,10 +81,6 @@ pub async fn transcribe(api_key: &str, path: &str, options: &TranscribeOptions) 
         if !lang.is_empty() && lang != "auto" {
             form = form.text("language", lang.clone());
         }
-    }
-
-    if options.translate.unwrap_or(false) {
-        tracing::debug!("translate requested but not supported by Groq API, skipping");
     }
 
     if let Some(ref p) = options.init_prompt {

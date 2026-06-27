@@ -79,7 +79,6 @@ async fn main() -> Result<()> {
             cmd::app::test_groq_key,
             cmd::app::cleanup_transcript,
             cmd::app::fix_text,
-            cmd::app::read_clipboard,
             cmd::app::fix_selected_text,
         ])
         .build(tauri::generate_context!())

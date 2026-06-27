@@ -20,7 +20,6 @@ interface HotkeyContextType {
 	setHotkeyShortcut: (shortcut: string) => void
 	hotkeyOutputMode: HotkeyOutputMode
 	setHotkeyOutputMode: (mode: HotkeyOutputMode) => void
-	isHotkeyRecording: boolean
 	isFixTextProcessing: boolean
 }
 
@@ -57,7 +56,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', true)
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
-	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 	const [isFixTextProcessing, setIsFixTextProcessing] = useState(false)
 
 	const isHotkeyRecordingRef = useRef(false)
@@ -89,7 +87,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			}
 
 			isHotkeyRecordingRef.current = true
-			setIsHotkeyRecording(true)
 
 			await invoke('start_record', {
 				devices: [defaultInput],
@@ -99,7 +96,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		} catch (error) {
 			console.error('Hotkey start_record error:', error)
 			isHotkeyRecordingRef.current = false
-			setIsHotkeyRecording(false)
 			await notify('Vibe — Recording failed', String(error))
 		}
 	}, [])
@@ -160,7 +156,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				await notify('Vibe', String(error))
 			} finally {
 				isHotkeyRecordingRef.current = false
-				setIsHotkeyRecording(false)
 			}
 		})
 
@@ -321,10 +316,9 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			setHotkeyShortcut,
 			hotkeyOutputMode,
 			setHotkeyOutputMode,
-			isHotkeyRecording,
 			isFixTextProcessing,
 		}),
-		[hotkeyEnabled, setHotkeyEnabled, hotkeyShortcut, setHotkeyShortcut, hotkeyOutputMode, setHotkeyOutputMode, isHotkeyRecording, isFixTextProcessing],
+		[hotkeyEnabled, setHotkeyEnabled, hotkeyShortcut, setHotkeyShortcut, hotkeyOutputMode, setHotkeyOutputMode, isFixTextProcessing],
 	)
 
 	return <HotkeyContext.Provider value={value}>{children}</HotkeyContext.Provider>
