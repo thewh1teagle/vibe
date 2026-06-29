@@ -17,6 +17,7 @@ import { ExternalLink, AlertTriangle, Info, TrendingUp } from "lucide-react";
 import { clsx } from "clsx";
 import { SOURCES } from "@/config/sources";
 import { AustraliaAdvisory } from "@/components/AustraliaAdvisory";
+import { USAdvisory } from "@/components/USAdvisory";
 
 export const revalidate = 3600;
 
@@ -203,6 +204,9 @@ export default async function CountryPage({
 
                 if (src.id === "australia" && !adv) {
                   return <AustraliaAdvisory key={src.id} iso2={isoUpper} />;
+                }
+                if (src.id === "us" && !adv) {
+                  return <USAdvisory key={src.id} iso2={isoUpper} />;
                 }
 
                 const noAdvisory = adv?.normalizedLevel === "unknown" && adv?.rawLevel === "Geen reisadvies beschikbaar";
