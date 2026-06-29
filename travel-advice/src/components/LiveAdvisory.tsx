@@ -225,8 +225,8 @@ const CA_SLUGS: Record<string, string> = {
 };
 
 const CA_LEVELS: Array<{ pattern: RegExp; raw: string; nl: string; level: Level }> = [
-  { pattern: /avoid non-essential travel/i, raw: "Avoid non-essential travel", nl: "Vermijd niet-essentiële reizen", level: "orange" },
   { pattern: /avoid all travel/i, raw: "Avoid all travel", nl: "Vermijd alle reizen", level: "red" },
+  { pattern: /avoid non-essential travel/i, raw: "Avoid non-essential travel", nl: "Vermijd niet-essentiële reizen", level: "orange" },
   { pattern: /exercise a high degree of caution/i, raw: "Exercise a high degree of caution", nl: "Hoge mate van voorzichtigheid", level: "yellow" },
   { pattern: /(?:take|exercise) normal security precautions/i, raw: "Take normal security precautions", nl: "Normale veiligheidsmaatregelen", level: "green" },
 ];
@@ -396,21 +396,16 @@ function extractFromHtml(html: string): string {
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<nav[\s\S]*?<\/nav>/gi, "")
     .replace(/<header[\s\S]*?<\/header>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
-    .replace(/<aside[\s\S]*?<\/aside>/gi, "");
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "");
   const match = clean.match(/<article[^>]*>([\s\S]{0,5000})/i)
     ?? clean.match(/<main[^>]*>([\s\S]{0,5000})/i)
-    ?? clean.match(/<div[^>]*class="[^"]*(?:body|content|advisory)[^"]*"[^>]*>([\s\S]{0,5000})/i);
-  const text = (match?.[1] ?? "")
+    ?? clean.match(/<div[^>]*class="[^"]*(?:body|content)[^"]*"[^>]*>([\s\S]{0,5000})/i);
+  return (match?.[1] ?? "")
     .replace(/<[^>]+>/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
-    .trim();
-  const noBoilerplate = text
-    .replace(/\b(Download|Share|Print|Subscribe|RSS|Follow us|Contact us|Local emergency contacts|Skip to|Jump to|On this page|Table of contents)\b[^.]{0,60}/gi, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  return noBoilerplate.slice(0, 300);
+    .trim()
+    .slice(0, 300);
 }
 
 // ── Source definitions ──
@@ -466,7 +461,7 @@ const SOURCE_CONFIGS: Record<string, SourceConfig> = {
     flag: "🇩🇪", nameNl: "Duitsland",
     getUrl: (iso2) => {
       const slug = DE_SLUGS[iso2];
-      return slug ? `https://www.auswaertiges-amt.de/de/service/laender/${slug}-node` : null;
+      return slug ? `https://www.auswaertiges-amt.de/de/aussenpolitik/laender/${slug}-node/sicherheit` : null;
     },
     extract: (body) => {
       for (const l of DE_LEVELS) {
@@ -535,7 +530,7 @@ const SOURCE_CONFIGS: Record<string, SourceConfig> = {
     flag: "🇸🇪", nameNl: "Zweden",
     getUrl: (iso2) => {
       const slug = SE_SLUGS[iso2];
-      return slug ? `https://www.swedenabroad.se/sv/om-utlandet-f%C3%B6r-svenska-medborgare/${slug}/reseinformation/ambassadens-reseinformation/` : null;
+      return slug ? `https://www.swedenabroad.se/sv/om-utlandet-f%C3%B6r-svenska-medborgare/${slug}/reseinformation/` : null;
     },
     extract: (body) => {
       for (const l of SE_LEVELS) {
