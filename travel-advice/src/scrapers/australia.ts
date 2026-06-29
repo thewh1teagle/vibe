@@ -38,6 +38,39 @@ const BROWSER_HEADERS = {
   "Accept-Language": "en-US,en;q=0.5",
 };
 
+const PROXIES = [
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
+];
+
+async function fetchWithProxyFallback(url: string, timeoutMs = 20_000): Promise<string | null> {
+  // Try direct first
+  try {
+    const res = await fetch(url, {
+      headers: BROWSER_HEADERS,
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (res.ok) {
+      const text = await res.text();
+      if (text.length > 100) return text;
+    }
+  } catch { /* fall through to proxies */ }
+
+  // Try proxies
+  for (const buildProxyUrl of PROXIES) {
+    try {
+      const res = await fetch(buildProxyUrl(url), {
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (!res.ok) continue;
+      const text = await res.text();
+      if (text.length > 100) return text;
+    } catch { /* try next */ }
+  }
+  return null;
+}
+
 const ISO2_TO_SLUG: Record<string, string> = {
   AF:"asia/afghanistan",AL:"europe/albania",DZ:"africa/algeria",AO:"africa/angola",
   AR:"americas/argentina",AM:"europe/armenia",AT:"europe/austria",AZ:"europe/azerbaijan",
@@ -114,14 +147,11 @@ function extractSummary(html: string): string {
 export const australiaScraper: Scraper = async () => {
   const scrapedAt = new Date();
 
-  // Try JSON API first
+  // Try JSON API first (direct + proxy fallback)
   try {
-    const res = await fetch("https://www.smartraveller.gov.au/destinations-export", {
-      headers: { ...BROWSER_HEADERS, Accept: "application/json" },
-      signal: AbortSignal.timeout(45_000),
-    });
-    if (res.ok) {
-      const data: AUDestination[] = await res.json();
+    const jsonText = await fetchWithProxyFallback("https://www.smartraveller.gov.au/destinations-export", 45_000);
+    if (jsonText) {
+      const data: AUDestination[] = JSON.parse(jsonText);
       if (data.length > 10) {
         const advisories: RawAdvisory[] = [];
         for (const dest of data) {
@@ -158,12 +188,8 @@ export const australiaScraper: Scraper = async () => {
       batch.map(async ([iso2, slug]) => {
         try {
           const url = `https://www.smartraveller.gov.au/destinations/${slug}`;
-          const res = await fetch(url, {
-            headers: BROWSER_HEADERS,
-            signal: AbortSignal.timeout(8_000),
-          });
-          if (!res.ok) return;
-          const html = await res.text();
+          const html = await fetchWithProxyFallback(url, 15_000);
+          if (!html) return;
           const rawLevel = extractLevelFromHtml(html);
           if (!rawLevel) return;
 

@@ -11,6 +11,33 @@ const URL_PATTERNS = [
   (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-för-svenska-medborgare/${slug}/`,
 ];
 
+const PROXIES = [
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
+];
+
+async function fetchWithProxyFallback(url: string, timeoutMs = 15_000): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)", Accept: "text/html" },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (res.ok) {
+      const text = await res.text();
+      if (text.length > 100) return text;
+    }
+  } catch { /* fall through */ }
+  for (const buildProxyUrl of PROXIES) {
+    try {
+      const res = await fetch(buildProxyUrl(url), { signal: AbortSignal.timeout(timeoutMs) });
+      if (!res.ok) continue;
+      const text = await res.text();
+      if (text.length > 100) return text;
+    } catch { /* try next */ }
+  }
+  return null;
+}
+
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /avråd[^\w]*från resor/i, rawLevel: "Avråd från resor" },
   { pattern: /avråd[^\w]*från icke nödvändiga/i, rawLevel: "Avråd från icke nödvändiga resor" },
@@ -105,15 +132,9 @@ export const swedenScraper: Scraper = async () => {
           for (const buildUrl of URL_PATTERNS) {
             url = buildUrl(slug);
             try {
-              const res = await fetch(url, {
-                headers: {
-                  "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
-                  Accept: "text/html",
-                },
-                signal: AbortSignal.timeout(15_000),
-              });
-              if (res.ok) {
-                html = await res.text();
+              const text = await fetchWithProxyFallback(url, 15_000);
+              if (text) {
+                html = text;
                 break;
               }
             } catch {

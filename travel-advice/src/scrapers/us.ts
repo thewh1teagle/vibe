@@ -6,6 +6,36 @@ const COUNTRY_PAGE_BASE = "https://travel.state.gov/content/travel/en/internatio
 const LEVEL_REGEX = /Level\s+(\d+):\s+([^<]+)/i;
 const BATCH_SIZE = 5;
 const BATCH_DELAY_MS = 1_500;
+
+const PROXIES = [
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
+];
+
+async function fetchWithProxyFallback(url: string, timeoutMs = 15_000): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        Accept: "text/html",
+      },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (res.ok) {
+      const text = await res.text();
+      if (text.length > 100) return text;
+    }
+  } catch { /* fall through */ }
+  for (const buildProxyUrl of PROXIES) {
+    try {
+      const res = await fetch(buildProxyUrl(url), { signal: AbortSignal.timeout(timeoutMs) });
+      if (!res.ok) continue;
+      const text = await res.text();
+      if (text.length > 100) return text;
+    } catch { /* try next */ }
+  }
+  return null;
+}
 const ISO3_TO_ISO2: Record<string, string> = {
   afg:"AF",alb:"AL",dza:"DZ",and:"AD",ago:"AO",atg:"AG",arg:"AR",arm:"AM",
   aus:"AU",aut:"AT",aze:"AZ",bhs:"BS",bhr:"BH",bgd:"BD",brb:"BB",blr:"BY",
@@ -85,16 +115,8 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
     let url = countryUrl;
     for (const tryUrl of urls) {
       try {
-        const res = await fetch(tryUrl, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-            Accept: "text/html",
-          },
-          signal: AbortSignal.timeout(15_000),
-        });
-        if (!res.ok) continue;
-        const text = await res.text();
-        if (LEVEL_REGEX.test(text)) {
+        const text = await fetchWithProxyFallback(tryUrl, 15_000);
+        if (text && LEVEL_REGEX.test(text)) {
           html = text;
           url = tryUrl;
           break;
@@ -194,16 +216,8 @@ export const usScraper: Scraper = async () => {
   const scrapedAt = new Date();
 
   try {
-    const res = await fetch(LIST_URL, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-        Accept: "text/html",
-      },
-      signal: AbortSignal.timeout(30_000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const html = await res.text();
+    const html = await fetchWithProxyFallback(LIST_URL, 30_000);
+    if (!html) throw new Error("Failed to fetch main advisory list");
     const advisories: RawAdvisory[] = [];
 
     const NAME_TO_ISO2: Record<string, string> = {
