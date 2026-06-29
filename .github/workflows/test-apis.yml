@@ -11,6 +11,22 @@ jobs:
           echo "=== US travel advisory list page ==="
           curl -s -L "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html" | python3 -c "import sys; h=sys.stdin.read(); print('length:', len(h)); idx=h.lower().find('arab'); print('arab:', h[idx:idx+300] if idx>=0 else 'not found')"
 
+      - name: Check Australia Smartraveller JSON API
+        continue-on-error: true
+        run: |
+          echo "=== Smartraveller destinations-export ==="
+          curl -s -L -o /dev/null -w 'status: %{http_code}\ncontent-type: %{content_type}\nsize: %{size_download}\n' "https://www.smartraveller.gov.au/destinations-export"
+          echo "=== First 500 chars ==="
+          curl -s -L "https://www.smartraveller.gov.au/destinations-export" | head -c 500
+
+      - name: Check Australia Smartraveller country page
+        continue-on-error: true
+        run: |
+          echo "=== Smartraveller Bahrain page ==="
+          curl -s -L -o /dev/null -w 'status: %{http_code}\nurl: %{url_effective}\nsize: %{size_download}\n' "https://www.smartraveller.gov.au/destinations/middle-east/bahrain"
+          echo "=== First 500 chars ==="
+          curl -s -L "https://www.smartraveller.gov.au/destinations/middle-east/bahrain" | head -c 500
+
       - name: Check Denmark UAE page response
         continue-on-error: true
         run: |
