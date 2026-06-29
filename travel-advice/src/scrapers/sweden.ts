@@ -5,11 +5,10 @@ import type { Scraper, RawAdvisory } from "./types";
 // Tries multiple URL patterns with fallback
 
 const URL_PATTERNS = [
-  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/reseinformation-for-alla-lander/${slug}/`,
-  (slug: string) => `https://www.swedenabroad.se/sv/reseinformation/${slug}/`,
-  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/${slug}/`,
-  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/${slug}/reseinformation/`,
-  (slug: string) => `https://www.regeringen.se/uds-reseinformation/ud-avråder/${slug}/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-f%C3%B6r-svenska-medborgare/${slug}/reseinformation/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-f%C3%B6r-svenska-medborgare/${slug}/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-för-svenska-medborgare/${slug}/reseinformation/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-för-svenska-medborgare/${slug}/`,
 ];
 
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
