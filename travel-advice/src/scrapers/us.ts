@@ -2,7 +2,10 @@ import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
 const LIST_URL = "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html";
+const COUNTRY_PAGE_BASE = "https://travel.state.gov/content/travel/en/international-travel/International-Travel-Country-Information-Pages";
 const LEVEL_REGEX = /Level\s+(\d+):\s+([^<]+)/i;
+const BATCH_SIZE = 5;
+const BATCH_DELAY_MS = 1_500;
 const ISO3_TO_ISO2: Record<string, string> = {
   afg:"AF",alb:"AL",dza:"DZ",and:"AD",ago:"AO",atg:"AG",arg:"AR",arm:"AM",
   aus:"AU",aut:"AT",aze:"AZ",bhs:"BS",bhr:"BH",bgd:"BD",brb:"BB",blr:"BY",
@@ -30,6 +33,147 @@ const ISO3_TO_ISO2: Record<string, string> = {
   are:"AE",gbr:"GB",usa:"US",ury:"UY",uzb:"UZ",vut:"VU",ven:"VE",vnm:"VN",
   yem:"YE",zmb:"ZM",zwe:"ZW",pse:"PS",vat:"VA",
 };
+
+/** Map ISO2 codes back to URL-friendly country names for the State Dept site. */
+const ISO2_TO_SLUG: Record<string, string> = {
+  AF:"Afghanistan",AL:"Albania",DZ:"Algeria",AD:"Andorra",AO:"Angola",AG:"Antigua-and-Barbuda",
+  AR:"Argentina",AM:"Armenia",AU:"Australia",AT:"Austria",AZ:"Azerbaijan",BS:"The-Bahamas",
+  BH:"Bahrain",BD:"Bangladesh",BB:"Barbados",BY:"Belarus",BE:"Belgium",BZ:"Belize",
+  BJ:"Benin",BT:"Bhutan",BO:"Bolivia",BA:"Bosnia-and-Herzegovina",BW:"Botswana",BR:"Brazil",
+  BN:"Brunei",BG:"Bulgaria",BF:"Burkina-Faso",BI:"Burundi",CV:"Cabo-Verde",KH:"Cambodia",
+  CM:"Cameroon",CA:"Canada",CF:"Central-African-Republic",TD:"Chad",CL:"Chile",CN:"China",
+  CO:"Colombia",KM:"Comoros",CD:"Democratic-Republic-of-the-Congo",CG:"Republic-of-the-Congo",
+  CR:"Costa-Rica",CI:"Cote-dIvoire",HR:"Croatia",CU:"Cuba",CY:"Cyprus",CZ:"Czech-Republic",
+  DK:"Denmark",DJ:"Djibouti",DM:"Dominica",DO:"Dominican-Republic",EC:"Ecuador",EG:"Egypt",
+  SV:"El-Salvador",GQ:"Equatorial-Guinea",ER:"Eritrea",EE:"Estonia",SZ:"Eswatini",ET:"Ethiopia",
+  FJ:"Fiji",FI:"Finland",FR:"France",GA:"Gabon",GM:"The-Gambia",GE:"Georgia",DE:"Germany",
+  GH:"Ghana",GR:"Greece",GD:"Grenada",GT:"Guatemala",GN:"Guinea",GW:"Guinea-Bissau",GY:"Guyana",
+  HT:"Haiti",HN:"Honduras",HU:"Hungary",IS:"Iceland",IN:"India",ID:"Indonesia",IR:"Iran",
+  IQ:"Iraq",IE:"Ireland",IL:"Israel-the-West-Bank-and-Gaza",IT:"Italy",JM:"Jamaica",JP:"Japan",
+  JO:"Jordan",KZ:"Kazakhstan",KE:"Kenya",KI:"Kiribati",KP:"North-Korea",KR:"South-Korea",
+  XK:"Kosovo",KW:"Kuwait",KG:"Kyrgyzstan",LA:"Laos",LV:"Latvia",LB:"Lebanon",LS:"Lesotho",
+  LR:"Liberia",LY:"Libya",LI:"Liechtenstein",LT:"Lithuania",LU:"Luxembourg",MG:"Madagascar",
+  MW:"Malawi",MY:"Malaysia",MV:"Maldives",ML:"Mali",MT:"Malta",MH:"Marshall-Islands",
+  MR:"Mauritania",MU:"Mauritius",MX:"Mexico",FM:"Micronesia",MD:"Moldova",MC:"Monaco",
+  MN:"Mongolia",ME:"Montenegro",MA:"Morocco",MZ:"Mozambique",MM:"Burma-Myanmar",NA:"Namibia",
+  NR:"Nauru",NP:"Nepal",NL:"Netherlands",NZ:"New-Zealand",NI:"Nicaragua",NE:"Niger",NG:"Nigeria",
+  MK:"North-Macedonia",NO:"Norway",OM:"Oman",PK:"Pakistan",PW:"Palau",PS:"Palestinian-Territories",
+  PA:"Panama",PG:"Papua-New-Guinea",PY:"Paraguay",PE:"Peru",PH:"Philippines",PL:"Poland",
+  PT:"Portugal",QA:"Qatar",RO:"Romania",RU:"Russia",RW:"Rwanda",KN:"Saint-Kitts-and-Nevis",
+  LC:"Saint-Lucia",VC:"Saint-Vincent-and-the-Grenadines",WS:"Samoa",SM:"San-Marino",
+  ST:"Sao-Tome-and-Principe",SA:"Saudi-Arabia",SN:"Senegal",RS:"Serbia",SC:"Seychelles",
+  SL:"Sierra-Leone",SG:"Singapore",SK:"Slovakia",SI:"Slovenia",SB:"Solomon-Islands",SO:"Somalia",
+  ZA:"South-Africa",SS:"South-Sudan",ES:"Spain",LK:"Sri-Lanka",SD:"Sudan",SR:"Suriname",
+  SE:"Sweden",CH:"Switzerland",SY:"Syria",TW:"Taiwan",TJ:"Tajikistan",TZ:"Tanzania",TH:"Thailand",
+  TL:"Timor-Leste",TG:"Togo",TO:"Tonga",TT:"Trinidad-and-Tobago",TN:"Tunisia",TR:"Turkey",
+  TM:"Turkmenistan",TV:"Tuvalu",UG:"Uganda",UA:"Ukraine",AE:"United-Arab-Emirates",GB:"United-Kingdom",
+  US:"United-States",UY:"Uruguay",UZ:"Uzbekistan",VU:"Vanuatu",VA:"Vatican-City",VE:"Venezuela",
+  VN:"Vietnam",YE:"Yemen",ZM:"Zambia",ZW:"Zimbabwe",
+};
+
+async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
+  const slug = ISO2_TO_SLUG[iso2];
+  if (!slug) return null;
+
+  const url = `${COUNTRY_PAGE_BASE}/${slug}.html`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
+        Accept: "text/html",
+      },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!res.ok) return null;
+
+    const html = await res.text();
+
+    // Extract level
+    const levelMatch = html.match(LEVEL_REGEX);
+    if (!levelMatch) return null;
+
+    const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
+    const normalizedLevel = normalizeLevel("us", rawLevel);
+
+    // Extract advisory summary text from the page body
+    // Look for the first substantive paragraph after the level heading
+    let summary = "";
+    const summaryPatterns = [
+      // Common pattern: paragraph after the travel advisory header
+      /<div[^>]*class="[^"]*tsg-rwd-content-page-parsysxxx[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      // Content area with advisory text
+      /advisory-text[^>]*>([\s\S]*?)<\/(?:div|section)>/i,
+      // Generic: first <p> after "Level \d"
+      /Level\s+\d[^<]*<\/[^>]+>\s*(?:<[^>]+>\s*)*<p[^>]*>([\s\S]*?)<\/p>/i,
+      // Any early paragraph with real content
+      /<p[^>]*>([^<]{60,})<\/p>/i,
+    ];
+
+    for (const pat of summaryPatterns) {
+      const m = html.match(pat);
+      if (m) {
+        // Strip HTML tags, collapse whitespace
+        const text = m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ")
+          .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+          .replace(/\s+/g, " ").trim();
+        if (text.length > 30) {
+          summary = text.length > 300 ? text.slice(0, 297) + "..." : text;
+          break;
+        }
+      }
+    }
+
+    const countryName = slug.replace(/-/g, " ");
+    if (!summary) {
+      summary = `${countryName}: ${rawLevel}`;
+    }
+
+    // Extract date
+    const dateMatch = html.match(/(?:Last\s+(?:Updated|Reviewed)|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i)
+      ?? html.match(/(\w+ \d{1,2},\s*\d{4})/);
+    const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
+
+    return {
+      destIso2: iso2,
+      rawLevel,
+      normalizedLevel,
+      summary,
+      risks: [],
+      officialUpdatedAt: officialUpdatedAt && !isNaN(officialUpdatedAt.getTime()) ? officialUpdatedAt : null,
+      sourceUrl: url,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchMissingCountries(
+  foundIso2s: Set<string>,
+): Promise<RawAdvisory[]> {
+  const allIso2s = new Set(Object.values(ISO3_TO_ISO2));
+  const missing = Array.from(allIso2s).filter((c) => !foundIso2s.has(c));
+  if (missing.length === 0) return [];
+
+  const results: RawAdvisory[] = [];
+
+  for (let i = 0; i < missing.length; i += BATCH_SIZE) {
+    const batch = missing.slice(i, i + BATCH_SIZE);
+    const settled = await Promise.allSettled(
+      batch.map((iso2) => fetchCountryPage(iso2)),
+    );
+    for (const r of settled) {
+      if (r.status === "fulfilled" && r.value) {
+        results.push(r.value);
+      }
+    }
+    // Delay between batches (skip after last batch)
+    if (i + BATCH_SIZE < missing.length) {
+      await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
+    }
+  }
+
+  return results;
+}
 
 export const usScraper: Scraper = async () => {
   const scrapedAt = new Date();
@@ -119,8 +263,20 @@ export const usScraper: Scraper = async () => {
       });
     }
 
+    // Fallback: fetch individual country pages for any countries not found in the main table
+    const foundIso2s = new Set(advisories.map((a) => a.destIso2));
+    const fallbackAdvisories = await fetchMissingCountries(foundIso2s);
+    advisories.push(...fallbackAdvisories);
+
     return { sourceId: "us", advisories, scrapedAt };
   } catch (err) {
+    // If the main table fetch fails entirely, try fetching all countries individually
+    try {
+      const fallbackAdvisories = await fetchMissingCountries(new Set());
+      if (fallbackAdvisories.length > 0) {
+        return { sourceId: "us", advisories: fallbackAdvisories, scrapedAt };
+      }
+    } catch { /* ignore fallback errors */ }
     return { sourceId: "us", advisories: [], scrapedAt, error: String(err) };
   }
 };

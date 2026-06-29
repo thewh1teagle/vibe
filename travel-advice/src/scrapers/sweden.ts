@@ -2,7 +2,15 @@ import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
 // Sweden's Ministry for Foreign Affairs — swedenabroad.se — HTML scraping
-// URL: https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/{slug}/reseinformation/
+// Tries multiple URL patterns with fallback
+
+const URL_PATTERNS = [
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/reseinformation-for-alla-lander/${slug}/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/reseinformation/${slug}/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/${slug}/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/${slug}/reseinformation/`,
+  (slug: string) => `https://www.regeringen.se/uds-reseinformation/ud-avråder/${slug}/`,
+];
 
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /avråd[^\w]*från resor/i, rawLevel: "Avråd från resor" },
@@ -83,17 +91,28 @@ export const swedenScraper: Scraper = async () => {
     await Promise.all(
       batch.map(async ([slug, iso2]) => {
         try {
-          const url = `https://www.swedenabroad.se/sv/om-utlandet-for-svenska-medborgare/${slug}/reseinformation/`;
-          const res = await fetch(url, {
-            headers: {
-              "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
-              Accept: "text/html",
-            },
-            signal: AbortSignal.timeout(15_000),
-          });
-          if (!res.ok) return;
+          let html: string | null = null;
+          let url = "";
 
-          const html = await res.text();
+          for (const buildUrl of URL_PATTERNS) {
+            url = buildUrl(slug);
+            try {
+              const res = await fetch(url, {
+                headers: {
+                  "User-Agent": "Mozilla/5.0 (compatible; travel-comparator/1.0)",
+                  Accept: "text/html",
+                },
+                signal: AbortSignal.timeout(15_000),
+              });
+              if (res.ok) {
+                html = await res.text();
+                break;
+              }
+            } catch {
+              // Try next URL pattern
+            }
+          }
+          if (!html) return;
           const rawLevel = extractLevel(html);
           const normalizedLevel = normalizeLevel("sweden", rawLevel);
           const summary = extractSummary(html);
