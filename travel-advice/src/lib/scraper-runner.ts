@@ -1,8 +1,30 @@
 import { prisma } from "./db";
 import { SCRAPERS } from "@/scrapers";
+import { SOURCES } from "@/config/sources";
 import type { RawAdvisory } from "@/scrapers/types";
 
 const CONCURRENCY = 3;
+
+async function ensureSourceExists(sourceId: string) {
+  const config = SOURCES.find((s) => s.id === sourceId);
+  if (!config) return;
+  await prisma.source.upsert({
+    where: { id: sourceId },
+    update: {},
+    create: {
+      id: config.id,
+      nameNl: config.nameNl,
+      nameEn: config.nameEn,
+      countryIso2: config.countryIso2,
+      flagEmoji: config.flagEmoji,
+      baseUrl: config.baseUrl,
+      fetchMethod: config.fetchMethod,
+      active: config.active,
+      fetchIntervalH: config.fetchIntervalH,
+      priority: config.priority,
+    },
+  });
+}
 
 export async function runAllScrapers(): Promise<
   { sourceId: string; status: string; count: number; error?: string }[]
@@ -29,6 +51,8 @@ export async function runScraperBySource(sourceId: string) {
 async function runScraper(sourceId: string) {
   const scraper = SCRAPERS[sourceId];
   const startedAt = new Date();
+
+  await ensureSourceExists(sourceId);
 
   const log = await prisma.scrapeLog.create({
     data: { sourceId, startedAt, status: "running" },
