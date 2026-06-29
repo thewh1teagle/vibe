@@ -83,7 +83,12 @@ const LEVEL_MAP: Record<string, { label: string; labelNl: string; color: string;
   },
 };
 
-const PROXY_URL = "https://api.allorigins.win/raw?url=";
+const PROXIES = [
+  (url: string) => `https://jolly-queen-1584.nederlander.workers.dev/?${url}`,
+  (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
+  (url: string) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
+];
 
 interface AustraliaAdvisoryProps {
   iso2: string;
@@ -106,11 +111,17 @@ export function AustraliaAdvisory({ iso2 }: AustraliaAdvisoryProps) {
 
     async function fetchAdvisory() {
       try {
-        const proxyUrl = `${PROXY_URL}${encodeURIComponent(url!)}`;
-        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15_000) });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const html = await res.text();
-        if (html.length < 100) throw new Error("Empty response");
+        let html = "";
+        for (const buildProxy of PROXIES) {
+          try {
+            const proxyUrl = buildProxy(url!);
+            const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15_000) });
+            if (!res.ok) continue;
+            const text = await res.text();
+            if (text.length > 200) { html = text; break; }
+          } catch { /* try next proxy */ }
+        }
+        if (!html) throw new Error("All proxies failed");
 
         const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").toLowerCase();
         let found: typeof advisory = null;
