@@ -428,9 +428,28 @@ const SOURCE_CONFIGS: Record<string, SourceConfig> = {
     flag: "🇺🇸", nameNl: "Verenigde Staten",
     getUrl: (iso2) => {
       const slug = US_SLUGS[iso2];
-      return slug ? `https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/${slug.toLowerCase()}-travel-advisory.html` : null;
+      return slug ? `https://travel.state.gov/en/international-travel/travel-advisories/${slug.toLowerCase()}.html` : null;
     },
     extract: (body) => {
+      // Try JSON API first
+      try {
+        const data = JSON.parse(body);
+        const entries = Array.isArray(data) ? data : data?.value ?? data?.data ?? [];
+        for (const entry of entries) {
+          const levelNum = String(entry.advisoryLevel ?? entry.level ?? entry.Level ?? entry.AdvisoryLevel ?? "");
+          const info = US_LEVELS[levelNum];
+          if (!info) continue;
+          const levelText = entry.advisoryText ?? entry.levelText ?? entry.LevelText ?? entry.AdvisoryText ?? "";
+          const summary = (entry.advisoryDescription ?? entry.description ?? entry.Description ?? entry.summary ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300);
+          return {
+            rawLevel: levelText || `Level ${levelNum}`,
+            labelNl: info.nl,
+            level: info.level,
+            summary,
+          };
+        }
+      } catch { /* not JSON, try HTML */ }
+      // Fallback: HTML parsing
       const m = body.match(/Level\s+(\d+):\s+([^<\n]+)/i);
       if (!m) return null;
       const info = US_LEVELS[m[1]];
@@ -543,21 +562,37 @@ export function LiveAdvisory({ sourceId, iso2 }: LiveAdvisoryProps) {
     let cancelled = false;
 
     async function doFetch() {
-      const body = await fetchViaProxy(url!);
-      if (cancelled) return;
-      if (!body) { setState("error"); return; }
+      // Build list of URLs to try
+      const urls = [url!];
+      if (sourceId === "us") {
+        const slug = US_SLUGS[iso2];
+        if (slug) {
+          urls.push(`https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/${slug.toLowerCase()}-travel-advisory.html`);
+          urls.push(`https://travel.state.gov/content/travel/en/international-travel/International-Travel-Country-Information-Pages/${slug}.html`);
+        }
+      }
 
-      const extracted = config!.extract(body);
-      if (cancelled) return;
-      if (!extracted) { setState("not-found"); return; }
+      for (const tryUrl of urls) {
+        if (cancelled) return;
+        const body = await fetchViaProxy(tryUrl);
+        if (cancelled) return;
+        if (!body) continue;
 
-      setResult({
-        ...extracted,
-        url: sourceId === "uk"
-          ? `https://www.gov.uk/foreign-travel-advice/${UK_SLUGS[iso2]}`
-          : url!,
-      });
-      setState("found");
+        const extracted = config!.extract(body);
+        if (cancelled) return;
+        if (!extracted) continue;
+
+        setResult({
+          ...extracted,
+          url: sourceId === "uk"
+            ? `https://www.gov.uk/foreign-travel-advice/${UK_SLUGS[iso2]}`
+            : tryUrl,
+        });
+        setState("found");
+        return;
+      }
+
+      if (!cancelled) setState("error");
     }
 
     doFetch();
