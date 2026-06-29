@@ -69,10 +69,19 @@ function extractLevel(html: string): string {
 }
 
 function extractSummary(html: string): string {
-  const match = html.match(/<div[^>]*class="[^"]*article-body[^"]*"[^>]*>([\s\S]{0,3000})/i)
-    ?? html.match(/<main[^>]*>([\s\S]{0,3000})/i);
-  const text = (match?.[1] ?? html.slice(0, 2000))
+  const clean = html
+    .replace(/<head[\s\S]*?<\/head>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "");
+  const match = clean.match(/<div[^>]*class="[^"]*article-body[^"]*"[^>]*>([\s\S]{0,3000})/i)
+    ?? clean.match(/<article[^>]*>([\s\S]{0,3000})/i)
+    ?? clean.match(/<main[^>]*>([\s\S]{0,3000})/i);
+  const text = (match?.[1] ?? "")
     .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
   return text.slice(0, 300);

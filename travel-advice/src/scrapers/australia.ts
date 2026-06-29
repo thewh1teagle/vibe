@@ -160,7 +160,7 @@ export const australiaScraper: Scraper = async () => {
           const url = `https://www.smartraveller.gov.au/destinations/${slug}`;
           const res = await fetch(url, {
             headers: BROWSER_HEADERS,
-            signal: AbortSignal.timeout(15_000),
+            signal: AbortSignal.timeout(8_000),
           });
           if (!res.ok) return;
           const html = await res.text();
@@ -185,7 +185,7 @@ export const australiaScraper: Scraper = async () => {
       })
     );
     if (i + BATCH < entries.length) {
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 300));
     }
   }
 
