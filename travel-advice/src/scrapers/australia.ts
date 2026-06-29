@@ -150,7 +150,7 @@ export const australiaScraper: Scraper = async () => {
   // Fallback: scrape individual country pages
   const advisories: RawAdvisory[] = [];
   const entries = Object.entries(ISO2_TO_SLUG);
-  const BATCH = 5;
+  const BATCH = 10;
 
   for (let i = 0; i < entries.length; i += BATCH) {
     const batch = entries.slice(i, i + BATCH);

@@ -75,18 +75,33 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
   const slug = ISO2_TO_SLUG[iso2];
   if (!slug) return null;
 
-  const url = `${COUNTRY_PAGE_BASE}/${slug}.html`;
-  try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-        Accept: "text/html",
-      },
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!res.ok) return null;
+  const countryUrl = `${COUNTRY_PAGE_BASE}/${slug}.html`;
+  const advisorySlug = slug.toLowerCase().replace(/\s+/g, "-");
+  const advisoryUrl = `https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/${advisorySlug}-travel-advisory.html`;
+  const urls = [countryUrl, advisoryUrl];
 
-    const html = await res.text();
+  try {
+    let html = "";
+    let url = countryUrl;
+    for (const tryUrl of urls) {
+      try {
+        const res = await fetch(tryUrl, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            Accept: "text/html",
+          },
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (!res.ok) continue;
+        const text = await res.text();
+        if (LEVEL_REGEX.test(text)) {
+          html = text;
+          url = tryUrl;
+          break;
+        }
+      } catch { /* try next */ }
+    }
+    if (!html) return null;
 
     // Extract level
     const levelMatch = html.match(LEVEL_REGEX);
