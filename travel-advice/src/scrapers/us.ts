@@ -132,42 +132,40 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
     const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
     const normalizedLevel = normalizeLevel("us", rawLevel);
 
-    // Extract advisory summary text from the page body
-    // Look for the first substantive paragraph after the level heading
     let summary = "";
-    const summaryPatterns = [
-      // Common pattern: paragraph after the travel advisory header
-      /<div[^>]*class="[^"]*tsg-rwd-content-page-parsysxxx[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
-      // Content area with advisory text
-      /advisory-text[^>]*>([\s\S]*?)<\/(?:div|section)>/i,
-      // Generic: first <p> after "Level \d"
-      /Level\s+\d[^<]*<\/[^>]+>\s*(?:<[^>]+>\s*)*<p[^>]*>([\s\S]*?)<\/p>/i,
-      // Any early paragraph with real content
-      /<p[^>]*>([^<]{60,})<\/p>/i,
-    ];
+    // Extract the main advisory paragraph - the text explaining WHY this level
+    const cleanHtml = html
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+      .replace(/<header[\s\S]*?<\/header>/gi, "")
+      .replace(/<footer[\s\S]*?<\/footer>/gi, "");
 
-    for (const pat of summaryPatterns) {
-      const m = html.match(pat);
-      if (m) {
-        // Strip HTML tags, collapse whitespace
-        const text = m[1].replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ")
-          .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-          .replace(/\s+/g, " ").trim();
-        if (text.length > 30) {
-          summary = text.length > 300 ? text.slice(0, 297) + "..." : text;
+    // Find text after the level heading — this usually explains the reason
+    const afterLevel = cleanHtml.match(/Level\s+\d[^<]*(?:<\/[^>]+>[\s\S]{0,200}?)?<p[^>]*>([\s\S]*?)<\/p>/i);
+    if (afterLevel) {
+      const text = afterLevel[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+      if (text.length > 30) summary = text.slice(0, 300);
+    }
+    if (!summary) {
+      // Find any substantive paragraph
+      const paragraphs = cleanHtml.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
+      for (const p of paragraphs) {
+        const text = p[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+        if (text.length > 50 && !/^\s*(Share|Print|RSS|Follow|Subscribe)/i.test(text)) {
+          summary = text.slice(0, 300);
           break;
         }
       }
     }
-
-    const countryName = slug.replace(/-/g, " ");
     if (!summary) {
-      summary = `${countryName}: ${rawLevel}`;
+      summary = `${rawLevel}`;
     }
 
-    // Extract date
+    // Extract date — only from structured metadata, not arbitrary page text
     const dateMatch = html.match(/(?:Last\s+(?:Updated|Reviewed)|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i)
-      ?? html.match(/(\w+ \d{1,2},\s*\d{4})/);
+      ?? html.match(/<meta[^>]+(?:date|modified)[^>]*content="([^"]+)"/i)
+      ?? html.match(/class="[^"]*date[^"]*"[^>]*>(\w+ \d{1,2},?\s*\d{4})/i);
     const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
 
     return {
@@ -273,8 +271,10 @@ export const usScraper: Scraper = async () => {
       const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
       const normalizedLevel = normalizeLevel("us", rawLevel);
 
-      const dateMatch = row.match(/(\w+ \d{1,2},\s*\d{4})/);
-      const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
+      // Extract date from the row's date cell, not from link text or country names
+      const dateCellMatch = row.match(/<td[^>]*>(?:<[^>]*>)*\s*(\w+ \d{1,2},\s*\d{4})\s*(?:<[^>]*>)*<\/td>/i)
+        ?? row.match(/(?:Updated|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i);
+      const officialUpdatedAt = dateCellMatch ? new Date(dateCellMatch[1]) : null;
 
       const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/);
       const countryName = nameMatch?.[1]?.trim() ?? "";

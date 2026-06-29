@@ -7,8 +7,8 @@ const BATCH_DELAY_MS = 200;
 const REQUEST_TIMEOUT_MS = 15_000;
 
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /avoid all travel/i, rawLevel: "Avoid all travel" },
   { pattern: /avoid non-essential travel/i, rawLevel: "Avoid non-essential travel" },
+  { pattern: /avoid all travel/i, rawLevel: "Avoid all travel" },
   { pattern: /exercise a high degree of caution/i, rawLevel: "Exercise a high degree of caution" },
   { pattern: /take normal security precautions/i, rawLevel: "Take normal security precautions" },
   { pattern: /exercise normal security precautions/i, rawLevel: "Exercise normal security precautions" },
@@ -52,9 +52,24 @@ const ISO2_TO_SLUG: Record<string, string> = {
 };
 
 function extractLevelFromHtml(html: string): string | null {
+  // Try the risk-level heading/banner first (most reliable)
+  const banner = html.match(/<(?:h\d|div|span|p)[^>]*class="[^"]*(?:risk-title|advisory-title|travel-risk|alert-heading)[^"]*"[^>]*>([\s\S]{0,200}?)<\//i)
+    ?? html.match(/<(?:h1|h2|h3)[^>]*>([\s\S]{0,200}?)<\/(?:h1|h2|h3)>/gi);
+
+  if (banner) {
+    const bannerText = (Array.isArray(banner) ? banner.join(" ") : banner[1] ?? "")
+      .replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
+    for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
+      if (pattern.test(bannerText)) return rawLevel;
+    }
+  }
+
+  // Fallback: full page text
   const plain = html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ");
   for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
