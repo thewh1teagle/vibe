@@ -108,7 +108,8 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
   const countryUrl = `${COUNTRY_PAGE_BASE}/${slug}.html`;
   const advisorySlug = slug.toLowerCase().replace(/\s+/g, "-");
   const advisoryUrl = `https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/${advisorySlug}-travel-advisory.html`;
-  const urls = [countryUrl, advisoryUrl];
+  const newFormatUrl = `https://travel.state.gov/en/international-travel/travel-advisories/${advisorySlug}.html`;
+  const urls = [newFormatUrl, advisoryUrl, countryUrl];
 
   try {
     let html = "";
@@ -253,10 +254,26 @@ export const usScraper: Scraper = async () => {
       }
 
       if (!iso2) {
+        // Try matching from new-format advisory URL: /travel-advisories/bahrain.html
+        const newMatch = href.match(/travel-advisories\/([a-z][a-z0-9-]+)\.html/i);
+        if (newMatch) {
+          const urlSlug = newMatch[1].toLowerCase();
+          const bySlug = Object.entries(ISO2_TO_SLUG).find(([, s]) => s.toLowerCase() === urlSlug);
+          if (bySlug) iso2 = bySlug[0];
+        }
+      }
+      if (!iso2) {
         const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/);
         const name = nameMatch?.[1]?.trim().toLowerCase();
         if (name) {
           iso2 = NAME_TO_ISO2[name];
+          if (!iso2) {
+            // Try direct match against ISO2_TO_SLUG values
+            const bySlugName = Object.entries(ISO2_TO_SLUG).find(([, s]) =>
+              s.toLowerCase().replace(/-/g, " ") === name || s.toLowerCase() === name
+            );
+            if (bySlugName) iso2 = bySlugName[0];
+          }
           if (!iso2) {
             const simple = Object.entries(ISO3_TO_ISO2).find(([, v]) =>
               name === v.toLowerCase() || name.replace(/[^a-z]/g, "") === v.toLowerCase()
