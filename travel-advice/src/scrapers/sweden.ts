@@ -5,8 +5,10 @@ import type { Scraper, RawAdvisory } from "./types";
 // Tries multiple URL patterns with fallback
 
 const URL_PATTERNS = [
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-f%C3%B6r-svenska-medborgare/${slug}/reseinformation/ambassadens-reseinformation/`,
   (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-f%C3%B6r-svenska-medborgare/${slug}/reseinformation/`,
   (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-f%C3%B6r-svenska-medborgare/${slug}/`,
+  (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-för-svenska-medborgare/${slug}/reseinformation/ambassadens-reseinformation/`,
   (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-för-svenska-medborgare/${slug}/reseinformation/`,
   (slug: string) => `https://www.swedenabroad.se/sv/om-utlandet-för-svenska-medborgare/${slug}/`,
 ];
@@ -147,7 +149,9 @@ export const swedenScraper: Scraper = async () => {
           const summary = extractSummary(html);
 
           const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i)
-            ?? html.match(/Uppdaterad[^:]*:\s*(\d{4}-\d{2}-\d{2})/i);
+            ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad)[:\s]*(\d{4}-\d{2}-\d{2})/i)
+            ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad)[:\s]*(\d{1,2}\s+\w+\s+\d{4})/i)
+            ?? html.match(/(?:Publicerad)[:\s]*(\d{4}-\d{2}-\d{2})/i);
           const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
 
           advisories.push({

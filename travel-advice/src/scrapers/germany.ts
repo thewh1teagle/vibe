@@ -87,9 +87,9 @@ function getSourceUrl(c: AACountry, iso2: string): string {
     const slug = name.toLowerCase()
       .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    return `https://www.auswaertiges-amt.de/de/laenderinformationen/${slug}-node`;
+    return `https://www.auswaertiges-amt.de/de/service/laender/${slug}-node`;
   }
-  return `https://www.auswaertiges-amt.de/de/laenderinformationen/${iso2.toLowerCase()}-node`;
+  return `https://www.auswaertiges-amt.de/de/service/laender/${iso2.toLowerCase()}-node`;
 }
 
 export const germanyScraper: Scraper = async () => {

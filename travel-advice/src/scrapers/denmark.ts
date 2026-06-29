@@ -140,8 +140,20 @@ export const denmarkScraper: Scraper = async () => {
             return;
           }
 
-          const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i);
-          const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
+          const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i)
+            ?? html.match(/(?:Senest\s+opdateret|Opdateret)[:\s]*(\d{1,2}[\.\-\/]\d{1,2}[\.\-\/]\d{4})/i)
+            ?? html.match(/(?:Senest\s+opdateret|Opdateret)[:\s]*(\d{4}-\d{2}-\d{2})/i)
+            ?? html.match(/(?:Senest\s+opdateret|Opdateret)[:\s]*(\d{1,2}\.\s*\w+\s+\d{4})/i);
+          let officialUpdatedAt: Date | null = null;
+          if (dateMatch) {
+            let dateStr = dateMatch[1];
+            // Convert dd-mm-yyyy or dd.mm.yyyy to yyyy-mm-dd
+            const dmy = dateStr.match(/^(\d{1,2})[\.\-\/](\d{1,2})[\.\-\/](\d{4})$/);
+            if (dmy) {
+              dateStr = `${dmy[3]}-${dmy[2].padStart(2, "0")}-${dmy[1].padStart(2, "0")}`;
+            }
+            officialUpdatedAt = new Date(dateStr);
+          }
 
           advisories.push({
             destIso2: iso2,
