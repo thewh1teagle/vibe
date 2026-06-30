@@ -7,15 +7,15 @@ datasource db {
 }
 
 model Country {
-  isoAlpha2  String      @id @map("iso_alpha2")
-  isoAlpha3  String      @unique @map("iso_alpha3")
-  nameNl     String      @map("name_nl")
-  nameEn     String      @map("name_en")
-  regionNl   String      @map("region_nl")
-  regionEn   String      @map("region_en")
+  isoAlpha2  String     @id @map("iso_alpha2")
+  isoAlpha3  String     @unique @map("iso_alpha3")
+  nameNl     String     @map("name_nl")
+  nameEn     String     @map("name_en")
+  regionNl   String     @map("region_nl")
+  regionEn   String     @map("region_en")
   latitude   Float?
   longitude  Float?
-  nlwwSlug   String?     @map("nlww_slug")
+  nlwwSlug   String?    @map("nlww_slug")
   advisories Advisory[]
 
   @@map("countries")
@@ -50,9 +50,8 @@ model Advisory {
   scrapedAt         DateTime  @map("scraped_at")
   sourceUrl         String    @map("source_url")
   isStale           Boolean   @default(false) @map("is_stale")
-
-  source      Source  @relation(fields: [sourceId], references: [id])
-  destination Country @relation(fields: [destIso2], references: [isoAlpha2])
+  destination       Country   @relation(fields: [destIso2], references: [isoAlpha2])
+  source            Source    @relation(fields: [sourceId], references: [id])
 
   @@unique([sourceId, destIso2])
   @@index([destIso2])
@@ -71,8 +70,7 @@ model ScrapeLog {
   advisoriesNew     Int       @default(0) @map("advisories_new")
   advisoriesUpdated Int       @default(0) @map("advisories_updated")
   durationMs        Int?      @map("duration_ms")
-
-  source Source @relation(fields: [sourceId], references: [id])
+  source            Source    @relation(fields: [sourceId], references: [id])
 
   @@map("scrape_logs")
 }
