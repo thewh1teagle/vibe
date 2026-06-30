@@ -20,54 +20,149 @@ import { LiveAdvisory } from "@/components/LiveAdvisory";
 
 export const revalidate = 3600;
 
-const RAW_LEVEL_NL: Record<string, string> = {
-  "no advice against travel": "Geen negatief reisadvies",
-  "advise against all but essential travel to parts": "Alleen noodzakelijke reizen (delen)",
-  "advise against all but essential travel": "Alleen noodzakelijke reizen",
-  "advise against all travel to parts": "Niet reizen (delen)",
-  "advise against all travel": "Niet reizen",
-  "level 1: exercise normal precautions": "Normale voorzorgsmaatregelen",
-  "level 2: exercise increased caution": "Verhoogde voorzichtigheid",
-  "level 3: reconsider travel": "Reis heroverwegen",
-  "level 4: do not travel": "Niet reizen",
-  "take normal security precautions": "Normale veiligheidsmaatregelen",
-  "exercise normal security precautions": "Normale veiligheidsmaatregelen",
-  "exercise a high degree of caution": "Hoge mate van voorzichtigheid",
-  "avoid non-essential travel": "Vermijd niet-essentiële reizen",
-  "avoid all travel": "Vermijd alle reizen",
-  "keine besonderen sicherheitshinweise": "Geen bijzondere waarschuwingen",
-  "erhöhte vorsicht": "Verhoogde voorzichtigheid",
-  "teilreisewarnung": "Gedeeltelijke reiswaarschuwing",
-  "reisewarnung": "Reiswaarschuwing",
-  "von nicht notwendigen reisen abraten": "Niet-noodzakelijke reizen afgeraden",
-  "sécurité normale": "Normale veiligheid",
-  "vigilance normale": "Normale waakzaamheid",
-  "vigilance renforcée": "Verhoogde waakzaamheid",
-  "déconseillé sauf raison impérative": "Afgeraden tenzij noodzakelijk",
-  "déconseillé": "Afgeraden",
-  "formellement déconseillé": "Sterk afgeraden",
-  "ingen særlige advarsler": "Geen bijzondere waarschuwingen",
-  "vær forsigtig": "Wees voorzichtig",
-  "vær opmærksom": "Wees oplettend",
-  "vær ekstra opmærksom": "Wees extra oplettend",
-  "fraråd ikke-nødvendige rejser": "Niet-noodzakelijke reizen afgeraden",
-  "rejse frarådes": "Reizen afgeraden",
-  "exercise normal safety precautions": "Normale veiligheidsmaatregelen",
-  "reconsider your need to travel": "Heroverweeg of reizen noodzakelijk is",
-  "do not travel": "Niet reizen",
-  "inga särskilda restriktioner": "Geen bijzondere beperkingen",
-  "var försiktig": "Wees voorzichtig",
-  "avråd från icke nödvändiga resor": "Niet-noodzakelijke reizen afgeraden",
-  "avråd från resor": "Reizen afgeraden",
+type LevelLabel = { original: string; nl: string };
+
+// Per-source lookup keyed by rawLevel (lowercase)
+const SOURCE_LEVEL_LABELS: Record<string, Record<string, LevelLabel>> = {
+  uk: {
+    "take normal precautions": { original: "Take normal precautions", nl: "Neem normale voorzorgsmaatregelen" },
+    "reconsider your need to travel": { original: "Reconsider your need to travel", nl: "Heroverweeg de noodzaak van uw reis" },
+    "advise against all but essential travel to parts": { original: "Advise against all but essential travel to parts", nl: "Alleen noodzakelijke reizen naar bepaalde gebieden" },
+    "do not travel": { original: "Do not travel", nl: "Niet reizen" },
+    "advise against all travel to parts": { original: "Advise against all travel to parts", nl: "Niet reizen naar bepaalde gebieden" },
+    // also handle variant spellings
+    "advise against all but essential travel": { original: "Advise against all but essential travel", nl: "Heroverweeg de noodzaak van uw reis" },
+    "advise against all travel": { original: "Advise against all travel", nl: "Niet reizen" },
+    "no advice against travel": { original: "No advice against travel", nl: "Neem normale voorzorgsmaatregelen" },
+  },
+  us: {
+    "level 1: exercise normal precautions": { original: "Level 1: Exercise Normal Precautions", nl: "Neem normale voorzorgsmaatregelen" },
+    "level 2: exercise increased caution": { original: "Level 2: Exercise Increased Caution", nl: "Wees extra voorzichtig" },
+    "level 3: reconsider travel": { original: "Level 3: Reconsider Travel", nl: "Heroverweeg reizen" },
+    "level 4: do not travel": { original: "Level 4: Do Not Travel", nl: "Niet reizen" },
+  },
+  germany: {
+    "keine besonderen sicherheitshinweise": { original: "Keine besonderen Sicherheitshinweise", nl: "Geen bijzondere veiligheidswaarschuwingen" },
+    "erhöhte vorsicht": { original: "Erhöhte Vorsicht", nl: "Verhoogde voorzichtigheid" },
+    "von nicht notwendigen reisen wird abgeraten": { original: "Von nicht notwendigen Reisen wird abgeraten", nl: "Niet-noodzakelijke reizen worden afgeraden" },
+    "von nicht notwendigen reisen abraten": { original: "Von nicht notwendigen Reisen wird abgeraten", nl: "Niet-noodzakelijke reizen worden afgeraden" },
+    "teilreisewarnung": { original: "Teilreisewarnung", nl: "Gedeeltelijke reiswaarschuwing" },
+    "reisewarnung": { original: "Reisewarnung", nl: "Reiswaarschuwing - niet reizen" },
+  },
+  france: {
+    "vigilance normale": { original: "Vigilance normale", nl: "Normale waakzaamheid" },
+    "vigilance renforcée": { original: "Vigilance renforcée", nl: "Verhoogde waakzaamheid" },
+    "déconseillé sauf raison impérative": { original: "Déconseillé sauf raison impérative", nl: "Afgeraden tenzij noodzakelijk" },
+    "formellement déconseillé": { original: "Formellement déconseillé", nl: "Reizen wordt sterk afgeraden" },
+    "sécurité normale": { original: "Vigilance normale", nl: "Normale waakzaamheid" },
+    "déconseillé": { original: "Déconseillé sauf raison impérative", nl: "Afgeraden tenzij noodzakelijk" },
+  },
+  canada: {
+    "exercise normal security precautions": { original: "Exercise normal security precautions", nl: "Neem normale veiligheidsmaatregelen" },
+    "take normal security precautions": { original: "Exercise normal security precautions", nl: "Neem normale veiligheidsmaatregelen" },
+    "exercise a high degree of caution": { original: "Exercise a high degree of caution", nl: "Wees zeer voorzichtig" },
+    "avoid non-essential travel": { original: "Avoid non-essential travel", nl: "Vermijd niet-noodzakelijke reizen" },
+    "avoid all travel": { original: "Avoid all travel", nl: "Vermijd alle reizen" },
+  },
+  australia: {
+    "exercise normal safety precautions": { original: "Exercise normal safety precautions", nl: "Neem normale veiligheidsmaatregelen" },
+    "exercise a high degree of caution": { original: "Exercise a high degree of caution", nl: "Wees zeer voorzichtig" },
+    "reconsider your need to travel": { original: "Reconsider your need to travel", nl: "Heroverweeg de noodzaak van uw reis" },
+    "do not travel": { original: "Do not travel", nl: "Niet reizen" },
+  },
+  denmark: {
+    "vær opmærksom": { original: "Vær opmærksom", nl: "Wees alert" },
+    "vær ekstra opmærksom": { original: "Vær ekstra opmærksom", nl: "Wees extra alert" },
+    "undgå ikke-nødvendige rejser": { original: "Undgå ikke-nødvendige rejser", nl: "Vermijd niet-noodzakelijke reizen" },
+    "undgå alle rejser": { original: "Undgå alle rejser", nl: "Vermijd alle reizen" },
+    "ingen særlige advarsler": { original: "Vær opmærksom", nl: "Wees alert" },
+    "fraråd ikke-nødvendige rejser": { original: "Undgå ikke-nødvendige rejser", nl: "Vermijd niet-noodzakelijke reizen" },
+    "rejse frarådes": { original: "Undgå alle rejser", nl: "Vermijd alle reizen" },
+  },
+  sweden: {
+    "ingen särskilda avrådanden": { original: "Ingen särskilda avrådanden", nl: "Geen bijzondere reiswaarschuwingen" },
+    "inga särskilda restriktioner": { original: "Ingen särskilda avrådanden", nl: "Geen bijzondere reiswaarschuwingen" },
+    "var extra uppmärksam": { original: "Var extra uppmärksam", nl: "Wees extra alert" },
+    "var försiktig": { original: "Var extra uppmärksam", nl: "Wees extra alert" },
+    "avrådan från icke nödvändiga resor": { original: "Avrådan från icke nödvändiga resor", nl: "Niet-noodzakelijke reizen afgeraden" },
+    "avråd från icke nödvändiga resor": { original: "Avrådan från icke nödvändiga resor", nl: "Niet-noodzakelijke reizen afgeraden" },
+    "avrådan från alla resor": { original: "Avrådan från alla resor", nl: "Alle reizen afgeraden" },
+    "avråd från resor": { original: "Avrådan från alla resor", nl: "Alle reizen afgeraden" },
+  },
 };
 
-function translateRawLevel(rawLevel: string): string | null {
+// Fallback labels for unknown sources/levels
+const FALLBACK_LEVEL_LABELS: Record<string, LevelLabel> = {
+  "no advice against travel": { original: "No advice against travel", nl: "Geen negatief reisadvies" },
+  "do not travel": { original: "Do not travel", nl: "Niet reizen" },
+  "avoid all travel": { original: "Avoid all travel", nl: "Vermijd alle reizen" },
+};
+
+function getLevelLabels(sourceId: string, rawLevel: string): LevelLabel[] {
   const key = rawLevel.toLowerCase().trim();
-  if (RAW_LEVEL_NL[key]) return RAW_LEVEL_NL[key];
-  for (const [pattern, translation] of Object.entries(RAW_LEVEL_NL)) {
-    if (key.includes(pattern) || pattern.includes(key)) return translation;
+  const sourceMap = SOURCE_LEVEL_LABELS[sourceId];
+  if (sourceMap) {
+    const match = sourceMap[key];
+    if (match) return [match];
+    // partial match
+    for (const [pattern, label] of Object.entries(sourceMap)) {
+      if (key.includes(pattern) || pattern.includes(key)) return [label];
+    }
   }
-  return null;
+  // fallback
+  const fallback = FALLBACK_LEVEL_LABELS[key];
+  if (fallback) return [fallback];
+  return [{ original: rawLevel, nl: rawLevel }];
+}
+
+function getMultiLevelDisplay(
+  sourceId: string,
+  rawLevel: string,
+  normalizedLevel: NormalizedLevel,
+  summary: string | null | undefined,
+): Array<{ level: NormalizedLevel; area: string }> {
+  const key = rawLevel.toLowerCase().trim();
+
+  if (sourceId === "germany") {
+    if (key === "teilreisewarnung") {
+      return [
+        { level: "orange", area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
+      ];
+    }
+    if (key === "reisewarnung" && summary && /teilreise|part|gebiet/i.test(summary)) {
+      return [
+        { level: "red", area: "Deelgebieden" },
+        { level: "orange", area: "Algemeen" },
+      ];
+    }
+  }
+
+  if (sourceId === "uk") {
+    if (key.includes("advise against all travel to parts") || key === "advise against all travel to parts") {
+      return [
+        { level: "red", area: "Deelgebieden" },
+        { level: "orange", area: "Algemeen" },
+      ];
+    }
+    if (key.includes("advise against all but essential travel to parts") || key === "advise against all but essential travel to parts") {
+      return [
+        { level: "orange", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+      ];
+    }
+  }
+
+  if (sourceId === "france") {
+    if (key === "formellement déconseillé" && summary && /autre|partie|zone|région/i.test(summary)) {
+      return [
+        { level: "red", area: "Deelgebieden" },
+        { level: "orange", area: "Algemeen" },
+      ];
+    }
+  }
+
+  return [{ level: normalizedLevel, area: "Algemeen" }];
 }
 
 const CONSENSUS_COLORS: Record<NormalizedLevel, string> = {
@@ -234,7 +329,14 @@ export default async function CountryPage({
                     </td>
                     <td className="px-4 py-3">
                       {adv && !noAdvisory ? (
-                        <RiskBadge level={adv.normalizedLevel} size="sm" />
+                        <div className="space-y-1.5">
+                          {getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, adv.summary).map((item, idx) => (
+                            <div key={idx} className="flex flex-col items-start gap-0.5">
+                              <RiskBadge level={item.level} size="sm" />
+                              <span className="text-[10px] text-gray-400 leading-none">{item.area}</span>
+                            </div>
+                          ))}
+                        </div>
                       ) : (
                         <span className="text-xs text-gray-400">—</span>
                       )}
@@ -246,11 +348,16 @@ export default async function CountryPage({
                         <p className="text-gray-400 text-sm italic">Niet beschikbaar</p>
                       ) : (
                         <>
-                          <p className="text-gray-800 font-medium text-sm">{adv.rawLevel}</p>
-                          {(() => {
-                            const nl = translateRawLevel(adv.rawLevel);
-                            return nl ? <p className="text-gray-500 text-xs mt-0.5">{nl}</p> : null;
-                          })()}
+                          <div className="space-y-1.5">
+                            {getLevelLabels(adv.sourceId, adv.rawLevel).map((label, idx) => (
+                              <div key={idx} className="text-xs leading-snug">
+                                <span className="text-gray-500">•</span>{" "}
+                                <em className="text-gray-800 not-italic italic">{label.original}</em>
+                                <br />
+                                <span className="text-gray-400 text-[11px]">{label.nl}</span>
+                              </div>
+                            ))}
+                          </div>
                           {adv.isStale && (
                             <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3" /> Mogelijk verouderd
