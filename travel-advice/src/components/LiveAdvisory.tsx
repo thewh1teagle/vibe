@@ -676,8 +676,12 @@ export function LiveAdvisory({ sourceId, iso2 }: LiveAdvisoryProps) {
         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.color}`}>{badge.label}</span>
       </td>
       <td className="px-4 py-3">
-        <p className="text-gray-800 font-medium text-sm">{result.rawLevel}</p>
-        <p className="text-gray-500 text-xs mt-0.5">{result.labelNl}</p>
+        <div className="text-xs leading-snug">
+          <span className="text-gray-500">•</span>{" "}
+          <em className="text-gray-800 not-italic italic">{result.rawLevel}</em>
+          <br />
+          <span className="text-gray-400 text-[11px]">{result.labelNl}</span>
+        </div>
       </td>
       <td className="px-4 py-3">
         {result.summary && <p className="text-gray-700 text-xs leading-relaxed line-clamp-3">{result.summary}</p>}
