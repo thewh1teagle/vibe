@@ -391,10 +391,9 @@ export const usScraper: Scraper = async () => {
             const pageHtml = await fetchWithProxyFallback(advisoryPageUrl, 12_000);
             if (pageHtml) {
               const { summary, officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(pageHtml);
-              const enrichedSummary = summary && summary.length > 30 ? summary : advisory.summary;
               return {
                 ...advisory,
-                summary: enrichedSummary,
+                summary: summary || advisory.summary,
                 officialUpdatedAt: officialUpdatedAt ?? advisory.officialUpdatedAt,
                 sourceUrl: advisoryPageUrl,
               };
