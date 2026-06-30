@@ -36,10 +36,10 @@ interface AdvisoryResult {
 }
 
 const BADGE: Record<Level, { label: string; color: string }> = {
-  green:  { label: "Veilig",      color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-  yellow: { label: "Voorzichtig", color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
-  orange: { label: "Risicovol",   color: "bg-orange-100 text-orange-800 border-orange-300" },
-  red:    { label: "Gevaarlijk",   color: "bg-red-100 text-red-800 border-red-300" },
+  green:  { label: "Groen",  color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
+  yellow: { label: "Geel",   color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
+  orange: { label: "Oranje", color: "bg-orange-100 text-orange-800 border-orange-300" },
+  red:    { label: "Rood",   color: "bg-red-100 text-red-800 border-red-300" },
 };
 
 // ── Source configs ──
@@ -523,10 +523,18 @@ const SOURCE_CONFIGS: Record<string, SourceConfig> = {
       if (!best) return null;
       const levelIdx = text.indexOf(best.pattern);
       const surrounding = text.slice(Math.max(0, levelIdx - 50), levelIdx + 400);
-      const cleaned = surrounding
+      // Find a clean sentence containing the level keyword
+      const sentences = surrounding.split(/(?<=[.!?])\s+/);
+      const relevant = sentences.filter(s =>
+        s.toLowerCase().includes(best.pattern) ||
+        /travel|safety|caution|risk|advice/i.test(s)
+      ).slice(0, 3).join(" ");
+      const cleaned = (relevant.length > 30 ? relevant : surrounding)
+        .replace(/home\s+destinations[^.]*\./gi, "")
+        .replace(/latest update[^.]*\./gi, "")
+        .replace(/still current[^.]*\./gi, "")
         .replace(/download\b[^.]{0,80}/gi, "")
         .replace(/local emergency contacts[^.]{0,100}/gi, "")
-        .replace(/fire and rescue[^.]{0,60}/gi, "")
         .replace(/(?:fire|police|ambulance|medical emergencies?)[^.]{0,40}/gi, "")
         .replace(/call\s+\d+[^.]{0,30}/gi, "")
         .replace(/\s+/g, " ")

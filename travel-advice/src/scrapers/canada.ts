@@ -114,7 +114,10 @@ function extractSummary(html: string, levelText: string): string {
 
 function extractDate(html: string): Date | null {
   const match = html.match(/<time[^>]+datetime="([^"]+)"/i)
-    ?? html.match(/Last updated:\s*([A-Za-z]+ \d{1,2},\s*\d{4})/i);
+    ?? html.match(/(?:Last\s+updated|Date\s+modified)[:\s]*([A-Za-z]+ \d{1,2},\s*\d{4})/i)
+    ?? html.match(/(?:Last\s+updated|Date\s+modified)[:\s]*(\d{4}-\d{2}-\d{2})/i)
+    ?? html.match(/class="[^"]*(?:date|updated|modified)[^"]*"[^>]*>[\s\S]*?(\d{4}-\d{2}-\d{2})/i)
+    ?? html.match(/(\d{4}-\d{2}-\d{2})/);
   if (!match) return null;
   const d = new Date(match[1]);
   return isNaN(d.getTime()) ? null : d;

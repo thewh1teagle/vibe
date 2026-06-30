@@ -157,9 +157,13 @@ export const swedenScraper: Scraper = async () => {
           const summary = extractSummary(html);
 
           const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i)
-            ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad)[:\s]*(\d{4}-\d{2}-\d{2})/i)
+            ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad|Publicerad)[:\s]*(\d{4}-\d{2}-\d{2})/i)
             ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad)[:\s]*(\d{1,2}\s+\w+\s+\d{4})/i)
-            ?? html.match(/(?:Publicerad)[:\s]*(\d{4}-\d{2}-\d{2})/i);
+            ?? html.match(/class="[^"]*(?:date|updated|published)[^"]*"[^>]*>[\s\S]*?(\d{4}-\d{2}-\d{2})/i)
+            ?? html.match(/"dateModified"\s*:\s*"([^"]+)"/i)
+            ?? html.match(/"datePublished"\s*:\s*"([^"]+)"/i)
+            ?? html.match(/(\d{4}-\d{2}-\d{2})/);
+
           const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
 
           advisories.push({

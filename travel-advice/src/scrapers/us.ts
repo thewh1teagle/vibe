@@ -224,10 +224,13 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
       summary = `${rawLevel}`;
     }
 
-    // Extract date — only from structured metadata, not arbitrary page text
-    const dateMatch = html.match(/(?:Last\s+(?:Updated|Reviewed)|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i)
+    // Extract date from individual advisory page
+    const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i)
+      ?? html.match(/(?:Last\s+(?:Updated|Reviewed)|Date\s+Updated)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i)
       ?? html.match(/<meta[^>]+(?:date|modified)[^>]*content="([^"]+)"/i)
-      ?? html.match(/class="[^"]*date[^"]*"[^>]*>(\w+ \d{1,2},?\s*\d{4})/i);
+      ?? html.match(/class="[^"]*(?:date|updated)[^"]*"[^>]*>[\s\S]*?(\w+ \d{1,2},?\s*\d{4})/i)
+      ?? html.match(/(\d{4}-\d{2}-\d{2})/);
+
     const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
 
     return {
@@ -349,9 +352,10 @@ export const usScraper: Scraper = async () => {
       const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
       const normalizedLevel = normalizeLevel("us", rawLevel);
 
-      // Extract date from the row's date cell, not from link text or country names
+      // Extract date from the row's date cell
       const dateCellMatch = row.match(/<td[^>]*>(?:<[^>]*>)*\s*(\w+ \d{1,2},\s*\d{4})\s*(?:<[^>]*>)*<\/td>/i)
-        ?? row.match(/(?:Updated|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i);
+        ?? row.match(/(?:Updated|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i)
+        ?? row.match(/(\d{4}-\d{2}-\d{2})/);
       const officialUpdatedAt = dateCellMatch ? new Date(dateCellMatch[1]) : null;
 
       const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/);
