@@ -1,13 +1,13 @@
 import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
-const LEVEL_SELECTORS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /formellement d.conseill./i, rawLevel: "Formellement déconseillé" },
-  { pattern: /d.conseill.[\s\S]{0,20}sauf raison imp.rative/i, rawLevel: "Déconseillé sauf raison impérative" },
-  { pattern: /vigilance renforc.e/i, rawLevel: "Vigilance renforcée" },
-  { pattern: /vigilance normale/i, rawLevel: "Vigilance normale" },
-  { pattern: /s.curit. normale/i, rawLevel: "Sécurité normale" },
-  { pattern: /d.conseill./i, rawLevel: "Déconseillé" },
+const LEVEL_SELECTORS: Array<{ pattern: RegExp; rawLevel: string; severity: number }> = [
+  { pattern: /formellement d.conseill./i, rawLevel: "Formellement déconseillé", severity: 3 },
+  { pattern: /d.conseill.[\s\S]{0,20}sauf raison imp.rative/i, rawLevel: "Déconseillé sauf raison impérative", severity: 2 },
+  { pattern: /d.conseill./i, rawLevel: "Déconseillé", severity: 2 },
+  { pattern: /vigilance renforc.e/i, rawLevel: "Vigilance renforcée", severity: 1 },
+  { pattern: /vigilance normale/i, rawLevel: "Vigilance normale", severity: 0 },
+  { pattern: /s.curit. normale/i, rawLevel: "Sécurité normale", severity: 0 },
 ];
 
 const KNOWN_ISO_SLUGS: Record<string, string> = {
@@ -62,10 +62,24 @@ const KNOWN_ISO_SLUGS: Record<string, string> = {
 };
 
 function extractLevelFromHtml(html: string): string {
-  for (const { pattern, rawLevel } of LEVEL_SELECTORS) {
-    if (pattern.test(html)) return rawLevel;
+  // Strip nav/header/footer to avoid picking up levels from boilerplate
+  const plain = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+    .replace(/<[^>]*>/g, " ");
+
+  // Return the LEAST SEVERE level found — this is the general country level.
+  // Regional breakdowns list stricter zones first, so we don't want the max.
+  let minLevel = { rawLevel: "Vigilance normale", severity: Infinity };
+  for (const { pattern, rawLevel, severity } of LEVEL_SELECTORS) {
+    if (pattern.test(plain) && severity < minLevel.severity) {
+      minLevel = { rawLevel, severity };
+    }
   }
-  return "Vigilance normale";
+  return minLevel.severity === Infinity ? "Vigilance normale" : minLevel.rawLevel;
 }
 
 function extractSummary(html: string): string {

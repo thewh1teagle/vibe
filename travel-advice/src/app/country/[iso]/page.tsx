@@ -125,6 +125,24 @@ function getMultiLevelDisplay(
 ): Array<{ level: NormalizedLevel; area: string }> {
   const key = rawLevel.toLowerCase().trim();
 
+  if (sourceId === "canada") {
+    const sum = (summary || "").toLowerCase();
+    const hasRed = /avoid all travel|vermijd alle reizen/i.test(sum);
+    const hasOrange = /avoid non-essential|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
+    if (key === "exercise a high degree of caution" && hasRed) {
+      return [
+        { level: "red", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+      ];
+    }
+    if (key === "exercise a high degree of caution" && hasOrange) {
+      return [
+        { level: "orange", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+      ];
+    }
+  }
+
   if (sourceId === "germany") {
     if (key === "teilreisewarnung") {
       return [
@@ -156,7 +174,36 @@ function getMultiLevelDisplay(
   }
 
   if (sourceId === "france") {
-    if (key === "formellement déconseillé" && summary && /autre|partie|zone|région/i.test(summary)) {
+    const sum = (summary || "").toLowerCase();
+    const hasRedFr = /formellement déconseillé/i.test(sum);
+    const hasOrangeFr = /déconseillé sauf raison impérative/i.test(sum);
+    // Dutch AI summary keywords
+    const hasRedNl = /sterk afgeraden|grensgebied/i.test(sum);
+    const hasOrangeNl = /niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk|zuidelijke.*afgeraden|afgeraden.*zuidelijk/i.test(sum);
+
+    const hasRed = hasRedFr || hasRedNl;
+    const hasOrange = hasOrangeFr || hasOrangeNl;
+
+    if (key === "vigilance renforcée" && hasRed && hasOrange) {
+      return [
+        { level: "red", area: "Grensgebieden" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+      ];
+    }
+    if (key === "vigilance renforcée" && hasOrange) {
+      return [
+        { level: "orange", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+      ];
+    }
+    if ((key === "formellement déconseillé" || key === "déconseillé sauf raison impérative") && hasOrange) {
+      return [
+        { level: "red", area: "Deelgebieden" },
+        { level: "orange", area: "Algemeen" },
+      ];
+    }
+    if (key === "formellement déconseillé" && /autre|partie|zone|région/i.test(sum)) {
       return [
         { level: "red", area: "Deelgebieden" },
         { level: "orange", area: "Algemeen" },
@@ -211,6 +258,8 @@ export default async function CountryPage({
       aiSummaries = JSON.parse(fs.readFileSync(summaryPath, "utf-8"));
     }
   } catch { /* ignore if missing */ }
+
+  const rawSummaries = new Map(country.advisories.map((a) => [a.sourceId, a.summary ?? ""]));
 
   const advisories: AdvisoryRow[] = country.advisories.map((a) => ({
     id: a.id,
@@ -341,7 +390,7 @@ export default async function CountryPage({
                     <td className="px-4 py-3">
                       {adv && !noAdvisory ? (
                         <div className="space-y-1.5">
-                          {getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, adv.summary).map((item, idx) => (
+                          {getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, rawSummaries.get(adv.sourceId) ?? adv.summary).map((item, idx) => (
                             <div key={idx} className="flex flex-col items-start gap-0.5">
                               <RiskBadge level={item.level} size="sm" />
                               <span className="text-[10px] text-gray-400 leading-none">{item.area}</span>
