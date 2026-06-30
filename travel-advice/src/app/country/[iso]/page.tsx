@@ -125,6 +125,24 @@ function getMultiLevelDisplay(
 ): Array<{ level: NormalizedLevel; area: string }> {
   const key = rawLevel.toLowerCase().trim();
 
+  if (sourceId === "canada") {
+    const sum = (summary || "").toLowerCase();
+    const hasRed = /avoid all travel|vermijd alle reizen/i.test(sum);
+    const hasOrange = /avoid non-essential|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
+    if (key === "exercise a high degree of caution" && hasRed) {
+      return [
+        { level: "red", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+      ];
+    }
+    if (key === "exercise a high degree of caution" && hasOrange) {
+      return [
+        { level: "orange", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+      ];
+    }
+  }
+
   if (sourceId === "germany") {
     if (key === "teilreisewarnung") {
       return [

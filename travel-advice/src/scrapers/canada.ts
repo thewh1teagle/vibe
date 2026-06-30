@@ -52,19 +52,17 @@ const ISO2_TO_SLUG: Record<string, string> = {
 };
 
 function extractLevelFromHtml(html: string): string | null {
-  // Try the risk-level heading/banner first (most reliable)
-  const banner = html.match(/<(?:h\d|div|span|p)[^>]*class="[^"]*(?:risk-title|advisory-title|travel-risk|alert-heading)[^"]*"[^>]*>([\s\S]{0,200}?)<\//i)
-    ?? html.match(/<(?:h1|h2|h3)[^>]*>([\s\S]{0,200}?)<\/(?:h1|h2|h3)>/gi);
-
+  // Try specific risk-level banner element first
+  const banner = html.match(/<(?:h\d|div|span|p)[^>]*class="[^"]*(?:risk-title|advisory-title|travel-risk|alert-heading)[^"]*"[^>]*>([\s\S]{0,200}?)<\//i);
   if (banner) {
-    const bannerText = (Array.isArray(banner) ? banner.join(" ") : banner[1] ?? "")
-      .replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
+    const bannerText = (banner[1] ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
     for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
       if (pattern.test(bannerText)) return rawLevel;
     }
   }
 
-  // Fallback: full page text
+  // Find FIRST occurrence by text position — the general country level appears
+  // before regional breakdown tables, so earliest match = country-level advisory.
   const plain = html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
@@ -72,10 +70,17 @@ function extractLevelFromHtml(html: string): string | null {
     .replace(/<footer[\s\S]*?<\/footer>/gi, "")
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ");
+
+  let firstMatch: { index: number; rawLevel: string } | null = null;
   for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
-    if (pattern.test(plain)) return rawLevel;
+    const m = plain.match(pattern);
+    if (m && m.index !== undefined) {
+      if (!firstMatch || m.index < firstMatch.index) {
+        firstMatch = { index: m.index, rawLevel };
+      }
+    }
   }
-  return null;
+  return firstMatch?.rawLevel ?? null;
 }
 
 function extractSummary(html: string, levelText: string): string {

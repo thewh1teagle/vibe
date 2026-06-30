@@ -7,7 +7,10 @@ import type { Scraper, RawAdvisory } from "./types";
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
   { pattern: /rejse frarådes/i, rawLevel: "Rejse frarådes" },
   { pattern: /fraråd[^\w]*ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser" },
+  { pattern: /undgå ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser" },
+  { pattern: /vær ekstra opmærksom/i, rawLevel: "Vær ekstra opmærksom" },
   { pattern: /vær forsigtig/i, rawLevel: "Vær forsigtig" },
+  { pattern: /vær opmærksom/i, rawLevel: "Vær opmærksom" },
   { pattern: /ingen særlige/i, rawLevel: "Ingen særlige advarsler" },
 ];
 
@@ -58,8 +61,7 @@ const KNOWN_ISO_SLUGS: Record<string, string> = {
 const NO_ADVISORY_PATTERNS = [
   /vi har ingen rejsevejledning/i,
   /ingen rejsevejledning for/i,
-  /der er ikke udarbejdet/i,
-  /ikke.*rejsevejledning/i,
+  /der er ikke udarbejdet.*rejsevejledning/i,
 ];
 
 function hasNoAdvisory(html: string): boolean {
