@@ -12,7 +12,11 @@ const PROXIES = [
 async function fetchViaProxy(url: string): Promise<string | null> {
   for (const build of PROXIES) {
     try {
-      const res = await fetch(build(url), { signal: AbortSignal.timeout(15_000) });
+      const proxyUrl = build(url);
+      const res = await fetch(proxyUrl, {
+        signal: AbortSignal.timeout(15_000),
+        headers: { "Accept": "text/html,application/xhtml+xml,*/*" },
+      });
       if (!res.ok) continue;
       const text = await res.text();
       if (text.length > 200) return text;

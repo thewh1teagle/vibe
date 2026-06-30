@@ -2,8 +2,6 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import { CountrySearch } from "@/components/CountrySearch";
 import { RiskDot } from "@/components/RiskBadge";
-import { ExportButtons } from "@/components/ExportButtons";
-import { HomeTable } from "@/components/HomeTable";
 import Link from "next/link";
 import type { NormalizedLevel } from "@/types";
 
@@ -35,23 +33,6 @@ export default async function HomePage() {
     where: { status: "success" },
     orderBy: { finishedAt: "desc" },
   });
-
-  const tableCountries = withAdvisories.map((c) => ({
-    isoAlpha2: c.isoAlpha2,
-    nameNl: c.nameNl,
-    regionNl: c.regionNl,
-    advisories: c.advisories.map((a) => ({
-      sourceId: a.sourceId,
-      normalizedLevel: a.normalizedLevel,
-    })),
-  }));
-
-  const tableSources = sources.map((s) => ({
-    id: s.id,
-    nameNl: s.nameNl,
-    flagEmoji: s.flagEmoji,
-    priority: s.priority,
-  }));
 
   return (
     <div className="space-y-8">
@@ -105,19 +86,13 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* Status + export */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 border-y border-gray-200">
-        <p className="text-sm text-gray-500">
-          {lastUpdate?.finishedAt
-            ? `Bijgewerkt: ${new Date(lastUpdate.finishedAt).toLocaleString("nl-NL")}`
-            : `${withAdvisories.length} landen met adviezen`}
-          {" · "}{sources.length} bronnen
-        </p>
-        <ExportButtons />
-      </div>
-
-      {/* Overview table with filters */}
-      <HomeTable countries={tableCountries} sources={tableSources} />
+      {/* Status */}
+      <p className="text-sm text-gray-400 text-center">
+        {lastUpdate?.finishedAt
+          ? `Adviezen bijgewerkt: ${new Date(lastUpdate.finishedAt).toLocaleString("nl-NL")}`
+          : `${withAdvisories.length} landen beschikbaar`}
+        {" · "}{sources.length} bronnen
+      </p>
     </div>
   );
 }
