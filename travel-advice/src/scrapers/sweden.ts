@@ -155,7 +155,7 @@ export const swedenScraper: Scraper = async () => {
   const advisories: RawAdvisory[] = [];
 
   const slugEntries = Object.entries(KNOWN_ISO_SLUGS);
-  const BATCH = 3;
+  const BATCH = 10;
 
   for (let i = 0; i < slugEntries.length; i += BATCH) {
     const batch = slugEntries.slice(i, i + BATCH);
@@ -168,7 +168,7 @@ export const swedenScraper: Scraper = async () => {
           for (const buildUrl of URL_PATTERNS) {
             url = buildUrl(slug);
             try {
-              const text = await fetchWithProxyFallback(url, 15_000);
+              const text = await fetchWithProxyFallback(url, 8_000);
               if (text) {
                 html = text;
                 break;
@@ -211,7 +211,7 @@ export const swedenScraper: Scraper = async () => {
       })
     );
     if (i + BATCH < slugEntries.length) {
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 100));
     }
   }
 

@@ -392,45 +392,7 @@ export const usScraper: Scraper = async () => {
       });
     }
 
-    // Enrich list-page advisories with summaries and dates from individual advisory pages
-    const enriched: RawAdvisory[] = [];
-    for (let i = 0; i < advisories.length; i += BATCH_SIZE) {
-      const batch = advisories.slice(i, i + BATCH_SIZE);
-      const settled = await Promise.allSettled(
-        batch.map(async (advisory) => {
-          const slug = ISO2_TO_SLUG[advisory.destIso2];
-          if (!slug) return advisory;
-          const advisorySlug = slug.toLowerCase().replace(/\s+/g, "-");
-          const advisoryPageUrl = `https://travel.state.gov/en/international-travel/travel-advisories/${advisorySlug}.html`;
-          try {
-            const pageHtml = await fetchWithProxyFallback(advisoryPageUrl, 12_000);
-            if (pageHtml) {
-              const { summary, officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(pageHtml);
-              return {
-                ...advisory,
-                summary: summary || advisory.summary,
-                officialUpdatedAt: officialUpdatedAt ?? advisory.officialUpdatedAt,
-                sourceUrl: advisoryPageUrl,
-              };
-            }
-          } catch { /* keep original */ }
-          return advisory;
-        })
-      );
-      for (const r of settled) {
-        enriched.push(r.status === "fulfilled" ? r.value : batch[settled.indexOf(r)]);
-      }
-      if (i + BATCH_SIZE < advisories.length) {
-        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
-      }
-    }
-
-    // Fallback: fetch individual country pages for any countries not found in the main table
-    const foundIso2s = new Set(enriched.map((a) => a.destIso2));
-    const fallbackAdvisories = await fetchMissingCountries(foundIso2s);
-    enriched.push(...fallbackAdvisories);
-
-    return { sourceId: "us", advisories: enriched, scrapedAt };
+    return { sourceId: "us", advisories, scrapedAt };
   } catch (err) {
     // If the main table fetch fails entirely, try fetching all countries individually
     try {
