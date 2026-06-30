@@ -353,9 +353,16 @@ export const usScraper: Scraper = async () => {
       const normalizedLevel = normalizeLevel("us", rawLevel);
 
       // Extract date — try any Month DD, YYYY pattern in the row
-      const dateCellMatch = row.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s*\d{4}\b/i)
-        ?? row.match(/(\d{4}-\d{2}-\d{2})/);
-      const officialUpdatedAt = dateCellMatch ? new Date(dateCellMatch[1]) : null;
+      const monthDateMatch = row.match(/\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s*\d{4}\b/i);
+      const isoDateMatch = row.match(/(\d{4}-\d{2}-\d{2})/);
+      let officialUpdatedAt: Date | null = null;
+      if (monthDateMatch) {
+        const d = new Date(monthDateMatch[0]);
+        if (!isNaN(d.getTime())) officialUpdatedAt = d;
+      } else if (isoDateMatch) {
+        const d = new Date(isoDateMatch[1]);
+        if (!isNaN(d.getTime())) officialUpdatedAt = d;
+      }
 
       const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/);
       const countryName = nameMatch?.[1]?.trim() ?? "";
