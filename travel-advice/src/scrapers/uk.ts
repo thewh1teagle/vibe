@@ -57,9 +57,13 @@ function pickWorstLevel(alertStatuses: string[]): { rawLevel: string; normalized
   const SLUG_MAP: Record<string, { level: NormalizedLevel; label: string }> = {
     "no_travel_advice": { level: "green", label: "No advice against travel" },
     "avoid_all_but_essential_travel_to_parts_of_country": { level: "yellow", label: "Advise against all but essential travel to parts" },
+    "avoid_all_but_essential_travel_to_parts": { level: "yellow", label: "Advise against all but essential travel to parts" },
     "avoid_all_but_essential_travel_to_whole_country": { level: "orange", label: "Advise against all but essential travel" },
+    "avoid_all_but_essential_travel": { level: "orange", label: "Advise against all but essential travel" },
     "avoid_all_travel_to_parts_of_country": { level: "orange", label: "Advise against all travel to parts" },
+    "avoid_all_travel_to_parts": { level: "orange", label: "Advise against all travel to parts" },
     "avoid_all_travel_to_whole_country": { level: "red", label: "Advise against all travel" },
+    "avoid_all_travel": { level: "red", label: "Advise against all travel" },
   };
 
   let worstRaw = SLUG_MAP[alertStatuses[0]]?.label ?? alertStatuses[0] ?? "No advice against travel";
