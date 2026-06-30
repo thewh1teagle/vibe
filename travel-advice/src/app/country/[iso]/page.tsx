@@ -128,7 +128,7 @@ function getMultiLevelDisplay(
   if (sourceId === "canada") {
     const sum = (summary || "").toLowerCase();
     const hasRed = /avoid all travel|vermijd alle reizen/i.test(sum);
-    const hasOrange = /avoid non-essential|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
+    const hasOrange = /avoid non-essential travel|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
     if (key === "exercise a high degree of caution" && hasRed) {
       return [
         { level: "red", area: "Deelgebieden" },
@@ -390,7 +390,7 @@ export default async function CountryPage({
                     <td className="px-4 py-3">
                       {adv && !noAdvisory ? (
                         <div className="space-y-1.5">
-                          {getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, rawSummaries.get(adv.sourceId) ?? adv.summary).map((item, idx) => (
+                          {getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, `${adv.summary ?? ""} ${rawSummaries.get(adv.sourceId) ?? ""}`).map((item, idx) => (
                             <div key={idx} className="flex flex-col items-start gap-0.5">
                               <RiskBadge level={item.level} size="sm" />
                               <span className="text-[10px] text-gray-400 leading-none">{item.area}</span>
