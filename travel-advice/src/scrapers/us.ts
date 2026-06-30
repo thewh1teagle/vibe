@@ -101,6 +101,67 @@ const ISO2_TO_SLUG: Record<string, string> = {
   VN:"Vietnam",YE:"Yemen",ZM:"Zambia",ZW:"Zimbabwe",
 };
 
+function extractSummaryAndDateFromAdvisoryHtml(html: string): { summary: string; officialUpdatedAt: Date | null } {
+  const cleanHtml = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "");
+
+  let summary = "";
+
+  // Strategy 1: Find paragraphs that come after the Level heading in the HTML
+  const levelPos = cleanHtml.search(/Level\s+\d/i);
+  if (levelPos >= 0) {
+    const afterLevel = cleanHtml.slice(levelPos);
+    const paragraphs = afterLevel.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
+    for (const p of paragraphs) {
+      const text = p[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+      if (
+        text.length > 40 &&
+        !/^\s*(Share|Print|RSS|Follow|Subscribe|Last Updated|Updated:|Do Not Travel|Exercise)/i.test(text) &&
+        !/^\s*Level\s+\d/i.test(text)
+      ) {
+        summary = text.slice(0, 300);
+        break;
+      }
+    }
+  }
+
+  // Strategy 2: any substantive paragraph
+  if (!summary) {
+    const paragraphs = cleanHtml.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
+    for (const p of paragraphs) {
+      const text = p[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+      if (
+        text.length > 60 &&
+        !/^\s*(Share|Print|RSS|Follow|Subscribe)/i.test(text) &&
+        !/^\s*Level\s+\d/i.test(text)
+      ) {
+        summary = text.slice(0, 300);
+        break;
+      }
+    }
+  }
+
+  // Extract date from individual advisory page
+  const dateMatch =
+    html.match(/<span[^>]*class="[^"]*last-updated[^"]*"[^>]*>[\s\S]*?(\w+ \d{1,2},\s*\d{4})/i) ??
+    html.match(/<p[^>]*class="[^"]*last-updated[^"]*"[^>]*>[\s\S]*?(\w+ \d{1,2},\s*\d{4})/i) ??
+    html.match(/Last\s+Updated:\s*(\w+ \d{1,2},?\s*\d{4})/i) ??
+    html.match(/Updated:\s*(\w+ \d{1,2},?\s*\d{4})/i) ??
+    html.match(/<meta[^>]+(?:date|modified)[^>]*content="([^"]+)"/i) ??
+    html.match(/class="[^"]*date[^"]*"[^>]*>(\w+ \d{1,2},?\s*\d{4})/i);
+  let officialUpdatedAt: Date | null = null;
+  if (dateMatch) {
+    const d = new Date(dateMatch[1]);
+    if (!isNaN(d.getTime())) officialUpdatedAt = d;
+  }
+
+  return { summary, officialUpdatedAt };
+}
+
 async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
   const slug = ISO2_TO_SLUG[iso2];
   if (!slug) return null;
@@ -175,7 +236,7 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
       normalizedLevel,
       summary,
       risks: [],
-      officialUpdatedAt: officialUpdatedAt && !isNaN(officialUpdatedAt.getTime()) ? officialUpdatedAt : null,
+      officialUpdatedAt,
       sourceUrl: url,
     };
   } catch {
@@ -309,12 +370,45 @@ export const usScraper: Scraper = async () => {
       });
     }
 
-    // Fallback: fetch individual country pages for any countries not found in the main table
-    const foundIso2s = new Set(advisories.map((a) => a.destIso2));
-    const fallbackAdvisories = await fetchMissingCountries(foundIso2s);
-    advisories.push(...fallbackAdvisories);
+    // Enrich list-page advisories with summaries and dates from individual advisory pages
+    const enriched: RawAdvisory[] = [];
+    for (let i = 0; i < advisories.length; i += BATCH_SIZE) {
+      const batch = advisories.slice(i, i + BATCH_SIZE);
+      const settled = await Promise.allSettled(
+        batch.map(async (advisory) => {
+          const slug = ISO2_TO_SLUG[advisory.destIso2];
+          if (!slug) return advisory;
+          const advisorySlug = slug.toLowerCase().replace(/\s+/g, "-");
+          const advisoryPageUrl = `https://travel.state.gov/en/international-travel/travel-advisories/${advisorySlug}.html`;
+          try {
+            const pageHtml = await fetchWithProxyFallback(advisoryPageUrl, 12_000);
+            if (pageHtml) {
+              const { summary, officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(pageHtml);
+              return {
+                ...advisory,
+                summary: summary || advisory.summary,
+                officialUpdatedAt: officialUpdatedAt ?? advisory.officialUpdatedAt,
+                sourceUrl: advisoryPageUrl,
+              };
+            }
+          } catch { /* keep original */ }
+          return advisory;
+        })
+      );
+      for (const r of settled) {
+        enriched.push(r.status === "fulfilled" ? r.value : batch[settled.indexOf(r)]);
+      }
+      if (i + BATCH_SIZE < advisories.length) {
+        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY_MS));
+      }
+    }
 
-    return { sourceId: "us", advisories, scrapedAt };
+    // Fallback: fetch individual country pages for any countries not found in the main table
+    const foundIso2s = new Set(enriched.map((a) => a.destIso2));
+    const fallbackAdvisories = await fetchMissingCountries(foundIso2s);
+    enriched.push(...fallbackAdvisories);
+
+    return { sourceId: "us", advisories: enriched, scrapedAt };
   } catch (err) {
     // If the main table fetch fails entirely, try fetching all countries individually
     try {
