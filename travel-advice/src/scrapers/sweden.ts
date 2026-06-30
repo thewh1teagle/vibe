@@ -100,6 +100,29 @@ function extractLevel(html: string): string {
   return minMatch?.rawLevel ?? "Inga särskilda restriktioner";
 }
 
+const SWEDISH_MONTHS: Record<string, number> = {
+  januari: 0, februari: 1, mars: 2, april: 3, maj: 4, juni: 5,
+  juli: 6, augusti: 7, september: 8, oktober: 9, november: 10, december: 11,
+};
+
+function parseSwedishDate(raw: string): Date | null {
+  const swedishMatch = raw.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/i);
+  if (swedishMatch) {
+    const month = SWEDISH_MONTHS[swedishMatch[2].toLowerCase()];
+    if (month !== undefined) {
+      const d = new Date(Date.UTC(Number(swedishMatch[3]), month, Number(swedishMatch[1])));
+      return isNaN(d.getTime()) ? null : d;
+    }
+  }
+  const dmyMatch = raw.match(/^(\d{1,2})[./](\d{1,2})[./](\d{4})$/);
+  if (dmyMatch) {
+    const d = new Date(Date.UTC(Number(dmyMatch[3]), Number(dmyMatch[2]) - 1, Number(dmyMatch[1])));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  const d = new Date(raw);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function extractSummary(html: string): string {
   const clean = html
     .replace(/<head[\s\S]*?<\/head>/gi, "")
@@ -161,13 +184,17 @@ export const swedenScraper: Scraper = async () => {
 
           const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i)
             ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad|Publicerad)[:\s]*(\d{4}-\d{2}-\d{2})/i)
-            ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad)[:\s]*(\d{1,2}\s+\w+\s+\d{4})/i)
-            ?? html.match(/class="[^"]*(?:date|updated|published)[^"]*"[^>]*>[\s\S]*?(\d{4}-\d{2}-\d{2})/i)
+            ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad|Publicerad)[:\s]*(\d{1,2}\s+\w+\s+\d{4})/i)
+            ?? html.match(/(?:Senast\s+uppdaterad|Uppdaterad|Publicerad)[:\s]*(\d{1,2}[./]\d{1,2}[./]\d{4})/i)
+            ?? html.match(/class="[^"]*(?:date|updated|published)[^"]*"[^>]*>[\s\S]{0,40}?(\d{4}-\d{2}-\d{2})/i)
+            ?? html.match(/class="[^"]*(?:date|updated|published)[^"]*"[^>]*>[\s\S]{0,40}?(\d{1,2}\s+\w+\s+\d{4})/i)
             ?? html.match(/"dateModified"\s*:\s*"([^"]+)"/i)
             ?? html.match(/"datePublished"\s*:\s*"([^"]+)"/i)
+            ?? html.match(/<meta[^>]+(?:date|modified)[^>]*content="([^"]+)"/i)
+            ?? html.match(/\b(\d{1,2}\s+(?:januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\s+\d{4})\b/i)
             ?? html.match(/(\d{4}-\d{2}-\d{2})/);
 
-          const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
+          const officialUpdatedAt = dateMatch ? parseSwedishDate(dateMatch[1]) : null;
 
           advisories.push({
             destIso2: iso2,
