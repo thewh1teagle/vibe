@@ -147,15 +147,20 @@ function extractSummaryAndDateFromAdvisoryHtml(html: string): { summary: string;
 
   // Extract date from individual advisory page
   const dateMatch =
+    html.match(/<time[^>]+datetime="([^"]+)"/i) ??
     html.match(/<span[^>]*class="[^"]*last-updated[^"]*"[^>]*>[\s\S]*?(\w+ \d{1,2},\s*\d{4})/i) ??
     html.match(/<p[^>]*class="[^"]*last-updated[^"]*"[^>]*>[\s\S]*?(\w+ \d{1,2},\s*\d{4})/i) ??
     html.match(/Last\s+Updated:\s*(\w+ \d{1,2},?\s*\d{4})/i) ??
     html.match(/Updated:\s*(\w+ \d{1,2},?\s*\d{4})/i) ??
+    html.match(/"dateModified"\s*:\s*"([^"]+)"/i) ??
+    html.match(/"datePublished"\s*:\s*"([^"]+)"/i) ??
     html.match(/<meta[^>]+(?:date|modified)[^>]*content="([^"]+)"/i) ??
-    html.match(/class="[^"]*date[^"]*"[^>]*>(\w+ \d{1,2},?\s*\d{4})/i);
+    html.match(/class="[^"]*date[^"]*"[^>]*>(\w+ \d{1,2},?\s*\d{4})/i) ??
+    html.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s*\d{4}\b/i) ??
+    html.match(/(\d{4}-\d{2}-\d{2})/);
   let officialUpdatedAt: Date | null = null;
   if (dateMatch) {
-    const d = new Date(dateMatch[1]);
+    const d = new Date(dateMatch[1] ?? dateMatch[0]);
     if (!isNaN(d.getTime())) officialUpdatedAt = d;
   }
 
