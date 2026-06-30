@@ -352,9 +352,8 @@ export const usScraper: Scraper = async () => {
       const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
       const normalizedLevel = normalizeLevel("us", rawLevel);
 
-      // Extract date from the row's date cell
-      const dateCellMatch = row.match(/<td[^>]*>(?:<[^>]*>)*\s*(\w+ \d{1,2},\s*\d{4})\s*(?:<[^>]*>)*<\/td>/i)
-        ?? row.match(/(?:Updated|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i)
+      // Extract date — try any Month DD, YYYY pattern in the row
+      const dateCellMatch = row.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s*\d{4}\b/i)
         ?? row.match(/(\d{4}-\d{2}-\d{2})/);
       const officialUpdatedAt = dateCellMatch ? new Date(dateCellMatch[1]) : null;
 

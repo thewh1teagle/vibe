@@ -352,7 +352,7 @@ export default async function CountryPage({
                 <th className="px-4 py-3 font-semibold text-gray-600 w-12">Bron</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-200">
               {SOURCES.map((src) => {
                 const adv = advisories.find((a) => a.sourceId === src.id);
 
@@ -370,7 +370,7 @@ export default async function CountryPage({
                   <tr
                     key={src.id}
                     className={clsx(
-                      "hover:bg-gray-50 transition-colors",
+                      "hover:bg-blue-50/30 transition-colors even:bg-gray-50/60",
                       isDeviation && deviation?.direction === "stricter" && "bg-red-50/40",
                       isDeviation && deviation?.direction === "milder" && "bg-blue-50/30",
                       (!adv || noAdvisory) && "opacity-60"
