@@ -173,6 +173,52 @@ function getMultiLevelDisplay(
     }
   }
 
+  if (sourceId === "denmark") {
+    const sum = (summary || "").toLowerCase();
+    const hasRed = /rejse frarådes|vermijd alle reizen/i.test(sum);
+    const hasOrange = /fraråder?\s+ikke.nødvendige|undgå ikke.nødvendige|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
+    if (hasRed && hasOrange) {
+      return [
+        { level: "green", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
+      ];
+    }
+    if (hasRed) {
+      return [
+        { level: "green", area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
+      ];
+    }
+    if (hasOrange) {
+      return [
+        { level: "green", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+      ];
+    }
+    if (key === "fraråd ikke-nødvendige rejser" || key === "vær ekstra opmærksom") {
+      return [{ level: normalizedLevel, area: "Algemeen" }];
+    }
+  }
+
+  if (sourceId === "sweden") {
+    const sum = (summary || "").toLowerCase();
+    const hasRed = /avråder?\s+från\s+alla\s+resor|avråder?\s+från\s+resor\b|vermijd alle reizen/i.test(sum);
+    const hasOrange = /avråder?\s+från\s+icke\s+nödvändiga|niet.?noodzakelijk.*afgeraden/i.test(sum);
+    if (hasRed) {
+      return [
+        { level: normalizedLevel, area: "Algemeen" },
+        { level: "red", area: "Grensgebieden" },
+      ];
+    }
+    if (hasOrange) {
+      return [
+        { level: normalizedLevel, area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+      ];
+    }
+  }
+
   if (sourceId === "france") {
     const sum = (summary || "").toLowerCase();
     const hasRedFr = /formellement déconseillé/i.test(sum);
