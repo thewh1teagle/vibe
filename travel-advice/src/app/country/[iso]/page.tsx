@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
+import fs from "fs";
+import path from "path";
 import {
   buildConsensus,
   buildDeviations,
@@ -201,6 +203,15 @@ export default async function CountryPage({
 
   if (!country) notFound();
 
+  // Load AI-generated summaries from static JSON if available
+  let aiSummaries: Record<string, Record<string, string>> = {};
+  try {
+    const summaryPath = path.join(process.cwd(), "data/summaries.json");
+    if (fs.existsSync(summaryPath)) {
+      aiSummaries = JSON.parse(fs.readFileSync(summaryPath, "utf-8"));
+    }
+  } catch { /* ignore if missing */ }
+
   const advisories: AdvisoryRow[] = country.advisories.map((a) => ({
     id: a.id,
     sourceId: a.sourceId,
@@ -210,7 +221,7 @@ export default async function CountryPage({
     destIso2: a.destIso2,
     rawLevel: a.rawLevel,
     normalizedLevel: a.normalizedLevel as NormalizedLevel,
-    summary: a.summary,
+    summary: aiSummaries[isoUpper]?.[a.sourceId] ?? a.summary,
     risks: JSON.parse(a.risks || "[]"),
     officialUpdatedAt: a.officialUpdatedAt,
     scrapedAt: a.scrapedAt,
