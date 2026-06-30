@@ -577,9 +577,10 @@ const SOURCE_CONFIGS: Record<string, SourceConfig> = {
 interface LiveAdvisoryProps {
   sourceId: string;
   iso2: string;
+  aiSummary?: string | null;
 }
 
-export function LiveAdvisory({ sourceId, iso2 }: LiveAdvisoryProps) {
+export function LiveAdvisory({ sourceId, iso2, aiSummary }: LiveAdvisoryProps) {
   const [state, setState] = useState<"loading" | "found" | "not-found" | "error">("loading");
   const [result, setResult] = useState<AdvisoryResult | null>(null);
 
@@ -615,6 +616,7 @@ export function LiveAdvisory({ sourceId, iso2 }: LiveAdvisoryProps) {
 
         setResult({
           ...extracted,
+          summary: aiSummary || extracted.summary,
           url: sourceId === "uk"
             ? `https://www.gov.uk/foreign-travel-advice/${UK_SLUGS[iso2]}`
             : tryUrl,

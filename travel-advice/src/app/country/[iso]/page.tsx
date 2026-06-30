@@ -159,7 +159,16 @@ function getMultiLevelDisplay(
   }
 
   if (sourceId === "uk") {
+    const sum = (summary || "").toLowerCase();
+    const hasUkBothParts = /all but essential travel to|advise against all but essential/i.test(sum);
     if (key.includes("advise against all travel to parts") || key === "advise against all travel to parts") {
+      if (hasUkBothParts) {
+        return [
+          { level: "yellow", area: "Algemeen" },
+          { level: "orange", area: "Deelgebieden" },
+          { level: "red", area: "Verboden gebieden" },
+        ];
+      }
       return [
         { level: "orange", area: "Algemeen" },
         { level: "red", area: "Deelgebieden" },
@@ -403,7 +412,7 @@ export default async function CountryPage({
                 const adv = advisories.find((a) => a.sourceId === src.id);
 
                 if (!adv) {
-                  return <LiveAdvisory key={src.id} sourceId={src.id} iso2={isoUpper} />;
+                  return <LiveAdvisory key={src.id} sourceId={src.id} iso2={isoUpper} aiSummary={aiSummaries[isoUpper]?.[src.id] ?? null} />;
                 }
 
                 const noAdvisory = adv?.normalizedLevel === "unknown" && adv?.rawLevel === "Geen reisadvies beschikbaar";
