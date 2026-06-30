@@ -48,6 +48,9 @@ export function CountrySearch({ countries }: Props) {
             setQuery(e.target.value);
             setOpen(true);
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && filtered.length > 0) navigate(filtered[0].isoAlpha2);
+          }}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder="Zoek een bestemming…"
