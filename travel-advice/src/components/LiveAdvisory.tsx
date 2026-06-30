@@ -510,7 +510,21 @@ const SOURCE_CONFIGS: Record<string, SourceConfig> = {
     extract: (body) => {
       const text = body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").toLowerCase();
       for (const l of AU_LEVELS) {
-        if (text.includes(l.pattern)) return { rawLevel: l.raw, labelNl: l.nl, level: l.level, summary: extractFromHtml(body) };
+        if (text.includes(l.pattern)) {
+          // Find the paragraph containing/after the advisory level for a meaningful summary
+          const levelIdx = text.indexOf(l.pattern);
+          const surrounding = text.slice(Math.max(0, levelIdx - 50), levelIdx + 400);
+          // Strip known boilerplate
+          const cleaned = surrounding
+            .replace(/download\b[^.]{0,80}/gi, "")
+            .replace(/local emergency contacts[^.]{0,100}/gi, "")
+            .replace(/fire and rescue[^.]{0,60}/gi, "")
+            .replace(/(?:fire|police|ambulance|medical emergencies?)[^.]{0,40}/gi, "")
+            .replace(/call\s+\d+[^.]{0,30}/gi, "")
+            .replace(/\s+/g, " ")
+            .trim();
+          return { rawLevel: l.raw, labelNl: l.nl, level: l.level, summary: cleaned.slice(0, 300) };
+        }
       }
       return null;
     },

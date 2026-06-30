@@ -359,11 +359,18 @@ export const usScraper: Scraper = async () => {
 
       const sourceUrl = href.startsWith("http") ? href : `https://travel.state.gov${href}`;
 
+      const levelNum = parseInt(levelMatch[1]);
+      const LEVEL_DESCRIPTIONS: Record<number, string> = {
+        1: "Exercise Normal Precautions. No unusual safety or security risks.",
+        2: "Exercise Increased Caution. Heightened risk to safety and security.",
+        3: "Reconsider Travel. Serious risks to safety and security present.",
+        4: "Do Not Travel. Life-threatening risks present.",
+      };
       advisories.push({
         destIso2: iso2,
         rawLevel,
         normalizedLevel,
-        summary: `${countryName}: ${rawLevel}`,
+        summary: LEVEL_DESCRIPTIONS[levelNum] ?? rawLevel,
         risks: [],
         officialUpdatedAt: officialUpdatedAt && !isNaN(officialUpdatedAt.getTime()) ? officialUpdatedAt : null,
         sourceUrl,
@@ -384,9 +391,10 @@ export const usScraper: Scraper = async () => {
             const pageHtml = await fetchWithProxyFallback(advisoryPageUrl, 12_000);
             if (pageHtml) {
               const { summary, officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(pageHtml);
+              const enrichedSummary = summary && summary.length > 30 ? summary : advisory.summary;
               return {
                 ...advisory,
-                summary: summary || advisory.summary,
+                summary: enrichedSummary,
                 officialUpdatedAt: officialUpdatedAt ?? advisory.officialUpdatedAt,
                 sourceUrl: advisoryPageUrl,
               };
