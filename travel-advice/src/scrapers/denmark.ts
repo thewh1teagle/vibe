@@ -95,6 +95,14 @@ function extractSummary(html: string): string {
     .replace(/\s+/g, " ")
     .replace(/\b(Del på?|Facebook|Twitter|LinkedIn|X \(Twitter\)|Del med)\b.*$/i, "")
     .trim();
+
+  // Find the first sentence containing a travel-related Danish keyword
+  const TRAVEL_KEYWORDS = /rejse|risiko|sikkerhed|anbefaler|fraråd/i;
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const firstRelevant = sentences.findIndex((s) => TRAVEL_KEYWORDS.test(s));
+  if (firstRelevant >= 0) {
+    return sentences.slice(firstRelevant).join(" ").slice(0, 300);
+  }
   return text.slice(0, 300);
 }
 

@@ -69,25 +69,49 @@ function extractLevelFromHtml(html: string): string {
 }
 
 function extractSummary(html: string): string {
-  const plain = html
+  const cleanHtml = html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<nav[\s\S]*?<\/nav>/gi, "")
     .replace(/<header[\s\S]*?<\/header>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "");
+
+  const plain = cleanHtml
     .replace(/<[^>]*>/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
 
-  for (const { pattern } of LEVEL_SELECTORS) {
+  // Try to find text after the advisory level keyword — strip the level phrase itself
+  for (const { pattern, rawLevel } of LEVEL_SELECTORS) {
     const match = plain.match(pattern);
     if (match && match.index !== undefined) {
-      const snippet = plain.slice(match.index, match.index + 350).trim();
-      if (snippet.length > 20) return snippet.slice(0, 300);
+      // Skip past the matched level phrase
+      const afterLevel = plain.slice(match.index + (match[0]?.length ?? rawLevel.length)).trim();
+      // Skip any immediate repetition of boilerplate level text
+      const cleaned = afterLevel.replace(/^[^a-zA-ZÀ-ÿ]*(?:formellement\s+d[ée]conseill[ée]|d[ée]conseill[ée][^.]{0,60}|vigilance\s+(?:renforc[ée]e?|normale)|s[ée]curit[ée]\s+normale)[^a-zA-ZÀ-ÿ]*/i, "").trim();
+      const text = (cleaned.length > 20 ? cleaned : afterLevel).trim();
+      if (text.length > 20) return text.slice(0, 300);
     }
   }
-  return "";
+
+  // Fallback: extract from main content div
+  const contentMatch =
+    cleanHtml.match(/<div[^>]*class="[^"]*field-item[^"]*"[^>]*>([\s\S]{0,3000})/i) ??
+    cleanHtml.match(/<div[^>]*class="[^"]*entry-content[^"]*"[^>]*>([\s\S]{0,3000})/i) ??
+    cleanHtml.match(/<main[^>]*>([\s\S]{0,3000})/i);
+
+  if (contentMatch) {
+    const text = contentMatch[1]
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&[a-z#0-9]+;/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (text.length > 20) return text.slice(0, 300);
+  }
+
+  // Last resort: first 300 chars of plain text
+  return plain.slice(0, 300);
 }
 
 export const franceScraper: Scraper = async () => {
