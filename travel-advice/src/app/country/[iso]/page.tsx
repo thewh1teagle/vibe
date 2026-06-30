@@ -184,8 +184,17 @@ function getMultiLevelDisplay(
 
   if (sourceId === "denmark") {
     const sum = (summary || "").toLowerCase();
-    const hasRed = /rejse frarådes|vermijd alle reizen/i.test(sum);
+    const hasRed = /rejse frarådes|vermijd alle reizen|sterk afgeraden.*grens|grens.*sterk afgeraden/i.test(sum);
     const hasOrange = /fraråder?\s+ikke.nødvendige|undgå ikke.nødvendige|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
+    const hasYellow = /extra voorzichtigheid|verhoogde oplettendheid|vær opmærksom|extra aandacht/i.test(sum);
+    if (hasRed && hasOrange && hasYellow) {
+      return [
+        { level: "green", area: "Algemeen" },
+        { level: "yellow", area: "Toeristische gebieden" },
+        { level: "orange", area: "Zuidelijke provincies" },
+        { level: "red", area: "Grensgebieden Myanmar" },
+      ];
+    }
     if (hasRed && hasOrange) {
       return [
         { level: "green", area: "Algemeen" },
