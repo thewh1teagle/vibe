@@ -194,8 +194,41 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
     const rawLevel = `Level ${levelMatch[1]}: ${levelMatch[2].trim()}`;
     const normalizedLevel = normalizeLevel("us", rawLevel);
 
-    const { summary: extractedSummary, officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(html);
-    const summary = extractedSummary || rawLevel;
+    let summary = "";
+    // Extract the main advisory paragraph - the text explaining WHY this level
+    const cleanHtml = html
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+      .replace(/<header[\s\S]*?<\/header>/gi, "")
+      .replace(/<footer[\s\S]*?<\/footer>/gi, "");
+
+    // Find text after the level heading — this usually explains the reason
+    const afterLevel = cleanHtml.match(/Level\s+\d[^<]*(?:<\/[^>]+>[\s\S]{0,200}?)?<p[^>]*>([\s\S]*?)<\/p>/i);
+    if (afterLevel) {
+      const text = afterLevel[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+      if (text.length > 30) summary = text.slice(0, 300);
+    }
+    if (!summary) {
+      // Find any substantive paragraph
+      const paragraphs = cleanHtml.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
+      for (const p of paragraphs) {
+        const text = p[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
+        if (text.length > 50 && !/^\s*(Share|Print|RSS|Follow|Subscribe)/i.test(text)) {
+          summary = text.slice(0, 300);
+          break;
+        }
+      }
+    }
+    if (!summary) {
+      summary = `${rawLevel}`;
+    }
+
+    // Extract date — only from structured metadata, not arbitrary page text
+    const dateMatch = html.match(/(?:Last\s+(?:Updated|Reviewed)|Date)[:\s]*(\w+ \d{1,2},?\s*\d{4})/i)
+      ?? html.match(/<meta[^>]+(?:date|modified)[^>]*content="([^"]+)"/i)
+      ?? html.match(/class="[^"]*date[^"]*"[^>]*>(\w+ \d{1,2},?\s*\d{4})/i);
+    const officialUpdatedAt = dateMatch ? new Date(dateMatch[1]) : null;
 
     return {
       destIso2: iso2,
