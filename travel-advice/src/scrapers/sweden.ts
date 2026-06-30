@@ -40,11 +40,11 @@ async function fetchWithProxyFallback(url: string, timeoutMs = 15_000): Promise<
   return null;
 }
 
-const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /avråd[^\w]*från resor/i, rawLevel: "Avråd från resor" },
-  { pattern: /avråd[^\w]*från icke nödvändiga/i, rawLevel: "Avråd från icke nödvändiga resor" },
-  { pattern: /var försiktig/i, rawLevel: "Var försiktig" },
-  { pattern: /inga särskilda/i, rawLevel: "Inga särskilda restriktioner" },
+const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string; severity: number }> = [
+  { pattern: /avråder?\s+från\s+alla\s+resor|avråder?\s+från\s+resor\b/i, rawLevel: "Avråd från resor", severity: 4 },
+  { pattern: /avråder?\s+från\s+icke\s+nödvändiga/i, rawLevel: "Avråd från icke nödvändiga resor", severity: 3 },
+  { pattern: /var\s+försiktig/i, rawLevel: "Var försiktig", severity: 2 },
+  { pattern: /inga\s+särskilda/i, rawLevel: "Inga särskilda restriktioner", severity: 0 },
 ];
 
 const KNOWN_ISO_SLUGS: Record<string, string> = {
@@ -91,10 +91,13 @@ const KNOWN_ISO_SLUGS: Record<string, string> = {
 };
 
 function extractLevel(html: string): string {
-  for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
-    if (pattern.test(html)) return rawLevel;
+  let minMatch: { rawLevel: string; severity: number } | null = null;
+  for (const { pattern, rawLevel, severity } of LEVEL_PATTERNS) {
+    if (pattern.test(html)) {
+      if (!minMatch || severity < minMatch.severity) minMatch = { rawLevel, severity };
+    }
   }
-  return "Inga särskilda restriktioner";
+  return minMatch?.rawLevel ?? "Inga särskilda restriktioner";
 }
 
 function extractSummary(html: string): string {

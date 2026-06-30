@@ -4,14 +4,14 @@ import type { Scraper, RawAdvisory } from "./types";
 // Danish Ministry of Foreign Affairs (um.dk) — HTML scraping
 // URL pattern: https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/{slug}
 
-const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /rejse frarådes/i, rawLevel: "Rejse frarådes" },
-  { pattern: /fraråd[^\w]*ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser" },
-  { pattern: /undgå ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser" },
-  { pattern: /vær ekstra opmærksom/i, rawLevel: "Vær ekstra opmærksom" },
-  { pattern: /vær forsigtig/i, rawLevel: "Vær forsigtig" },
-  { pattern: /vær opmærksom/i, rawLevel: "Vær opmærksom" },
-  { pattern: /ingen særlige/i, rawLevel: "Ingen særlige advarsler" },
+const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string; severity: number }> = [
+  { pattern: /rejse frarådes/i, rawLevel: "Rejse frarådes", severity: 4 },
+  { pattern: /fraråder?\s+ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser", severity: 3 },
+  { pattern: /undgå ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser", severity: 3 },
+  { pattern: /vær ekstra opmærksom/i, rawLevel: "Vær ekstra opmærksom", severity: 2 },
+  { pattern: /vær forsigtig/i, rawLevel: "Vær forsigtig", severity: 2 },
+  { pattern: /vær opmærksom/i, rawLevel: "Vær opmærksom", severity: 1 },
+  { pattern: /ingen særlige/i, rawLevel: "Ingen særlige advarsler", severity: 0 },
 ];
 
 const KNOWN_ISO_SLUGS: Record<string, string> = {
@@ -74,10 +74,13 @@ function hasNoAdvisory(html: string): boolean {
 }
 
 function extractLevel(html: string): string {
-  for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
-    if (pattern.test(html)) return rawLevel;
+  let minMatch: { rawLevel: string; severity: number } | null = null;
+  for (const { pattern, rawLevel, severity } of LEVEL_PATTERNS) {
+    if (pattern.test(html)) {
+      if (!minMatch || severity < minMatch.severity) minMatch = { rawLevel, severity };
+    }
   }
-  return "Ingen særlige advarsler";
+  return minMatch?.rawLevel ?? "Ingen særlige advarsler";
 }
 
 function extractSummary(html: string): string {
