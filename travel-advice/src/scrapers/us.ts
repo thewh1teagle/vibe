@@ -392,15 +392,35 @@ export const usScraper: Scraper = async () => {
       });
     }
 
-    return { sourceId: "us", advisories, scrapedAt };
-  } catch (err) {
-    // If the main table fetch fails entirely, try fetching all countries individually
-    try {
-      const fallbackAdvisories = await fetchMissingCountries(new Set());
-      if (fallbackAdvisories.length > 0) {
-        return { sourceId: "us", advisories: fallbackAdvisories, scrapedAt };
+    // Enrich with dates from individual advisory pages — large batches, short timeout, no delay
+    const ENRICH_BATCH = 20;
+    const ENRICH_TIMEOUT = 5_000;
+    const enriched: RawAdvisory[] = [];
+    for (let i = 0; i < advisories.length; i += ENRICH_BATCH) {
+      const batch = advisories.slice(i, i + ENRICH_BATCH);
+      const settled = await Promise.allSettled(
+        batch.map(async (advisory) => {
+          const slug = ISO2_TO_SLUG[advisory.destIso2];
+          if (!slug) return advisory;
+          const advisorySlug = slug.toLowerCase().replace(/\s+/g, "-");
+          const url = `https://travel.state.gov/en/international-travel/travel-advisories/${advisorySlug}.html`;
+          try {
+            const pageHtml = await fetchWithProxyFallback(url, ENRICH_TIMEOUT);
+            if (pageHtml) {
+              const { officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(pageHtml);
+              if (officialUpdatedAt) return { ...advisory, officialUpdatedAt, sourceUrl: url };
+            }
+          } catch { /* keep original */ }
+          return advisory;
+        })
+      );
+      for (const r of settled) {
+        enriched.push(r.status === "fulfilled" ? r.value : batch[settled.indexOf(r)]);
       }
-    } catch { /* ignore fallback errors */ }
+    }
+
+    return { sourceId: "us", advisories: enriched, scrapedAt };
+  } catch (err) {
     return { sourceId: "us", advisories: [], scrapedAt, error: String(err) };
   }
 };
