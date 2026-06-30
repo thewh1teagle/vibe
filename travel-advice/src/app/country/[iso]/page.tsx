@@ -146,7 +146,7 @@ function getMultiLevelDisplay(
   if (sourceId === "germany") {
     if (key === "teilreisewarnung") {
       return [
-        { level: "orange", area: "Algemeen" },
+        { level: "green", area: "Algemeen" },
         { level: "red", area: "Deelgebieden" },
       ];
     }
