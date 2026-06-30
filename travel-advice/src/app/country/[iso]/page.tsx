@@ -131,14 +131,14 @@ function getMultiLevelDisplay(
     const hasOrange = /avoid non-essential travel|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
     if (key === "exercise a high degree of caution" && hasRed) {
       return [
-        { level: "red", area: "Deelgebieden" },
         { level: "yellow", area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
       ];
     }
     if (key === "exercise a high degree of caution" && hasOrange) {
       return [
-        { level: "orange", area: "Deelgebieden" },
         { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
       ];
     }
   }
@@ -152,8 +152,8 @@ function getMultiLevelDisplay(
     }
     if (key === "reisewarnung" && summary && /teilreise|part|gebiet/i.test(summary)) {
       return [
-        { level: "red", area: "Deelgebieden" },
         { level: "orange", area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
       ];
     }
   }
@@ -161,14 +161,14 @@ function getMultiLevelDisplay(
   if (sourceId === "uk") {
     if (key.includes("advise against all travel to parts") || key === "advise against all travel to parts") {
       return [
-        { level: "red", area: "Deelgebieden" },
         { level: "orange", area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
       ];
     }
     if (key.includes("advise against all but essential travel to parts") || key === "advise against all but essential travel to parts") {
       return [
-        { level: "orange", area: "Deelgebieden" },
         { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
       ];
     }
   }
@@ -186,27 +186,27 @@ function getMultiLevelDisplay(
 
     if (key === "vigilance renforcée" && hasRed && hasOrange) {
       return [
-        { level: "red", area: "Grensgebieden" },
-        { level: "orange", area: "Deelgebieden" },
         { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
       ];
     }
     if (key === "vigilance renforcée" && hasOrange) {
       return [
-        { level: "orange", area: "Deelgebieden" },
         { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
       ];
     }
     if ((key === "formellement déconseillé" || key === "déconseillé sauf raison impérative") && hasOrange) {
       return [
-        { level: "red", area: "Deelgebieden" },
         { level: "orange", area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
       ];
     }
     if (key === "formellement déconseillé" && /autre|partie|zone|région/i.test(sum)) {
       return [
-        { level: "red", area: "Deelgebieden" },
         { level: "orange", area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
       ];
     }
   }
