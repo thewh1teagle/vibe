@@ -93,10 +93,10 @@ function extractSummary(html: string, levelText: string): string {
     .trim();
   const idx = plain.toLowerCase().indexOf(levelText.toLowerCase());
   if (idx >= 0) {
-    // Start after the level text itself, then also skip any "AVOID NON-ESSENTIAL TRAVEL" duplicate prefix
-    let text = plain.slice(idx + levelText.length).trim();
-    // Strip any leading duplicate of the level text or common boilerplate prefixes
-    text = text.replace(/^(?:avoid\s+(?:non-essential|all)\s+travel|exercise\s+(?:a\s+high\s+degree\s+of\s+)?(?:normal\s+security\s+)?(?:caution|precautions)|take\s+normal\s+security\s+precautions)[^\w]*/i, "").trim();
+    // Include the level text for full sentence context
+    let text = plain.slice(idx).trim();
+    // Strip leading ALL-CAPS duplicate banner (e.g. "AVOID NON-ESSENTIAL TRAVEL" as a heading)
+    text = text.replace(/^[A-Z][A-Z\s\-]{9,59}\s+/, "").trim();
     // Cut off at section headings
     const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Risk level|Disclaimer|Safety and security|Entry and exit|Health|Laws and culture|Natural disasters)/i);
     if (cutoff > 10) text = text.slice(0, cutoff);
