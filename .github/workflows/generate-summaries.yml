@@ -32,7 +32,10 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-        run: npx tsx scripts/generate-summaries.ts ${{ github.event.inputs.countries }}
+        run: |
+          # Strip channel_binding param if present (not supported by all Prisma versions)
+          export DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/&channel_binding=[^&]*//g' | sed 's/?channel_binding=[^&]*&/?/g' | sed 's/?channel_binding=[^&]*$//g')
+          npx tsx scripts/generate-summaries.ts ${{ github.event.inputs.countries }}
 
       - name: Commit & push summaries
         run: |
