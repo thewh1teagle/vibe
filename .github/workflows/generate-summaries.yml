@@ -26,7 +26,13 @@ jobs:
       - run: npm ci
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if echo "$DATABASE_URL" | grep -q "^postgres"; then
+            cp prisma/schema.postgresql.prisma prisma/schema.prisma
+          fi
+          npx prisma generate
 
       - name: Generate summaries
         env:
