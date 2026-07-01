@@ -163,12 +163,11 @@ export const swedenScraper: Scraper = async () => {
       batch.map(async ([slug, iso2]) => {
         try {
           let html: string | null = null;
-          let url = "";
+          const canonicalUrl = URL_PATTERNS[0](slug);
 
           for (const buildUrl of URL_PATTERNS) {
-            url = buildUrl(slug);
             try {
-              const text = await fetchWithProxyFallback(url, 8_000);
+              const text = await fetchWithProxyFallback(buildUrl(slug), 8_000);
               if (text) {
                 html = text;
                 break;
@@ -203,7 +202,7 @@ export const swedenScraper: Scraper = async () => {
             summary,
             risks: [],
             officialUpdatedAt: officialUpdatedAt && !isNaN(officialUpdatedAt.getTime()) ? officialUpdatedAt : null,
-            sourceUrl: url,
+            sourceUrl: canonicalUrl,
           });
         } catch {
           // Skip individual country failures
