@@ -68,8 +68,21 @@ async function main() {
     process.exit(1);
   }
 
-  const dbUrl = process.env.DATABASE_URL?.replace(/[&?]channel_binding=[^&]*/g, "");
-  const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
+  const dbUrl = (process.env.DATABASE_URL ?? "").replace(/[&?]channel_binding=[^&]*/g, "");
+  if (!dbUrl) { console.error("Missing DATABASE_URL"); process.exit(1); }
+
+  let prisma: PrismaClient;
+  if (dbUrl.startsWith("postgres")) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Pool } = require("pg");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { PrismaPg } = require("@prisma/adapter-pg");
+    const pool = new Pool({ connectionString: dbUrl });
+    const adapter = new PrismaPg(pool);
+    prisma = new PrismaClient({ adapter } as never);
+  } else {
+    prisma = new PrismaClient();
+  }
 
   const targetIsos = process.argv.slice(2).map((s) => s.toUpperCase());
 
