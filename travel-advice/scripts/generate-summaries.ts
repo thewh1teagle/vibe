@@ -94,7 +94,7 @@ async function main() {
   const where = targetIsos.length > 0 ? { destIso2: { in: targetIsos } } : {};
   const advisories = await prisma.advisory.findMany({
     where,
-    include: { country: true, source: true },
+    include: { destination: true, source: true },
     orderBy: [{ destIso2: "asc" }, { source: { priority: "asc" } }],
   });
 
@@ -122,7 +122,7 @@ async function main() {
       const levelNl = ({ green: "Geen bijzondere risico's", yellow: "Verhoogde alertheid", orange: "Alleen noodzakelijke reizen", red: "Niet reizen" } as Record<string, string>)[adv.normalizedLevel] ?? adv.normalizedLevel;
 
       const summary = await generateSummary(
-        adv.country.nameNl,
+        (adv as { destination?: { nameNl: string }; country?: { nameNl: string } }).destination?.nameNl ?? (adv as { country?: { nameNl: string } }).country?.nameNl ?? adv.destIso2,
         adv.source.nameNl,
         adv.rawLevel,
         levelNl,
