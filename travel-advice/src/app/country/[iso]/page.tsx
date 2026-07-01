@@ -8,7 +8,7 @@ import {
   buildComparativeAnalysis,
   buildRecencyAnalysis,
 } from "@/lib/analysis";
-import { LEVEL_LABELS_NL, levelIndex } from "@/lib/normalize-risk";
+import { LEVEL_LABELS_NL } from "@/lib/normalize-risk";
 import { formatDateNl, ageDays } from "@/lib/format";
 import { RiskBadge } from "@/components/RiskBadge";
 import { ExportButtons } from "@/components/ExportButtons";
@@ -351,18 +351,8 @@ export default async function CountryPage({
     );
   }
 
-  // Use the maximum displayed level per source for deviation calculation
-  const advisoriesForDeviation = advisories.map((a) => {
-    const levels = getMultiLevelDisplay(a.sourceId, a.rawLevel, a.normalizedLevel, `${a.summary ?? ""} ${rawSummaries.get(a.sourceId) ?? ""}`);
-    const maxLevel = levels.reduce((max, item) =>
-      levelIndex(item.level) > levelIndex(max) ? item.level : max,
-      a.normalizedLevel
-    );
-    return { ...a, normalizedLevel: maxLevel };
-  });
-
-  const consensus = buildConsensus(advisoriesForDeviation);
-  const deviations = buildDeviations(advisoriesForDeviation, consensus);
+  const consensus = buildConsensus(advisories);
+  const deviations = buildDeviations(advisories, consensus);
   const comparativeAnalysis = buildComparativeAnalysis(advisories, deviations);
   const recency = buildRecencyAnalysis(advisories);
   const totalSources = consensus.totalSources;
