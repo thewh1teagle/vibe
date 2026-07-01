@@ -378,22 +378,30 @@ export default async function CountryPage({
 
   const rawSummaries = new Map(country.advisories.map((a) => [a.sourceId, a.summary ?? ""]));
 
-  const advisories: AdvisoryRow[] = country.advisories.map((a) => ({
-    id: a.id,
-    sourceId: a.sourceId,
-    sourceNameNl: a.source.nameNl,
-    sourceNameEn: a.source.nameEn,
-    sourceFlagEmoji: a.source.flagEmoji,
-    destIso2: a.destIso2,
-    rawLevel: a.rawLevel,
-    normalizedLevel: a.normalizedLevel as NormalizedLevel,
-    summary: aiSummaries[isoUpper]?.[a.sourceId] ?? a.summary,
-    risks: JSON.parse(a.risks || "[]"),
-    officialUpdatedAt: a.officialUpdatedAt,
-    scrapedAt: a.scrapedAt,
-    sourceUrl: a.sourceUrl,
-    isStale: a.isStale,
-  }));
+  const advisories: AdvisoryRow[] = country.advisories.map((a) => {
+    const aiSummary = aiSummaries[isoUpper]?.[a.sourceId] ?? a.summary;
+    const combinedSummary = `${aiSummary ?? ""} ${rawSummaries.get(a.sourceId) ?? ""}`;
+    const normalizedLevel = a.normalizedLevel as NormalizedLevel;
+    const zones = getMultiLevelDisplay(a.sourceId, a.rawLevel, normalizedLevel, combinedSummary);
+    // For compound advisories use the general (first) zone level for consensus/deviations
+    const effectiveLevel = zones.length > 1 ? zones[0].level : normalizedLevel;
+    return {
+      id: a.id,
+      sourceId: a.sourceId,
+      sourceNameNl: a.source.nameNl,
+      sourceNameEn: a.source.nameEn,
+      sourceFlagEmoji: a.source.flagEmoji,
+      destIso2: a.destIso2,
+      rawLevel: a.rawLevel,
+      normalizedLevel: effectiveLevel,
+      summary: aiSummary,
+      risks: JSON.parse(a.risks || "[]"),
+      officialUpdatedAt: a.officialUpdatedAt,
+      scrapedAt: a.scrapedAt,
+      sourceUrl: a.sourceUrl,
+      isStale: a.isStale,
+    };
+  });
 
   if (advisories.length === 0) {
     return (
