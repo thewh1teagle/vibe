@@ -99,6 +99,66 @@ const FALLBACK_LEVEL_LABELS: Record<string, LevelLabel> = {
   "avoid all travel": { original: "Avoid all travel", nl: "Vermijd alle reizen" },
 };
 
+// Per-source label lookup by normalized level (for compound zone display)
+const SOURCE_LEVEL_BY_NORM: Record<string, Record<NormalizedLevel, LevelLabel>> = {
+  uk: {
+    green:   { original: "No advice against travel", nl: "Geen negatief reisadvies" },
+    yellow:  { original: "Advise against all but essential travel", nl: "Alleen noodzakelijke reizen" },
+    orange:  { original: "Advise against all but essential travel to parts", nl: "Alleen noodzakelijke reizen naar bepaalde gebieden" },
+    red:     { original: "Advise against all travel", nl: "Vermijd alle reizen" },
+    unknown: { original: "—", nl: "—" },
+  },
+  us: {
+    green:   { original: "Level 1: Exercise Normal Precautions", nl: "Neem normale voorzorgsmaatregelen" },
+    yellow:  { original: "Level 2: Exercise Increased Caution", nl: "Wees extra voorzichtig" },
+    orange:  { original: "Level 3: Reconsider Travel", nl: "Heroverweeg reizen" },
+    red:     { original: "Level 4: Do Not Travel", nl: "Niet reizen" },
+    unknown: { original: "—", nl: "—" },
+  },
+  germany: {
+    green:   { original: "Keine besonderen Sicherheitshinweise", nl: "Geen bijzondere veiligheidswaarschuwingen" },
+    yellow:  { original: "Erhöhte Vorsicht", nl: "Verhoogde voorzichtigheid" },
+    orange:  { original: "Von nicht notwendigen Reisen wird abgeraten", nl: "Niet-noodzakelijke reizen worden afgeraden" },
+    red:     { original: "Reisewarnung", nl: "Reiswaarschuwing – niet reizen" },
+    unknown: { original: "—", nl: "—" },
+  },
+  france: {
+    green:   { original: "Vigilance normale", nl: "Normale waakzaamheid" },
+    yellow:  { original: "Vigilance renforcée", nl: "Verhoogde waakzaamheid" },
+    orange:  { original: "Déconseillé sauf raison impérative", nl: "Afgeraden tenzij noodzakelijk" },
+    red:     { original: "Formellement déconseillé", nl: "Reizen wordt sterk afgeraden" },
+    unknown: { original: "—", nl: "—" },
+  },
+  canada: {
+    green:   { original: "Exercise normal security precautions", nl: "Neem normale veiligheidsmaatregelen" },
+    yellow:  { original: "Exercise a high degree of caution", nl: "Wees zeer voorzichtig" },
+    orange:  { original: "Avoid non-essential travel", nl: "Vermijd niet-noodzakelijke reizen" },
+    red:     { original: "Avoid all travel", nl: "Vermijd alle reizen" },
+    unknown: { original: "—", nl: "—" },
+  },
+  australia: {
+    green:   { original: "Exercise normal safety precautions", nl: "Neem normale veiligheidsmaatregelen" },
+    yellow:  { original: "Exercise a high degree of caution", nl: "Wees zeer voorzichtig" },
+    orange:  { original: "Reconsider your need to travel", nl: "Heroverweeg de noodzaak van uw reis" },
+    red:     { original: "Do not travel", nl: "Niet reizen" },
+    unknown: { original: "—", nl: "—" },
+  },
+  denmark: {
+    green:   { original: "Vær opmærksom", nl: "Wees alert" },
+    yellow:  { original: "Vær ekstra opmærksom", nl: "Wees extra alert" },
+    orange:  { original: "Undgå ikke-nødvendige rejser", nl: "Vermijd niet-noodzakelijke reizen" },
+    red:     { original: "Undgå alle rejser", nl: "Vermijd alle reizen" },
+    unknown: { original: "—", nl: "—" },
+  },
+  sweden: {
+    green:   { original: "Ingen särskilda avrådanden", nl: "Geen bijzondere reiswaarschuwingen" },
+    yellow:  { original: "Var extra uppmärksam", nl: "Wees extra alert" },
+    orange:  { original: "Avrådan från icke nödvändiga resor", nl: "Niet-noodzakelijke reizen afgeraden" },
+    red:     { original: "Avrådan från alla resor", nl: "Alle reizen afgeraden" },
+    unknown: { original: "—", nl: "—" },
+  },
+};
+
 function getLevelLabels(sourceId: string, rawLevel: string): LevelLabel[] {
   const key = rawLevel.toLowerCase().trim();
   const sourceMap = SOURCE_LEVEL_LABELS[sourceId];
@@ -487,14 +547,32 @@ export default async function CountryPage({
                       ) : (
                         <>
                           <div className="space-y-1.5">
-                            {getLevelLabels(adv.sourceId, adv.rawLevel).map((label, idx) => (
-                              <div key={idx} className="text-xs leading-snug">
-                                <span className="text-gray-500">•</span>{" "}
-                                <em className="text-gray-800 not-italic italic">{label.original}</em>
-                                <br />
-                                <span className="text-gray-400 text-[11px]">{label.nl}</span>
-                              </div>
-                            ))}
+                            {(() => {
+                              const zones = getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, `${adv.summary ?? ""} ${rawSummaries.get(adv.sourceId) ?? ""}`);
+                              if (zones.length <= 1) {
+                                return getLevelLabels(adv.sourceId, adv.rawLevel).map((label, idx) => (
+                                  <div key={idx} className="text-xs leading-snug">
+                                    <span className="text-gray-500">•</span>{" "}
+                                    <em className="text-gray-800 not-italic">{label.original}</em>
+                                    <br />
+                                    <span className="text-gray-400 text-[11px]">{label.nl}</span>
+                                  </div>
+                                ));
+                              }
+                              return zones.map((zone, idx) => {
+                                const label = SOURCE_LEVEL_BY_NORM[adv.sourceId]?.[zone.level]
+                                  ?? getLevelLabels(adv.sourceId, adv.rawLevel)[0];
+                                return (
+                                  <div key={idx} className="text-xs leading-snug">
+                                    <span className="text-gray-500">•</span>{" "}
+                                    <em className="text-gray-800 not-italic">{label.original}</em>
+                                    <span className="text-gray-400 text-[11px]"> — {zone.area}</span>
+                                    <br />
+                                    <span className="text-gray-400 text-[11px]">{label.nl}</span>
+                                  </div>
+                                );
+                              });
+                            })()}
                           </div>
                           {adv.isStale && (
                             <p className="text-amber-600 text-xs mt-1 flex items-center gap-1">
