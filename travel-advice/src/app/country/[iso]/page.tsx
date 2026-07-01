@@ -222,6 +222,13 @@ function getMultiLevelDisplay(
     const sum = (summary || "").toLowerCase();
     const hasRed = /avråder?\s+från\s+alla\s+resor|avråder?\s+från\s+resor\b|vermijd alle reizen/i.test(sum);
     const hasOrange = /avråder?\s+från\s+icke\s+nödvändiga|niet.?noodzakelijk.*afgeraden/i.test(sum);
+    if (hasRed && hasOrange) {
+      return [
+        { level: normalizedLevel, area: "Algemeen" },
+        { level: "orange", area: "Zuidelijke provincies" },
+        { level: "red", area: "Grensgebied Cambodja" },
+      ];
+    }
     if (hasRed) {
       return [
         { level: normalizedLevel, area: "Algemeen" },
