@@ -284,22 +284,16 @@ function getMultiLevelDisplay(
     const hasOrange = /avråder?\s+från\s+icke\s+nödvändiga|niet.?noodzakelijk.*afgeraden/i.test(sum);
     if (hasRed && hasOrange) {
       return [
-        { level: normalizedLevel, area: "Algemeen" },
+        { level: "green", area: "Algemeen" },
         { level: "orange", area: "Zuidelijke provincies" },
         { level: "red", area: "Grensgebied Cambodja" },
       ];
     }
     if (hasRed) {
-      return [
-        { level: normalizedLevel, area: "Algemeen" },
-        { level: "red", area: "Grensgebieden" },
-      ];
+      return [{ level: normalizedLevel, area: "Algemeen" }, { level: "red", area: "Grensgebieden" }];
     }
     if (hasOrange) {
-      return [
-        { level: normalizedLevel, area: "Algemeen" },
-        { level: "orange", area: "Deelgebieden" },
-      ];
+      return [{ level: normalizedLevel, area: "Algemeen" }, { level: "orange", area: "Deelgebieden" }];
     }
   }
 
