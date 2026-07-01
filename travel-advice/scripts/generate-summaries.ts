@@ -16,7 +16,6 @@ import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 
-const prisma = new PrismaClient();
 const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY;
 const OUTPUT_PATH = path.join(__dirname, "../data/summaries.json");
 
@@ -68,6 +67,9 @@ async function main() {
     console.error("Missing MISTRAL_API_KEY environment variable");
     process.exit(1);
   }
+
+  const dbUrl = process.env.DATABASE_URL?.replace(/[&?]channel_binding=[^&]*/g, "");
+  const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
 
   const targetIsos = process.argv.slice(2).map((s) => s.toUpperCase());
 
