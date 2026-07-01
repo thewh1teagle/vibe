@@ -44,7 +44,7 @@ const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string; severity: numbe
   { pattern: /avråder?\s+från\s+alla\s+resor|avråder?\s+från\s+resor\b/i, rawLevel: "Avråd från resor", severity: 4 },
   { pattern: /avråder?\s+från\s+icke\s+nödvändiga/i, rawLevel: "Avråd från icke nödvändiga resor", severity: 3 },
   { pattern: /var\s+försiktig/i, rawLevel: "Var försiktig", severity: 2 },
-  { pattern: /inga\s+särskilda/i, rawLevel: "Inga särskilda restriktioner", severity: 0 },
+  { pattern: /inga\s+särskilda|inga\s+reseråd|inga\s+avråd|inga\s+varning|normala\s+reserekommendationer/i, rawLevel: "Inga särskilda restriktioner", severity: 0 },
 ];
 
 const KNOWN_ISO_SLUGS: Record<string, string> = {
