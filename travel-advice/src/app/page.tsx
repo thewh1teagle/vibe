@@ -42,7 +42,7 @@ export default async function HomePage() {
           Vergelijk reisadviezen
         </h1>
         <p className="text-gray-500 text-lg max-w-xl mx-auto">
-          Van 8 westerse overheden — altijd up-to-date, geen account vereist
+          Van 8 gelijkgestemde overheden
         </p>
         <div className="flex justify-center pt-2">
           <CountrySearch

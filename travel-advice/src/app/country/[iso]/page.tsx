@@ -393,6 +393,23 @@ export default async function CountryPage({
         </div>
       </div>
 
+      {/* Disclaimer */}
+      {(() => {
+        const lastScrape = advisories
+          .map((a) => new Date(a.scrapedAt).getTime())
+          .filter((t) => !isNaN(t))
+          .sort((a, b) => b - a)[0];
+        const lastScrapeStr = lastScrape ? formatDateNl(new Date(lastScrape)) : null;
+        return (
+          <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-900">
+            <span className="font-semibold">Belangrijk: </span>
+            De niveaus zijn gestandaardiseerd voor vergelijking. Officiële classificaties verschillen per overheid. De originele reisadviezen blijven leidend.
+            {" "}Reisadviezen in dit overzicht worden dagelijks bijgewerkt.
+            {lastScrapeStr && <span> Laatste update: <strong>{lastScrapeStr}</strong>.</span>}
+          </div>
+        );
+      })()}
+
       {/* Advisories table */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-gray-900">Adviezen per overheid</h2>
