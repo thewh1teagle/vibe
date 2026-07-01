@@ -1,0 +1,40 @@
+name: Generate AI Summaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      countries:
+        description: 'ISO2 codes (space-separated), e.g. "TR ID". Leave empty for all.'
+        required: false
+        default: ''
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: travel-advice
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: travel-advice/package-lock.json
+
+      - run: npm ci
+
+      - name: Generate summaries
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: npx tsx scripts/generate-summaries.ts ${{ github.event.inputs.countries }}
+
+      - name: Commit & push summaries
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/summaries.json
+          git diff --staged --quiet || git commit -m "Update AI summaries [${{ github.event.inputs.countries || 'all' }}]"
+          git push
