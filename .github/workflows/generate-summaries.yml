@@ -25,6 +25,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Generate Prisma client
+        run: npx prisma generate
+
       - name: Generate summaries
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
