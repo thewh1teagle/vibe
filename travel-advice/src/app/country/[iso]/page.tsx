@@ -379,7 +379,7 @@ export default async function CountryPage({
   const rawSummaries = new Map(country.advisories.map((a) => [a.sourceId, a.summary ?? ""]));
 
   const advisories: AdvisoryRow[] = country.advisories.map((a) => {
-    const aiSummary = aiSummaries[isoUpper]?.[a.sourceId] ?? a.summary;
+    const aiSummary = aiSummaries[isoUpper]?.[a.sourceId] ?? null;
     const combinedSummary = `${aiSummary ?? ""} ${rawSummaries.get(a.sourceId) ?? ""}`;
     const normalizedLevel = a.normalizedLevel as NormalizedLevel;
     const zones = getMultiLevelDisplay(a.sourceId, a.rawLevel, normalizedLevel, combinedSummary);
