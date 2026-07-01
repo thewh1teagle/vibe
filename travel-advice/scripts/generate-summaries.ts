@@ -99,6 +99,12 @@ async function main() {
   });
 
   console.log(`Generating summaries for ${advisories.length} advisories...`);
+  if (advisories.length === 0) {
+    const total = await prisma.advisory.count();
+    console.log(`Total advisories in DB: ${total}`);
+    const sample = await prisma.advisory.findFirst({ select: { destIso2: true, sourceId: true } });
+    console.log(`Sample record:`, sample);
+  }
 
   for (const adv of advisories) {
     const iso2 = adv.destIso2;
