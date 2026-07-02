@@ -223,19 +223,19 @@ function getMultiLevelDisplay(
     if (key.includes("advise against all travel to parts") || key === "advise against all travel to parts") {
       if (hasUkBothParts) {
         return [
-          { level: "yellow", area: "Algemeen" },
+          { level: "green", area: "Algemeen" },
           { level: "orange", area: "Deelgebieden" },
-          { level: "red", area: "Verboden gebieden" },
+          { level: "red", area: "Grensgebieden" },
         ];
       }
       return [
-        { level: "orange", area: "Algemeen" },
+        { level: "green", area: "Algemeen" },
         { level: "red", area: "Deelgebieden" },
       ];
     }
     if (key.includes("advise against all but essential travel to parts") || key === "advise against all but essential travel to parts") {
       return [
-        { level: "yellow", area: "Algemeen" },
+        { level: "green", area: "Algemeen" },
         { level: "orange", area: "Deelgebieden" },
       ];
     }
