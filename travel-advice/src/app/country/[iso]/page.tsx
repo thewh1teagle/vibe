@@ -184,6 +184,24 @@ function getMultiLevelDisplay(
 ): Array<{ level: NormalizedLevel; area: string }> {
   const key = rawLevel.toLowerCase().trim();
 
+  if (sourceId === "us") {
+    const sum = (summary || "").toLowerCase();
+    const hasRed = /do not travel|level 4/i.test(sum);
+    const hasOrange = /reconsider travel|level 3/i.test(sum);
+    if ((key === "level 2: exercise increased caution" || key === "level 1: exercise normal precautions") && hasRed) {
+      return [
+        { level: normalizedLevel, area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
+      ];
+    }
+    if (key === "level 2: exercise increased caution" && hasOrange) {
+      return [
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+      ];
+    }
+  }
+
   if (sourceId === "canada") {
     const sum = (summary || "").toLowerCase();
     const hasRed = /avoid all travel|vermijd alle reizen/i.test(sum);
