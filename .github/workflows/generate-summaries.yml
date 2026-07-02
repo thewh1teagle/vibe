@@ -8,7 +8,7 @@ on:
         required: false
         default: ''
   schedule:
-    - cron: '0 8 * * *'  # dagelijks om 08:00 UTC (na de scrape)
+    - cron: '0 6 * * *'  # dagelijks om 06:00 UTC (08:00 NL zomertijd, na de scrape)
 
 jobs:
   generate:
