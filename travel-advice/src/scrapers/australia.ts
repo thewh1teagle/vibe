@@ -148,34 +148,43 @@ export const australiaScraper: Scraper = async () => {
   const scrapedAt = new Date();
 
   // Strategy 1: Direct Smartraveller JSON API (+ proxy fallback)
-  try {
-    const jsonText = await fetchWithProxyFallback("https://www.smartraveller.gov.au/destinations-export", 45_000);
-    if (jsonText) {
-      const data: AUDestination[] = JSON.parse(jsonText);
-      if (data.length > 10) {
-        const advisories: RawAdvisory[] = [];
-        for (const dest of data) {
-          const iso2 = (dest.iso2 ?? dest.iso ?? dest.country_code ?? dest.iso_code ?? "").toUpperCase();
-          if (!iso2) continue;
-          const levelNum = dest.advisory_level ?? dest.level ?? dest.overall_advisory_level ?? 0;
-          const rawLevel = LEVEL_MAP[levelNum];
-          if (!rawLevel) continue;
-          advisories.push({
-            destIso2: iso2,
-            rawLevel,
-            normalizedLevel: normalizeLevel("australia", rawLevel),
-            summary: (dest.summary ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300),
-            risks: dest.risks ?? dest.risk_factors ?? [],
-            officialUpdatedAt: (dest.updated_at ?? dest.last_updated) ? new Date(dest.updated_at ?? dest.last_updated!) : null,
-            sourceUrl: dest.url ?? `https://www.smartraveller.gov.au/destinations`,
-          });
-        }
+  const JSON_ENDPOINTS = [
+    "https://www.smartraveller.gov.au/destinations-export",
+    "https://www.smartraveller.gov.au/api/1.0/destinations.json",
+    "https://www.smartraveller.gov.au/sites/default/files/destinations.json",
+  ];
+
+  for (const endpoint of JSON_ENDPOINTS) {
+    try {
+      const jsonText = await fetchWithProxyFallback(endpoint, 45_000);
+      if (!jsonText) continue;
+      let data: AUDestination[] | undefined;
+      try { data = JSON.parse(jsonText); } catch { continue; }
+      if (!Array.isArray(data) || data.length <= 10) continue;
+
+      const advisories: RawAdvisory[] = [];
+      for (const dest of data) {
+        const iso2 = (dest.iso2 ?? dest.iso ?? dest.country_code ?? dest.iso_code ?? "").toUpperCase();
+        if (!iso2) continue;
+        const levelNum = dest.advisory_level ?? dest.level ?? dest.overall_advisory_level ?? 0;
+        const rawLevel = LEVEL_MAP[levelNum];
+        if (!rawLevel) continue;
+        advisories.push({
+          destIso2: iso2,
+          rawLevel,
+          normalizedLevel: normalizeLevel("australia", rawLevel),
+          summary: (dest.summary ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300),
+          risks: dest.risks ?? dest.risk_factors ?? [],
+          officialUpdatedAt: (dest.updated_at ?? dest.last_updated) ? new Date((dest.updated_at ?? dest.last_updated)!) : null,
+          sourceUrl: dest.url ?? `https://www.smartraveller.gov.au/destinations`,
+        });
+      }
+      if (advisories.length > 0) {
         return { sourceId: "australia", advisories, scrapedAt };
       }
-    }
-  } catch {
-    // Fall through
+    } catch { /* try next endpoint */ }
   }
+
 
   // Strategy 2: Scrape individual Smartraveller country pages (+ proxy fallback)
   const advisories: RawAdvisory[] = [];

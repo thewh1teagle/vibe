@@ -78,6 +78,7 @@ const KNOWN_ADVISORY_URLS: Record<string, string> = {
   SY: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/syriensicherheit-204278",
   AF: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/afghanistansicherheit-204692",
   TH: "https://www.auswaertiges-amt.de/de/service/laender/thailand-node/thailandsicherheit-201558",
+  TR: "https://www.auswaertiges-amt.de/de/service/laender/tuerkei-node/tuerkeisicherheit-201962",
 };
 
 function getSourceUrl(c: AACountry, iso2: string): string {
