@@ -106,9 +106,9 @@ function extractSummary(html: string): string {
   const sentences = text.split(/(?<=[.!?])\s+/);
   const firstRelevant = sentences.findIndex((s) => TRAVEL_KEYWORDS.test(s));
   if (firstRelevant >= 0) {
-    return sentences.slice(firstRelevant).join(" ").slice(0, 300);
+    return sentences.slice(firstRelevant).join(" ").slice(0, 1500);
   }
-  return text.slice(0, 300);
+  return text.slice(0, 1500);
 }
 
 export const denmarkScraper: Scraper = async () => {

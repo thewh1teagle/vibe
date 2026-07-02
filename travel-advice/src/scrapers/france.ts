@@ -105,15 +105,15 @@ function extractSummary(html: string): string {
       // Skip any immediate repetition of boilerplate level text
       const cleaned = afterLevel.replace(/^[^a-zA-ZÀ-ÿ]*(?:formellement\s+d[ée]conseill[ée]|d[ée]conseill[ée][^.]{0,60}|vigilance\s+(?:renforc[ée]e?|normale)|s[ée]curit[ée]\s+normale)[^a-zA-ZÀ-ÿ]*/i, "").trim();
       const text = (cleaned.length > 20 ? cleaned : afterLevel).trim();
-      if (text.length > 20) return text.slice(0, 300);
+      if (text.length > 20) return text.slice(0, 1500);
     }
   }
 
   // Fallback: extract from main content div
   const contentMatch =
-    cleanHtml.match(/<div[^>]*class="[^"]*field-item[^"]*"[^>]*>([\s\S]{0,3000})/i) ??
-    cleanHtml.match(/<div[^>]*class="[^"]*entry-content[^"]*"[^>]*>([\s\S]{0,3000})/i) ??
-    cleanHtml.match(/<main[^>]*>([\s\S]{0,3000})/i);
+    cleanHtml.match(/<div[^>]*class="[^"]*field-item[^"]*"[^>]*>([\s\S]{0,6000})/i) ??
+    cleanHtml.match(/<div[^>]*class="[^"]*entry-content[^"]*"[^>]*>([\s\S]{0,6000})/i) ??
+    cleanHtml.match(/<main[^>]*>([\s\S]{0,6000})/i);
 
   if (contentMatch) {
     const text = contentMatch[1]
@@ -121,11 +121,11 @@ function extractSummary(html: string): string {
       .replace(/&[a-z#0-9]+;/gi, " ")
       .replace(/\s+/g, " ")
       .trim();
-    if (text.length > 20) return text.slice(0, 300);
+    if (text.length > 20) return text.slice(0, 1500);
   }
 
-  // Last resort: first 300 chars of plain text
-  return plain.slice(0, 300);
+  // Last resort: first 1500 chars of plain text
+  return plain.slice(0, 1500);
 }
 
 export const franceScraper: Scraper = async () => {

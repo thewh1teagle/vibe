@@ -141,7 +141,7 @@ function extractSummary(html: string): string {
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 300);
+    .slice(0, 1500);
 }
 
 export const australiaScraper: Scraper = async () => {
@@ -173,7 +173,7 @@ export const australiaScraper: Scraper = async () => {
           destIso2: iso2,
           rawLevel,
           normalizedLevel: normalizeLevel("australia", rawLevel),
-          summary: (dest.summary ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300),
+          summary: (dest.summary ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 1500),
           risks: dest.risks ?? dest.risk_factors ?? [],
           officialUpdatedAt: (dest.updated_at ?? dest.last_updated) ? new Date((dest.updated_at ?? dest.last_updated)!) : null,
           sourceUrl: dest.url ?? `https://www.smartraveller.gov.au/destinations`,

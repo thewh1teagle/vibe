@@ -48,10 +48,10 @@ function extractSummaryFromHtml(html: string): string {
   for (const { pattern } of LEVEL_PATTERNS) {
     const match = plain.match(pattern);
     if (match?.index !== undefined) {
-      return plain.slice(match.index, match.index + 350).trim().slice(0, 300);
+      return plain.slice(match.index, match.index + 1800).trim().slice(0, 1500);
     }
   }
-  return plain.slice(0, 300);
+  return plain.slice(0, 1500);
 }
 
 interface AACountry {
@@ -123,7 +123,7 @@ export const germanyScraper: Scraper = async () => {
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
         .trim()
-        .slice(0, 300) || "";
+        .slice(0, 1500) || "";
 
       const sourceUrl = getSourceUrl(c, iso2);
 

@@ -123,7 +123,7 @@ function extractSummaryAndDateFromAdvisoryHtml(html: string): { summary: string;
         !/^\s*(Share|Print|RSS|Follow|Subscribe|Last Updated|Updated:|Do Not Travel|Exercise)/i.test(text) &&
         !/^\s*Level\s+\d/i.test(text)
       ) {
-        summary = text.slice(0, 300);
+        summary = text.slice(0, 1500);
         break;
       }
     }
@@ -139,7 +139,7 @@ function extractSummaryAndDateFromAdvisoryHtml(html: string): { summary: string;
         !/^\s*(Share|Print|RSS|Follow|Subscribe)/i.test(text) &&
         !/^\s*Level\s+\d/i.test(text)
       ) {
-        summary = text.slice(0, 300);
+        summary = text.slice(0, 1500);
         break;
       }
     }
@@ -212,7 +212,7 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
     const afterLevel = cleanHtml.match(/Level\s+\d[^<]*(?:<\/[^>]+>[\s\S]{0,200}?)?<p[^>]*>([\s\S]*?)<\/p>/i);
     if (afterLevel) {
       const text = afterLevel[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
-      if (text.length > 30) summary = text.slice(0, 300);
+      if (text.length > 30) summary = text.slice(0, 1500);
     }
     if (!summary) {
       // Find any substantive paragraph
@@ -220,7 +220,7 @@ async function fetchCountryPage(iso2: string): Promise<RawAdvisory | null> {
       for (const p of paragraphs) {
         const text = p[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
         if (text.length > 50 && !/^\s*(Share|Print|RSS|Follow|Subscribe)/i.test(text)) {
-          summary = text.slice(0, 300);
+          summary = text.slice(0, 1500);
           break;
         }
       }
