@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "iso2": "TR",
+    "level": 2,
+    "summary": "Exercise a high degree of caution in Türkiye overall due to the threat of terrorism. Do not travel to areas within 10km of the border with Syria.",
+    "url": "https://www.smartraveller.gov.au/destinations/middle-east/turkiye",
+    "updatedAt": "2026-07-01"
+  },
+  {
+    "iso2": "TH",
+    "level": 2,
+    "summary": "Exercise a high degree of caution in Thailand overall. Do not travel to the provinces bordering Malaysia (Narathiwat, Pattani, Yala, Songkhla) due to ongoing insurgency.",
+    "url": "https://www.smartraveller.gov.au/destinations/asia/thailand",
+    "updatedAt": "2026-07-01"
+  },
+  {
+    "iso2": "ID",
+    "level": 2,
+    "summary": "Exercise a high degree of caution in Indonesia due to the threat of terrorism. Do not travel to the Papua border region.",
+    "url": "https://www.smartraveller.gov.au/destinations/asia/indonesia",
+    "updatedAt": "2026-07-01"
+  }
+]

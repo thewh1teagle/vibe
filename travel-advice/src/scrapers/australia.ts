@@ -44,7 +44,7 @@ const PROXIES = [
   (url: string) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
 ];
 
-async function fetchWithProxyFallback(url: string, timeoutMs = 20_000): Promise<string | null> {
+async function fetchWithProxyFallback(url: string, timeoutMs = 8_000): Promise<string | null> {
   // Try direct first
   try {
     const res = await fetch(url, {
@@ -57,8 +57,8 @@ async function fetchWithProxyFallback(url: string, timeoutMs = 20_000): Promise<
     }
   } catch { /* fall through to proxies */ }
 
-  // Try proxies
-  for (const buildProxyUrl of PROXIES) {
+  // Try proxies (max 2 to stay within time budget)
+  for (const buildProxyUrl of PROXIES.slice(0, 2)) {
     try {
       const res = await fetch(buildProxyUrl(url), {
         signal: AbortSignal.timeout(timeoutMs),
@@ -156,7 +156,7 @@ export const australiaScraper: Scraper = async () => {
 
   for (const endpoint of JSON_ENDPOINTS) {
     try {
-      const jsonText = await fetchWithProxyFallback(endpoint, 45_000);
+      const jsonText = await fetchWithProxyFallback(endpoint, 10_000);
       if (!jsonText) continue;
       let data: AUDestination[] | undefined;
       try { data = JSON.parse(jsonText); } catch { continue; }
@@ -186,49 +186,7 @@ export const australiaScraper: Scraper = async () => {
   }
 
 
-  // Strategy 2: Scrape individual Smartraveller country pages (+ proxy fallback)
-  const advisories: RawAdvisory[] = [];
-  const entries = Object.entries(ISO2_TO_SLUG);
-  const BATCH = 10;
-
-  for (let i = 0; i < entries.length; i += BATCH) {
-    const batch = entries.slice(i, i + BATCH);
-    await Promise.all(
-      batch.map(async ([iso2, slug]) => {
-        try {
-          const url = `https://www.smartraveller.gov.au/destinations/${slug}`;
-          const html = await fetchWithProxyFallback(url, 15_000);
-          if (!html) return;
-          const rawLevel = extractLevelFromHtml(html);
-          if (!rawLevel) return;
-
-          const dateMatch = html.match(/<time[^>]+datetime="([^"]+)"/i)
-            ?? html.match(/Last updated[:\s]*(\d{1,2}\s+\w+\s+\d{4})/i);
-
-          advisories.push({
-            destIso2: iso2,
-            rawLevel,
-            normalizedLevel: normalizeLevel("australia", rawLevel),
-            summary: extractSummary(html),
-            risks: [],
-            officialUpdatedAt: dateMatch ? new Date(dateMatch[1]) : null,
-            sourceUrl: url,
-          });
-        } catch {
-          // skip
-        }
-      })
-    );
-    if (i + BATCH < entries.length) {
-      await new Promise((r) => setTimeout(r, 300));
-    }
-  }
-
-  if (advisories.length > 0) {
-    return { sourceId: "australia", advisories, scrapedAt };
-  }
-
-  // Strategy 3: Use static fallback data from repo (populated manually or via local script)
+  // Strategy 2: Use static fallback data from repo (populated manually or via local script)
   try {
     const fallbackUrl = "https://raw.githubusercontent.com/MvdB-123/vibe/main/travel-advice/data/australia-advisories.json";
     const res = await fetch(fallbackUrl, { signal: AbortSignal.timeout(10_000) });
