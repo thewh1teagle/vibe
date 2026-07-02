@@ -380,9 +380,8 @@ export default async function CountryPage({
 
   const advisories: AdvisoryRow[] = country.advisories.map((a) => {
     const aiSummary = aiSummaries[isoUpper]?.[a.sourceId] ?? null;
-    const combinedSummary = `${aiSummary ?? ""} ${rawSummaries.get(a.sourceId) ?? ""}`;
     const normalizedLevel = a.normalizedLevel as NormalizedLevel;
-    const zones = getMultiLevelDisplay(a.sourceId, a.rawLevel, normalizedLevel, combinedSummary);
+    const zones = getMultiLevelDisplay(a.sourceId, a.rawLevel, normalizedLevel, rawSummaries.get(a.sourceId) ?? "");
     // For compound advisories use the general (first) zone level for consensus/deviations
     const effectiveLevel = zones.length > 1 ? zones[0].level : normalizedLevel;
     return {
@@ -530,7 +529,7 @@ export default async function CountryPage({
                     <td className="px-4 py-3">
                       {adv && !noAdvisory ? (
                         <div className="space-y-1.5">
-                          {getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, `${adv.summary ?? ""} ${rawSummaries.get(adv.sourceId) ?? ""}`).map((item, idx) => (
+                          {getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, rawSummaries.get(adv.sourceId) ?? "").map((item, idx) => (
                             <div key={idx} className="flex flex-col items-start gap-0.5">
                               <RiskBadge level={item.level} size="sm" />
                               <span className="text-[10px] text-gray-400 leading-none">{item.area}</span>
@@ -550,7 +549,7 @@ export default async function CountryPage({
                         <>
                           <div className="space-y-1.5">
                             {(() => {
-                              const zones = getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, `${adv.summary ?? ""} ${rawSummaries.get(adv.sourceId) ?? ""}`);
+                              const zones = getMultiLevelDisplay(adv.sourceId, adv.rawLevel, adv.normalizedLevel, rawSummaries.get(adv.sourceId) ?? "");
                               if (zones.length <= 1) {
                                 return getLevelLabels(adv.sourceId, adv.rawLevel).map((label, idx) => (
                                   <div key={idx} className="text-xs leading-snug">
