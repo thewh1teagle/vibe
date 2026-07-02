@@ -7,6 +7,8 @@ on:
         description: 'ISO2 codes (space-separated), e.g. "TR ID". Leave empty for all.'
         required: false
         default: ''
+  schedule:
+    - cron: '0 8 * * *'  # dagelijks om 08:00 UTC (na de scrape)
 
 jobs:
   generate:

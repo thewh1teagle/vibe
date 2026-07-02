@@ -1,6 +1,8 @@
 name: Trigger Scrape
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'  # dagelijks om 06:00 UTC
 jobs:
   scrape:
     runs-on: ubuntu-latest
