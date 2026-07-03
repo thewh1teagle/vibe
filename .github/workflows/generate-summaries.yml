@@ -48,5 +48,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/summaries.json
           git diff --staged --quiet || git commit -m "Update AI summaries [${{ github.event.inputs.countries || 'all' }}]"
+          git checkout -- .
+          git clean -fd
           git pull --rebase origin main
           git push
