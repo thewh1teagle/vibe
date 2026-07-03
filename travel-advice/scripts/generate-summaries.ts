@@ -29,16 +29,16 @@ async function generateSummary(
   scrapedSummary: string,
 ): Promise<string> {
   const prompt = `Je bent een reisadviseur die Nederlandse reizigers informeert.
-Schrijf een beknopte Nederlandse samenvatting (max 2 zinnen, ~60 woorden) van het reisadvies:
-1. Wat het advies is
-2. Waarom (de situatie/reden)
+Schrijf een beknopte Nederlandse samenvatting (max 2 zinnen, ~60 woorden) van het reisadvies van ${sourceNameNl} voor ${countryName}.
 
-Land: ${countryName}
-Bron: ${sourceNameNl}
+Regels:
+- Begin met "${sourceNameNl} adviseert..." of "${sourceNameNl} raadt..."
+- Beschrijf het niveau (${levelNl}) en de reden
+- Als er deelgebieden met een strenger advies zijn, noem die kort
+- Geen inleiding of afsluiting, alleen de samenvatting
+
 Advies: ${rawLevel} (${levelNl})
-Toelichting: ${scrapedSummary || "geen aanvullende informatie"}
-
-Schrijf alleen de samenvatting, geen inleiding of afsluiting.`;
+Toelichting: ${scrapedSummary || "geen aanvullende informatie"}`;
 
   const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
     method: "POST",
