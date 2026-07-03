@@ -24,7 +24,7 @@ const HASHES_PATH = path.join(__dirname, "../data/summaries-hashes.json");
 type SummaryData = Record<string, Record<string, string>>;
 type HashData = Record<string, Record<string, string>>;
 
-const PROMPT_VERSION = "v2";
+const PROMPT_VERSION = "v3";
 
 function hashText(text: string): string {
   return crypto.createHash("sha1").update(`${PROMPT_VERSION}:${text}`).digest("hex").slice(0, 12);
@@ -40,16 +40,15 @@ async function generateSummary(
   const hasScrapedText = scrapedSummary && scrapedSummary.trim().length > 20;
 
   const prompt = hasScrapedText
-    ? `Vertaal de onderstaande reisadvies-tekst naar vloeiend Nederlands.
+    ? `Vat het onderstaande reisadvies samen in vloeiend Nederlands. Maximaal 120 woorden.
 Regels:
-- Vertaal zo letterlijk mogelijk — voeg geen informatie toe en laat niets weg
-- Behoud de structuur en toon van het origineel
-- Vertaal vaste reisadvies-uitdrukkingen idiomatisch: "exercise caution" → "wees voorzichtig", "exercise increased caution" → "wees extra voorzichtig", "reconsider travel" → "heroverweeg uw reis", "do not travel" → "reis niet naar"
-- Als plaatsnamen of regiogebieden worden genoemd, neem die letterlijk over
-- Geen inleiding of afsluiting, alleen de vertaling
+- Noem het algemene veiligheidsniveau voor het land
+- Noem specifieke regio's of gebieden met afwijkende waarschuwingen, inclusief plaatsnamen
+- Gebruik idiomatische vertalingen: "exercise caution" → "wees voorzichtig", "exercise increased caution" → "wees extra voorzichtig", "reconsider travel" → "heroverweeg uw reis", "do not travel" → "reis niet naar", "avoid non-essential travel" → "vermijd niet-noodzakelijke reizen"
+- Geen inleiding of afsluiting, alleen de samenvatting
 
 Bron: ${sourceNameNl} — reisadvies voor ${countryName} (niveau: ${levelNl})
-Te vertalen tekst:
+Te verwerken tekst:
 ${scrapedSummary}`
     : `Schrijf één zin in het Nederlands die het reisadvies van ${sourceNameNl} voor ${countryName} beschrijft.
 Niveau: ${rawLevel} (${levelNl}). Geen verdere details beschikbaar.
@@ -63,7 +62,7 @@ Begin met "${sourceNameNl} adviseert..."`.trim();
     },
     body: JSON.stringify({
       model: "mistral-small-latest",
-      max_tokens: 500,
+      max_tokens: 220,
       messages: [{ role: "user", content: prompt }],
     }),
   });
