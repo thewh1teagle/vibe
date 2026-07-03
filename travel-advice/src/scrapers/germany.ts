@@ -79,6 +79,7 @@ const KNOWN_ADVISORY_URLS: Record<string, string> = {
   AF: "https://www.auswaertiges-amt.de/de/reiseundsicherheit/afghanistansicherheit-204692",
   TH: "https://www.auswaertiges-amt.de/de/service/laender/thailand-node/thailandsicherheit-201558",
   TR: "https://www.auswaertiges-amt.de/de/service/laender/tuerkei-node/tuerkeisicherheit-201962",
+  ID: "https://www.auswaertiges-amt.de/de/service/laender/indonesien-node/indonesiensicherheit-212396",
 };
 
 function getSourceUrl(c: AACountry, iso2: string): string {
@@ -138,7 +139,8 @@ export const germanyScraper: Scraper = async () => {
         sourceUrl,
       });
 
-      if (normalizedLevel === "green" && !htmlText && KNOWN_ADVISORY_URLS[iso2]) {
+      // Always verify via HTML for known URLs — the opendata API sometimes misses partial warnings
+      if (KNOWN_ADVISORY_URLS[iso2]) {
         needsHtmlVerification.push({ idx, url: KNOWN_ADVISORY_URLS[iso2] });
       }
     }
