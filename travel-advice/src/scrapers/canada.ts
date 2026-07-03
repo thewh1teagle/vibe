@@ -103,7 +103,8 @@ function extractSummary(html: string, levelText: string): string {
     // Strip leading ALL-CAPS duplicate banner (e.g. "AVOID NON-ESSENTIAL TRAVEL" as a heading)
     text = text.replace(/^[A-Z][A-Z\s\-]{9,59}\s+/, "").trim();
     // Cut off at section headings
-    const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Risk level|Disclaimer|Safety and security|Entry and exit|Health|Laws and culture|Natural disasters)/i);
+    // Keep "Safety and security" section — it contains regional breakdowns needed for compound detection
+    const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Disclaimer|Entry and exit requirements|Health|Laws and culture|Natural disasters and climate)/i);
     if (cutoff > 10) text = text.slice(0, cutoff);
     text = text.trim();
     if (text.length > 20) return text.slice(0, 1500);
