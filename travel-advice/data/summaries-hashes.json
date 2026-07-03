@@ -1,0 +1,1506 @@
+{
+  "AD": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "c3af3de38001",
+    "france": "2448f236abd7"
+  },
+  "AE": {
+    "uk": "7ef14e0fb89a",
+    "us": "a4cbaeaebace",
+    "germany": "b742e3b2d046",
+    "canada": "bca1f3c78a7e",
+    "france": "148ce7bf7e4e",
+    "denmark": "45a338b5685c",
+    "sweden": "478675b9626b"
+  },
+  "AF": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "5c7a2efe9e83",
+    "canada": "22cb58deea7e",
+    "france": "d637804d14e3",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "AG": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "b4893a0aa520"
+  },
+  "AL": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "7a5181662512",
+    "france": "036176457c91",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "AM": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "6f6462d521d6",
+    "france": "1ee0a6d32d79",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "AO": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "6c71a6a22451",
+    "france": "e134c00cd2b3",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "AR": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "fb1e8e6209fb",
+    "france": "f0151010691f",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "AT": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "c66e5ccbe1bc",
+    "france": "402b34ad83ec"
+  },
+  "AU": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "1079bfcad630",
+    "france": "fa5c357c2ed3",
+    "denmark": "16e0352c5f63",
+    "sweden": "95fddf5072d6"
+  },
+  "AZ": {
+    "uk": "e172b58fa4ee",
+    "us": "a4cbaeaebace",
+    "germany": "badda339926e",
+    "canada": "471c6e7ca885",
+    "france": "9c8794df8820",
+    "sweden": "95fddf5072d6"
+  },
+  "BA": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "21fbae112deb",
+    "france": "d90c929e6480",
+    "denmark": "3b2e13ad3ec4",
+    "sweden": "478675b9626b"
+  },
+  "BB": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "6f4ae99b15e0"
+  },
+  "BD": {
+    "uk": "10f035a2ec07",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "fbf6d41e4418",
+    "france": "c57be94c1806",
+    "denmark": "26c3a19e8bc1",
+    "sweden": "478675b9626b"
+  },
+  "BE": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "911570955edb",
+    "france": "0ffbcc4da709",
+    "denmark": "38379aa01100",
+    "sweden": "478675b9626b"
+  },
+  "BF": {
+    "us": "29aae5694d88",
+    "germany": "badda339926e",
+    "canada": "1fba5a85e17e",
+    "france": "ca75da9ae264",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "BG": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "a78b6d598f31",
+    "france": "7ebf0ef5e776",
+    "denmark": "a806a161e9ed",
+    "sweden": "478675b9626b"
+  },
+  "BH": {
+    "uk": "7ef14e0fb89a",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "76f188bc8981",
+    "france": "3a95cf547e58",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "BI": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "e42d3e80cd67",
+    "france": "8d48a53c1e0a",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "BJ": {
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "fbbb96e1e997",
+    "france": "7ffff3576ef6",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "BN": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "e820c4cd37c0",
+    "france": "a0ec998b6e5b",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "BO": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "b0ce0c8a6901",
+    "france": "ff03c06b6c9d",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "BR": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "7ff3181b9a53",
+    "france": "8971c0c382ad",
+    "denmark": "262bdb0f6a7e",
+    "sweden": "478675b9626b"
+  },
+  "BS": {
+    "us": "3349de38961f",
+    "germany": "44c9b53b0dd6",
+    "canada": "02d771ede062",
+    "france": "b66d7cda2233"
+  },
+  "BT": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "5699c008fc4e",
+    "france": "627b9d1f0c0e",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "BW": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "75fe73a81c2d",
+    "france": "40dd60662213",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "BY": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "f20b4373ff86"
+  },
+  "BZ": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "a61a505abc2a",
+    "france": "541ac2718038",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "CA": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "france": "cfa69f5907ef",
+    "denmark": "4030f63fd18c",
+    "sweden": "95fddf5072d6"
+  },
+  "CD": {
+    "us": "5c7aa482782d",
+    "germany": "badda339926e",
+    "sweden": "478675b9626b"
+  },
+  "CF": {
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "0e4da82dc089"
+  },
+  "CG": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "sweden": "478675b9626b"
+  },
+  "CH": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "4b3bc3916a0c",
+    "france": "9c562d1d064a",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "CI": {
+    "germany": "badda339926e",
+    "france": "bc0ef319ceec",
+    "sweden": "95fddf5072d6"
+  },
+  "CL": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "e91c0fbee0e9",
+    "france": "fc06c73e9a8a",
+    "denmark": "5fbaeef52fa8",
+    "sweden": "478675b9626b"
+  },
+  "CM": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "82d04ab224a3",
+    "france": "87697e12ad8a",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "CN": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "28797f19a463",
+    "canada": "567701b09fe1",
+    "france": "e6011c370257",
+    "denmark": "106cf83e8ad8",
+    "sweden": "478675b9626b"
+  },
+  "CO": {
+    "uk": "10f035a2ec07",
+    "us": "a4cbaeaebace",
+    "germany": "badda339926e",
+    "canada": "faab40f429f3",
+    "france": "4eb37b13e9fe",
+    "denmark": "de556e38942d",
+    "sweden": "478675b9626b"
+  },
+  "CR": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "260137f68eb4",
+    "france": "19fb0070c321",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "CU": {
+    "uk": "158d30c82e9f",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "b3bbedc8bbff",
+    "france": "d933a5a114a5",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "CV": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "61147babaf22",
+    "france": "a45db0a45277",
+    "sweden": "95fddf5072d6"
+  },
+  "CY": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "bbdee34b0d7d",
+    "france": "2bb4c2be6ebf",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "CZ": {
+    "germany": "44c9b53b0dd6",
+    "canada": "5b06aaf3a0d5",
+    "france": "bf2e5b9458b0",
+    "denmark": "8235d9cef3a1",
+    "sweden": "95fddf5072d6"
+  },
+  "DE": {
+    "us": "fca96bcee43a",
+    "canada": "b2eebcac69b5",
+    "france": "0eccd1c23734"
+  },
+  "DJ": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "df1c43ef7d0e",
+    "france": "a4b040240420",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "DK": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "france": "3a62bc06f21d"
+  },
+  "DM": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "f7ffde52ec67",
+    "france": "88cc0f3414b3",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "DO": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "244fe8164797",
+    "france": "93cc4a01c4d9",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "DZ": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "ed7a4fb8b3f1",
+    "france": "6ef7873f7ff1",
+    "denmark": "78ac4aed44b4",
+    "sweden": "478675b9626b"
+  },
+  "EC": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "c972b9ac056f",
+    "france": "030c64928c6f",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "EE": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "c596166ed6e0",
+    "france": "13799714664c",
+    "denmark": "d9fb5117a4ea",
+    "sweden": "95fddf5072d6"
+  },
+  "EG": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "8e5aca2b8987",
+    "france": "54b1c0ffb2b6",
+    "denmark": "37b78db40378",
+    "sweden": "95fddf5072d6"
+  },
+  "ER": {
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "219e696c1133",
+    "france": "0ac33205133b",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "ES": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "59574b1572a7",
+    "france": "c7a1a96b36e0",
+    "denmark": "26175d463886",
+    "sweden": "478675b9626b"
+  },
+  "ET": {
+    "uk": "e172b58fa4ee",
+    "us": "a4cbaeaebace",
+    "germany": "badda339926e",
+    "canada": "47ed92d83bfa",
+    "france": "d5205e805bb6",
+    "denmark": "ea5f21dbba4a",
+    "sweden": "95fddf5072d6"
+  },
+  "FI": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "71a8f9d0a0d8",
+    "france": "15f4274b433f",
+    "denmark": "ec5c2b745962",
+    "sweden": "95fddf5072d6"
+  },
+  "FJ": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "338812bff901",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "FM": {
+    "germany": "44c9b53b0dd6"
+  },
+  "FR": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "9ea78cae77b1",
+    "denmark": "61672d0d9ddc",
+    "sweden": "95fddf5072d6"
+  },
+  "GA": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "9587a475e4c9",
+    "france": "9c8b0b2daf61",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "GB": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "01de31f817fb",
+    "france": "985bfdc78449"
+  },
+  "GD": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "08ac95b90ff4",
+    "france": "4232bb09161a"
+  },
+  "GE": {
+    "uk": "e172b58fa4ee",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "42db0f388a0a",
+    "france": "897682e24b86",
+    "denmark": "636392f5b5e2",
+    "sweden": "95fddf5072d6"
+  },
+  "GH": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "60d5a9976bab",
+    "france": "bbfe4e0f6b5d",
+    "denmark": "cfc5572b6789",
+    "sweden": "95fddf5072d6"
+  },
+  "GM": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "france": "da5b2de9a502"
+  },
+  "GN": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "934dc73ac878",
+    "france": "b88420303992",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "GR": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "4e58fd72d0da",
+    "france": "43de7f023152",
+    "denmark": "db4c503b7604",
+    "sweden": "478675b9626b"
+  },
+  "GT": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "3bd8c69ff617",
+    "france": "5dc295d62365",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "GW": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "50ecf4cdcc04",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "GY": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "01a81789fcc4",
+    "france": "e4145a4d9966",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "HN": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "f0f3b9a47453",
+    "france": "9e7fe8ce90ea",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "HR": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "61e8eaa0d9ae",
+    "france": "514708951658",
+    "denmark": "a2e510f1879b",
+    "sweden": "95fddf5072d6"
+  },
+  "HT": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "40b4a121e41d",
+    "france": "88b0d288c02d",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "HU": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "eecc33faacef",
+    "france": "78d9333347d5",
+    "denmark": "c9df4bf1afb4",
+    "sweden": "95fddf5072d6"
+  },
+  "ID": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "8f514cda7834",
+    "canada": "6793a9f1f5fa",
+    "australia": "236a1f38ac9e",
+    "france": "a973d446da1a",
+    "denmark": "cf1032939639",
+    "sweden": "478675b9626b"
+  },
+  "IE": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "5fa7d932a54b",
+    "france": "763f1e5a6a83",
+    "denmark": "87ea744a98ce",
+    "sweden": "478675b9626b"
+  },
+  "IL": {
+    "uk": "e172b58fa4ee",
+    "us": "a4cbaeaebace",
+    "germany": "549d1438c34b",
+    "canada": "8c26533db4ba",
+    "denmark": "93fb0cb51643",
+    "sweden": "95fddf5072d6"
+  },
+  "IN": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "90debf3cacff",
+    "france": "08a01e081e52",
+    "denmark": "35f810dc9276",
+    "sweden": "478675b9626b"
+  },
+  "IQ": {
+    "uk": "e172b58fa4ee",
+    "us": "29aae5694d88",
+    "germany": "de4ea6ec7981",
+    "canada": "d9fbb8e4e085",
+    "france": "4d749a6bd9e9",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "IR": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "3c2257b214ff",
+    "canada": "8d9a7866f085",
+    "france": "c07bde0aa594",
+    "denmark": "85b8f817f6f5",
+    "sweden": "95fddf5072d6"
+  },
+  "IS": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "635abcb0fc52",
+    "france": "e5aa42f7ecf1"
+  },
+  "IT": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "8cdbf5691a90",
+    "france": "a07927b1ecce",
+    "denmark": "2d2cd9fae9b5",
+    "sweden": "478675b9626b"
+  },
+  "JM": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "68c2dc4000b6",
+    "france": "f77086a2afe3",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "JO": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "3f05e4d7067c",
+    "france": "b62617fb8aea",
+    "denmark": "f565bcc297a3",
+    "sweden": "478675b9626b"
+  },
+  "JP": {
+    "us": "bbba62ea17e8",
+    "germany": "badda339926e",
+    "canada": "6287a49b40fa",
+    "france": "889e0813268a",
+    "denmark": "6fc3ed2ce113",
+    "sweden": "95fddf5072d6"
+  },
+  "KE": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "4c6dfc824991",
+    "france": "8798ff538813",
+    "denmark": "1019c9079f6e",
+    "sweden": "95fddf5072d6"
+  },
+  "KG": {
+    "uk": "7ef14e0fb89a",
+    "germany": "44c9b53b0dd6",
+    "canada": "7116d9a9edc1",
+    "france": "a0533bd2f131",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "KH": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "1489bd3b1a3f",
+    "france": "ade1c8aef074",
+    "denmark": "edf0d180c3fb",
+    "sweden": "478675b9626b"
+  },
+  "KI": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "b1a27bad3367",
+    "france": "4ea85639ee6c"
+  },
+  "KN": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "621b7dff0019"
+  },
+  "KP": {
+    "uk": "158d30c82e9f",
+    "us": "29aae5694d88",
+    "germany": "44c9b53b0dd6",
+    "canada": "5d80d9f8b47d",
+    "france": "c8ef7595d76a",
+    "sweden": "478675b9626b"
+  },
+  "KR": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "abb157d509ca",
+    "france": "9cec28885e00",
+    "denmark": "6de236662630",
+    "sweden": "478675b9626b"
+  },
+  "KW": {
+    "uk": "7ef14e0fb89a",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "f8c584db4652",
+    "france": "c505a3c15941",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "KZ": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "ca4244b092d9",
+    "france": "a57237635385",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "LA": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "c32e44686da2",
+    "france": "b02e6a93e902",
+    "denmark": "81741629434a",
+    "sweden": "478675b9626b"
+  },
+  "LB": {
+    "uk": "e172b58fa4ee",
+    "us": "29aae5694d88",
+    "germany": "badda339926e",
+    "canada": "31c9192278e6",
+    "france": "ffd9ac973863",
+    "denmark": "8559b2e4886b",
+    "sweden": "478675b9626b"
+  },
+  "LC": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "5365b84bbdd3"
+  },
+  "LI": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "1b5a029fd926",
+    "france": "4ea85639ee6c"
+  },
+  "LK": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "2e78d5a1d7dc",
+    "france": "65136a04c04b",
+    "denmark": "07112e524abc",
+    "sweden": "478675b9626b"
+  },
+  "LR": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "33a56a11fff6",
+    "france": "c9be7b01bd92",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "LS": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "97ee13cd4db4",
+    "france": "3d8f7aaf1c56"
+  },
+  "LT": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "23b660039f50",
+    "france": "25f225dbd263",
+    "denmark": "f91d52247aba",
+    "sweden": "478675b9626b"
+  },
+  "LU": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "ee5b671e81b1",
+    "france": "09f68aca0e84",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "LV": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "256ebfa2c3d2",
+    "france": "9d6e68f2ad97",
+    "denmark": "f84eeff62617",
+    "sweden": "478675b9626b"
+  },
+  "LY": {
+    "uk": "e172b58fa4ee",
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "cdb1cb6d1c2a",
+    "france": "80b40e7aa1a2",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "MA": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "b9b40969a7a3",
+    "france": "221d0747f4fe",
+    "denmark": "b25b7a45f13a",
+    "sweden": "478675b9626b"
+  },
+  "MC": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "8d8c112fcec2",
+    "france": "ae9c0e5c5c34"
+  },
+  "MD": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "2c8335f9c93c",
+    "france": "06187597860f",
+    "denmark": "517ed996f8a7",
+    "sweden": "478675b9626b"
+  },
+  "ME": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "55b163e8cd8c",
+    "france": "e28e96d6bd5e",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "MG": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "4a4af07b051b",
+    "france": "a40be24d3b57",
+    "sweden": "478675b9626b"
+  },
+  "MH": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "2c185e8a0ce5"
+  },
+  "MK": {
+    "us": "decb917b0301",
+    "germany": "44c9b53b0dd6",
+    "canada": "4dfc4789a973",
+    "france": "9abee0d42511",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "ML": {
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "baa4254db067",
+    "france": "6fa52d1e8972",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "MM": {
+    "uk": "e172b58fa4ee",
+    "germany": "199706062421",
+    "canada": "42e0d6c7c647",
+    "denmark": "ee06c3a22e23",
+    "sweden": "95fddf5072d6"
+  },
+  "MN": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "5383bb35c67b",
+    "france": "f31236d3a415",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "MR": {
+    "us": "a4cbaeaebace",
+    "germany": "badda339926e",
+    "canada": "de54992408c4",
+    "france": "3e4a086c5446",
+    "sweden": "95fddf5072d6"
+  },
+  "MT": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "f0c6fc39055f",
+    "france": "9a9c542ac041",
+    "sweden": "95fddf5072d6"
+  },
+  "MU": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "10e58858e8ff",
+    "france": "12216b545c93",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "MV": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "2b405d6aa092",
+    "france": "989d454e395d",
+    "denmark": "d421d9c7b09e",
+    "sweden": "478675b9626b"
+  },
+  "MW": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "769a8059e7e3",
+    "france": "bc66cdf7fb3c",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "MX": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "37d24bb3fb31",
+    "france": "43bfe64290b9",
+    "denmark": "44387f09e7fa",
+    "sweden": "478675b9626b"
+  },
+  "MY": {
+    "uk": "10f035a2ec07",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "40dfb71f07ac",
+    "france": "8898cf657b8a",
+    "denmark": "f5de893c8381",
+    "sweden": "478675b9626b"
+  },
+  "MZ": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "7ad098716b37",
+    "france": "68be887087c0",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "NA": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "f969678a1a16",
+    "france": "6c715ad2a5b8",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "NE": {
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "3089a44dfcca",
+    "france": "b2cba84a9aa3",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "NG": {
+    "uk": "e172b58fa4ee",
+    "us": "a4cbaeaebace",
+    "germany": "badda339926e",
+    "canada": "16f10bc6359e",
+    "france": "f44c74b9e3d9",
+    "denmark": "855ca81c33e5",
+    "sweden": "478675b9626b"
+  },
+  "NI": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "4e26163e7106",
+    "france": "5fb8442ba66a",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "NL": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "04df3eae1d56",
+    "france": "8e96cdbfb020"
+  },
+  "NO": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "6fa010a3dae9",
+    "france": "d53007317b1f",
+    "denmark": "b7cb075678c4",
+    "sweden": "478675b9626b"
+  },
+  "NP": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "521c7fa6019a",
+    "france": "9cec625fabb7",
+    "denmark": "1707a577ac7e",
+    "sweden": "478675b9626b"
+  },
+  "NR": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "89ee74c21482",
+    "france": "4ea85639ee6c"
+  },
+  "NZ": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "b997d23287a8",
+    "france": "f10d5b3618f8",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "OM": {
+    "uk": "7ef14e0fb89a",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "1c246263e18d",
+    "france": "581de6e92c0c",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "PA": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "973007b65280",
+    "france": "487400e0a7dc",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "PE": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "d00b9e65ab26",
+    "france": "1e0424218903",
+    "denmark": "737313b46746",
+    "sweden": "95fddf5072d6"
+  },
+  "PG": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "12e82b626157",
+    "france": "e41c4d4a7646",
+    "sweden": "478675b9626b"
+  },
+  "PH": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "8d538dd27be9",
+    "france": "19327d208068",
+    "denmark": "328445dbff18",
+    "sweden": "478675b9626b"
+  },
+  "PK": {
+    "uk": "e172b58fa4ee",
+    "us": "a4cbaeaebace",
+    "germany": "badda339926e",
+    "canada": "6909ec788069",
+    "france": "16d319e0383e",
+    "denmark": "0c83ef41fb70",
+    "sweden": "478675b9626b"
+  },
+  "PL": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "86f02e49e881",
+    "france": "e7928b5e5b4a",
+    "denmark": "835ebe1aae40",
+    "sweden": "95fddf5072d6"
+  },
+  "PS": {
+    "germany": "199706062421"
+  },
+  "PT": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "9652cf6537ac",
+    "france": "d230b41cb397",
+    "denmark": "94ac3edec866",
+    "sweden": "95fddf5072d6"
+  },
+  "PW": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "183cd0f02923"
+  },
+  "PY": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "e3f52627d1fc",
+    "france": "953540419c5c",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "QA": {
+    "uk": "7ef14e0fb89a",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "11b378578a3d",
+    "france": "506b998244e8",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "RO": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "2eba20d8ada3",
+    "france": "8da298e3cf6c",
+    "sweden": "478675b9626b"
+  },
+  "RS": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "26f7f5d6e1cc",
+    "france": "261f8aecc5d2",
+    "denmark": "fc092db7fd1a",
+    "sweden": "478675b9626b"
+  },
+  "RU": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "1697828046da",
+    "canada": "859e3888a7d9",
+    "france": "b4936a1931ba",
+    "denmark": "8c6399ce2d90",
+    "sweden": "95fddf5072d6"
+  },
+  "RW": {
+    "uk": "10f035a2ec07",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "2aaba23cbd74",
+    "france": "1f3b9ef37450",
+    "denmark": "803aaa620d05",
+    "sweden": "478675b9626b"
+  },
+  "SA": {
+    "uk": "e172b58fa4ee",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "3a9d023a60ae",
+    "france": "d95d725bed9c",
+    "denmark": "ac5c90017139",
+    "sweden": "478675b9626b"
+  },
+  "SB": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "9edfdea66334"
+  },
+  "SC": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "8d2b7dba7d38",
+    "france": "3fc4f12c4b5b"
+  },
+  "SD": {
+    "uk": "e172b58fa4ee",
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "46d65fdb9bea",
+    "france": "8bb616821aa6",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "SE": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "1707c1ceefa2",
+    "france": "bef2c0d7bbe5",
+    "denmark": "24bd4fbbdb3e"
+  },
+  "SG": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "fb6cc0f061d9",
+    "france": "54f5a6fccf9f",
+    "denmark": "b82008c668bc",
+    "sweden": "478675b9626b"
+  },
+  "SI": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "755fb80e639d",
+    "france": "13790dc1ed40",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "SK": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "419f32d6df61",
+    "france": "b86aba478fe7",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "SL": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "29f3852a3889",
+    "france": "5b9071925ae0",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "SM": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "60cdbd361e51"
+  },
+  "SN": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "2c583a19a790",
+    "france": "f36abbbdb0d7",
+    "denmark": "1f85c613bf16",
+    "sweden": "478675b9626b"
+  },
+  "SO": {
+    "uk": "e172b58fa4ee",
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "a89eb5949c5b",
+    "france": "5c7d0ecd56f5",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "SR": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "aabe045e1f22",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "SS": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "7c4f2fc45583",
+    "france": "dc226e40bf8c",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "ST": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "af51cc400569",
+    "france": "bcae8f2e2b78"
+  },
+  "SV": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "356d66828d7c",
+    "france": "0ff0b727abd6",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "SY": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "1185572f4699",
+    "canada": "2ebc0db95682",
+    "france": "f2c0ccba882d",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "SZ": {
+    "us": "bd009b2fa474",
+    "germany": "44c9b53b0dd6",
+    "canada": "a226bd4fddb3",
+    "france": "b82e928aa334"
+  },
+  "TD": {
+    "us": "29aae5694d88",
+    "germany": "badda339926e",
+    "canada": "cb662e0b85cf",
+    "france": "56e8a5a80124"
+  },
+  "TG": {
+    "us": "fca96bcee43a",
+    "germany": "badda339926e",
+    "canada": "e09a1ae6272c",
+    "france": "2e1e999d0f51",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "TH": {
+    "uk": "10f035a2ec07",
+    "us": "fca96bcee43a",
+    "germany": "6adfcbffd82d",
+    "canada": "1613a24c71b5",
+    "australia": "51f7e47be9b8",
+    "france": "dededab90ebd",
+    "denmark": "9f2d02cfc8c1",
+    "sweden": "95fddf5072d6"
+  },
+  "TJ": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "f431ee451093",
+    "france": "65add6ebddbb",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "TL": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6"
+  },
+  "TM": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "5abc392e50f0",
+    "france": "16d56749aaf5",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "TN": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "6b284a607473",
+    "france": "7006f943f822",
+    "denmark": "90e519275169",
+    "sweden": "95fddf5072d6"
+  },
+  "TO": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "2c4b12b38f09",
+    "france": "6bc9630a19a3",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "TR": {
+    "uk": "e172b58fa4ee",
+    "us": "fca96bcee43a",
+    "germany": "7ae8be2948ae",
+    "canada": "fe316f1abfdd",
+    "australia": "4b37d199eb51",
+    "france": "129a6b343b19",
+    "denmark": "7cbe291bb8bd",
+    "sweden": "478675b9626b"
+  },
+  "TT": {
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "21b598187ebc",
+    "france": "769e73f8e128",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "TV": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "a1d3101ba47c",
+    "france": "4ea85639ee6c"
+  },
+  "TW": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "e10fe508da27",
+    "france": "d3a278a7bdf3",
+    "sweden": "478675b9626b"
+  },
+  "TZ": {
+    "uk": "10f035a2ec07",
+    "us": "a4cbaeaebace",
+    "germany": "44c9b53b0dd6",
+    "canada": "3660314ea5bc",
+    "france": "64ece8880d8e",
+    "denmark": "46a99e881412",
+    "sweden": "c8030a1fa6ba"
+  },
+  "UA": {
+    "uk": "e172b58fa4ee",
+    "us": "29aae5694d88",
+    "germany": "16ee95e4a047",
+    "canada": "91a8760e05d5",
+    "france": "cb1f74e69574",
+    "denmark": "39c41cb40535",
+    "sweden": "95fddf5072d6"
+  },
+  "UG": {
+    "uk": "7ef14e0fb89a",
+    "us": "29aae5694d88",
+    "germany": "44c9b53b0dd6",
+    "canada": "906f8581d0a6",
+    "france": "207a0aedc8b0",
+    "denmark": "cc2f719d2e51",
+    "sweden": "478675b9626b"
+  },
+  "US": {
+    "germany": "44c9b53b0dd6",
+    "canada": "b4cf6d422e31",
+    "denmark": "6c5948231421",
+    "sweden": "478675b9626b"
+  },
+  "UY": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "99e82d6d2dfe",
+    "france": "e5bce0755ecd",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "UZ": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "f614f791db22",
+    "france": "77ebf2c80b8e",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "VC": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6"
+  },
+  "VE": {
+    "uk": "e172b58fa4ee",
+    "us": "a4cbaeaebace",
+    "germany": "badda339926e",
+    "canada": "39b3347d3b14",
+    "france": "8ba6e4c92aec",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "VN": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "861123f854b2",
+    "denmark": "403732260953",
+    "sweden": "478675b9626b"
+  },
+  "VU": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "301d2976c53a",
+    "france": "0ac46b5df3f6",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "WS": {
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "6a17d5bc0839",
+    "france": "f6c7fe9ec06f"
+  },
+  "XK": {
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "d990e9732551",
+    "france": "2fd7f35141ef"
+  },
+  "YE": {
+    "uk": "55450a13b638",
+    "us": "29aae5694d88",
+    "germany": "199706062421",
+    "canada": "395075170465",
+    "france": "8dd929463d92",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  },
+  "ZA": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "9f0bf0a22710",
+    "denmark": "22ad96d39a51",
+    "sweden": "478675b9626b"
+  },
+  "ZM": {
+    "uk": "7ef14e0fb89a",
+    "us": "bbba62ea17e8",
+    "germany": "44c9b53b0dd6",
+    "canada": "974b247fff5e",
+    "france": "6b986dc499cc",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "478675b9626b"
+  },
+  "ZW": {
+    "uk": "7ef14e0fb89a",
+    "us": "fca96bcee43a",
+    "germany": "44c9b53b0dd6",
+    "canada": "1b0684ffc1e8",
+    "france": "2d7b88df08e3",
+    "denmark": "f80ab4a6ab7e",
+    "sweden": "95fddf5072d6"
+  }
+}
