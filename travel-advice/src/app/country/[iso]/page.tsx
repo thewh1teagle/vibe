@@ -317,14 +317,12 @@ function getMultiLevelDisplay(
 
   if (sourceId === "france") {
     const sum = (summary || "").toLowerCase();
-    const hasRedFr = /formellement déconseillé/i.test(sum);
-    const hasOrangeFr = /déconseillé sauf raison impérative/i.test(sum);
-    // Dutch AI summary keywords
-    const hasRedNl = /sterk afgeraden|grensgebied/i.test(sum);
-    const hasOrangeNl = /niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk|zuidelijke.*afgeraden|afgeraden.*zuidelijk/i.test(sum);
+    // Match "déconseillé(e)(s) sauf raison impérative(s)" in all French grammatical forms
+    const hasRedFr = /formellement d.conseill/i.test(sum);
+    const hasOrangeFr = /d.conseill.{0,3} sauf raison imp.rativ|zones? d.conseill|éviter sauf raison imp.rativ/i.test(sum);
 
-    const hasRed = hasRedFr || hasRedNl;
-    const hasOrange = hasOrangeFr || hasOrangeNl;
+    const hasRed = hasRedFr;
+    const hasOrange = hasOrangeFr;
 
     if (key === "vigilance renforcée" && hasRed && hasOrange) {
       return [
