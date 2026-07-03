@@ -287,7 +287,7 @@ function getMultiLevelDisplay(
   if (sourceId === "denmark") {
     const sum = (summary || "").toLowerCase();
     const hasRed = /rejse frarådes|vermijd alle reizen|sterk afgeraden.*grens|grens.*sterk afgeraden/i.test(sum);
-    const hasOrange = /fraråder?\s+ikke.nødvendige|undgå ikke.nødvendige|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
+    const hasOrange = /fraråder?\s+(?:alle\s+)?ikke.nødvendige|undgå(?:\s+alle)?\s+ikke.nødvendige|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
     const hasYellow = /extra voorzichtigheid|verhoogde oplettendheid|vær opmærksom|extra aandacht/i.test(sum);
     if (hasRed && hasOrange && hasYellow) {
       return [
