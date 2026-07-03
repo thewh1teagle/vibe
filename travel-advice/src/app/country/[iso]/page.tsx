@@ -286,45 +286,39 @@ function getMultiLevelDisplay(
 
   if (sourceId === "denmark") {
     const sum = (summary || "").toLowerCase();
-    const hasRed = /rejse frarådes|vermijd alle reizen|sterk afgeraden.*grens|grens.*sterk afgeraden/i.test(sum);
-    const hasOrange = /fraråder?\s+(?:alle\s+)?ikke.nødvendige|undgå(?:\s+alle)?\s+ikke.nødvendige|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
-    const hasYellow = /extra voorzichtigheid|verhoogde oplettendheid|vær opmærksom|extra aandacht/i.test(sum);
+    const hasRed = /rejse frarådes|undgå alle rejser/i.test(sum);
+    const hasOrange = /fraråder?\s+(?:alle\s+)?ikke.nødvendige|undgå(?:\s+alle)?\s+ikke.nødvendige/i.test(sum);
+    const hasYellow = /vær ekstra opmærksom|vær forsigtig/i.test(sum);
+    // Use normalizedLevel as the general base; hardcoded green only if rawLevel is green/unknown
+    const baseLevel = (normalizedLevel === "green" || normalizedLevel === "unknown") ? "green" : normalizedLevel;
     if (hasRed && hasOrange && hasYellow) {
       return [
-        { level: "green", area: "Algemeen" },
+        { level: baseLevel, area: "Algemeen" },
         { level: "yellow", area: "Toeristische gebieden" },
-        { level: "orange", area: "Zuidelijke provincies" },
-        { level: "red", area: "Grensgebieden Myanmar" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
       ];
     }
     if (hasRed && hasOrange) {
       return [
-        { level: "green", area: "Algemeen" },
+        { level: baseLevel, area: "Algemeen" },
         { level: "orange", area: "Deelgebieden" },
         { level: "red", area: "Grensgebieden" },
       ];
     }
     if (hasRed) {
-      return [
-        { level: "green", area: "Algemeen" },
-        { level: "red", area: "Deelgebieden" },
-      ];
+      return [{ level: baseLevel, area: "Algemeen" }, { level: "red", area: "Deelgebieden" }];
     }
     if (hasOrange) {
-      return [
-        { level: "green", area: "Algemeen" },
-        { level: "orange", area: "Deelgebieden" },
-      ];
-    }
-    if (key === "fraråd ikke-nødvendige rejser" || key === "vær ekstra opmærksom") {
-      return [{ level: normalizedLevel, area: "Algemeen" }];
+      return [{ level: baseLevel, area: "Algemeen" }, { level: "orange", area: "Deelgebieden" }];
     }
   }
 
   if (sourceId === "sweden") {
     const sum = (summary || "").toLowerCase();
-    const hasRed = /avråder?\s+från\s+alla\s+resor|avråder?\s+från\s+resor\b|vermijd alle reizen/i.test(sum);
-    const hasOrange = /avråder?\s+från\s+icke\s+nödvändiga|niet.?noodzakelijk.*afgeraden/i.test(sum);
+    // Match both verb ("avråder") and noun ("avrådan") forms used on swedenabroad
+    const hasRed = /avråd(?:er|an)?\s+från\s+(?:alla\s+)?resor\b|vermijd alle reizen/i.test(sum);
+    const hasOrange = /avråd(?:er|an)?\s+från\s+icke\s+nödvändiga|niet.?noodzakelijk.*afgeraden/i.test(sum);
     // Base level for compound: if raw level is red due to regional zones, use yellow as general base
     const baseLevel = (normalizedLevel === "red" && (hasRed || hasOrange)) ? "yellow" : normalizedLevel;
     if (hasRed && hasOrange) {

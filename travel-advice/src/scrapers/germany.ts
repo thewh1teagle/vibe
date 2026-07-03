@@ -37,7 +37,15 @@ function extractLevelFromHtml(html: string): string | null {
 }
 
 function extractSummaryFromHtml(html: string): string {
-  const plain = html
+  // Try to find the actual advisory content section — German pages have a TOC header before content
+  // The real content starts after the TOC, typically at the "Aktuell" / "Sicherheit" heading
+  const contentMatch = html.match(/<h[23][^>]*>\s*(?:Aktuell|Sicherheit|Reise-?\s*und\s*Sicherheitshinweise)\s*<\/h[23]>/i)
+    ?? html.match(/id="[^"]*(?:aktuell|sicherheit)[^"]*"/i);
+  const htmlSlice = contentMatch?.index !== undefined
+    ? html.slice(contentMatch.index)
+    : html;
+
+  const plain = htmlSlice
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<nav[\s\S]*?<\/nav>/gi, "")
@@ -45,13 +53,19 @@ function extractSummaryFromHtml(html: string): string {
     .replace(/&[a-z#0-9]+;/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+  // Skip past any remaining TOC-like preamble (short items before first real paragraph)
+  // Real content has sentences ending with periods; TOC items are short
+  const paragraphStart = plain.search(/[A-ZÄÖÜ][^.!?]{40,}[.!?]/);
+  const text = paragraphStart > 0 && paragraphStart < 500 ? plain.slice(paragraphStart) : plain;
+
   for (const { pattern } of LEVEL_PATTERNS) {
-    const match = plain.match(pattern);
+    const match = text.match(pattern);
     if (match?.index !== undefined) {
-      return plain.slice(match.index, match.index + 1800).trim().slice(0, 1500);
+      return text.slice(match.index, match.index + 3000).trim().slice(0, 2000);
     }
   }
-  return plain.slice(0, 1500);
+  return text.slice(0, 2000);
 }
 
 interface AACountry {
@@ -120,11 +134,7 @@ export const germanyScraper: Scraper = async () => {
       const htmlText = c.content?.text?.value ?? "";
       const rawLevel = flagsToRaw(c.warning, c.partialWarning, c.situationWarning, c.situationPartWarning ?? false, htmlText);
       const normalizedLevel = normalizeLevel("germany", rawLevel);
-      const summary = htmlText
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 1500) || "";
+      const summary = htmlText ? extractSummaryFromHtml(htmlText) : "";
 
       const sourceUrl = getSourceUrl(c, iso2);
 
