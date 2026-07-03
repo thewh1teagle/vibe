@@ -184,6 +184,31 @@ function getMultiLevelDisplay(
 ): Array<{ level: NormalizedLevel; area: string }> {
   const key = rawLevel.toLowerCase().trim();
 
+  if (sourceId === "australia") {
+    const sum = (summary || "").toLowerCase();
+    const hasRed = /do not travel/i.test(sum);
+    const hasOrange = /reconsider your need to travel/i.test(sum);
+    if (hasRed && hasOrange) {
+      return [
+        { level: normalizedLevel, area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
+      ];
+    }
+    if (hasRed) {
+      return [
+        { level: normalizedLevel, area: "Algemeen" },
+        { level: "red", area: "Deelgebieden" },
+      ];
+    }
+    if (hasOrange) {
+      return [
+        { level: normalizedLevel, area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+      ];
+    }
+  }
+
   if (sourceId === "us") {
     const sum = (summary || "").toLowerCase();
     const hasRed = /do not travel|level 4/i.test(sum);
