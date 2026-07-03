@@ -107,7 +107,7 @@ function extractSummary(html: string, levelText: string): string {
     const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Disclaimer|Entry and exit requirements|Health|Laws and culture|Natural disasters and climate)/i);
     if (cutoff > 10) text = text.slice(0, cutoff);
     text = text.trim();
-    if (text.length > 20) return text.slice(0, 1500);
+    if (text.length > 20) return text.slice(0, 3000);
   }
   // Fallback: return level text
   return levelText;

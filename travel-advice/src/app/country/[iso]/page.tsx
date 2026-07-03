@@ -231,6 +231,13 @@ function getMultiLevelDisplay(
     const sum = (summary || "").toLowerCase();
     const hasRed = /avoid all travel|vermijd alle reizen/i.test(sum);
     const hasOrange = /avoid non-essential travel|niet.?noodzakelijk.*afgeraden|afgeraden.*niet.?noodzakelijk/i.test(sum);
+    if (key === "exercise a high degree of caution" && hasRed && hasOrange) {
+      return [
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
+      ];
+    }
     if (key === "exercise a high degree of caution" && hasRed) {
       return [
         { level: "yellow", area: "Algemeen" },

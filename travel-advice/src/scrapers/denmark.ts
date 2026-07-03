@@ -88,15 +88,19 @@ function cleanHtml(html: string): string {
 }
 
 function extractLevel(html: string): string {
-  // Run on cleaned plain text only — raw HTML includes nav/header with links that pollute minimum-severity detection
+  // Run on cleaned plain text — use FIRST match in text position so the general-level advisory
+  // (appearing at the top of the page) wins over regional escalations mentioned later
   const plain = cleanHtml(html);
-  let minMatch: { rawLevel: string; severity: number } | null = null;
-  for (const { pattern, rawLevel, severity } of LEVEL_PATTERNS) {
-    if (pattern.test(plain)) {
-      if (!minMatch || severity < minMatch.severity) minMatch = { rawLevel, severity };
+  let firstMatch: { pos: number; rawLevel: string } | null = null;
+  for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
+    const m = plain.match(pattern);
+    if (m && m.index !== undefined) {
+      if (!firstMatch || m.index < firstMatch.pos) {
+        firstMatch = { pos: m.index, rawLevel };
+      }
     }
   }
-  return minMatch?.rawLevel ?? "Ingen særlige advarsler";
+  return firstMatch?.rawLevel ?? "Ingen særlige advarsler";
 }
 
 function extractSummary(html: string): string {
