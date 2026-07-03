@@ -28,17 +28,22 @@ async function generateSummary(
   levelNl: string,
   scrapedSummary: string,
 ): Promise<string> {
-  const prompt = `Je bent een reisadviseur die Nederlandse reizigers informeert.
-Schrijf een beknopte Nederlandse samenvatting (max 2 zinnen, ~60 woorden) van het reisadvies van ${sourceNameNl} voor ${countryName}.
+  const hasScrapedText = scrapedSummary && scrapedSummary.trim().length > 20;
 
+  const prompt = hasScrapedText
+    ? `Vertaal de onderstaande tekst van het origineel (Engels/Frans/Duits/Zweeds/Deens) naar vloeiend Nederlands.
 Regels:
-- Begin met "${sourceNameNl} adviseert..." of "${sourceNameNl} raadt..."
-- Beschrijf het niveau (${levelNl}) en de reden
-- Als er deelgebieden met een strenger advies zijn, noem die kort
-- Geen inleiding of afsluiting, alleen de samenvatting
+- Vertaal zo letterlijk mogelijk — voeg geen informatie toe en laat niets weg
+- Behoud de structuur en toon van het origineel
+- Als plaatsnamen of regiogebieden worden genoemd, neem die over
+- Geen inleiding of afsluiting, alleen de vertaling
 
-Advies: ${rawLevel} (${levelNl})
-Toelichting: ${scrapedSummary || "geen aanvullende informatie"}`;
+Bron: ${sourceNameNl} — reisadvies voor ${countryName} (niveau: ${levelNl})
+Te vertalen tekst:
+${scrapedSummary}`
+    : `Schrijf één zin in het Nederlands die het reisadvies van ${sourceNameNl} voor ${countryName} beschrijft.
+Niveau: ${rawLevel} (${levelNl}). Geen verdere details beschikbaar.
+Begin met "${sourceNameNl} adviseert..."`.trim();
 
   const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
     method: "POST",

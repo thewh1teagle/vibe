@@ -603,9 +603,26 @@ export default async function CountryPage({
                     </td>
                     {!noAdvisory && adv && (
                       <td className="px-4 py-3">
-                        {adv.summary && (
-                          <p className="text-gray-700 text-xs leading-relaxed line-clamp-3">{adv.summary}</p>
-                        )}
+                        {adv.summary ? (
+                          <div>
+                            <p className="text-gray-700 text-xs leading-relaxed">{adv.summary}</p>
+                            {rawSummaries.get(adv.sourceId) && (
+                              <details className="mt-1.5 group">
+                                <summary className="text-[10px] text-gray-400 cursor-pointer select-none hover:text-gray-600 list-none flex items-center gap-1">
+                                  <span className="group-open:hidden">▸ Originele tekst</span>
+                                  <span className="hidden group-open:inline">▾ Originele tekst</span>
+                                </summary>
+                                <p className="mt-1 text-[11px] text-gray-400 leading-relaxed italic border-l-2 border-gray-200 pl-2">
+                                  {rawSummaries.get(adv.sourceId)}
+                                </p>
+                              </details>
+                            )}
+                          </div>
+                        ) : rawSummaries.get(adv.sourceId) ? (
+                          <p className="text-gray-500 text-xs leading-relaxed italic">
+                            {rawSummaries.get(adv.sourceId)}
+                          </p>
+                        ) : null}
                         {adv.risks.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1">
                             {adv.risks.map((r) => (
