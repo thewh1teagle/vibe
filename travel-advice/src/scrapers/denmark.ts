@@ -73,10 +73,26 @@ function hasNoAdvisory(html: string): boolean {
   return NO_ADVISORY_PATTERNS.some((p) => p.test(text));
 }
 
+function cleanHtml(html: string): string {
+  return html
+    .replace(/<head[\s\S]*?<\/head>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<svg[\s\S]*?<\/svg>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ");
+}
+
 function extractLevel(html: string): string {
+  // Run on cleaned plain text only — raw HTML includes nav/header with links that pollute minimum-severity detection
+  const plain = cleanHtml(html);
   let minMatch: { rawLevel: string; severity: number } | null = null;
   for (const { pattern, rawLevel, severity } of LEVEL_PATTERNS) {
-    if (pattern.test(html)) {
+    if (pattern.test(plain)) {
       if (!minMatch || severity < minMatch.severity) minMatch = { rawLevel, severity };
     }
   }
@@ -92,8 +108,8 @@ function extractSummary(html: string): string {
     .replace(/<nav[\s\S]*?<\/nav>/gi, "")
     .replace(/<header[\s\S]*?<\/header>/gi, "")
     .replace(/<footer[\s\S]*?<\/footer>/gi, "");
-  const match = clean.match(/<div[^>]*class="[^"]*field--name-body[^"]*"[^>]*>([\s\S]{0,3000})/i)
-    ?? clean.match(/<main[^>]*>([\s\S]{0,3000})/i);
+  const match = clean.match(/<div[^>]*class="[^"]*field--name-body[^"]*"[^>]*>([\s\S]{0,8000})/i)
+    ?? clean.match(/<main[^>]*>([\s\S]{0,8000})/i);
   const text = (match?.[1] ?? "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
@@ -106,9 +122,9 @@ function extractSummary(html: string): string {
   const sentences = text.split(/(?<=[.!?])\s+/);
   const firstRelevant = sentences.findIndex((s) => TRAVEL_KEYWORDS.test(s));
   if (firstRelevant >= 0) {
-    return sentences.slice(firstRelevant).join(" ").slice(0, 1500);
+    return sentences.slice(firstRelevant).join(" ").slice(0, 3000);
   }
-  return text.slice(0, 1500);
+  return text.slice(0, 3000);
 }
 
 export const denmarkScraper: Scraper = async () => {

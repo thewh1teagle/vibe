@@ -325,18 +325,20 @@ function getMultiLevelDisplay(
     const sum = (summary || "").toLowerCase();
     const hasRed = /avråder?\s+från\s+alla\s+resor|avråder?\s+från\s+resor\b|vermijd alle reizen/i.test(sum);
     const hasOrange = /avråder?\s+från\s+icke\s+nödvändiga|niet.?noodzakelijk.*afgeraden/i.test(sum);
+    // Base level for compound: if raw level is red due to regional zones, use yellow as general base
+    const baseLevel = (normalizedLevel === "red" && (hasRed || hasOrange)) ? "yellow" : normalizedLevel;
     if (hasRed && hasOrange) {
       return [
-        { level: "green", area: "Algemeen" },
-        { level: "orange", area: "Zuidelijke provincies" },
-        { level: "red", area: "Grensgebied Cambodja" },
+        { level: baseLevel, area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
       ];
     }
     if (hasRed) {
-      return [{ level: normalizedLevel, area: "Algemeen" }, { level: "red", area: "Grensgebieden" }];
+      return [{ level: baseLevel, area: "Algemeen" }, { level: "red", area: "Grensgebieden" }];
     }
     if (hasOrange) {
-      return [{ level: normalizedLevel, area: "Algemeen" }, { level: "orange", area: "Deelgebieden" }];
+      return [{ level: baseLevel, area: "Algemeen" }, { level: "orange", area: "Deelgebieden" }];
     }
   }
 

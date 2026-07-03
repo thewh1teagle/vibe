@@ -24,8 +24,10 @@ const HASHES_PATH = path.join(__dirname, "../data/summaries-hashes.json");
 type SummaryData = Record<string, Record<string, string>>;
 type HashData = Record<string, Record<string, string>>;
 
+const PROMPT_VERSION = "v2";
+
 function hashText(text: string): string {
-  return crypto.createHash("sha1").update(text).digest("hex").slice(0, 12);
+  return crypto.createHash("sha1").update(`${PROMPT_VERSION}:${text}`).digest("hex").slice(0, 12);
 }
 
 async function generateSummary(
@@ -38,11 +40,12 @@ async function generateSummary(
   const hasScrapedText = scrapedSummary && scrapedSummary.trim().length > 20;
 
   const prompt = hasScrapedText
-    ? `Vertaal de onderstaande tekst van het origineel (Engels/Frans/Duits/Zweeds/Deens) naar vloeiend Nederlands.
+    ? `Vertaal de onderstaande reisadvies-tekst naar vloeiend Nederlands.
 Regels:
 - Vertaal zo letterlijk mogelijk — voeg geen informatie toe en laat niets weg
 - Behoud de structuur en toon van het origineel
-- Als plaatsnamen of regiogebieden worden genoemd, neem die over
+- Vertaal vaste reisadvies-uitdrukkingen idiomatisch: "exercise caution" → "wees voorzichtig", "exercise increased caution" → "wees extra voorzichtig", "reconsider travel" → "heroverweeg uw reis", "do not travel" → "reis niet naar"
+- Als plaatsnamen of regiogebieden worden genoemd, neem die letterlijk over
 - Geen inleiding of afsluiting, alleen de vertaling
 
 Bron: ${sourceNameNl} — reisadvies voor ${countryName} (niveau: ${levelNl})
@@ -60,7 +63,7 @@ Begin met "${sourceNameNl} adviseert..."`.trim();
     },
     body: JSON.stringify({
       model: "mistral-small-latest",
-      max_tokens: 200,
+      max_tokens: 500,
       messages: [{ role: "user", content: prompt }],
     }),
   });
