@@ -137,7 +137,7 @@ async function main() {
       summaries[iso2][sourceId] = summary;
       console.log(`✓ ${iso2}/${sourceId}: ${summary.slice(0, 80)}...`);
 
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, 1200));
     } catch (err) {
       console.error(`✗ ${iso2}/${sourceId}:`, err);
     }
