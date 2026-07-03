@@ -13,13 +13,20 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 
 const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY;
 const OUTPUT_PATH = path.join(__dirname, "../data/summaries.json");
+const HASHES_PATH = path.join(__dirname, "../data/summaries-hashes.json");
 
 type SummaryData = Record<string, Record<string, string>>;
+type HashData = Record<string, Record<string, string>>;
+
+function hashText(text: string): string {
+  return crypto.createHash("sha1").update(text).digest("hex").slice(0, 12);
+}
 
 async function generateSummary(
   countryName: string,
@@ -96,6 +103,11 @@ async function main() {
     summaries = JSON.parse(fs.readFileSync(OUTPUT_PATH, "utf-8"));
   }
 
+  let hashes: HashData = {};
+  if (fs.existsSync(HASHES_PATH)) {
+    hashes = JSON.parse(fs.readFileSync(HASHES_PATH, "utf-8"));
+  }
+
   const where = targetIsos.length > 0 ? { destIso2: { in: targetIsos } } : {};
   const advisories = await prisma.advisory.findMany({
     where,
@@ -116,9 +128,14 @@ async function main() {
     const sourceId = adv.sourceId;
 
     if (!summaries[iso2]) summaries[iso2] = {};
+    if (!hashes[iso2]) hashes[iso2] = {};
 
-    // Skip if already exists and not in explicit target list
-    if (summaries[iso2][sourceId] && !targetIsos.includes(iso2)) {
+    const sourceText = adv.summary ?? "";
+    const currentHash = hashText(sourceText + adv.rawLevel);
+    const storedHash = hashes[iso2][sourceId];
+
+    // Skip if translation exists and source text hasn't changed (unless explicitly targeted)
+    if (summaries[iso2][sourceId] && storedHash === currentHash && !targetIsos.includes(iso2)) {
       process.stdout.write(".");
       continue;
     }
@@ -131,11 +148,13 @@ async function main() {
         adv.source.nameNl,
         adv.rawLevel,
         levelNl,
-        adv.summary ?? "",
+        sourceText,
       );
 
       summaries[iso2][sourceId] = summary;
-      console.log(`✓ ${iso2}/${sourceId}: ${summary.slice(0, 80)}...`);
+      hashes[iso2][sourceId] = currentHash;
+      const changed = storedHash && storedHash !== currentHash ? " [UPDATED]" : "";
+      console.log(`✓ ${iso2}/${sourceId}${changed}: ${summary.slice(0, 80)}...`);
 
       await new Promise((r) => setTimeout(r, 1200));
     } catch (err) {
@@ -144,6 +163,7 @@ async function main() {
   }
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(summaries, null, 2));
+  fs.writeFileSync(HASHES_PATH, JSON.stringify(hashes, null, 2));
   console.log(`\nSaved to ${OUTPUT_PATH}`);
 
   await prisma.$disconnect();
