@@ -47,6 +47,7 @@ Regels:
 - Als er gebieden zijn met verhoogde waarschuwingen, beschrijf welke gebieden en waarom
 - Gebruik idiomatische vertalingen: "exercise caution" → "wees voorzichtig", "exercise increased caution" → "wees extra voorzichtig", "reconsider travel" → "heroverweeg uw reis", "do not travel" → "reis niet naar", "avoid non-essential travel" → "vermijd niet-noodzakelijke reizen", "avoid all travel" → "vermijd alle reizen"
 - Geen inleiding of afsluiting, alleen de samenvatting
+- Geen Markdown-opmaak, geen asterisken of andere opmaaktekens
 
 Bron: ${sourceNameNl} — reisadvies voor ${countryName} (niveau: ${levelNl})
 Te verwerken tekst:
@@ -74,7 +75,10 @@ Begin met "${sourceNameNl} adviseert..."`.trim();
   }
 
   const data = await res.json() as { choices: Array<{ message: { content: string } }> };
-  return data.choices[0].message.content.trim();
+  return data.choices[0].message.content
+    .trim()
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "");
 }
 
 async function main() {
