@@ -45,6 +45,7 @@ jobs:
             archive: sona-darwin-arm64-with-ffmpeg.tar.gz
           - runner: macos-15-intel
             binary: sona-darwin-amd64
+            cargo_flags: --no-default-features
             package_os: darwin
             package_arch: amd64
             archive: sona-darwin-amd64-with-ffmpeg.tar.gz
@@ -78,7 +79,7 @@ jobs:
           SONA_VERSION: ${{ env.VERSION }}
           SONA_COMMIT: ${{ github.sha }}
         run: |
-          cargo build -p sona --release
+          cargo build -p sona --release ${{ matrix.cargo_flags }}
           src="target/release/sona"
           if [[ "${{ runner.os }}" == "Windows" ]]; then
             src="${src}.exe"

@@ -1,3 +1,4 @@
+mod diarization;
 mod form;
 mod format;
 mod routes;

@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 whisper-rs = { path = "../whisper-rs", features = ["ffi"] }
-diarize-rs = { path = "../diarize-rs" }
+diarize-rs = { path = "../diarize-rs", optional = true }
 
 anyhow = "1"
 axum = { version = "0.8", features = ["multipart"] }
@@ -42,3 +42,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 utoipa = "5"
 utoipa-axum = "0.2"
 utoipa-swagger-ui = { version = "9", features = ["axum"] }
+
+[features]
+default = ["diarize"]
+diarize = ["dep:diarize-rs"]

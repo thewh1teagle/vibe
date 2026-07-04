@@ -1,7 +1,7 @@
 use serde::Serialize;
 use whisper_rs::{Segment, TranscribeResult};
 
-use diarize_rs as diarize;
+use crate::server::diarization;
 
 pub fn cs_to_seconds(cs: i64) -> f64 {
     cs as f64 / 100.0
@@ -73,7 +73,7 @@ pub struct VerboseSegment {
 
 pub fn build_verbose_json(
     result: &TranscribeResult,
-    diar_segments: &[diarize::Segment],
+    diar_segments: &[diarization::Segment],
 ) -> VerboseJson {
     VerboseJson {
         text: result.text(),
@@ -95,7 +95,11 @@ pub fn build_verbose_json(
     }
 }
 
-pub fn match_speaker(start: f64, end: f64, diar_segments: &[diarize::Segment]) -> Option<usize> {
+pub fn match_speaker(
+    start: f64,
+    end: f64,
+    diar_segments: &[diarization::Segment],
+) -> Option<usize> {
     let mut best_id = None;
     let mut best_overlap = 0.0;
     for segment in diar_segments {

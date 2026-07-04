@@ -6,10 +6,10 @@ use axum::Json;
 use whisper_rs::TranscribeOptions;
 
 use crate::audio;
+use crate::server::diarization;
 use crate::server::form::FormValues;
 use crate::server::stream::stream_transcription;
 use crate::server::{error, format, AppState, TextResponse};
-use diarize_rs as diarize;
 
 pub(super) struct TranscriptionRequest {
     pub file: Vec<u8>,
@@ -35,19 +35,11 @@ pub(super) async fn transcribe(
         )
     })?;
 
-    let diar_segments = if let Some(diarize_model) = diarize_model.as_deref() {
-        match diarize::Diarizer::new(diarize_model)
-            .and_then(|mut diarizer| diarizer.diarize(&samples, 16_000, 1))
-        {
-            Ok(segments) => segments,
-            Err(err) => {
-                tracing::warn!("diarization failed, skipping speakers: {err}");
-                Vec::new()
-            }
-        }
-    } else {
-        Vec::new()
-    };
+    let diar_segments = diarize_model
+        .as_deref()
+        .map_or_else(Vec::new, |model_path| {
+            diarization::diarize(model_path, &samples)
+        });
 
     let stable_timestamps = values.bool("stable_timestamps");
     let vad_model_path = values.string("vad_model");
@@ -133,7 +125,7 @@ pub(super) fn build_options(
 fn format_response(
     response_format: &str,
     result: &whisper_rs::TranscribeResult,
-    diar_segments: &[diarize::Segment],
+    diar_segments: &[diarization::Segment],
 ) -> Response {
     match response_format {
         "verbose_json" => Json(format::build_verbose_json(result, diar_segments)).into_response(),

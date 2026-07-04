@@ -8,9 +8,9 @@ use axum::response::{IntoResponse, Response};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use whisper_rs::StreamCallbacks;
 
+use crate::server::diarization;
 use crate::server::transcription::build_options;
 use crate::server::{error, format, AppState};
-use diarize_rs as diarize;
 
 pub(super) fn stream_transcription(
     state: AppState,
@@ -18,7 +18,7 @@ pub(super) fn stream_transcription(
     form: HashMap<String, String>,
     stable_timestamps: bool,
     vad_model_path: Option<String>,
-    diar_segments: Vec<diarize::Segment>,
+    diar_segments: Vec<diarization::Segment>,
 ) -> Result<Response, Response> {
     let mut guard = state.inner.clone().try_lock_owned().map_err(|_| {
         error(
