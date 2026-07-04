@@ -8,6 +8,7 @@ import { initReactI18next } from 'react-i18next/initReactI18next'
 // See src-tauri/locales/ for the list of supported languages
 // Please keep the list sorted alphabetically
 export const supportedLanguages: { [key: string]: string } = {
+	'ca-AD': 'catalan', // Catalan
 	'en-US': 'english', // English
 	'es-ES': 'spanish (ES)', // Spanish (ES)
 	'es-MX': 'spanish (MX)', // Spanish (MX)
@@ -22,7 +23,7 @@ export const supportedLanguages: { [key: string]: string } = {
 	'pt-BR': 'portuguese', // Portuguese (BR)
 	'ru-RU': 'russian', // Russian
 	'sv-SE': 'swedish', // Swedish
-	'ta-IN': 'tamil', // Tamil
+	'tr-TR': 'turkish', // Turkish
 	'vi-VN': 'vietnamese', // Vietnamese
 	'zh-CN': 'chinese', // Chinese (Simplified)
 	'zh-HK': 'chinese (HK)', // Chinese (Traditional)
