@@ -24,7 +24,7 @@ const HASHES_PATH = path.join(__dirname, "../data/summaries-hashes.json");
 type SummaryData = Record<string, Record<string, string>>;
 type HashData = Record<string, Record<string, string>>;
 
-const PROMPT_VERSION = "v4";
+const PROMPT_VERSION = "v5";
 
 function hashText(text: string): string {
   return crypto.createHash("sha1").update(`${PROMPT_VERSION}:${text}`).digest("hex").slice(0, 12);
