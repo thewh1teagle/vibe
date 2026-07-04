@@ -70,6 +70,7 @@ pub async fn start_record(
     devices: Vec<AudioDevice>,
     store_in_documents: bool,
     custom_path: Option<String>,
+    recording_name: Option<String>,
 ) -> Result<()> {
     let host = cpal::default_host();
 
@@ -146,23 +147,29 @@ pub async fn start_record(
         };
 
         tracing::debug!("Emitting record_finish event");
-        let mut normalized = get_vibe_temp_folder().join(format!("{}.wav", get_local_time()));
+        let recording_stem = recording_name
+            .as_deref()
+            .map(crate::cmd::files::sanitize_filename_stem)
+            .filter(|name| !name.is_empty())
+            .unwrap_or_else(get_local_time);
+        let temp_dir = get_vibe_temp_folder();
+        let mut normalized = crate::cmd::files::available_path(&temp_dir, &recording_stem, "wav");
         crate::ffmpeg::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
 
         if store_in_documents {
-            if let Some(file_name) = normalized.file_name() {
+            if normalized.file_name().is_some() {
                 let save_dir = if let Some(ref cp) = custom_path {
                     Some(PathBuf::from(cp))
                 } else {
                     app_handle_clone.path().document_dir().map(|d| d.join(crate::config::DOCUMENTS_SUBFOLDER)).map_err(|e| eyre!("{e:?}")).log_error()
                 };
                 if let Some(save_dir) = save_dir {
-                    let target_path = save_dir.join(file_name);
                     if std::fs::create_dir_all(&save_dir)
                         .context("Failed to create recording directory")
                         .map_err(|e| eyre!("{e:?}"))
                         .is_ok()
                     {
+                        let target_path = crate::cmd::files::available_path(&save_dir, &recording_stem, "wav");
                         let moved = std::fs::rename(&normalized, &target_path)
                             .context("Failed to move file to directory")
                             .map_err(|e| eyre!("{e:?}"))

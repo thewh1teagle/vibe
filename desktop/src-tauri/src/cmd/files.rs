@@ -1,6 +1,6 @@
 use eyre::{ContextCompat, Result};
 use serde_json::{json, Value};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Manager};
 
 #[tauri::command]
@@ -53,6 +53,33 @@ pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
         counter += 1;
     }
     Ok(dst_path.to_str().context("tostr")?.into())
+}
+
+pub(crate) fn sanitize_filename_stem(input: &str) -> String {
+    input
+        .trim()
+        .chars()
+        .map(|c| match c {
+            '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|' => '_',
+            c if c.is_control() => '_',
+            c => c,
+        })
+        .collect::<String>()
+        .trim_matches([' ', '.'])
+        .to_string()
+}
+
+pub(crate) fn available_path(parent: &Path, stem: &str, extension: &str) -> PathBuf {
+    let extension = extension.trim_start_matches('.');
+    let mut path = parent.join(format!("{stem}.{extension}"));
+    let mut counter = 1;
+
+    while path.exists() {
+        path = parent.join(format!("{stem} ({counter}).{extension}"));
+        counter += 1;
+    }
+
+    path
 }
 
 #[tauri::command]

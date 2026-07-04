@@ -446,7 +446,12 @@ export function viewModel() {
 			devices.push(outputDevice)
 		}
 		try {
-			await invoke('start_record', { devices, storeInDocuments: preference.storeRecordInDocuments, customPath: preference.customRecordingPath })
+			await invoke('start_record', {
+				devices,
+				storeInDocuments: preference.storeRecordInDocuments,
+				customPath: preference.customRecordingPath,
+				recordingName: recordingName.trim() || null,
+			})
 		} catch (error) {
 			stopKeepAwake()
 			setIsRecording(false)

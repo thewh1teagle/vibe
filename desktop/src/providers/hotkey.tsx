@@ -116,6 +116,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				devices: [defaultInput],
 				storeInDocuments: false,
 				customPath: null,
+				recordingName: null,
 			})
 		} catch (error) {
 			console.error('Hotkey start_record error:', error)
