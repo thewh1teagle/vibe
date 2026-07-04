@@ -123,10 +123,28 @@ fn link_platform_libs() {
                 println!("cargo:rustc-link-lib=static=gomp");
                 println!("cargo:rustc-link-lib=static=winpthread");
             } else {
+                add_windows_vulkan_sdk_link_path();
                 println!("cargo:rustc-link-lib=vulkan-1");
             }
         }
         Ok(other) => panic!("unsupported target OS for whisper-rs: {other}"),
         Err(err) => panic!("failed to read CARGO_CFG_TARGET_OS: {err}"),
+    }
+}
+
+fn add_windows_vulkan_sdk_link_path() {
+    if let Ok(vulkan_library) = env::var("Vulkan_LIBRARY") {
+        let library_path = Path::new(&vulkan_library);
+        if let Some(parent) = library_path.parent() {
+            println!("cargo:rustc-link-search=native={}", parent.display());
+            return;
+        }
+    }
+
+    if let Ok(vulkan_sdk) = env::var("VULKAN_SDK") {
+        println!(
+            "cargo:rustc-link-search=native={}",
+            Path::new(&vulkan_sdk).join("Lib").display()
+        );
     }
 }
