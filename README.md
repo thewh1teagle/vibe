@@ -6,6 +6,8 @@ It runs as a standalone process and exposes an OpenAI-compatible HTTP API, so ot
 
 Think of it as a small, fast, local Whisper server you control.
 
+This runner is used by the [thewh1teagle/vibe](https://github.com/thewh1teagle/vibe) project.
+
 ---
 
 ## Why Sona ✨
