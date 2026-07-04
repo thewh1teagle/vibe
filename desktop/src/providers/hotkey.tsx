@@ -53,6 +53,15 @@ async function notify(title: string, body: string) {
 	}
 }
 
+function getErrorMessage(error: unknown): string {
+	if (error instanceof Error) return error.message
+	if (typeof error === 'object' && error !== null && 'message' in error) {
+		const message = (error as { message?: unknown }).message
+		if (typeof message === 'string') return message
+	}
+	return String(error)
+}
+
 export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
@@ -163,7 +172,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				}
 			} catch (error) {
 				console.error('Hotkey transcription error:', error)
-				await notify('Vibe', String(error))
+				await notify('Vibe', getErrorMessage(error))
 			} finally {
 				isHotkeyRecordingRef.current = false
 				hotkeyRecordingActive = false
