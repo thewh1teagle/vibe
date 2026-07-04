@@ -5,8 +5,8 @@ import type { Scraper, RawAdvisory } from "./types";
 // URL pattern: https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/{slug}
 
 const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string; severity: number }> = [
-  { pattern: /rejse frarådes/i, rawLevel: "Rejse frarådes", severity: 4 },
-  { pattern: /fraråder?\s+ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser", severity: 3 },
+  { pattern: /rejse frarådes|fraråder?\s+alle\s+rejser\b/i, rawLevel: "Rejse frarådes", severity: 4 },
+  { pattern: /fraråder?\s+(?:alle\s+)?ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser", severity: 3 },
   { pattern: /undgå ikke.nødvendige/i, rawLevel: "Fraråd ikke-nødvendige rejser", severity: 3 },
   { pattern: /vær ekstra opmærksom/i, rawLevel: "Vær ekstra opmærksom", severity: 2 },
   { pattern: /vær forsigtig/i, rawLevel: "Vær forsigtig", severity: 2 },
@@ -200,6 +200,33 @@ export const denmarkScraper: Scraper = async () => {
       await new Promise((r) => setTimeout(r, 500));
     }
   }
+
+  // Supplement compound-zone countries with static data.
+  // Denmark's advisory color boxes are JS-rendered; the proxy only returns the general level.
+  // The static JSON provides summaries with compound-zone keywords for known countries.
+  try {
+    const staticUrl = "https://raw.githubusercontent.com/MvdB-123/vibe/main/travel-advice/data/denmark-advisories.json";
+    const res = await fetch(staticUrl, { signal: AbortSignal.timeout(10_000) });
+    if (res.ok) {
+      const staticData: Array<{ iso2: string; rawLevel: string; summary: string; url: string; updatedAt?: string }> = await res.json();
+      for (const entry of staticData) {
+        const idx = advisories.findIndex((a) => a.destIso2 === entry.iso2);
+        if (idx >= 0) {
+          advisories[idx] = { ...advisories[idx], summary: entry.summary };
+        } else {
+          advisories.push({
+            destIso2: entry.iso2,
+            rawLevel: entry.rawLevel,
+            normalizedLevel: normalizeLevel("denmark", entry.rawLevel),
+            summary: entry.summary,
+            risks: [],
+            officialUpdatedAt: entry.updatedAt ? new Date(entry.updatedAt) : null,
+            sourceUrl: entry.url,
+          });
+        }
+      }
+    }
+  } catch { /* skip */ }
 
   return { sourceId: "denmark", advisories, scrapedAt };
 };

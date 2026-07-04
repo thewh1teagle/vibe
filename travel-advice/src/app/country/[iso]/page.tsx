@@ -293,7 +293,7 @@ function getMultiLevelDisplay(
 
   if (sourceId === "denmark") {
     const sum = (summary || "").toLowerCase();
-    const hasRed = /rejse frarådes|undgå alle rejser/i.test(sum);
+    const hasRed = /rejse frarådes|undgå alle rejser|fraråder?\s+alle\s+rejser\b/i.test(sum);
     const hasOrange = /fraråder?\s+(?:alle\s+)?ikke.nødvendige|undgå(?:\s+alle)?\s+ikke.nødvendige/i.test(sum);
     const hasYellow = /vær ekstra opmærksom|vær forsigtig/i.test(sum);
     // Use normalizedLevel as the general base; hardcoded green only if rawLevel is green/unknown
