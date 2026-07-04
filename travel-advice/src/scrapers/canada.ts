@@ -83,6 +83,26 @@ function extractLevelFromHtml(html: string): string | null {
   return firstMatch?.rawLevel ?? null;
 }
 
+function extractRegionalRisk(html: string): string {
+  // Canada pages have a "Regional risk" section listing per-area advisory levels.
+  // Extracting it ensures compound-zone detection works for all countries automatically.
+  const stripped = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "");
+
+  // Find the Regional risk heading
+  const headingMatch = stripped.match(/Regional\s+risk/i);
+  if (!headingMatch || headingMatch.index === undefined) return "";
+
+  const slice = stripped.slice(headingMatch.index, headingMatch.index + 4000);
+  return slice
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 1500);
+}
+
 function extractSummary(html: string, levelText: string): string {
   // Try to find the advisory section specifically
   const section = html.match(/<section[^>]*id="advisory"[^>]*>([\s\S]*?)<\/section>/i)
@@ -97,6 +117,7 @@ function extractSummary(html: string, levelText: string): string {
     .replace(/\s+/g, " ")
     .trim();
   const idx = plain.toLowerCase().indexOf(levelText.toLowerCase());
+  let mainText = levelText;
   if (idx >= 0) {
     // Include the level text for full sentence context
     let text = plain.slice(idx).trim();
@@ -107,10 +128,15 @@ function extractSummary(html: string, levelText: string): string {
     const cutoff = text.search(/\b(On this page|Latest updates|Last updated|Need help\?|Disclaimer|Entry and exit requirements|Health|Laws and culture|Natural disasters and climate)/i);
     if (cutoff > 10) text = text.slice(0, cutoff);
     text = text.trim();
-    if (text.length > 20) return text.slice(0, 3000);
+    if (text.length > 20) mainText = text.slice(0, 2000);
   }
-  // Fallback: return level text
-  return levelText;
+
+  // Append Regional risk section so compound-zone detection always finds sub-level keywords
+  const regional = extractRegionalRisk(html);
+  if (regional && !mainText.toLowerCase().includes("regional risk")) {
+    return (mainText + " " + regional).slice(0, 3000);
+  }
+  return mainText;
 }
 
 function extractDate(html: string): Date | null {
