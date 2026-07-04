@@ -6,12 +6,12 @@ const BATCH_SIZE = 10;
 const BATCH_DELAY_MS = 200;
 const REQUEST_TIMEOUT_MS = 15_000;
 
-const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /avoid non-essential travel/i, rawLevel: "Avoid non-essential travel" },
-  { pattern: /avoid all travel/i, rawLevel: "Avoid all travel" },
-  { pattern: /exercise a high degree of caution/i, rawLevel: "Exercise a high degree of caution" },
-  { pattern: /take normal security precautions/i, rawLevel: "Take normal security precautions" },
-  { pattern: /exercise normal security precautions/i, rawLevel: "Exercise normal security precautions" },
+const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string; severity: number }> = [
+  { pattern: /avoid all travel/i, rawLevel: "Avoid all travel", severity: 4 },
+  { pattern: /avoid non-essential travel/i, rawLevel: "Avoid non-essential travel", severity: 3 },
+  { pattern: /exercise a high degree of caution/i, rawLevel: "Exercise a high degree of caution", severity: 2 },
+  { pattern: /take normal security precautions/i, rawLevel: "Take normal security precautions", severity: 1 },
+  { pattern: /exercise normal security precautions/i, rawLevel: "Exercise normal security precautions", severity: 1 },
 ];
 
 const ISO2_TO_SLUG: Record<string, string> = {
@@ -172,6 +172,38 @@ export const canadaScraper: Scraper = async () => {
       await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
     }
   }
+
+  // Supplement compound-zone countries with static data.
+  // travel.gc.ca pages sometimes block scraping or truncate regional breakdowns.
+  // The static JSON provides summaries with compound-zone keywords for known countries.
+  try {
+    const staticUrl = "https://raw.githubusercontent.com/MvdB-123/vibe/main/travel-advice/data/canada-advisories.json";
+    const res = await fetch(staticUrl, { signal: AbortSignal.timeout(10_000) });
+    if (res.ok) {
+      const staticData: Array<{ iso2: string; rawLevel: string; summary: string; url: string; updatedAt?: string }> = await res.json();
+      for (const entry of staticData) {
+        const idx = advisories.findIndex((a) => a.destIso2 === entry.iso2);
+        if (idx >= 0) {
+          advisories[idx] = {
+            ...advisories[idx],
+            summary: entry.summary,
+            rawLevel: entry.rawLevel,
+            normalizedLevel: normalizeLevel("canada", entry.rawLevel),
+          };
+        } else {
+          advisories.push({
+            destIso2: entry.iso2,
+            rawLevel: entry.rawLevel,
+            normalizedLevel: normalizeLevel("canada", entry.rawLevel),
+            summary: entry.summary,
+            risks: [],
+            officialUpdatedAt: entry.updatedAt ? new Date(entry.updatedAt) : null,
+            sourceUrl: entry.url,
+          });
+        }
+      }
+    }
+  } catch { /* skip */ }
 
   return { sourceId: "canada", advisories, scrapedAt };
 };

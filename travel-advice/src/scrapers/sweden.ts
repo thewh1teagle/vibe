@@ -237,7 +237,12 @@ export const swedenScraper: Scraper = async () => {
       for (const entry of staticData) {
         const idx = advisories.findIndex((a) => a.destIso2 === entry.iso2);
         if (idx >= 0) {
-          advisories[idx] = { ...advisories[idx], summary: entry.summary };
+          advisories[idx] = {
+            ...advisories[idx],
+            summary: entry.summary,
+            rawLevel: entry.rawLevel,
+            normalizedLevel: normalizeLevel("sweden", entry.rawLevel),
+          };
         } else {
           advisories.push({
             destIso2: entry.iso2,
