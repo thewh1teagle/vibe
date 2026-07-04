@@ -297,9 +297,9 @@ function getMultiLevelDisplay(
         { level: "red", area: "Grensgebieden" },
       ];
     }
-    if (key === "reisewarnung" && /teilreise|part|gebiet/i.test(sum)) {
+    if (key === "reisewarnung" && /teilreise|part|gebiet|provinz|region/i.test(sum)) {
       return [
-        { level: "orange", area: "Algemeen" },
+        { level: "yellow", area: "Algemeen" },
         { level: "red", area: "Deelgebieden" },
       ];
     }
@@ -411,15 +411,23 @@ function getMultiLevelDisplay(
         { level: "red", area: "Grensgebieden" },
       ];
     }
-    if ((key === "formellement déconseillé" || key === "déconseillé sauf raison impérative") && hasOrange) {
+    if (key === "formellement déconseillé" && hasOrange) {
       return [
-        { level: "orange", area: "Algemeen" },
-        { level: "red", area: "Deelgebieden" },
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
+      ];
+    }
+    if (key === "déconseillé sauf raison impérative" && hasRed) {
+      return [
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
       ];
     }
     if (key === "formellement déconseillé" && /autre|partie|zone|région/i.test(sum)) {
       return [
-        { level: "orange", area: "Algemeen" },
+        { level: "yellow", area: "Algemeen" },
         { level: "red", area: "Deelgebieden" },
       ];
     }
