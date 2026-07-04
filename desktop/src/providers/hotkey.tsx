@@ -25,6 +25,8 @@ interface HotkeyContextType {
 	setHotkeyShortcut: (shortcut: string) => void
 	hotkeyOutputMode: HotkeyOutputMode
 	setHotkeyOutputMode: (mode: HotkeyOutputMode) => void
+	hotkeyNormalizeOutput: boolean
+	setHotkeyNormalizeOutput: (enabled: boolean) => void
 	isHotkeyRecording: boolean
 }
 
@@ -59,10 +61,12 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
+	const [hotkeyNormalizeOutput, setHotkeyNormalizeOutput] = useLocalStorage('prefs_hotkey_normalize_output', true)
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 
 	const isHotkeyRecordingRef = useRef(false)
 	const hotkeyOutputModeRef = useRef(hotkeyOutputMode)
+	const hotkeyNormalizeOutputRef = useRef(hotkeyNormalizeOutput)
 	const registeredShortcutRef = useRef<string | null>(null)
 
 	useEffect(() => {
@@ -72,6 +76,10 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		hotkeyOutputModeRef.current = hotkeyOutputMode
 	}, [hotkeyOutputMode])
+
+	useEffect(() => {
+		hotkeyNormalizeOutputRef.current = hotkeyNormalizeOutput
+	}, [hotkeyNormalizeOutput])
 
 	const createLlm = useCallback((): Llm | null => {
 		const config = preferenceRef.current.llmConfig
@@ -145,7 +153,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					}
 				}
 
-				resultText = resultText.trim()
+				resultText = hotkeyNormalizeOutputRef.current ? transcript.normalizeWhitespace(resultText) : resultText.trim()
 				// Output result
 				if (hotkeyOutputModeRef.current === 'type') {
 					await invoke('type_text', { text: resultText })
@@ -219,6 +227,8 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		setHotkeyShortcut,
 		hotkeyOutputMode,
 		setHotkeyOutputMode,
+		hotkeyNormalizeOutput,
+		setHotkeyNormalizeOutput,
 		isHotkeyRecording,
 	}
 

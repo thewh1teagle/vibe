@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import LanguageInput from '~/components/language-input'
 import Layout from '~/components/layout'
-import ModelOptions from '~/components/params'
 import TextArea from '~/components/text-area'
 import AudioInput from '~/pages/home/audio-input'
 import AudioPlayer from './audio-player'
@@ -16,8 +15,9 @@ import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
 import * as keepAwake from 'tauri-plugin-keepawake-api'
 import { Button } from '~/components/ui/button'
-import DictationDialog from '~/components/dictation-dialog'
+import DictationPromo from '~/components/dictation-promo'
 import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 import { Spinner } from '~/components/ui/spinner'
 import { Switch } from '~/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
@@ -41,31 +41,55 @@ export default function Home() {
 	return (
 		<Layout>
 			<div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-6">
-				<div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col items-center gap-5">
+				<div className="app-main-card mx-auto flex w-full min-w-0 max-w-3xl flex-col items-center gap-5">
 					<Tabs
 						value={vm.preference.homeTab}
 						onValueChange={(v) => (v === 'link' ? vm.switchToLinkTab() : vm.preference.setHomeTab(v as HomeTab))}
 						className="flex flex-col items-center">
-						<TabsList className="h-11 rounded-md border border-border/65 bg-card/55 p-1 shadow-xs">
-							<TabsTrigger value="record" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
-								<MicrphoneIcon className="h-[18px] w-[18px]" />
+						<TabsList className="h-14 rounded-2xl border border-border/50 bg-muted/60 p-1.5 shadow-xs">
+							<TabsTrigger
+								value="record"
+								className="h-11 min-w-14 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none">
+								<MicrphoneIcon className="h-[19px] w-[19px]" />
 							</TabsTrigger>
-							<TabsTrigger value="file" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
-								<FileIcon className="h-[18px] w-[18px]" />
+							<TabsTrigger
+								value="file"
+								className="h-11 min-w-14 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none">
+								<FileIcon className="h-[19px] w-[19px]" />
 							</TabsTrigger>
-							<TabsTrigger value="link" className="h-8 min-w-12 rounded-sm data-[state=active]:shadow-none data-[state=active]:bg-background/85">
-								<LinkIcon className="h-[18px] w-[18px]" />
+							<TabsTrigger
+								value="link"
+								className="h-11 min-w-14 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none">
+								<LinkIcon className="h-[19px] w-[19px]" />
 							</TabsTrigger>
 						</TabsList>
 					</Tabs>
 
 					{vm.preference.homeTab === "record" && (
-						<div className="w-full min-w-0 max-w-2xl space-y-4">
-							<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
-							<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
-							<div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border/60 bg-card/45 px-3 py-2.5">
-								<span className="text-sm font-medium">{t('common.save-record-in-documents-folder')}</span>
-								<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
+						<div className="w-full min-w-0 max-w-2xl space-y-5">
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
+								<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
+							</div>
+
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								<div className="space-y-2">
+									<Label>{t('common.recording-name')}</Label>
+									<Input
+										type="text"
+										value={vm.recordingName}
+										onChange={(event) => vm.setRecordingName(event.target.value)}
+										placeholder={t('common.recording-name-placeholder')}
+										disabled={vm.isRecording}
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label>{t('common.save-record-in-documents-folder')}</Label>
+									<div className="flex h-11 items-center justify-between rounded-xl border border-border/40 bg-muted/40 px-4">
+										<span className="text-sm text-muted-foreground">{vm.preference.storeRecordInDocuments ? t('common.enabled', 'Enabled') : t('common.disabled', 'Disabled')}</span>
+										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
+									</div>
+								</div>
 							</div>
 
 							{!vm.isRecording ? (
@@ -90,14 +114,13 @@ export default function Home() {
 
 							{vm.inputDevice && <AudioVisualizer isRecording={vm.isRecording} inputDevice={vm.inputDevice} />}
 
-							<DictationDialog />
+							<DictationPromo />
 
-							<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 						</div>
 					)}
 
 					{vm.preference.homeTab === "file" && (
-						<div className="w-full min-w-0 max-w-3xl space-y-4">
+						<div className="w-full min-w-0 max-w-3xl space-y-5">
 							<div className="space-y-3">
 								<LanguageInput />
 								{!vm.files.length && !vm.selectedFolder && <AudioInput onClick={vm.selectFiles} onSelectFolder={vm.selectFolder} />}
@@ -108,7 +131,7 @@ export default function Home() {
 										<div className="text-sm font-medium">
 											{t('common.files')}: {vm.files.length}
 										</div>
-										<div className="flex items-center justify-between rounded-md border border-border/60 bg-background/30 px-3 py-2">
+										<div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3.5 py-2.5">
 											<span className="text-sm">{t('common.include-sub-folders')}</span>
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.includeSubFolders}
@@ -120,7 +143,7 @@ export default function Home() {
 												}
 											/>
 										</div>
-										<div className="flex items-center justify-between rounded-md border border-border/60 bg-background/30 px-3 py-2">
+										<div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3.5 py-2.5">
 											<span className="text-sm">{t('common.skip-if-transcript-exists')}</span>
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.skipIfExists}
@@ -132,7 +155,7 @@ export default function Home() {
 												}
 											/>
 										</div>
-										<div className="flex items-center justify-between rounded-md border border-border/60 bg-background/30 px-3 py-2">
+										<div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3.5 py-2.5">
 											<span className="text-sm">{t('common.place-transcript-next-to-files')}</span>
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.saveNextToAudioFile}
@@ -180,7 +203,6 @@ export default function Home() {
 									{!vm.preference.modelPath && (
 										<p className="text-center text-sm text-muted-foreground">{t('common.no-model-selected')}</p>
 									)}
-									<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 								</>
 							)}
 							{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
@@ -188,7 +210,7 @@ export default function Home() {
 					)}
 
 					{vm.preference.homeTab === "link" && (
-						<div className="w-full min-w-0 max-w-2xl space-y-4">
+						<div className="w-full min-w-0 max-w-2xl space-y-5">
 							<Input
 								type="text"
 								value={vm.audioUrl}
@@ -198,7 +220,7 @@ export default function Home() {
 							/>
 
 							{vm.downloadingAudio ? (
-								<div className="flex flex-wrap items-center justify-center gap-3 rounded-md border border-border/60 bg-card/45 px-3 py-2.5">
+								<div className="flex flex-wrap items-center justify-center gap-3 rounded-xl border border-border/40 bg-muted/40 px-4 py-3">
 									<Spinner className="text-primary" />
 									<p>{t('common.downloading', { progress: vm.ytdlpProgress })}</p>
 									<Button
@@ -211,7 +233,7 @@ export default function Home() {
 								</div>
 							) : (
 								<>
-									<div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border/60 bg-card/45 px-3 py-2.5">
+									<div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/40 bg-muted/40 px-4 py-3">
 										<span className="text-sm font-medium">{t('common.save-record-in-documents-folder')}</span>
 										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
 									</div>
@@ -221,7 +243,6 @@ export default function Home() {
 									{!vm.preference.modelPath && (
 										<p className="text-center text-sm text-muted-foreground">{t('common.no-model-selected')}</p>
 									)}
-									<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
 								</>
 							)}
 						</div>
@@ -241,7 +262,7 @@ export default function Home() {
 				)}
 
 				{vm.preference.homeTab === "file" && (vm.segments || vm.loading) && (
-					<div className="mx-auto flex h-[62vh] min-h-[320px] w-full max-w-4xl min-w-0 flex-col overflow-hidden border-t border-border/55 pt-3">
+					<div className="mx-auto flex h-[62vh] min-h-[320px] w-full max-w-4xl min-w-0 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg dark:shadow-2xl">
 						<TextArea
 							file={vm.files[0]}
 							placeholder={t('common.transcript-will-displayed-shortly')}

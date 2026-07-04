@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { ReactComponent as IndicatorIcon } from '~/icons/update-indicator.svg'
-import { ArrowLeft, MoreHorizontal, RefreshCcw, Settings2 } from 'lucide-react'
+import { ArrowLeft, MoreHorizontal, RefreshCcw, Settings2, Terminal } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 
 interface AppMenuProps {
 	availableUpdate: boolean
 	updateApp: () => void
-	onClickSettings: () => void
+	onClickSettings: (scrollTo?: string) => void
 }
 
 export default function AppMenu({ availableUpdate, updateApp, onClickSettings }: AppMenuProps) {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
+	const location = useLocation()
+	const canGoBack = location.key !== 'default'
 	const [open, setOpen] = useState(false)
 
 	return (
@@ -32,14 +34,20 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-56 rounded-xl border-border/75 bg-popover/98 p-1.5 shadow-lg">
-					<DropdownMenuItem onClick={onClickSettings} className="h-10 rounded-md px-3 text-[15px] font-medium">
+					<DropdownMenuItem onClick={() => onClickSettings()} className="h-10 rounded-md px-3 text-[15px] font-medium">
 						<Settings2 className="h-4 w-4 text-muted-foreground" />
 						{t('common.settings')}
 					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => navigate(-1)} className="h-10 rounded-md px-3 text-[15px] font-medium">
-						<ArrowLeft className="h-4 w-4 text-muted-foreground" />
-						{t('common.back')}
+					<DropdownMenuItem onClick={() => onClickSettings('api')} className="h-10 rounded-md px-3 text-[15px] font-medium">
+						<Terminal className="h-4 w-4 text-muted-foreground" />
+						{t('common.api-and-agents', 'API & Agents')}
 					</DropdownMenuItem>
+					{canGoBack && (
+						<DropdownMenuItem onClick={() => navigate(-1)} className="h-10 rounded-md px-3 text-[15px] font-medium">
+							<ArrowLeft className="h-4 w-4 text-muted-foreground" />
+							{t('common.back')}
+						</DropdownMenuItem>
+					)}
 					{availableUpdate && (
 						<DropdownMenuItem onClick={updateApp} className="h-10 rounded-md px-3 text-[15px] font-medium text-primary">
 							<RefreshCcw className="h-4 w-4 text-muted-foreground" />

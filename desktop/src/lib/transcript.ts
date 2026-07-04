@@ -74,6 +74,10 @@ export function asText(segments: Segment[], speakerLabel: string = 'Speaker') {
 	}, '')
 }
 
+export function normalizeWhitespace(text: string) {
+	return text.replace(/\s+/g, ' ').trim()
+}
+
 export function asJson(segments: Segment[]) {
 	return JSON.stringify(segments.map(s => ({
 		...s,

@@ -45,6 +45,7 @@ export function viewModel() {
 	const navigate = useNavigate()
 	const [loading, setLoading] = useState(false)
 	const [isRecording, setIsRecording] = useState(false)
+	const [recordingName, setRecordingName] = useState('')
 	const abortRef = useRef<boolean>(false)
 	const [isAborting, setIsAborting] = useState(false)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
@@ -656,6 +657,8 @@ export function viewModel() {
 		setOutputDevice: setOutputDeviceAndSave,
 		isRecording,
 		setIsRecording,
+		recordingName,
+		setRecordingName,
 		startRecord,
 		stopRecord,
 		preference: preference,
