@@ -72,6 +72,16 @@ jobs:
             - name: Run pre_build.py on ${{ matrix.platform }}
               run: uv run scripts/pre_build.py --target ${{ matrix.target_triple }}
 
+            - name: Setup macOS signing env
+              if: matrix.platform == 'macos-latest' && inputs.sign-macos
+              run: |
+                  echo "APPLE_CERTIFICATE=${{ secrets.APPLE_CERTIFICATE }}" >> "$GITHUB_ENV"
+                  echo "APPLE_CERTIFICATE_PASSWORD=${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" >> "$GITHUB_ENV"
+                  echo "APPLE_SIGNING_IDENTITY=${{ secrets.APPLE_SIGNING_IDENTITY }}" >> "$GITHUB_ENV"
+                  echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> "$GITHUB_ENV"
+                  echo "APPLE_PASSWORD=${{ secrets.APPLE_PASSWORD }}" >> "$GITHUB_ENV"
+                  echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> "$GITHUB_ENV"
+
             - name: Build
               uses: tauri-apps/tauri-action@v0
               env:
@@ -86,13 +96,6 @@ jobs:
                   SIGN_ENABLED: ${{ matrix.platform == 'windows-latest' && inputs.sign-windows && 'true' || 'false' }}
                   SIGN_TUNNEL_URL: ${{ secrets.SIGN_TUNNEL_URL }}
                   SIGN_TUNNEL_SECRET: ${{ secrets.SIGN_TUNNEL_SECRET }}
-                  # macOS signing and notarization (Apple Developer ID)
-                  APPLE_CERTIFICATE: ${{ matrix.platform == 'macos-latest' && inputs.sign-macos && secrets.APPLE_CERTIFICATE || '' }}
-                  APPLE_CERTIFICATE_PASSWORD: ${{ matrix.platform == 'macos-latest' && inputs.sign-macos && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
-                  APPLE_SIGNING_IDENTITY: ${{ matrix.platform == 'macos-latest' && inputs.sign-macos && secrets.APPLE_SIGNING_IDENTITY || '' }}
-                  APPLE_ID: ${{ matrix.platform == 'macos-latest' && inputs.sign-macos && secrets.APPLE_ID || '' }}
-                  APPLE_PASSWORD: ${{ matrix.platform == 'macos-latest' && inputs.sign-macos && secrets.APPLE_PASSWORD || '' }}
-                  APPLE_TEAM_ID: ${{ matrix.platform == 'macos-latest' && inputs.sign-macos && secrets.APPLE_TEAM_ID || '' }}
               with:
                   tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
                   releaseName: "v__VERSION__"
