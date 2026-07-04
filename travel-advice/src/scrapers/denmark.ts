@@ -88,19 +88,18 @@ function cleanHtml(html: string): string {
 }
 
 function extractLevel(html: string): string {
-  // Run on cleaned plain text — use FIRST match in text position so the general-level advisory
-  // (appearing at the top of the page) wins over regional escalations mentioned later
+  // Use minimum non-zero severity: the lowest non-zero level is the general country advisory.
+  // Zero-severity matches ("ingen særlige advarsler") are ignored when any higher advisory is
+  // present, because they appear in regional "no restriction" sub-sections on compound pages.
   const plain = cleanHtml(html);
-  let firstMatch: { pos: number; rawLevel: string } | null = null;
-  for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
-    const m = plain.match(pattern);
-    if (m && m.index !== undefined) {
-      if (!firstMatch || m.index < firstMatch.pos) {
-        firstMatch = { pos: m.index, rawLevel };
-      }
-    }
+  const matches: Array<{ severity: number; rawLevel: string }> = [];
+  for (const { pattern, rawLevel, severity } of LEVEL_PATTERNS) {
+    if (pattern.test(plain)) matches.push({ severity, rawLevel });
   }
-  return firstMatch?.rawLevel ?? "Ingen særlige advarsler";
+  if (matches.length === 0) return "Ingen særlige advarsler";
+  const nonZero = matches.filter((m) => m.severity > 0);
+  const pool = nonZero.length > 0 ? nonZero : matches;
+  return pool.reduce((min, m) => (m.severity < min.severity ? m : min)).rawLevel;
 }
 
 function extractSummary(html: string): string {
@@ -112,8 +111,8 @@ function extractSummary(html: string): string {
     .replace(/<nav[\s\S]*?<\/nav>/gi, "")
     .replace(/<header[\s\S]*?<\/header>/gi, "")
     .replace(/<footer[\s\S]*?<\/footer>/gi, "");
-  const match = clean.match(/<div[^>]*class="[^"]*field--name-body[^"]*"[^>]*>([\s\S]{0,8000})/i)
-    ?? clean.match(/<main[^>]*>([\s\S]{0,8000})/i);
+  const match = clean.match(/<div[^>]*class="[^"]*field--name-body[^"]*"[^>]*>([\s\S]{0,15000})/i)
+    ?? clean.match(/<main[^>]*>([\s\S]{0,15000})/i);
   const text = (match?.[1] ?? "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&[a-z#0-9]+;/gi, " ")
@@ -126,9 +125,9 @@ function extractSummary(html: string): string {
   const sentences = text.split(/(?<=[.!?])\s+/);
   const firstRelevant = sentences.findIndex((s) => TRAVEL_KEYWORDS.test(s));
   if (firstRelevant >= 0) {
-    return sentences.slice(firstRelevant).join(" ").slice(0, 3000);
+    return sentences.slice(firstRelevant).join(" ").slice(0, 5000);
   }
-  return text.slice(0, 3000);
+  return text.slice(0, 5000);
 }
 
 export const denmarkScraper: Scraper = async () => {
