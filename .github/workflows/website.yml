@@ -51,7 +51,7 @@ jobs:
                 pnpm build
               working-directory: website
               env:
-                GH_TOKEN: ${{ secrets.GH_TOKEN }}
+                GH_TOKEN: ${{ github.token }}
 
             - name: Setup Pages
               uses: actions/configure-pages@v5
