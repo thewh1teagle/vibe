@@ -419,6 +419,38 @@ export const usScraper: Scraper = async () => {
       }
     }
 
+    // Supplement compound-zone countries with static data.
+    // The State Dept list page only provides a generic level description as summary,
+    // missing the sub-level regional text needed for compound detection.
+    try {
+      const staticUrl = "https://raw.githubusercontent.com/MvdB-123/vibe/main/travel-advice/data/us-advisories.json";
+      const sRes = await fetch(staticUrl, { signal: AbortSignal.timeout(10_000) });
+      if (sRes.ok) {
+        const staticData: Array<{ iso2: string; rawLevel: string; summary: string; url: string; updatedAt?: string }> = await sRes.json();
+        for (const entry of staticData) {
+          const idx = enriched.findIndex((a) => a.destIso2 === entry.iso2);
+          if (idx >= 0) {
+            enriched[idx] = {
+              ...enriched[idx],
+              summary: entry.summary,
+              rawLevel: entry.rawLevel,
+              normalizedLevel: normalizeLevel("us", entry.rawLevel),
+            };
+          } else {
+            enriched.push({
+              destIso2: entry.iso2,
+              rawLevel: entry.rawLevel,
+              normalizedLevel: normalizeLevel("us", entry.rawLevel),
+              summary: entry.summary,
+              risks: [],
+              officialUpdatedAt: entry.updatedAt ? new Date(entry.updatedAt) : null,
+              sourceUrl: entry.url,
+            });
+          }
+        }
+      }
+    } catch { /* skip */ }
+
     return { sourceId: "us", advisories: enriched, scrapedAt };
   } catch (err) {
     return { sourceId: "us", advisories: [], scrapedAt, error: String(err) };
