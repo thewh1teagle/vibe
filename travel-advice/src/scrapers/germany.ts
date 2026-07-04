@@ -181,6 +181,39 @@ export const germanyScraper: Scraper = async () => {
       }
     }
 
+    // Supplement compound-zone countries with static data.
+    // The Auswärtiges Amt API sometimes reports a full Reisewarnung for the whole country
+    // even when only specific provinces are affected. The static JSON provides the correct
+    // base level and a summary with compound-zone keywords for known countries.
+    try {
+      const staticUrl = "https://raw.githubusercontent.com/MvdB-123/vibe/main/travel-advice/data/germany-advisories.json";
+      const sRes = await fetch(staticUrl, { signal: AbortSignal.timeout(10_000) });
+      if (sRes.ok) {
+        const staticData: Array<{ iso2: string; rawLevel: string; summary: string; url: string; updatedAt?: string }> = await sRes.json();
+        for (const entry of staticData) {
+          const idx = advisories.findIndex((a) => a.destIso2 === entry.iso2);
+          if (idx >= 0) {
+            advisories[idx] = {
+              ...advisories[idx],
+              summary: entry.summary,
+              rawLevel: entry.rawLevel,
+              normalizedLevel: normalizeLevel("germany", entry.rawLevel),
+            };
+          } else {
+            advisories.push({
+              destIso2: entry.iso2,
+              rawLevel: entry.rawLevel,
+              normalizedLevel: normalizeLevel("germany", entry.rawLevel),
+              summary: entry.summary,
+              risks: [],
+              officialUpdatedAt: entry.updatedAt ? new Date(entry.updatedAt) : null,
+              sourceUrl: entry.url,
+            });
+          }
+        }
+      }
+    } catch { /* skip */ }
+
     return { sourceId: "germany", advisories, scrapedAt };
   } catch (err) {
     return { sourceId: "germany", advisories: [], scrapedAt, error: String(err) };
