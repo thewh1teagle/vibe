@@ -5,8 +5,8 @@
 The C library (whisper.cpp) and the Sona binary are built separately:
 
 1. **`.whispercpp-commit`** is the single source of truth for the whisper.cpp version. All scripts read from it.
-2. **`cargo xtask build-libs`** clones whisper.cpp at that commit, builds static `.a` files, and uploads them to a GitHub release tagged `libraries-{commit[:7]}`.
-3. **`cargo xtask fetch-libs`** downloads the prebuilt `.a` files for the current platform from that release into `third_party/lib/`.
+2. **`cargo xtask build-libs`** clones whisper.cpp at that commit, builds static libraries, and uploads them to a GitHub release tagged `libraries-{commit[:7]}`.
+3. **`cargo xtask fetch-libs`** downloads the prebuilt static libraries for the current platform from that release into `third_party/lib/`.
 4. **`cargo xtask fetch-headers`** fetches the C headers into `third_party/include/` (these are checked into git).
 5. The binary links against `third_party/include/` and `third_party/lib/`.
 
@@ -24,13 +24,14 @@ cargo xtask fetch-libs
 cargo build -p sona --release
 ```
 
-On Windows, MinGW is needed for the prebuilt whisper.cpp/Vulkan libraries:
+On Windows, the Sona binary uses Rust's default MSVC target. Install the Vulkan SDK before building locally:
 
 ```bash
-C:\msys64\msys2_shell.cmd -mingw64 -defterm -no-start -here -use-full-path
-pacman -Sy --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-vulkan-devel mingw-w64-x86_64-cmake mingw-w64-x86_64-shaderc
+choco install vulkan-sdk -y
 cargo build -p sona --release
 ```
+
+The library workflow also builds a `windows-amd64-gnu` whisper.cpp bundle for compatibility, but release binaries use `windows-amd64-msvc`.
 
 ## Bumping whisper.cpp
 

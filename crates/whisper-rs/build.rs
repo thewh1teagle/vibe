@@ -116,11 +116,15 @@ fn link_platform_libs() {
         }
         Ok("windows") => {
             println!("cargo:rustc-link-lib=static=ggml-vulkan");
-            println!("cargo:rustc-link-lib=static=vulkan-1-delay");
-            println!("cargo:rustc-link-lib=m");
-            println!("cargo:rustc-link-lib=static=stdc++");
-            println!("cargo:rustc-link-lib=static=gomp");
-            println!("cargo:rustc-link-lib=static=winpthread");
+            if env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("gnu") {
+                println!("cargo:rustc-link-lib=static=vulkan-1-delay");
+                println!("cargo:rustc-link-lib=m");
+                println!("cargo:rustc-link-lib=static=stdc++");
+                println!("cargo:rustc-link-lib=static=gomp");
+                println!("cargo:rustc-link-lib=static=winpthread");
+            } else {
+                println!("cargo:rustc-link-lib=vulkan-1");
+            }
         }
         Ok(other) => panic!("unsupported target OS for whisper-rs: {other}"),
         Err(err) => panic!("failed to read CARGO_CFG_TARGET_OS: {err}"),

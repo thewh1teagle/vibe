@@ -105,13 +105,15 @@ fn cmake_flags() -> Vec<&'static str> {
         flags.push("-DGGML_VULKAN=ON");
     }
     if cfg!(target_os = "windows") {
-        flags.extend(["-G", "MinGW Makefiles"]);
+        if paths::windows_lib_flavor() == "gnu" {
+            flags.extend(["-G", "MinGW Makefiles"]);
+        }
     }
     flags
 }
 
 fn build_vulkan_delay_lib(build_dir: &Path) -> Result<()> {
-    if !cfg!(target_os = "windows") {
+    if !cfg!(target_os = "windows") || paths::windows_lib_flavor() != "gnu" {
         return Ok(());
     }
 

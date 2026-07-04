@@ -4,6 +4,8 @@ use anyhow::{Context, Result};
 use flate2::write::GzEncoder;
 use flate2::Compression;
 
+use crate::tools::paths;
+
 pub(super) fn package(build_dir: &Path, src_dir: &Path, archive: &Path) -> Result<()> {
     let pkg = build_dir.join("pkg");
     remove_dir_if_exists(&pkg)?;
@@ -38,6 +40,16 @@ pub(super) fn package(build_dir: &Path, src_dir: &Path, archive: &Path) -> Resul
 }
 
 fn lib_names() -> Vec<&'static str> {
+    if cfg!(target_os = "windows") && paths::windows_lib_flavor() == "msvc" {
+        return vec![
+            "whisper.lib",
+            "ggml.lib",
+            "ggml-base.lib",
+            "ggml-cpu.lib",
+            "ggml-vulkan.lib",
+        ];
+    }
+
     let mut names = vec![
         "libwhisper.a",
         "libggml.a",

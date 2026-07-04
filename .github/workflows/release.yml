@@ -51,7 +51,6 @@ jobs:
             archive: sona-darwin-amd64-with-ffmpeg.tar.gz
           - runner: windows-latest
             binary: sona-windows-amd64.exe
-            rust_target: x86_64-pc-windows-gnu
             package_os: windows
             package_arch: amd64
             archive: sona-windows-amd64-with-ffmpeg.zip
@@ -64,17 +63,8 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libvulkan-dev
       - name: Install Vulkan deps (Windows)
         if: runner.os == 'Windows'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          install: mingw-w64-x86_64-vulkan-devel mingw-w64-x86_64-gcc
-      - name: Add MinGW to PATH
-        if: runner.os == 'Windows'
         shell: pwsh
-        run: echo "$env:RUNNER_TEMP\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-      - name: Add Windows GNU Rust target
-        if: runner.os == 'Windows'
-        run: rustup target add x86_64-pc-windows-gnu
+        run: choco install vulkan-sdk -y
       - name: Download prebuilt whisper.cpp libs
         run: cargo xtask fetch-libs
       - name: Build sona
@@ -83,14 +73,8 @@ jobs:
           SONA_VERSION: ${{ env.VERSION }}
           SONA_COMMIT: ${{ github.sha }}
         run: |
-          target_arg=""
-          target_dir="target/release"
-          if [[ -n "${{ matrix.rust_target }}" ]]; then
-            target_arg="--target ${{ matrix.rust_target }}"
-            target_dir="target/${{ matrix.rust_target }}/release"
-          fi
-          cargo build -p sona --release $target_arg ${{ matrix.cargo_flags }}
-          src="$target_dir/sona"
+          cargo build -p sona --release ${{ matrix.cargo_flags }}
+          src="target/release/sona"
           if [[ "${{ runner.os }}" == "Windows" ]]; then
             src="${src}.exe"
           fi

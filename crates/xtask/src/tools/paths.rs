@@ -27,9 +27,22 @@ pub fn platform_id() -> String {
         os => os,
     };
     let arch = match (os, std::env::consts::ARCH) {
-        ("windows", "x86_64") => "amd64",
         ("darwin", "aarch64") => "arm64",
+        ("windows", "x86_64") => "amd64",
         (_, arch) => arch,
     };
+    if os == "windows" {
+        return format!("{os}-{arch}-{}", windows_lib_flavor());
+    }
     format!("{os}-{arch}")
+}
+
+pub fn windows_lib_flavor() -> &'static str {
+    match std::env::var("SONA_WINDOWS_LIB_FLAVOR").as_deref() {
+        Ok("gnu") => "gnu",
+        Ok("msvc") => "msvc",
+        Ok(other) => panic!("unsupported SONA_WINDOWS_LIB_FLAVOR: {other}"),
+        Err(_) if cfg!(target_env = "gnu") => "gnu",
+        Err(_) => "msvc",
+    }
 }
