@@ -23,16 +23,10 @@ pub fn whisper_commit() -> Result<String> {
 
 pub fn platform_id() -> String {
     let os = std::env::consts::OS;
-    let arch = match std::env::consts::ARCH {
-        "x86_64" => {
-            if cfg!(windows) {
-                "amd64"
-            } else {
-                "x86_64"
-            }
-        }
-        "aarch64" => "arm64",
-        arch => arch,
+    let arch = match (os, std::env::consts::ARCH) {
+        ("windows", "x86_64") => "amd64",
+        ("macos", "aarch64") => "arm64",
+        (_, arch) => arch,
     };
     format!("{os}-{arch}")
 }
