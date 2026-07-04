@@ -22,10 +22,13 @@ pub fn whisper_commit() -> Result<String> {
 }
 
 pub fn platform_id() -> String {
-    let os = std::env::consts::OS;
+    let os = match std::env::consts::OS {
+        "macos" => "darwin",
+        os => os,
+    };
     let arch = match (os, std::env::consts::ARCH) {
         ("windows", "x86_64") => "amd64",
-        ("macos", "aarch64") => "arm64",
+        ("darwin", "aarch64") => "arm64",
         (_, arch) => arch,
     };
     format!("{os}-{arch}")
