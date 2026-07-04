@@ -98,11 +98,6 @@ jobs:
             --goos "${{ matrix.package_os }}" \
             --goarch "${{ matrix.package_arch }}" \
             --out "${{ matrix.archive }}"
-      - name: Print Windows runtime DLL dependencies
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          & "$env:RUNNER_TEMP\msys64\mingw64\bin\objdump.exe" -p "${{ matrix.binary }}" | Select-String "DLL Name"
       - name: Upload packaged archive to release
         if: matrix.archive != ''
         shell: pwsh
