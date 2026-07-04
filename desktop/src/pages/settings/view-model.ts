@@ -1,19 +1,25 @@
 import { invoke } from '@tauri-apps/api/core'
-import { ask, open } from '@tauri-apps/plugin-dialog'
+import { ask, message, open } from '@tauri-apps/plugin-dialog'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { platform } from '@tauri-apps/plugin-os'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
+import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
+import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
+import * as fs from '@tauri-apps/plugin-fs'
+import { join } from '@tauri-apps/api/path'
 import * as config from '~/lib/config'
 import { NamedPath } from '~/lib/types'
 import { ls } from '~/lib/fs'
 import { getIssueUrl, resetApp } from '~/lib/app'
 import { usePreferenceProvider } from '~/providers/preference'
+import { useToastProvider } from '~/providers/toast'
+import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/use-store-value'
-import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { collectLogs, getPrettyVersion } from '~/lib/logs'
 
 export interface GpuDevice {
@@ -103,6 +109,121 @@ export function viewModel() {
 	const [gpuDevices, setGpuDevices] = useState<GpuDevice[]>([])
 	const isMacOS = platform() === 'macos'
 	const navigate = useNavigate()
+	const progressToast = useToastProvider()
+	const [llm, setLlm] = useState<Llm | null>(null)
+	const [llmError, setLlmError] = useState<string | null>(null)
+	const [llmErrorCopied, setLlmErrorCopied] = useState(false)
+	const llmErrorCopyTimer = useRef<number | null>(null)
+
+	function parseIntOr(value: string, fallback: number) {
+		const n = parseInt(value, 10)
+		return Number.isNaN(n) ? fallback : n
+	}
+
+	function onEnableLlm() {
+		preference.setLlmConfig({ ...preference.llmConfig, enabled: !preference.llmConfig?.enabled })
+	}
+
+	async function validateLlmPrompt() {
+		const valid = Boolean(preference.llmConfig?.prompt && preference.llmConfig.prompt.includes('%s'))
+		if (!valid) {
+			await message(t('common.invalid-llm-prompt'), { kind: 'error' })
+		}
+		return valid
+	}
+
+	async function checkLlm() {
+		setLlmError(null)
+		try {
+			const promise = llm!.ask('Hello, how are you?')
+			toast.promise(promise, {
+				error: t('common.check-error') as string,
+				success: t('common.check-success') as string,
+				loading: t('common.check-loading') as string,
+			})
+			await promise
+		} catch (e) {
+			console.error(e)
+			setLlmError(String(e))
+		}
+	}
+
+	function copyLlmError() {
+		if (!llmError) return
+		clipboard.writeText(llmError)
+		setLlmErrorCopied(true)
+		if (llmErrorCopyTimer.current) window.clearTimeout(llmErrorCopyTimer.current)
+		llmErrorCopyTimer.current = window.setTimeout(() => {
+			setLlmErrorCopied(false)
+			llmErrorCopyTimer.current = null
+		}, 2000)
+	}
+
+	async function toggleDiarization(checked: boolean) {
+		if (!checked) {
+			preference.setDiarizeEnabled(false)
+			return
+		}
+		try {
+			const modelsFolder = await invoke<string>('get_models_folder')
+			const modelPath = await join(modelsFolder, config.diarizeModelFilename)
+			const exists = await fs.exists(modelPath)
+			if (exists) {
+				preference.setDiarizeEnabled(true)
+				return
+			}
+			const confirmed = await ask(t('common.download-diarize-model'), { title: t('common.diarization'), kind: 'info' })
+			if (confirmed) {
+				progressToast.setMessage(t('common.downloading-diarize-model') as string)
+				progressToast.setOpen(true)
+				progressToast.setProgress(0)
+				try {
+					await invoke('download_model', { url: config.diarizeModelUrl, path: modelPath })
+					preference.setDiarizeEnabled(true)
+					toast.success(t('common.download-complete'))
+				} finally {
+					progressToast.setOpen(false)
+					progressToast.setProgress(null)
+				}
+			}
+		} catch (e) {
+			console.error('diarization setup failed:', e)
+			toast.error(String(e))
+		}
+	}
+
+	async function handleStableTimestampsToggle(checked: boolean) {
+		if (!checked) {
+			preference.setStableTimestampsEnabled(false)
+			return
+		}
+		try {
+			const modelsFolder = await invoke<string>('get_models_folder')
+			const modelPath = await join(modelsFolder, config.vadModelFilename)
+			const exists = await fs.exists(modelPath)
+			if (exists) {
+				preference.setStableTimestampsEnabled(true)
+			} else {
+				const confirmed = await ask('Stable timestamps requires a VAD model (~1MB). Download it now?', { title: 'Stable timestamps', kind: 'info' })
+				if (confirmed) {
+					progressToast.setMessage('Downloading VAD model...')
+					progressToast.setOpen(true)
+					progressToast.setProgress(0)
+					try {
+						await invoke('download_model', { url: config.vadModelUrl, path: modelPath })
+						preference.setStableTimestampsEnabled(true)
+						toast.success(t('common.download-complete'))
+					} finally {
+						progressToast.setOpen(false)
+						progressToast.setProgress(null)
+					}
+				}
+			}
+		} catch (e) {
+			console.error('stable timestamps setup failed:', e)
+			toast.error(String(e))
+		}
+	}
 
 	async function askAndReset() {
 		const yes = await ask(t('common.reset-ask-dialog'), { kind: 'info' })
@@ -206,6 +327,27 @@ export function viewModel() {
 		}
 	}
 
+	async function copyCurlExample() {
+		if (!apiBaseUrl) return
+		const snippet = `curl ${apiBaseUrl}/v1/audio/transcriptions \\
+  -F "file=@/path/to/audio.mp3"`
+		await clipboard.writeText(snippet)
+		toast.success('cURL example copied to clipboard')
+	}
+
+	async function copyAgentSkill() {
+		if (!apiBaseUrl) return
+		try {
+			const res = await tauriFetch(`${apiBaseUrl}/skill`)
+			const text = await res.text()
+			await clipboard.writeText(text)
+			toast.success('Agent skill instructions copied to clipboard')
+		} catch (error) {
+			console.error(error)
+			toast.error('Could not reach the local API')
+		}
+	}
+
 	async function stopApiServer() {
 		try {
 			setIsStoppingApiServer(true)
@@ -231,6 +373,29 @@ export function viewModel() {
 		}
 	}, [])
 
+	useEffect(() => {
+		const platform = preference.llmConfig?.platform
+		const llmInstance =
+			platform === 'ollama' ? new Ollama(preference.llmConfig) : platform === 'openai' ? new OpenAICompatible(preference.llmConfig) : new Claude(preference.llmConfig)
+		setLlm(llmInstance)
+	}, [preference.llmConfig])
+
+	useEffect(() => {
+		return () => {
+			if (llmErrorCopyTimer.current) window.clearTimeout(llmErrorCopyTimer.current)
+		}
+	}, [])
+
+	useEffect(() => {
+		const unlisten = listen<[number, number]>('download_progress', (event) => {
+			const [current, total] = event.payload
+			progressToast.setProgress(Number(current / total) * 100)
+		})
+		return () => {
+			unlisten.then((fn) => fn())
+		}
+	}, [])
+
 	return {
 		copyLogs,
 		isLogToFileSet,
@@ -244,6 +409,8 @@ export function viewModel() {
 		startApiServer,
 		stopApiServer,
 		refreshApiServerStatus,
+		copyCurlExample,
+		copyAgentSkill,
 		preference: preference,
 		askAndReset,
 		openModelPath,
@@ -260,5 +427,15 @@ export function viewModel() {
 		defaultRecordingPath,
 		gpuDevices,
 		isMacOS,
+		llm,
+		llmError,
+		llmErrorCopied,
+		checkLlm,
+		copyLlmError,
+		onEnableLlm,
+		validateLlmPrompt,
+		toggleDiarization,
+		handleStableTimestampsToggle,
+		parseIntOr,
 	}
 }

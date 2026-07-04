@@ -17,7 +17,7 @@ export default function AudioDeviceInput({ type, devices, device, setDevice }: A
 	const filtered = devices.filter((d) => (d.isInput && type === 'input') || (!d.isInput && type === 'output'))
 
 	return (
-		<div className="space-y-2 w-full">
+		<div className="space-y-2.5 w-full">
 			<Label>{t(type === 'input' ? 'common.microphone' : 'common.speakers')}</Label>
 			<Select value={device?.id ?? 'none'} onValueChange={(value) => {
 				if (value === 'none') {

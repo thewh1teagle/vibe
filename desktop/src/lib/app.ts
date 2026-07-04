@@ -4,6 +4,10 @@ import { load } from '@tauri-apps/plugin-store'
 import * as config from './config'
 import { NamedPath } from './types'
 
+export function openSettingsSection(scrollTo: string) {
+	window.dispatchEvent(new CustomEvent('vibe:open-settings', { detail: { scrollTo } }))
+}
+
 export async function resetApp() {
 	const modelPath = localStorage.getItem('model_path')
 	try {

@@ -5,9 +5,10 @@ import SettingsPage from '~/pages/settings/page'
 interface SettingsModalProps {
 	visible: boolean
 	setVisible: ModifyState<boolean>
+	scrollTo?: string
 }
 
-export default function SettingsModal({ visible, setVisible }: SettingsModalProps) {
+export default function SettingsModal({ visible, setVisible, scrollTo }: SettingsModalProps) {
 	useEffect(() => {
 		if (!visible) return
 
@@ -25,9 +26,9 @@ export default function SettingsModal({ visible, setVisible }: SettingsModalProp
 	if (!visible) return null
 
 	return (
-		<div className="fixed inset-0 z-50 overflow-hidden bg-background/70 backdrop-blur-2xl">
-			<div className="h-full overflow-y-auto overscroll-contain">
-				<SettingsPage setVisible={setVisible} />
+		<div className="fixed inset-0 z-50 overflow-hidden bg-black/45 backdrop-blur-md" onMouseDown={() => setVisible(false)}>
+			<div className="h-full overflow-y-auto overscroll-contain" onMouseDown={() => setVisible(false)}>
+				<SettingsPage setVisible={setVisible} scrollTo={scrollTo} />
 			</div>
 		</div>
 	)

@@ -168,7 +168,13 @@
 	body {
 		@apply bg-background text-foreground;
 		font-feature-settings: 'rlig' 1, 'calt' 1;
-		background-image: linear-gradient(180deg, hsl(210 32% 97%) 0%, hsl(210 28% 95%) 100%);
+		background-image:
+			radial-gradient(1200px 700px at 15% -10%, hsl(205 90% 88% / 0.55) 0%, transparent 60%),
+			radial-gradient(900px 600px at 100% 0%, hsl(280 70% 88% / 0.35) 0%, transparent 55%),
+			linear-gradient(180deg, hsl(210 32% 97%) 0%, hsl(210 28% 95%) 100%);
+		background-repeat: no-repeat;
+		background-attachment: fixed;
+		background-size: 100% 100%;
 		overflow-x: hidden;
 	}
 
@@ -184,7 +190,10 @@
 	}
 
 	.dark body {
-		background-image: linear-gradient(180deg, hsl(220 10% 11%) 0%, hsl(220 10% 9%) 100%);
+		background-image:
+			radial-gradient(1200px 700px at 15% -10%, hsl(212 100% 30% / 0.16) 0%, transparent 60%),
+			radial-gradient(900px 600px at 100% 0%, hsl(280 60% 30% / 0.12) 0%, transparent 55%),
+			linear-gradient(180deg, hsl(220 10% 11%) 0%, hsl(220 10% 9%) 100%);
 	}
 
 	* {
@@ -303,6 +312,15 @@
 
 	.app-kicker {
 		@apply text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground;
+	}
+
+	.app-main-card {
+		@apply rounded-3xl border border-border/60 bg-card/95 p-6 shadow-xl md:p-8;
+	}
+
+	.dark .app-main-card {
+		@apply border-border/70 bg-card shadow-2xl;
+		background-image: none;
 	}
 
 	.stagger-in {

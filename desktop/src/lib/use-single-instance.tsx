@@ -43,7 +43,7 @@ export function useSingleInstance({ setFiles }: UseSingleInstanceProps) {
 					newFiles.push(await pathToNamedPath(arg))
 				}
 			}
-			if (newFiles) {
+			if (newFiles.length > 0) {
 				setFiles([...newFiles])
 			}
 		})

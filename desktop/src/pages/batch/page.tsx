@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import LanguageInput from '~/components/language-input'
 import Layout from '~/components/layout'
-import ModelOptions from '~/components/params'
+import AdvancedOptionsButton from '~/components/advanced-options-button'
 import BatchPanel from './batch-panel'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -21,7 +21,7 @@ export default function BatchPage() {
 					</div>
 					<LanguageInput />
 					<FormatMultiSelect setFormats={vm.setFormats} formats={vm.formats} />
-					<ModelOptions options={vm.preference.modelOptions} setOptions={vm.preference.setModelOptions} />
+					<AdvancedOptionsButton />
 
 					<div className="pt-2">
 						<BatchPanel
