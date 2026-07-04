@@ -24,7 +24,7 @@ const HASHES_PATH = path.join(__dirname, "../data/summaries-hashes.json");
 type SummaryData = Record<string, Record<string, string>>;
 type HashData = Record<string, Record<string, string>>;
 
-const PROMPT_VERSION = "v3";
+const PROMPT_VERSION = "v4";
 
 function hashText(text: string): string {
   return crypto.createHash("sha1").update(`${PROMPT_VERSION}:${text}`).digest("hex").slice(0, 12);
@@ -40,11 +40,12 @@ async function generateSummary(
   const hasScrapedText = scrapedSummary && scrapedSummary.trim().length > 20;
 
   const prompt = hasScrapedText
-    ? `Vat het onderstaande reisadvies samen in vloeiend Nederlands. Maximaal 120 woorden.
+    ? `Vat het onderstaande reisadvies samen in vloeiend Nederlands. Maximaal 150 woorden.
 Regels:
 - Noem het algemene veiligheidsniveau voor het land
-- Noem specifieke regio's of gebieden met afwijkende waarschuwingen, inclusief plaatsnamen
-- Gebruik idiomatische vertalingen: "exercise caution" → "wees voorzichtig", "exercise increased caution" → "wees extra voorzichtig", "reconsider travel" → "heroverweeg uw reis", "do not travel" → "reis niet naar", "avoid non-essential travel" → "vermijd niet-noodzakelijke reizen"
+- Noem voor elk risicogebied de exacte plaatsnamen én de reden van de waarschuwing (bijv. terrorisme, gewapend conflict, criminaliteit, politieke onrust)
+- Als er gebieden zijn met verhoogde waarschuwingen, beschrijf welke gebieden en waarom
+- Gebruik idiomatische vertalingen: "exercise caution" → "wees voorzichtig", "exercise increased caution" → "wees extra voorzichtig", "reconsider travel" → "heroverweeg uw reis", "do not travel" → "reis niet naar", "avoid non-essential travel" → "vermijd niet-noodzakelijke reizen", "avoid all travel" → "vermijd alle reizen"
 - Geen inleiding of afsluiting, alleen de samenvatting
 
 Bron: ${sourceNameNl} — reisadvies voor ${countryName} (niveau: ${levelNl})
@@ -62,7 +63,7 @@ Begin met "${sourceNameNl} adviseert..."`.trim();
     },
     body: JSON.stringify({
       model: "mistral-small-latest",
-      max_tokens: 220,
+      max_tokens: 280,
       messages: [{ role: "user", content: prompt }],
     }),
   });
