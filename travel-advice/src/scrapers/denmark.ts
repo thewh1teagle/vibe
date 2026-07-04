@@ -120,13 +120,8 @@ function extractSummary(html: string): string {
     .replace(/\b(Del på?|Facebook|Twitter|LinkedIn|X \(Twitter\)|Del med)\b.*$/i, "")
     .trim();
 
-  // Find the first sentence containing a travel-related Danish keyword
-  const TRAVEL_KEYWORDS = /rejse|risiko|sikkerhed|anbefaler|fraråd/i;
-  const sentences = text.split(/(?<=[.!?])\s+/);
-  const firstRelevant = sentences.findIndex((s) => TRAVEL_KEYWORDS.test(s));
-  if (firstRelevant >= 0) {
-    return sentences.slice(firstRelevant).join(" ").slice(0, 5000);
-  }
+  // Return the full article text so compound-zone keywords anywhere on the page
+  // are available for detection. The AI summarizer applies its own 120-word cap.
   return text.slice(0, 5000);
 }
 

@@ -157,13 +157,8 @@ function extractSummary(html: string): string {
     .replace(/\s+/g, " ")
     .trim();
 
-  // Find the first sentence containing a travel-related Swedish keyword
-  const TRAVEL_KEYWORDS = /resa|risk|säkerhet|rekommend|avråd|varning/i;
-  const sentences = text.split(/(?<=[.!?])\s+/);
-  const firstRelevant = sentences.findIndex((s) => TRAVEL_KEYWORDS.test(s));
-  if (firstRelevant >= 0) {
-    return sentences.slice(firstRelevant).join(" ").slice(0, 5000);
-  }
+  // Return the full article text so compound-zone keywords anywhere on the page
+  // are available for detection. The AI summarizer applies its own 120-word cap.
   return text.slice(0, 5000);
 }
 
