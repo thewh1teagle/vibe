@@ -20,7 +20,10 @@ thiserror = "2.0"
 bindgen = "0.72"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_System_LibraryLoader"] }
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+] }
 
 [features]
 default = []
