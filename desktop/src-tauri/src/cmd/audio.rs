@@ -234,7 +234,7 @@ where
     T: SizedSample + hound::Sample + FromSample<T> + Mul<Output = T> + Copy,
 {
     let stream = device.build_input_stream(
-        &config.into(),
+        config.into(),
         move |data: &[T], _: &_| write_input_data::<T, T>(data, &writer),
         |err| tracing::error!("An error occurred on stream: {}", err),
         None,

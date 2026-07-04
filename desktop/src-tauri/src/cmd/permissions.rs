@@ -2,7 +2,7 @@
 pub async fn request_system_audio_permission() -> bool {
     #[cfg(target_os = "macos")]
     {
-        tokio::task::spawn_blocking(cpal::request_system_audio_permission)
+        tokio::task::spawn_blocking(cpal::platform::request_system_audio_permission)
             .await
             .unwrap_or(false)
     }
@@ -17,6 +17,6 @@ pub async fn request_system_audio_permission() -> bool {
 pub async fn open_system_audio_settings() {
     #[cfg(target_os = "macos")]
     {
-        cpal::open_system_audio_settings();
+        cpal::platform::open_system_audio_settings();
     }
 }
