@@ -411,6 +411,13 @@ function getMultiLevelDisplay(
         { level: "red", area: "Grensgebieden" },
       ];
     }
+    // orange base + regional keywords → regional warning, infer yellow as general
+    if (key === "déconseillé sauf raison impérative" && /province[s]?|région[s]?|zone[s]?|territoire[s]?|île[s]?|certaines? partie[s]?/i.test(sum)) {
+      return [
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+      ];
+    }
     if (key === "formellement déconseillé" && hasOrange) {
       return [
         { level: "yellow", area: "Algemeen" },
