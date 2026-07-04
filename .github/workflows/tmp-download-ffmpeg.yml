@@ -1,0 +1,30 @@
+name: Temp Download FFmpeg
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  download:
+    runs-on: macos-15-intel
+    steps:
+      - name: Download with curl
+        run: |
+          set -euxo pipefail
+          url="https://www.osxexperts.net/ffmpeg80intel.zip"
+          curl -fL --retry 5 --retry-all-errors --retry-delay 2 -o ffmpeg-curl.zip "$url"
+          ls -lh ffmpeg-curl.zip
+          unzip -t ffmpeg-curl.zip
+          unzip -l ffmpeg-curl.zip | grep -E '(^|/)ffmpeg$'
+
+      - name: Download with wget
+        run: |
+          set -euxo pipefail
+          url="https://www.osxexperts.net/ffmpeg80intel.zip"
+          rm -f ffmpeg-wget.zip
+          wget --tries=5 --waitretry=2 -O ffmpeg-wget.zip "$url"
+          ls -lh ffmpeg-wget.zip
+          unzip -t ffmpeg-wget.zip
+          unzip -l ffmpeg-wget.zip | grep -E '(^|/)ffmpeg$'
