@@ -12,5 +12,12 @@
     "summary": "Exercise a high degree of caution in Thailand overall. Avoid non-essential travel to the provinces of Yala, Pattani, Narathiwat and Songkhla due to ongoing insurgency and risk of terrorist attacks. Avoid all travel to the border area with Cambodia within 20 km of the border due to armed conflict and landmines.",
     "url": "https://travel.gc.ca/destinations/thailand",
     "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "TR",
+    "rawLevel": "Exercise a high degree of caution",
+    "summary": "Exercise a high degree of caution in Türkiye overall due to the threat of terrorist attacks and demonstrations. Avoid non-essential travel to the southeastern provinces due to ongoing insurgency and risk of terrorist attacks. Avoid all travel to within 10 km of the borders with Iraq and Syria due to unpredictable security situation and terrorism.",
+    "url": "https://travel.gc.ca/destinations/turkey",
+    "updatedAt": "2026-07-04"
   }
 ]
