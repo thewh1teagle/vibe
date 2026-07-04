@@ -11,26 +11,32 @@ Vibe is a desktop transcription app built with **Tauri** (Rust + TypeScript fron
 - **Frontend**: TypeScript + React (UI)
 - **Backend**: Rust/Tauri (`desktop/src-tauri/`)
 - Handles UI, file management, settings, analytics
-- Spawns and communicates with sona sidecar via HTTP
+- Spawns and communicates with the Sona runner via local HTTP
 
-### Sona Sidecar (`sona/` folder)
+### Sona Runner (`sona/` folder)
 
-- **Language**: Go + whisper.cpp (CGo bindings)
+- **Language**: Rust + whisper.cpp bindings
 - **Location**: Separate repository at `github.com/thewh1teagle/sona` (also cloned locally in `./sona`)
-- **Purpose**: HTTP server for audio transcription and model loading
-- Bundled as binary sidecar with the desktop app
+- **Purpose**: Single local runner process for audio transcription, model loading, streaming, and diarization
+- Bundled as one `sona` binary sidecar with the desktop app
+- Diarization is in-process in Sona via `diarize-rs`; Vibe does not bundle or spawn a separate `sona-diarize` binary
 - **Build**: Separate CI/CD in sona repository
-- **Distribution**: Pre-built binaries downloaded during Vibe build (see `scripts/pre_build.py`)
+- **Distribution**: Pre-built Sona binaries downloaded during Vibe build (see `scripts/pre_build.py`)
+
+### FFmpeg Helper
+
+- macOS and Windows builds also bundle `ffmpeg` from the Sona release archives
+- Vibe passes its path to Sona with `SONA_FFMPEG_PATH`
 
 ### Build Flow
 
 1. Vibe CI runs `scripts/pre_build.py`
-2. Script downloads pre-built sona binaries from sona releases
+2. Script downloads pre-built Sona binaries from Sona releases
 3. Binaries placed in `desktop/src-tauri/binaries/`
-4. Tauri bundles sona as sidecar into final app
+4. Tauri bundles `sona` and, where configured, `ffmpeg` into the final app
 
 ## Key Point for Agents
 
-**GLIBCXX/library compatibility issues come from the sona binary**, not the Vibe Rust code.
+Native runtime compatibility issues for transcription usually come from the Sona runner or its linked whisper/ggml libraries, not the Vibe UI code.
 
-To fix Linux compatibility issues, update **sona's** build configuration in the sona repository, not Vibe's `release.yml`.
+To fix Sona runtime compatibility issues, update **Sona's** build configuration in the Sona repository, then bump `.sona-version` in Vibe.

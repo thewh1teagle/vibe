@@ -19,7 +19,7 @@ Make sure to install XCode from the AppStore and open it once so it will downloa
 
 ## Build
 
-Run the pre-build script (downloads the sona sidecar binary and sets up platform deps):
+Run the pre-build script (downloads the Sona runner binary and sets up platform deps):
 
 ```console
 uv run scripts/pre_build.py
@@ -64,7 +64,7 @@ uv run sona/scripts/download-libs.py
 pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-vulkan-devel
 ```
 
-Open an MSYS2 MinGW64 shell with your full Windows PATH (so `go`, `rustc`, etc. are available):
+Open an MSYS2 MinGW64 shell with your full Windows PATH (so `rustc`, `cargo`, etc. are available):
 
 ```console
 C:\msys64\msys2_shell.cmd -mingw64 -defterm -no-start -use-full-path
@@ -74,9 +74,11 @@ Then build sona and place it as sidecar (from `desktop/`):
 
 ```console
 # macOS/Linux
-CGO_ENABLED=1 go build -C ../sona -o ../desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}') ./cmd/sona
+cargo build --manifest-path ../sona/Cargo.toml -p sona --release
+cp ../sona/target/release/sona ../desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}')
 # Windows
-CGO_ENABLED=1 go build -C ../sona -o ../desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}').exe ./cmd/sona
+cargo build --manifest-path ../sona/Cargo.toml -p sona --release
+cp ../sona/target/release/sona.exe ../desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}').exe
 ```
 
 Then copy the binary into the dev target so `tauri dev` picks it up immediately:

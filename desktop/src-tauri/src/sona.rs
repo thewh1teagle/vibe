@@ -82,7 +82,7 @@ impl std::fmt::Display for SonaApiError {
 impl std::error::Error for SonaApiError {}
 
 impl SonaProcess {
-    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, diarize_path: Option<&Path>) -> Result<Self> {
+    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>) -> Result<Self> {
         tracing::debug!("spawning sona at {}", binary_path.display());
 
         let mut cmd = Command::new(binary_path);
@@ -92,11 +92,6 @@ impl SonaProcess {
         if let Some(ffmpeg) = ffmpeg_path {
             tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
             cmd.env("SONA_FFMPEG_PATH", ffmpeg);
-        }
-
-        if let Some(diarize) = diarize_path {
-            tracing::debug!("setting SONA_DIARIZE_PATH={}", diarize.display());
-            cmd.env("SONA_DIARIZE_PATH", diarize);
         }
 
         #[cfg(target_os = "windows")]
