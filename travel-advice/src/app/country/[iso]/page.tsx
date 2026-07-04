@@ -281,6 +281,22 @@ function getMultiLevelDisplay(
         { level: "orange", area: "Deelgebieden" },
       ];
     }
+    // orange base + red zones → base was misclassified; infer yellow as general level
+    if (key === "von nicht notwendigen reisen abraten" && hasRed) {
+      return [
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
+      ];
+    }
+    // red base + orange zones → also infer yellow as general level
+    if (key === "reisewarnung" && hasOrange) {
+      return [
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
+      ];
+    }
     if (key === "reisewarnung" && /teilreise|part|gebiet/i.test(sum)) {
       return [
         { level: "orange", area: "Algemeen" },
@@ -385,6 +401,14 @@ function getMultiLevelDisplay(
       return [
         { level: "yellow", area: "Algemeen" },
         { level: "orange", area: "Deelgebieden" },
+      ];
+    }
+    // orange base + red zones → infer yellow as general country level
+    if (key === "déconseillé sauf raison impérative" && hasRed) {
+      return [
+        { level: "yellow", area: "Algemeen" },
+        { level: "orange", area: "Deelgebieden" },
+        { level: "red", area: "Grensgebieden" },
       ];
     }
     if ((key === "formellement déconseillé" || key === "déconseillé sauf raison impérative") && hasOrange) {
