@@ -6,12 +6,12 @@ const BATCH_SIZE = 10;
 const BATCH_DELAY_MS = 200;
 const REQUEST_TIMEOUT_MS = 15_000;
 
-const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /avoid non-essential travel/i, rawLevel: "Avoid non-essential travel" },
-  { pattern: /avoid all travel/i, rawLevel: "Avoid all travel" },
-  { pattern: /exercise a high degree of caution/i, rawLevel: "Exercise a high degree of caution" },
-  { pattern: /take normal security precautions/i, rawLevel: "Take normal security precautions" },
-  { pattern: /exercise normal security precautions/i, rawLevel: "Exercise normal security precautions" },
+const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string; severity: number }> = [
+  { pattern: /avoid all travel/i, rawLevel: "Avoid all travel", severity: 4 },
+  { pattern: /avoid non-essential travel/i, rawLevel: "Avoid non-essential travel", severity: 3 },
+  { pattern: /exercise a high degree of caution/i, rawLevel: "Exercise a high degree of caution", severity: 2 },
+  { pattern: /take normal security precautions/i, rawLevel: "Take normal security precautions", severity: 1 },
+  { pattern: /exercise normal security precautions/i, rawLevel: "Exercise normal security precautions", severity: 1 },
 ];
 
 const ISO2_TO_SLUG: Record<string, string> = {

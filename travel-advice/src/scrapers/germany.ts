@@ -1,24 +1,30 @@
 import { normalizeLevel } from "@/lib/normalize-risk";
 import type { Scraper, RawAdvisory } from "./types";
 
-const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string }> = [
-  { pattern: /teilreisewarnung/i, rawLevel: "Teilreisewarnung" },
-  { pattern: /reisewarnung/i, rawLevel: "Reisewarnung" },
-  { pattern: /von nicht notwendigen reisen|nicht notwendige reisen/i, rawLevel: "Von nicht notwendigen Reisen abraten" },
-  { pattern: /erh.hte vorsicht|besondere vorsicht|sicherheitshinweise beachten/i, rawLevel: "Erhöhte Vorsicht" },
+const LEVEL_PATTERNS: Array<{ pattern: RegExp; rawLevel: string; severity: number }> = [
+  { pattern: /teilreisewarnung/i, rawLevel: "Teilreisewarnung", severity: 3 },
+  { pattern: /reisewarnung/i, rawLevel: "Reisewarnung", severity: 4 },
+  { pattern: /von nicht notwendigen reisen|nicht notwendige reisen/i, rawLevel: "Von nicht notwendigen Reisen abraten", severity: 2 },
+  { pattern: /erh.hte vorsicht|besondere vorsicht|sicherheitshinweise beachten/i, rawLevel: "Erhöhte Vorsicht", severity: 1 },
 ];
 
 function flagsToRaw(warning: boolean, partialWarning: boolean, situationWarning: boolean, situationPartWarning: boolean, contentHtml?: string): string {
-  if (warning) return "Reisewarnung";
-  if (partialWarning) return "Teilreisewarnung";
-  if (situationPartWarning) return "Von nicht notwendigen Reisen abraten";
+  // Return the LOWEST applicable level — compound detection in page.tsx will show
+  // higher regional zones from the summary keywords.
   if (situationWarning) return "Erhöhte Vorsicht";
+  if (situationPartWarning) return "Von nicht notwendigen Reisen abraten";
+  if (partialWarning) return "Teilreisewarnung";
+  if (warning) return "Reisewarnung";
 
   if (contentHtml) {
     const text = contentHtml.replace(/<[^>]+>/g, " ").toLowerCase();
-    for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
-      if (pattern.test(text)) return rawLevel;
+    let minMatch: { severity: number; rawLevel: string } | null = null;
+    for (const { pattern, rawLevel, severity } of LEVEL_PATTERNS) {
+      if (pattern.test(text) && (minMatch === null || severity < minMatch.severity)) {
+        minMatch = { severity, rawLevel };
+      }
     }
+    if (minMatch) return minMatch.rawLevel;
   }
 
   return "Keine besonderen Sicherheitshinweise";
@@ -30,10 +36,15 @@ function extractLevelFromHtml(html: string): string | null {
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ");
-  for (const { pattern, rawLevel } of LEVEL_PATTERNS) {
-    if (pattern.test(plain)) return rawLevel;
+  // Use minimum non-zero severity: the lowest level found = the general country advisory.
+  // Higher levels in the same page are regional zones shown via compound detection.
+  let minMatch: { severity: number; rawLevel: string } | null = null;
+  for (const { pattern, rawLevel, severity } of LEVEL_PATTERNS) {
+    if (pattern.test(plain) && (minMatch === null || severity < minMatch.severity)) {
+      minMatch = { severity, rawLevel };
+    }
   }
-  return null;
+  return minMatch?.rawLevel ?? null;
 }
 
 function extractSummaryFromHtml(html: string): string {
