@@ -215,7 +215,7 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
         let config = device
             .default_output_config()
             .context("Failed to get default output config")?;
-        return Ok((device, config));
+        Ok((device, config))
     }
 
     #[cfg(not(target_os = "macos"))]
@@ -234,7 +234,7 @@ where
     T: SizedSample + hound::Sample + FromSample<T> + Mul<Output = T> + Copy,
 {
     let stream = device.build_input_stream(
-        &config.into(),
+        config.into(),
         move |data: &[T], _: &_| write_input_data::<T, T>(data, &writer),
         |err| tracing::error!("An error occurred on stream: {}", err),
         None,
