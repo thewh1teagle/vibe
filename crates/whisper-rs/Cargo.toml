@@ -1,0 +1,31 @@
+[package]
+name = "whisper-rs"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Rust wrapper for Sona's prebuilt whisper.cpp libraries"
+build = "build.rs"
+
+[lib]
+name = "whisper_rs"
+path = "src/lib.rs"
+
+[dependencies]
+hound = { version = "3.5", optional = true }
+libc = "0.2"
+thiserror = "2.0"
+
+[build-dependencies]
+bindgen = "0.72"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_System_LibraryLoader"] }
+
+[features]
+default = []
+ffi = []
+
+[[example]]
+name = "transcribe"
+required-features = ["ffi", "hound"]

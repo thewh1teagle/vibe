@@ -35,35 +35,28 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-22.04
-            goos: linux
-            goarch: amd64
             binary: sona-linux-amd64
           - runner: ubuntu-24.04-arm
-            goos: linux
-            goarch: arm64
             binary: sona-linux-arm64
           - runner: macos-14
-            goos: darwin
-            goarch: arm64
             binary: sona-darwin-arm64
+            package_os: darwin
+            package_arch: arm64
             archive: sona-darwin-arm64-with-ffmpeg.tar.gz
           - runner: macos-15-intel
-            goos: darwin
-            goarch: amd64
             binary: sona-darwin-amd64
+            package_os: darwin
+            package_arch: amd64
             archive: sona-darwin-amd64-with-ffmpeg.tar.gz
           - runner: windows-latest
-            goos: windows
-            goarch: amd64
             binary: sona-windows-amd64.exe
+            package_os: windows
+            package_arch: amd64
             archive: sona-windows-amd64-with-ffmpeg.zip
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-      - uses: astral-sh/setup-uv@v5
+      - uses: dtolnay/rust-toolchain@stable
       - name: Install Vulkan deps (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libvulkan-dev
@@ -78,20 +71,27 @@ jobs:
         shell: pwsh
         run: echo "$env:RUNNER_TEMP\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Download prebuilt whisper.cpp libs
-        run: uv run scripts/download-libs.py
+        run: cargo xtask fetch-libs
       - name: Build sona
         shell: bash
+        env:
+          SONA_VERSION: ${{ env.VERSION }}
+          SONA_COMMIT: ${{ github.sha }}
         run: |
-          CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
-          go build -o "${{ matrix.binary }}" -ldflags "-X main.version=${VERSION} -X main.commit=${GITHUB_SHA::8}" ./cmd/sona
+          cargo build -p sona --release
+          src="target/release/sona"
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            src="${src}.exe"
+          fi
+          cp "$src" "${{ matrix.binary }}"
       - name: Package release bundle with ffmpeg
         if: matrix.archive != ''
         shell: bash
         run: |
-          uv run scripts/package-release.py \
+          cargo xtask package-release \
             --binary "${{ matrix.binary }}" \
-            --goos "${{ matrix.goos }}" \
-            --goarch "${{ matrix.goarch }}" \
+            --goos "${{ matrix.package_os }}" \
+            --goarch "${{ matrix.package_arch }}" \
             --out "${{ matrix.archive }}"
       - name: Print Windows runtime DLL dependencies
         if: runner.os == 'Windows'

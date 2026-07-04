@@ -1,0 +1,15 @@
+[package]
+name = "xtask"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+flate2 = "1"
+tar = "0.4"
+time = { version = "0.3", features = ["formatting", "macros"] }
+ureq = "2"
+zip = { version = "2", default-features = false, features = ["deflate"] }

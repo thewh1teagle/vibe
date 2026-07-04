@@ -1,0 +1,246 @@
+use clap::{Parser, Subcommand};
+use whisper_rs::{Context, ContextOptions, TranscribeOptions};
+
+use crate::{audio, pull, server};
+
+const VERSION: &str = match option_env!("SONA_VERSION") {
+    Some(value) => value,
+    None => "dev",
+};
+const COMMIT: &str = match option_env!("SONA_COMMIT") {
+    Some(value) => value,
+    None => "dev",
+};
+
+#[derive(Debug, Parser)]
+#[command(name = "sona", version = VERSION, about = "Speech-to-text powered by whisper.cpp")]
+struct Cli {
+    #[arg(short, long, global = true)]
+    verbose: bool,
+    #[command(subcommand)]
+    command: Command,
+}
+
+#[derive(Debug, Subcommand)]
+enum Command {
+    Transcribe {
+        model: String,
+        audio: String,
+        #[arg(short, long)]
+        language: Option<String>,
+        #[arg(long)]
+        detect_language: bool,
+        #[arg(long)]
+        enhance_audio: bool,
+        #[arg(long)]
+        translate: bool,
+        #[arg(long, default_value_t = 0)]
+        threads: i32,
+        #[arg(long)]
+        prompt: Option<String>,
+        #[arg(long, default_value_t = 0.0)]
+        temperature: f32,
+        #[arg(long, default_value_t = 0)]
+        max_text_ctx: i32,
+        #[arg(long)]
+        word_timestamps: bool,
+        #[arg(long, default_value_t = 0)]
+        max_segment_len: i32,
+        #[arg(long, default_value_t = 0)]
+        best_of: i32,
+        #[arg(long, default_value_t = 0)]
+        beam_size: i32,
+        #[arg(long, default_value_t = -1)]
+        gpu_device: i32,
+    },
+    Serve {
+        model: Option<String>,
+        #[arg(long, default_value = "127.0.0.1")]
+        host: String,
+        #[arg(short, long, default_value_t = 0)]
+        port: u16,
+        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+        exit_with_parent: bool,
+    },
+    Pull {
+        url: String,
+        #[arg(short, long)]
+        output: Option<String>,
+    },
+    Devices,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct AppConfig {
+    verbose: bool,
+    version: &'static str,
+    commit: &'static str,
+}
+
+impl AppConfig {
+    pub fn verbose(&self) -> bool {
+        self.verbose
+    }
+
+    pub fn version(&self) -> &'static str {
+        self.version
+    }
+
+    pub fn commit(&self) -> &'static str {
+        self.commit
+    }
+}
+
+pub async fn run() -> anyhow::Result<()> {
+    let cli = Cli::parse();
+    let config = AppConfig {
+        verbose: cli.verbose,
+        version: VERSION,
+        commit: COMMIT,
+    };
+
+    match cli.command {
+        Command::Transcribe {
+            model,
+            audio,
+            language,
+            detect_language,
+            enhance_audio,
+            translate,
+            threads,
+            prompt,
+            temperature,
+            max_text_ctx,
+            word_timestamps,
+            max_segment_len,
+            best_of,
+            beam_size,
+            gpu_device,
+        } => {
+            transcribe_command(
+                TranscribeArgs {
+                    model,
+                    audio,
+                    language,
+                    detect_language,
+                    enhance_audio,
+                    translate,
+                    threads,
+                    prompt,
+                    temperature,
+                    max_text_ctx,
+                    word_timestamps,
+                    max_segment_len,
+                    best_of,
+                    beam_size,
+                    gpu_device,
+                },
+                config,
+            )
+            .await
+        }
+        Command::Serve {
+            model,
+            host,
+            port,
+            exit_with_parent,
+        } => {
+            if exit_with_parent {
+                watch_parent();
+            }
+            server::serve(host, port, model, config).await
+        }
+        Command::Pull { url, output } => pull::pull_file(&url, output.as_deref()).await,
+        Command::Devices => devices_command(config),
+    }
+}
+
+async fn transcribe_command(args: TranscribeArgs, config: AppConfig) -> anyhow::Result<()> {
+    whisper_rs::set_verbose(config.verbose());
+    let samples = audio::read_file_with_options(
+        &args.audio,
+        audio::ReadOptions {
+            enhance_audio: args.enhance_audio,
+            verbose: config.verbose(),
+        },
+    )?;
+    let mut ctx = Context::new(
+        &args.model,
+        ContextOptions {
+            gpu_device: args.gpu_device,
+            no_gpu: false,
+        },
+    )?;
+    let result = ctx.transcribe(
+        &samples,
+        TranscribeOptions {
+            language: args.language,
+            detect_language: args.detect_language,
+            translate: args.translate,
+            threads: args.threads,
+            prompt: args.prompt,
+            verbose: config.verbose(),
+            temperature: args.temperature,
+            max_text_ctx: args.max_text_ctx,
+            word_timestamps: args.word_timestamps,
+            max_segment_len: args.max_segment_len,
+            best_of: args.best_of,
+            beam_size: args.beam_size,
+            ..TranscribeOptions::default()
+        },
+    )?;
+    println!("{}", result.text());
+    Ok(())
+}
+
+fn devices_command(config: AppConfig) -> anyhow::Result<()> {
+    whisper_rs::set_verbose(config.verbose());
+    let devices: Vec<_> = whisper_rs::list_gpu_devices()
+        .into_iter()
+        .map(|device| {
+            serde_json::json!({
+                "index": device.index,
+                "name": device.name,
+                "description": device.description,
+                "type": match device.device_type {
+                    whisper_rs::GPUDeviceType::Gpu => "gpu",
+                    whisper_rs::GPUDeviceType::IntegratedGpu => "igpu",
+                },
+            })
+        })
+        .collect();
+    println!("{}", serde_json::to_string_pretty(&devices)?);
+    Ok(())
+}
+
+struct TranscribeArgs {
+    model: String,
+    audio: String,
+    language: Option<String>,
+    detect_language: bool,
+    enhance_audio: bool,
+    translate: bool,
+    threads: i32,
+    prompt: Option<String>,
+    temperature: f32,
+    max_text_ctx: i32,
+    word_timestamps: bool,
+    max_segment_len: i32,
+    best_of: i32,
+    beam_size: i32,
+    gpu_device: i32,
+}
+
+fn watch_parent() {
+    #[cfg(unix)]
+    {
+        let parent = unsafe { libc::getppid() };
+        std::thread::spawn(move || loop {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            if unsafe { libc::getppid() } != parent {
+                std::process::exit(0);
+            }
+        });
+    }
+}
+

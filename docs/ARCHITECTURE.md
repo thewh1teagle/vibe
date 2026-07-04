@@ -8,7 +8,7 @@ Sona is intentionally simple: one process, one model, one transcription at a tim
 
 ## Overview
 
-Sona is a single-process Go binary with two operating modes:
+Sona is a single-process Rust binary with two operating modes:
 
 - `sona transcribe <model.bin> <audio>`  
   One-shot local transcription, no server.
@@ -29,42 +29,39 @@ This keeps ownership, shutdown, and scaling explicit and predictable.
 
 High-level layout of the codebase:
 
-- `cmd/sona/*`  
+- `crates/sona/src/cli.rs`  
   CLI entrypoints:
   - `transcribe`
   - `serve`
   - `pull`
 
-- `internal/audio`  
+- `crates/sona/src/audio.rs`  
   Audio decoding and normalization:
   - Converts input to `16kHz` mono `float32`
-  - Fast path for native PCM WAV (`internal/wav`)
   - Fallback to `ffmpeg` for all other formats
 
-- `internal/whisper`  
-  CGo wrapper over `whisper.cpp`:
+- `crates/whisper-rs`  
+  Rust/bindgen wrapper over `whisper.cpp`:
   - Segment callbacks
   - Progress callbacks
   - Abort callbacks for cancellation
+  - Stable timestamp/VAD support
 
-- `internal/server`  
+- `crates/diarize-rs`  
+  In-process Sortformer diarization.
+
+- `crates/sona/src/server`  
   HTTP layer:
   - routing
   - model lifecycle
   - concurrency control
   - graceful shutdown
 
-- `sonapy/src/sonapy`  
-  Python helper:
-  - spawns `sona serve --port 0`
-  - waits for stdout ready signal
-  - talks to the HTTP API
-
 ---
 
 ## Server Lifecycle 🔄
 
-1. `ListenAndServe` binds a TCP port  
+1. `server::serve` binds a TCP port  
    - `--port 0` is supported for auto-assigned ports
 
 2. Once bound, Sona prints exactly one machine-readable line to stdout:
@@ -76,8 +73,8 @@ High-level layout of the codebase:
 3. HTTP server begins handling requests
 
 4. On `SIGINT` / `SIGTERM`:
-   - stop accepting new connections (`http.Server.Shutdown`, 30s timeout)
-   - unload model (`whisper.Context.Close`)
+   - stop accepting new connections
+   - unload model by dropping the whisper context
    - exit cleanly
 
 This design makes Sona easy to supervise from another process.
@@ -125,12 +122,12 @@ Documentation endpoints:
 
 ## Transcription Execution Flow 🧠
 
-1. `handleTranscription` attempts to acquire a global mutex using `TryLock`
+1. The transcription service attempts to acquire a global mutex using `try_lock`
 2. If already busy, request fails with `429` (no queue)
 3. If no model is loaded, request fails with `503`
 4. Multipart `file` is read (max size: `1 GB`)
-5. Audio is decoded via `internal/audio.ReadWithOptions`
-6. Transcription runs via `Context.TranscribeStream(...)`
+5. Audio is decoded via `audio::read_bytes_with_options`
+6. Transcription runs via `Context::transcribe_stream(...)`
    - non-stream requests still use the stream-capable path
    - client disconnect triggers the abort callback
 7. Output is formatted based on `response_format`:
@@ -184,10 +181,10 @@ Scaling is explicit and process-level:
 
 ## Build & Packaging 🛠️
 
-- Whisper commit pinned via `.whisper.cpp-commit`
+- Whisper commit pinned via `.whispercpp-commit`
 - Platform-specific static libs downloaded to `third_party/lib`
 - Headers fetched to `third_party/include`
-- Go binary links against platform whisper / ggml libs
+- Rust binary links against platform whisper / ggml libs
 - Release packaging bundles:
   - `sona`
   - `ffmpeg` binary (when applicable)
@@ -201,8 +198,8 @@ Sona intentionally does **not** include:
 - authentication or multi-tenant logic
 - internal job queues or async job IDs
 - daemon or service-manager integration
-- in-process bindings for non-Go runtimes
+- in-process bindings for non-Rust runtimes
 
-Integrations are expected to happen over HTTP, optionally via helpers like `sonapy`.
+Integrations are expected to happen over HTTP.
 
 This keeps Sona small, predictable, and easy to embed.

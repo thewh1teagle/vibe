@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: dtolnay/rust-toolchain@stable
       - name: Install Vulkan deps (Linux x86_64)
         if: runner.os == 'Linux' && runner.arch == 'X64'
         run: |
@@ -42,4 +42,4 @@ jobs:
       - name: Build and upload
         env:
           GH_TOKEN: ${{ github.token }}
-        run: uv run scripts/build-libs.py --upload
+        run: cargo xtask build-libs --upload

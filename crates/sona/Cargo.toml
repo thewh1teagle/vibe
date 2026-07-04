@@ -1,0 +1,44 @@
+[package]
+name = "sona"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Rust CLI and server for local transcription with whisper.cpp"
+
+[[bin]]
+name = "sona"
+path = "src/main.rs"
+
+[dependencies]
+whisper-rs = { path = "../whisper-rs", features = ["ffi"] }
+diarize-rs = { path = "../diarize-rs" }
+
+anyhow = "1"
+axum = { version = "0.8", features = ["multipart"] }
+bytes = "1"
+clap = { version = "4", features = ["derive"] }
+futures-util = "0.3"
+hound = "3.5"
+libc = "0.2"
+reqwest = { version = "0.12", features = ["stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+thiserror = "2"
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "macros",
+    "signal",
+    "process",
+    "fs",
+    "io-util",
+    "sync",
+] }
+tokio-stream = "0.1"
+tower-http = { version = "0.6", features = ["trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+utoipa = "5"
+utoipa-axum = "0.2"
+utoipa-swagger-ui = { version = "9", features = ["axum"] }
