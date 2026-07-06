@@ -65,7 +65,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
-    liveMode: true,
+    liveMode: false,
   },
   // --- Cached sources: official sites blocked from cloud; refreshed via daily scrape ---
   {
