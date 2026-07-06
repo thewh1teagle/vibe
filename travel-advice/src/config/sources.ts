@@ -39,7 +39,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
-    liveMode: true,
+    liveMode: false,
   },
   {
     id: "france",

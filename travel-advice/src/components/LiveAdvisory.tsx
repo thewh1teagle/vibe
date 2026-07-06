@@ -87,11 +87,23 @@ function extractUk(body: string): AdvisoryResult["level"] | null {
   try {
     const data = JSON.parse(body);
     const statuses: string[] = data?.details?.alert_status ?? [];
-    if (statuses.includes("avoid_all_travel_to_whole_country")) return "red";
-    if (statuses.includes("avoid_all_travel_to_parts_of_country")) return "orange";
-    if (statuses.includes("avoid_all_but_essential_travel_to_whole_country")) return "orange";
-    if (statuses.includes("avoid_all_but_essential_travel_to_parts_of_country")) return "yellow";
-    return "green";
+    const LEVEL_MAP: Record<string, Level> = {
+      "avoid_all_travel": "red",
+      "avoid_all_travel_to_whole_country": "red",
+      "avoid_all_travel_to_parts": "orange",
+      "avoid_all_travel_to_parts_of_country": "orange",
+      "avoid_all_but_essential_travel": "orange",
+      "avoid_all_but_essential_travel_to_whole_country": "orange",
+      "avoid_all_but_essential_travel_to_parts": "yellow",
+      "avoid_all_but_essential_travel_to_parts_of_country": "yellow",
+    };
+    const SEVERITY: Record<Level, number> = { green: 0, yellow: 1, orange: 2, red: 3 };
+    let worst: Level = "green";
+    for (const s of statuses) {
+      const l = LEVEL_MAP[s];
+      if (l && SEVERITY[l] > SEVERITY[worst]) worst = l;
+    }
+    return worst;
   } catch { return null; }
 }
 
@@ -495,10 +507,15 @@ const SOURCE_CONFIGS: Record<string, SourceConfig> = {
     },
     extract: (body) => {
       const text = body.replace(/<[^>]+>/g, " ");
+      const SEVERITY: Record<Level, number> = { green: 0, yellow: 1, orange: 2, red: 3 };
+      // Pick the LEAST severe matching level — regional zone warnings should not override the general country level
+      let best: (typeof CA_LEVELS)[0] | null = null;
       for (const l of CA_LEVELS) {
-        if (l.pattern.test(text)) return { rawLevel: l.raw, labelNl: l.nl, level: l.level, summary: extractFromHtml(body) };
+        if (l.pattern.test(text)) {
+          if (!best || SEVERITY[l.level] < SEVERITY[best.level]) best = l;
+        }
       }
-      return null;
+      return best ? { rawLevel: best.raw, labelNl: best.nl, level: best.level, summary: extractFromHtml(body) } : null;
     },
   },
   australia: {
