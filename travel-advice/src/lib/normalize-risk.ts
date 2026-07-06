@@ -58,6 +58,7 @@ const NORMALIZATION: Record<string, NormalizationMap> = {
     "ingen særlige advarsler": "green",
     "vær opmærksom": "green",
     "vær forsigtig": "yellow",
+    "vær ekstra forsigtig": "yellow",
     "vær ekstra opmærksom": "yellow",
     "fraråd ikke-nødvendige rejser": "orange",
     "undgå ikke-nødvendige rejser": "orange",

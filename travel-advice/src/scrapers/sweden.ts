@@ -85,7 +85,7 @@ const KNOWN_ISO_SLUGS: Record<string, string> = {
   "syrien": "SY", "tadzjikistan": "TJ", "taiwan": "TW", "tanzania": "TZ",
   "thailand": "TH", "togo": "TG", "tonga": "TO", "trinidad-och-tobago": "TT",
   "tunisien": "TN", "turkmenistan": "TM", "turkiet": "TR", "uganda": "UG",
-  "ukraina": "UA", "uae": "AE", "usa": "US", "uruguay": "UY",
+  "ukraina": "UA", "förenade-arabemiraten": "AE", "usa": "US", "uruguay": "UY",
   "uzbekistan": "UZ", "vanuatu": "VU", "venezuela": "VE", "vietnam": "VN",
   "jemen": "YE", "zambia": "ZM", "zimbabwe": "ZW",
 };
