@@ -351,10 +351,12 @@ function getMultiLevelDisplay(
         { level: "red", area: "Grensgebieden" },
       ];
     }
-    if (hasRed) {
+    // Only show compound zones when base level is lower than the regional maximum.
+    // If the whole country is already red, "hasRed" just confirms the country level — no split needed.
+    if (hasRed && baseLevel !== "red") {
       return [{ level: baseLevel, area: "Algemeen" }, { level: "red", area: "Deelgebieden" }];
     }
-    if (hasOrange) {
+    if (hasOrange && baseLevel !== "orange" && baseLevel !== "red") {
       return [{ level: baseLevel, area: "Algemeen" }, { level: "orange", area: "Deelgebieden" }];
     }
   }
@@ -364,8 +366,9 @@ function getMultiLevelDisplay(
     // Match both verb ("avråder") and noun ("avrådan") forms used on swedenabroad
     const hasRed = /avråd(?:er|an)?\s+från\s+(?:alla\s+)?resor\b|vermijd alle reizen/i.test(sum);
     const hasOrange = /avråd(?:er|an)?\s+från\s+icke\s+nödvändiga|niet.?noodzakelijk.*afgeraden/i.test(sum);
-    // Base level for compound: if raw level is red due to regional zones, use yellow as general base
-    const baseLevel = (normalizedLevel === "red" && (hasRed || hasOrange)) ? "yellow" : normalizedLevel;
+    // Base level for compound: if raw level is red due to regional zones, use yellow as general base.
+    // But if the whole country is red (hasRed without hasOrange), do not downgrade — it's a single-color advisory.
+    const baseLevel = (normalizedLevel === "red" && hasOrange) ? "yellow" : normalizedLevel;
     if (hasRed && hasOrange) {
       return [
         { level: baseLevel, area: "Algemeen" },
@@ -373,10 +376,11 @@ function getMultiLevelDisplay(
         { level: "red", area: "Grensgebieden" },
       ];
     }
-    if (hasRed) {
+    // Only compound if base is lower than red
+    if (hasRed && baseLevel !== "red") {
       return [{ level: baseLevel, area: "Algemeen" }, { level: "red", area: "Grensgebieden" }];
     }
-    if (hasOrange) {
+    if (hasOrange && baseLevel !== "orange" && baseLevel !== "red") {
       return [{ level: baseLevel, area: "Algemeen" }, { level: "orange", area: "Deelgebieden" }];
     }
   }
