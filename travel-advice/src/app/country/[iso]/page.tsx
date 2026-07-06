@@ -577,8 +577,8 @@ export default async function CountryPage({
           <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-900">
             <span className="font-semibold">Belangrijk: </span>
             De niveaus zijn gestandaardiseerd voor vergelijking. Officiële classificaties verschillen per overheid. De originele reisadviezen blijven leidend.
-            {" "}Reisadviezen in dit overzicht worden dagelijks bijgewerkt.
-            {lastScrapeStr && <span> Laatste update: <strong>{lastScrapeStr}</strong>.</span>}
+            {" "}🇬🇧🇺🇸🇩🇪🇫🇷🇨🇦 worden live opgehaald bij elke paginalading. 🇦🇺🇩🇰🇸🇪 worden dagelijks bijgewerkt.
+            {lastScrapeStr && <span> Cache bijgewerkt: <strong>{lastScrapeStr}</strong>.</span>}
           </div>
         );
       })()}
@@ -599,11 +599,32 @@ export default async function CountryPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {SOURCES.map((src) => {
+              {SOURCES.map((src, srcIdx) => {
                 const adv = advisories.find((a) => a.sourceId === src.id);
+                const isFirstCached = !src.liveMode && (srcIdx === 0 || SOURCES[srcIdx - 1].liveMode);
 
-                if (!adv) {
+                // Live sources: always fetch directly from official site
+                if (src.liveMode) {
                   return <LiveAdvisory key={src.id} sourceId={src.id} iso2={isoUpper} aiSummary={aiSummaries[isoUpper]?.[src.id] ?? null} />;
+                }
+
+                // Cached sources: show separator before first, then DB data
+                if (!adv) {
+                  return (
+                    <>
+                      {isFirstCached && (
+                        <tr key={`sep-${src.id}`} className="bg-gray-50/80 border-t-2 border-gray-300">
+                          <td colSpan={6} className="px-4 py-1.5 text-[11px] text-gray-400 font-medium tracking-wide uppercase">
+                            Dagelijks bijgewerkt (officiële site niet direct toegankelijk vanuit cloud)
+                          </td>
+                        </tr>
+                      )}
+                      <tr key={src.id} className="opacity-60">
+                        <td className="px-4 py-3 font-medium text-gray-900">{src.flagEmoji} {src.nameNl}</td>
+                        <td colSpan={5} className="px-4 py-3 text-gray-400 text-sm italic">Geen data beschikbaar</td>
+                      </tr>
+                    </>
+                  );
                 }
 
                 const noAdvisory = adv?.normalizedLevel === "unknown" && adv?.rawLevel === "Geen reisadvies beschikbaar";
@@ -613,6 +634,14 @@ export default async function CountryPage({
                 const isOld = age !== null && age > 90;
 
                 return (
+                  <>
+                    {isFirstCached && (
+                      <tr key={`sep-${src.id}`} className="bg-gray-50/80 border-t-2 border-gray-300">
+                        <td colSpan={6} className="px-4 py-1.5 text-[11px] text-gray-400 font-medium tracking-wide uppercase">
+                          Dagelijks bijgewerkt (officiële site niet direct toegankelijk vanuit cloud)
+                        </td>
+                      </tr>
+                    )}
                   <tr
                     key={src.id}
                     className={clsx(
@@ -756,6 +785,7 @@ export default async function CountryPage({
                       )}
                     </td>
                   </tr>
+                  </>
                 );
               })}
             </tbody>

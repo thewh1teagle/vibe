@@ -1,6 +1,7 @@
 import type { SourceConfig } from "@/types";
 
 export const SOURCES: SourceConfig[] = [
+  // --- Live sources: fetched directly from official site on each page load ---
   {
     id: "uk",
     nameNl: "Verenigd Koninkrijk",
@@ -12,6 +13,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: true,
   },
   {
     id: "us",
@@ -24,6 +26,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: true,
   },
   {
     id: "germany",
@@ -36,6 +39,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: true,
   },
   {
     id: "france",
@@ -48,6 +52,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: true,
   },
   {
     id: "canada",
@@ -60,7 +65,9 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: true,
   },
+  // --- Cached sources: official sites blocked from cloud; refreshed via daily scrape ---
   {
     id: "australia",
     nameNl: "Australië",
@@ -72,6 +79,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: false,
   },
   {
     id: "denmark",
@@ -84,6 +92,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: false,
   },
   {
     id: "sweden",
@@ -96,6 +105,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
+    liveMode: false,
   },
 ];
 

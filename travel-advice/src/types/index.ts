@@ -13,6 +13,8 @@ export interface SourceConfig {
   active: boolean;
   fetchIntervalH: number;
   priority: number;
+  /** true = always fetch live from official source; false = use scheduled scrape cache */
+  liveMode: boolean;
 }
 
 export interface AdvisoryRow {
