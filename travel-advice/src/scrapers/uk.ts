@@ -160,7 +160,24 @@ export const ukScraper: Scraper = async () => {
         const alertStatuses = page.details?.alert_status ?? [];
         const { rawLevel, normalizedLevel } = pickWorstLevel(alertStatuses);
 
-        const summaryText = stripHtml(page.details?.summary ?? "").slice(0, 400);
+        // Synthesize compound-zone indicator from all alert_status slugs so that
+        // compound detection in page.tsx can find multiple levels even when the
+        // FCDO API summary is too short to include regional breakdown text.
+        const SLUG_LABELS: Record<string, string> = {
+          "avoid_all_travel_to_parts_of_country": "Advise against all travel to parts of the country.",
+          "avoid_all_travel_to_parts": "Advise against all travel to parts of the country.",
+          "avoid_all_but_essential_travel_to_parts_of_country": "Advise against all but essential travel to parts of the country.",
+          "avoid_all_but_essential_travel_to_parts": "Advise against all but essential travel to parts of the country.",
+          "avoid_all_but_essential_travel_to_whole_country": "Advise against all but essential travel.",
+          "avoid_all_travel_to_whole_country": "Advise against all travel.",
+          "avoid_all_travel": "Advise against all travel.",
+        };
+        const alertPhrases = alertStatuses
+          .map((s: string) => SLUG_LABELS[s])
+          .filter(Boolean)
+          .join(" ");
+        const baseSummary = stripHtml(page.details?.summary ?? "").slice(0, 400);
+        const summaryText = alertPhrases ? `${baseSummary} ${alertPhrases}`.trim() : baseSummary;
         const risks = extractRisks(summaryText);
 
         return {
