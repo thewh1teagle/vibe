@@ -1,5 +1,89 @@
 [
   {
+    "iso2": "AF",
+    "level": 4,
+    "summary": "Do not travel to Afghanistan. The security situation is extremely dangerous under Taliban rule. There is a very high threat of terrorism, armed conflict, kidnapping and arbitrary detention. Australia's ability to provide consular assistance is severely limited.",
+    "url": "https://www.smartraveller.gov.au/destinations/asia/afghanistan",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SY",
+    "level": 4,
+    "summary": "Do not travel to Syria. Despite the fall of the Assad regime, the situation remains extremely dangerous with ongoing armed conflict, terrorism and unclear power dynamics. Australia's ability to provide consular assistance is severely limited.",
+    "url": "https://www.smartraveller.gov.au/destinations/middle-east/syria",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "YE",
+    "level": 4,
+    "summary": "Do not travel to Yemen. The ongoing civil war, Houthi attacks, terrorism and catastrophic humanitarian situation make all travel extremely dangerous. Australia has no consular presence in Yemen.",
+    "url": "https://www.smartraveller.gov.au/destinations/middle-east/yemen",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "LY",
+    "level": 4,
+    "summary": "Do not travel to Libya. The unstable political situation, armed conflict between rival militias and terrorist threat make travel extremely risky. Australia has very limited ability to provide consular assistance.",
+    "url": "https://www.smartraveller.gov.au/destinations/africa/libya",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SO",
+    "level": 4,
+    "summary": "Do not travel to Somalia. Extremism (Al-Shabaab), piracy, clan conflicts and near-total absence of effective government create extreme security risks. Australia has no ability to provide consular assistance in Somalia.",
+    "url": "https://www.smartraveller.gov.au/destinations/africa/somalia",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SS",
+    "level": 4,
+    "summary": "Do not travel to South Sudan. Armed conflict, intercommunal violence and an extremely volatile security situation make travel very dangerous. Australia has very limited consular assistance available.",
+    "url": "https://www.smartraveller.gov.au/destinations/africa/south-sudan",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SD",
+    "level": 4,
+    "summary": "Do not travel to Sudan. A bloody civil war between the Sudanese Armed Forces and RSF militia has been ongoing since April 2023. Darfur and Khartoum are particularly dangerous. Consular assistance is extremely limited.",
+    "url": "https://www.smartraveller.gov.au/destinations/africa/sudan",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "ML",
+    "level": 4,
+    "summary": "Do not travel to Mali. Jihadist terrorist groups (including JNIM and IS) control large parts of the country. Kidnapping, attacks and armed robbery are common. Travel is extremely dangerous.",
+    "url": "https://www.smartraveller.gov.au/destinations/africa/mali",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "NE",
+    "level": 4,
+    "summary": "Do not travel to Niger. After the 2023 military coup, the situation is extremely unstable. Terrorism from jihadist groups, kidnapping risk and arbitrary detention by the military regime pose extreme risks.",
+    "url": "https://www.smartraveller.gov.au/destinations/africa/niger",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "CF",
+    "level": 4,
+    "summary": "Do not travel to the Central African Republic. Armed groups control large parts of the country, attacks on civilians are frequent and state authority is extremely weak.",
+    "url": "https://www.smartraveller.gov.au/destinations/africa/central-african-republic",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "MM",
+    "level": 3,
+    "summary": "Reconsider your need to travel to Myanmar overall. Since the 2021 military coup, a brutal civil war is ongoing. Do not travel to most regions outside of central Yangon. Exercise a high degree of caution in central Yangon. The border areas with Thailand, China, India and Bangladesh are particularly dangerous.",
+    "url": "https://www.smartraveller.gov.au/destinations/asia/myanmar-burma",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "UA",
+    "level": 4,
+    "summary": "Do not travel to Ukraine due to the ongoing war with Russia. Russian military attacks are occurring across the country, including against cities and civilian infrastructure. Australians in Ukraine should leave immediately if it is safe to do so.",
+    "url": "https://www.smartraveller.gov.au/destinations/europe/ukraine",
+    "updatedAt": "2026-07-04"
+  },
+  {
     "iso2": "TR",
     "level": 2,
     "summary": "Exercise a high degree of caution in Türkiye overall due to the threat of terrorism. Do not travel to areas within 10km of the border with Syria due to serious threat of terrorism, violence and acts of war. Reconsider your need to travel to the provinces of Hakkari and Sirnak due to the unpredictable security situation.",

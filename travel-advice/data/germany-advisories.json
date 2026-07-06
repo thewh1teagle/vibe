@@ -1,5 +1,89 @@
 [
   {
+    "iso2": "AF",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Afghanistan. Das Auswärtige Amt warnt dringend vor Reisen nach Afghanistan. Die Sicherheitslage ist äußerst gefährlich. Taliban-Herrschaft, Terrorismus, willkürliche Verhaftungen und massive Menschenrechtsverletzungen stellen extreme Risiken für alle Reisenden dar. Eine konsularische Hilfe ist kaum möglich.",
+    "url": "https://www.auswaertiges-amt.de/de/reiseundsicherheit/afghanistansicherheit-204692",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SY",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Syrien. Das Auswärtige Amt warnt dringend vor Reisen nach Syrien. Trotz des Sturzes des Assad-Regimes bleibt die Lage äußerst instabil mit bewaffneten Auseinandersetzungen, Terrorismus und unklaren Machtverhältnissen. Konsularische Hilfe ist nicht möglich.",
+    "url": "https://www.auswaertiges-amt.de/de/reiseundsicherheit/syriensicherheit-204278",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "YE",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Jemen. Das Auswärtige Amt warnt dringend vor Reisen in den Jemen. Der anhaltende Bürgerkrieg, Bombardierungen, Terrorismus und eine katastrophale humanitäre Lage machen Reisen extrem gefährlich. Konsularische Hilfe ist nicht verfügbar.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/jemen-node/jemensicherheit-202836",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "LY",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Libyen. Das Auswärtige Amt warnt dringend vor Reisen nach Libyen. Die instabile politische Lage, bewaffnete Konflikte zwischen rivalisierenden Milizen und die Terrorgefahr machen Reisen äußerst riskant. Konsularische Hilfe ist stark eingeschränkt.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/libyen-node/libyensicherheit-202126",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SO",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Somalia. Das Auswärtige Amt warnt dringend vor Reisen nach Somalia. Extremismus (Al-Shabaab), Piraterie, Clan-Konflikte und die weitgehend nicht funktionsfähige Staatsstruktur stellen extreme Sicherheitsrisiken dar. Konsularische Hilfe ist nicht möglich.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/somalia-node/somaliasicherheit-204916",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SS",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Südsudan. Das Auswärtige Amt warnt dringend vor Reisen in den Südsudan. Bewaffnete Konflikte, interethnische Gewalt, extreme Armut und eine instabile Sicherheitslage machen Reisen äußerst gefährlich.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/suedsudan-node/suedsudansicherheit-217166",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SD",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Sudan. Das Auswärtige Amt warnt dringend vor Reisen in den Sudan. Seit April 2023 führen die sudanesischen Streitkräfte und die RSF-Milizen einen blutigen Bürgerkrieg. Darfur und Khartum sind besonders gefährlich. Konsularische Hilfe ist kaum möglich.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/sudan-node/sudansicherheit-205902",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "ML",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Mali. Das Auswärtige Amt warnt dringend vor Reisen nach Mali. Jihadistische Terrorgruppen (u.a. JNIM und IS) kontrollieren weite Teile des Landes. Entführungen, Anschläge und bewaffnete Überfälle sind an der Tagesordnung. Reisen sind extrem gefährlich.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/mali-node/malisicherheit-205842",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "NE",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für Niger. Das Auswärtige Amt warnt dringend vor Reisen nach Niger. Nach dem Militärputsch 2023 ist die Lage äußerst instabil. Terrorismus durch jihadistische Gruppen, Entführungsgefahr und willkürliche Festnahmen durch die Militärregierung stellen extreme Risiken dar.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/niger-node/nigersicherheit-218692",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "CF",
+    "rawLevel": "Reisewarnung",
+    "summary": "Reisewarnung für die Zentralafrikanische Republik. Das Auswärtige Amt warnt dringend vor Reisen in die Zentralafrikanische Republik. Bewaffnete Gruppen kontrollieren weite Landesteile, Angriffe auf Zivilisten sind häufig und die staatliche Kontrolle ist extrem schwach.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/zentralafrikanischerepublik-node/zentralafrikanischerepubliksicherheit-218674",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "MM",
+    "rawLevel": "Teilreisewarnung",
+    "summary": "Teilreisewarnung für Myanmar. Das Auswärtige Amt warnt vor Reisen in die meisten Teile Myanmars. Seit dem Militärputsch 2021 herrscht ein brutaler Bürgerkrieg. Reisewarnung für alle Gebiete außer Yangon-Stadt. Von nicht notwendigen Reisen in die Innenstadt von Yangon wird abgeraten. Die Reisewarnung gilt besonders für die Grenzgebiete zu Thailand, China, Indien und Bangladesch.",
+    "url": "https://www.auswaertiges-amt.de/de/service/laender/myanmar-node/myanmarsicherheit-206974",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "IQ",
+    "rawLevel": "Teilreisewarnung",
+    "summary": "Teilreisewarnung für Irak. Das Auswärtige Amt warnt vor Reisen in weite Teile des Irak. Reisewarnung für alle Gebiete außer der Kurdistan-Region und Bagdad. Von nicht notwendigen Reisen in die Kurdistan-Region und Bagdad wird abgeraten wegen des IS-Terrors, Milizaktivitäten und regionaler Konflikte.",
+    "url": "https://www.auswaertiges-amt.de/de/reiseundsicherheit/iraksicherheit-202738",
+    "updatedAt": "2026-07-04"
+  },
+  {
     "iso2": "ID",
     "rawLevel": "Erhöhte Vorsicht",
     "summary": "Erhöhte Vorsicht in Indonesien allgemein. Reisewarnung für die Provinzen Papua und West-Papua wegen eines bewaffneten separatistischen Konflikts. Von nicht notwendigen Reisen in Teile der Provinzen Maluku und Zentralsulawesi (Poso-Region) abraten wegen anhaltender Sicherheitsrisiken und Anschlaggefahr.",

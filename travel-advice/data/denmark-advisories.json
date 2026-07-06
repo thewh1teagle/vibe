@@ -1,5 +1,75 @@
 [
   {
+    "iso2": "AF",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Afghanistan. Sikkerhedssituationen er ekstremt farlig under talibanernes styre. Terrorisme, vilkårlige anholdelser, ekstreme begrænsninger af menneskerettigheder og fraværet af retsstatsprincipper gør alle rejser livstruende. Danske statsborgere bør omgående forlade landet.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/afghanistan",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SY",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Syrien. Trods Assadregimets fald er situationen ekstremt ustabil med igangværende væbnede konflikter, terrorisme og uklare magtforhold. Konsulær bistand kan ikke garanteres.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/syrien",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "YE",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Yemen. Den igangværende borgerkrig, houthi-angreb, terrorisme og en katastrofal humanitær situation gør alle rejser ekstremt farlige. Konsulær bistand er ikke tilgængelig.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/jemen",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "LY",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Libyen. Den ustabile politiske situation, væbnede konflikter mellem rivaliserende militser og terrortruslen gør rejser ekstremt risikable. Konsulær bistand er stærkt begrænset.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/libyen",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SO",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Somalia. Ekstremisme (al-Shabaab), pirater, klan-konflikter og en næsten ikke-eksisterende statsstruktur udgør ekstreme sikkerhedsrisici. Konsulær bistand er ikke mulig.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/somalia",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SS",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Sydsudan. Væbnede konflikter, interetnisk vold og en ekstremt ustabil sikkerhedssituation gør rejser meget farlige.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/sydsudan",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "SD",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Sudan. Siden april 2023 har de sudanesiske væbnede styrker og RSF-militsen ført en blodig borgerkrig. Darfur og Khartoum er særligt farlige. Konsulær bistand er næsten ikke mulig.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/sudan",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "ML",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Mali. Jihadistiske terrorgrupper (bl.a. JNIM og IS) kontrollerer store dele af landet. Kidnapninger, angreb og væbnede røverier er hyppige. Rejser er ekstremt farlige.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/mali",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "NE",
+    "rawLevel": "Rejse frarådes",
+    "summary": "Vi fraråder alle rejser til Niger. Efter militærkuppet i 2023 er situationen ekstremt ustabil. Terrorisme fra jihadistgrupper, kidnapningsrisiko og vilkårlige anholdelser af militærregimet udgør ekstreme risici.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/niger",
+    "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "MM",
+    "rawLevel": "Alle ikke-nødvendige rejser frarådes",
+    "summary": "Vi fraråder alle rejser til størstedelen af Myanmar. Siden militærkuppet i 2021 pågår en brutal borgerkrig. Vi fraråder alle rejser undtagen til centrale Yangon. Vi fraråder alle ikke-nødvendige rejser til centrale Yangon. Grænseområderne mod Thailand, Kina, Indien og Bangladesh er særligt farlige.",
+    "url": "https://um.dk/rejse-og-ophold/rejse-til-udlandet/rejsevejledninger/myanmar",
+    "updatedAt": "2026-07-04"
+  },
+  {
     "iso2": "AE",
     "rawLevel": "Vær ekstra forsigtig",
     "summary": "Vær ekstra forsigtig i De Forenede Arabiske Emirater generelt. Vær opmærksom på den generelle sikkerhedssituation og følg anvisninger fra lokale myndigheder. Vær særlig opmærksom i grænseområderne mod Yemen, især i emiratet Abu Dhabi.",
