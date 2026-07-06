@@ -40,7 +40,11 @@ jobs:
           npx playwright install chromium --with-deps
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: |
+          if [[ "$DATABASE_URL" == postgres* ]]; then
+            cp prisma/schema.postgresql.prisma prisma/schema.prisma
+          fi
+          npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
