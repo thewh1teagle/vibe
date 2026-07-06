@@ -13,7 +13,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
-    liveMode: true,
+    liveMode: false,
   },
   {
     id: "us",
@@ -26,7 +26,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
-    liveMode: true,
+    liveMode: false,
   },
   {
     id: "germany",
@@ -52,7 +52,7 @@ export const SOURCES: SourceConfig[] = [
     active: true,
     fetchIntervalH: 6,
     priority: 1,
-    liveMode: true,
+    liveMode: false,
   },
   {
     id: "canada",
