@@ -1,25 +1,25 @@
 {
   "AD": {
-    "us": "d321fab1eb8d",
+    "us": "437103a71017",
     "germany": "f4212adca652",
     "canada": "3ad62f544613",
-    "france": "503f9a521494"
+    "france": "84b05a5fb375"
   },
   "AE": {
     "uk": "cf3cbacd9152",
-    "us": "1dcad354c6a0",
+    "us": "80cf83df1a53",
     "germany": "822715f00378",
     "canada": "bc0a83cc2331",
-    "france": "d64134b59987",
+    "france": "8a44ee1ea863",
     "denmark": "77b22af3d552",
     "sweden": "2bc617221467"
   },
   "AF": {
-    "uk": "293e143894af",
-    "us": "6bded56b65f0",
-    "germany": "062d69e68b9b",
+    "uk": "902ed64ce01b",
+    "us": "367b70798944",
+    "germany": "e31ff483e13c",
     "canada": "801fde327f10",
-    "france": "7f56e3ab4ee7",
+    "france": "e7126b9560bb",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -32,25 +32,25 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "2c3b53f29774",
-    "france": "cfb68f1f7301",
+    "france": "3bea2d1e57b5",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "AM": {
-    "uk": "fa9857359ff5",
+    "uk": "9aaabb936774",
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "46086e482815",
-    "france": "d06cb30ba658",
+    "france": "014efb3363f2",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "AO": {
-    "uk": "ddc60bf9210d",
-    "us": "9099b3a20fb6",
+    "uk": "70133f519c6b",
+    "us": "1be6224a7a68",
     "germany": "f4212adca652",
     "canada": "13d87094c8c7",
-    "france": "7aec88202574",
+    "france": "55bb5a7984ea",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
@@ -59,7 +59,7 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "4c3ee66e78bf",
-    "france": "867bc7035f0d",
+    "france": "fcdeb6edb9b2",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -67,43 +67,43 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "21551c931635",
-    "france": "bed4c28823c4"
+    "france": "b86b57fdb2a3"
   },
   "AU": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "0d16ac52fe7e",
-    "france": "cba6349aec4e",
+    "france": "ae4aa7bfa0d8",
     "denmark": "e7167e15cfb5",
     "sweden": "e89d204ad5cd"
   },
   "AZ": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "1dcad354c6a0",
     "germany": "e005b2fa765b",
     "canada": "00d6cb5f01aa",
-    "france": "a77a1a934f65",
+    "france": "c1ef5c59d717",
     "sweden": "e89d204ad5cd"
   },
   "BA": {
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "2ed6251d6594",
-    "france": "bde18624188d",
+    "france": "85ecc0de3bf8",
     "denmark": "005ad6b049e1",
     "sweden": "2bc617221467"
   },
   "BB": {
-    "us": "d321fab1eb8d",
+    "us": "3bde45f3166e",
     "germany": "f4212adca652",
     "canada": "ae3cc28375fe"
   },
   "BD": {
-    "uk": "ddc60bf9210d",
-    "us": "1dcad354c6a0",
+    "uk": "70133f519c6b",
+    "us": "f075b58d6edd",
     "germany": "f4212adca652",
     "canada": "085d37bd4c51",
-    "france": "33ae465d6700",
+    "france": "c39c7f5254bf",
     "denmark": "a0d063f079e9",
     "sweden": "e89d204ad5cd"
   },
@@ -111,32 +111,32 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "9de1ae8fc10c",
-    "france": "88bac045b348",
+    "france": "3eae92c4e82a",
     "denmark": "4f4785ee6690",
     "sweden": "2bc617221467"
   },
   "BF": {
-    "us": "6bded56b65f0",
+    "us": "573d61dc034f",
     "germany": "e005b2fa765b",
     "canada": "27e033432434",
-    "france": "11e860c80a31",
+    "france": "5371ba64952e",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "BG": {
-    "us": "d321fab1eb8d",
+    "us": "4be98ec51c28",
     "germany": "f4212adca652",
     "canada": "0768c0413c14",
-    "france": "722b138668b6",
+    "france": "32bf54e16458",
     "denmark": "6176df408b7f",
     "sweden": "2bc617221467"
   },
   "BH": {
     "uk": "cf3cbacd9152",
-    "us": "1dcad354c6a0",
+    "us": "d97e00ac2012",
     "germany": "f4212adca652",
     "canada": "5737c20725ac",
-    "france": "c4f3587c82cf",
+    "france": "b3367acf9f2a",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -144,41 +144,41 @@
     "us": "1dcad354c6a0",
     "germany": "f4212adca652",
     "canada": "21aa7c370fc4",
-    "france": "e85c91f83a77",
+    "france": "2d73abc8f847",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "BJ": {
-    "us": "9099b3a20fb6",
+    "us": "585ee183ad88",
     "germany": "e005b2fa765b",
     "canada": "369a86171e08",
-    "france": "4ae3ed683299",
+    "france": "5714305cc33e",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "BN": {
-    "us": "d321fab1eb8d",
+    "us": "8c86594554a9",
     "germany": "f4212adca652",
     "canada": "9c53626ce010",
-    "france": "b11de113fe1b",
+    "france": "cd3622e0a5f4",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "BO": {
-    "uk": "ddc60bf9210d",
-    "us": "9099b3a20fb6",
+    "uk": "70133f519c6b",
+    "us": "58832c6142ba",
     "germany": "f4212adca652",
     "canada": "05f442c54ec2",
-    "france": "6b7ec1ea1b0b",
+    "france": "0df4e9e37575",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "BR": {
-    "uk": "ddc60bf9210d",
+    "uk": "70133f519c6b",
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "e2e6d7d550b7",
-    "france": "a39686d67748",
+    "france": "dbf80b813af1",
     "denmark": "7ad4454ea3ca",
     "sweden": "2bc617221467"
   },
@@ -186,44 +186,44 @@
     "us": "339d2c3a120c",
     "germany": "f4212adca652",
     "canada": "806475899cdb",
-    "france": "cd97d12008ee"
+    "france": "5bb32633fb54"
   },
   "BT": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "54845171f167",
-    "france": "e4813b3886f9",
+    "france": "123c0960d18c",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "BW": {
-    "us": "9099b3a20fb6",
+    "us": "1d755423cb56",
     "germany": "f4212adca652",
     "canada": "596c17cd5eec",
-    "france": "36ca9723dbc9",
+    "france": "501dbd3954f4",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "BY": {
-    "uk": "293e143894af",
-    "us": "6bded56b65f0",
+    "uk": "902ed64ce01b",
+    "us": "0e48e374a56e",
     "germany": "96331c3be9bb",
     "canada": "5bef8e8322e8"
   },
   "BZ": {
-    "us": "9099b3a20fb6",
+    "us": "39f5d96a03d2",
     "germany": "f4212adca652",
     "canada": "86894d083db5",
-    "france": "ac00c306fb00",
+    "france": "4ff6b3be40f8",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "CA": {
-    "us": "d321fab1eb8d",
+    "us": "b95a542bf663",
     "germany": "f4212adca652",
-    "france": "8b82b4987be4",
+    "france": "2517fe160b3c",
     "denmark": "4c36d460d2a3",
-    "sweden": "2bc617221467"
+    "sweden": "e89d204ad5cd"
   },
   "CD": {
     "us": "fbde73d9e3c0",
@@ -231,7 +231,7 @@
     "sweden": "2bc617221467"
   },
   "CF": {
-    "us": "6bded56b65f0",
+    "us": "f3e674bb9742",
     "germany": "96331c3be9bb",
     "canada": "596421ceff09"
   },
@@ -241,142 +241,142 @@
     "sweden": "2bc617221467"
   },
   "CH": {
-    "us": "d321fab1eb8d",
+    "us": "71c93aaa0f03",
     "germany": "f4212adca652",
     "canada": "56845f2ac585",
-    "france": "380c0b131d04",
+    "france": "ffba7441676e",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "CI": {
     "germany": "e005b2fa765b",
-    "france": "75cde9ae2c8d",
+    "france": "770d82712c1c",
     "sweden": "e89d204ad5cd"
   },
   "CL": {
     "uk": "cf3cbacd9152",
-    "us": "9099b3a20fb6",
+    "us": "4a6cbad9c79b",
     "germany": "f4212adca652",
     "canada": "a348de8d580d",
-    "france": "ae8dd71d0057",
+    "france": "5aaf41c5fc22",
     "denmark": "ba5955fe8381",
     "sweden": "2bc617221467"
   },
   "CM": {
-    "uk": "fa9857359ff5",
-    "us": "9099b3a20fb6",
+    "uk": "c0a1004845f8",
+    "us": "22161640c3ff",
     "germany": "e005b2fa765b",
     "canada": "586d1279e60c",
-    "france": "d2b8b8a50139",
+    "france": "e3602a85681e",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "CN": {
     "uk": "cf3cbacd9152",
-    "us": "9099b3a20fb6",
+    "us": "561977a03d0c",
     "germany": "a789f7641e70",
     "canada": "91c23ff3e7a4",
-    "france": "22b88d512459",
+    "france": "8e8b986a0b86",
     "denmark": "64e0f882d64b",
     "sweden": "2bc617221467"
   },
   "CO": {
-    "uk": "ddc60bf9210d",
-    "us": "1dcad354c6a0",
+    "uk": "70133f519c6b",
+    "us": "921468ec2731",
     "germany": "e005b2fa765b",
     "canada": "33396eba90a4",
-    "france": "308206bd7903",
+    "france": "fc5ccf2a4ffc",
     "denmark": "797faa4e506b",
     "sweden": "2bc617221467"
   },
   "CR": {
-    "us": "9099b3a20fb6",
+    "us": "af3fbc006cf2",
     "germany": "f4212adca652",
     "canada": "fc68962a936f",
-    "france": "4755efb7823a",
+    "france": "186eff85df84",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "CU": {
-    "uk": "6cf314d2465b",
+    "uk": "a87d5cfbba56",
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "166acb9f694d",
-    "france": "ecf6bdcd140c",
+    "france": "9ae302cf89fc",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "CV": {
-    "us": "d321fab1eb8d",
+    "us": "1077e182ad8b",
     "germany": "f4212adca652",
     "canada": "85411307f00c",
-    "france": "c2e186a67cff",
-    "sweden": "2bc617221467"
+    "france": "e65b9a8cd16c",
+    "sweden": "e89d204ad5cd"
   },
   "CY": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "6d0f93b78d9e",
-    "france": "470e3a63a264",
+    "france": "bde27a43f9b3",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "CZ": {
     "germany": "f4212adca652",
     "canada": "f36cc459e80a",
-    "france": "e72a0abce709",
+    "france": "67d76477ba67",
     "denmark": "a6f71ec4e706",
     "sweden": "e89d204ad5cd"
   },
   "DE": {
-    "us": "9099b3a20fb6",
+    "us": "930a0e46dc80",
     "canada": "d0eac7c404e0",
-    "france": "c9a03e06d301"
+    "france": "632d89c02141"
   },
   "DJ": {
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "ef2be80fb534",
-    "france": "31ff246afb2f",
+    "france": "737271549f10",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "DK": {
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
-    "france": "aedaf2b1da27"
+    "france": "69a92103a93c"
   },
   "DM": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "55dc6fcf9123",
-    "france": "8f0e2f611b0b",
+    "france": "78f463920266",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "DO": {
-    "us": "9099b3a20fb6",
+    "us": "6570a7732704",
     "germany": "f4212adca652",
     "canada": "4d0176a36351",
-    "france": "2ffc000ad753",
+    "france": "28125bdc6a71",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "DZ": {
-    "uk": "fa9857359ff5",
+    "uk": "9aaabb936774",
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "684477ae9290",
-    "france": "4854ec8d6031",
+    "france": "94865dd1bb8c",
     "denmark": "d18323f764f9",
     "sweden": "2bc617221467"
   },
   "EC": {
-    "uk": "ddc60bf9210d",
-    "us": "9099b3a20fb6",
+    "uk": "70133f519c6b",
+    "us": "97096563ea62",
     "germany": "f4212adca652",
     "canada": "865a825b9804",
-    "france": "9e22e7894f81",
+    "france": "fd04b248db06",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
@@ -384,49 +384,50 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "2ff1f9b2d7d5",
-    "france": "804e5eb497f9",
+    "france": "cc3d328e5061",
     "denmark": "15902435606b",
     "sweden": "e89d204ad5cd"
   },
   "EG": {
-    "uk": "fa9857359ff5",
-    "us": "9099b3a20fb6",
-    "germany": "manual-fixed",
-    "canada": "3da38e15c47a",
-    "france": "0421427b7b63",
+    "uk": "c0a1004845f8",
+    "us": "9d20be783809",
+    "germany": "e005b2fa765b",
+    "canada": "c014326b38e8",
+    "france": "a1fdf0e5bc94",
     "denmark": "3e9ce57b4f75",
-    "sweden": "6bc760653fb2"
+    "sweden": "6bc760653fb2",
+    "australia": "f3fb41117ffd"
   },
   "ER": {
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "4a891afd73b4",
-    "france": "7d920a98ed3e",
+    "france": "d47880a99aeb",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "ES": {
-    "us": "9099b3a20fb6",
+    "us": "2140f23e50b1",
     "germany": "f4212adca652",
     "canada": "38caf80f79f6",
-    "france": "3d52b28a2c9f",
+    "france": "d58aea816d2d",
     "denmark": "349588bd47a1",
     "sweden": "2bc617221467"
   },
   "ET": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "1dcad354c6a0",
     "germany": "e005b2fa765b",
     "canada": "f1b170f172c1",
-    "france": "da330e526915",
+    "france": "435a4b977d49",
     "denmark": "07615c7d0b97",
     "sweden": "f35367c08b75"
   },
   "FI": {
-    "us": "d321fab1eb8d",
+    "us": "578548f7f08c",
     "germany": "f4212adca652",
     "canada": "bf13b5bf8ee3",
-    "france": "3216ad0fc899",
+    "france": "7fe9b07c4a31",
     "denmark": "47cceb397f3e",
     "sweden": "e89d204ad5cd"
   },
@@ -441,81 +442,81 @@
     "germany": "f4212adca652"
   },
   "FR": {
-    "us": "9099b3a20fb6",
+    "us": "09177b208cf2",
     "germany": "f4212adca652",
     "canada": "0b45f739956d",
     "denmark": "12d44074b845",
     "sweden": "e89d204ad5cd"
   },
   "GA": {
-    "us": "9099b3a20fb6",
+    "us": "c1a3f27484a1",
     "germany": "f4212adca652",
     "canada": "44803c152d5f",
-    "france": "de6473c77520",
+    "france": "b3e8734835ed",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "GB": {
-    "us": "9099b3a20fb6",
+    "us": "0ed8d5318767",
     "germany": "f4212adca652",
     "canada": "ee35bbe554f6",
-    "france": "e2d451d93594"
+    "france": "de4072a3f974"
   },
   "GD": {
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "4f0d83d61356",
-    "france": "ac47f97d742b"
+    "france": "f353e8dfff6c"
   },
   "GE": {
-    "uk": "fa9857359ff5",
+    "uk": "9aaabb936774",
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "569c507b6243",
-    "france": "f09260cb0508",
+    "france": "e27c712ee5c0",
     "denmark": "d6eec123160b",
     "sweden": "e89d204ad5cd"
   },
   "GH": {
-    "uk": "ddc60bf9210d",
+    "uk": "70133f519c6b",
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "94b47337ae5e",
-    "france": "7d0b0e616dd9",
+    "france": "1fb116cc2f90",
     "denmark": "e67c576361f2",
     "sweden": "e89d204ad5cd"
   },
   "GM": {
-    "us": "9099b3a20fb6",
+    "us": "a7e82bdac4c2",
     "germany": "f4212adca652",
-    "france": "1be648fb01a7"
+    "france": "f67a5f18d921"
   },
   "GN": {
-    "us": "9099b3a20fb6",
+    "us": "c8a1eba303e3",
     "germany": "f4212adca652",
     "canada": "0dcea75a0b4f",
-    "france": "e59c92d725f5",
+    "france": "d64aaa8adba5",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "GR": {
-    "us": "d321fab1eb8d",
+    "us": "ee3f6d991e44",
     "germany": "f4212adca652",
     "canada": "a9312c9f5e0c",
-    "france": "27e5bba25ef6",
+    "france": "14e0202f1598",
     "denmark": "b57e4d5fc32f",
     "sweden": "2bc617221467"
   },
   "GT": {
-    "us": "1dcad354c6a0",
+    "us": "26467b0bd469",
     "germany": "f4212adca652",
     "canada": "b213757b6a57",
-    "france": "67d3c3912723",
+    "france": "5f5fd7075a80",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "GW": {
-    "us": "1dcad354c6a0",
+    "us": "f6608c9bcfaa",
     "germany": "f4212adca652",
     "canada": "849b4e838e79",
     "denmark": "b2889616b117",
@@ -525,7 +526,7 @@
     "us": "1dcad354c6a0",
     "germany": "f4212adca652",
     "canada": "8f0fbfec1f54",
-    "france": "1556f59123d3",
+    "france": "36a0f275eed9",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
@@ -533,55 +534,55 @@
     "us": "1dcad354c6a0",
     "germany": "f4212adca652",
     "canada": "c4b19ed0b817",
-    "france": "a87641128eb4",
+    "france": "ef570a4b95e6",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "HR": {
-    "us": "d321fab1eb8d",
+    "us": "81dba348bfcb",
     "germany": "f4212adca652",
     "canada": "2e97d0476aad",
-    "france": "24c41b512a64",
+    "france": "8145ab11d54f",
     "denmark": "fdbe4369430e",
     "sweden": "e89d204ad5cd"
   },
   "HT": {
-    "uk": "293e143894af",
+    "uk": "902ed64ce01b",
     "us": "6bded56b65f0",
     "germany": "96331c3be9bb",
     "canada": "190f1a5837ad",
-    "france": "c1f1e9801872",
+    "france": "3e7135aeb53e",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "HU": {
-    "us": "d321fab1eb8d",
+    "us": "1cf9c02e266b",
     "germany": "f4212adca652",
     "canada": "fa59520debf8",
-    "france": "9710d6d4b873",
+    "france": "f707503bdd11",
     "denmark": "251c76fe9923",
     "sweden": "e89d204ad5cd"
   },
   "ID": {
-    "uk": "manual-fixed",
-    "us": "manual-fixed",
-    "germany": "manual-fixed",
+    "uk": "9aaabb936774",
+    "us": "9099b3a20fb6",
+    "germany": "04bc2df4f25b",
     "canada": "07e716a52d3d",
     "australia": "26f887a22534",
-    "france": "manual-fixed",
+    "france": "7625488e7e51",
     "denmark": "acecfa225cf8",
     "sweden": "78ff4b7a67e1"
   },
   "IE": {
-    "us": "d321fab1eb8d",
+    "us": "2db08bd9df80",
     "germany": "f4212adca652",
     "canada": "f5d9fc740a55",
-    "france": "321983563d47",
+    "france": "37ad9ae4c181",
     "denmark": "8bf68ee4228c",
     "sweden": "2bc617221467"
   },
   "IL": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "1dcad354c6a0",
     "germany": "7dab3310597a",
     "canada": "3deee6a3da3d",
@@ -589,78 +590,78 @@
     "sweden": "e89d204ad5cd"
   },
   "IN": {
-    "uk": "fa9857359ff5",
-    "us": "9099b3a20fb6",
+    "uk": "9aaabb936774",
+    "us": "d3f0405bbf86",
     "germany": "e005b2fa765b",
     "canada": "af686cfa8947",
-    "france": "18268caab61d",
+    "france": "4d88f102c1b6",
     "denmark": "1756dc5cbc59",
     "sweden": "2bc617221467"
   },
   "IQ": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "6bded56b65f0",
-    "germany": "893c5abfdda2",
+    "germany": "9c0bc0defc34",
     "canada": "663c4f7368a4",
-    "france": "b7d930212a72",
+    "france": "cf2baa84ecef",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "IR": {
-    "uk": "293e143894af",
-    "us": "6bded56b65f0",
+    "uk": "902ed64ce01b",
+    "us": "2c41a79340b0",
     "germany": "9084f4b346ef",
     "canada": "8ed37eda5e2c",
-    "france": "d86401d83535",
+    "france": "8cceb958debf",
     "denmark": "4ff3e1b1e83f",
     "sweden": "e89d204ad5cd"
   },
   "IS": {
-    "us": "d321fab1eb8d",
+    "us": "3aa1739b609d",
     "germany": "f4212adca652",
     "canada": "feb9974fa648",
-    "france": "b38b2bde5c67"
+    "france": "d9e03dcd364b"
   },
   "IT": {
-    "us": "9099b3a20fb6",
+    "us": "7319484d6880",
     "germany": "f4212adca652",
     "canada": "612393dcb305",
-    "france": "7e04a2a13b77",
+    "france": "e26e58c10105",
     "denmark": "0a91afdb7ba4",
     "sweden": "2bc617221467"
   },
   "JM": {
     "uk": "cf3cbacd9152",
-    "us": "9099b3a20fb6",
+    "us": "6bfda169489b",
     "germany": "f4212adca652",
     "canada": "29e29b5f468c",
-    "france": "d902f3d40147",
+    "france": "6b64cec832fa",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "JO": {
-    "uk": "fa9857359ff5",
-    "us": "9099b3a20fb6",
+    "uk": "9aaabb936774",
+    "us": "53f9b43a7561",
     "germany": "f4212adca652",
     "canada": "13689e774f3d",
-    "france": "a24f0556c97d",
+    "france": "14fbf3f60121",
     "denmark": "e7cf00bd28a0",
     "sweden": "2bc617221467"
   },
   "JP": {
-    "us": "d321fab1eb8d",
+    "us": "cb9f57c3a095",
     "germany": "e005b2fa765b",
     "canada": "a605d2c1afc5",
-    "france": "8c404bd5305b",
+    "france": "9660e1374599",
     "denmark": "8e743d5c7a59",
     "sweden": "e89d204ad5cd"
   },
   "KE": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "731d9aeea742",
-    "france": "1ff25aa7a69c",
+    "france": "7f6b01244a1a",
     "denmark": "26beef2a7971",
     "sweden": "e89d204ad5cd"
   },
@@ -668,16 +669,16 @@
     "uk": "cf3cbacd9152",
     "germany": "f4212adca652",
     "canada": "479a5e281ce0",
-    "france": "733e92dc2141",
+    "france": "f6600d09e3ab",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "KH": {
-    "uk": "ddc60bf9210d",
-    "us": "9099b3a20fb6",
+    "uk": "70133f519c6b",
+    "us": "32e0d13049e6",
     "germany": "e005b2fa765b",
     "canada": "a2c436371dd4",
-    "france": "7b18f78422d5",
+    "france": "d6b661ea7450",
     "denmark": "d1aac1bae0e9",
     "sweden": "e89d204ad5cd"
   },
@@ -685,7 +686,7 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "86e6cec32b04",
-    "france": "78180d4d0ece"
+    "france": "228355e01ddf"
   },
   "KN": {
     "us": "d321fab1eb8d",
@@ -693,18 +694,18 @@
     "canada": "7beac4032824"
   },
   "KP": {
-    "uk": "6cf314d2465b",
-    "us": "6bded56b65f0",
+    "uk": "a87d5cfbba56",
+    "us": "9b0754342913",
     "germany": "f4212adca652",
     "canada": "6b8a595bba1f",
-    "france": "836b703e2244",
-    "sweden": "2bc617221467"
+    "france": "f7fd06edad5c",
+    "sweden": "f35367c08b75"
   },
   "KR": {
-    "us": "d321fab1eb8d",
+    "us": "18d67caff9b3",
     "germany": "f4212adca652",
     "canada": "36aab1db90d1",
-    "france": "9eb383b5ad4f",
+    "france": "fc6cfe8ed428",
     "denmark": "641224d597b4",
     "sweden": "2bc617221467"
   },
@@ -713,7 +714,7 @@
     "us": "1dcad354c6a0",
     "germany": "f4212adca652",
     "canada": "a3032f9cf3d5",
-    "france": "5c6190326c37",
+    "france": "b3975f145182",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -722,25 +723,25 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "39b2abaa2f6b",
-    "france": "fed426c6fd90",
+    "france": "5fcb84cc08d3",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "LA": {
-    "uk": "ddc60bf9210d",
+    "uk": "70133f519c6b",
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "f6007e919416",
-    "france": "6d5a0fcf809d",
+    "france": "c5c374e90475",
     "denmark": "a6ebd66fdea1",
     "sweden": "2bc617221467"
   },
   "LB": {
-    "uk": "fa9857359ff5",
-    "us": "6bded56b65f0",
+    "uk": "c0a1004845f8",
+    "us": "4621f6f0d7ae",
     "germany": "e005b2fa765b",
     "canada": "94e390125904",
-    "france": "6f96d0cfbc86",
+    "france": "451f6f2a2060",
     "denmark": "3dab0300f95d",
     "sweden": "2bc617221467"
   },
@@ -750,25 +751,25 @@
     "canada": "98c0ab0ac576"
   },
   "LI": {
-    "us": "d321fab1eb8d",
+    "us": "3279a5dbca97",
     "germany": "f4212adca652",
     "canada": "471d457403ac",
-    "france": "78180d4d0ece"
+    "france": "997471dfc5fb"
   },
   "LK": {
     "uk": "cf3cbacd9152",
-    "us": "9099b3a20fb6",
+    "us": "6f27ab3c9dee",
     "germany": "f4212adca652",
     "canada": "98b602f69750",
-    "france": "ba136fa779c5",
+    "france": "0faa76579d9c",
     "denmark": "7d0637a4a35f",
     "sweden": "2bc617221467"
   },
   "LR": {
-    "us": "9099b3a20fb6",
+    "us": "26dedbe07e9c",
     "germany": "f4212adca652",
     "canada": "8ac753dd5bff",
-    "france": "a9c532cdbf4b",
+    "france": "1d57b02c3a27",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -776,21 +777,21 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "617f2b23803b",
-    "france": "d49a08f35aeb"
+    "france": "dd302d3e9839"
   },
   "LT": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "e101673c7ddd",
-    "france": "8ee0febe6d57",
+    "france": "0e047f9fe3a5",
     "denmark": "3ce4f9ecc1ce",
     "sweden": "2bc617221467"
   },
   "LU": {
-    "us": "d321fab1eb8d",
+    "us": "1de25bfc5645",
     "germany": "f4212adca652",
     "canada": "e88b5a231ce2",
-    "france": "04c47026e69e",
+    "france": "51183815c071",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
@@ -798,16 +799,16 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "345d49188189",
-    "france": "54cc45af1276",
+    "france": "3f4661f33e3d",
     "denmark": "957cb19f55fc",
     "sweden": "2bc617221467"
   },
   "LY": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "6bded56b65f0",
     "germany": "96331c3be9bb",
     "canada": "d98c95e4e446",
-    "france": "5e4c8a8ca66f",
+    "france": "e59e5c93e386",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -816,7 +817,7 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "6b565a420f08",
-    "france": "ddb105b919ca",
+    "france": "a07e4ad91148",
     "denmark": "d042a21c07cb",
     "sweden": "2bc617221467"
   },
@@ -824,13 +825,13 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "292bd7990dc2",
-    "france": "af5fbcbc4903"
+    "france": "81241edc772f"
   },
   "MD": {
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "b46a6c0d9540",
-    "france": "b70b4530545b",
+    "france": "1a0accf6bf53",
     "denmark": "a22a1fba1d5b",
     "sweden": "2bc617221467"
   },
@@ -838,20 +839,20 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "b2ec0791d6b2",
-    "france": "dc4958c8fb65",
+    "france": "c31787c5fe03",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "MG": {
     "uk": "cf3cbacd9152",
-    "us": "9099b3a20fb6",
+    "us": "0711abefff80",
     "germany": "f4212adca652",
     "canada": "8ec030864834",
-    "france": "aab19995ab84",
+    "france": "ab2391390b1d",
     "sweden": "2bc617221467"
   },
   "MH": {
-    "us": "d321fab1eb8d",
+    "us": "d692e15ab2ef",
     "germany": "f4212adca652",
     "canada": "1ac288b359f6"
   },
@@ -859,31 +860,31 @@
     "us": "adddbefc5473",
     "germany": "f4212adca652",
     "canada": "de70ac093821",
-    "france": "8ccdd5963ad2",
+    "france": "bc96820a67d8",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "ML": {
-    "us": "6bded56b65f0",
+    "us": "94f0d5234172",
     "germany": "96331c3be9bb",
     "canada": "ad7ad6aca8b6",
-    "france": "ad7e91cca802",
+    "france": "cb6b4d1b7ef2",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "MM": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "germany": "96331c3be9bb",
     "canada": "00f9f7bcefbb",
     "denmark": "e650ec29b00c",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "MN": {
     "uk": "cf3cbacd9152",
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "977b8b6ca88e",
-    "france": "8bfbd645287e",
+    "france": "80aa0f3093a9",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -891,97 +892,97 @@
     "us": "1dcad354c6a0",
     "germany": "e005b2fa765b",
     "canada": "e15f933dcf42",
-    "france": "18496bb2f078",
-    "sweden": "e89d204ad5cd"
+    "france": "093ebc8f3ba4",
+    "sweden": "2bc617221467"
   },
   "MT": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "b5ab6a718a94",
-    "france": "61eb8e2ff269",
-    "sweden": "e89d204ad5cd"
+    "france": "3d87542df20f",
+    "sweden": "2bc617221467"
   },
   "MU": {
-    "us": "9099b3a20fb6",
+    "us": "c03254055aa4",
     "germany": "f4212adca652",
     "canada": "ea4663bab5d4",
-    "france": "ceeb8b133e8f",
+    "france": "f149d5f255e8",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "MV": {
-    "us": "9099b3a20fb6",
+    "us": "43fbf39f0807",
     "germany": "f4212adca652",
     "canada": "7933d1748dc6",
-    "france": "aabb5736918e",
+    "france": "0a42b9a5f1ea",
     "denmark": "e84c0032001c",
     "sweden": "2bc617221467"
   },
   "MW": {
-    "us": "9099b3a20fb6",
+    "us": "113c437319eb",
     "germany": "f4212adca652",
     "canada": "84e573b19c4e",
-    "france": "11db0ab7b7ca",
+    "france": "7bca6864068d",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "MX": {
-    "uk": "ddc60bf9210d",
-    "us": "9099b3a20fb6",
+    "uk": "70133f519c6b",
+    "us": "063e3e3dd2d1",
     "germany": "f4212adca652",
     "canada": "26f98bd6341a",
-    "france": "d6b6fb18cb1a",
+    "france": "628b85a5a81a",
     "denmark": "b4b58a67d22a",
     "sweden": "2bc617221467"
   },
   "MY": {
-    "uk": "ddc60bf9210d",
-    "us": "d321fab1eb8d",
+    "uk": "70133f519c6b",
+    "us": "145e1d7486f9",
     "germany": "f4212adca652",
     "canada": "1aab702c426f",
-    "france": "8a5ffbc0d9ea",
+    "france": "dddccbaa404e",
     "denmark": "87d6a9c80a2f",
     "sweden": "2bc617221467"
   },
   "MZ": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "290cf4192154",
-    "france": "490a77e5b58d",
+    "france": "c0ee3d341570",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "NA": {
-    "us": "9099b3a20fb6",
+    "us": "7404c8ee15bd",
     "germany": "f4212adca652",
     "canada": "d361844ebd26",
-    "france": "42976a2cd6d3",
+    "france": "34b329baa99e",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "NE": {
-    "us": "6bded56b65f0",
+    "us": "c36d64434923",
     "germany": "96331c3be9bb",
     "canada": "fcf638e1df93",
-    "france": "8bdca05d23b9",
+    "france": "af7569d491b4",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "NG": {
-    "uk": "fa9857359ff5",
-    "us": "1dcad354c6a0",
+    "uk": "c0a1004845f8",
+    "us": "070871b77de7",
     "germany": "e005b2fa765b",
     "canada": "0efc119e9716",
-    "france": "af0f733f4080",
+    "france": "0c74c79c047d",
     "denmark": "2c7ec12b8ed9",
-    "sweden": "2bc617221467"
+    "sweden": "f35367c08b75"
   },
   "NI": {
-    "us": "1dcad354c6a0",
+    "us": "6fbe198d68a0",
     "germany": "f4212adca652",
     "canada": "12c42bd68efc",
-    "france": "1c5f5d1c5c74",
+    "france": "5892c3bec9cb",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -989,22 +990,22 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "1075cf3db0c7",
-    "france": "72777f3ccac8"
+    "france": "7006170b13bd"
   },
   "NO": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "006dd7de5078",
-    "france": "46de35060473",
+    "france": "5728d700bfeb",
     "denmark": "d3c629e3dbdd",
     "sweden": "2bc617221467"
   },
   "NP": {
     "uk": "cf3cbacd9152",
-    "us": "9099b3a20fb6",
+    "us": "7759ee668298",
     "germany": "f4212adca652",
     "canada": "4d980ebc2f5c",
-    "france": "58b9ad71dcd8",
+    "france": "92cf65ba79c1",
     "denmark": "343a641d9e16",
     "sweden": "2bc617221467"
   },
@@ -1012,22 +1013,22 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "cb387615c9b3",
-    "france": "78180d4d0ece"
+    "france": "3e5e26e7d234"
   },
   "NZ": {
-    "us": "d321fab1eb8d",
+    "us": "09d63f7049bd",
     "germany": "f4212adca652",
     "canada": "cc8f8cfd3a54",
-    "france": "fb41d95fe453",
+    "france": "4330e4f33933",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "OM": {
     "uk": "cf3cbacd9152",
-    "us": "1dcad354c6a0",
+    "us": "ffbae45ed524",
     "germany": "f4212adca652",
     "canada": "946d80f69cd8",
-    "france": "806c2c970a26",
+    "france": "ffdf73916e03",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -1035,16 +1036,16 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "30695140a784",
-    "france": "a322970d50ed",
+    "france": "f658db76225c",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "PE": {
-    "uk": "ddc60bf9210d",
+    "uk": "70133f519c6b",
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "05bfcb2ef809",
-    "france": "37909ac26387",
+    "france": "69ac10f47086",
     "denmark": "cc2afa5e8494",
     "sweden": "e89d204ad5cd"
   },
@@ -1052,24 +1053,24 @@
     "us": "1dcad354c6a0",
     "germany": "f4212adca652",
     "canada": "e959c370b79c",
-    "france": "c20de81bcfea",
+    "france": "a41598f2dccf",
     "sweden": "2bc617221467"
   },
   "PH": {
-    "uk": "fa9857359ff5",
+    "uk": "9aaabb936774",
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "e698c73dbecd",
-    "france": "1e78c48d610e",
+    "france": "3307e57735f4",
     "denmark": "4032e6979245",
     "sweden": "2bc617221467"
   },
   "PK": {
-    "uk": "fa9857359ff5",
-    "us": "1dcad354c6a0",
+    "uk": "c0a1004845f8",
+    "us": "2be3d6d39a6e",
     "germany": "e005b2fa765b",
     "canada": "7596399d88c3",
-    "france": "85eacef6b6ab",
+    "france": "ffa89b87fc2b",
     "denmark": "9f6a8156254a",
     "sweden": "2bc617221467"
   },
@@ -1077,7 +1078,7 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "db9412884a38",
-    "france": "86b2bf6c5cdf",
+    "france": "a31d6822c57b",
     "denmark": "9e2b90933f46",
     "sweden": "2bc617221467"
   },
@@ -1085,15 +1086,15 @@
     "germany": "96331c3be9bb"
   },
   "PT": {
-    "us": "d321fab1eb8d",
+    "us": "a317b5f6c676",
     "germany": "f4212adca652",
     "canada": "7454baa8f2ba",
-    "france": "354b3bf6057b",
+    "france": "fb4093937299",
     "denmark": "1631c3af36b4",
     "sweden": "2bc617221467"
   },
   "PW": {
-    "us": "d321fab1eb8d",
+    "us": "6b8acdb51f2d",
     "germany": "f4212adca652",
     "canada": "014269a21f1c"
   },
@@ -1101,7 +1102,7 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "c83b9d42e0b2",
-    "france": "a960104ad387",
+    "france": "9ff40bdff795",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -1110,49 +1111,49 @@
     "us": "1dcad354c6a0",
     "germany": "f4212adca652",
     "canada": "707161c686b5",
-    "france": "bfa8b4167df6",
+    "france": "081b2c8be22d",
     "denmark": "b2889616b117",
-    "sweden": "2bc617221467"
+    "sweden": "e89d204ad5cd"
   },
   "RO": {
-    "us": "d321fab1eb8d",
+    "us": "7e1522ee374f",
     "germany": "f4212adca652",
     "canada": "39410e4b5c7c",
-    "france": "1aeab0db0acb",
+    "france": "25b309845ca7",
     "sweden": "2bc617221467"
   },
   "RS": {
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "a5229af324c0",
-    "france": "d839f06ee05b",
+    "france": "53dbe55dfb7b",
     "denmark": "e9ed4d82dd53",
     "sweden": "2bc617221467"
   },
   "RU": {
-    "uk": "293e143894af",
-    "us": "6bded56b65f0",
+    "uk": "902ed64ce01b",
+    "us": "3602531734ce",
     "germany": "acbf9ca4d1e1",
     "canada": "af1d15155989",
-    "france": "bca04cd832ac",
+    "france": "5374923e1522",
     "denmark": "856a247e00a9",
     "sweden": "2bc617221467"
   },
   "RW": {
-    "uk": "ddc60bf9210d",
-    "us": "1dcad354c6a0",
+    "uk": "70133f519c6b",
+    "us": "7cb3b5925e07",
     "germany": "f4212adca652",
     "canada": "0cdd26487d4b",
-    "france": "264ef8913454",
+    "france": "2ff0bf902e75",
     "denmark": "9246a0ddd66a",
     "sweden": "2bc617221467"
   },
   "SA": {
-    "uk": "fa9857359ff5",
-    "us": "1dcad354c6a0",
+    "uk": "c0a1004845f8",
+    "us": "4a0f68b478f2",
     "germany": "f4212adca652",
     "canada": "0006fd5f5e54",
-    "france": "b7810bb101ad",
+    "france": "2e5044537ca9",
     "denmark": "6ba4f0d020ac",
     "sweden": "2bc617221467"
   },
@@ -1162,56 +1163,56 @@
     "canada": "9a73cedd137b"
   },
   "SC": {
-    "us": "d321fab1eb8d",
+    "us": "f60243d2963a",
     "germany": "f4212adca652",
     "canada": "9114ab92bacf",
-    "france": "516945f58bb0"
+    "france": "d851d8d57115"
   },
   "SD": {
-    "uk": "fa9857359ff5",
-    "us": "6bded56b65f0",
+    "uk": "9aaabb936774",
+    "us": "04910f7bccf3",
     "germany": "96331c3be9bb",
     "canada": "a41df6dec04f",
-    "france": "acc12254125b",
+    "france": "46a89a01fa9c",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "SE": {
-    "us": "9099b3a20fb6",
+    "us": "ae71cae6ccee",
     "germany": "f4212adca652",
     "canada": "1b00bec36ff0",
-    "france": "2009d8ade339",
+    "france": "4800d69ce4d7",
     "denmark": "c3b272b30563"
   },
   "SG": {
-    "us": "d321fab1eb8d",
+    "us": "819047a2a586",
     "germany": "f4212adca652",
     "canada": "3140072c9168",
-    "france": "c6400820477e",
+    "france": "2fe8fa675cb9",
     "denmark": "6f398e9c3b76",
     "sweden": "2bc617221467"
   },
   "SI": {
-    "us": "d321fab1eb8d",
+    "us": "eceb22dcda28",
     "germany": "f4212adca652",
     "canada": "d3c362615d55",
-    "france": "b271a571ba12",
+    "france": "6be244662ebb",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "SK": {
-    "us": "d321fab1eb8d",
+    "us": "5021c78a0c9c",
     "germany": "f4212adca652",
     "canada": "40eb238cee56",
-    "france": "6c1b01a4ba7b",
+    "france": "4e1f76195db2",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "SL": {
-    "us": "9099b3a20fb6",
+    "us": "176087940ac1",
     "germany": "f4212adca652",
     "canada": "8148bd8a5b05",
-    "france": "cbda637188d0",
+    "france": "681bd1e46e3b",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -1222,21 +1223,21 @@
   },
   "SN": {
     "uk": "cf3cbacd9152",
-    "us": "d321fab1eb8d",
+    "us": "6d1cf7702319",
     "germany": "f4212adca652",
     "canada": "41f7a2255638",
-    "france": "427e19844bab",
+    "france": "ad15541e85be",
     "denmark": "4dbadd767780",
     "sweden": "2bc617221467"
   },
   "SO": {
-    "uk": "fa9857359ff5",
-    "us": "6bded56b65f0",
+    "uk": "9aaabb936774",
+    "us": "ec0a19ed95ca",
     "germany": "96331c3be9bb",
     "canada": "578556a46e6f",
-    "france": "d84825b1322b",
+    "france": "7201c022df2b",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "SR": {
     "us": "d321fab1eb8d",
@@ -1246,64 +1247,64 @@
     "sweden": "e89d204ad5cd"
   },
   "SS": {
-    "uk": "293e143894af",
-    "us": "6bded56b65f0",
+    "uk": "902ed64ce01b",
+    "us": "3303f55bf381",
     "germany": "96331c3be9bb",
     "canada": "a2872da1d457",
-    "france": "d445ef7066d2",
+    "france": "a659d2b6ab4e",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "ST": {
-    "us": "1dcad354c6a0",
+    "us": "d8f553d8a13e",
     "germany": "f4212adca652",
     "canada": "e03086280e22",
-    "france": "016bf685410a"
+    "france": "02aa86f23fb4"
   },
   "SV": {
-    "us": "d321fab1eb8d",
+    "us": "5ea37f7c32cc",
     "germany": "f4212adca652",
     "canada": "f708f1a865de",
-    "france": "cd2d4c4110ea",
+    "france": "1b6e76998b03",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "SY": {
-    "uk": "293e143894af",
-    "us": "6bded56b65f0",
-    "germany": "d5688040215d",
+    "uk": "902ed64ce01b",
+    "us": "10e2ed9db432",
+    "germany": "2a808a48047b",
     "canada": "305fca24bfa0",
-    "france": "9448fe8153f8",
+    "france": "0431fcdbff1e",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "SZ": {
     "us": "3b3918671887",
     "germany": "f4212adca652",
     "canada": "6af68e713971",
-    "france": "0b281705bd4a"
+    "france": "b5dfbc71a5e0"
   },
   "TD": {
-    "us": "6bded56b65f0",
+    "us": "1e05beb06413",
     "germany": "e005b2fa765b",
     "canada": "40afb103248a",
-    "france": "57f791b178d6"
+    "france": "639fddfe4793"
   },
   "TG": {
     "us": "9099b3a20fb6",
     "germany": "e005b2fa765b",
     "canada": "f68c5aa397b8",
-    "france": "5f27e228d046",
+    "france": "2f74464fda50",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "TH": {
-    "uk": "manual-fixed",
-    "us": "manual-fixed",
-    "germany": "manual-fixed",
+    "uk": "555ef9f83a7c",
+    "us": "2f39dfa4ca95",
+    "germany": "b283fb88e45f",
     "canada": "4aed1548501f",
     "australia": "3f0506c16030",
-    "france": "manual-fixed",
+    "france": "c1a23cb21fac",
     "denmark": "62ece23bed70",
     "sweden": "7d47e697faaf"
   },
@@ -1312,12 +1313,12 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "25fe34e6c542",
-    "france": "c80a5d6d0068",
+    "france": "5ffb718083de",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "TL": {
-    "us": "9099b3a20fb6",
+    "us": "45035cee5b73",
     "germany": "f4212adca652"
   },
   "TM": {
@@ -1325,42 +1326,42 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "a14d5c5b4a2d",
-    "france": "d9d5f5c94445",
+    "france": "d2b6a18b4207",
     "denmark": "b2889616b117",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "TN": {
-    "uk": "fa9857359ff5",
-    "us": "9099b3a20fb6",
+    "uk": "9aaabb936774",
+    "us": "bd2232cbd213",
     "germany": "f4212adca652",
     "canada": "fc89bf7bf4fe",
-    "france": "8a8d93716804",
+    "france": "f91eebd2eedd",
     "denmark": "9e501b679523",
     "sweden": "e89d204ad5cd"
   },
   "TO": {
-    "us": "d321fab1eb8d",
+    "us": "3bde45f3166e",
     "germany": "f4212adca652",
     "canada": "6477d64fe03e",
-    "france": "767926d10035",
+    "france": "dbe80965f7bc",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "TR": {
     "uk": "4ffc5bc876b8",
-    "us": "manual-fixed",
-    "germany": "manual-fixed",
-    "canada": "manual-fixed",
-    "australia": "manual-fixed",
-    "france": "manual-fixed",
+    "us": "419ff422198c",
+    "germany": "33cc6d6517a0",
+    "canada": "80cc769bf36f",
+    "australia": "0e76ba7d4627",
+    "france": "7247a6fa43aa",
     "denmark": "cf670a6665d4",
     "sweden": "b7ebc6b388aa"
   },
   "TT": {
-    "us": "1dcad354c6a0",
+    "us": "5b813e7bd56e",
     "germany": "f4212adca652",
     "canada": "2f42b6b30493",
-    "france": "49eb1b4646e7",
+    "france": "1cc822f635bc",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
@@ -1368,39 +1369,39 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "130937bbc1e9",
-    "france": "78180d4d0ece"
+    "france": "dc8f734cfaa9"
   },
   "TW": {
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "ed9288f7ad6a",
-    "france": "59923d63604d",
+    "france": "5f37e429ea71",
     "sweden": "2bc617221467"
   },
   "TZ": {
-    "uk": "ddc60bf9210d",
+    "uk": "70133f519c6b",
     "us": "1dcad354c6a0",
     "germany": "f4212adca652",
     "canada": "dc0008518cef",
-    "france": "a61702cd5679",
+    "france": "e1146abb6e8e",
     "denmark": "eb68523effed",
-    "sweden": "f35367c08b75"
+    "sweden": "2bc617221467"
   },
   "UA": {
-    "uk": "fa9857359ff5",
+    "uk": "c0a1004845f8",
     "us": "6bded56b65f0",
-    "germany": "6658f4a13e2b",
+    "germany": "7fa091d11cbc",
     "canada": "fd06a215bfd6",
-    "france": "a14b761bfff9",
+    "france": "8394974cfd38",
     "denmark": "4e2d4688d821",
-    "sweden": "e89d204ad5cd"
+    "sweden": "2bc617221467"
   },
   "UG": {
     "uk": "cf3cbacd9152",
-    "us": "6bded56b65f0",
+    "us": "3851c7672295",
     "germany": "f4212adca652",
     "canada": "333bf1819589",
-    "france": "68738396658e",
+    "france": "38fbd6118f9e",
     "denmark": "8a519f2db0b2",
     "sweden": "2bc617221467"
   },
@@ -1414,16 +1415,16 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "bcbbbe226ecf",
-    "france": "eb19e0a349fb",
+    "france": "02fb094c6b9c",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
   "UZ": {
     "uk": "cf3cbacd9152",
-    "us": "d321fab1eb8d",
+    "us": "55c48f7863c5",
     "germany": "f4212adca652",
     "canada": "59e546eabefd",
-    "france": "ce21ef6a40b3",
+    "france": "9adc14d90efc",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -1432,17 +1433,17 @@
     "germany": "f4212adca652"
   },
   "VE": {
-    "uk": "fa9857359ff5",
-    "us": "1dcad354c6a0",
+    "uk": "c0a1004845f8",
+    "us": "32a99bf1f079",
     "germany": "e005b2fa765b",
     "canada": "92eac3f75066",
-    "france": "b10e578c114f",
+    "france": "232335c494a2",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "VN": {
     "uk": "cf3cbacd9152",
-    "us": "d321fab1eb8d",
+    "us": "b8e4bbf50d0f",
     "germany": "f4212adca652",
     "canada": "45028916c8ac",
     "denmark": "063389d7f2c2",
@@ -1452,7 +1453,7 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "0ebe632a8db2",
-    "france": "d327f1ce59bb",
+    "france": "d6b4669c033e",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
@@ -1460,26 +1461,26 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "90aef935aa9f",
-    "france": "c2c0c299977c"
+    "france": "7d91f7b76ad5"
   },
   "XK": {
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "af3259e9a9d0",
-    "france": "33365f889b3f"
+    "france": "0913423174c2"
   },
   "YE": {
-    "uk": "293e143894af",
-    "us": "6bded56b65f0",
+    "uk": "902ed64ce01b",
+    "us": "408568795462",
     "germany": "96331c3be9bb",
     "canada": "aebb6ffa9339",
-    "france": "1090a66f2e11",
+    "france": "f7cc009d0d56",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   },
   "ZA": {
     "uk": "cf3cbacd9152",
-    "us": "9099b3a20fb6",
+    "us": "8aaeb828a927",
     "germany": "f4212adca652",
     "canada": "b70472792983",
     "denmark": "b121639794d2",
@@ -1490,7 +1491,7 @@
     "us": "d321fab1eb8d",
     "germany": "f4212adca652",
     "canada": "07d395fa11f7",
-    "france": "bfe6f95bf78a",
+    "france": "84181f5c676e",
     "denmark": "b2889616b117",
     "sweden": "2bc617221467"
   },
@@ -1499,7 +1500,7 @@
     "us": "9099b3a20fb6",
     "germany": "f4212adca652",
     "canada": "447efc8dd0d7",
-    "france": "115bb42fcdae",
+    "france": "32c3b6e062d4",
     "denmark": "b2889616b117",
     "sweden": "e89d204ad5cd"
   }
