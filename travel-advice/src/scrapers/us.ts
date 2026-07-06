@@ -111,21 +111,19 @@ function extractSummaryAndDateFromAdvisoryHtml(html: string): { summary: string;
 
   let summary = "";
 
-  // Strategy 1: Find paragraphs that come after the Level heading in the HTML
+  // Strategy 1: Extract a broad window from the first Level heading — captures both the
+  // general level description AND any regional sub-level sections (e.g. "Level 4: Do Not Travel – North Sinai").
+  // This is essential for compound zone detection in page.tsx.
   const levelPos = cleanHtml.search(/Level\s+\d/i);
   if (levelPos >= 0) {
-    const afterLevel = cleanHtml.slice(levelPos);
-    const paragraphs = afterLevel.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi);
-    for (const p of paragraphs) {
-      const text = p[1].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").trim();
-      if (
-        text.length > 40 &&
-        !/^\s*(Share|Print|RSS|Follow|Subscribe|Last Updated|Updated:|Do Not Travel|Exercise)/i.test(text) &&
-        !/^\s*Level\s+\d/i.test(text)
-      ) {
-        summary = text.slice(0, 1500);
-        break;
-      }
+    const afterLevel = cleanHtml.slice(levelPos, levelPos + 12000);
+    const plain = afterLevel
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&[a-z#0-9]+;/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (plain.length > 40) {
+      summary = plain.slice(0, 3000);
     }
   }
 
@@ -407,8 +405,13 @@ export const usScraper: Scraper = async () => {
           try {
             const pageHtml = await fetchWithProxyFallback(url, ENRICH_TIMEOUT);
             if (pageHtml) {
-              const { officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(pageHtml);
-              if (officialUpdatedAt) return { ...advisory, officialUpdatedAt, sourceUrl: url };
+              const { summary, officialUpdatedAt } = extractSummaryAndDateFromAdvisoryHtml(pageHtml);
+              return {
+                ...advisory,
+                ...(summary ? { summary } : {}),
+                ...(officialUpdatedAt ? { officialUpdatedAt } : {}),
+                sourceUrl: url,
+              };
             }
           } catch { /* keep original */ }
           return advisory;
