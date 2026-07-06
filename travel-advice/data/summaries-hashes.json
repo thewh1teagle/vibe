@@ -563,6 +563,7 @@
     "sweden": "e89d204ad5cd"
   },
   "ID": {
+<<<<<<< HEAD
     "uk": "fa9857359ff5",
     "us": "9099b3a20fb6",
     "germany": "04bc2df4f25b",
@@ -571,6 +572,16 @@
     "france": "7625488e7e51",
     "denmark": "7387ea107350",
     "sweden": "2bc617221467"
+=======
+    "uk": "manual-fixed",
+    "us": "manual-fixed",
+    "germany": "manual-fixed",
+    "canada": "46647ae09174",
+    "australia": "149c809aff5f",
+    "france": "manual-fixed",
+    "denmark": "a41ce33f1dd0",
+    "sweden": "manual-fixed"
+>>>>>>> 6551b17 (Fix AI summaries for TR/TH/ID: remove asterisks, correct inaccurate content)
   },
   "IE": {
     "us": "d321fab1eb8d",
@@ -1298,6 +1309,7 @@
     "sweden": "e89d204ad5cd"
   },
   "TH": {
+<<<<<<< HEAD
     "uk": "555ef9f83a7c",
     "us": "9099b3a20fb6",
     "germany": "9d7cc59a92db",
@@ -1305,6 +1317,15 @@
     "australia": "3f0506c16030",
     "france": "ce7ef3812cb9",
     "denmark": "62ece23bed70",
+=======
+    "uk": "manual-fixed",
+    "us": "manual-fixed",
+    "germany": "manual-fixed",
+    "canada": "f691ce185172",
+    "australia": "80331c52b75e",
+    "france": "manual-fixed",
+    "denmark": "887b6018e751",
+>>>>>>> 6551b17 (Fix AI summaries for TR/TH/ID: remove asterisks, correct inaccurate content)
     "sweden": "7d47e697faaf"
   },
   "TJ": {
@@ -1348,12 +1369,21 @@
   },
   "TR": {
     "uk": "4ffc5bc876b8",
+<<<<<<< HEAD
     "us": "419ff422198c",
     "germany": "33cc6d6517a0",
     "canada": "80cc769bf36f",
     "australia": "0e76ba7d4627",
     "france": "a6bf0a98606e",
     "denmark": "e736ff17e4c5",
+=======
+    "us": "manual-fixed",
+    "germany": "manual-fixed",
+    "canada": "manual-fixed",
+    "australia": "manual-fixed",
+    "france": "manual-fixed",
+    "denmark": "cf670a6665d4",
+>>>>>>> 6551b17 (Fix AI summaries for TR/TH/ID: remove asterisks, correct inaccurate content)
     "sweden": "b7ebc6b388aa"
   },
   "TT": {
