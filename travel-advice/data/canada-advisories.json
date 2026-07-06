@@ -19,5 +19,12 @@
     "summary": "Exercise a high degree of caution in Türkiye overall due to the threat of terrorist attacks and demonstrations. Avoid non-essential travel to the southeastern provinces due to ongoing insurgency and risk of terrorist attacks. Avoid all travel to within 10 km of the borders with Iraq and Syria due to unpredictable security situation and terrorism.",
     "url": "https://travel.gc.ca/destinations/turkey",
     "updatedAt": "2026-07-04"
+  },
+  {
+    "iso2": "EG",
+    "rawLevel": "Exercise a high degree of caution",
+    "summary": "Exercise a high degree of caution in Egypt overall due to ongoing tensions, the unpredictable security situation and the threat of terrorism. Avoid all travel to northern Sinai due to terrorist activity and ongoing military operations. Avoid all travel to the Western desert and Libyan border area due to smuggling, terrorist activities, the presence of armed groups and ongoing military operations.",
+    "url": "https://travel.gc.ca/destinations/egypt",
+    "updatedAt": "2026-07-06"
   }
 ]
