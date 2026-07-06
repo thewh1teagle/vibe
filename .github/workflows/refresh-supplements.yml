@@ -1,0 +1,67 @@
+name: Refresh Supplement Data
+
+# Runs daily before the scrape (04:00 UTC = 06:00 NL zomertijd).
+# Uses Playwright to visit each official advisory URL as a real browser,
+# then calls Mistral AI to extract the correct level, summary and date.
+# Updated supplement JSONs are committed to main so the 05:00 scrape
+# picks them up automatically.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: 'Sources to refresh (space-separated). Leave empty for all.'
+        required: false
+        default: ''
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: travel-advice
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: travel-advice/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright + Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium --with-deps
+
+      - name: Refresh supplement data
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          SOURCES="${{ github.event.inputs.sources }}"
+          if [ -n "$SOURCES" ]; then
+            npx tsx scripts/refresh-supplements.ts $SOURCES
+          else
+            npx tsx scripts/refresh-supplements.ts
+          fi
+
+      - name: Commit updated supplements
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/germany-advisories.json \
+                  data/sweden-advisories.json \
+                  data/denmark-advisories.json \
+                  data/australia-advisories.json
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Refresh supplement data [$(date -u +%Y-%m-%d)]"
+          git pull --rebase origin main
+          git push
