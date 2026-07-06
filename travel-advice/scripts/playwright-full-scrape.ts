@@ -416,7 +416,17 @@ async function main() {
   }
 
   const { PrismaClient } = await import("@prisma/client");
-  const prisma = new PrismaClient();
+  const url = process.env.DATABASE_URL ?? "file:./dev.db";
+  let prisma: InstanceType<typeof PrismaClient>;
+  if (url.startsWith("postgres")) {
+    const { Pool } = await import("pg");
+    const { PrismaPg } = await import("@prisma/adapter-pg");
+    const pool = new Pool({ connectionString: url });
+    prisma = new PrismaClient({ adapter: new PrismaPg(pool) } as never);
+  } else {
+    const { PrismaBetterSqlite3 } = await import("@prisma/adapter-better-sqlite3");
+    prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) } as never);
+  }
   const browser = await chromium.launch({ headless: true });
   const scrapedAt = new Date();
 
