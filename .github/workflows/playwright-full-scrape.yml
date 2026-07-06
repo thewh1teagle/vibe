@@ -1,0 +1,57 @@
+name: Playwright Full Scrape
+
+# Runs daily at 05:30 UTC (after trigger-scrape at 05:00).
+# Uses Playwright + Mistral AI to scrape Germany, Sweden and Denmark
+# travel advisories directly into the database — no supplement JSONs needed.
+# Denmark pages that don't exist are silently skipped.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: 'Sources to scrape (space-separated: germany sweden denmark). Leave empty for all.'
+        required: false
+        default: ''
+  schedule:
+    - cron: '30 5 * * *'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: travel-advice
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: travel-advice/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright + Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium --with-deps
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run full Playwright scrape
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          SOURCES="${{ github.event.inputs.sources }}"
+          if [ -n "$SOURCES" ]; then
+            npx tsx scripts/playwright-full-scrape.ts $SOURCES
+          else
+            npx tsx scripts/playwright-full-scrape.ts
+          fi
