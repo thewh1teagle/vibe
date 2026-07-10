@@ -4,6 +4,7 @@
 	"version": "3.0.20",
 	"identifier": "github.com.thewh1teagle.vibe",
 	"app": {
+		"macOSPrivateApi": true,
 		"windows": [],
 		"withGlobalTauri": true,
 		"security": {

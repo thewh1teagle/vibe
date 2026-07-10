@@ -1,9 +1,22 @@
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './app'
+import DictationIndicator from './components/dictation-indicator'
+import './globals.css'
+import './lib/i18n'
+
+const isDictationIndicator = new URLSearchParams(window.location.search).get('window') === 'dictation-indicator'
+if (isDictationIndicator) {
+	document.title = 'Vibe Dictation Indicator'
+	document.documentElement.classList.add('dictation-indicator-window')
+}
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-	<BrowserRouter>
-		<App />
-	</BrowserRouter>,
+	isDictationIndicator ? (
+		<DictationIndicator />
+	) : (
+		<BrowserRouter>
+			<App />
+		</BrowserRouter>
+	),
 )

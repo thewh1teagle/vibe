@@ -7,6 +7,7 @@ mod cli;
 mod cmd;
 mod config;
 mod diagnostics;
+mod dictation_indicator;
 mod error;
 mod ffmpeg;
 mod logging;
@@ -117,7 +118,13 @@ async fn main() -> Result<()> {
             cmd::app::rename_crash_file,
             cmd::app::type_text,
             cmd::permissions::request_system_audio_permission,
-            cmd::permissions::open_system_audio_settings
+            cmd::permissions::open_system_audio_settings,
+            dictation_indicator::get_dictation_indicator_enabled,
+            dictation_indicator::set_dictation_indicator_enabled,
+            dictation_indicator::show_dictation_indicator,
+            dictation_indicator::get_dictation_indicator_state,
+            dictation_indicator::dictation_indicator_ready,
+            dictation_indicator::hide_dictation_indicator
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
