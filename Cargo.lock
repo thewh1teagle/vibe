@@ -6807,6 +6807,7 @@ name = "vibe"
 version = "0.0.6"
 dependencies = [
  "bytemuck",
+ "bytes",
  "chrono",
  "cpal",
  "crash-handler",

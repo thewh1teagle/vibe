@@ -108,6 +108,7 @@ pub async fn transcribe(
     tokio::pin!(stream);
 
     let mut segments = Vec::new();
+    let mut completed = false;
 
     while let Some(event_result) = stream.next().await {
         if abort_atomic.load(Ordering::Relaxed) {
@@ -137,9 +138,11 @@ pub async fn transcribe(
                 }
                 SonaEvent::Result { .. } => {
                     tracing::debug!("transcription complete");
+                    completed = true;
                 }
                 SonaEvent::Error { code, message } => {
                     tracing::error!("sona transcription error: {}", message);
+                    let _ = set_progress_bar(&app_handle, None);
                     return Err(CommandError {
                         code: code.unwrap_or_else(|| "internal_error".to_string()),
                         message,
@@ -148,11 +151,20 @@ pub async fn transcribe(
             },
             Err(e) => {
                 tracing::error!("stream error: {:?}", e);
+                let _ = set_progress_bar(&app_handle, None);
+                return Err(CommandError::from(e));
             }
         }
     }
 
     let _ = set_progress_bar(&app_handle, None);
+
+    if !abort_atomic.load(Ordering::Relaxed) && !completed {
+        return Err(CommandError {
+            code: "internal_error".to_string(),
+            message: "Sona transcription stream ended before completion".to_string(),
+        });
+    }
 
     let elapsed = start.elapsed();
     let transcript = Transcript {
