@@ -11,7 +11,6 @@ use crate::{ffi, platform};
 #[derive(Debug)]
 pub struct Context {
     ctx: *mut ffi::whisper_context,
-    model: Vec<u8>,
 }
 
 impl Context {
@@ -42,7 +41,10 @@ impl Context {
             return Err(Error::LoadModel(PathBuf::from(path)));
         }
 
-        Ok(Self { ctx, model })
+        // whisper.cpp has finished reading the input buffer once initialization
+        // returns, so keeping the complete model file resident would only
+        // duplicate its memory for the lifetime of the context.
+        Ok(Self { ctx })
     }
 
     pub fn transcribe(
@@ -107,7 +109,6 @@ impl Drop for Context {
             unsafe { ffi::whisper_free(self.ctx) };
             self.ctx = ptr::null_mut();
         }
-        let _ = self.model.len();
     }
 }
 
