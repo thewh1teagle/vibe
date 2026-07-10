@@ -101,6 +101,6 @@ jobs:
                   releaseName: "v__VERSION__"
                   releaseBody: "What's new? 🎉📣"
                   prerelease: true
-                  args: ${{ matrix.args }}
+                  args: ${{ matrix.args }} ${{ matrix.platform == 'windows-latest' && inputs.sign-windows && '--config src-tauri/tauri.windows.signing.conf.json' || '' }}
                   projectPath: "./desktop"
                   tauriScript: pnpm exec tauri
