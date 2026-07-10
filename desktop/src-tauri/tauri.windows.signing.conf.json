@@ -1,0 +1,10 @@
+{
+	"bundle": {
+		"windows": {
+			"signCommand": {
+				"cmd": "uv.exe",
+				"args": ["run", "../../scripts/sign_windows.py", "%1"]
+			}
+		}
+	}
+}
