@@ -74,10 +74,7 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
     let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
     let mut state_guard = sona_state.lock().await;
 
-    let process_is_alive = state_guard
-        .process
-        .as_mut()
-        .is_some_and(crate::sona::SonaProcess::is_alive);
+    let process_is_alive = state_guard.process.as_mut().is_some_and(crate::sona::SonaProcess::is_alive);
     if !process_is_alive {
         if state_guard.process.is_some() {
             tracing::warn!("cached sona process is no longer running; restarting it");
