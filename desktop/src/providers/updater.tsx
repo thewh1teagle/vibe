@@ -94,7 +94,12 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		setUpdating(true)
 		setProgress(0)
 		console.info(`Installing update ${update?.version}, ${update?.date}, ${update?.body}`)
-		await update?.downloadAndInstall(onDownloadEvent)
+		await update?.download(onDownloadEvent)
+		// Windows cannot replace the bundled sona.exe while it is running. Stop it
+		// only after the update has downloaded so transcription remains available
+		// while the (potentially long) download is in progress.
+		await invoke('stop_api_server')
+		await update?.install()
 		setUpdating(false)
 		setTotal(null)
 		setPartSize(null)
@@ -119,7 +124,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		})
 		if (shouldUpdate) {
 			try {
-				downloadAndInstall()
+				await downloadAndInstall()
 			} catch (e) {
 				console.error(e)
 				setUpdating(false)
