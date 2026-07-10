@@ -21,10 +21,26 @@ pub(super) async fn transcribe(
     request: TranscriptionRequest,
 ) -> Result<Response, Response> {
     let TranscriptionRequest { file, form } = request;
-    let values = FormValues::new(&form);
-    let diarize_model = values.string("diarize_model");
+    let (
+        diarize_model,
+        enhance_audio,
+        stable_timestamps,
+        vad_model_path,
+        stream,
+        response_format,
+    ) = {
+        let values = FormValues::new(&form);
+        (
+            values.string("diarize_model"),
+            values.bool("enhance_audio"),
+            values.bool("stable_timestamps"),
+            values.string("vad_model"),
+            values.bool("stream"),
+            values.str_or("response_format", "json").to_string(),
+        )
+    };
     let audio_options = audio::ReadOptions {
-        enhance_audio: values.bool("enhance_audio"),
+        enhance_audio,
         verbose: state.config.verbose(),
     };
     let samples = audio::read_bytes_with_options(file, audio_options).map_err(|err| {
@@ -41,8 +57,6 @@ pub(super) async fn transcribe(
             diarization::diarize(model_path, &samples)
         });
 
-    let stable_timestamps = values.bool("stable_timestamps");
-    let vad_model_path = values.string("vad_model");
     if stable_timestamps && vad_model_path.is_none() {
         return Err(error(
             StatusCode::BAD_REQUEST,
@@ -50,10 +64,6 @@ pub(super) async fn transcribe(
             "'vad_model' is required when 'stable_timestamps' is true",
         ));
     }
-
-    let stream = values.bool("stream");
-    let response_format = values.str_or("response_format", "json").to_string();
-    drop(values);
 
     if stream {
         return stream_transcription(
@@ -63,7 +73,8 @@ pub(super) async fn transcribe(
             stable_timestamps,
             vad_model_path,
             diar_segments,
-        );
+        )
+        .map_err(|err| *err);
     }
 
     let mut guard = state.inner.try_lock().map_err(|_| {

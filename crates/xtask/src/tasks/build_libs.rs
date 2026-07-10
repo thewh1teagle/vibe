@@ -104,10 +104,8 @@ fn cmake_flags() -> Vec<&'static str> {
     } else if cfg!(any(target_os = "linux", target_os = "windows")) {
         flags.push("-DGGML_VULKAN=ON");
     }
-    if cfg!(target_os = "windows") {
-        if paths::windows_lib_flavor() == "gnu" {
-            flags.extend(["-G", "MinGW Makefiles"]);
-        }
+    if cfg!(target_os = "windows") && paths::windows_lib_flavor() == "gnu" {
+        flags.extend(["-G", "MinGW Makefiles"]);
     }
     flags
 }

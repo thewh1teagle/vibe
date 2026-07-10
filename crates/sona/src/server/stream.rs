@@ -19,20 +19,20 @@ pub(super) fn stream_transcription(
     stable_timestamps: bool,
     vad_model_path: Option<String>,
     diar_segments: Vec<diarization::Segment>,
-) -> Result<Response, Response> {
+) -> Result<Response, Box<Response>> {
     let mut guard = state.inner.clone().try_lock_owned().map_err(|_| {
-        error(
+        Box::new(error(
             StatusCode::TOO_MANY_REQUESTS,
             "busy",
             "server is busy with another transcription",
-        )
+        ))
     })?;
     if guard.ctx.is_none() {
-        return Err(error(
+        return Err(Box::new(error(
             StatusCode::SERVICE_UNAVAILABLE,
             "no_model",
             "no model loaded",
-        ));
+        )));
     }
 
     let opts = build_options(
