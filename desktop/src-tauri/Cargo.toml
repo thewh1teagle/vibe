@@ -11,7 +11,7 @@ edition = "2021"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["protocol-asset", "devtools"] }
+tauri = { version = "2", features = ["protocol-asset", "devtools", "macos-private-api"] }
 
 # Plugins
 tauri-plugin-window-state = "2"
@@ -82,7 +82,7 @@ libc-stdhandle = "=0.1.0"
 # macOS
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6.4"
-objc2-app-kit = { version = "0.3.2", features = ["NSApplication"] }
+objc2-app-kit = { version = "0.3.2", features = ["NSApplication", "NSWindow"] }
 
 [features]
 default = []

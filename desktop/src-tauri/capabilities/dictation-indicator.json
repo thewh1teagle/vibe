@@ -1,0 +1,23 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "dictation-indicator",
+  "description": "Minimal permissions for the global dictation status indicator",
+  "local": true,
+  "windows": ["dictation-indicator"],
+  "permissions": [
+    "core:event:default",
+    "core:path:default",
+    "core:resources:default",
+    "os:allow-locale",
+    "fs:allow-read-dir",
+    "fs:allow-read-text-file",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$RESOURCE/locales/**"
+        }
+      ]
+    }
+  ]
+}

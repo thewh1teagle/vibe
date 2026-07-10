@@ -36,6 +36,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         loaded_model_path: None,
         loaded_gpu_device: None,
     }));
+    app.manage(crate::dictation_indicator::DictationIndicatorRuntime::default());
 
     let store = app.store(STORE_FILENAME)?;
 
@@ -125,6 +126,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         if let Err(error) = result {
             tracing::error!("{:?}", error);
         }
+        crate::dictation_indicator::initialize(app.handle());
     }
     Ok(())
 }

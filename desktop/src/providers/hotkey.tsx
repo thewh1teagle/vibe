@@ -9,14 +9,16 @@ import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useTranslation } from 'react-i18next'
+import { hideDictationIndicator, showDictationIndicator } from '~/lib/dictation-indicator'
 
 // Module-level flag used by home viewModel to skip processing
 // when hotkey-triggered recording finishes
 export let hotkeyRecordingActive = false
 
-export const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+V'
+export const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+Space'
 
 export type HotkeyOutputMode = 'clipboard' | 'type'
+export type HotkeyActivationMode = 'push-to-talk' | 'toggle'
 
 interface HotkeyContextType {
 	hotkeyEnabled: boolean
@@ -25,6 +27,8 @@ interface HotkeyContextType {
 	setHotkeyShortcut: (shortcut: string) => void
 	hotkeyOutputMode: HotkeyOutputMode
 	setHotkeyOutputMode: (mode: HotkeyOutputMode) => void
+	hotkeyActivationMode: HotkeyActivationMode
+	setHotkeyActivationMode: (mode: HotkeyActivationMode) => void
 	hotkeyNormalizeOutput: boolean
 	setHotkeyNormalizeOutput: (enabled: boolean) => void
 	isHotkeyRecording: boolean
@@ -70,13 +74,30 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
+	const [hotkeyActivationMode, setHotkeyActivationMode] = useLocalStorage<HotkeyActivationMode>('prefs_hotkey_activation_mode', 'push-to-talk')
 	const [hotkeyNormalizeOutput, setHotkeyNormalizeOutput] = useLocalStorage('prefs_hotkey_normalize_output', true)
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 
 	const isHotkeyRecordingRef = useRef(false)
+	const isStartingRef = useRef(false)
+	const isStoppingRef = useRef(false)
+	const shortcutPressedRef = useRef(false)
 	const hotkeyOutputModeRef = useRef(hotkeyOutputMode)
 	const hotkeyNormalizeOutputRef = useRef(hotkeyNormalizeOutput)
 	const registeredShortcutRef = useRef<string | null>(null)
+	const indicatorSessionRef = useRef(0)
+	const indicatorTimerRef = useRef<number | null>(null)
+
+	const showIndicator = useCallback((status: 'recording' | 'transcribing' | 'completed' | 'error', details: { output?: HotkeyOutputMode; message?: string } = {}) => {
+		if (indicatorTimerRef.current) window.clearTimeout(indicatorTimerRef.current)
+		showDictationIndicator({ sessionId: indicatorSessionRef.current, status, ...details })
+	}, [])
+
+	const finishIndicator = useCallback((status: 'completed' | 'error', details: { output?: HotkeyOutputMode; message?: string } = {}) => {
+		const sessionId = indicatorSessionRef.current
+		showIndicator(status, details)
+		indicatorTimerRef.current = window.setTimeout(() => hideDictationIndicator(sessionId), status === 'error' ? 3500 : 1500)
+	}, [showIndicator])
 
 	useEffect(() => {
 		preferenceRef.current = preference
@@ -99,7 +120,8 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	}, [])
 
 	const handleHotkeyDown = useCallback(async () => {
-		if (isHotkeyRecordingRef.current) return
+		if (isHotkeyRecordingRef.current || isStartingRef.current || isStoppingRef.current) return
+		isStartingRef.current = true
 		try {
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
 			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
@@ -118,17 +140,27 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				customPath: null,
 				recordingName: null,
 			})
+			indicatorSessionRef.current += 1
+			showIndicator('recording')
 		} catch (error) {
 			console.error('Hotkey start_record error:', error)
 			isHotkeyRecordingRef.current = false
 			hotkeyRecordingActive = false
 			setIsHotkeyRecording(false)
+		} finally {
+			isStartingRef.current = false
 		}
-	}, [])
+	}, [showIndicator])
 
 	const handleHotkeyUp = useCallback(async () => {
-		if (!isHotkeyRecordingRef.current) return
-		await emit('stop_record')
+		if (!isHotkeyRecordingRef.current || isStoppingRef.current) return
+		isStoppingRef.current = true
+		try {
+			await emit('stop_record')
+		} catch (error) {
+			isStoppingRef.current = false
+			throw error
+		}
 	}, [])
 
 	// Listen for record_finish and process when hotkey-triggered
@@ -137,6 +169,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			if (!isHotkeyRecordingRef.current) return
 
 			const { path } = event.payload
+			showIndicator('transcribing')
 
 			try {
 				const modelPath = preferenceRef.current.modelPath
@@ -171,10 +204,14 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					await clipboard.writeText(resultText)
 					await notify('Vibe', t('common.hotkey-transcription-copied'))
 				}
+				finishIndicator('completed', { output: hotkeyOutputModeRef.current })
 			} catch (error) {
 				console.error('Hotkey transcription error:', error)
-				await notify('Vibe', getErrorMessage(error))
+				const message = getErrorMessage(error)
+				finishIndicator('error', { message })
+				await notify('Vibe', message)
 			} finally {
+				isStoppingRef.current = false
 				isHotkeyRecordingRef.current = false
 				hotkeyRecordingActive = false
 				setIsHotkeyRecording(false)
@@ -184,13 +221,18 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		return () => {
 			unlisten.then((fn) => fn())
 		}
-	}, [createLlm, t])
+	}, [createLlm, finishIndicator, showIndicator, t])
+
+	useEffect(() => () => {
+		if (indicatorTimerRef.current) window.clearTimeout(indicatorTimerRef.current)
+	}, [])
 
 	// Register/unregister shortcut
 	useEffect(() => {
 		let cancelled = false
 
 		async function setupShortcut() {
+			shortcutPressedRef.current = false
 			// Unregister previous shortcut
 			if (registeredShortcutRef.current) {
 				try {
@@ -207,7 +249,16 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 			try {
 				await register(hotkeyShortcut, (event) => {
-					if (event.state === 'Pressed') {
+					if (hotkeyActivationMode === 'toggle') {
+						if (event.state === 'Released') {
+							shortcutPressedRef.current = false
+							return
+						}
+						if (shortcutPressedRef.current) return
+						shortcutPressedRef.current = true
+						if (isHotkeyRecordingRef.current) handleHotkeyUp()
+						else handleHotkeyDown()
+					} else if (event.state === 'Pressed') {
 						handleHotkeyDown()
 					} else if (event.state === 'Released') {
 						handleHotkeyUp()
@@ -228,7 +279,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				registeredShortcutRef.current = null
 			}
 		}
-	}, [hotkeyEnabled, hotkeyShortcut, handleHotkeyDown, handleHotkeyUp])
+	}, [hotkeyEnabled, hotkeyShortcut, hotkeyActivationMode, handleHotkeyDown, handleHotkeyUp])
 
 	const value: HotkeyContextType = {
 		hotkeyEnabled,
@@ -237,6 +288,8 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		setHotkeyShortcut,
 		hotkeyOutputMode,
 		setHotkeyOutputMode,
+		hotkeyActivationMode,
+		setHotkeyActivationMode,
 		hotkeyNormalizeOutput,
 		setHotkeyNormalizeOutput,
 		isHotkeyRecording,

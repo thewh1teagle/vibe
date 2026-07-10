@@ -1,14 +1,28 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '~/components/info-tooltip'
 import { Input } from '~/components/ui/input'
 import { Switch } from '~/components/ui/switch'
-import { useHotkeyProvider, type HotkeyOutputMode } from '~/providers/hotkey'
+import { useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
 import { Field, SectionCard } from './shared'
+import { getDictationIndicatorEnabled, setDictationIndicatorEnabled } from '~/lib/dictation-indicator'
 
 export function DictationSection() {
 	const { t } = useTranslation()
 	const hotkey = useHotkeyProvider()
+	const [indicatorEnabled, setIndicatorEnabled] = useState(true)
+	useEffect(() => {
+		getDictationIndicatorEnabled().then(setIndicatorEnabled).catch(console.error)
+	}, [])
+	async function changeIndicatorEnabled(enabled: boolean) {
+		setIndicatorEnabled(enabled)
+		try {
+			await setDictationIndicatorEnabled(enabled)
+		} catch (error) {
+			setIndicatorEnabled(!enabled)
+			console.error(error)
+		}
+	}
 	const isMac = navigator.platform.toUpperCase().includes('MAC')
 	const shortcutKeys = useMemo(() => {
 		const keyMap: Record<string, string> = { CmdOrCtrl: isMac ? '⌘' : 'Ctrl', Cmd: '⌘', Ctrl: isMac ? '⌃' : 'Ctrl', Shift: isMac ? '⇧' : 'Shift', Alt: isMac ? '⌥' : 'Alt', Option: '⌥' }
@@ -26,6 +40,31 @@ export function DictationSection() {
 
 									{hotkey.hotkeyEnabled && (
 										<>
+											<div className="flex items-center justify-between gap-3">
+												<span className="flex items-center gap-1 text-sm font-medium">
+													<InfoTooltip text={t('common.dictation-indicator-setting-info')} />
+													{t('common.dictation-indicator-setting')}
+												</span>
+												<Switch checked={indicatorEnabled} onCheckedChange={changeIndicatorEnabled} />
+											</div>
+											<div className="h-px bg-border/45" />
+											<Field label={t('common.hotkey-activation-mode')}>
+												<div className="flex gap-2">
+													{(['push-to-talk', 'toggle'] as HotkeyActivationMode[]).map((mode) => (
+														<button
+															key={mode}
+															type="button"
+															onClick={() => hotkey.setHotkeyActivationMode(mode)}
+															className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+																hotkey.hotkeyActivationMode === mode
+																	? 'border-primary bg-primary/10 text-primary'
+																	: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
+															}`}>
+															{t(`common.hotkey-activation-${mode}`)}
+														</button>
+													))}
+												</div>
+											</Field>
 											<Field
 												label={
 													<span className="flex items-center gap-2">
@@ -62,7 +101,9 @@ export function DictationSection() {
 													</button>
 												))}
 											</div>
-											<p className="text-xs italic text-muted-foreground">{t('common.global-hotkey-description')}</p>
+											<p className="text-xs italic text-muted-foreground">
+												{t(`common.hotkey-activation-${hotkey.hotkeyActivationMode}-description`)}
+											</p>
 
 											<div className="h-px bg-border/45" />
 

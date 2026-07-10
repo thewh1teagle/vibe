@@ -1,6 +1,13 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+html.dictation-indicator-window,
+html.dictation-indicator-window body,
+html.dictation-indicator-window #root {
+	background: transparent !important;
+	overflow: hidden;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
