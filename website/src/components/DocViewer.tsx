@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import { marked } from 'marked'
+import { m } from '~/paraglide/messages.js'
 
 interface DocViewerProps {
 	content: string
 }
 
 export default function DocViewer({ content }: DocViewerProps) {
-	const [html, setHtml] = useState('Loading...')
+	const [html, setHtml] = useState<string>(m.loading())
 
 	useEffect(() => {
 		if (!content) {
-			setHtml('No document selected.')
+			setHtml(m.noDocumentSelected())
 			return
 		}
 
@@ -19,7 +20,7 @@ export default function DocViewer({ content }: DocViewerProps) {
 			setHtml(typeof result === 'string' ? result : '')
 		} catch (error: unknown) {
 			console.error('Error rendering document:', error)
-			setHtml('Failed to load document.')
+			setHtml(m.failedToLoadDocument())
 		}
 	}, [content])
 

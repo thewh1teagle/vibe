@@ -1,5 +1,5 @@
 import { ReactNode, useContext, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { UpdaterContext } from '~/providers/updater'
 import AppMenu from './app-menu'
 import DropModal from './drop-modal'
@@ -10,7 +10,6 @@ export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
-	const { t } = useTranslation()
 
 	function openSettings(scrollTo?: string) {
 		setSettingsScrollTo(scrollTo)
@@ -32,7 +31,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 			<DropModal />
 			<div className="app-shell">
 				<div className="stagger-in mb-6 flex items-center justify-between gap-4 pb-1">
-					<h1 className="app-title">{t('common.app-title')}</h1>
+					<h1 className="app-title">{m.appTitle()}</h1>
 					<AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />
 				</div>
 				<PageTransition>

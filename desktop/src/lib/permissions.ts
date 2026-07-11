@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { platform } from '@tauri-apps/plugin-os'
 import { toast } from 'sonner'
+import { m } from '~/paraglide/messages.js'
 
 /**
  * Ensures system audio recording permission is granted on macOS.
@@ -22,6 +23,6 @@ export async function ensureSystemAudioPermission(): Promise<boolean> {
   }
 
   await invoke('open_system_audio_settings')
-  toast.error('Please enable system audio recording in System Settings, then try again.')
+	toast.error(m.permissionAudioRecording())
   return false
 }

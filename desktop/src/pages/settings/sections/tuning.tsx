@@ -1,5 +1,5 @@
 import { message } from '@tauri-apps/plugin-dialog'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { InfoTooltip } from '~/components/info-tooltip'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -9,28 +9,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { Field, SectionCard, type SettingsViewModel } from './shared'
 
 export function TuningSection({ vm }: { vm: SettingsViewModel }) {
-	const { t } = useTranslation()
 	return (
 <div className="space-y-5">
 							<div className="space-y-2">
-								<span className="px-1 text-sm font-semibold text-foreground/95">{t('common.speaker-timing')}</span>
+								<span className="px-1 text-sm font-semibold text-foreground/95">{m.speakerTiming()}</span>
 								<SectionCard>
 									<div className="space-y-4">
 										<div className="flex items-center justify-between">
 											<span className="flex items-center gap-1 text-sm font-medium">
-												<InfoTooltip text={t('common.info-diarization')} />
-												{t('common.enable-diarization')}
+												<InfoTooltip text={m.infoDiarization()} />
+												{m.enableDiarization()}
 											</span>
 											<Switch checked={vm.preference.diarizeEnabled} onCheckedChange={vm.toggleDiarization} />
 										</div>
 										{vm.preference.diarizeEnabled && (
-											<p className="text-sm italic text-muted-foreground">{t('common.diarize-max-speakers-note')}</p>
+											<p className="text-sm italic text-muted-foreground">{m.diarizeMaxSpeakersNote()}</p>
 										)}
 										<div className="h-px bg-border/45" />
 										<div className="flex items-center justify-between">
 											<span className="flex items-center gap-1 text-sm font-medium">
-												<InfoTooltip text="Uses VAD per-segment decode for tighter subtitle timing. Around 4x slower; best for movie/long-form transcript work." />
-												Enable stable timestamps
+														<InfoTooltip text={m.stableTimestampsInfo()} />
+														{m.enableStableTimestamps()}
 											</span>
 											<Switch checked={vm.preference.stableTimestampsEnabled} onCheckedChange={vm.handleStableTimestampsToggle} />
 										</div>
@@ -39,13 +38,13 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 							</div>
 
 							<div className="space-y-2">
-								<span className="px-1 text-sm font-semibold text-foreground/95">{t('common.model-options')}</span>
+								<span className="px-1 text-sm font-semibold text-foreground/95">{m.modelOptions()}</span>
 								<SectionCard>
 									<div className="space-y-4">
 										<div className="flex items-center justify-between">
 											<span className="flex items-center gap-1 text-sm font-medium">
-												<InfoTooltip text={t('common.info-translate-to-english')} />
-												{t('common.translate-to-english')}
+												<InfoTooltip text={m.infoTranslateToEnglish()} />
+												{m.translateToEnglish()}
 											</span>
 											<Switch
 												checked={Boolean(vm.preference.modelOptions.translate)}
@@ -56,9 +55,9 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 										<Field
 											label={
 												<>
-													<InfoTooltip text={t('common.info-prompt')} />
-													{t('common.prompt')} ({t('common.leftover')} {1024 - (vm.preference.modelOptions?.init_prompt?.length ?? 0)}{' '}
-													{t('common.characters')})
+													<InfoTooltip text={m.infoPrompt()} />
+													{m.prompt()} ({m.leftover()} {1024 - (vm.preference.modelOptions?.init_prompt?.length ?? 0)}{' '}
+													{m.characters()})
 												</>
 											}>
 											<Textarea
@@ -72,8 +71,8 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 
 										<div className="flex items-center justify-between">
 											<span className="flex items-center gap-1 text-sm font-medium">
-												<InfoTooltip text={t('common.info-use-word-timestamps')} />
-												{t('common.use-word-timestamps')}
+												<InfoTooltip text={m.infoUseWordTimestamps()} />
+												{m.useWordTimestamps()}
 											</span>
 											<Switch
 												checked={Boolean(vm.preference.modelOptions.word_timestamps)}
@@ -85,15 +84,15 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 											<Field
 												label={
 													<>
-														<InfoTooltip text={t('common.info-max-sentence-len')} />
-														{t('common.max-sentence-len')}
+														<InfoTooltip text={m.infoMaxSentenceLen()} />
+														{m.maxSentenceLen()}
 													</>
 												}>
 												<Input
 													type="number"
 													value={vm.preference.modelOptions.max_sentence_len}
 													onChange={(e) => {
-														if (!vm.preference.modelOptions.word_timestamps) message(t('common.please-enable-word-timestamps'))
+														if (!vm.preference.modelOptions.word_timestamps) message(m.pleaseEnableWordTimestamps())
 														vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_sentence_len: vm.parseIntOr(e.target.value, 1) })
 													}}
 												/>
@@ -102,8 +101,8 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 											<Field
 												label={
 													<>
-														<InfoTooltip text={t('common.info-threads')} />
-														{t('common.threads')}
+														<InfoTooltip text={m.infoThreads()} />
+														{m.threads()}
 													</>
 												}>
 												<Input
@@ -118,8 +117,8 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 											<Field
 												label={
 													<>
-														<InfoTooltip text={t('common.info-temperature')} />
-														{t('common.temperature')}
+														<InfoTooltip text={m.infoTemperature()} />
+														{m.temperature()}
 													</>
 												}>
 												<Input
@@ -135,8 +134,8 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 											<Field
 												label={
 													<>
-														<InfoTooltip text={t('common.info-max-text-ctx')} />
-														{t('common.max-text-ctx')}
+														<InfoTooltip text={m.infoMaxTextCtx()} />
+														{m.maxTextCtx()}
 													</>
 												}>
 												<Input
@@ -154,8 +153,8 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 											<Field
 												label={
 													<>
-														<InfoTooltip text="Greedy vs Beam Search: Default is Beam Search (Size 5, Patience -1), which evaluates 5 possible sequences at each step for more accurate results, but is slower. Greedy, on the other hand, selects the best token from the top 5 at each step, making it faster but potentially less accurate." />
-														{t('common.sampling-strategy')}
+																<InfoTooltip text={m.samplingStrategyInfo()} />
+																		{m.samplingStrategy()}
 													</>
 												}>
 												<Select
@@ -182,11 +181,11 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 														<InfoTooltip
 															text={
 																vm.preference.modelOptions.sampling_strategy === 'greedy'
-																	? 'Top candidates in Greedy mode (default: 5) — higher = better accuracy, slower.'
-																	: 'Paths explored in Beam Search (default: 5) — higher = better accuracy, slower.'
+																			? m.greedyInfo()
+																			: m.beamInfo()
 															}
 														/>
-														{vm.preference.modelOptions.sampling_strategy === 'greedy' ? 'Best of' : 'Beam size'}
+																	{vm.preference.modelOptions.sampling_strategy === 'greedy' ? m.bestOf() : m.beamSize()}
 													</>
 												}>
 												<Input
@@ -213,13 +212,13 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 							</div>
 
 							<div className="space-y-2">
-								<span className="px-1 text-sm font-semibold text-foreground/95">{t('common.ffmpeg-options')}</span>
+								<span className="px-1 text-sm font-semibold text-foreground/95">{m.ffmpegOptions()}</span>
 								<SectionCard>
 									<div className="space-y-4">
 										<div className="flex items-center justify-between">
 											<span className="flex items-center gap-1 text-sm font-medium">
-												<InfoTooltip text={t('common.info-normalize-loudness')} />
-												{t('common.normalize-loudness')}
+												<InfoTooltip text={m.infoNormalizeLoudness()} />
+												{m.normalizeLoudness()}
 											</span>
 											<Switch
 												checked={vm.preference.ffmpegOptions.normalize_loudness}
@@ -233,7 +232,7 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 											label={
 												<>
 													<InfoTooltip text={'ffmpeg -i {input} -ar 16000 -ac 1 -c:a pcm_s16le {custom_command} -hide_banner -y -loglevel error'} />
-													{t('common.custom-ffmpeg-command')}
+													{m.customFfmpegCommand()}
 												</>
 											}>
 											<Input
@@ -250,14 +249,14 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 							</div>
 
 							<div className="space-y-2">
-								<span className="px-1 text-sm font-semibold text-foreground/95">{t('common.presets')}</span>
+								<span className="px-1 text-sm font-semibold text-foreground/95">{m.presets()}</span>
 								<SectionCard>
 									<div className="flex gap-4">
 										<Button variant="secondary" onClick={vm.preference.enableSubtitlesPreset} className="flex-1">
-											{t('common.preset-for-subtitles')}
+											{m.presetForSubtitles()}
 										</Button>
 										<Button variant="secondary" onClick={vm.preference.resetOptions} className="flex-1">
-											{t('common.reset-options')}
+											{m.resetOptions()}
 										</Button>
 									</div>
 								</SectionCard>

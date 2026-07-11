@@ -10,6 +10,7 @@
 		"preview": "vite preview"
 	},
 	"devDependencies": {
+		"@inlang/paraglide-js": "2.21.0",
 		"@tailwindcss/vite": "^4.1.18",
 		"@types/react": "^19.2.13",
 		"@types/react-dom": "^19.2.3",
@@ -23,16 +24,12 @@
 	"dependencies": {
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
-		"i18next": "^25.8.4",
-		"i18next-browser-languagedetector": "^8.2.0",
-		"i18next-http-backend": "^3.0.2",
 		"is-mobile": "^5.0.0",
 		"lucide-react": "^0.563.0",
 		"marked": "^17.0.1",
 		"radix-ui": "^1.4.3",
 		"react": "^19.2.4",
 		"react-dom": "^19.2.4",
-		"react-i18next": "^16.5.4",
 		"react-router-dom": "^7.13.0",
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.4.0"

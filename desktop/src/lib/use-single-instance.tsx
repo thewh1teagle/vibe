@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { ModifyState, NamedPath } from './types'
 import { pathToNamedPath } from './fs'
 import { ask } from '@tauri-apps/plugin-dialog'
@@ -13,7 +13,6 @@ interface UseSingleInstanceProps {
 }
 
 export function useSingleInstance({ setFiles }: UseSingleInstanceProps) {
-	const { t } = useTranslation()
 	const navigate = useNavigate()
 
 	async function handleSingleInstance() {
@@ -30,7 +29,7 @@ export function useSingleInstance({ setFiles }: UseSingleInstanceProps) {
 				if (url) {
 					const downloadURL = url.replace('vibe://download/?url=', '')
 					const hostname = new URL(url).hostname
-					const confirm = await ask(`${t('common.ask-for-download-model')} ${hostname}?`, { title: t('common.download-model'), kind: 'info' })
+					const confirm = await ask(`${m.askForDownloadModel()} ${hostname}?`, { title: m.downloadModel(), kind: 'info' })
 					if (confirm) {
 						navigate('/setup', { state: { downloadURL } })
 					}

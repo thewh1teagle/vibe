@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { m } from '../paraglide/messages.js'
 import { Dialog, DialogContent } from '~/components/ui/dialog'
 import SupportButton from './SupportButton'
 
@@ -9,14 +9,13 @@ interface PostDownloadProps {
 }
 
 export default function PostDownload({ open, onOpenChange, onOpenKofi }: PostDownloadProps) {
-	const { t } = useTranslation()
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="w-[92vw] max-w-md p-6">
-				<h3 className="text-center text-xl font-semibold">{t('your-download-is-starting')}</h3>
-				<p className="py-2 text-center text-sm text-muted-foreground">{t('download-starting-description')}</p>
-				<p className="mt-5 text-center text-sm">{t('support-while-you-wait')}</p>
+				<h3 className="text-center text-xl font-semibold">{m["your-download-is-starting"]()}</h3>
+				<p className="py-2 text-center text-sm text-muted-foreground">{m["download-starting-description"]()}</p>
+				<p className="mt-5 text-center text-sm">{m["support-while-you-wait"]()}</p>
 				<div className="mt-4 flex justify-center">
 					<SupportButton onOpenKofi={onOpenKofi} />
 				</div>

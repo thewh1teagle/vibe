@@ -2,6 +2,7 @@ import formatDuration from 'format-duration'
 import { useEffect, useRef, useState } from 'react'
 import { Music2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Button } from '~/components/ui/button'
+import { m } from '~/paraglide/messages.js'
 
 interface AudioInputProps {
 	audio: HTMLAudioElement
@@ -155,7 +156,7 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 						<Music2 className="h-4 w-4 text-primary" />
 					</div>
 					<div className="min-w-0">
-						<p className="text-[10px] uppercase tracking-[0.09em] text-muted-foreground">Now Playing</p>
+						<p className="text-[10px] uppercase tracking-[0.09em] text-muted-foreground">{m.nowPlaying()}</p>
 						<div className="cursor-pointer truncate text-sm font-semibold transition-colors hover:text-primary" onClick={onLabelClick} title={label}>
 							{label}
 						</div>

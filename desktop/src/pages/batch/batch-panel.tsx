@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { ReactComponent as CancelIcon } from '~/icons/cancel.svg'
 import { ReactComponent as ChevronUp } from '~/icons/chevron-down.svg'
 import { ReactComponent as ChevronDown } from '~/icons/chevron-up.svg'
@@ -21,7 +21,6 @@ interface BatchPanelProps {
 }
 
 export default function BatchPanel({ files, onStart, onCancel, progress, index, inProgress, isAborting, modelPath }: BatchPanelProps) {
-	const { t } = useTranslation()
 	const [open, setOpen] = useState(false)
 
 	return (
@@ -30,20 +29,20 @@ export default function BatchPanel({ files, onStart, onCancel, progress, index, 
 				<div className="flex flex-col">
 					{inProgress && (
 						<span className="text-sm font-medium tracking-wide">
-							{t('common.transcribing')} ({index + 1}/{files.length})
+							{m.transcribing()} ({index + 1}/{files.length})
 						</span>
 					)}
 					{!isAborting && !inProgress && index < files.length && (
 						<span className="text-sm font-medium tracking-wide">
-							{t('common.transcribe')} {files.length} {t('common.files')}
+							{m.transcribe()} {files.length} {m.files()}
 						</span>
 					)}
 					{!isAborting && !inProgress && index > files.length && (
 						<span className="text-sm font-medium tracking-wide">
-							{t('common.transcribed')} {files.length} {t('common.files')}
+							{m.transcribed()} {files.length} {m.files()}
 						</span>
 					)}
-					{isAborting && <span className="text-sm font-medium tracking-wide">{t('common.aborting')}...</span>}
+					{isAborting && <span className="text-sm font-medium tracking-wide">{m.aborting()}...</span>}
 				</div>
 				<div className="ms-auto flex gap-2">
 					<CollapsibleTrigger asChild>

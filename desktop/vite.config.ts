@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react'
+import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import svgr from 'vite-plugin-svgr'
@@ -6,6 +7,12 @@ import svgr from 'vite-plugin-svgr'
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
 	plugins: [
+		paraglideVitePlugin({
+			project: './project.inlang',
+			outdir: './src/paraglide',
+			emitTsDeclarations: true,
+			strategy: ['localStorage', 'globalVariable', 'baseLocale'],
+		}),
 		react(),
 		tailwindcss(),
 		svgr({

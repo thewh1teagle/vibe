@@ -1,8 +1,8 @@
 
 import { subDays, isAfter } from 'date-fns'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import WhisperLanguages from '~/assets/whisper-languages.json'
-import { getI18nLanguageName } from '~/lib/i18n'
+import { getI18nLanguageName, getLocalizedLanguageName } from '~/lib/i18n'
 import { usePreferenceProvider } from '~/providers/preference'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '~/components/ui/select'
@@ -10,11 +10,10 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 const specialModels = [{ pattern: 'ug.bin', languages: [{ code: 'ug', label: 'Uyghur', name: 'uyghur' }] }]
 
 export default function LanguageInput() {
-	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 
 	const entries = Object.entries(WhisperLanguages).map(([name, code]) => {
-		return { label: t(`language.${name}`, { defaultValue: name }), name, code }
+		return { label: getLocalizedLanguageName(name), name, code }
 	})
 
 	for (const special of specialModels) {
@@ -57,15 +56,15 @@ export default function LanguageInput() {
 
 	return (
 		<div className="space-y-2 w-full">
-			<Label>{t('common.language')}</Label>
+			<Label>{m.language()}</Label>
 			<Select value={preference.modelOptions.lang} onValueChange={onValueChange}>
 				<SelectTrigger>
-					<SelectValue placeholder={t('common.language')} />
+					<SelectValue placeholder={m.language()} />
 				</SelectTrigger>
 				<SelectContent>
 					{recentEntries.length > 0 && (
 						<SelectGroup>
-							<SelectLabel>{t('common.recently-used')}</SelectLabel>
+							<SelectLabel>{m.recentlyUsed()}</SelectLabel>
 							{recentEntries.map(({ label, code }) => (
 								<SelectItem key={code} value={code}>
 									{label}
@@ -74,7 +73,7 @@ export default function LanguageInput() {
 						</SelectGroup>
 					)}
 					<SelectGroup>
-						<SelectLabel>{t('common.popular')}</SelectLabel>
+						<SelectLabel>{m.popular()}</SelectLabel>
 						{popularEntries.map(({ label, code }) => (
 							<SelectItem key={code} value={code}>
 								{label}
@@ -82,7 +81,7 @@ export default function LanguageInput() {
 						))}
 					</SelectGroup>
 					<SelectGroup>
-						<SelectLabel>{t('common.others')}</SelectLabel>
+						<SelectLabel>{m.others()}</SelectLabel>
 						{otherEntries.map(({ label, code }) => (
 							<SelectItem key={code} value={code}>
 								{label}

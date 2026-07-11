@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { m } from '../paraglide/messages.js'
 import { useOutletContext } from 'react-router-dom'
 import Cta from '~/components/Cta'
 import WallOfLove from '~/components/WallOfLove'
@@ -8,13 +8,12 @@ interface LayoutContext {
 }
 
 export default function Home() {
-	const { t } = useTranslation()
 	const { onOpenKofi } = useOutletContext<LayoutContext>()
 
 	return (
 		<>
-			<h1 className="text-center text-3xl capitalize lg:text-6xl">{t('title')}</h1>
-			<p className="m-auto mt-5 max-w-[78%] text-center text-base leading-8 text-muted-foreground lg:max-w-[600px]">{t('description')}</p>
+			<h1 className="text-center text-3xl capitalize lg:text-6xl">{m.title()}</h1>
+			<p className="m-auto mt-5 max-w-[78%] text-center text-base leading-8 text-muted-foreground lg:max-w-[600px]">{m.description()}</p>
 			<div className="mt-10 flex flex-col items-center">
 				<Cta onOpenKofi={onOpenKofi} />
 			</div>

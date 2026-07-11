@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ReactComponent as IndicatorIcon } from '~/icons/update-indicator.svg'
 import { ArrowLeft, MoreHorizontal, RefreshCcw, Settings2, Terminal } from 'lucide-react'
@@ -13,7 +13,6 @@ interface AppMenuProps {
 }
 
 export default function AppMenu({ availableUpdate, updateApp, onClickSettings }: AppMenuProps) {
-	const { t } = useTranslation()
 	const navigate = useNavigate()
 	const location = useLocation()
 	const canGoBack = location.key !== 'default'
@@ -27,7 +26,7 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 						variant="outline"
 						size="icon"
 						className="group relative h-11 w-11 rounded-xl border-border/75 bg-card/92 shadow-xs transition-all hover:-translate-y-px hover:bg-card hover:shadow-sm"
-						aria-label={t('common.more-options')}
+						aria-label={m.moreOptions()}
 					>
 						<MoreHorizontal className="h-4.5 w-4.5 text-foreground/90 transition-colors group-hover:text-foreground" strokeWidth={2.35} />
 						{availableUpdate && <IndicatorIcon className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 drop-shadow-sm" />}
@@ -36,22 +35,22 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 				<DropdownMenuContent align="end" className="w-56 rounded-xl border-border/75 bg-popover/98 p-1.5 shadow-lg">
 					<DropdownMenuItem onClick={() => onClickSettings()} className="h-10 rounded-md px-3 text-[15px] font-medium">
 						<Settings2 className="h-4 w-4 text-muted-foreground" />
-						{t('common.settings')}
+						{m.settings()}
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => onClickSettings('api')} className="h-10 rounded-md px-3 text-[15px] font-medium">
 						<Terminal className="h-4 w-4 text-muted-foreground" />
-						{t('common.api-and-agents', 'API & Agents')}
+						{m.apiAndAgents()}
 					</DropdownMenuItem>
 					{canGoBack && (
 						<DropdownMenuItem onClick={() => navigate(-1)} className="h-10 rounded-md px-3 text-[15px] font-medium">
 							<ArrowLeft className="h-4 w-4 text-muted-foreground" />
-							{t('common.back')}
+							{m.back()}
 						</DropdownMenuItem>
 					)}
 					{availableUpdate && (
 						<DropdownMenuItem onClick={updateApp} className="h-10 rounded-md px-3 text-[15px] font-medium text-primary">
 							<RefreshCcw className="h-4 w-4 text-muted-foreground" />
-							{t('common.update-version')}
+							{m.updateVersion()}
 						</DropdownMenuItem>
 					)}
 				</DropdownMenuContent>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { InfoTooltip } from '~/components/info-tooltip'
 import { Input } from '~/components/ui/input'
 import { Switch } from '~/components/ui/switch'
@@ -8,7 +8,6 @@ import { Field, SectionCard } from './shared'
 import { getDictationIndicatorEnabled, setDictationIndicatorEnabled } from '~/lib/dictation-indicator'
 
 export function DictationSection() {
-	const { t } = useTranslation()
 	const hotkey = useHotkeyProvider()
 	const [indicatorEnabled, setIndicatorEnabled] = useState(true)
 	useEffect(() => {
@@ -24,17 +23,29 @@ export function DictationSection() {
 		}
 	}
 	const isMac = navigator.platform.toUpperCase().includes('MAC')
+	const activationLabels = {
+		'push-to-talk': m.hotkeyActivationPushToTalk,
+		toggle: m.hotkeyActivationToggle,
+	} as const
+	const activationDescriptions = {
+		'push-to-talk': m.hotkeyActivationPushToTalkDescription,
+		toggle: m.hotkeyActivationToggleDescription,
+	} as const
+	const outputLabels = {
+		clipboard: m.hotkeyOutputClipboard,
+		type: m.hotkeyOutputType,
+	} as const
 	const shortcutKeys = useMemo(() => {
 		const keyMap: Record<string, string> = { CmdOrCtrl: isMac ? '⌘' : 'Ctrl', Cmd: '⌘', Ctrl: isMac ? '⌃' : 'Ctrl', Shift: isMac ? '⇧' : 'Shift', Alt: isMac ? '⌥' : 'Alt', Option: '⌥' }
 		return hotkey.hotkeyShortcut.split('+').map((key) => keyMap[key] ?? key)
 	}, [hotkey.hotkeyShortcut, isMac])
 	return (
 <div className="space-y-5">
-							<p className="px-1 text-sm text-muted-foreground">{t('common.global-dictation-promo')}</p>
+							<p className="px-1 text-sm text-muted-foreground">{m.globalDictationPromo()}</p>
 							<SectionCard>
 								<div className="space-y-4">
 									<div className="flex items-center justify-between">
-										<span className="text-sm font-medium">{t('common.global-hotkey-enabled')}</span>
+										<span className="text-sm font-medium">{m.globalHotkeyEnabled()}</span>
 										<Switch checked={hotkey.hotkeyEnabled} onCheckedChange={hotkey.setHotkeyEnabled} />
 									</div>
 
@@ -42,13 +53,13 @@ export function DictationSection() {
 										<>
 											<div className="flex items-center justify-between gap-3">
 												<span className="flex items-center gap-1 text-sm font-medium">
-													<InfoTooltip text={t('common.dictation-indicator-setting-info')} />
-													{t('common.dictation-indicator-setting')}
+													<InfoTooltip text={m.dictationIndicatorSettingInfo()} />
+													{m.dictationIndicatorSetting()}
 												</span>
 												<Switch checked={indicatorEnabled} onCheckedChange={changeIndicatorEnabled} />
 											</div>
 											<div className="h-px bg-border/45" />
-											<Field label={t('common.hotkey-activation-mode')}>
+											<Field label={m.hotkeyActivationMode()}>
 												<div className="flex gap-2">
 													{(['push-to-talk', 'toggle'] as HotkeyActivationMode[]).map((mode) => (
 														<button
@@ -60,7 +71,7 @@ export function DictationSection() {
 																	? 'border-primary bg-primary/10 text-primary'
 																	: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
 															}`}>
-															{t(`common.hotkey-activation-${mode}`)}
+										{activationLabels[mode]()}
 														</button>
 													))}
 												</div>
@@ -68,7 +79,7 @@ export function DictationSection() {
 											<Field
 												label={
 													<span className="flex items-center gap-2">
-														{t('common.global-hotkey-shortcut')}
+														{m.globalHotkeyShortcut()}
 														<span className="flex items-center gap-1">
 															{shortcutKeys.map((key, i) => (
 																<kbd
@@ -97,20 +108,20 @@ export function DictationSection() {
 																? 'border-primary bg-primary/10 text-primary'
 																: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
 														}`}>
-														{t(`common.hotkey-output-${mode}`)}
+									{outputLabels[mode]()}
 													</button>
 												))}
 											</div>
 											<p className="text-xs italic text-muted-foreground">
-												{t(`common.hotkey-activation-${hotkey.hotkeyActivationMode}-description`)}
+								{activationDescriptions[hotkey.hotkeyActivationMode]()}
 											</p>
 
 											<div className="h-px bg-border/45" />
 
 											<div className="flex items-center justify-between gap-3">
 												<span className="flex items-center gap-1 text-sm font-medium">
-													<InfoTooltip text={t('common.normalize-hotkey-output-info')} />
-													{t('common.normalize-hotkey-output')}
+													<InfoTooltip text={m.normalizeHotkeyOutputInfo()} />
+													{m.normalizeHotkeyOutput()}
 												</span>
 												<Switch checked={hotkey.hotkeyNormalizeOutput} onCheckedChange={hotkey.setHotkeyNormalizeOutput} />
 											</div>

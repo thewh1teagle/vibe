@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as WrenchIcon } from '~/icons/wrench.svg'
@@ -9,19 +9,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { SectionCard, type SettingsViewModel } from './shared'
 
 export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
-	const { t } = useTranslation()
 	return (
 <div className="space-y-5">
 							<SectionCard>
 								<div className="space-y-5">
 									<div className="space-y-2">
-										<Label>{t('common.download-model')}</Label>
+										<Label>{m.downloadModel()}</Label>
 										<div className="flex items-center gap-2">
 											<Input
 												type="text"
 												value={vm.downloadURL}
 												onChange={(event) => vm.setDownloadURL(event.target.value)}
-												placeholder={t('common.paste-model-link')}
+												placeholder={m.pasteModelLink()}
 												onKeyDown={(event) => (event.key === 'Enter' ? vm.downloadModel() : null)}
 											/>
 											<Button variant="default" size="icon" onClick={vm.downloadModel} className="shrink-0">
@@ -42,7 +41,7 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 									</div>
 
 									<div className="space-y-2">
-										<Label>{t('common.select-model')}</Label>
+										<Label>{m.selectModel()}</Label>
 										<Select
 											value={vm.preference.modelPath ?? undefined}
 											onValueChange={(value) => vm.preference.setModelPath(value)}
@@ -50,7 +49,7 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 												if (open) vm.loadModels()
 											}}>
 											<SelectTrigger>
-												<SelectValue placeholder={t('common.select-model')} />
+												<SelectValue placeholder={m.selectModel()} />
 											</SelectTrigger>
 											<SelectContent>
 												{vm.models.map((model, index) => (
@@ -64,7 +63,7 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 
 									{!vm.isMacOS && (
 										<div className="space-y-2">
-											<Label>{t('common.gpu-device')}</Label>
+											<Label>{m.gpuDevice()}</Label>
 											{vm.gpuDevices.length > 0 ? (
 												<Select
 													value={vm.preference.gpuDevice != null ? String(vm.preference.gpuDevice) : 'auto'}
@@ -72,10 +71,10 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 														vm.preference.setGpuDevice(value === 'auto' ? null : parseInt(value, 10))
 													}}>
 													<SelectTrigger>
-														<SelectValue placeholder={t('common.gpu-device')} />
+														<SelectValue placeholder={m.gpuDevice()} />
 													</SelectTrigger>
 													<SelectContent>
-														<SelectItem value="auto">Auto</SelectItem>
+									<SelectItem value="auto">{m.auto()}</SelectItem>
 														{vm.gpuDevices.map((device) => (
 															<SelectItem key={device.index} value={String(device.index)}>
 																{device.description}
@@ -91,7 +90,7 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 														const val = e.target.value
 														vm.preference.setGpuDevice(val === '' ? null : parseInt(val, 10))
 													}}
-													placeholder={t('common.gpu-device-placeholder')}
+													placeholder={m.gpuDevicePlaceholder()}
 												/>
 											)}
 										</div>
@@ -102,19 +101,19 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 											variant="ghost"
 											onMouseDown={vm.openModelsUrl}
 											className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
-											{t('common.download-models-link')} <LinkIcon className="h-4 w-4 text-muted-foreground" />
+											{m.downloadModelsLink()} <LinkIcon className="h-4 w-4 text-muted-foreground" />
 										</Button>
 										<Button
 											variant="ghost"
 											onMouseDown={vm.openModelPath}
 											className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
-											{t('common.models-folder')} <FolderIcon className="h-4 w-4 text-muted-foreground" />
+											{m.modelsFolder()} <FolderIcon className="h-4 w-4 text-muted-foreground" />
 										</Button>
 										<Button
 											variant="ghost"
 											onMouseDown={vm.changeModelsFolder}
 											className="h-11 w-full justify-between rounded-lg px-3 font-medium hover:bg-accent/60">
-											{t('common.change-models-folder')} <WrenchIcon className="h-4 w-4 text-muted-foreground" />
+											{m.changeModelsFolder()} <WrenchIcon className="h-4 w-4 text-muted-foreground" />
 										</Button>
 									</div>
 								</div>

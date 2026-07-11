@@ -2,7 +2,7 @@ import { event } from '@tauri-apps/api'
 import { listen } from '@tauri-apps/api/event'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import * as ytDlp from '~/lib/ytdlp'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { useFilesContext } from '~/providers/files-provider'
@@ -10,7 +10,6 @@ import { usePreferenceProvider } from '~/providers/preference'
 import { useToastProvider } from '~/providers/toast'
 
 export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
-	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const { setFiles } = useFilesContext()
 	const toast = useToastProvider()
@@ -59,13 +58,13 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 			if (!needsInstall && !needsUpdate) { preference.setHomeTab('link'); return }
 
 			const confirmed = needsUpdate
-				? await dialog.ask(t('common.ask-for-update-ytdlp-message'), { title: t('common.ask-for-update-ytdlp-title'), kind: 'info', cancelLabel: t('common.later'), okLabel: t('common.update-now') })
-				: await dialog.ask(t('common.ask-for-install-ytdlp-message'), { title: t('common.ask-for-install-ytdlp-title'), kind: 'info', cancelLabel: t('common.cancel'), okLabel: t('common.install-now') })
+				? await dialog.ask(m.askForUpdateYtdlpMessage(), { title: m.askForUpdateYtdlpTitle(), kind: 'info', cancelLabel: m.later(), okLabel: m.updateNow() })
+				: await dialog.ask(m.askForInstallYtdlpMessage(), { title: m.askForInstallYtdlpTitle(), kind: 'info', cancelLabel: m.cancel(), okLabel: m.installNow() })
 
 			if (confirmed) {
 				try {
 					const version = latestVersion ?? preference.ytDlpVersion ?? '2026.02.04'
-					toast.setMessage(t('common.downloading-ytdlp')); toast.setProgress(0); toast.setOpen(true)
+					toast.setMessage(m.downloadingYtdlp()); toast.setProgress(0); toast.setOpen(true)
 					await ytDlp.downloadYtDlp(version)
 					preference.setYtDlpVersion(version)
 					skippedUpdatePromptRef.current = false

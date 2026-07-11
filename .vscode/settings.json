@@ -12,5 +12,7 @@
 		"editor.defaultFormatter": "rust-lang.rust-analyzer"
 	},
 	// Formatting
-	"prettier.configPath": ".prettierrc.json"
+	"prettier.configPath": ".prettierrc.json",
+	"elementaryWatson.defaultLocale": "en-US",
+	"elementaryWatson.realtimeUpdates": true
 }

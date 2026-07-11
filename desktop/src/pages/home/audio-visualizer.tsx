@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { m } from '~/paraglide/messages.js'
 
 export interface AudioVisualizerProps {
 	isRecording: boolean
@@ -231,7 +232,7 @@ export default function AudioVisualizer({
 			className={`w-full rounded-lg border border-border/50 bg-card/50 p-3 ${className}`}
 		>
 			<div className="mb-2 flex items-center justify-between">
-				<span className="text-xs font-medium text-muted-foreground">{deviceLabel || 'Audio Level'}</span>
+				<span className="text-xs font-medium text-muted-foreground">{deviceLabel || m.audioLevel()}</span>
 				<span className="flex items-center gap-1.5 text-xs text-success">
 					<span className="relative flex h-1.5 w-1.5">
 						<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />

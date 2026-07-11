@@ -1,4 +1,5 @@
 import { cn } from '~/lib/style'
+import { m } from '~/paraglide/messages.js'
 
 interface FeatureCardProps {
 	title: string
@@ -22,7 +23,7 @@ export default function FeatureCard({ title, description, videoURL, imageURL, al
 
 			{imageURL && (
 				<div className={cn('flex', alignMap[align] || 'justify-start')}>
-					<img src={`/vibe${imageURL}`} alt="Image" className="rounded-lg transition-transform duration-500 ease-in-out hover:z-10 hover:scale-105" />
+					<img src={`/vibe${imageURL}`} alt={m.image()} className="rounded-lg transition-transform duration-500 ease-in-out hover:z-10 hover:scale-105" />
 				</div>
 			)}
 

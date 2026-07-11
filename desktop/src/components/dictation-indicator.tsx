@@ -2,12 +2,11 @@ import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
 import { AlertTriangle, Check, LoaderCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import logoUrl from '../../../design/logo.svg?url'
 import { getDictationIndicatorState, type DictationIndicatorState } from '~/lib/dictation-indicator'
 
 export default function DictationIndicator() {
-	const { t } = useTranslation()
 	const [state, setState] = useState<DictationIndicatorState>({ sessionId: 0, status: 'recording' })
 
 	useEffect(() => {
@@ -22,10 +21,10 @@ export default function DictationIndicator() {
 	}, [])
 
 	const content = {
-		recording: { icon: <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.18)]" />, label: t('common.dictation-indicator-listening') },
-		transcribing: { icon: <LoaderCircle className="h-4 w-4 animate-spin text-blue-400" />, label: t('common.dictation-indicator-transcribing') },
-		completed: { icon: <Check className="h-4 w-4 text-emerald-400" />, label: t(state.output === 'type' ? 'common.dictation-indicator-inserted' : 'common.dictation-indicator-copied') },
-		error: { icon: <AlertTriangle className="h-4 w-4 text-red-400" />, label: state.message || t('common.dictation-indicator-error') },
+		recording: { icon: <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.18)]" />, label: m.dictationIndicatorListening() },
+		transcribing: { icon: <LoaderCircle className="h-4 w-4 animate-spin text-blue-400" />, label: m.dictationIndicatorTranscribing() },
+		completed: { icon: <Check className="h-4 w-4 text-emerald-400" />, label: state.output === 'type' ? m.dictationIndicatorInserted() : m.dictationIndicatorCopied() },
+		error: { icon: <AlertTriangle className="h-4 w-4 text-red-400" />, label: state.message || m.dictationIndicatorError() },
 	}[state.status]
 
 	return (

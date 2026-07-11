@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import { useLocalStorage } from 'usehooks-ts'
 import { Claude, type Llm, Ollama, OpenAICompatible } from '~/lib/llm'
@@ -7,7 +7,6 @@ import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 
 export function useSummarization() {
-	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const [llm, setLlm] = useState<Llm | null>(null)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
@@ -23,12 +22,12 @@ export function useSummarization() {
 		if (!llm) return
 		setSummarizing(true)
 		try {
-			const question = prompt.replace('%s', transcript.asText(source, t('common.speaker-prefix')))
+			const question = prompt.replace('%s', transcript.asText(source, m.speakerPrefix()))
 			const answerPromise = llm.ask(question)
 			toast.promise(answerPromise, {
-				loading: t('common.summarize-loading'),
+				loading: m.summarizeLoading(),
 				error: (error) => String(error),
-				success: t('common.summarize-success'),
+				success: m.summarizeSuccess(),
 			})
 			const answer = await answerPromise
 			if (answer) {

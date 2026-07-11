@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ModifyState } from '~/lib/types'
+import { m } from '~/paraglide/messages.js'
 
 export interface ToastModalState {
 	open: boolean
@@ -27,9 +28,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 		if (open) {
 			const description = progress != null ? `${Math.round(progress)}%` : undefined
 			if (toastId.current == null) {
-				toastId.current = toast.loading(message || 'Loading...', { description, duration: Infinity })
+				toastId.current = toast.loading(message || m.loading(), { description, duration: Infinity })
 			} else {
-				toast.loading(message || 'Loading...', { id: toastId.current, description, duration: Infinity })
+				toast.loading(message || m.loading(), { id: toastId.current, description, duration: Infinity })
 			}
 		} else if (toastId.current != null) {
 			toast.dismiss(toastId.current)

@@ -1,7 +1,7 @@
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { AlignRight, Check, Copy, Download, Printer } from 'lucide-react'
 import { Segment, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
 import { NamedPath } from '~/lib/types'
@@ -21,9 +21,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
 function CopyButton({ text }: { text: string }) {
-	const { t } = useTranslation()
 	const [copied, setCopied] = useState(false)
-	const [info, setInfo] = useState(t('common.copy'))
+	const [info, setInfo] = useState(m.copy())
 	const resetTimerRef = useRef<number | null>(null)
 
 	useEffect(() => {
@@ -37,13 +36,13 @@ function CopyButton({ text }: { text: string }) {
 	function onCopy() {
 		clipboard.writeText(text)
 		setCopied(true)
-		setInfo(t('common.copied'))
+		setInfo(m.copied())
 		if (resetTimerRef.current) {
 			window.clearTimeout(resetTimerRef.current)
 		}
 		resetTimerRef.current = window.setTimeout(() => {
 			setCopied(false)
-			setInfo(t('common.copy'))
+			setInfo(m.copy())
 			resetTimerRef.current = null
 		}, 1000)
 	}
@@ -75,11 +74,10 @@ export default function TextArea({
 	textFormat: TextFormat
 	setTextFormat: Dispatch<SetStateAction<TextFormat>>
 }) {
-	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const [text, setText] = useState('')
 
-	const speakerLabel = t('common.speaker-prefix')
+	const speakerLabel = m.speakerPrefix()
 	useEffect(() => {
 		if (segments) {
 			setText(
@@ -126,10 +124,10 @@ export default function TextArea({
 			await fs.writeTextFile(filePath, textToSave)
 		}
 
-		toast.success(t('common.save-success'), {
+		toast.success(m.saveSuccess(), {
 			description: defaultPath?.name,
 			position: 'bottom-center',
-			action: { label: t('common.find-here'), onClick: () => openPath({ name: '', path: filePath }) },
+			action: { label: m.findHere(), onClick: () => openPath({ name: '', path: filePath }) },
 		})
 	}
 
@@ -144,7 +142,7 @@ export default function TextArea({
 							<Download className="h-5 w-5" strokeWidth={2.1} />
 						</Button>
 					</TooltipTrigger>
-					<TooltipContent>{t('common.save-transcript')}</TooltipContent>
+					<TooltipContent>{m.saveTranscript()}</TooltipContent>
 				</Tooltip>
 
 				{['html', 'pdf'].includes(textFormat) && (
@@ -154,7 +152,7 @@ export default function TextArea({
 								<Printer className="h-5 w-5" strokeWidth={2.1} />
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent>{t('common.print-tooltip')}</TooltipContent>
+						<TooltipContent>{m.printTooltip()}</TooltipContent>
 					</Tooltip>
 				)}
 
@@ -170,16 +168,16 @@ export default function TextArea({
 							<AlignRight className="h-5 w-5" strokeWidth={2.1} />
 						</Button>
 					</TooltipTrigger>
-					<TooltipContent>{t('common.right-alignment')}</TooltipContent>
+					<TooltipContent>{m.rightAlignment()}</TooltipContent>
 				</Tooltip>
 
 				<div className="ms-auto me-1 min-w-[98px]">
 					<Select value={textFormat} onValueChange={(value) => setTextFormat(value as TextFormat)}>
 						<SelectTrigger className="h-9 w-[98px] px-2 text-sm">
-							<SelectValue placeholder={t('common.mode-text')} />
+							<SelectValue placeholder={m.modeText()} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="normal">{t('common.mode-text')}</SelectItem>
+							<SelectItem value="normal">{m.modeText()}</SelectItem>
 							<SelectItem value="html">html</SelectItem>
 							<SelectItem value="pdf">pdf</SelectItem>
 							<SelectItem value="docx">docx</SelectItem>

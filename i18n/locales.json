@@ -1,0 +1,21 @@
+[
+	{ "code": "ca-AD", "name": "catalan", "desktop": true, "website": false },
+	{ "code": "en-US", "name": "english", "desktop": true, "website": true },
+	{ "code": "es-ES", "name": "spanish (ES)", "desktop": true, "website": false },
+	{ "code": "es-MX", "name": "spanish (MX)", "desktop": true, "website": true },
+	{ "code": "fr-FR", "name": "french", "desktop": true, "website": true },
+	{ "code": "he-IL", "name": "hebrew", "desktop": true, "website": true },
+	{ "code": "hi-IN", "name": "hindi", "desktop": true, "website": false },
+	{ "code": "it-IT", "name": "italian", "desktop": true, "website": false },
+	{ "code": "ja-JP", "name": "japanese", "desktop": true, "website": true },
+	{ "code": "ko-KR", "name": "korean", "desktop": true, "website": true },
+	{ "code": "no-NO", "name": "norwegian", "desktop": true, "website": true },
+	{ "code": "pl-PL", "name": "polish", "desktop": true, "website": true },
+	{ "code": "pt-BR", "name": "portuguese", "desktop": true, "website": true },
+	{ "code": "ru-RU", "name": "russian", "desktop": true, "website": true },
+	{ "code": "sv-SE", "name": "swedish", "desktop": true, "website": false },
+	{ "code": "tr-TR", "name": "turkish", "desktop": true, "website": false },
+	{ "code": "vi-VN", "name": "vietnamese", "desktop": true, "website": false },
+	{ "code": "zh-CN", "name": "chinese", "desktop": true, "website": true },
+	{ "code": "zh-HK", "name": "chinese (HK)", "desktop": true, "website": true }
+]

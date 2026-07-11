@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { m } from '~/paraglide/messages.js'
 
 export default function CopyButton({ text }: { text: string }) {
 	const [copied, setCopied] = useState(false)
@@ -15,7 +16,7 @@ export default function CopyButton({ text }: { text: string }) {
 		<button
 			onClick={handleCopy}
 			className="cursor-pointer shrink-0 p-1 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
-			title="Copy"
+			title={m.copy()}
 		>
 			{copied ? (
 				<svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

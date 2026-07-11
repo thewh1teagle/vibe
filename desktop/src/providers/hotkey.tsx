@@ -8,7 +8,7 @@ import { AudioDevice } from '~/lib/audio'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { hideDictationIndicator, showDictationIndicator } from '~/lib/dictation-indicator'
 
 // Module-level flag used by home viewModel to skip processing
@@ -67,7 +67,6 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function HotkeyProvider({ children }: { children: ReactNode }) {
-	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const preferenceRef = useRef(preference)
 
@@ -183,7 +182,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					...preferenceRef.current.modelOptions,
 				}
 				const res: transcript.Transcript = await invoke('transcribe', { options })
-				let resultText = transcript.asText(res.segments, t('common.speaker-prefix'))
+				let resultText = transcript.asText(res.segments, m.speakerPrefix())
 
 				// Optional LLM summarization
 				const llm = createLlm()
@@ -202,7 +201,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					await invoke('type_text', { text: resultText })
 				} else {
 					await clipboard.writeText(resultText)
-					await notify('Vibe', t('common.hotkey-transcription-copied'))
+					await notify('Vibe', m.hotkeyTranscriptionCopied())
 				}
 				finishIndicator('completed', { output: hotkeyOutputModeRef.current })
 			} catch (error) {
@@ -221,7 +220,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		return () => {
 			unlisten.then((fn) => fn())
 		}
-	}, [createLlm, finishIndicator, showIndicator, t])
+	}, [createLlm, finishIndicator, showIndicator])
 
 	useEffect(() => () => {
 		if (indicatorTimerRef.current) window.clearTimeout(indicatorTimerRef.current)

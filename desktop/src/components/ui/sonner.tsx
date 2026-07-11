@@ -1,12 +1,12 @@
 import { Toaster as Sonner } from 'sonner'
-import i18n from '~/lib/i18n'
+import { getTextDirection } from '~/paraglide/runtime.js'
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
 	return (
 		<Sonner
-			dir={i18n.dir()}
+			dir={getTextDirection()}
 			theme="system"
 			className="toaster group"
 			toastOptions={{

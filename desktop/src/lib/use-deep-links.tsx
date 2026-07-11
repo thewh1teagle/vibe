@@ -1,5 +1,5 @@
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { ModifyState, NamedPath } from './types'
 import { pathToNamedPath } from './fs'
 import { ask } from '@tauri-apps/plugin-dialog'
@@ -14,7 +14,6 @@ interface UseDeepLinksProps {
 }
 
 export function useDeepLinks({ setFiles }: UseDeepLinksProps) {
-	const { t } = useTranslation()
 	const navigate = useNavigate()
 
 	async function processURLs(urls: string[]): Promise<void> {
@@ -23,7 +22,7 @@ export function useDeepLinks({ setFiles }: UseDeepLinksProps) {
 			if (url.startsWith('vibe://download/?url=')) {
 				const downloadURL = url.replace('vibe://download/?url=', '')
 				const host = new URL(downloadURL).hostname
-				const confirm = await ask(`${t('common.ask-for-download-model')} ${host}`, { kind: 'info', title: t('common.download-model') })
+				const confirm = await ask(`${m.askForDownloadModel()} ${host}`, { kind: 'info', title: m.downloadModel() })
 				if (confirm) {
 					navigate('/setup', { state: { downloadURL } })
 				}
