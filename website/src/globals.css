@@ -138,7 +138,7 @@
 		transform: translateY(0);
 	}
 	100% {
-		transform: translateY(-50%);
+		transform: translate3d(0, -50%, 0);
 	}
 }
 
@@ -172,6 +172,8 @@
 @layer utilities {
 	.animate-marquee-up {
 		animation: marquee-up linear infinite;
+		backface-visibility: hidden;
+		perspective: 1000px;
 	}
 	.animate-marquee-left {
 		animation: marquee-left linear infinite;
