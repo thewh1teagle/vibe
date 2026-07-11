@@ -34,6 +34,10 @@ async function openModelPath() {
 	invoke('open_path', { path: dst })
 }
 
+async function openSelectedModel(path: string | null) {
+	if (path) await invoke('open_path', { path })
+}
+
 async function openModelsUrl() {
 	openUrl(config.modelsDocURL)
 }
@@ -252,6 +256,9 @@ export function viewModel() {
 		const entries = await ls(modelsFolder)
 		const found = entries.filter((e) => e.name?.endsWith('.bin'))
 		setModels(found)
+		if (preference.modelPath && !found.some((model) => model.path === preference.modelPath)) {
+			preference.setModelPath(null)
+		}
 	}
 
 	async function getDefaultModel() {
@@ -413,6 +420,7 @@ export function viewModel() {
 		preference: preference,
 		askAndReset,
 		openModelPath,
+		openSelectedModel,
 		openModelsUrl,
 		revealLogs,
 		revealTemp,

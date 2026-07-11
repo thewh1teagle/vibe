@@ -1,7 +1,6 @@
 import { m } from '~/paraglide/messages.js'
 import LanguageInput from '~/components/language-input'
 import Layout from '~/components/layout'
-import AdvancedOptionsButton from '~/components/advanced-options-button'
 import BatchPanel from './batch-panel'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -20,7 +19,6 @@ export default function BatchPage() {
 					</div>
 					<LanguageInput />
 					<FormatMultiSelect setFormats={vm.setFormats} formats={vm.formats} />
-					<AdvancedOptionsButton />
 
 					<div className="pt-2">
 						<BatchPanel

@@ -30,6 +30,8 @@ export interface Preference {
 	setFocusOnFinish: ModifyState<boolean>
 	modelPath: string | null
 	setModelPath: ModifyState<string | null>
+	modelDisplayNames: Record<string, string>
+	setModelDisplayNames: ModifyState<Record<string, string>>
 	skippedSetup: boolean
 	setSkippedSetup: ModifyState<boolean>
 	textAreaDirection: Direction
@@ -144,6 +146,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
+	const [modelDisplayNames, setModelDisplayNames] = useLocalStorage<Record<string, string>>('prefs_model_display_names', {})
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
 	const [textFormatTranscript, setTextFormatTranscript] = useLocalStorage<TextFormat>('prefs_text_format_transcript', 'pdf')
@@ -277,6 +280,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setFocusOnFinish,
 		modelPath,
 		setModelPath,
+		modelDisplayNames,
+		setModelDisplayNames,
 		theme,
 		setTheme,
 		homeTab,

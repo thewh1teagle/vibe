@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { FolderOpen, PencilLine } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
@@ -7,8 +9,13 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { SectionCard, type SettingsViewModel } from './shared'
+import { getFriendlyModelName } from '~/lib/model'
 
 export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
+	const [editingPath, setEditingPath] = useState<string | null>(null)
+	const [editingName, setEditingName] = useState('')
+	const currentModel = vm.models.find((model) => model.path === vm.preference.modelPath)
+
 	return (
 <div className="space-y-5">
 							<SectionCard>
@@ -52,13 +59,40 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 												<SelectValue placeholder={m.selectModel()} />
 											</SelectTrigger>
 											<SelectContent>
-												{vm.models.map((model, index) => (
-													<SelectItem key={index} value={model.path}>
-														{model.name}
-													</SelectItem>
+														{vm.models.map((model, index) => (
+															<SelectItem key={index} value={model.path}>
+																{vm.preference.modelDisplayNames[model.path] ?? getFriendlyModelName(model.name)}
+															</SelectItem>
 												))}
 											</SelectContent>
-										</Select>
+											</Select>
+							{currentModel && (editingPath === currentModel.path ? (
+								<div className="flex items-center gap-2">
+									<Input autoFocus value={editingName} onChange={(event) => setEditingName(event.target.value)} onKeyDown={(event) => {
+										if (event.key === 'Enter') {
+											const name = editingName.trim()
+											if (name) vm.preference.setModelDisplayNames({ ...vm.preference.modelDisplayNames, [currentModel.path]: name })
+											setEditingPath(null)
+										}
+										if (event.key === 'Escape') setEditingPath(null)
+									}} />
+									<Button size="sm" onClick={() => {
+										const name = editingName.trim()
+										if (name) vm.preference.setModelDisplayNames({ ...vm.preference.modelDisplayNames, [currentModel.path]: name })
+										setEditingPath(null)
+									}}>{m.save()}</Button>
+									<Button variant="ghost" size="sm" onClick={() => setEditingPath(null)}>{m.cancel()}</Button>
+								</div>
+							) : (
+								<div className="mt-2 flex items-center justify-end gap-1 px-1">
+									<Button variant="ghost" size="xs" className="px-2.5 text-muted-foreground hover:text-foreground" onClick={() => vm.openSelectedModel(currentModel.path)}>
+										<FolderOpen className="size-3.5" /> {m.showInFolder()}
+									</Button>
+									<Button variant="ghost" size="xs" className="px-2.5 text-muted-foreground hover:text-foreground" onClick={() => { setEditingPath(currentModel.path); setEditingName(vm.preference.modelDisplayNames[currentModel.path] ?? getFriendlyModelName(currentModel.name)) }}>
+										<PencilLine className="size-3.5" /> {m.rename()}
+									</Button>
+								</div>
+							))}
 									</div>
 
 									{!vm.isMacOS && (
