@@ -6,7 +6,8 @@
 	"packageManager": "pnpm@10.4.1",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build && cp dist/index.html dist/404.html",
+		"i18n:generate": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy localStorage preferredLanguage baseLocale",
+		"build": "pnpm i18n:generate && tsc && vite build && cp dist/index.html dist/404.html",
 		"preview": "vite preview"
 	},
 	"devDependencies": {
