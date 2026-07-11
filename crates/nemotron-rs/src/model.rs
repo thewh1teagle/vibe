@@ -14,6 +14,7 @@ pub struct ModelInfo {
     pub variant: String,
     pub head_kind: String,
     pub languages: Vec<String>,
+    pub language_detection: bool,
     pub tensor_count: usize,
     pub encoder_layers: i32,
     pub encoder_dimension: i32,
@@ -81,6 +82,32 @@ impl Drop for DeviceWeights {
 unsafe impl Send for Model {}
 
 impl Model {
+    /// Read model metadata without allocating or uploading tensor data.
+    pub fn metadata(path: impl AsRef<Path>) -> Result<ModelInfo> {
+        let path = CString::new(path.as_ref().to_string_lossy().as_bytes()).map_err(|_| Error::InvalidPath)?;
+        let mut weights = ptr::null_mut();
+        let gguf = unsafe {
+            sys::gguf_init_from_file(
+                path.as_ptr(),
+                sys::gguf_init_params {
+                    no_alloc: true,
+                    ctx: &mut weights,
+                },
+            )
+        };
+        if gguf.is_null() {
+            return Err(Error::Load(path.to_string_lossy().into_owned()));
+        }
+        let result = unsafe { read_info(gguf) };
+        unsafe {
+            if !weights.is_null() {
+                sys::ggml_free(weights);
+            }
+            sys::gguf_free(gguf);
+        }
+        result
+    }
+
     pub fn load(path: impl AsRef<Path>) -> Result<Self> {
         let path = CString::new(path.as_ref().to_string_lossy().as_bytes()).map_err(|_| Error::InvalidPath)?;
         let mut weights = ptr::null_mut();
@@ -203,8 +230,10 @@ impl Model {
                 transcription.text = self.tokenizer.decode_clean(&ids);
             }
             last_frame = transcription.tokens.last().map(|token| token.frame).or(last_frame);
-            on_segment(&transcription);
-            result.segments.push(transcription);
+            for segment in crate::segment::split_sentences(transcription.tokens, &self.tokenizer) {
+                on_segment(&segment);
+                result.segments.push(segment);
+            }
         }
         Ok(result)
     }
@@ -452,6 +481,7 @@ unsafe fn read_info(ctx: *const sys::gguf_context) -> Result<ModelInfo> {
         variant: string(ctx, "stt.variant")?,
         head_kind: string(ctx, "stt.parakeet.head_kind")?,
         languages: strings(ctx, "general.languages")?,
+        language_detection: optional_bool(ctx, "stt.capability.lang_detect").unwrap_or(false),
         tensor_count: sys::gguf_get_n_tensors(ctx) as usize,
         encoder_layers: u32_value(ctx, "stt.parakeet.encoder.n_layers")? as i32,
         encoder_dimension: u32_value(ctx, "stt.parakeet.encoder.d_model")? as i32,
@@ -512,6 +542,12 @@ unsafe fn optional_u32(ctx: *const sys::gguf_context, name: &'static str) -> Opt
 
 unsafe fn bool_value(ctx: *const sys::gguf_context, name: &'static str) -> Result<bool> {
     Ok(sys::gguf_get_val_bool(ctx, key(ctx, name)?))
+}
+
+unsafe fn optional_bool(ctx: *const sys::gguf_context, name: &'static str) -> Option<bool> {
+    let c_name = CString::new(name).unwrap();
+    let id = sys::gguf_find_key(ctx, c_name.as_ptr());
+    (id >= 0).then(|| sys::gguf_get_val_bool(ctx, id))
 }
 
 unsafe fn read_prompts(ctx: *const sys::gguf_context) -> Result<(HashMap<String, usize>, usize)> {

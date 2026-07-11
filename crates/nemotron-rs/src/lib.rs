@@ -6,6 +6,7 @@ mod mel;
 mod model;
 mod ops;
 mod runtime;
+mod segment;
 mod tokenizer;
 
 pub use decoder::Token;

@@ -5,7 +5,67 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 
-use crate::server::{error, AppState, ModelInfo, ModelListResponse, ModelLoadRequest, ModelStatusResponse};
+use crate::server::{
+    error, AppState, ModelInfo, ModelListResponse, ModelLoadRequest, ModelMetadataRequest, ModelMetadataResponse,
+    ModelStatusResponse,
+};
+
+#[utoipa::path(
+    post,
+    path = "/v1/models/metadata",
+    request_body = ModelMetadataRequest,
+    responses(
+        (status = 200, description = "Model metadata", body = ModelMetadataResponse),
+        (status = 400, description = "Unsupported or invalid model", body = crate::server::ErrorResponse)
+    )
+)]
+pub(in crate::server) async fn model_metadata(Json(request): Json<ModelMetadataRequest>) -> Response {
+    if request.path.trim().is_empty() {
+        return error(
+            StatusCode::BAD_REQUEST,
+            "invalid_request",
+            "request body must contain a model path",
+        );
+    }
+    let path = request.path.clone();
+    match tokio::task::spawn_blocking(move || nemotron_rs::Model::metadata(path)).await {
+        Ok(Ok(info)) if info.architecture == "parakeet" && info.head_kind == "rnnt" => (
+            StatusCode::OK,
+            Json(ModelMetadataResponse {
+                format: "gguf",
+                capabilities: crate::engine::EngineCapabilities {
+                    engine: "nemotron".to_string(),
+                    requires_vad: true,
+                    languages: info.languages,
+                    language_detection: info.language_detection,
+                    streaming: false,
+                    translation: false,
+                    timestamps: true,
+                    text_prompts: false,
+                },
+            }),
+        )
+            .into_response(),
+        Ok(Ok(info)) => error(
+            StatusCode::BAD_REQUEST,
+            "unsupported_model",
+            &format!("unsupported GGUF architecture '{}'", info.architecture),
+        ),
+        Ok(Err(_)) => (
+            StatusCode::OK,
+            Json(ModelMetadataResponse {
+                format: "whisper",
+                capabilities: crate::engine::whisper_capabilities(),
+            }),
+        )
+            .into_response(),
+        Err(err) => error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "internal_error",
+            &format!("metadata task failed: {err}"),
+        ),
+    }
+}
 
 #[utoipa::path(
     post,

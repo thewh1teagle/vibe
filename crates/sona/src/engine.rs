@@ -4,6 +4,8 @@ use whisper_rs::{ContextOptions, Segment, StreamCallbacks, TranscribeOptions, Tr
 
 #[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
 pub struct EngineCapabilities {
+    pub engine: String,
+    pub requires_vad: bool,
     pub languages: Vec<String>,
     pub language_detection: bool,
     pub streaming: bool,
@@ -145,23 +147,31 @@ impl Engine {
 
     pub fn capabilities(&self) -> EngineCapabilities {
         match self {
-            Self::Whisper(_) => EngineCapabilities {
-                languages: whisper_rs::supported_languages(),
-                language_detection: true,
-                streaming: true,
-                translation: true,
-                timestamps: true,
-                text_prompts: true,
-            },
+            Self::Whisper(_) => whisper_capabilities(),
             Self::Nemotron { model, .. } => EngineCapabilities {
+                engine: "nemotron".to_string(),
+                requires_vad: true,
                 languages: model.info().languages.clone(),
-                language_detection: true,
+                language_detection: model.info().language_detection,
                 streaming: false,
                 translation: false,
                 timestamps: true,
                 text_prompts: false,
             },
         }
+    }
+}
+
+pub fn whisper_capabilities() -> EngineCapabilities {
+    EngineCapabilities {
+        engine: "whisper".to_string(),
+        requires_vad: false,
+        languages: whisper_rs::supported_languages(),
+        language_detection: true,
+        streaming: true,
+        translation: true,
+        timestamps: true,
+        text_prompts: true,
     }
 }
 

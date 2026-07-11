@@ -68,6 +68,7 @@ impl ServerState {
         routes::health::ready,
         routes::skill::skill,
         routes::models::load_model,
+        routes::models::model_metadata,
         routes::models::unload_model,
         routes::models::list_models,
         routes::transcriptions::transcriptions
@@ -77,6 +78,8 @@ impl ServerState {
         ReadyResponse,
         ModelLoadRequest,
         ModelStatusResponse,
+        ModelMetadataRequest,
+        ModelMetadataResponse,
         ErrorResponse,
         ModelListResponse,
         ModelInfo,
@@ -106,6 +109,7 @@ pub async fn serve(host: String, port: u16, initial_model: Option<String>, confi
         .route("/ready", get(routes::health::ready))
         .route("/skill", get(routes::skill::skill))
         .route("/v1/models/load", post(routes::models::load_model))
+        .route("/v1/models/metadata", post(routes::models::model_metadata))
         .route(
             "/v1/models",
             delete(routes::models::unload_model).get(routes::models::list_models),
@@ -183,6 +187,17 @@ pub(super) struct ModelLoadRequest {
 pub(super) struct ModelStatusResponse {
     status: &'static str,
     model: String,
+}
+
+#[derive(Debug, Deserialize, utoipa::ToSchema)]
+pub(super) struct ModelMetadataRequest {
+    path: String,
+}
+
+#[derive(Debug, Serialize, utoipa::ToSchema)]
+pub(super) struct ModelMetadataResponse {
+    format: &'static str,
+    capabilities: crate::engine::EngineCapabilities,
 }
 
 #[derive(Debug, Serialize, utoipa::ToSchema)]
