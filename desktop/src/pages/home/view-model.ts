@@ -21,6 +21,7 @@ import { useRecording } from './hooks/use-recording'
 import { useAudioDownload } from './hooks/use-audio-download'
 import { useMediaSelection } from './hooks/use-media-selection'
 import { useTranscription } from './hooks/use-transcription'
+import { isModelFile } from '~/lib/model'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -149,7 +150,7 @@ export function viewModel() {
 		try {
 			const configPath = await invoke<string>('get_models_folder')
 			const entries = await ls(configPath)
-			const filtered = entries.filter((e) => e.name?.endsWith('.bin'))
+			const filtered = entries.filter((e) => isModelFile(e.name))
 			if (filtered.length === 0) {
 				// Download new model if no models and it's not manual installation
 				if (!preference.skippedSetup) {

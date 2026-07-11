@@ -10,6 +10,7 @@ import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 import { m } from '~/paraglide/messages.js'
 import { hideDictationIndicator, showDictationIndicator } from '~/lib/dictation-indicator'
+import * as config from '~/lib/config'
 
 // Module-level flag used by home viewModel to skip processing
 // when hotkey-triggered recording finishes
@@ -74,6 +75,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
 	const [hotkeyActivationMode, setHotkeyActivationMode] = useLocalStorage<HotkeyActivationMode>('prefs_hotkey_activation_mode', 'push-to-talk')
+	const shortcutOperationRef = useRef<Promise<void>>(Promise.resolve())
 	const [hotkeyNormalizeOutput, setHotkeyNormalizeOutput] = useLocalStorage('prefs_hotkey_normalize_output', true)
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 
@@ -177,9 +179,12 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				}
 
 				await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
+				const requiresVad = preferenceRef.current.modelMetadata?.capabilities.requires_vad ?? false
+				const modelsFolder = requiresVad ? await invoke<string>('get_models_folder') : null
 				const options = {
 					path,
 					...preferenceRef.current.modelOptions,
+					...(requiresVad ? { vad_model: `${modelsFolder}/${config.vadModelFilename}` } : {}),
 				}
 				const res: transcript.Transcript = await invoke('transcribe', { options })
 				let resultText = transcript.asText(res.segments, m.speakerPrefix())
@@ -263,20 +268,31 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 						handleHotkeyUp()
 					}
 				})
+				if (cancelled) {
+					await unregister(hotkeyShortcut)
+					return
+				}
 				registeredShortcutRef.current = hotkeyShortcut
 			} catch (e) {
 				console.error('Failed to register shortcut:', e)
 			}
 		}
 
-		setupShortcut()
+		shortcutOperationRef.current = shortcutOperationRef.current.then(setupShortcut, setupShortcut)
 
 		return () => {
 			cancelled = true
-			if (registeredShortcutRef.current) {
-				unregister(registeredShortcutRef.current).catch(console.error)
-				registeredShortcutRef.current = null
-			}
+			shortcutOperationRef.current = shortcutOperationRef.current.then(async () => {
+				const shortcut = registeredShortcutRef.current
+				if (!shortcut) return
+				try {
+					if (await isRegistered(shortcut)) await unregister(shortcut)
+				} catch (error) {
+					console.error('Failed to unregister shortcut:', error)
+				} finally {
+					if (registeredShortcutRef.current === shortcut) registeredShortcutRef.current = null
+				}
+			})
 		}
 	}, [hotkeyEnabled, hotkeyShortcut, hotkeyActivationMode, handleHotkeyDown, handleHotkeyUp])
 

@@ -91,6 +91,7 @@ async fn main() -> Result<()> {
             cmd::download::download_model,
             cmd::sona_cmd::load_model,
             cmd::sona_cmd::get_gpu_devices,
+            cmd::sona_cmd::get_model_metadata,
             cmd::sona_cmd::get_api_base_url,
             cmd::sona_cmd::start_api_server,
             cmd::sona_cmd::stop_api_server,

@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom'
 import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/use-store-value'
 import { collectLogs, getPrettyVersion } from '~/lib/logs'
+import { isModelFile, type ModelMetadata } from '~/lib/model'
 
 export interface GpuDevice {
 	index: number
@@ -254,7 +255,7 @@ export function viewModel() {
 	async function loadModels() {
 		const modelsFolder = await invoke<string>('get_models_folder')
 		const entries = await ls(modelsFolder)
-		const found = entries.filter((e) => e.name?.endsWith('.bin'))
+		const found = entries.filter((e) => isModelFile(e.name))
 		setModels(found)
 		if (preference.modelPath && !found.some((model) => model.path === preference.modelPath)) {
 			preference.setModelPath(null)
@@ -266,12 +267,67 @@ export function viewModel() {
 			const modelsFolder = await invoke<string>('get_models_folder')
 
 			let files = await ls(modelsFolder)
-			files = files.filter((f) => f.name.endsWith('.bin'))
+			files = files.filter((f) => isModelFile(f.name))
 			if (files) {
 				const defaultModelPath = files?.[0].path
 				preference.setModelPath(defaultModelPath as string)
 			}
 		}
+	}
+
+	async function readModelMetadata(modelPath: string) {
+		try {
+			return await invoke<ModelMetadata>('get_model_metadata', { modelPath })
+		} catch (error) {
+			// Unknown GGUF formats may still be loadable by Sona (for example Whisper GGUF).
+			console.error('failed to read GGUF metadata:', error)
+			return null
+		}
+	}
+
+	async function ensureRequiredVad(metadata: ModelMetadata | null) {
+		if (!metadata?.capabilities.requires_vad) return true
+		const modelsFolder = await invoke<string>('get_models_folder')
+		const vadPath = await join(modelsFolder, config.vadModelFilename)
+		if (await fs.exists(vadPath)) return true
+
+		const confirmed = await ask('Nemotron requires the Silero VAD model. Download it before selecting Nemotron?', {
+			title: 'Download required VAD model',
+			kind: 'info',
+		})
+		if (!confirmed) return false
+
+		progressToast.setMessage('Downloading Silero VAD model…')
+		progressToast.setOpen(true)
+		progressToast.setProgress(0)
+		try {
+			await invoke('download_model', { url: config.vadModelUrl, path: vadPath })
+			toast.success(m.downloadComplete())
+			return true
+		} finally {
+			progressToast.setOpen(false)
+			progressToast.setProgress(null)
+		}
+	}
+
+	function applyModelLanguage(metadata: ModelMetadata | null) {
+		if (!metadata) return
+		const capabilities = metadata.capabilities
+		const currentLanguage = preference.modelOptions.lang
+		const isSupported = currentLanguage === 'auto' ? capabilities.language_detection : capabilities.languages.includes(currentLanguage)
+		if (isSupported) return
+		preference.setModelOptions({
+			...preference.modelOptions,
+			lang: capabilities.language_detection ? 'auto' : capabilities.languages[0] ?? 'en',
+		})
+	}
+
+	async function selectModel(modelPath: string) {
+		const metadata = await readModelMetadata(modelPath)
+		if (!(await ensureRequiredVad(metadata))) return
+		preference.setModelMetadata(metadata)
+		applyModelLanguage(metadata)
+		preference.setModelPath(modelPath)
 	}
 
 	async function changeRecordingPath() {
@@ -428,6 +484,7 @@ export function viewModel() {
 		appVersion,
 		reportIssue,
 		loadModels,
+		selectModel,
 		changeModelsFolder,
 		changeRecordingPath,
 		resetRecordingPath,

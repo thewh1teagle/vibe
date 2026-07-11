@@ -7,6 +7,9 @@ import { usePreferenceProvider } from '~/providers/preference'
 import * as utils from '~/lib/model'
 import * as osExt from '@tauri-apps/plugin-os'
 import * as config from '~/lib/config'
+import { ask } from '@tauri-apps/plugin-dialog'
+import * as fs from '@tauri-apps/plugin-fs'
+import { join } from '@tauri-apps/api/path'
 
 export function viewModel() {
 	const location = useLocation()
@@ -31,6 +34,36 @@ export function viewModel() {
 				downloadProgressRef.current = newDownloadProgress
 			}
 		})
+	}
+
+	async function readModelMetadata(modelPath: string) {
+		return invoke<utils.ModelMetadata>('get_model_metadata', { modelPath }).catch((error) => {
+			console.warn('No specialized GGUF metadata available:', error)
+			return null
+		})
+	}
+
+	async function ensureRequiredVad(metadata: utils.ModelMetadata | null) {
+		if (!metadata?.capabilities.requires_vad) return true
+		const modelsFolder = await invoke<string>('get_models_folder')
+		const vadPath = await join(modelsFolder, config.vadModelFilename)
+		if (await fs.exists(vadPath)) return true
+
+		const confirmed = await ask('Nemotron requires the Silero VAD model. Download it before selecting Nemotron?', {
+			title: 'Download required VAD model',
+			kind: 'info',
+		})
+		if (!confirmed) return false
+		await invoke('download_model', { url: config.vadModelUrl, path: vadPath })
+		return true
+	}
+
+	async function selectDownloadedModel(modelPath: string) {
+		const metadata = await readModelMetadata(modelPath)
+		if (!(await ensureRequiredVad(metadata))) return false
+		preference.setModelMetadata(metadata)
+		preference.setModelPath(modelPath)
+		return true
 	}
 
 	async function downloadModel() {
@@ -67,7 +100,10 @@ export function viewModel() {
 					const path = await utils.downloadModel(url)
 					if (path) {
 						console.log(`[model] Download succeeded: ${path}`)
-						preference.setModelPath(path)
+						if (!(await selectDownloadedModel(path))) {
+							navigate('/#settings', { replace: true })
+							return
+						}
 						navigate('/', { replace: true, state: { disableBack: true } })
 						return
 					}

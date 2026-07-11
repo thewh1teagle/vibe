@@ -59,9 +59,10 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 			const loadResult = await invoke<string>('load_model', { modelPath: current.modelPath, gpuDevice: current.gpuDevice })
 			if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
 
-			const modelsFolder = current.diarizeEnabled || current.stableTimestampsEnabled ? await invoke<string>('get_models_folder') : null
+			const requiresVad = current.modelMetadata?.capabilities.requires_vad ?? false
+			const modelsFolder = current.diarizeEnabled || current.stableTimestampsEnabled || requiresVad ? await invoke<string>('get_models_folder') : null
 			const diarizeModel = current.diarizeEnabled ? `${modelsFolder}/${config.diarizeModelFilename}` : undefined
-			const vadModel = current.stableTimestampsEnabled ? `${modelsFolder}/${config.vadModelFilename}` : undefined
+			const vadModel = current.stableTimestampsEnabled || requiresVad ? `${modelsFolder}/${config.vadModelFilename}` : undefined
 			const options = {
 				path,
 				...current.modelOptions,
