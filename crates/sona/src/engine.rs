@@ -119,9 +119,6 @@ impl Engine {
                     mut on_segment,
                     mut should_abort,
                 } = callbacks;
-                if let Some(callback) = on_progress.as_mut() {
-                    callback(0);
-                }
                 let result = model.transcribe_with(
                     &mut vad.as_mut().unwrap().1,
                     samples,
@@ -134,10 +131,12 @@ impl Engine {
                             }
                         }
                     },
+                    |progress| {
+                        if let Some(callback) = on_progress.as_mut() {
+                            callback(progress);
+                        }
+                    },
                 )?;
-                if let Some(callback) = on_progress.as_mut() {
-                    callback(100);
-                }
                 Ok(TranscribeResult {
                     segments: result.segments.iter().filter_map(nemotron_segment).collect(),
                 })

@@ -199,7 +199,7 @@ impl Model {
     }
 
     pub fn transcribe(&self, vad: &mut vad_rs::Vad, samples: &[f32], language: &str) -> Result<LongFormTranscription> {
-        self.transcribe_with(vad, samples, language, || false, |_| {})
+        self.transcribe_with(vad, samples, language, || false, |_| {}, |_| {})
     }
 
     pub fn transcribe_with(
@@ -209,8 +209,16 @@ impl Model {
         language: &str,
         mut should_abort: impl FnMut() -> bool,
         mut on_segment: impl FnMut(&Transcription),
+        mut on_progress: impl FnMut(i32),
     ) -> Result<LongFormTranscription> {
         let ranges = vad.segments(samples).map_err(|error| Error::Vad(error.to_string()))?;
+        let total_samples = ranges
+            .iter()
+            .map(|range| range.end_sample.saturating_sub(range.start_sample))
+            .sum::<usize>()
+            .max(1);
+        let mut processed_samples = 0;
+        on_progress(0);
         let mut result = LongFormTranscription {
             segments: Vec::with_capacity(ranges.len()),
         };
@@ -234,6 +242,8 @@ impl Model {
                 on_segment(&segment);
                 result.segments.push(segment);
             }
+            processed_samples += range.end_sample.saturating_sub(range.start_sample);
+            on_progress(((processed_samples * 100) / total_samples).min(100) as i32);
         }
         Ok(result)
     }
