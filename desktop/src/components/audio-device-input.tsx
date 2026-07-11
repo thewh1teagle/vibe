@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { AudioDevice } from '~/lib/audio'
 import { ModifyState } from '~/lib/types'
 import { Label } from '~/components/ui/label'
@@ -12,13 +12,12 @@ interface AudioDeviceInputProps {
 }
 
 export default function AudioDeviceInput({ type, devices, device, setDevice }: AudioDeviceInputProps) {
-	const { t } = useTranslation()
 
 	const filtered = devices.filter((d) => (d.isInput && type === 'input') || (!d.isInput && type === 'output'))
 
 	return (
 		<div className="space-y-2.5 w-full">
-			<Label>{t(type === 'input' ? 'common.microphone' : 'common.speakers')}</Label>
+			<Label>{type === 'input' ? m.microphone() : m.speakers()}</Label>
 			<Select value={device?.id ?? 'none'} onValueChange={(value) => {
 				if (value === 'none') {
 					setDevice(null)
@@ -28,10 +27,10 @@ export default function AudioDeviceInput({ type, devices, device, setDevice }: A
 				setDevice(next ?? null)
 			}}>
 				<SelectTrigger>
-					<SelectValue placeholder={t('common.no-record')} />
+					<SelectValue placeholder={m.noRecord()} />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="none">{t('common.no-record')}</SelectItem>
+					<SelectItem value="none">{m.noRecord()}</SelectItem>
 					{filtered.map(({ id, name }) => (
 						<SelectItem key={id} value={id}>
 							{name}

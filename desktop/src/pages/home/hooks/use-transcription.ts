@@ -3,7 +3,7 @@ import { invoke } from '@tauri-apps/api/core'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
@@ -20,7 +20,6 @@ interface UseTranscriptionOptions {
 }
 
 export function useTranscription({ onResetSummary, onSummarize }: UseTranscriptionOptions) {
-	const { t } = useTranslation()
 	const preference = usePreferenceProvider()
 	const preferenceRef = useRef(preference)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
@@ -42,7 +41,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 		const avx2 = await invoke<boolean>('is_avx2_enabled')
 		if (!avx2) {
 			trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
-			await dialog.message(t('common.avx2-not-supported'), { kind: 'error' })
+			await dialog.message(m.avx2NotSupported(), { kind: 'error' })
 			return
 		}
 
@@ -58,7 +57,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 			const current = preferenceRef.current
 			if (!current.modelPath) throw new Error('No model selected. Please download or select a model first.')
 			const loadResult = await invoke<string>('load_model', { modelPath: current.modelPath, gpuDevice: current.gpuDevice })
-			if (loadResult === 'gpu_fallback') toast.warning(t('common.gpu-fallback-to-cpu'), { position: 'bottom-center', duration: 8000 })
+			if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
 
 			const modelsFolder = current.diarizeEnabled || current.stableTimestampsEnabled ? await invoke<string>('get_models_folder') : null
 			const diarizeModel = current.diarizeEnabled ? `${modelsFolder}/${config.diarizeModelFilename}` : undefined
@@ -76,7 +75,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 			console.info(`Transcribe took ${total} seconds.`)
 			completedSegments = result.segments
 			setSegments(result.segments)
-			toast.success(t('common.transcribe-took', { total: String(total) }), { position: 'bottom-center' })
+			toast.success(m.transcribeTook({ total: String(total) }), { position: 'bottom-center' })
 			trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, { source: 'home', duration_seconds: total, segments_count: result.segments.length })
 		} catch (error) {
 			if (!abortRef.current) {
@@ -85,7 +84,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 				const errorObject = typeof error === 'object' && error !== null ? (error as { code?: string; message?: string }) : null
 				const errorMessage = errorObject?.message || String(error)
 				if (errorObject?.code && isUserError(errorObject.code)) {
-					toast.error(`${t('common.error')}: ${errorMessage}`, { position: 'bottom-center' })
+					toast.error(`${m.error()}: ${errorMessage}`, { position: 'bottom-center' })
 				} else {
 					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, { source: 'home', error_message: errorMessage, file_ext: path.split('.').pop() ?? 'unknown' })
 					setErrorModal?.({ log: errorMessage, open: true })

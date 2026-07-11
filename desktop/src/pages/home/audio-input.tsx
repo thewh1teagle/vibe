@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { ReactComponent as FileIcon } from '~/icons/file.svg'
 
 interface AudioInputProps {
@@ -7,7 +7,6 @@ interface AudioInputProps {
 }
 
 export default function AudioInput({ onClick, onSelectFolder }: AudioInputProps) {
-	const { t } = useTranslation()
 
 	return (
 		<div
@@ -18,9 +17,9 @@ export default function AudioInput({ onClick, onSelectFolder }: AudioInputProps)
 				<FileIcon className="h-5 w-5 text-primary" />
 			</div>
 			<div className="space-y-1 text-center">
-				<p className="text-sm font-semibold">{t('common.select-file')}</p>
+				<p className="text-sm font-semibold">{m.selectFile()}</p>
 				<p className="text-xs text-muted-foreground">
-					{t('common.supports-formats', { defaultValue: 'Supports audio and video files' })}
+					{m.supportsFormats({ defaultValue: 'Supports audio and video files' })}
 				</p>
 			</div>
 			<button
@@ -30,7 +29,7 @@ export default function AudioInput({ onClick, onSelectFolder }: AudioInputProps)
 					event.stopPropagation()
 					onSelectFolder()
 				}}>
-				{t('common.or-select-folder', { defaultValue: 'or a whole folder' })}
+				{m.orSelectFolder({ defaultValue: 'or a whole folder' })}
 			</button>
 		</div>
 	)

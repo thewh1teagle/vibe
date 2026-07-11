@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import {
 	Bot,
 	Cpu,
@@ -44,37 +44,36 @@ interface SettingsGroup {
 }
 
 export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps) {
-	const { t } = useTranslation()
 	const vm = viewModel()
 
 	const groups: SettingsGroup[] = [
 		{
-			label: t('common.general'),
+			label: m.general(),
 			sections: [
-				{ id: 'general', label: t('common.general'), icon: <Globe className="h-4 w-4" /> },
-				{ id: 'privacy', label: t('common.privacy'), icon: <ShieldCheck className="h-4 w-4" /> },
+				{ id: 'general', label: m.general(), icon: <Globe className="h-4 w-4" /> },
+				{ id: 'privacy', label: m.privacy(), icon: <ShieldCheck className="h-4 w-4" /> },
 			],
 		},
 		{
-			label: t('common.transcription'),
+			label: m.transcription(),
 			sections: [
-				{ id: 'transcription', label: t('common.transcription'), icon: <SlidersHorizontal className="h-4 w-4" /> },
-				{ id: 'models', label: t('common.select-model'), icon: <Bot className="h-4 w-4" /> },
-				{ id: 'tuning', label: t('common.fine-tuning'), icon: <Cpu className="h-4 w-4" /> },
+				{ id: 'transcription', label: m.transcription(), icon: <SlidersHorizontal className="h-4 w-4" /> },
+				{ id: 'models', label: m.selectModel(), icon: <Bot className="h-4 w-4" /> },
+				{ id: 'tuning', label: m.fineTuning(), icon: <Cpu className="h-4 w-4" /> },
 			],
 		},
 		{
-			label: t('common.customize'),
+			label: m.customize(),
 			sections: [
-				{ id: 'dictation', label: t('common.global-dictation'), icon: <Mic className="h-4 w-4" /> },
-				{ id: 'summarize', label: t('common.process-with-llm'), icon: <Sparkles className="h-4 w-4" /> },
+				{ id: 'dictation', label: m.globalDictation(), icon: <Mic className="h-4 w-4" /> },
+				{ id: 'summarize', label: m.processWithLlm(), icon: <Sparkles className="h-4 w-4" /> },
 			],
 		},
 		{
-			label: t('common.advanced'),
+			label: m.advanced(),
 			sections: [
-				{ id: 'api', label: t('common.api-and-agents'), icon: <Terminal className="h-4 w-4" /> },
-				{ id: 'advanced', label: t('common.advanced'), icon: <Wrench className="h-4 w-4" /> },
+				{ id: 'api', label: m.apiAndAgents(), icon: <Terminal className="h-4 w-4" /> },
+				{ id: 'advanced', label: m.advanced(), icon: <Wrench className="h-4 w-4" /> },
 			],
 		},
 	]
@@ -91,12 +90,12 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 				className="flex h-[640px] w-full max-w-3xl overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl">
 				<div className="flex w-56 shrink-0 flex-col border-r border-border/55 bg-muted/40 p-3">
 					<div className="mb-2 flex items-center justify-between px-1 pb-1">
-						<span className="text-sm font-semibold">{t('common.settings')}</span>
+						<span className="text-sm font-semibold">{m.settings()}</span>
 						<Button onMouseDown={() => setVisible(false)} variant="ghost" size="iconSm" className="h-7 w-7 rounded-lg">
 							<X className="h-4 w-4" />
 						</Button>
 					</div>
-					<nav aria-label={t('common.settings')} className="flex flex-1 flex-col gap-3 overflow-y-auto">
+					<nav aria-label={m.settings()} className="flex flex-1 flex-col gap-3 overflow-y-auto">
 						{groups.map((group) => (
 							<div key={group.label} className="space-y-0.5">
 								<p className="px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60">

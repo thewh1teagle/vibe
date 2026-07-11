@@ -3,7 +3,7 @@ import { ask, message, open } from '@tauri-apps/plugin-dialog'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { platform } from '@tauri-apps/plugin-os'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
@@ -100,7 +100,6 @@ export function viewModel() {
 	const [appVersion, setAppVersion] = useState('')
 	const [defaultRecordingPath, setDefaultRecordingPath] = useState<string>('')
 	const preference = usePreferenceProvider()
-	const { t } = useTranslation()
 	const listenersRef = useRef<UnlistenFn[]>([])
 	const [downloadURL, setDownloadURL] = useState('')
 	const [apiBaseUrl, setApiBaseUrl] = useState<string | null>(null)
@@ -127,7 +126,7 @@ export function viewModel() {
 	async function validateLlmPrompt() {
 		const valid = Boolean(preference.llmConfig?.prompt && preference.llmConfig.prompt.includes('%s'))
 		if (!valid) {
-			await message(t('common.invalid-llm-prompt'), { kind: 'error' })
+			await message(m.invalidLlmPrompt(), { kind: 'error' })
 		}
 		return valid
 	}
@@ -137,9 +136,9 @@ export function viewModel() {
 		try {
 			const promise = llm!.ask('Hello, how are you?')
 			toast.promise(promise, {
-				error: t('common.check-error') as string,
-				success: t('common.check-success') as string,
-				loading: t('common.check-loading') as string,
+				error: m.checkError() as string,
+				success: m.checkSuccess() as string,
+				loading: m.checkLoading() as string,
 			})
 			await promise
 		} catch (e) {
@@ -172,15 +171,15 @@ export function viewModel() {
 				preference.setDiarizeEnabled(true)
 				return
 			}
-			const confirmed = await ask(t('common.download-diarize-model'), { title: t('common.diarization'), kind: 'info' })
+			const confirmed = await ask(m.downloadDiarizeModel(), { title: m.diarization(), kind: 'info' })
 			if (confirmed) {
-				progressToast.setMessage(t('common.downloading-diarize-model') as string)
+				progressToast.setMessage(m.downloadingDiarizeModel() as string)
 				progressToast.setOpen(true)
 				progressToast.setProgress(0)
 				try {
 					await invoke('download_model', { url: config.diarizeModelUrl, path: modelPath })
 					preference.setDiarizeEnabled(true)
-					toast.success(t('common.download-complete'))
+					toast.success(m.downloadComplete())
 				} finally {
 					progressToast.setOpen(false)
 					progressToast.setProgress(null)
@@ -204,15 +203,15 @@ export function viewModel() {
 			if (exists) {
 				preference.setStableTimestampsEnabled(true)
 			} else {
-				const confirmed = await ask('Stable timestamps requires a VAD model (~1MB). Download it now?', { title: 'Stable timestamps', kind: 'info' })
+				const confirmed = await ask(m.stableTimestampsConfirm(), { title: m.stableTimestamps(), kind: 'info' })
 				if (confirmed) {
-					progressToast.setMessage('Downloading VAD model...')
+					progressToast.setMessage(m.downloadingVadModel())
 					progressToast.setOpen(true)
 					progressToast.setProgress(0)
 					try {
 						await invoke('download_model', { url: config.vadModelUrl, path: modelPath })
 						preference.setStableTimestampsEnabled(true)
-						toast.success(t('common.download-complete'))
+						toast.success(m.downloadComplete())
 					} finally {
 						progressToast.setOpen(false)
 						progressToast.setProgress(null)
@@ -226,7 +225,7 @@ export function viewModel() {
 	}
 
 	async function askAndReset() {
-		const yes = await ask(t('common.reset-ask-dialog'), { kind: 'info' })
+		const yes = await ask(m.resetAskDialog(), { kind: 'info' })
 		if (yes) {
 			resetApp()
 		}
@@ -341,10 +340,10 @@ export function viewModel() {
 			const res = await tauriFetch(`${apiBaseUrl}/skill`)
 			const text = await res.text()
 			await clipboard.writeText(text)
-			toast.success('Agent skill instructions copied to clipboard')
+			toast.success(m.agentInstructionsCopied())
 		} catch (error) {
 			console.error(error)
-			toast.error('Could not reach the local API')
+			toast.error(m.localApiUnreachable())
 		}
 	}
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { getLocale, getTextDirection, setLocale, type Locale } from '../paraglide/runtime.js'
+import { supportedWebsiteLocales } from '~/lib/i18n'
 import { Outlet } from 'react-router-dom'
 import useUrlActions from '~/lib/useUrlActions'
 import Footer from './Footer'
@@ -8,12 +9,17 @@ import Nav from './Nav'
 import PrivacyPolicy from './PrivacyPolicy'
 
 export default function Layout() {
-	const { i18n } = useTranslation()
 	const [kofiOpen, setKofiOpen] = useState(false)
 	const [privacyOpen, setPrivacyOpen] = useState(false)
-	const direction = i18n.dir()
+	const [locale, setCurrentLocale] = useState<Locale>(getLocale())
+	const direction = getTextDirection(locale)
+	const availableLocales = supportedWebsiteLocales as readonly Locale[]
 	const onOpenKofi = useCallback(() => setKofiOpen(true), [])
 	const onOpenPrivacyPolicy = useCallback(() => setPrivacyOpen(true), [])
+	const onLocaleChange = useCallback((nextLocale: Locale) => {
+		setLocale(nextLocale, { reload: false })
+		setCurrentLocale(nextLocale)
+	}, [])
 
 	useEffect(() => {
 		document.documentElement.setAttribute('dir', direction)
@@ -27,7 +33,7 @@ export default function Layout() {
 
 	return (
 		<div dir={direction}>
-			<Nav />
+			<Nav locale={locale} availableLocales={availableLocales} onLocaleChange={onLocaleChange} />
 			<Outlet context={{ onOpenKofi }} />
 			<Footer onOpenKofi={onOpenKofi} onOpenPrivacyPolicy={onOpenPrivacyPolicy} />
 			<KofiDialog open={kofiOpen} onOpenChange={setKofiOpen} />

@@ -1,25 +1,10 @@
-import i18next from 'i18next'
-import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
-import HttpBackend from 'i18next-http-backend'
+import localeRegistry from '../../../i18n/locales.json'
 
-i18next
-	.use(HttpBackend)
-	.use(LanguageDetector)
-	.use(initReactI18next)
-	.init({
-		detection: {
-			order: ['localStorage', 'querystring', 'navigator'],
-			caches: ['localStorage'],
-			lookupQuerystring: 'lng',
-			lookupLocalStorage: 'locale',
-		},
-		fallbackLng: 'en-US',
-		supportedLngs: ['en-US', 'es-MX', 'fr-FR', 'he-IL', 'ja-JP', 'ko-KR', 'no-NO', 'pl-PL', 'pt-BR', 'ru-RU', 'zh-CN', 'zh-HK'],
-		ns: 'translation',
-		backend: {
-			loadPath: '/vibe/locales/{{lng}}.json',
-		},
-	})
+type MessageFunction = (params?: Record<string, unknown>) => unknown
 
-export default i18next
+export const supportedWebsiteLocales = localeRegistry.filter((locale) => locale.website).map(({ code }) => code)
+
+export function safeTranslate(messages: Record<string, unknown>, key: string, fallback: string, params?: Record<string, unknown>) {
+	const message = messages[key]
+	return typeof message === 'function' ? String((message as MessageFunction)(params)) : fallback
+}

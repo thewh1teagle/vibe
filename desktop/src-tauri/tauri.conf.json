@@ -46,10 +46,7 @@
 		],
 		"externalBin": [
 			"binaries/sona"
-		],
-		"resources": {
-			"locales": "locales"
-		}
+		]
 	},
 	"plugins": {
 		"updater": {

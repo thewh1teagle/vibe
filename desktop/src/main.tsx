@@ -3,11 +3,11 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './app'
 import DictationIndicator from './components/dictation-indicator'
 import './globals.css'
-import './lib/i18n'
+import { m } from './paraglide/messages.js'
 
 const isDictationIndicator = new URLSearchParams(window.location.search).get('window') === 'dictation-indicator'
 if (isDictationIndicator) {
-	document.title = 'Vibe Dictation Indicator'
+	document.title = m.appTitle()
 	document.documentElement.classList.add('dictation-indicator-window')
 }
 

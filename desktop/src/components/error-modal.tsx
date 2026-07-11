@@ -1,5 +1,5 @@
 import { openUrl } from '@tauri-apps/plugin-opener'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ModifyState } from '~/lib/types'
 import { getIssueUrl, resetApp } from '~/lib/app'
@@ -16,7 +16,6 @@ interface ErrorModalProps {
 }
 
 export default function ErrorModal({ state, setState }: ErrorModalProps) {
-	const { t } = useTranslation()
 
 	async function clearLogAndReset() {
 		setState({ open: false, log: '' })
@@ -39,8 +38,8 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 		<Dialog open={state?.open} onOpenChange={(open) => setState({ ...state, open })}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{t('common.error-title')}</DialogTitle>
-					<DialogDescription>{t('common.modal-error-body')}</DialogDescription>
+					<DialogTitle>{m.errorTitle()}</DialogTitle>
+					<DialogDescription>{m.modalErrorBody()}</DialogDescription>
 				</DialogHeader>
 				<div className="relative">
 					<Textarea readOnly className="w-full max-h-20" dir="ltr" value={state?.log} />
@@ -50,14 +49,14 @@ export default function ErrorModal({ state, setState }: ErrorModalProps) {
 					/>
 				</div>
 				<div className="flex justify-center gap-3 mt-3">
-					<Button onClick={clearLogAndReset}>{t('common.reset-app')}</Button>
+					<Button onClick={clearLogAndReset}>{m.resetApp()}</Button>
 					<Button variant="outline" onMouseDown={reportIssue}>
-						{t('common.report-issue')}
+						{m.reportIssue()}
 					</Button>
 				</div>
 				<DialogFooter>
 					<Button variant="secondary" onClick={() => setState?.({ log: '', open: false })}>
-						{t('common.modal-close')}
+						{m.modalClose()}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/format-select'
 import { Segment, Transcript, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
@@ -36,7 +36,6 @@ export function viewModel() {
 	const isAbortingRef = useRef<boolean>(false)
 	const preference = usePreferenceProvider()
 	const navigate = useNavigate()
-	const { t } = useTranslation()
 	const [llm, setLlm] = useState<Llm | null>(null)
 	const location = useLocation()
 	const [outputFolder, setOutputFolder] = useState('')
@@ -54,7 +53,7 @@ export function viewModel() {
 		}
 	}, [preference.llmConfig])
 
-	const speakerLabel = t('common.speaker-prefix')
+	const speakerLabel = m.speakerPrefix()
 	function getText(segments: Segment[], format: TextFormat) {
 		if (format === 'srt') {
 			return asSrt(segments, speakerLabel)
@@ -156,7 +155,7 @@ export function viewModel() {
 		const avx2 = await invoke<boolean>('is_avx2_enabled')
 		if (!avx2) {
 			trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
-			await dialog.message(t('common.avx2-not-supported'), { kind: 'error' })
+			await dialog.message(m.avx2NotSupported(), { kind: 'error' })
 			return
 		}
 
@@ -170,7 +169,7 @@ export function viewModel() {
 		}
 		const loadResult = await invoke<string>('load_model', { modelPath: preference.modelPath, gpuDevice: preference.gpuDevice })
 		if (loadResult === 'gpu_fallback') {
-			toast.warning(t('common.gpu-fallback-to-cpu'), { position: 'bottom-center', duration: 8000 })
+			toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
 		}
 		let diarize_model: string | undefined
 		if (preference.diarizeEnabled) {
@@ -275,7 +274,7 @@ export function viewModel() {
 				// Check if this is a user error
 				if (errorCode && isUserError(errorCode)) {
 					// User error: show toast, skip analytics
-					toast.error(`${t('common.error')}: ${errorMessage}`)
+					toast.error(`${m.error()}: ${errorMessage}`)
 					console.error(`skipping file ${file.name} due to user error: `, error)
 				} else {
 					// Internal error: track analytics
@@ -292,7 +291,7 @@ export function viewModel() {
 
 					// Stop batch if model is not loaded — all subsequent files will fail too
 					if (String(error).includes('no model loaded')) {
-						toast.error(t('common.no-model-loaded-batch-stopped'))
+						toast.error(m.noModelLoadedBatchStopped())
 						break
 					}
 				}

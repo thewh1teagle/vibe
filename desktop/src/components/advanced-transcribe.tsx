@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import * as dialogExt from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
@@ -15,7 +15,6 @@ import { Spinner } from '~/components/ui/spinner'
 
 export default function AdvancedTranscribe() {
 	const [open, setOpen] = useState(false)
-	const { t } = useTranslation()
 	const [collecting, setCollecting] = useState(false)
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
@@ -38,13 +37,13 @@ export default function AdvancedTranscribe() {
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button variant="ghost" size="sm" className="mt-1 h-9 rounded-md border border-border/65 px-3 text-sm font-medium text-muted-foreground hover:bg-accent/45 hover:text-foreground">
-					{t('common.advanced')}
+					{m.advanced()}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
-						{t('common.transcribe-folder')}
+						{m.transcribeFolder()}
 						<span className="rounded-full border border-border/65 bg-muted/35 px-2 py-0.5 text-xs font-medium text-primary">(beta)</span>
 					</DialogTitle>
 				</DialogHeader>
@@ -52,8 +51,8 @@ export default function AdvancedTranscribe() {
 				<div className="space-y-4 py-4">
 					<div className="flex items-center justify-between rounded-md border border-border/55 bg-card/50 px-3 py-2.5">
 						<span className="text-sm font-medium flex items-center gap-1">
-							<InfoTooltip text={t('common.include-sub-folders')} />
-							{t('common.include-sub-folders')}
+							<InfoTooltip text={m.includeSubFolders()} />
+							{m.includeSubFolders()}
 						</span>
 						<Switch
 							checked={preference.advancedTranscribeOptions.includeSubFolders}
@@ -65,8 +64,8 @@ export default function AdvancedTranscribe() {
 
 					<div className="flex items-center justify-between rounded-md border border-border/55 bg-card/50 px-3 py-2.5">
 						<span className="text-sm font-medium flex items-center gap-1">
-							<InfoTooltip text={t('common.skip-if-transcript-exists')} />
-							{t('common.skip-if-transcript-exists')}
+							<InfoTooltip text={m.skipIfTranscriptExists()} />
+							{m.skipIfTranscriptExists()}
 						</span>
 						<Switch
 							checked={preference.advancedTranscribeOptions.skipIfExists}
@@ -78,8 +77,8 @@ export default function AdvancedTranscribe() {
 
 					<div className="flex items-center justify-between rounded-md border border-border/55 bg-card/50 px-3 py-2.5">
 						<span className="text-sm font-medium flex items-center gap-1">
-							<InfoTooltip text={t('common.place-transcript-next-to-files')} />
-							{t('common.place-transcript-next-to-files')}
+							<InfoTooltip text={m.placeTranscriptNextToFiles()} />
+							{m.placeTranscriptNextToFiles()}
 						</span>
 						<Switch
 							checked={preference.advancedTranscribeOptions.saveNextToAudioFile}
@@ -91,7 +90,7 @@ export default function AdvancedTranscribe() {
 
 					<Button onClick={selectFolder} className="w-full mt-4" disabled={collecting}>
 						{collecting && <Spinner className="mr-2" />}
-						{t('common.select-folder')}
+						{m.selectFolder()}
 					</Button>
 				</div>
 			</DialogContent>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { getLocale } from '~/paraglide/runtime.js'
+import { m } from '~/paraglide/messages.js'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
 import { Textarea } from '~/components/ui/textarea'
@@ -12,8 +13,13 @@ interface ResummarizeDialogProps {
 }
 
 export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDialogProps) {
-	const { t, i18n } = useTranslation()
-	const lang = new Intl.DisplayNames([i18n.language], { type: 'language' }).of(i18n.language) ?? 'English'
+	const templateLabels = {
+		'prompt-template-meeting-notes': m.promptTemplateMeetingNotes,
+		'prompt-template-tldr': m.promptTemplateTldr,
+		'prompt-template-translate': m.promptTemplateTranslate,
+		'prompt-template-rewrite': m.promptTemplateRewrite,
+	} as const
+	const lang = new Intl.DisplayNames([getLocale()], { type: 'language' }).of(getLocale()) ?? 'English'
 	const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate>(promptTemplates[0])
 	const [prompt, setPrompt] = useState(() => promptTemplates[0].prompt(lang))
 	const [open, setOpen] = useState(false)
@@ -44,7 +50,7 @@ export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDial
 			</DialogTrigger>
 			<DialogContent className="max-w-lg rounded-2xl border-border/60 bg-card/95 p-6 shadow-xl">
 				<DialogHeader>
-					<DialogTitle className="text-lg font-semibold">{t('common.resummarize')}</DialogTitle>
+					<DialogTitle className="text-lg font-semibold">{m.resummarize()}</DialogTitle>
 				</DialogHeader>
 				<div className="space-y-4 pt-2">
 					<div className="flex flex-wrap gap-1.5">
@@ -58,7 +64,7 @@ export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDial
 										? 'border-primary bg-primary/10 text-primary'
 										: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
 								}`}>
-								{t(tpl.labelKey)}
+								{templateLabels[tpl.labelKey as keyof typeof templateLabels]?.() ?? tpl.labelKey}
 							</button>
 						))}
 					</div>
@@ -70,12 +76,12 @@ export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDial
 							className="min-h-[120px] text-sm"
 						/>
 						{!isValid && (
-							<p className="text-xs text-destructive">{t('common.prompt-must-contain-placeholder')}</p>
+							<p className="text-xs text-destructive">{m.promptMustContainPlaceholder()}</p>
 						)}
 					</div>
 
 					<Button onMouseDown={handleSubmit} disabled={!isValid || loading} className="w-full">
-						{loading ? t('common.summarize-loading') : t('common.resummarize')}
+						{loading ? m.summarizeLoading() : m.resummarize()}
 					</Button>
 				</div>
 			</DialogContent>

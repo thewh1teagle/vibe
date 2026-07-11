@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 
@@ -24,7 +24,6 @@ interface FormatMultiSelectProps {
 	setFormats: Dispatch<SetStateAction<TextFormat[]>>
 }
 export default function FormatMultiSelect({ formats, setFormats }: FormatMultiSelectProps) {
-	const { t } = useTranslation()
 
 	const handleFormatButtonClick = (formatOption: TextFormat) => {
 		if (formats.includes(formatOption)) {
@@ -36,7 +35,7 @@ export default function FormatMultiSelect({ formats, setFormats }: FormatMultiSe
 
 	return (
 		<div className="space-y-2 w-full">
-			<Label>{t('common.formats')}</Label>
+			<Label>{m.formats()}</Label>
 			<div className="flex flex-wrap gap-2 justify-center">
 				{['normal', 'srt', 'docx', 'vtt', 'json', 'csv', 'md'].map((formatOption) => (
 					<Button

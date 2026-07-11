@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react'
+import { ReactNode, SetStateAction, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
@@ -6,7 +6,8 @@ import { TextFormat } from '~/components/format-select'
 import { ModifyState } from '~/lib/types'
 import { supportedLanguages } from '~/lib/i18n'
 import WhisperLanguages from '~/assets/whisper-languages.json'
-import { useTranslation } from 'react-i18next'
+import { getLocale, getTextDirection, setLocale } from '~/paraglide/runtime.js'
+import { m } from '~/paraglide/messages.js'
 import { defaultOllamaConfig, LlmConfig } from '~/lib/llm'
 import { message } from '@tauri-apps/plugin-dialog'
 
@@ -138,8 +139,7 @@ const defaultOptions = {
 
 // Preference provider component
 export function PreferenceProvider({ children }: { children: ReactNode }) {
-	const { i18n } = useTranslation()
-	const previ18Language = useRef(i18n.language)
+	const previousLanguage = useRef(getLocale())
 	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
@@ -205,7 +205,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		const name = supportedLanguages[preference.displayLanguage]
 		if (name) {
 			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
-			preference.setTextAreaDirection(i18n.dir())
+			preference.setTextAreaDirection(getTextDirection())
 		}
 	}
 	useEffect(() => {
@@ -213,15 +213,18 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			isMounted.current = true
 			return
 		}
-		if (previ18Language.current != i18n.language || isFirstRun) {
-			previ18Language.current = i18n.language
+		if (previousLanguage.current !== getLocale() || isFirstRun) {
+			previousLanguage.current = getLocale()
 			setLanguageDefaults()
 		}
-	}, [i18n.language])
+	}, [language, isFirstRun])
 
-	useEffect(() => {
-		i18n.changeLanguage(language)
-	}, [language])
+	function setDisplayLanguage(nextLanguage: SetStateAction<string>) {
+		const resolvedLanguage = typeof nextLanguage === 'function' ? nextLanguage(language) : nextLanguage
+		if (!supportedLanguages[resolvedLanguage]) return
+		if (resolvedLanguage !== getLocale()) setLocale(resolvedLanguage as never, { reload: false })
+		setLanguage(resolvedLanguage)
+	}
 
 	useEffect(() => {
 		if (!supportedLanguages[language]) {
@@ -237,13 +240,13 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setStoreRecordInDocuments(defaultOptions.storeRecordInDocuments)
 		setCustomRecordingPath(null)
 		setLlmConfig(defaultOptions.llmConfig)
-		message(i18n.t('common.success-action'))
+		message(m.successAction())
 	}
 
 	function enableSubtitlesPreset() {
 		setModelOptions({ ...preference.modelOptions, word_timestamps: true, max_sentence_len: 32 })
 		setTextFormatTranscript('srt')
-		message(i18n.t('common.success-action'))
+		message(m.successAction())
 	}
 
 	const preference: Preference = {
@@ -267,7 +270,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		skippedSetup,
 		setSkippedSetup,
 		displayLanguage: language,
-		setDisplayLanguage: setLanguage,
+		setDisplayLanguage,
 		soundOnFinish,
 		setSoundOnFinish,
 		focusOnFinish,

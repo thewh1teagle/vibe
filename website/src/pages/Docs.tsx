@@ -5,12 +5,13 @@ import installDoc from '../../../docs/install.md?raw'
 import modelsDoc from '../../../docs/models.md?raw'
 import debugDoc from '../../../docs/debug.md?raw'
 import buildingDoc from '../../../docs/building.md?raw'
+import { m } from '~/paraglide/messages.js'
 
 const docs = [
-	{ name: 'Install', content: installDoc },
-	{ name: 'Models', content: modelsDoc },
-	{ name: 'Debug', content: debugDoc },
-	{ name: 'Build', content: buildingDoc },
+	{ name: 'Install', label: () => m.docsInstall(), content: installDoc },
+	{ name: 'Models', label: () => m.docsModels(), content: modelsDoc },
+	{ name: 'Debug', label: () => m.docsDebug(), content: debugDoc },
+	{ name: 'Build', label: () => m.docsBuild(), content: buildingDoc },
 ]
 
 function getDocUrl(hash: string) {
@@ -36,7 +37,7 @@ export default function Docs() {
 
 	return (
 		<div className="m-auto max-w-[81%] lg:max-w-[680px]" dir="ltr">
-			<h1 className="mb-6 text-4xl font-bold">Vibe Documentation</h1>
+			<h1 className="mb-6 text-4xl font-bold">{m.vibeDocumentation()}</h1>
 
 			<div className="mb-8 flex flex-wrap justify-center gap-2 rounded-xl border border-border bg-card/60 p-2">
 				{docs.map((doc) => (
@@ -48,7 +49,7 @@ export default function Docs() {
 							setContent(doc.content)
 							window.location.hash = doc.name.toLowerCase()
 						}}>
-						{doc.name}
+						{doc.label()}
 					</Button>
 				))}
 			</div>

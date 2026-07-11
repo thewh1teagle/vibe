@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import mobile from 'is-mobile'
-import { useTranslation } from 'react-i18next'
+import { m } from '../paraglide/messages.js'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogFooter } from '~/components/ui/dialog'
 import Chip from '~/icons/Chip'
@@ -34,7 +34,6 @@ interface CtaProps {
 }
 
 export default function Cta({ onOpenKofi }: CtaProps) {
-	const { t } = useTranslation()
 	const [currentPlatform, setCurrentPlatform] = useState<Platform>('macos')
 	const [ctaClicked, setCtaClicked] = useState(false)
 	const [mobileModalOpen, setMobileModalOpen] = useState(false)
@@ -83,25 +82,25 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 		<>
 			<div className="flex flex-col gap-3 lg:flex-row">
 				{isMobile ? (
-					<Button onMouseDown={ctaClick}>{t('download')}</Button>
+					<Button onMouseDown={ctaClick}>{m.download()}</Button>
 				) : currentPlatform === 'macos' ? (
 					<Button className="hidden lg:flex" onMouseDown={ctaClick}>
 						<Mac className="size-[18px]" />
-						{t('download-for')}
+						{m["download-for"]()}
 						{asset?.platform}
 					</Button>
 				) : currentPlatform === 'windows' ? (
 					<Button className="hidden md:flex" asChild>
 						<a href={asset?.url} onClick={() => setPostDownloadOpen(true)}>
 							<Windows className="size-[18px]" />
-							{t('download-for')}
+							{m["download-for"]()}
 							{asset?.platform}
 						</a>
 					</Button>
 				) : currentPlatform === 'linux' ? (
 					<Button className="hidden md:flex" onClick={() => setLinuxModalOpen(true)}>
 						<Linux className="size-[18px]" />
-						{t('download-for')}
+						{m["download-for"]()}
 						{asset?.platform}
 					</Button>
 				) : null}
@@ -109,7 +108,7 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 				<Button variant="outline" asChild>
 					<a href="https://github.com/thewh1teagle/vibe" target="_blank" rel="noreferrer">
 						<Github width="18" height="18" />
-						{t('star-on-github')}
+						{m["star-on-github"]()}
 					</a>
 				</Button>
 			</div>
@@ -121,13 +120,13 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 					<Button variant="outline" size="sm" className="animate-pulse-glow" asChild>
 						<a href={macSiliconAsset?.url} onClick={() => setPostDownloadOpen(true)}>
 							<Mac className="size-4" />
-							{t('apple-silicon')}
+							{m["apple-silicon"]()}
 						</a>
 					</Button>
 					<Button variant="outline" size="sm" className="animate-pulse-glow" asChild>
 						<a href={macIntelAsset?.url} onClick={() => setPostDownloadOpen(true)}>
 							<Chip />
-							{t('intel')}
+							{m.intel()}
 						</a>
 					</Button>
 				</div>
@@ -147,14 +146,14 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 
 			<Dialog open={mobileModalOpen} onOpenChange={setMobileModalOpen}>
 				<DialogContent className="w-[92vw] max-w-md p-6">
-					<h3 className="text-center text-lg font-bold">{t('download-on-pc')}</h3>
-					<p className="py-4 text-center">{t('available-for')} macOS / Windows / Linux</p>
+					<h3 className="text-center text-lg font-bold">{m["download-on-pc"]()}</h3>
+					<p className="py-4 text-center">{m["available-for"]()} macOS / Windows / Linux</p>
 					<div className="flex justify-center">
-						<Button onClick={() => navigator.clipboard.writeText(currentURL)}>{t('copy-download-link')}</Button>
+						<Button onClick={() => navigator.clipboard.writeText(currentURL)}>{m["copy-download-link"]()}</Button>
 					</div>
 					<DialogFooter>
 						<Button variant="ghost" onClick={() => setMobileModalOpen(false)}>
-							{t('cancel')}
+							{m.cancel()}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -162,7 +161,7 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 
 			<Dialog open={linuxModalOpen} onOpenChange={setLinuxModalOpen}>
 				<DialogContent className="w-[88vw] max-w-[88vw] overflow-hidden p-6 sm:!max-w-3xl">
-					<h3 className="pr-8 text-3xl font-bold">{t('install-on-linux')}</h3>
+					<h3 className="pr-8 text-3xl font-bold">{m["install-on-linux"]()}</h3>
 					<div className="mt-2 max-h-[70vh] overflow-y-auto pr-1">
 						{linuxInstallOptions.map((option) => (
 							<div key={option.title} className="mt-5 first:mt-3" dir="ltr">

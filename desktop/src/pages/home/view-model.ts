@@ -5,7 +5,7 @@ import { listen } from '@tauri-apps/api/event'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
 import { useContext, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat } from '~/components/format-select'
 import * as transcript from '~/lib/transcript'
@@ -32,7 +32,6 @@ export function viewModel() {
 	const location = useLocation()
 	const [settingsVisible, setSettingsVisible] = useState(location.hash === '#settings')
 	const navigate = useNavigate()
-	const { t } = useTranslation()
 	const {
 		segments: summarizeSegments,
 		setSegments: setSummarizeSegments,
@@ -84,7 +83,7 @@ export function viewModel() {
 	async function checkIfCrashedRecently() {
 		const isCrashed = await invoke<boolean>('is_crashed_recently')
 		if (isCrashed) {
-			dialog.message(t('common.crashed-recently'))
+			dialog.message(m.crashedRecently())
 			await invoke('rename_crash_file')
 		}
 	}

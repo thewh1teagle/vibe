@@ -7,17 +7,6 @@
   "permissions": [
     "core:event:default",
     "core:path:default",
-    "core:resources:default",
-    "os:allow-locale",
-    "fs:allow-read-dir",
-    "fs:allow-read-text-file",
-    {
-      "identifier": "fs:scope",
-      "allow": [
-        {
-          "path": "$RESOURCE/locales/**"
-        }
-      ]
-    }
+    "os:allow-locale"
   ]
 }

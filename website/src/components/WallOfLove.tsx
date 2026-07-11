@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '../paraglide/messages.js'
 
 interface Supporter {
 	id: string
@@ -78,7 +78,6 @@ function MarqueeColumn({ supporters, duration, className }: { supporters: Suppor
 }
 
 export default function WallOfLove() {
-	const { t } = useTranslation()
 	const [supporters, setSupporters] = useState<Supporter[]>([])
 
 	useEffect(() => {
@@ -108,7 +107,7 @@ export default function WallOfLove() {
 
 	return (
 		<section className="m-auto mt-20 w-[95%] lg:w-[1000px]">
-			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{t('loved-by-thousands')}</h2>
+			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{m["loved-by-thousands"]()}</h2>
 			{/* Mobile: single column vertical marquee */}
 			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
 				<MarqueeColumn supporters={supporters} duration={120} />

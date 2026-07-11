@@ -2,7 +2,7 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import * as process from '@tauri-apps/plugin-process'
 import { DownloadEvent, Update, check as checkUpdate } from '@tauri-apps/plugin-updater'
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { ErrorModalContext } from './error-modal'
 import { ModifyState } from '~/lib/types'
 import { invoke } from '@tauri-apps/api/core'
@@ -39,7 +39,6 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	const [totalSize, setTotal] = useState<number | null>(null)
 	const [partSize, setPartSize] = useState<number | null>(null)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
-	const { t } = useTranslation()
 	const [progress, setProgress] = useState<number | null>(null)
 
 	useEffect(() => {
@@ -65,11 +64,11 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	}, [])
 
 	async function askForRelaunch() {
-		const shouldRelaunch = await dialog.ask(t('common.ask-for-relaunch-body'), {
-			title: t('common.ask-for-relaunch-title'),
+		const shouldRelaunch = await dialog.ask(m.askForRelaunchBody(), {
+			title: m.askForRelaunchTitle(),
 			kind: 'info',
-			cancelLabel: t('common.cancel-relaunch'),
-			okLabel: t('common.confirm-relaunch'),
+			cancelLabel: m.cancelRelaunch(),
+			okLabel: m.confirmRelaunch(),
 		})
 		if (shouldRelaunch) {
 			console.info('relaunch....')
@@ -116,11 +115,11 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 			return
 		}
 
-		const shouldUpdate = await dialog.ask(t('common.ask-for-update-body', { version: update?.version }), {
-			title: t('common.ask-for-update-title'),
+		const shouldUpdate = await dialog.ask(m.askForUpdateBody({ version: String(update?.version ?? '') }), {
+			title: m.askForUpdateTitle(),
 			kind: 'info',
-			cancelLabel: t('common.cancel-update'),
-			okLabel: t('common.confirm-update'),
+			cancelLabel: m.cancelUpdate(),
+			okLabel: m.confirmUpdate(),
 		})
 		if (shouldUpdate) {
 			try {

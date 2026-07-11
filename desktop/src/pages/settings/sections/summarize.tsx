@@ -1,6 +1,7 @@
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { Check, Copy } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
+import { getLocale } from '~/paraglide/runtime.js'
 import * as config from '~/lib/config'
 import { defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig } from '~/lib/llm'
 import { InfoTooltip } from '~/components/info-tooltip'
@@ -12,23 +13,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { Field, type SettingsViewModel } from './shared'
 
 export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
-	const { t, i18n } = useTranslation()
 	return (
 <div className="space-y-5">
 							<div className="space-y-4">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-2">
-										<h3 className="text-sm font-semibold">{t('common.process-with-llm')} ✨</h3>
-										<InfoTooltip text={t('common.info-llm-summarize')} />
+										<h3 className="text-sm font-semibold">{m.processWithLlm()} ✨</h3>
+										<InfoTooltip text={m.infoLlmSummarize()} />
 									</div>
 									<Switch checked={vm.preference.llmConfig?.enabled} onCheckedChange={vm.onEnableLlm} />
 									</div>
 
-									<Field label={t('common.llm-platform')}>
+									<Field label={m.llmPlatform()}>
 										<Select
 											value={vm.preference.llmConfig?.platform}
 											onValueChange={(value) => {
-												const lang = new Intl.DisplayNames([i18n.language], { type: 'language' }).of(i18n.language) ?? 'English'
+												const lang = new Intl.DisplayNames([getLocale()], { type: 'language' }).of(getLocale()) ?? 'English'
 												const defaults =
 													value === 'ollama' ? defaultOllamaConfig(lang) : value === 'openai' ? defaultOpenAIConfig(lang) : defaultClaudeConfig(lang)
 												vm.preference.setLlmConfig({
@@ -58,32 +58,32 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 											<Field
 												label={
 													<>
-														<InfoTooltip text={t('common.info-llm-api-key')} />
-														{t('common.llm-api-key')}
+														<InfoTooltip text={m.infoLlmApiKey()} />
+														{m.llmApiKey()}
 														<button
 															type="button"
 															className="ml-1 text-primary underline hover:text-primary/80"
 															onClick={() => openUrl(config.llmApiKeyUrl)}>
-															{t('common.find-here')}
+															{m.findHere()}
 														</button>
 													</>
 												}>
 												<Input
 													value={vm.preference.llmConfig?.claudeApiKey}
 													onChange={(e) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, claudeApiKey: e.target.value })}
-													placeholder="Paste here your API key"
+															placeholder={m.pasteApiKey()}
 													type="text"
 												/>
 											</Field>
 											<Field
 												label={
 													<>
-														{t('common.llm-model')}
+														{m.llmModel()}
 														<button
 															type="button"
 															className="ml-1 text-primary underline hover:text-primary/80"
 															onClick={() => openUrl('https://docs.anthropic.com/en/docs/about-claude/models')}>
-															{t('common.find-here')}
+															{m.findHere()}
 														</button>
 													</>
 												}>
@@ -98,7 +98,7 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 
 									{vm.preference.llmConfig?.platform === 'ollama' && (
 										<>
-											<Field label={t('common.ollama-base-url')}>
+											<Field label={m.ollamaBaseUrl()}>
 												<Input
 													value={vm.preference.llmConfig?.ollamaBaseUrl}
 													onChange={(e) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, ollamaBaseUrl: e.target.value })}
@@ -107,12 +107,12 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 											<Field
 												label={
 													<>
-														{t('common.llm-model')}
+														{m.llmModel()}
 														<button
 															type="button"
 															className="ml-1 text-primary underline hover:text-primary/80"
 															onClick={() => openUrl(`https://ollama.com/library/${vm.preference.llmConfig.model}`)}>
-															{t('common.find-here')}
+															{m.findHere()}
 														</button>
 													</>
 												}>
@@ -126,22 +126,22 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 
 									{vm.preference.llmConfig?.platform === 'openai' && (
 										<>
-											<Field label="Base URL">
+									<Field label={m.baseUrl()}>
 												<Input
 													value={vm.preference.llmConfig?.openaiBaseUrl}
 													onChange={(e) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, openaiBaseUrl: e.target.value })}
 													placeholder="https://api.openai.com/v1"
 												/>
 											</Field>
-											<Field label="API Key">
+									<Field label={m.apiKey()}>
 												<Input
 													value={vm.preference.llmConfig?.openaiApiKey}
 													onChange={(e) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, openaiApiKey: e.target.value })}
-													placeholder="sk-... (optional for local servers)"
+															placeholder={m.optionalLocalServerKey()}
 													type="text"
 												/>
 											</Field>
-											<Field label={t('common.llm-model')}>
+											<Field label={m.llmModel()}>
 												<Input
 													value={vm.preference.llmConfig?.model}
 													onChange={(e) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, model: e.target.value })}
@@ -154,8 +154,8 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 									<Field
 										label={
 											<>
-												<InfoTooltip text={t('common.info-llm-prompt')} />
-												{t('common.llm-prompt')}
+												<InfoTooltip text={m.infoLlmPrompt()} />
+												{m.llmPrompt()}
 											</>
 										}>
 										<Textarea
@@ -169,8 +169,8 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 									<Field
 										label={
 											<>
-												<InfoTooltip text={t('common.info-max-tokens')} />
-												{t('common.max-tokens')}
+												<InfoTooltip text={m.infoMaxTokens()} />
+												{m.maxTokens()}
 											</>
 										}>
 										<Input
@@ -181,7 +181,7 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 									</Field>
 
 									<Button onClick={vm.checkLlm} size="sm" className="w-full">
-										{t('common.run-llm-check')}
+										{m.runLlmCheck()}
 									</Button>
 
 									{vm.llmError && (
@@ -196,10 +196,10 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 									{vm.preference.llmConfig?.platform === 'claude' && (
 										<div className="flex flex-col gap-2 text-sm">
 											<button type="button" className="text-left text-primary underline hover:text-primary/80" onClick={() => openUrl(config.llmLimitsUrl)}>
-												{t('common.set-monthly-spend-limit')}
+												{m.setMonthlySpendLimit()}
 											</button>
 											<button type="button" className="text-left text-primary underline hover:text-primary/80" onClick={() => openUrl(config.llmCostUrl)}>
-												{t('common.llm-current-cost')}
+												{m.llmCurrentCost()}
 											</button>
 										</div>
 									)}

@@ -4,6 +4,7 @@
 	"scripts": {
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
+		"check:i18n": "uv run scripts/check_i18n.py",
 		"check-types": "tsc --noEmit -p desktop/tsconfig.json && tsc --noEmit -p website/tsconfig.json"
 	},
 	"devDependencies": {

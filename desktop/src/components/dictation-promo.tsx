@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { useHotkeyProvider } from '~/providers/hotkey'
 import { openSettingsSection } from '~/lib/app'
 import { Mic, Settings2 } from 'lucide-react'
 
 export default function DictationPromo() {
-	const { t } = useTranslation()
 	const hotkey = useHotkeyProvider()
 	const isMac = navigator.platform.toUpperCase().includes('MAC')
 
@@ -28,8 +27,8 @@ export default function DictationPromo() {
 				onClick={() => openSettingsSection('dictation')}
 				className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/70 bg-muted/30 px-4 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-muted/50">
 				<Mic className="h-4 w-4 shrink-0" />
-				<span>{t('common.global-dictation-promo-short', 'Try Global Dictation')}</span>
-				<span className="ml-auto text-xs text-muted-foreground/70">{t('common.setup', 'Setup')} →</span>
+				<span>{m.globalDictationPromoShort()}</span>
+				<span className="ml-auto text-xs text-muted-foreground/70">{m.setup()} →</span>
 			</button>
 		)
 	}
@@ -40,7 +39,7 @@ export default function DictationPromo() {
 			onClick={() => openSettingsSection('dictation')}
 			className="flex w-full items-center gap-2 rounded-lg border border-primary/30 bg-primary/[0.03] px-4 py-2.5 text-left text-sm transition-colors hover:bg-primary/[0.06]">
 			<Mic className="h-4 w-4 shrink-0" />
-			<span className="font-medium">{t('common.global-dictation')}</span>
+			<span className="font-medium">{m.globalDictation()}</span>
 			<div className="ml-auto flex items-center gap-1.5">
 				{shortcutKeys.map((key, i) => (
 					<kbd

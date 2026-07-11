@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react'
-import { useTranslation } from 'react-i18next'
+import { m } from '~/paraglide/messages.js'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 
@@ -25,16 +25,15 @@ interface FormatSelectProps {
 }
 
 export default function FormatSelect({ format, setFormat }: FormatSelectProps) {
-	const { t } = useTranslation()
 	return (
 		<div className="space-y-2 w-full">
-			<Label>{t('common.format')}</Label>
+			<Label>{m.format()}</Label>
 			<Select value={format} onValueChange={(value) => setFormat(value as TextFormat)}>
 				<SelectTrigger>
-					<SelectValue placeholder={t('common.mode-text')} />
+					<SelectValue placeholder={m.modeText()} />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="normal">{t('common.mode-text')}</SelectItem>
+					<SelectItem value="normal">{m.modeText()}</SelectItem>
 					<SelectItem value="srt">srt</SelectItem>
 					<SelectItem value="docx">docx</SelectItem>
 					<SelectItem value="vtt">vtt</SelectItem>
