@@ -6,6 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
+		"test": "vitest run",
 		"i18n:generate": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy localStorage globalVariable baseLocale",
 		"build": "pnpm i18n:generate && tsc && vite build",
 		"preview": "vite preview",
@@ -69,15 +70,19 @@
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.1.18",
 		"@tauri-apps/cli": "~2.10.0",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.2",
 		"@types/react": "^19.2.13",
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.1.3",
+		"jsdom": "^29.1.1",
 		"npm-check-updates": "^19.3.2",
 		"postcss": "^8.5.6",
 		"tailwindcss": "^4.1.18",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.54.0",
-		"vite": "^7.3.1"
+		"vite": "^7.3.1",
+		"vitest": "^4.1.10"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
