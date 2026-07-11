@@ -8,13 +8,7 @@ mod context;
 #[cfg(feature = "ffi")]
 mod devices;
 #[cfg(feature = "ffi")]
-#[allow(
-    non_camel_case_types,
-    non_snake_case,
-    non_upper_case_globals,
-    dead_code,
-    improper_ctypes
-)]
+#[allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code, improper_ctypes)]
 mod ffi;
 #[cfg(feature = "ffi")]
 mod platform;
@@ -28,14 +22,29 @@ pub use error::{Error, Result};
 pub use options::{ContextOptions, StreamCallbacks, TranscribeOptions};
 
 #[cfg(feature = "ffi")]
-pub use context::Context;
+pub fn supported_languages() -> Vec<String> {
+    (0..=unsafe { ffi::whisper_lang_max_id() })
+        .filter_map(|id| {
+            let value = unsafe { ffi::whisper_lang_str(id) };
+            (!value.is_null()).then(|| unsafe { std::ffi::CStr::from_ptr(value) }.to_string_lossy().into_owned())
+        })
+        .collect()
+}
+
+#[cfg(not(feature = "ffi"))]
+pub fn supported_languages() -> Vec<String> {
+    Vec::new()
+}
+
 #[cfg(feature = "ffi")]
 pub use context::set_verbose;
 #[cfg(feature = "ffi")]
-pub use devices::{GPUDevice, GPUDeviceType, list_gpu_devices};
+pub use context::Context;
+#[cfg(feature = "ffi")]
+pub use devices::{list_gpu_devices, GPUDevice, GPUDeviceType};
 
 #[cfg(not(feature = "ffi"))]
-pub use stub::{Context, GPUDevice, GPUDeviceType, list_gpu_devices, set_verbose};
+pub use stub::{list_gpu_devices, set_verbose, Context, GPUDevice, GPUDeviceType};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Segment {
@@ -52,9 +61,6 @@ pub struct TranscribeResult {
 
 impl TranscribeResult {
     pub fn text(&self) -> String {
-        self.segments
-            .iter()
-            .map(|segment| segment.text.as_str())
-            .collect()
+        self.segments.iter().map(|segment| segment.text.as_str()).collect()
     }
 }

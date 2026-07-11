@@ -1,10 +1,8 @@
-use std::ffi::CString;
-use std::path::PathBuf;
 use std::ptr;
 
-use crate::callbacks::{CallbackState, install_abort_callback};
+use crate::callbacks::{install_abort_callback, CallbackState};
 use crate::context::{full_params, option_cstring, set_verbose};
-use crate::{Error, Result, StreamCallbacks, TranscribeOptions, TranscribeResult, ffi};
+use crate::{ffi, Error, Result, StreamCallbacks, TranscribeOptions, TranscribeResult};
 
 pub(crate) fn transcribe_stable_timestamps(
     ctx: *mut ffi::whisper_context,
@@ -12,46 +10,12 @@ pub(crate) fn transcribe_stable_timestamps(
     options: TranscribeOptions,
     callbacks: StreamCallbacks<'_>,
 ) -> Result<TranscribeResult> {
-    let vad_model_path = options
-        .vad_model_path
-        .as_deref()
-        .ok_or(Error::MissingVadModel)?;
-    let c_vad_model_path = CString::new(vad_model_path)?;
-
+    let vad_model_path = options.vad_model_path.as_deref().ok_or(Error::MissingVadModel)?;
     set_verbose(options.verbose);
-
-    let mut vad_params = unsafe { ffi::whisper_vad_default_context_params() };
-    // The VAD model is small, and some ggml backends cannot execute all VAD
-    // graph ops on GPU. Keep VAD on CPU while whisper decoding can still use GPU.
-    vad_params.use_gpu = false;
-
-    let vad_ctx = unsafe {
-        ffi::whisper_vad_init_from_file_with_params(c_vad_model_path.as_ptr(), vad_params)
-    };
-    if vad_ctx.is_null() {
-        return Err(Error::LoadVadModel(PathBuf::from(vad_model_path)));
-    }
-    let vad_ctx = VadContext(vad_ctx);
-
-    let vad_segment_params = unsafe { ffi::whisper_vad_default_params() };
-    let vad_segments = unsafe {
-        ffi::whisper_vad_segments_from_samples(
-            vad_ctx.0,
-            vad_segment_params,
-            samples.as_ptr(),
-            samples
-                .len()
-                .try_into()
-                .map_err(|_| Error::Message("sample count exceeds i32".to_string()))?,
-        )
-    };
-    if vad_segments.is_null() {
-        return Err(Error::VadSegmentationFailed);
-    }
-    let vad_segments = VadSegments(vad_segments);
-
-    let n_vad_segments = unsafe { ffi::whisper_vad_segments_n_segments(vad_segments.0) };
-    if n_vad_segments <= 0 {
+    let mut vad = vad_rs::Vad::new(vad_model_path, vad_rs::Options::stable_timestamps())
+        .map_err(|error| Error::Message(error.to_string()))?;
+    let vad_segments = vad.segments(samples).map_err(|error| Error::Message(error.to_string()))?;
+    if vad_segments.is_empty() {
         let mut callback_state = CallbackState::new(callbacks);
         if let Some(on_progress) = callback_state.callbacks.on_progress.as_mut() {
             on_progress(100);
@@ -63,27 +27,18 @@ pub(crate) fn transcribe_stable_timestamps(
     let prompt = option_cstring(options.prompt.as_deref())?;
     let mut callback_state = CallbackState::new(callbacks);
     let mut result = TranscribeResult {
-        segments: Vec::with_capacity(n_vad_segments as usize),
+        segments: Vec::with_capacity(vad_segments.len()),
     };
 
-    for index in 0..n_vad_segments {
+    let n_vad_segments = vad_segments.len();
+    for (index, vad_segment) in vad_segments.into_iter().enumerate() {
         if callback_state.should_abort() {
             return Err(Error::Aborted);
         }
 
-        let t0cs =
-            unsafe { ffi::whisper_vad_segments_get_segment_t0(vad_segments.0, index) } as i64;
-        let t1cs =
-            unsafe { ffi::whisper_vad_segments_get_segment_t1(vad_segments.0, index) } as i64;
-        if t1cs <= t0cs {
-            continue;
-        }
-
-        let start = vad_centiseconds_to_sample(t0cs, samples.len());
-        let end = vad_centiseconds_to_sample(t1cs, samples.len());
-        if end <= start {
-            continue;
-        }
+        let start = vad_segment.start_sample;
+        let end = vad_segment.end_sample;
+        let t0cs = vad_segment.start_centiseconds();
 
         let mut params = full_params(&options);
         params.vad = false;
@@ -120,34 +75,9 @@ pub(crate) fn transcribe_stable_timestamps(
         }
 
         if let Some(on_progress) = callback_state.callbacks.on_progress.as_mut() {
-            on_progress((index + 1) * 100 / n_vad_segments);
+            on_progress(((index + 1) * 100 / n_vad_segments) as i32);
         }
     }
 
     Ok(result)
-}
-
-struct VadContext(*mut ffi::whisper_vad_context);
-
-impl Drop for VadContext {
-    fn drop(&mut self) {
-        if !self.0.is_null() {
-            unsafe { ffi::whisper_vad_free(self.0) };
-        }
-    }
-}
-
-struct VadSegments(*mut ffi::whisper_vad_segments);
-
-impl Drop for VadSegments {
-    fn drop(&mut self) {
-        if !self.0.is_null() {
-            unsafe { ffi::whisper_vad_free_segments(self.0) };
-        }
-    }
-}
-
-fn vad_centiseconds_to_sample(value: i64, sample_count: usize) -> usize {
-    let sample = (value as f64 * ffi::WHISPER_SAMPLE_RATE as f64 / 100.0) as isize;
-    sample.clamp(0, sample_count as isize) as usize
 }

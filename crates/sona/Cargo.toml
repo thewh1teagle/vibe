@@ -12,6 +12,8 @@ path = "src/main.rs"
 
 [dependencies]
 whisper-rs = { path = "../whisper-rs", features = ["ffi"] }
+nemotron-rs = { path = "../nemotron-rs" }
+vad-rs = { path = "../vad-rs" }
 diarize-rs = { path = "../diarize-rs", optional = true }
 
 anyhow = "1"

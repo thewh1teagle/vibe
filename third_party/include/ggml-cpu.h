@@ -1,6 +1,6 @@
-// Fetched: 2026-02-03 20:40:36 UTC
-// Source: https://github.com/ggml-org/whisper.cpp/blob/aa1bc0d1a6dfd70dbb9f60c11df12441e03a9075/ggml/include/ggml-cpu.h
-// Commit: aa1bc0d1a6dfd70dbb9f60c11df12441e03a9075
+// Fetched: 2026-07-11 15:30:00 UTC
+// Source: https://github.com/ggml-org/whisper.cpp/blob/7695a5331230c585f5ce92291c4256973985ae5a/ggml/include/ggml-cpu.h
+// Commit: 7695a5331230c585f5ce92291c4256973985ae5a
 
 #pragma once
 
@@ -23,6 +23,9 @@ extern "C" {
         // abort ggml_graph_compute when true
         ggml_abort_callback abort_callback;
         void *              abort_callback_data;
+
+        // use only reference implementations
+        bool use_ref;
     };
 
     // numa strategies
@@ -135,6 +138,8 @@ extern "C" {
     GGML_BACKEND_API void ggml_backend_cpu_set_n_threads     (ggml_backend_t backend_cpu, int n_threads);
     GGML_BACKEND_API void ggml_backend_cpu_set_threadpool    (ggml_backend_t backend_cpu, ggml_threadpool_t threadpool);
     GGML_BACKEND_API void ggml_backend_cpu_set_abort_callback(ggml_backend_t backend_cpu, ggml_abort_callback abort_callback, void * abort_callback_data);
+
+    GGML_BACKEND_API void ggml_backend_cpu_set_use_ref(ggml_backend_t backend_cpu, bool use_ref);
 
     GGML_BACKEND_API ggml_backend_reg_t ggml_backend_cpu_reg(void);
 

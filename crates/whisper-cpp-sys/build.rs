@@ -1,0 +1,84 @@
+use std::env;
+use std::path::{Path, PathBuf};
+
+fn main() {
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let root = manifest_dir.parent().and_then(Path::parent).unwrap();
+    let include_dir = root.join("third_party/include");
+    let lib_dir = root.join("third_party/lib");
+    let wrapper = manifest_dir.join("wrapper.h");
+
+    for path in [&wrapper, &include_dir, &lib_dir] {
+        println!("cargo:rerun-if-changed={}", path.display());
+    }
+    if !include_dir.join("whisper.h").exists() || !include_dir.join("ggml.h").exists() {
+        panic!("missing native headers; run `cargo xtask fetch-headers`");
+    }
+    if !lib_dir.exists() {
+        panic!("missing native libraries; run `cargo xtask fetch-libs`");
+    }
+
+    let mut bindings = bindgen::Builder::default()
+        .header(wrapper.to_string_lossy())
+        .clang_arg(format!("-I{}", include_dir.display()))
+        .allowlist_function("(whisper|ggml|gguf)_.*")
+        .allowlist_type("(whisper|ggml|gguf)_.*")
+        .allowlist_var("(WHISPER|GGML)_.*")
+        .generate_comments(false)
+        .derive_default(true);
+    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos") {
+        if let Ok(output) = std::process::Command::new("xcrun").args(["--show-sdk-path"]).output() {
+            let sdk = String::from_utf8_lossy(&output.stdout).trim().to_owned();
+            if output.status.success() && !sdk.is_empty() {
+                bindings = bindings.clang_arg("-isysroot").clang_arg(sdk);
+            }
+        }
+    }
+    bindings
+        .generate()
+        .expect("failed to generate whisper.cpp/GGML bindings")
+        .write_to_file(PathBuf::from(env::var("OUT_DIR").unwrap()).join("bindings.rs"))
+        .expect("failed to write bindings");
+
+    println!("cargo:include={}", include_dir.display());
+    println!("cargo:rustc-link-search=native={}", lib_dir.display());
+    for lib in ["whisper", "ggml", "ggml-base", "ggml-cpu"] {
+        println!("cargo:rustc-link-lib=static={lib}");
+    }
+    link_platform();
+}
+
+fn link_platform() {
+    match env::var("CARGO_CFG_TARGET_OS").as_deref() {
+        Ok("macos") => {
+            for lib in ["ggml-metal", "ggml-blas"] {
+                println!("cargo:rustc-link-lib=static={lib}");
+            }
+            for framework in ["Accelerate", "Metal", "Foundation", "MetalKit", "CoreGraphics"] {
+                println!("cargo:rustc-link-lib=framework={framework}");
+            }
+            println!("cargo:rustc-link-lib=c++");
+        }
+        Ok("linux") => {
+            println!("cargo:rustc-link-lib=static=ggml-vulkan");
+            for lib in ["vulkan", "stdc++", "m", "pthread", "gomp"] {
+                println!("cargo:rustc-link-lib={lib}");
+            }
+        }
+        Ok("windows") => {
+            println!("cargo:rustc-link-lib=static=ggml-vulkan");
+            if env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("gnu") {
+                for lib in ["vulkan-1-delay", "stdc++", "gomp", "winpthread"] {
+                    println!("cargo:rustc-link-lib=static={lib}");
+                }
+                println!("cargo:rustc-link-lib=m");
+            } else {
+                if let Ok(sdk) = env::var("VULKAN_SDK") {
+                    println!("cargo:rustc-link-search=native={}/Lib", sdk);
+                }
+                println!("cargo:rustc-link-lib=vulkan-1");
+            }
+        }
+        other => panic!("unsupported target OS: {other:?}"),
+    }
+}

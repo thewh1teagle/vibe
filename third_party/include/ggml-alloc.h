@@ -1,6 +1,6 @@
-// Fetched: 2026-02-03 20:40:36 UTC
-// Source: https://github.com/ggml-org/whisper.cpp/blob/aa1bc0d1a6dfd70dbb9f60c11df12441e03a9075/ggml/include/ggml-alloc.h
-// Commit: aa1bc0d1a6dfd70dbb9f60c11df12441e03a9075
+// Fetched: 2026-07-11 15:30:00 UTC
+// Source: https://github.com/ggml-org/whisper.cpp/blob/7695a5331230c585f5ce92291c4256973985ae5a/ggml/include/ggml-alloc.h
+// Commit: 7695a5331230c585f5ce92291c4256973985ae5a
 
 #pragma once
 
@@ -80,6 +80,7 @@ GGML_API size_t ggml_gallocr_get_buffer_size(ggml_gallocr_t galloc, int buffer_i
 // Utils
 // Create a buffer and allocate all the tensors in a ggml_context
 // ggml_backend_alloc_ctx_tensors_from_buft_size returns the size of the buffer that would be allocated by ggml_backend_alloc_ctx_tensors_from_buft
+// ggml_backend_alloc_ctx_tensors_from_buft returns NULL on failure or if all tensors in ctx are already allocated or zero-sized
 GGML_API size_t                       ggml_backend_alloc_ctx_tensors_from_buft_size(struct ggml_context * ctx, ggml_backend_buffer_type_t buft);
 GGML_API struct ggml_backend_buffer * ggml_backend_alloc_ctx_tensors_from_buft(struct ggml_context * ctx, ggml_backend_buffer_type_t buft);
 GGML_API struct ggml_backend_buffer * ggml_backend_alloc_ctx_tensors(struct ggml_context * ctx, ggml_backend_t backend);

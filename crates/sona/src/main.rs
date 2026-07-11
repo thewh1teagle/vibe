@@ -1,5 +1,6 @@
 mod audio;
 mod cli;
+mod engine;
 mod pull;
 mod server;
 
@@ -11,4 +12,3 @@ async fn main() -> anyhow::Result<()> {
 
     cli::run().await
 }
-

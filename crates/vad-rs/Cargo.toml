@@ -1,0 +1,11 @@
+[package]
+name = "vad-rs"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Reusable whisper.cpp VAD segmentation for Sona"
+
+[dependencies]
+thiserror = "2"
+whisper-cpp-sys = { path = "../whisper-cpp-sys" }

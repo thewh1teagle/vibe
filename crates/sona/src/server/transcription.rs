@@ -93,6 +93,14 @@ pub(super) async fn transcribe(
         )
     })?;
 
+    if ctx.requires_vad() && vad_model_path.is_none() {
+        return Err(error(
+            StatusCode::BAD_REQUEST,
+            "invalid_request",
+            "'vad_model' is required for Nemotron",
+        ));
+    }
+
     let opts = build_options(&form, verbose, stable_timestamps, vad_model_path);
     let result = ctx.transcribe(&samples, opts).map_err(|err| {
         error(

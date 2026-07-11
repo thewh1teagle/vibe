@@ -5,9 +5,7 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 
-use crate::server::{
-    error, AppState, ModelInfo, ModelListResponse, ModelLoadRequest, ModelStatusResponse,
-};
+use crate::server::{error, AppState, ModelInfo, ModelListResponse, ModelLoadRequest, ModelStatusResponse};
 
 #[utoipa::path(
     post,
@@ -19,10 +17,7 @@ use crate::server::{
         (status = 500, description = "Load failed", body = crate::server::ErrorResponse)
     )
 )]
-pub(in crate::server) async fn load_model(
-    State(state): State<AppState>,
-    Json(request): Json<ModelLoadRequest>,
-) -> Response {
+pub(in crate::server) async fn load_model(State(state): State<AppState>, Json(request): Json<ModelLoadRequest>) -> Response {
     if request.path.trim().is_empty() {
         return error(
             StatusCode::BAD_REQUEST,
@@ -57,10 +52,7 @@ pub(in crate::server) async fn load_model(
 )]
 pub(in crate::server) async fn unload_model(State(state): State<AppState>) -> impl IntoResponse {
     state.inner.lock().await.unload_model();
-    (
-        StatusCode::OK,
-        Json(serde_json::json!({ "status": "unloaded" })),
-    )
+    (StatusCode::OK, Json(serde_json::json!({ "status": "unloaded" })))
 }
 
 #[utoipa::path(
@@ -70,23 +62,18 @@ pub(in crate::server) async fn unload_model(State(state): State<AppState>) -> im
 )]
 pub(in crate::server) async fn list_models(State(state): State<AppState>) -> impl IntoResponse {
     let state = state.inner.lock().await;
-    let data = if state.ctx.is_some() {
+    let data = if let Some(engine) = state.ctx.as_ref() {
         vec![ModelInfo {
             id: state.model_name.clone(),
             object: "model",
             created: now_unix(),
             owned_by: "local",
+            capabilities: engine.capabilities(),
         }]
     } else {
         Vec::new()
     };
-    (
-        StatusCode::OK,
-        Json(ModelListResponse {
-            object: "list",
-            data,
-        }),
-    )
+    (StatusCode::OK, Json(ModelListResponse { object: "list", data }))
 }
 
 fn now_unix() -> i64 {

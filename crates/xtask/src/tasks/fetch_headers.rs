@@ -9,6 +9,7 @@ const HEADERS: &[&str] = &[
     "ggml/include/ggml-cpu.h",
     "ggml/include/ggml-alloc.h",
     "ggml/include/ggml-backend.h",
+    "ggml/include/gguf.h",
 ];
 
 pub fn run() -> Result<()> {

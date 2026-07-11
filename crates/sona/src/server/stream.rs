@@ -34,6 +34,13 @@ pub(super) fn stream_transcription(
             "no model loaded",
         )));
     }
+    if guard.ctx.as_ref().is_some_and(|ctx| ctx.requires_vad()) && vad_model_path.is_none() {
+        return Err(Box::new(error(
+            StatusCode::BAD_REQUEST,
+            "invalid_request",
+            "'vad_model' is required for Nemotron",
+        )));
+    }
 
     let opts = build_options(
         &form,

@@ -9,6 +9,7 @@ use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
+use crate::engine::Engine;
 use axum::extract::DefaultBodyLimit;
 use axum::routing::{delete, get, post};
 use axum::Router;
@@ -17,7 +18,7 @@ use tokio::sync::Mutex;
 use tower_http::trace::TraceLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
-use whisper_rs::{Context, ContextOptions};
+use whisper_rs::ContextOptions;
 
 use crate::cli::AppConfig;
 
@@ -30,7 +31,7 @@ pub(super) struct AppState {
 }
 
 pub(super) struct ServerState {
-    ctx: Option<Context>,
+    ctx: Option<Engine>,
     model_name: String,
     model_path: String,
 }
@@ -46,12 +47,8 @@ impl ServerState {
 
     fn load_model(&mut self, path: &str, gpu_device: i32, no_gpu: bool) -> anyhow::Result<()> {
         self.ctx = None;
-        let ctx = Context::new(path, ContextOptions { gpu_device, no_gpu })?;
-        self.model_name = Path::new(path)
-            .file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .into_owned();
+        let ctx = Engine::load(path, ContextOptions { gpu_device, no_gpu })?;
+        self.model_name = Path::new(path).file_name().unwrap_or_default().to_string_lossy().into_owned();
         self.model_path = path.to_string();
         self.ctx = Some(ctx);
         Ok(())
@@ -83,6 +80,7 @@ impl ServerState {
         ErrorResponse,
         ModelListResponse,
         ModelInfo,
+        crate::engine::EngineCapabilities,
         TextResponse,
         format::VerboseJson,
         format::VerboseSegment
@@ -91,12 +89,7 @@ impl ServerState {
 )]
 struct ApiDoc;
 
-pub async fn serve(
-    host: String,
-    port: u16,
-    initial_model: Option<String>,
-    config: AppConfig,
-) -> anyhow::Result<()> {
+pub async fn serve(host: String, port: u16, initial_model: Option<String>, config: AppConfig) -> anyhow::Result<()> {
     whisper_rs::set_verbose(config.verbose());
     let mut server_state = ServerState::new();
     if let Some(model) = initial_model.as_deref() {
@@ -117,10 +110,7 @@ pub async fn serve(
             "/v1/models",
             delete(routes::models::unload_model).get(routes::models::list_models),
         )
-        .route(
-            "/v1/audio/transcriptions",
-            post(routes::transcriptions::transcriptions),
-        )
+        .route("/v1/audio/transcriptions", post(routes::transcriptions::transcriptions))
         .merge(SwaggerUi::new("/docs").url("/openapi.json", ApiDoc::openapi()))
         .layer(DefaultBodyLimit::max(MAX_UPLOAD_SIZE))
         .layer(TraceLayer::new_for_http())
@@ -130,9 +120,7 @@ pub async fn serve(
     let addr = listener.local_addr()?;
     print_ready(addr, ready_config)?;
 
-    axum::serve(listener, app)
-        .with_graceful_shutdown(shutdown_signal())
-        .await?;
+    axum::serve(listener, app).with_graceful_shutdown(shutdown_signal()).await?;
     Ok(())
 }
 
@@ -143,9 +131,7 @@ async fn shutdown_signal() {
 
     #[cfg(unix)]
     let terminate = async {
-        if let Ok(mut signal) =
-            tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
-        {
+        if let Ok(mut signal) = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
             signal.recv().await;
         }
     };
@@ -211,6 +197,7 @@ pub(super) struct ModelInfo {
     object: &'static str,
     created: i64,
     owned_by: &'static str,
+    capabilities: crate::engine::EngineCapabilities,
 }
 
 #[derive(Debug, Serialize, utoipa::ToSchema)]
@@ -229,11 +216,7 @@ pub(super) struct ErrorBody {
     message: String,
 }
 
-pub(super) fn error(
-    status: axum::http::StatusCode,
-    code: &'static str,
-    message: &str,
-) -> axum::response::Response {
+pub(super) fn error(status: axum::http::StatusCode, code: &'static str, message: &str) -> axum::response::Response {
     (
         status,
         axum::Json(ErrorResponse {

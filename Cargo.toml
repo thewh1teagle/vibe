@@ -1,8 +1,11 @@
 [workspace]
 members = [
     "crates/diarize-rs",
+    "crates/nemotron-rs",
     "crates/sona",
+    "crates/vad-rs",
     "crates/xtask",
+    "crates/whisper-cpp-sys",
     "crates/whisper-rs",
 ]
 resolver = "2"

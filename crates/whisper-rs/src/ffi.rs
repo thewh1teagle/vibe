@@ -1,1 +1,1 @@
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+pub use whisper_cpp_sys::*;
