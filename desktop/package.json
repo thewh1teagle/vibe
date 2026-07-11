@@ -6,7 +6,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
+		"i18n:generate": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy localStorage globalVariable baseLocale",
+		"build": "pnpm i18n:generate && tsc && vite build",
 		"preview": "vite preview",
 		"tauri": "tauri",
 		"lint": "eslint ."
