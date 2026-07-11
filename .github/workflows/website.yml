@@ -6,7 +6,10 @@ on:
             - main
         paths:
             - "website/**"
+            - "i18n/**"
             - "scripts/website_links.py"
+    release:
+        types: [published]
     workflow_dispatch:
 
 # Allow this job to clone the repo and create a page deployment
