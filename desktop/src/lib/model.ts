@@ -16,6 +16,12 @@ export async function getFilenameFromUrl(url: string) {
 	return fileName
 }
 
+export function getFriendlyModelName(filename: string) {
+	const name = filename.replace(/\.bin$/i, '').replace(/^ggml[-_]?/, '')
+	if (!name || name === 'model') return 'Custom model'
+	return name.replace(/[-_]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
 export async function downloadModel(url: string) {
 	let filename = await getFilenameFromUrl(url)
 	if (!filename.endsWith('.bin')) {

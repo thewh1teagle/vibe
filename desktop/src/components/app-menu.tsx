@@ -15,7 +15,8 @@ interface AppMenuProps {
 export default function AppMenu({ availableUpdate, updateApp, onClickSettings }: AppMenuProps) {
 	const navigate = useNavigate()
 	const location = useLocation()
-	const canGoBack = location.key !== 'default'
+	const disableBack = Boolean((location.state as { disableBack?: boolean } | null)?.disableBack)
+	const canGoBack = location.key !== 'default' && !disableBack
 	const [open, setOpen] = useState(false)
 
 	return (

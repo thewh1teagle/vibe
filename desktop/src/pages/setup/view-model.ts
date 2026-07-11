@@ -68,7 +68,7 @@ export function viewModel() {
 					if (path) {
 						console.log(`[model] Download succeeded: ${path}`)
 						preference.setModelPath(path)
-						navigate('/')
+						navigate('/', { replace: true, state: { disableBack: true } })
 						return
 					}
 				} catch (err) {
@@ -99,7 +99,7 @@ export function viewModel() {
 		// Cancel and go to settings
 		preference.setSkippedSetup(true)
 		emit('abort_download')
-		navigate('/#settings')
+		navigate('/#settings', { replace: true, state: { disableBack: true } })
 	}
 
 	useEffect(() => {

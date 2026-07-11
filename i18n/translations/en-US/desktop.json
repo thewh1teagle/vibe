@@ -366,5 +366,9 @@
 	"loading": "Loading...",
 	"agentInstructionsCopied": "Agent skill instructions copied to clipboard",
 	"localApiUnreachable": "Could not reach the local API",
-	"permissionAudioRecording": "Please enable system audio recording in System Settings, then try again."
+	"permissionAudioRecording": "Please enable system audio recording in System Settings, then try again.",
+	"rename": "Rename",
+	"modelName": "Model name",
+	"save": "Save",
+	"showInFolder": "Show in folder"
 }
