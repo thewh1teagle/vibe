@@ -43,7 +43,7 @@ function SupporterCard({ supporter }: { supporter: Supporter }) {
 	const colorClass = AVATAR_COLORS[hashString(supporter.id) % AVATAR_COLORS.length]
 
 	return (
-		<div className="flex gap-3 rounded-xl border border-border bg-card/60 p-4 backdrop-blur-sm">
+		<div className="flex gap-3 rounded-2xl bg-card/45 p-4 shadow-sm transition-colors hover:bg-card/70">
 			<div className={`${colorClass} flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white`}>
 				{getInitial(supporter.name)}
 			</div>
@@ -63,7 +63,7 @@ function MarqueeColumn({ supporters, duration, className }: { supporters: Suppor
 	return (
 		<div className={`relative h-full overflow-hidden ${className ?? ''}`}>
 			<div
-				className="animate-marquee-up flex flex-col gap-4"
+				className="animate-marquee-up flex flex-col gap-4 [contain:layout_paint] [will-change:transform] motion-reduce:!transform-none motion-reduce:!animate-none"
 				style={{ animationDuration: `${duration}s` }}
 			>
 				{supporters.map((s) => (
@@ -81,13 +81,17 @@ export default function WallOfLove() {
 	const [supporters, setSupporters] = useState<Supporter[]>([])
 
 	useEffect(() => {
-		fetch('/vibe/kofi-supporters.json')
+		const controller = new AbortController()
+		fetch('/vibe/kofi-supporters.json', { signal: controller.signal })
 			.then((res) => res.json())
 			.then((data: Supporter[]) => {
-				const withMessages = data.filter((s) => s.message)
+				const withMessages = data.filter((s) => s.message).slice(0, 36)
 				setSupporters(withMessages)
 			})
-			.catch(() => {})
+			.catch((error: unknown) => {
+				if ((error as Error).name !== 'AbortError') return
+			})
+		return () => controller.abort()
 	}, [])
 
 	const columns = useMemo(() => {
@@ -106,7 +110,7 @@ export default function WallOfLove() {
 	const durations = [60, 80, 50]
 
 	return (
-		<section className="m-auto mt-20 w-[95%] lg:w-[1000px]">
+		<section className="m-auto mt-20 w-[95%] [content-visibility:auto] [contain-intrinsic-size:0_700px] lg:w-[1000px]">
 			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{m["loved-by-thousands"]()}</h2>
 			{/* Mobile: single column vertical marquee */}
 			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
@@ -117,7 +121,7 @@ export default function WallOfLove() {
 			{/* Desktop: 3 columns */}
 			<div
 				dir="ltr"
-				className="relative hidden overflow-hidden md:block"
+				className="relative hidden overflow-hidden rounded-[3rem] md:block"
 				style={{ maxHeight: '600px' }}
 			>
 				<div className="group grid h-[600px] grid-cols-3 gap-4 [&:hover_.animate-marquee-up]:pause">
