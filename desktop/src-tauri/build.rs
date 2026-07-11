@@ -14,5 +14,5 @@ fn main() {
     // Analytics
     println!("cargo:rerun-if-env-changed=APTABASE_KEY");
 
-	tauri_build::build();
+    tauri_build::build();
 }
