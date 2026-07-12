@@ -177,7 +177,7 @@ export function viewModel() {
 			diarize_model = modelsFolder + '/' + config.diarizeModelFilename
 		}
 		let vad_model: string | undefined
-		if (preference.stableTimestampsEnabled) {
+		if (preference.stableTimestampsEnabled || preference.modelMetadata?.capabilities.requires_vad) {
 			const modelsFolder = await invoke<string>('get_models_folder')
 			vad_model = modelsFolder + '/' + config.vadModelFilename
 		}

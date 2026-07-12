@@ -5,11 +5,12 @@ import * as config from '~/lib/config'
 import { TextFormat } from '~/components/format-select'
 import { ModifyState } from '~/lib/types'
 import { supportedLanguages } from '~/lib/i18n'
-import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getLocale, getTextDirection, setLocale } from '~/paraglide/runtime.js'
 import { m } from '~/paraglide/messages.js'
 import { defaultOllamaConfig, LlmConfig } from '~/lib/llm'
 import { message } from '@tauri-apps/plugin-dialog'
+import { invoke } from '@tauri-apps/api/core'
+import type { ModelMetadata } from '~/lib/model'
 
 type Direction = 'ltr' | 'rtl'
 export type HomeTab = 'record' | 'file' | 'link'
@@ -30,6 +31,8 @@ export interface Preference {
 	setFocusOnFinish: ModifyState<boolean>
 	modelPath: string | null
 	setModelPath: ModifyState<string | null>
+	modelMetadata: ModelMetadata | null
+	setModelMetadata: ModifyState<ModelMetadata | null>
 	modelDisplayNames: Record<string, string>
 	setModelDisplayNames: ModifyState<Record<string, string>>
 	skippedSetup: boolean
@@ -124,7 +127,7 @@ const defaultOptions = {
 		temperature: 0.4,
 		max_text_ctx: undefined,
 		word_timestamps: false,
-		max_sentence_len: 1,
+		max_sentence_len: undefined,
 		sampling_strategy: 'beam search' as 'greedy' | 'beam search',
 		best_of: 5,
 		beam_size: 5,
@@ -146,6 +149,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
 
 	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
+	const [modelMetadata, setModelMetadata] = useState<ModelMetadata | null>(null)
 	const [modelDisplayNames, setModelDisplayNames] = useLocalStorage<Record<string, string>>('prefs_model_display_names', {})
 	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
 	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
@@ -177,6 +181,19 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 	useEffect(() => {
+		if (!modelPath) {
+			setModelMetadata(null)
+			return
+		}
+		invoke<ModelMetadata>('get_model_metadata', { modelPath })
+			.then(setModelMetadata)
+			.catch((error) => {
+				console.error('failed to read model metadata:', error)
+				setModelMetadata(null)
+			})
+	}, [modelPath])
+
+	useEffect(() => {
 		load(config.storeFilename).then((store) => {
 			store.get<boolean>('analytics_enabled').then((val) => {
 				if (val !== null && val !== undefined) {
@@ -205,9 +222,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}, [theme])
 
 	function setLanguageDefaults() {
-		const name = supportedLanguages[preference.displayLanguage]
-		if (name) {
-			preference.setModelOptions({ ...preference.modelOptions, lang: WhisperLanguages[name as keyof typeof WhisperLanguages] })
+		if (supportedLanguages[preference.displayLanguage]) {
+			preference.setModelOptions({ ...preference.modelOptions, lang: preference.displayLanguage.split('-')[0].toLowerCase() })
 			preference.setTextAreaDirection(getTextDirection())
 		}
 	}
@@ -280,6 +296,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setFocusOnFinish,
 		modelPath,
 		setModelPath,
+		modelMetadata,
+		setModelMetadata,
 		modelDisplayNames,
 		setModelDisplayNames,
 		theme,

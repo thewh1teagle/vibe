@@ -51,7 +51,7 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 										<Label>{m.selectModel()}</Label>
 										<Select
 											value={vm.preference.modelPath ?? undefined}
-											onValueChange={(value) => vm.preference.setModelPath(value)}
+											onValueChange={vm.selectModel}
 											onOpenChange={(open) => {
 												if (open) vm.loadModels()
 											}}>
@@ -85,10 +85,10 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 								</div>
 							) : (
 								<div className="mt-2 flex items-center justify-end gap-1 px-1">
-									<Button variant="ghost" size="xs" className="px-2.5 text-muted-foreground hover:text-foreground" onClick={() => vm.openSelectedModel(currentModel.path)}>
+									<Button variant="ghost" size="sm" className="h-7 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => vm.openSelectedModel(currentModel.path)}>
 										<FolderOpen className="size-3.5" /> {m.showInFolder()}
 									</Button>
-									<Button variant="ghost" size="xs" className="px-2.5 text-muted-foreground hover:text-foreground" onClick={() => { setEditingPath(currentModel.path); setEditingName(vm.preference.modelDisplayNames[currentModel.path] ?? getFriendlyModelName(currentModel.name)) }}>
+									<Button variant="ghost" size="sm" className="h-7 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => { setEditingPath(currentModel.path); setEditingName(vm.preference.modelDisplayNames[currentModel.path] ?? getFriendlyModelName(currentModel.name)) }}>
 										<PencilLine className="size-3.5" /> {m.rename()}
 									</Button>
 								</div>

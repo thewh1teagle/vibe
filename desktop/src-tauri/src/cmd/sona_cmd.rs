@@ -155,6 +155,20 @@ pub async fn get_gpu_devices(app_handle: tauri::AppHandle) -> Result<Vec<crate::
 }
 
 #[tauri::command]
+pub async fn get_model_metadata(app_handle: tauri::AppHandle, model_path: String) -> Result<crate::sona::ModelMetadata> {
+    let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
+    let mut state = sona_state.lock().await;
+    if state.process.as_mut().is_none_or(|process| !process.is_alive()) {
+        let binary_path = resolve_sona_binary(&app_handle)?;
+        let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
+        state.process = Some(crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?);
+        state.loaded_model_path = None;
+        state.loaded_gpu_device = None;
+    }
+    state.process.as_ref().unwrap().model_metadata(&model_path).await
+}
+
+#[tauri::command]
 pub async fn get_api_base_url(sona_state: State<'_, Mutex<SonaState>>) -> Result<Option<String>> {
     let state = sona_state.lock().await;
     Ok(state.process.as_ref().map(|process| process.base_url()))

@@ -27,6 +27,24 @@ pub struct GpuDevice {
     pub device_type: String,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ModelCapabilities {
+    pub engine: String,
+    pub requires_vad: bool,
+    pub languages: Vec<String>,
+    pub language_detection: bool,
+    pub streaming: bool,
+    pub translation: bool,
+    pub timestamps: bool,
+    pub text_prompts: bool,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ModelMetadata {
+    pub format: String,
+    pub capabilities: ModelCapabilities,
+}
+
 pub struct SonaProcess {
     port: u16,
     child: Child,
@@ -103,6 +121,20 @@ where
 }
 
 impl SonaProcess {
+    pub async fn model_metadata(&self, path: &str) -> Result<ModelMetadata> {
+        let response = self
+            .client
+            .post(format!("{}/v1/models/metadata", self.base_url()))
+            .json(&serde_json::json!({ "path": path }))
+            .send()
+            .await
+            .context("failed to request model metadata")?;
+        if !response.status().is_success() {
+            bail!("sona model metadata failed: {}", response.text().await.unwrap_or_default());
+        }
+        response.json().await.context("failed to parse model metadata")
+    }
+
     pub async fn transcribe_stream(
         client: &reqwest::Client,
         base_url: &str,
@@ -140,13 +172,15 @@ impl SonaProcess {
         for (name, value) in [
             ("n_threads", options.n_threads),
             ("max_text_ctx", options.max_text_ctx),
-            ("max_segment_len", options.max_sentence_len),
             ("best_of", options.best_of),
             ("beam_size", options.beam_size),
         ] {
             if let Some(value) = value.filter(|value| *value > 0) {
                 form = form.text(name, value.to_string());
             }
+        }
+        if let Some(value) = options.max_sentence_len.filter(|value| *value > 1) {
+            form = form.text("max_segment_len", value.to_string());
         }
         if let Some(temperature) = options.temperature.filter(|value| *value > 0.0) {
             form = form.text("temperature", temperature.to_string());

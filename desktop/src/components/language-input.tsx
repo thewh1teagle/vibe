@@ -1,26 +1,18 @@
 
 import { subDays, isAfter } from 'date-fns'
 import { m } from '~/paraglide/messages.js'
-import WhisperLanguages from '~/assets/whisper-languages.json'
 import { getI18nLanguageName, getLocalizedLanguageName } from '~/lib/i18n'
 import { usePreferenceProvider } from '~/providers/preference'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '~/components/ui/select'
 
-const specialModels = [{ pattern: 'ug.bin', languages: [{ code: 'ug', label: 'Uyghur', name: 'uyghur' }] }]
-
 export default function LanguageInput() {
 	const preference = usePreferenceProvider()
 
-	const entries = Object.entries(WhisperLanguages).map(([name, code]) => {
-		return { label: getLocalizedLanguageName(name), name, code }
-	})
-
-	for (const special of specialModels) {
-		if (preference.modelPath?.endsWith(special.pattern)) {
-			entries.push(...special.languages)
-		}
-	}
+	const capabilities = preference.modelMetadata?.capabilities
+	const displayNames = new Intl.DisplayNames([preference.displayLanguage], { type: 'language' })
+	const entries = (capabilities?.languages ?? []).map((code) => ({ label: displayNames.of(code) ?? code, name: code, code }))
+	if (capabilities?.language_detection) entries.push({ label: getLocalizedLanguageName('auto'), name: 'auto', code: 'auto' })
 
 	entries.sort((a, b) => a.label.localeCompare(b.label))
 
