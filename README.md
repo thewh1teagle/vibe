@@ -11,7 +11,7 @@
 <h1 align="center">Vibe - Transcribe on your own!</h1>
 
 <p align="center">
-  <strong>⌨️ Transcribe audio and video privately, right on your device</strong>
+  <strong>⌨️ Transcribe audio and video right on your device</strong>
   <br/>
 </p>
 
@@ -36,7 +36,6 @@
 # Features 🌟
 
 - 🌍 Transcribe almost every language
-- 🤖 Supports Whisper, Nemotron 3.5, and Parakeet TDT v3 models
 - 🔒 Ultimate privacy: fully offline transcription, no data ever leaves your device
 - 🎨 User friendly design
 - 🎙️ Transcribe audio / video
@@ -44,6 +43,7 @@
 - 📂 Batch transcribe multiple files!
 - 📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON`, `DOCX` formats
 - 👀 Realtime preview
+- 🤖 Supports Whisper, Nemotron 3.5, and Parakeet TDT v3 models
 - ✨ Summarize transcripts: Get quick, multilingual summaries using the Claude API
 - 🧠 Ollama support: Do local AI analysis and batch summaries with Ollama
 - 🌐 Translate to English from any language
