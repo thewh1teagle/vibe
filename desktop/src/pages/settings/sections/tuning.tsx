@@ -33,6 +33,9 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 											</span>
 											<Switch checked={vm.preference.stableTimestampsEnabled} onCheckedChange={vm.handleStableTimestampsToggle} />
 										</div>
+										{vm.preference.stableTimestampsEnabled && (
+											<p className="text-sm italic text-muted-foreground">{m.stableTimestampsSlowNote()}</p>
+										)}
 									</div>
 								</SectionCard>
 							</div>
@@ -51,6 +54,9 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 												onCheckedChange={(checked) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, translate: checked })}
 											/>
 										</div>
+										{vm.preference.modelOptions.translate && (
+											<p className="text-sm italic text-muted-foreground">{m.translateWhisperModelNote()}</p>
+										)}
 
 										<Field
 											label={
