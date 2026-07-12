@@ -28,13 +28,11 @@ pub(in crate::server) async fn model_metadata(Json(request): Json<ModelMetadataR
         );
     }
     let path = request.path.clone();
-    match tokio::task::spawn_blocking(move || nemotron_rs::Model::metadata(path)).await {
-        Ok(Ok(info)) if info.architecture == "parakeet" && info.head_kind == "rnnt" => (
-            StatusCode::OK,
-            Json(ModelMetadataResponse {
-                format: "gguf",
-                capabilities: crate::engine::EngineCapabilities {
-                    engine: "nemotron".to_string(),
+    match tokio::task::spawn_blocking(move || {
+        if let Ok(info) = parakeet_rs::Model::metadata(&path) {
+            if info.architecture == "parakeet" && info.head_kind == "tdt" && info.variant.contains("v3") {
+                return Ok(crate::engine::EngineCapabilities {
+                    engine: "parakeet".to_string(),
                     requires_vad: true,
                     languages: info.languages,
                     language_detection: info.language_detection,
@@ -42,23 +40,39 @@ pub(in crate::server) async fn model_metadata(Json(request): Json<ModelMetadataR
                     translation: false,
                     timestamps: true,
                     text_prompts: false,
-                },
+                });
+            }
+        }
+
+        match nemotron_rs::Model::metadata(&path) {
+            Ok(info) if info.architecture == "parakeet" && info.head_kind == "rnnt" => Ok(crate::engine::EngineCapabilities {
+                engine: "nemotron".to_string(),
+                requires_vad: true,
+                languages: info.languages,
+                language_detection: info.language_detection,
+                streaming: false,
+                translation: false,
+                timestamps: true,
+                text_prompts: false,
             }),
-        )
-            .into_response(),
-        Ok(Ok(info)) => error(
-            StatusCode::BAD_REQUEST,
-            "unsupported_model",
-            &format!("unsupported GGUF architecture '{}'", info.architecture),
-        ),
-        Ok(Err(_)) => (
+            Ok(info) => Err(format!(
+                "unsupported GGUF architecture '{}' with head '{}'",
+                info.architecture, info.head_kind
+            )),
+            Err(_) => Ok(crate::engine::whisper_capabilities()),
+        }
+    })
+    .await
+    {
+        Ok(Ok(capabilities)) => (
             StatusCode::OK,
             Json(ModelMetadataResponse {
-                format: "whisper",
-                capabilities: crate::engine::whisper_capabilities(),
+                format: if capabilities.engine == "whisper" { "whisper" } else { "gguf" },
+                capabilities,
             }),
         )
             .into_response(),
+        Ok(Err(message)) => error(StatusCode::BAD_REQUEST, "unsupported_model", &message),
         Err(err) => error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "internal_error",
