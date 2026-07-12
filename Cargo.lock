@@ -529,7 +529,7 @@ dependencies = [
 name = "diarize-rs"
 version = "0.1.0"
 dependencies = [
- "parakeet-rs",
+ "parakeet-rs 0.3.6",
  "serde",
  "thiserror",
 ]
@@ -1489,6 +1489,18 @@ dependencies = [
 
 [[package]]
 name = "parakeet-rs"
+version = "0.1.0"
+dependencies = [
+ "hound",
+ "rayon",
+ "rustfft",
+ "thiserror",
+ "vad-rs",
+ "whisper-cpp-sys",
+]
+
+[[package]]
+name = "parakeet-rs"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63f887c35960ee3e101563a384021d9555ad9d693fe696f85119fa39537669df"
@@ -2100,6 +2112,7 @@ dependencies = [
  "hound",
  "libc",
  "nemotron-rs",
+ "parakeet-rs 0.1.0",
  "reqwest",
  "serde",
  "serde_json",

@@ -2,6 +2,7 @@
 members = [
     "crates/diarize-rs",
     "crates/nemotron-rs",
+    "crates/parakeet-rs",
     "crates/sona",
     "crates/vad-rs",
     "crates/xtask",

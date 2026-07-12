@@ -13,6 +13,7 @@ path = "src/main.rs"
 [dependencies]
 whisper-rs = { path = "../whisper-rs", features = ["ffi"] }
 nemotron-rs = { path = "../nemotron-rs" }
+parakeet-rs = { path = "../parakeet-rs" }
 vad-rs = { path = "../vad-rs" }
 diarize-rs = { path = "../diarize-rs", optional = true }
 
