@@ -11,7 +11,7 @@
 <h1 align="center">Vibe - Transcribe on your own!</h1>
 
 <p align="center">
-  <strong>⌨️ Transcribe audio / video offline using OpenAI Whisper</strong>
+  <strong>⌨️ Transcribe audio and video privately, right on your device</strong>
   <br/>
 </p>
 
@@ -36,6 +36,7 @@
 # Features 🌟
 
 - 🌍 Transcribe almost every language
+- 🤖 Supports Whisper, Nemotron 3.5, and Parakeet TDT v3 models
 - 🔒 Ultimate privacy: fully offline transcription, no data ever leaves your device
 - 🎨 User friendly design
 - 🎙️ Transcribe audio / video

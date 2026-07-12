@@ -37,6 +37,20 @@ For high accuracy and more computational resources, excels in complex scenarios.
 [👉 Magic Setup](https://tinyurl.com/yphwban5)  
 [🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
 
+### 🦜 Parakeet TDT 0.6B v3
+
+Supports streaming and is best suited for dictation.
+
+[👉 View Model](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
+[🔽 Download Q4_K_M](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf?download=true)
+
+### ⚡ Nemotron 3.5 ASR Streaming 0.6B
+
+Supports streaming and is best suited for dictation.
+
+[👉 View Model](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
+[🔽 Download Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
+
 ### Models optimised for other languages
 
 <details>
