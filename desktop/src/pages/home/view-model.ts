@@ -152,6 +152,7 @@ export function viewModel() {
 			const entries = await ls(configPath)
 			const filtered = entries.filter((e) => isModelFile(e.name))
 			if (filtered.length === 0) {
+				preference.setModelPath(null)
 				// Download new model if no models and it's not manual installation
 				if (!preference.skippedSetup) {
 					navigate('/setup')

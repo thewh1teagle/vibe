@@ -42,6 +42,8 @@
 	"downloading": "Laster ned... {progress}%",
 	"downloadingAiModels": "Laster ned AI-modeller...",
 	"downloadingModel": "Laster ned modell...",
+	"noModelsInstalled": "Ingen modeller er installert",
+	"downloadDefaultModelDescription": "Last ned standardmodellen for å begynne å transkribere.",
 	"downloadingYtdlp": "Laster ned ytdlp",
 	"enableLogs": "Aktiver logger",
 	"error": "Feil",

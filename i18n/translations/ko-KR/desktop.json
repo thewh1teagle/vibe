@@ -42,6 +42,8 @@
 	"downloading": "다운로드 중... {progress}%",
 	"downloadingAiModels": "AI 모델 다운로드 중...",
 	"downloadingModel": "모델 다운로드 중...",
+	"noModelsInstalled": "설치된 모델이 없습니다",
+	"downloadDefaultModelDescription": "전사를 시작하려면 기본 모델을 다운로드하세요.",
 	"downloadingYtdlp": "ytdlp 다운로드 중",
 	"enableLogs": "로그 활성화",
 	"error": "오류",

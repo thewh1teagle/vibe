@@ -42,6 +42,8 @@
 	"downloading": "Laddar ned... {progress}%",
 	"downloadingAiModels": "Laddar ner AI-modeller...",
 	"downloadingModel": "Hämtar modell...",
+	"noModelsInstalled": "Inga modeller är installerade",
+	"downloadDefaultModelDescription": "Hämta standardmodellen för att börja transkribera.",
 	"downloadingYtdlp": "Laddar ner ytdlp",
 	"enableLogs": "Aktivera loggar",
 	"error": "Fel",

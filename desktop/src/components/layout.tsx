@@ -5,6 +5,7 @@ import AppMenu from './app-menu'
 import DropModal from './drop-modal'
 import SettingsModal from './settings-modal'
 import PageTransition from './page-transition'
+import ModelDownloadPrompt from './model-download-prompt'
 
 export default function Layout({ children }: { children: ReactNode }) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
@@ -29,6 +30,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 		<div className="min-h-screen">
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} scrollTo={settingsScrollTo} />}
 			<DropModal />
+			<ModelDownloadPrompt />
 			<div className="app-shell">
 				<div className="stagger-in mb-6 flex items-center justify-between gap-4 pb-1">
 					<h1 className="app-title">{m.appTitle()}</h1>

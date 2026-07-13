@@ -50,6 +50,8 @@
 	"downloading": "מוריד... {progress}%",
 	"downloadingAiModels": "מוריד מודלים...",
 	"downloadingModel": "מוריד מודל בינה מלאכותית...",
+	"noModelsInstalled": "לא מותקנים מודלים",
+	"downloadDefaultModelDescription": "הורד את מודל ברירת המחדל כדי להתחיל לתמלל.",
 	"downloadingYtdlp": "מוריד ytdlp",
 	"enableLogs": "הפעל לוגים",
 	"enabled": "מופעל",

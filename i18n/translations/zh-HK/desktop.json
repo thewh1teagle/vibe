@@ -42,6 +42,8 @@
 	"downloading": "正在下載... {progress}%",
 	"downloadingAiModels": "正在下載 AI 模型...",
 	"downloadingModel": "正在下載模型...",
+	"noModelsInstalled": "尚未安裝模型",
+	"downloadDefaultModelDescription": "下載預設模型以開始轉錄。",
 	"downloadingYtdlp": "下載 ytdlp",
 	"enableLogs": "啟用日誌",
 	"error": "錯誤",

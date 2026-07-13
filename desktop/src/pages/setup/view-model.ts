@@ -93,15 +93,17 @@ export function viewModel() {
 				try {
 					console.log(`[model] Attempting to download from: ${url}`)
 					const path = await utils.downloadModel(url)
-					if (path) {
-						console.log(`[model] Download succeeded: ${path}`)
-						if (!(await selectDownloadedModel(path))) {
-							navigate('/#settings', { replace: true })
-							return
-						}
-						navigate('/', { replace: true, state: { disableBack: true } })
+					if (!path) {
+						console.log('[model] Download cancelled')
 						return
 					}
+					console.log(`[model] Download succeeded: ${path}`)
+					if (!(await selectDownloadedModel(path))) {
+						navigate('/#settings', { replace: true })
+						return
+					}
+					navigate('/', { replace: true, state: { disableBack: true } })
+					return
 				} catch (err) {
 					console.error(`[model] Failed to download from ${url}:`, err)
 					lastError = err

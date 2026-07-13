@@ -7,6 +7,8 @@ export type ModelExtension = (typeof MODEL_EXTENSIONS)[number]
 
 const MODEL_EXTENSION_PATTERN = new RegExp(`\\.(${MODEL_EXTENSIONS.join('|')})$`, 'i')
 
+type DownloadModelResult = { status: 'completed'; path: string } | { status: 'cancelled' }
+
 export function getModelExtension(filename: string): ModelExtension | null {
 	const extension = filename.match(MODEL_EXTENSION_PATTERN)?.[1]?.toLowerCase()
 	return MODEL_EXTENSIONS.includes(extension as ModelExtension) ? (extension as ModelExtension) : null
@@ -48,8 +50,8 @@ export async function downloadModel(url: string) {
 		filename = randomString(8, 'ggml-model_', `.${getModelExtension(filename) ?? 'bin'}`)
 		modelPath = await pathExt.join(modelsFolder, filename)
 	}
-	await invoke('download_model', { url, path: modelPath })
-	return modelPath
+	const result = await invoke<DownloadModelResult>('download_model', { url, path: modelPath })
+	return result.status === 'completed' ? result.path : null
 }
 
 export function isModelFile(filename: string) {

@@ -49,6 +49,8 @@
 	"downloadingDiarizeModel": "Descarregant el model de diarització...",
 	"downloadingAiModels": "Descarregant models d'IA...",
 	"downloadingModel": "Descarregant el model...",
+	"noModelsInstalled": "No hi ha cap model instal·lat",
+	"downloadDefaultModelDescription": "Descarrega el model predeterminat per començar a transcriure.",
 	"downloadingYtdlp": "Descarregant ytdlp",
 	"enableDiarization": "Activar diarització de veu",
 	"enableLogs": "Activar registres (logs)",
