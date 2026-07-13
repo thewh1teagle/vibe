@@ -41,7 +41,7 @@
 	"downloadModelsLink": "모델 다운로드",
 	"downloading": "다운로드 중... {progress}%",
 	"downloadingAiModels": "AI 모델 다운로드 중...",
-	"downloadingModel": "{company} 모델 다운로드 중...",
+	"downloadingModel": "모델 다운로드 중...",
 	"downloadingYtdlp": "ytdlp 다운로드 중",
 	"enableLogs": "로그 활성화",
 	"error": "오류",

@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Télécharger les modèles",
 	"downloading": "Téléchargement... {progress} %",
 	"downloadingAiModels": "Téléchargement de modèles d'IA...",
-	"downloadingModel": "Téléchargement du modèle OpenAI en cours…",
+	"downloadingModel": "Téléchargement du modèle en cours…",
 	"downloadingYtdlp": "Téléchargement de ytdlp",
 	"enableLogs": "Activer les journaux",
 	"error": "Erreur",

@@ -41,7 +41,7 @@
 	"downloadModelsLink": "モデルをダウンロード",
 	"downloading": "ダウンロード中... {progress}%",
 	"downloadingAiModels": "AIモデルをダウンロード中...",
-	"downloadingModel": "{company}モデルをダウンロード中...",
+	"downloadingModel": "モデルをダウンロード中...",
 	"downloadingYtdlp": "ytdlpをダウンロード中",
 	"enableLogs": "ログを有効化",
 	"error": "エラー",

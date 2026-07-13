@@ -19,7 +19,6 @@ export function viewModel() {
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
-	const [modelCompany, setModelCompany] = useState('OpenAI')
 
 	function handleProgressEvenets() {
 		listen('download_progress', (event) => {
@@ -78,9 +77,6 @@ export function viewModel() {
 			if (location?.state?.downloadURL) {
 				urls = [location.state.downloadURL]
 				console.log(`[model] Using provided model URL: ${urls[0]}`)
-				if (urls[0].includes('ivrit')) {
-					setModelCompany('ivrit.ai')
-				}
 			} else {
 				urls = [...config.modelUrls.default]
 				const locale = await osExt.locale()
@@ -89,7 +85,6 @@ export function viewModel() {
 				if (locale?.endsWith('-IL')) {
 					console.log(`[model] Prioritizing Hebrew models`)
 					urls.unshift(...config.modelUrls.hebrew)
-					setModelCompany('ivrit.ai')
 				}
 			}
 
@@ -143,7 +138,6 @@ export function viewModel() {
 	}, [])
 
 	return {
-		modelCompany,
 		navigate,
 		cancelSetup,
 		setErrorModal,

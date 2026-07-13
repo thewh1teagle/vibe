@@ -56,7 +56,7 @@
 	"downloading": "Downloading... {progress}%",
 	"downloadingDiarizeModel": "Downloading diarization model...",
 	"downloadingAiModels": "Downloading AI models...",
-	"downloadingModel": "Downloading {company} Model...",
+	"downloadingModel": "Downloading Model...",
 	"downloadingYtdlp": "Downloading ytdlp",
 	"enableDiarization": "Enable speaker diarization",
 	"enableLogs": "Enable Logs",

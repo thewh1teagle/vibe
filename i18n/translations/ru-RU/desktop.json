@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Скачать модели",
 	"downloading": "Загрузка... {progress}%",
 	"downloadingAiModels": "Загрузка AI моделей...",
-	"downloadingModel": "Загрузка модели OpenAI...",
+	"downloadingModel": "Загрузка модели...",
 	"downloadingYtdlp": "Загрузка ytdlp",
 	"enableLogs": "Включить логи",
 	"error": "Ошибка",

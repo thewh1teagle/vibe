@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Modelleri İndirin",
 	"downloading": "İndiriliyor... {progress}%",
 	"downloadingAiModels": "AI modellerini indiriliyor...",
-	"downloadingModel": "{company} Modeli indiriliyor...",
+	"downloadingModel": "Model indiriliyor...",
 	"downloadingYtdlp": "Ytdlp indiriliyor",
 	"enableLogs": "Günlükleri Etkinleştir",
 	"error": "Hata",
