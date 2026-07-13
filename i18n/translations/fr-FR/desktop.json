@@ -42,6 +42,8 @@
 	"downloading": "Téléchargement... {progress} %",
 	"downloadingAiModels": "Téléchargement de modèles d'IA...",
 	"downloadingModel": "Téléchargement du modèle en cours…",
+	"noModelsInstalled": "Aucun modèle installé",
+	"downloadDefaultModelDescription": "Téléchargez le modèle par défaut pour commencer la transcription.",
 	"downloadingYtdlp": "Téléchargement de ytdlp",
 	"enableLogs": "Activer les journaux",
 	"error": "Erreur",

@@ -42,6 +42,8 @@
 	"downloading": "Загрузка... {progress}%",
 	"downloadingAiModels": "Загрузка AI моделей...",
 	"downloadingModel": "Загрузка модели...",
+	"noModelsInstalled": "Нет установленных моделей",
+	"downloadDefaultModelDescription": "Загрузите модель по умолчанию, чтобы начать расшифровку.",
 	"downloadingYtdlp": "Загрузка ytdlp",
 	"enableLogs": "Включить логи",
 	"error": "Ошибка",

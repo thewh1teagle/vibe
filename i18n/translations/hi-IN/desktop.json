@@ -42,6 +42,8 @@
 	"downloading": "डाउनलोड हो रहा है... {progress}%",
 	"downloadingAiModels": "AI मॉडल डाउनलोड हो रहा है...",
 	"downloadingModel": "मॉडल डाउनलोड हो रहा है...",
+	"noModelsInstalled": "कोई मॉडल इंस्टॉल नहीं है",
+	"downloadDefaultModelDescription": "ट्रांसक्राइब करना शुरू करने के लिए डिफ़ॉल्ट मॉडल डाउनलोड करें।",
 	"downloadingYtdlp": "Ytdlp डाउनलोड हो रहा है",
 	"enableLogs": "लॉग सक्षम करें",
 	"error": "गलती",

@@ -42,6 +42,8 @@
 	"downloading": "ダウンロード中... {progress}%",
 	"downloadingAiModels": "AIモデルをダウンロード中...",
 	"downloadingModel": "モデルをダウンロード中...",
+	"noModelsInstalled": "モデルがインストールされていません",
+	"downloadDefaultModelDescription": "文字起こしを開始するには、デフォルトモデルをダウンロードしてください。",
 	"downloadingYtdlp": "ytdlpをダウンロード中",
 	"enableLogs": "ログを有効化",
 	"error": "エラー",

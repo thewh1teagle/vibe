@@ -42,6 +42,8 @@
 	"downloading": "Pobieranie... {progress}%",
 	"downloadingAiModels": "Pobieranie modeli AI...",
 	"downloadingModel": "Pobieranie modelu...",
+	"noModelsInstalled": "Brak zainstalowanych modeli",
+	"downloadDefaultModelDescription": "Pobierz domyślny model, aby rozpocząć transkrypcję.",
 	"downloadingYtdlp": "Pobieranie ytdlp",
 	"enableLogs": "Włącz logi",
 	"error": "Błąd",

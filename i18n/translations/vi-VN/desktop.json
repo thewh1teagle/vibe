@@ -42,6 +42,8 @@
 	"downloading": "Đang tải xuống... {progress}%",
 	"downloadingAiModels": "Đang tải xuống mô hình AI...",
 	"downloadingModel": "Đang tải xuống mô hình...",
+	"noModelsInstalled": "Chưa cài đặt mô hình nào",
+	"downloadDefaultModelDescription": "Tải mô hình mặc định để bắt đầu phiên âm.",
 	"downloadingYtdlp": "Đang tải xuống ytdlp",
 	"enableLogs": "Bật nhật ký",
 	"error": "Lỗi",

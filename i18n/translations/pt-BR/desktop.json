@@ -42,6 +42,8 @@
 	"downloading": "Baixando... {progress}%",
 	"downloadingAiModels": "Baixando modelos de IA...",
 	"downloadingModel": "Baixando o modelo...",
+	"noModelsInstalled": "Nenhum modelo instalado",
+	"downloadDefaultModelDescription": "Baixe o modelo padrão para começar a transcrever.",
 	"downloadingYtdlp": "Baixando ytdlp",
 	"enableLogs": "Habilitar registros",
 	"error": "Erro",

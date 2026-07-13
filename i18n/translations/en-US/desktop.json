@@ -227,6 +227,8 @@
 	"avx2NotSupported": "Your CPU is not supported by this version of Vibe. Please use a more modern PC.",
 	"noModelLoadedBatchStopped": "Model not loaded. Stopping batch.",
 	"noModelSelected": "Select a model in Settings to get started",
+	"noModelsInstalled": "No models installed",
+	"downloadDefaultModelDescription": "Download the default model to start transcribing.",
 	"transcribeFolder": "Transcribe folder",
 	"transcribeTook": "Transcribed successfully in {total} seconds.",
 	"transcribed": "Transcribed",

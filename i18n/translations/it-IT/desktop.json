@@ -42,6 +42,8 @@
 	"downloading": "Download in corso... {progress}%",
 	"downloadingAiModels": "Scaricando i modelli AI...",
 	"downloadingModel": "Scaricando il modello...",
+	"noModelsInstalled": "Nessun modello installato",
+	"downloadDefaultModelDescription": "Scarica il modello predefinito per iniziare a trascrivere.",
 	"downloadingYtdlp": "Scaricando i modelli ytdlp",
 	"enableLogs": "Abilita registri",
 	"error": "Errore",

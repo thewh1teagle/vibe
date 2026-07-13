@@ -42,6 +42,8 @@
 	"downloading": "İndiriliyor... {progress}%",
 	"downloadingAiModels": "AI modellerini indiriliyor...",
 	"downloadingModel": "Model indiriliyor...",
+	"noModelsInstalled": "Yüklü model yok",
+	"downloadDefaultModelDescription": "Deşifreye başlamak için varsayılan modeli indirin.",
 	"downloadingYtdlp": "Ytdlp indiriliyor",
 	"enableLogs": "Günlükleri Etkinleştir",
 	"error": "Hata",
