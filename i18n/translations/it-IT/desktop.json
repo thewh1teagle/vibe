@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Scarica modelli",
 	"downloading": "Download in corso... {progress}%",
 	"downloadingAiModels": "Scaricando i modelli AI...",
-	"downloadingModel": "Scaricando i modelli di OpenAI...",
+	"downloadingModel": "Scaricando il modello...",
 	"downloadingYtdlp": "Scaricando i modelli ytdlp",
 	"enableLogs": "Abilita registri",
 	"error": "Errore",

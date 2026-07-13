@@ -41,7 +41,7 @@
 	"downloadModelsLink": "下載模型",
 	"downloading": "正在下載... {progress}%",
 	"downloadingAiModels": "正在下載 AI 模型...",
-	"downloadingModel": "正在下載 OpenAI 模型...",
+	"downloadingModel": "正在下載模型...",
 	"downloadingYtdlp": "下載 ytdlp",
 	"enableLogs": "啟用日誌",
 	"error": "錯誤",

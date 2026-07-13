@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Hämta Modeller",
 	"downloading": "Laddar ned... {progress}%",
 	"downloadingAiModels": "Laddar ner AI-modeller...",
-	"downloadingModel": "Hämtar OpenAI Model...",
+	"downloadingModel": "Hämtar modell...",
 	"downloadingYtdlp": "Laddar ner ytdlp",
 	"enableLogs": "Aktivera loggar",
 	"error": "Fel",

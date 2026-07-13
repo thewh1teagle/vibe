@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Last ned modeller",
 	"downloading": "Laster ned... {progress}%",
 	"downloadingAiModels": "Laster ned AI-modeller...",
-	"downloadingModel": "Laster ned modeller fra OpenAI...",
+	"downloadingModel": "Laster ned modell...",
 	"downloadingYtdlp": "Laster ned ytdlp",
 	"enableLogs": "Aktiver logger",
 	"error": "Feil",

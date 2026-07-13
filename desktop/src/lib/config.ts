@@ -12,7 +12,8 @@ export const latestVersionWithoutVulkan = 'https://github.com/thewh1teagle/vibe/
 export const modelUrls = {
 	default: [
 		'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
-		'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin', // Fallback
+		'https://huggingface.co/vibe-app/whisper-large-v3-turbo-gguf/resolve/main/ggml-large-v3-turbo.bin', // Hugging Face fallback
+		'https://github.com/thewh1teagle/vibe/releases/download/model-files-v1.0/ggml-large-v3-turbo.bin', // GitHub fallback
 	],
 	hebrew: ['https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin'],
 }

@@ -48,7 +48,7 @@
 	"downloading": "Descarregant... {progress}%",
 	"downloadingDiarizeModel": "Descarregant el model de diarització...",
 	"downloadingAiModels": "Descarregant models d'IA...",
-	"downloadingModel": "Descarregant model de {company}...",
+	"downloadingModel": "Descarregant el model...",
 	"downloadingYtdlp": "Descarregant ytdlp",
 	"enableDiarization": "Activar diarització de veu",
 	"enableLogs": "Activar registres (logs)",

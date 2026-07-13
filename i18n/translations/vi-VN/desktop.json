@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Tải xuống các mô hình",
 	"downloading": "Đang tải xuống... {progress}%",
 	"downloadingAiModels": "Đang tải xuống mô hình AI...",
-	"downloadingModel": "Đang tải xuống mô hình OpenAI...",
+	"downloadingModel": "Đang tải xuống mô hình...",
 	"downloadingYtdlp": "Đang tải xuống ytdlp",
 	"enableLogs": "Bật nhật ký",
 	"error": "Lỗi",

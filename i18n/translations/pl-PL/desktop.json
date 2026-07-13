@@ -41,7 +41,7 @@
 	"downloadModelsLink": "Pobierz modele",
 	"downloading": "Pobieranie... {progress}%",
 	"downloadingAiModels": "Pobieranie modeli AI...",
-	"downloadingModel": "Pobieranie modelu {company}...",
+	"downloadingModel": "Pobieranie modelu...",
 	"downloadingYtdlp": "Pobieranie ytdlp",
 	"enableLogs": "Włącz logi",
 	"error": "Błąd",

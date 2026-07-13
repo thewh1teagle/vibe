@@ -13,7 +13,7 @@ function App() {
 		<div className="app-shell flex min-h-screen items-center justify-center">
 			<div className="app-panel w-full max-w-xl text-center">
 				<p className="app-kicker mb-2">{m.setup({ defaultValue: 'Setup' })}</p>
-				<div className="text-balance text-2xl font-semibold md:text-3xl">{m.downloadingModel({ company: vm.modelCompany })}</div>
+				<div className="text-balance text-2xl font-semibold md:text-3xl">{m.downloadingModel()}</div>
 
 				<div className="mt-6 flex flex-col items-center gap-3">
 					{vm.downloadProgress > 0 && (
