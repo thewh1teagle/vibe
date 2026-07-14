@@ -93,6 +93,8 @@
 	"dictationIndicatorCopied": "Copied",
 	"dictationIndicatorInserted": "Inserted",
 	"dictationIndicatorError": "Dictation failed",
+	"keepHotkeyRecording": "Keep hotkey recordings",
+	"keepHotkeyRecordingInfo": "When enabled, global dictation saves each hotkey recording as a WAV file in your configured recording folder. When disabled, the recording is treated as temporary and removed after transcription.",
 	"normalizeHotkeyOutput": "Normalize output",
 	"normalizeHotkeyOutputInfo": "Collapses line breaks and extra spaces into single spaces, so the result is one clean line of text instead of multiple lines.",
 	"globalDictationPromoShort": "Try Global Dictation",
