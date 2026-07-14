@@ -31,6 +31,8 @@
 	"checkLoading": "Checking",
 	"checkSuccess": "Tested successfully",
 	"checkYtdlpUpdates": "Check ytdlp for updates",
+	"closeToTrayOnExit": "Close to tray",
+	"closeToTrayOnExitInfo": "When enabled, clicking the window X hides Sly to the tray instead of quitting it.",
 	"confirmExit": "Do you want to exit? Unsaved changes will be lost.",
 	"confirmRelaunch": "Relaunch Now",
 	"confirmUpdate": "Update Now",

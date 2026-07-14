@@ -123,8 +123,21 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .shadow(true)
             .visible(true)
             .build();
-        if let Err(error) = result {
-            tracing::error!("{:?}", error);
+        match result {
+            Ok(window) => {
+                let window_for_events = window.clone();
+                window.on_window_event(move |event| {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    if crate::is_close_to_tray_enabled(&window_for_events.app_handle()) {
+                        api.prevent_close();
+                        window_for_events.hide().map_err(|error| eyre!("{:?}", error)).log_error();
+                    }
+                }
+            });
+            }
+            Err(error) => {
+                tracing::error!("{:?}", error);
+            }
         }
         crate::dictation_indicator::initialize(app.handle());
     }
