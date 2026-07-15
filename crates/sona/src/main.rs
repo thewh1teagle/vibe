@@ -1,6 +1,7 @@
 mod audio;
 mod cli;
 mod engine;
+mod parent;
 mod pull;
 mod server;
 

@@ -64,6 +64,8 @@ enum Command {
         port: u16,
         #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
         exit_with_parent: bool,
+        #[arg(long, env = "SONA_UNLOAD_TIMEOUT", default_value = "0")]
+        unload_timeout: crate::server::unload_timeout::UnloadTimeout,
     },
     Pull {
         url: String,
@@ -149,11 +151,12 @@ pub async fn run() -> anyhow::Result<()> {
             host,
             port,
             exit_with_parent,
+            unload_timeout,
         } => {
             if exit_with_parent {
-                watch_parent();
+                crate::parent::watch();
             }
-            server::serve(host, port, model, config).await
+            server::serve(host, port, model, unload_timeout, config).await
         }
         Command::Pull { url, output } => pull::pull_file(&url, output.as_deref()).await,
         Command::Devices => devices_command(config),
@@ -236,17 +239,4 @@ struct TranscribeArgs {
     best_of: i32,
     beam_size: i32,
     gpu_device: i32,
-}
-
-fn watch_parent() {
-    #[cfg(unix)]
-    {
-        let parent = unsafe { libc::getppid() };
-        std::thread::spawn(move || loop {
-            std::thread::sleep(std::time::Duration::from_secs(1));
-            if unsafe { libc::getppid() } != parent {
-                std::process::exit(0);
-            }
-        });
-    }
 }

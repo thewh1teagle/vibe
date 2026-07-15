@@ -6,10 +6,12 @@ use axum::Json;
 use whisper_rs::TranscribeOptions;
 
 use crate::audio;
+use crate::cli::AppConfig;
 use crate::server::diarization;
 use crate::server::form::FormValues;
 use crate::server::stream::stream_transcription;
-use crate::server::{error, format, AppState, TextResponse};
+use crate::server::unload_timeout::ModelLease;
+use crate::server::{error, format, TextResponse};
 
 pub(super) struct TranscriptionRequest {
     pub file: Vec<u8>,
@@ -17,18 +19,12 @@ pub(super) struct TranscriptionRequest {
 }
 
 pub(super) async fn transcribe(
-    state: AppState,
+    config: AppConfig,
+    mut model: ModelLease,
     request: TranscriptionRequest,
 ) -> Result<Response, Response> {
     let TranscriptionRequest { file, form } = request;
-    let (
-        diarize_model,
-        enhance_audio,
-        stable_timestamps,
-        vad_model_path,
-        stream,
-        response_format,
-    ) = {
+    let (diarize_model, enhance_audio, stable_timestamps, vad_model_path, stream, response_format) = {
         let values = FormValues::new(&form);
         (
             values.string("diarize_model"),
@@ -41,7 +37,7 @@ pub(super) async fn transcribe(
     };
     let audio_options = audio::ReadOptions {
         enhance_audio,
-        verbose: state.config.verbose(),
+        verbose: config.verbose(),
     };
     let samples = audio::read_bytes_with_options(file, audio_options).map_err(|err| {
         error(
@@ -53,9 +49,7 @@ pub(super) async fn transcribe(
 
     let diar_segments = diarize_model
         .as_deref()
-        .map_or_else(Vec::new, |model_path| {
-            diarization::diarize(model_path, &samples)
-        });
+        .map_or_else(Vec::new, |model_path| diarization::diarize(model_path, &samples));
 
     if stable_timestamps && vad_model_path.is_none() {
         return Err(error(
@@ -66,32 +60,15 @@ pub(super) async fn transcribe(
     }
 
     if stream {
-        return stream_transcription(
-            state,
-            samples,
-            form,
-            stable_timestamps,
-            vad_model_path,
-            diar_segments,
-        )
-        .map_err(|err| *err);
+        return stream_transcription(config, model, samples, form, stable_timestamps, vad_model_path, diar_segments)
+            .map_err(|err| *err);
     }
 
-    let mut guard = state.inner.try_lock().map_err(|_| {
-        error(
-            StatusCode::TOO_MANY_REQUESTS,
-            "busy",
-            "server is busy with another transcription",
-        )
-    })?;
-    let verbose = state.config.verbose();
-    let ctx = guard.ctx.as_mut().ok_or_else(|| {
-        error(
-            StatusCode::SERVICE_UNAVAILABLE,
-            "no_model",
-            "no model loaded",
-        )
-    })?;
+    let verbose = config.verbose();
+    let ctx = model
+        .ctx
+        .as_mut()
+        .ok_or_else(|| error(StatusCode::SERVICE_UNAVAILABLE, "no_model", "no model loaded"))?;
 
     if ctx.requires_vad() && vad_model_path.is_none() {
         return Err(error(
@@ -131,9 +108,7 @@ pub(super) fn build_options(
         max_text_ctx: values.i32("max_text_ctx"),
         word_timestamps: values.bool("word_timestamps"),
         max_segment_len: values.i32("max_segment_len"),
-        sampling_greedy: form
-            .get("sampling_strategy")
-            .is_none_or(|strategy| strategy != "beam_search"),
+        sampling_greedy: form.get("sampling_strategy").is_none_or(|strategy| strategy != "beam_search"),
         best_of: values.i32("best_of"),
         beam_size: values.i32("beam_size"),
         stable_timestamps,
@@ -148,11 +123,7 @@ fn format_response(
 ) -> Response {
     match response_format {
         "verbose_json" => Json(format::build_verbose_json(result, diar_segments)).into_response(),
-        "text" => (
-            [(header::CONTENT_TYPE, "text/plain; charset=utf-8")],
-            result.text(),
-        )
-            .into_response(),
+        "text" => ([(header::CONTENT_TYPE, "text/plain; charset=utf-8")], result.text()).into_response(),
         "srt" => (
             [(header::CONTENT_TYPE, "text/plain; charset=utf-8")],
             format::format_srt(&result.segments),
@@ -163,9 +134,6 @@ fn format_response(
             format::format_vtt(&result.segments),
         )
             .into_response(),
-        _ => Json(TextResponse {
-            text: result.text(),
-        })
-        .into_response(),
+        _ => Json(TextResponse { text: result.text() }).into_response(),
     }
 }

@@ -8,33 +8,29 @@ use axum::response::{IntoResponse, Response};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use whisper_rs::StreamCallbacks;
 
+use crate::cli::AppConfig;
 use crate::server::diarization;
 use crate::server::transcription::build_options;
-use crate::server::{error, format, AppState};
+use crate::server::unload_timeout::ModelLease;
+use crate::server::{error, format};
 
 pub(super) fn stream_transcription(
-    state: AppState,
+    config: AppConfig,
+    mut model: ModelLease,
     samples: Vec<f32>,
     form: HashMap<String, String>,
     stable_timestamps: bool,
     vad_model_path: Option<String>,
     diar_segments: Vec<diarization::Segment>,
 ) -> Result<Response, Box<Response>> {
-    let mut guard = state.inner.clone().try_lock_owned().map_err(|_| {
-        Box::new(error(
-            StatusCode::TOO_MANY_REQUESTS,
-            "busy",
-            "server is busy with another transcription",
-        ))
-    })?;
-    if guard.ctx.is_none() {
+    if model.ctx.is_none() {
         return Err(Box::new(error(
             StatusCode::SERVICE_UNAVAILABLE,
             "no_model",
             "no model loaded",
         )));
     }
-    if guard.ctx.as_ref().is_some_and(|ctx| ctx.requires_vad()) && vad_model_path.is_none() {
+    if model.ctx.as_ref().is_some_and(|ctx| ctx.requires_vad()) && vad_model_path.is_none() {
         return Err(Box::new(error(
             StatusCode::BAD_REQUEST,
             "invalid_request",
@@ -42,14 +38,8 @@ pub(super) fn stream_transcription(
         )));
     }
 
-    let opts = build_options(
-        &form,
-        state.config.verbose(),
-        stable_timestamps,
-        vad_model_path,
-    );
-    let (tx, rx) =
-        tokio::sync::mpsc::unbounded_channel::<Result<bytes::Bytes, std::convert::Infallible>>();
+    let opts = build_options(&form, config.verbose(), stable_timestamps, vad_model_path);
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<Result<bytes::Bytes, std::convert::Infallible>>();
     let aborted = Arc::new(AtomicBool::new(false));
     let abort_for_progress = Arc::clone(&aborted);
     let abort_for_segment = Arc::clone(&aborted);
@@ -60,7 +50,7 @@ pub(super) fn stream_transcription(
     let segment_diar_segments = diar_segments.clone();
 
     tokio::task::spawn_blocking(move || {
-        let Some(ctx) = guard.ctx.as_mut() else {
+        let Some(ctx) = model.ctx.as_mut() else {
             let _ = send_event(
                 &final_tx,
                 serde_json::json!({
@@ -98,8 +88,7 @@ pub(super) fn stream_transcription(
                         "text": segment.text,
                         "no_speech_prob": segment.no_speech_prob,
                     });
-                    if let Some(speaker) = format::match_speaker(start, end, &segment_diar_segments)
-                    {
+                    if let Some(speaker) = format::match_speaker(start, end, &segment_diar_segments) {
                         event["speaker"] = serde_json::json!(speaker);
                     }
                     if send_event(&segment_tx, event).is_err() {

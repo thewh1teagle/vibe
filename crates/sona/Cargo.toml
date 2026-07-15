@@ -20,9 +20,10 @@ diarize-rs = { path = "../diarize-rs", optional = true }
 anyhow = "1"
 axum = { version = "0.8", features = ["multipart"] }
 bytes = "1"
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "env"] }
 futures-util = "0.3"
 hound = "3.5"
+humantime = "2"
 libc = "0.2"
 reqwest = { version = "0.12", features = ["stream"] }
 serde = { version = "1", features = ["derive"] }
@@ -45,6 +46,16 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 utoipa = "5"
 utoipa-axum = "0.2"
 utoipa-swagger-ui = { version = "9", features = ["axum"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["test-util"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Threading",
+] }
 
 [features]
 default = ["diarize"]

@@ -17,12 +17,19 @@ use crate::server::{error, AppState, MAX_UPLOAD_SIZE};
         (status = 503, description = "No model loaded", body = crate::server::ErrorResponse)
     )
 )]
-pub(in crate::server) async fn transcriptions(
-    State(state): State<AppState>,
-    multipart: Multipart,
-) -> Response {
+pub(in crate::server) async fn transcriptions(State(state): State<AppState>, multipart: Multipart) -> Response {
+    let model = match state.unload_timeout.try_acquire(state.inner.clone()) {
+        Ok(model) => model,
+        Err(_) => {
+            return error(
+                StatusCode::TOO_MANY_REQUESTS,
+                "busy",
+                "server is busy with another transcription",
+            );
+        }
+    };
     match parse_multipart(multipart).await {
-        Ok(request) => match crate::server::transcription::transcribe(state, request).await {
+        Ok(request) => match crate::server::transcription::transcribe(state.config, model, request).await {
             Ok(response) => response,
             Err(response) => response,
         },
@@ -64,13 +71,7 @@ async fn parse_multipart(mut multipart: Multipart) -> Result<TranscriptionReques
         }
     }
 
-    let file = file.ok_or_else(|| {
-        error(
-            StatusCode::BAD_REQUEST,
-            "invalid_request",
-            "missing or invalid 'file' field",
-        )
-    })?;
+    let file = file.ok_or_else(|| error(StatusCode::BAD_REQUEST, "invalid_request", "missing or invalid 'file' field"))?;
 
     Ok(TranscriptionRequest { file, form })
 }

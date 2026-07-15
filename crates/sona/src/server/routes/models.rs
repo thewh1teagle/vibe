@@ -100,14 +100,14 @@ pub(in crate::server) async fn load_model(State(state): State<AppState>, Json(re
         );
     }
 
-    let mut guard = state.inner.lock().await;
+    let mut model = state.unload_timeout.acquire(state.inner.clone()).await;
     let gpu_device = request.gpu_device.unwrap_or(-1);
-    match guard.load_model(&request.path, gpu_device, request.no_gpu.unwrap_or(false)) {
+    match model.load_model(&request.path, gpu_device, request.no_gpu) {
         Ok(()) => (
             StatusCode::OK,
             Json(ModelStatusResponse {
                 status: "loaded",
-                model: guard.model_name.clone(),
+                model: model.model_name.clone(),
             }),
         )
             .into_response(),
