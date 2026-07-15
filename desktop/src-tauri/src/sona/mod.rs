@@ -47,6 +47,7 @@ pub struct ModelMetadata {
 
 pub struct SonaProcess {
     port: u16,
+    unload_timeout_minutes: u32,
     child: Child,
     client: reqwest::Client,
     stderr_buf: Arc<Mutex<String>>,

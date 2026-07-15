@@ -178,7 +178,11 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					throw new Error('No model selected')
 				}
 
-				await invoke('load_model', { modelPath, gpuDevice: preferenceRef.current.gpuDevice })
+				await invoke('load_model', {
+					modelPath,
+					gpuDevice: preferenceRef.current.gpuDevice,
+					unloadTimeoutMinutes: preferenceRef.current.unloadTimeoutMinutes,
+				})
 				const requiresVad = preferenceRef.current.modelMetadata?.capabilities.requires_vad ?? false
 				const modelsFolder = requiresVad ? await invoke<string>('get_models_folder') : null
 				const options = {

@@ -380,7 +380,7 @@ export function viewModel() {
 	async function startApiServer() {
 		try {
 			setIsStartingApiServer(true)
-			const baseUrl = await invoke<string>('start_api_server')
+			const baseUrl = await invoke<string>('start_api_server', { unloadTimeoutMinutes: preference.unloadTimeoutMinutes })
 			setApiBaseUrl(baseUrl)
 		} catch (error) {
 			console.error(error)
