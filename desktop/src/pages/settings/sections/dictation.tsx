@@ -120,6 +120,16 @@ export function DictationSection() {
 
 											<div className="flex items-center justify-between gap-3">
 												<span className="flex items-center gap-1 text-sm font-medium">
+													<InfoTooltip text={m.keepHotkeyRecordingInfo()} />
+													{m.keepHotkeyRecording()}
+												</span>
+												<Switch checked={hotkey.hotkeySaveRecording} onCheckedChange={hotkey.setHotkeySaveRecording} />
+											</div>
+
+											<div className="h-px bg-border/45" />
+
+											<div className="flex items-center justify-between gap-3">
+												<span className="flex items-center gap-1 text-sm font-medium">
 													<InfoTooltip text={m.normalizeHotkeyOutputInfo()} />
 													{m.normalizeHotkeyOutput()}
 												</span>
