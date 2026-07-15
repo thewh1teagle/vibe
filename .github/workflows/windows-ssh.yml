@@ -18,6 +18,29 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Open SSH session
+        id: tmate
         uses: mxschmitt/action-tmate@v3
         with:
           limit-access-to-actor: true
+          detached: true
+
+      - name: Save SSH connection details
+        shell: pwsh
+        run: |
+          '${{ steps.tmate.outputs.ssh-command }}' |
+            Set-Content -Path tmate-ssh.txt
+
+      - name: Publish SSH connection details
+        uses: actions/upload-artifact@v4
+        with:
+          name: tmate-connection
+          path: tmate-ssh.txt
+          retention-days: 1
+
+      - name: Keep runner alive
+        shell: pwsh
+        run: |
+          Write-Host 'Runner ready. Create $env:GITHUB_WORKSPACE\continue to finish.'
+          while (-not (Test-Path "$env:GITHUB_WORKSPACE\continue")) {
+            Start-Sleep -Seconds 5
+          }
