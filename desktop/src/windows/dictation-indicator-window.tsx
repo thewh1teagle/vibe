@@ -1,13 +1,20 @@
 import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
 import { AlertTriangle, Check, LoaderCircle } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import logoUrl from '../../../design/logo.svg?url'
 import { getDictationIndicatorState, type DictationIndicatorState } from '~/lib/dictation-indicator'
 
-export default function DictationIndicator() {
+export default function DictationIndicatorWindow() {
 	const [state, setState] = useState<DictationIndicatorState>({ sessionId: 0, status: 'recording' })
+
+	useLayoutEffect(() => {
+		document.title = m.appTitle()
+		document.documentElement.classList.add('dictation-indicator-window')
+
+		return () => document.documentElement.classList.remove('dictation-indicator-window')
+	}, [])
 
 	useEffect(() => {
 		invoke('dictation_indicator_ready').catch(console.error)
