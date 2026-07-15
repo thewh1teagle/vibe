@@ -2,6 +2,9 @@ name: Temporary Windows SSH
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - agent/windows-tmate
 
 permissions:
   contents: read
