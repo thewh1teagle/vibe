@@ -1,0 +1,20 @@
+name: Temporary Windows SSH
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 180
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Open SSH session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
