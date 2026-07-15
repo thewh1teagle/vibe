@@ -48,6 +48,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 		startKeepAwake()
 		setSegments(null)
 		onResetSummary()
+		setProgress(0)
 		setLoading(true)
 		abortRef.current = false
 		let completedSegments: transcript.Segment[] = []
