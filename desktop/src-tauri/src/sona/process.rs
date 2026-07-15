@@ -6,12 +6,18 @@ use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 
 impl SonaProcess {
-    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>) -> Result<Self> {
+    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, unload_timeout_minutes: u32) -> Result<Self> {
         tracing::debug!("spawning sona at {}", binary_path.display());
+        let unload_timeout = if unload_timeout_minutes == 0 {
+            "0".to_string()
+        } else {
+            format!("{unload_timeout_minutes}m")
+        };
         let mut cmd = Command::new(binary_path);
         cmd.args(["serve", "--port", "0"])
             .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+            .stderr(Stdio::piped())
+            .env("SONA_UNLOAD_TIMEOUT", unload_timeout);
 
         if let Some(ffmpeg) = ffmpeg_path {
             tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
@@ -88,6 +94,7 @@ impl SonaProcess {
 
         Ok(Self {
             port: signal.port,
+            unload_timeout_minutes,
             child,
             client: reqwest::Client::builder().no_proxy().build().unwrap(),
             stderr_buf,
@@ -104,6 +111,10 @@ impl SonaProcess {
 
     pub fn is_alive(&mut self) -> bool {
         matches!(self.child.try_wait(), Ok(None))
+    }
+
+    pub fn unload_timeout_minutes(&self) -> u32 {
+        self.unload_timeout_minutes
     }
 
     fn recent_stderr(&self) -> String {
