@@ -23,6 +23,13 @@ import { Switch } from '~/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import AudioVisualizer from './audio-visualizer'
 import ResummarizeDialog from '~/components/resummarize-dialog'
+import { motion } from 'framer-motion'
+
+const homeTabs = [
+	{ value: 'record', Icon: MicrphoneIcon },
+	{ value: 'file', Icon: FileIcon },
+	{ value: 'link', Icon: LinkIcon },
+] as const
 
 export default function Home() {
 	const vm = viewModel()
@@ -40,32 +47,39 @@ export default function Home() {
 	return (
 		<Layout>
 			<div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-6">
-				<div className="app-main-card mx-auto flex w-full min-w-0 max-w-3xl flex-col items-center gap-5">
+				<div className="app-main-card mx-auto flex w-full min-w-0 max-w-2xl flex-col items-center gap-5">
 					<Tabs
 						value={vm.preference.homeTab}
 						onValueChange={(v) => (v === 'link' ? vm.switchToLinkTab() : vm.preference.setHomeTab(v as HomeTab))}
 						className="flex flex-col items-center">
-						<TabsList className="h-14 rounded-2xl border border-border/50 bg-muted/60 p-1.5 shadow-xs">
-							<TabsTrigger
-								value="record"
-								className="h-11 min-w-14 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none">
-								<MicrphoneIcon className="h-[19px] w-[19px]" />
-							</TabsTrigger>
-							<TabsTrigger
-								value="file"
-								className="h-11 min-w-14 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none">
-								<FileIcon className="h-[19px] w-[19px]" />
-							</TabsTrigger>
-							<TabsTrigger
-								value="link"
-								className="h-11 min-w-14 rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none">
-								<LinkIcon className="h-[19px] w-[19px]" />
-							</TabsTrigger>
+						<TabsList className="h-12 rounded-full border border-border/50 bg-muted/60 p-1 shadow-xs">
+							{homeTabs.map(({ value, Icon }) => (
+								<TabsTrigger
+									key={value}
+									value={value}
+									className="relative h-10 min-w-14 rounded-full data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none">
+									{vm.preference.homeTab === value && (
+										<motion.span
+											layoutId="home-tab-pill"
+											transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+											className="absolute inset-0 rounded-full bg-primary/10 ring-1 ring-primary/20 dark:bg-primary/15"
+										/>
+									)}
+									<span className="relative z-10 flex items-center">
+										<Icon className="h-[19px] w-[19px]" />
+									</span>
+								</TabsTrigger>
+							))}
 						</TabsList>
 					</Tabs>
 
 					{vm.preference.homeTab === "record" && (
-						<div className="w-full min-w-0 max-w-2xl space-y-5">
+						<motion.div
+							key="record"
+							initial={{ opacity: 0, y: 6 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.18, ease: 'easeOut' }}
+							className="w-full min-w-0 max-w-2xl space-y-5">
 							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 								<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
 								<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
@@ -82,12 +96,11 @@ export default function Home() {
 										disabled={vm.isRecording}
 									/>
 								</div>
-								<div className="space-y-2">
-									<Label>{m.saveRecordInDocumentsFolder()}</Label>
-									<div className="flex h-11 items-center justify-between rounded-xl border border-border/40 bg-muted/40 px-4">
-										<span className="text-sm text-muted-foreground">{vm.preference.storeRecordInDocuments ? m.enabled() : m.disabled()}</span>
-										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
-									</div>
+								<div className="flex items-end justify-between gap-3 pb-2.5 sm:pb-3">
+									<Label className="cursor-pointer" onClick={() => vm.preference.setStoreRecordInDocuments(!vm.preference.storeRecordInDocuments)}>
+										{m.saveRecordInDocumentsFolder()}
+									</Label>
+									<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
 								</div>
 							</div>
 
@@ -115,11 +128,16 @@ export default function Home() {
 
 							<DictationPromo />
 
-						</div>
+						</motion.div>
 					)}
 
 					{vm.preference.homeTab === "file" && (
-						<div className="w-full min-w-0 max-w-3xl space-y-5">
+						<motion.div
+							key="file"
+							initial={{ opacity: 0, y: 6 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.18, ease: 'easeOut' }}
+							className="w-full min-w-0 max-w-3xl space-y-5">
 							<div className="space-y-3">
 								<LanguageInput />
 								{!vm.files.length && !vm.selectedFolder && <AudioInput onClick={vm.selectFiles} onSelectFolder={vm.selectFolder} />}
@@ -130,7 +148,7 @@ export default function Home() {
 										<div className="text-sm font-medium">
 											{m.files()}: {vm.files.length}
 										</div>
-										<div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3.5 py-2.5">
+										<div className="flex items-center justify-between px-1 py-1">
 											<span className="text-sm">{m.includeSubFolders()}</span>
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.includeSubFolders}
@@ -142,7 +160,7 @@ export default function Home() {
 												}
 											/>
 										</div>
-										<div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3.5 py-2.5">
+										<div className="flex items-center justify-between px-1 py-1">
 											<span className="text-sm">{m.skipIfTranscriptExists()}</span>
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.skipIfExists}
@@ -154,7 +172,7 @@ export default function Home() {
 												}
 											/>
 										</div>
-										<div className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/30 px-3.5 py-2.5">
+										<div className="flex items-center justify-between px-1 py-1">
 											<span className="text-sm">{m.placeTranscriptNextToFiles()}</span>
 											<Switch
 												checked={vm.preference.advancedTranscribeOptions.saveNextToAudioFile}
@@ -205,11 +223,16 @@ export default function Home() {
 								</>
 							)}
 							{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
-						</div>
+						</motion.div>
 					)}
 
 					{vm.preference.homeTab === "link" && (
-						<div className="w-full min-w-0 max-w-2xl space-y-5">
+						<motion.div
+							key="link"
+							initial={{ opacity: 0, y: 6 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.18, ease: 'easeOut' }}
+							className="w-full min-w-0 max-w-2xl space-y-5">
 							<Input
 								type="text"
 								value={vm.audioUrl}
@@ -232,7 +255,7 @@ export default function Home() {
 								</div>
 							) : (
 								<>
-									<div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/40 bg-muted/40 px-4 py-3">
+									<div className="flex flex-wrap items-center justify-between gap-2 px-1">
 										<span className="text-sm font-medium">{m.saveRecordInDocumentsFolder()}</span>
 										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
 									</div>
@@ -244,7 +267,7 @@ export default function Home() {
 									)}
 								</>
 							)}
-						</div>
+						</motion.div>
 					)}
 				</div>
 

@@ -322,12 +322,19 @@ html.dictation-indicator-window #root {
 	}
 
 	.app-main-card {
-		@apply rounded-3xl border border-border/60 bg-card/95 p-6 shadow-xl md:p-8;
+		@apply rounded-3xl border border-border/50 bg-card/95 p-6 md:p-8;
+		box-shadow:
+			0 1px 2px hsl(220 18% 16% / 0.04),
+			var(--shadow-xl);
 	}
 
 	.dark .app-main-card {
-		@apply border-border/70 bg-card shadow-2xl;
-		background-image: none;
+		@apply border-transparent bg-card;
+		background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.02) 0%, transparent 40%);
+		box-shadow:
+			inset 0 1px 0 hsl(0 0% 100% / 0.06),
+			0 0 0 1px hsl(220 8% 26%),
+			var(--shadow-xl);
 	}
 
 	.stagger-in {

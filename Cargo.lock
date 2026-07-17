@@ -6806,6 +6806,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 name = "vibe"
 version = "0.0.6"
 dependencies = [
+ "block2 0.6.2",
  "bytemuck",
  "bytes",
  "chrono",
@@ -6821,6 +6822,7 @@ dependencies = [
  "libc-stdhandle",
  "objc2 0.6.4",
  "objc2-app-kit 0.3.2",
+ "objc2-foundation 0.3.2",
  "once_cell",
  "openssl",
  "rand 0.9.2",

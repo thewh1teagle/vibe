@@ -11,6 +11,7 @@ import { usePreferenceProvider } from '~/providers/preference'
 import { m } from '~/paraglide/messages.js'
 import { hideDictationIndicator, showDictationIndicator } from '~/lib/dictation-indicator'
 import * as config from '~/lib/config'
+import { ensureMicrophonePermission } from '~/lib/permissions'
 
 // Module-level flag used by home viewModel to skip processing
 // when hotkey-triggered recording finishes
@@ -124,6 +125,9 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		if (isHotkeyRecordingRef.current || isStartingRef.current || isStoppingRef.current) return
 		isStartingRef.current = true
 		try {
+			// Ensure mic access before recording so the shortcut never records silence.
+			if (!(await ensureMicrophonePermission())) return
+
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
 			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
 			if (!defaultInput) {

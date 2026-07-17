@@ -4,7 +4,7 @@ import { type SetStateAction, useContext, useEffect, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import type { AudioDevice } from '~/lib/audio'
 import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
-import { ensureSystemAudioPermission } from '~/lib/permissions'
+import { ensureSystemAudioPermission, ensureMicrophonePermission } from '~/lib/permissions'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { usePreferenceProvider } from '~/providers/preference'
 
@@ -45,6 +45,9 @@ export function useRecording(onBeforeStart: () => void) {
 	}, [preference.homeTab])
 
 	async function startRecord() {
+		// Check permissions before we start so the user never talks into a
+		// recording that isn't actually capturing.
+		if (inputDevice && !(await ensureMicrophonePermission())) return
 		if (outputDevice && !(await ensureSystemAudioPermission())) return
 		startKeepAwake()
 		onBeforeStart()
