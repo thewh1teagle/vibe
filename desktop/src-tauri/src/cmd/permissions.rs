@@ -35,9 +35,7 @@ pub fn microphone_permission_granted() -> bool {
         use objc2::{class, msg_send};
         use objc2_foundation::NSString;
         let media_type = NSString::from_str(AV_MEDIA_TYPE_AUDIO);
-        let status: isize = unsafe {
-            msg_send![class!(AVCaptureDevice), authorizationStatusForMediaType: &*media_type]
-        };
+        let status: isize = unsafe { msg_send![class!(AVCaptureDevice), authorizationStatusForMediaType: &*media_type] };
         status == 3
     }
 
