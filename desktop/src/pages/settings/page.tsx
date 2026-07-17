@@ -84,10 +84,10 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 	)
 
 	return (
-		<div className="flex min-h-screen items-center justify-center p-6">
+		<div className="flex h-screen items-center justify-center p-6 sm:p-8">
 			<div
 				onMouseDown={(event) => event.stopPropagation()}
-				className="flex h-[640px] w-full max-w-3xl overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl">
+				className="flex h-[640px] max-h-full w-full max-w-3xl overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl">
 				<div className="flex w-56 shrink-0 flex-col border-r border-border/55 bg-muted/40 p-3">
 					<div className="mb-2 flex items-center justify-between px-1 pb-1">
 						<span className="text-sm font-semibold">{m.settings()}</span>
