@@ -66,6 +66,7 @@
     "notification:allow-is-permission-granted",
     "notification:allow-request-permission",
     "notification:allow-permission-state",
+    "process:allow-exit",
     {
       "identifier": "fs:scope",
       "allow": [

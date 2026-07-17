@@ -48,6 +48,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 		startKeepAwake()
 		setSegments(null)
 		onResetSummary()
+		setProgress(0)
 		setLoading(true)
 		abortRef.current = false
 		let completedSegments: transcript.Segment[] = []
@@ -56,7 +57,11 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 		try {
 			const current = preferenceRef.current
 			if (!current.modelPath) throw new Error('No model selected. Please download or select a model first.')
-			const loadResult = await invoke<string>('load_model', { modelPath: current.modelPath, gpuDevice: current.gpuDevice })
+			const loadResult = await invoke<string>('load_model', {
+				modelPath: current.modelPath,
+				gpuDevice: current.gpuDevice,
+				unloadTimeoutMinutes: current.unloadTimeoutMinutes,
+			})
 			if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
 
 			const requiresVad = current.modelMetadata?.capabilities.requires_vad ?? false

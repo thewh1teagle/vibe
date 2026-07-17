@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { exit } from '@tauri-apps/plugin-process'
 import { m } from '~/paraglide/messages.js'
 import { UnlistenFn } from '@tauri-apps/api/event'
 
@@ -14,10 +15,13 @@ export function useConfirmExit(closeToTray: boolean, shouldConfirm: boolean) {
 					await currentWindow.hide()
 					return
 				}
-				if (!shouldConfirm) return
-				event.preventDefault()
-				if (await confirm(m.confirmExit())) {
-					await currentWindow.destroy()
+				if (shouldConfirm) {
+					event.preventDefault()
+					if (await confirm(m.confirmExit())) {
+						await exit(0)
+					}
+				} else {
+					await exit(0)
 				}
 			})
 			.then((unlisten) => {

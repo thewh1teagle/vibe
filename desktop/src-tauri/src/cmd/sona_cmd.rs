@@ -70,7 +70,12 @@ pub fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {
 }
 
 #[tauri::command]
-pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_device: Option<i32>) -> Result<String> {
+pub async fn load_model(
+    app_handle: tauri::AppHandle,
+    model_path: String,
+    gpu_device: Option<i32>,
+    unload_timeout_minutes: u32,
+) -> Result<String> {
     let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
     let mut state_guard = sona_state.lock().await;
 
@@ -80,22 +85,22 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
             tracing::warn!("cached sona process is no longer running; restarting it");
         }
         state_guard.process = None;
-        state_guard.loaded_model_path = None;
-        state_guard.loaded_gpu_device = None;
     }
 
-    // Check if model already loaded with same gpu_device
-    if let Some(ref loaded_path) = state_guard.loaded_model_path {
-        if *loaded_path == model_path && state_guard.loaded_gpu_device == gpu_device {
-            tracing::debug!("model already loaded, skipping");
-            return Ok(model_path);
-        }
+    if state_guard
+        .process
+        .as_ref()
+        .is_some_and(|process| process.unload_timeout_minutes() != unload_timeout_minutes)
+    {
+        tracing::debug!(unload_timeout_minutes, "restarting sona to apply unload timeout");
+        // Dropping SonaProcess kills and waits for its child process via its Drop implementation.
+        state_guard.process = None;
     }
 
     let spawn_sona = || -> Result<crate::sona::SonaProcess> {
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())
+        crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), unload_timeout_minutes)
     };
 
     // Spawn sona if not running
@@ -137,9 +142,6 @@ pub async fn load_model(app_handle: tauri::AppHandle, model_path: String, gpu_de
             true
         }
     };
-    state_guard.loaded_model_path = Some(model_path.clone());
-    state_guard.loaded_gpu_device = gpu_device;
-
     if gpu_fallback {
         Ok("gpu_fallback".to_string())
     } else {
@@ -161,9 +163,7 @@ pub async fn get_model_metadata(app_handle: tauri::AppHandle, model_path: String
     if state.process.as_mut().is_none_or(|process| !process.is_alive()) {
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        state.process = Some(crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?);
-        state.loaded_model_path = None;
-        state.loaded_gpu_device = None;
+        state.process = Some(crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), 5)?);
     }
     state.process.as_ref().unwrap().model_metadata(&model_path).await
 }
@@ -175,12 +175,25 @@ pub async fn get_api_base_url(sona_state: State<'_, Mutex<SonaState>>) -> Result
 }
 
 #[tauri::command]
-pub async fn start_api_server(app_handle: tauri::AppHandle, sona_state: State<'_, Mutex<SonaState>>) -> Result<String> {
+pub async fn start_api_server(
+    app_handle: tauri::AppHandle,
+    sona_state: State<'_, Mutex<SonaState>>,
+    unload_timeout_minutes: u32,
+) -> Result<String> {
     let mut state_guard = sona_state.lock().await;
+    if state_guard
+        .process
+        .as_ref()
+        .is_some_and(|process| process.unload_timeout_minutes() != unload_timeout_minutes)
+    {
+        tracing::debug!(unload_timeout_minutes, "restarting sona to apply unload timeout");
+        // Dropping SonaProcess kills and waits for its child process via its Drop implementation.
+        state_guard.process = None;
+    }
     if state_guard.process.is_none() {
         let binary_path = resolve_sona_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref())?;
+        let process = crate::sona::SonaProcess::spawn(&binary_path, ffmpeg_path.as_deref(), unload_timeout_minutes)?;
         state_guard.process = Some(process);
     }
     let process = state_guard.process.as_ref().context("API server process missing")?;
@@ -192,8 +205,6 @@ pub async fn stop_api_server(sona_state: State<'_, Mutex<SonaState>>) -> Result<
     let mut state_guard = sona_state.lock().await;
     if let Some(mut process) = state_guard.process.take() {
         process.kill();
-        state_guard.loaded_model_path = None;
-        state_guard.loaded_gpu_device = None;
         return Ok(true);
     }
     Ok(false)
