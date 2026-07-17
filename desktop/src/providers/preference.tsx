@@ -25,6 +25,8 @@ export interface AdvancedTranscribeOptions {
 export interface Preference {
 	displayLanguage: string
 	setDisplayLanguage: ModifyState<string>
+	closeToTray: boolean
+	setCloseToTray: ModifyState<boolean>
 	soundOnFinish: boolean
 	setSoundOnFinish: ModifyState<boolean>
 	focusOnFinish: boolean
@@ -118,6 +120,7 @@ const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-sche
 const defaultDisplayLanguage = 'en-US'
 
 const defaultOptions = {
+	closeToTray: true,
 	soundOnFinish: true,
 	focusOnFinish: true,
 	modelPath: null,
@@ -163,6 +166,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 
 	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', defaultOptions.soundOnFinish)
 	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', defaultOptions.focusOnFinish)
+	const [closeToTray, setCloseToTray] = useLocalStorage('prefs_close_to_tray', defaultOptions.closeToTray)
 	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', defaultOptions.modelOptions)
 	const [ffmpegOptions, setFfmpegOptions] = useLocalStorage<FfmpegOptions>('prefs_ffmpeg_options', defaultOptions.ffmpegOptions)
 	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
@@ -255,6 +259,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}, [language, setLanguage])
 
 	function resetOptions() {
+		setCloseToTray(defaultOptions.closeToTray)
 		setSoundOnFinish(defaultOptions.soundOnFinish)
 		setFocusOnFinish(defaultOptions.focusOnFinish)
 		setModelOptions(defaultOptions.modelOptions)
@@ -293,6 +298,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setSkippedSetup,
 		displayLanguage: language,
 		setDisplayLanguage,
+		closeToTray,
+		setCloseToTray,
 		soundOnFinish,
 		setSoundOnFinish,
 		focusOnFinish,

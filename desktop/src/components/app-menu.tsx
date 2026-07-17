@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ReactComponent as IndicatorIcon } from '~/icons/update-indicator.svg'
-import { ArrowLeft, MoreHorizontal, RefreshCcw, Settings2, Terminal } from 'lucide-react'
+import { ArrowLeft, MoreHorizontal, RefreshCcw, Settings2, Terminal, X } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { safeTranslate } from '~/lib/i18n'
 
 interface AppMenuProps {
 	availableUpdate: boolean
@@ -18,6 +20,10 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 	const disableBack = Boolean((location.state as { disableBack?: boolean } | null)?.disableBack)
 	const canGoBack = location.key !== 'default' && !disableBack
 	const [open, setOpen] = useState(false)
+
+	async function hideToTray() {
+		await getCurrentWebviewWindow().hide()
+	}
 
 	return (
 		<div dir="ltr">
@@ -41,6 +47,10 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 					<DropdownMenuItem onClick={() => onClickSettings('api')} className="h-10 rounded-md px-3 text-[15px] font-medium">
 						<Terminal className="h-4 w-4 text-muted-foreground" />
 						{m.apiAndAgents()}
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={hideToTray} className="h-10 rounded-md px-3 text-[15px] font-medium">
+						<X className="h-4 w-4 text-muted-foreground" />
+						{safeTranslate(m, 'hideToTray', 'Hide to tray')}
 					</DropdownMenuItem>
 					{canGoBack && (
 						<DropdownMenuItem onClick={() => navigate(-1)} className="h-10 rounded-md px-3 text-[15px] font-medium">
