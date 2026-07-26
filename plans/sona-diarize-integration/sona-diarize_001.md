@@ -1,6 +1,7 @@
 # Integrate Diarization Support into Vibe
 
 ## Context
+
 Sona now supports optional speaker diarization via `sona-diarize` binary + Sortformer model. We need to integrate this into Vibe so users can enable diarization from the UI, download the model, and get speaker-attributed transcription segments.
 
 ## 1. Packaging — `scripts/pre_build.py`
@@ -10,6 +11,7 @@ Sona now supports optional speaker diarization via `sona-diarize` binary + Sortf
 The `sona-diarize` binaries are raw binaries (not archives), same as Linux sona. They live in the same GitHub release (`v0.1.1`).
 
 Add a new asset map for diarize:
+
 ```python
 DIARIZE_ASSET_MAP = {
     "aarch64-apple-darwin": "sona-diarize-darwin-arm64",
@@ -29,11 +31,13 @@ Call it from `main()` after `download_sona()`.
 ## 2. Tauri Config — Bundle `sona-diarize`
 
 Add to `externalBin`:
+
 ```json
 "externalBin": ["binaries/sona", "binaries/sona-diarize"]
 ```
 
 **Files:**
+
 - `/Users/yqbqwlny/Documents/audio/vibe/desktop/src-tauri/tauri.conf.json`
 - `/Users/yqbqwlny/Documents/audio/vibe/desktop/src-tauri/tauri.macos.conf.json`
 
@@ -54,6 +58,7 @@ Add to `externalBin`:
 **In `transcribe()`** (`cmd/mod.rs`): pass speaker from event into `Segment` type.
 
 **Files:**
+
 - `/Users/yqbqwlny/Documents/audio/vibe/desktop/src-tauri/src/cmd/mod.rs`
 - `/Users/yqbqwlny/Documents/audio/vibe/desktop/src-tauri/src/sona.rs`
 - `/Users/yqbqwlny/Documents/audio/vibe/desktop/src-tauri/src/types.rs` (add `speaker` to `Segment`)
@@ -61,6 +66,7 @@ Add to `externalBin`:
 ## 4. Frontend — Config constants
 
 Add to `config.ts`:
+
 ```typescript
 export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.1.onnx'
 export const diarizeModelUrl = 'https://huggingface.co/altunenes/parakeet-rs/resolve/main/diar_streaming_sortformer_4spk-v2.1.onnx'
@@ -71,6 +77,7 @@ export const diarizeModelUrl = 'https://huggingface.co/altunenes/parakeet-rs/res
 ## 5. Frontend — Preference state
 
 Add to `Preference` interface and provider:
+
 ```typescript
 diarizeEnabled: boolean
 setDiarizeEnabled: ModifyState<boolean>
@@ -90,6 +97,7 @@ Add a new **Diarization** section between FFmpeg Options and Presets:
 ```
 
 When toggling ON:
+
 1. Check if diarize model exists in models folder (`get_models_folder` + `diarizeModelFilename`)
 2. If not: show dialog asking to download (~25MB), if yes → navigate to download flow or download inline with progress
 3. If yes: enable the switch
@@ -101,10 +109,12 @@ The switch state is `preference.diarizeEnabled`.
 ## 7. Frontend — Pass `diarize_model` in transcription
 
 In `viewModel.ts` (home and batch), when building `TranscribeOptions`:
+
 - If `preference.diarizeEnabled`, set `diarize_model` to `{models_folder}/{diarizeModelFilename}`
 - Otherwise omit it
 
 **Files:**
+
 - `/Users/yqbqwlny/Documents/audio/vibe/desktop/src/pages/home/viewModel.ts`
 - `/Users/yqbqwlny/Documents/audio/vibe/desktop/src/pages/batch/viewModel.tsx`
 

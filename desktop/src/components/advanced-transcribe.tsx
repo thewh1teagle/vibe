@@ -9,7 +9,6 @@ import { usePreferenceProvider } from '~/providers/preference'
 import { InfoTooltip } from './info-tooltip'
 import { Button } from '~/components/ui/button'
 
-
 import { Switch } from '~/components/ui/switch'
 import { Spinner } from '~/components/ui/spinner'
 
@@ -36,7 +35,10 @@ export default function AdvancedTranscribe() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm" className="mt-1 h-9 rounded-md border border-border/65 px-3 text-sm font-medium text-muted-foreground hover:bg-accent/45 hover:text-foreground">
+				<Button
+					variant="ghost"
+					size="sm"
+					className="mt-1 h-9 rounded-md border border-border/65 px-3 text-sm font-medium text-muted-foreground hover:bg-accent/45 hover:text-foreground">
 					{m.advanced()}
 				</Button>
 			</DialogTrigger>

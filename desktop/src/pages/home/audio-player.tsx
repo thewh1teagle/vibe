@@ -157,7 +157,10 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 					</div>
 					<div className="min-w-0">
 						<p className="text-[10px] uppercase tracking-[0.09em] text-muted-foreground">{m.nowPlaying()}</p>
-						<div className="cursor-pointer truncate text-sm font-semibold transition-colors hover:text-primary" onClick={onLabelClick} title={label}>
+						<div
+							className="cursor-pointer truncate text-sm font-semibold transition-colors hover:text-primary"
+							onClick={onLabelClick}
+							title={label}>
 							{label}
 						</div>
 					</div>
@@ -168,12 +171,8 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 						className="relative h-2 w-full cursor-grab overflow-hidden rounded-full bg-muted touch-none active:cursor-grabbing"
 						onPointerDown={onSeekPointerDown}
 						onPointerMove={onSeekPointerMove}
-						onPointerUp={onSeekPointerUp}
-					>
-						<div
-							className="absolute top-0 left-0 h-full bg-primary"
-							style={{ width: `${progress}%` }}
-						/>
+						onPointerUp={onSeekPointerUp}>
+						<div className="absolute top-0 left-0 h-full bg-primary" style={{ width: `${progress}%` }} />
 						<div
 							className="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-card bg-primary shadow-sm"
 							style={{ left: `calc(${progress}% - 6px)` }}
@@ -190,23 +189,24 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 						size="iconSm"
 						variant="ghost"
 						className="h-8 w-8 rounded-full text-muted-foreground hover:bg-accent/80 hover:text-foreground"
-						onClick={() => seekBy(-10)}
-					>
+						onClick={() => seekBy(-10)}>
 						<SkipBack className="h-4 w-4" strokeWidth={2.2} />
 					</Button>
 					<Button
 						size="icon"
 						className="h-10 w-10 rounded-full bg-primary/85 text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95"
-						onClick={() => (playing ? pause() : play())}
-					>
-						{playing ? <Pause className="h-5 w-5 fill-current" strokeWidth={2.5} /> : <Play className="ml-0.5 h-5 w-5 fill-current" strokeWidth={2.5} />}
+						onClick={() => (playing ? pause() : play())}>
+						{playing ? (
+							<Pause className="h-5 w-5 fill-current" strokeWidth={2.5} />
+						) : (
+							<Play className="ml-0.5 h-5 w-5 fill-current" strokeWidth={2.5} />
+						)}
 					</Button>
 					<Button
 						size="iconSm"
 						variant="ghost"
 						className="h-8 w-8 rounded-full text-muted-foreground hover:bg-accent/80 hover:text-foreground"
-						onClick={() => seekBy(10)}
-					>
+						onClick={() => seekBy(10)}>
 						<SkipForward className="h-4 w-4" strokeWidth={2.2} />
 					</Button>
 				</div>

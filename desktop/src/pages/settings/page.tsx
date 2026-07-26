@@ -1,17 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
-import {
-	Bot,
-	Cpu,
-	Globe,
-	Mic,
-	ShieldCheck,
-	SlidersHorizontal,
-	Sparkles,
-	Terminal,
-	Wrench,
-	X,
-} from 'lucide-react'
+import { Bot, Cpu, Globe, Mic, ShieldCheck, SlidersHorizontal, Sparkles, Terminal, Wrench, X } from 'lucide-react'
 import { ModifyState } from '~/lib/types'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -79,9 +68,7 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 	]
 	const sections = groups.flatMap((group) => group.sections)
 
-	const [activeSection, setActiveSection] = useState<SectionId>(
-		sections.some((s) => s.id === scrollTo) ? (scrollTo as SectionId) : 'general',
-	)
+	const [activeSection, setActiveSection] = useState<SectionId>(sections.some((s) => s.id === scrollTo) ? (scrollTo as SectionId) : 'general')
 
 	return (
 		<div className="flex min-h-screen items-center justify-center p-6">
@@ -98,9 +85,7 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 					<nav aria-label={m.settings()} className="flex flex-1 flex-col gap-3 overflow-y-auto">
 						{groups.map((group) => (
 							<div key={group.label} className="space-y-0.5">
-								<p className="px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60">
-									{group.label}
-								</p>
+								<p className="px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60">{group.label}</p>
 								{group.sections.map((section) => (
 									<button
 										key={section.id}
@@ -145,7 +130,6 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 					{activeSection === 'privacy' && <PrivacySection vm={vm} />}
 
 					{activeSection === 'advanced' && <AdvancedSection vm={vm} />}
-
 				</div>
 			</div>
 		</div>

@@ -1,6 +1,26 @@
 {
 	"baseLocale": "en-US",
-	"locales": ["en-US", "ca-AD", "es-ES", "es-MX", "fr-FR", "he-IL", "hi-IN", "it-IT", "ja-JP", "ko-KR", "no-NO", "pl-PL", "pt-BR", "ru-RU", "sv-SE", "tr-TR", "vi-VN", "zh-CN", "zh-HK"],
+	"locales": [
+		"en-US",
+		"ca-AD",
+		"es-ES",
+		"es-MX",
+		"fr-FR",
+		"he-IL",
+		"hi-IN",
+		"it-IT",
+		"ja-JP",
+		"ko-KR",
+		"no-NO",
+		"pl-PL",
+		"pt-BR",
+		"ru-RU",
+		"sv-SE",
+		"tr-TR",
+		"vi-VN",
+		"zh-CN",
+		"zh-HK"
+	],
 	"modules": [
 		"https://cdn.jsdelivr.net/npm/@inlang/plugin-message-format@latest/dist/index.js",
 		"https://cdn.jsdelivr.net/npm/@inlang/plugin-m-function-matcher@latest/dist/index.js"

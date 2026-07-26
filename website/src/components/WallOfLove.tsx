@@ -58,14 +58,12 @@ function SupporterCard({ supporter }: { supporter: Supporter }) {
 	)
 }
 
-
 function MarqueeColumn({ supporters, duration, className }: { supporters: Supporter[]; duration: number; className?: string }) {
 	return (
 		<div className={`relative h-full overflow-hidden ${className ?? ''}`}>
 			<div
 				className="animate-marquee-up flex flex-col gap-4 [contain:layout_paint] [will-change:transform] motion-reduce:!transform-none motion-reduce:!animate-none"
-				style={{ animationDuration: `${duration}s` }}
-			>
+				style={{ animationDuration: `${duration}s` }}>
 				{supporters.map((s) => (
 					<SupporterCard key={s.id} supporter={s} />
 				))}
@@ -97,13 +95,8 @@ export default function WallOfLove() {
 	const columns = useMemo(() => {
 		if (supporters.length === 0) return []
 		const third = Math.ceil(supporters.length / 3)
-		return [
-			supporters.slice(0, third),
-			supporters.slice(third, third * 2),
-			supporters.slice(third * 2),
-		]
+		return [supporters.slice(0, third), supporters.slice(third, third * 2), supporters.slice(third * 2)]
 	}, [supporters])
-
 
 	if (supporters.length === 0) return null
 
@@ -111,7 +104,7 @@ export default function WallOfLove() {
 
 	return (
 		<section className="m-auto mt-20 w-[95%] [content-visibility:auto] [contain-intrinsic-size:0_700px] lg:w-[1000px]">
-			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{m["loved-by-thousands"]()}</h2>
+			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{m['loved-by-thousands']()}</h2>
 			{/* Mobile: single column vertical marquee */}
 			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
 				<MarqueeColumn supporters={supporters} duration={120} />
@@ -119,11 +112,7 @@ export default function WallOfLove() {
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background to-transparent" />
 			</div>
 			{/* Desktop: 3 columns */}
-			<div
-				dir="ltr"
-				className="relative hidden overflow-hidden rounded-[3rem] md:block"
-				style={{ maxHeight: '600px' }}
-			>
+			<div dir="ltr" className="relative hidden overflow-hidden rounded-[3rem] md:block" style={{ maxHeight: '600px' }}>
 				<div className="group grid h-[600px] grid-cols-3 gap-4 [&:hover_.animate-marquee-up]:pause">
 					{columns.map((col, i) => (
 						<MarqueeColumn key={i} supporters={col} duration={durations[i]} />

@@ -19,18 +19,14 @@ interface AudioEngine {
 
 async function resolveDeviceId(name: string): Promise<string | undefined> {
 	const devices = await navigator.mediaDevices.enumerateDevices()
-	return devices
-		.filter((d) => d.kind === 'audioinput')
-		.find((d) => d.label.toLowerCase().includes(name.toLowerCase()))?.deviceId
+	return devices.filter((d) => d.kind === 'audioinput').find((d) => d.label.toLowerCase().includes(name.toLowerCase()))?.deviceId
 }
 
 async function createAudioEngine(deviceName?: string): Promise<AudioEngine> {
 	const deviceId = deviceName ? await resolveDeviceId(deviceName) : undefined
 
 	const stream = await navigator.mediaDevices.getUserMedia({
-		audio: deviceId
-			? { deviceId: { exact: deviceId }, echoCancellation: false, noiseSuppression: false, autoGainControl: false }
-			: true,
+		audio: deviceId ? { deviceId: { exact: deviceId }, echoCancellation: false, noiseSuppression: false, autoGainControl: false } : true,
 	})
 
 	const ctx = new AudioContext()
@@ -87,13 +83,7 @@ function getCenterLineColor(): string {
 
 const SENSITIVITY = 6
 
-function drawWaveform(
-	ctx: CanvasRenderingContext2D,
-	w: number,
-	h: number,
-	data: Float32Array,
-	bufferLength: number,
-) {
+function drawWaveform(ctx: CanvasRenderingContext2D, w: number, h: number, data: Float32Array, bufferLength: number) {
 	ctx.clearRect(0, 0, w, h)
 
 	const midY = h / 2
@@ -139,11 +129,7 @@ function drawWaveform(
 
 // --- Component ---
 
-export default function AudioVisualizer({
-	isRecording,
-	inputDevice,
-	className = '',
-}: AudioVisualizerProps) {
+export default function AudioVisualizer({ isRecording, inputDevice, className = '' }: AudioVisualizerProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const engineRef = useRef<AudioEngine | null>(null)
 	const frameRef = useRef<number>(0)
@@ -229,8 +215,7 @@ export default function AudioVisualizer({
 			initial={{ opacity: 0, y: 6 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.25, ease: 'easeOut' }}
-			className={`w-full rounded-lg border border-border/50 bg-card/50 p-3 ${className}`}
-		>
+			className={`w-full rounded-lg border border-border/50 bg-card/50 p-3 ${className}`}>
 			<div className="mb-2 flex items-center justify-between">
 				<span className="text-xs font-medium text-muted-foreground">{deviceLabel || m.audioLevel()}</span>
 				<span className="flex items-center gap-1.5 text-xs text-success">
@@ -241,11 +226,7 @@ export default function AudioVisualizer({
 					Recording
 				</span>
 			</div>
-			<canvas
-				ref={canvasRef}
-				className="w-full rounded"
-				style={{ display: 'block', height: 80 }}
-			/>
+			<canvas ref={canvasRef} className="w-full rounded" style={{ display: 'block', height: 80 }} />
 		</motion.div>
 	)
 }

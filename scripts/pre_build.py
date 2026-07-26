@@ -166,7 +166,6 @@ def download_sona(script_root: Path, target_triple: str | None) -> None:
 
 
 def main() -> int:
-    original_cwd = Path.cwd()
     script_root = Path(__file__).resolve().parent
     tauri_dir = script_root.parent / "desktop" / "src-tauri"
     os.chdir(tauri_dir)
@@ -199,16 +198,6 @@ def main() -> int:
         run_cmd("sudo", "apt-get", "update")
         for pkg in apt_packages:
             run_cmd("sudo", "apt-get", "install", "-y", pkg)
-
-    github_env = os.environ.get("GITHUB_ENV")
-
-    if not github_env:
-        print("\nCommands to build:")
-        if original_cwd != cwd:
-            relative_path = os.path.relpath(cwd.parent, original_cwd)
-            print(f"cd {relative_path}")
-        print("pnpm install")
-        print("pnpm exec tauri build")
 
     action_arg = next((arg for arg in argv if "--dev" in arg or "--build" in arg), None)
     if action_arg:

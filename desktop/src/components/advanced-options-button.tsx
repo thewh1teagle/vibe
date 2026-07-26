@@ -2,7 +2,6 @@ import { Button } from '~/components/ui/button'
 import { openSettingsSection } from '~/lib/app'
 
 export default function AdvancedOptionsButton() {
-
 	return (
 		<Button
 			variant="ghost"

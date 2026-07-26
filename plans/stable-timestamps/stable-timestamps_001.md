@@ -25,6 +25,7 @@ Users must provide it. Sona accepts it as a per-request form field `vad_model`.
 ### 1. `internal/whisper/whisper.go`
 
 Add to `TranscribeOptions`:
+
 ```go
 StableTimestamps bool   // run per-segment VAD decode for accurate timestamps
 VadModelPath     string // path to silero-vad ONNX model (required if StableTimestamps)
@@ -63,10 +64,10 @@ Validate: if `stable_timestamps=true` and `vad_model` is empty, return 400.
 
 ## API surface (new fields)
 
-| Field | Type | Description |
-|---|---|---|
-| `stable_timestamps` | bool | Enable per-segment VAD decode |
-| `vad_model` | string | Path to silero-vad model on disk |
+| Field               | Type   | Description                      |
+| ------------------- | ------ | -------------------------------- |
+| `stable_timestamps` | bool   | Enable per-segment VAD decode    |
+| `vad_model`         | string | Path to silero-vad model on disk |
 
 ## Error cases
 

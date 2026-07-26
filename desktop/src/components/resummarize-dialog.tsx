@@ -40,11 +40,7 @@ export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDial
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-8 w-8 text-muted-foreground hover:text-foreground"
-					disabled={loading}>
+				<Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" disabled={loading}>
 					<Sparkles className="h-4 w-4" />
 				</Button>
 			</DialogTrigger>
@@ -70,14 +66,8 @@ export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDial
 					</div>
 
 					<div className="space-y-1.5">
-						<Textarea
-							value={prompt}
-							onChange={(e) => setPrompt(e.target.value)}
-							className="min-h-[120px] text-sm"
-						/>
-						{!isValid && (
-							<p className="text-xs text-destructive">{m.promptMustContainPlaceholder()}</p>
-						)}
+						<Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} className="min-h-[120px] text-sm" />
+						{!isValid && <p className="text-xs text-destructive">{m.promptMustContainPlaceholder()}</p>}
 					</div>
 
 					<Button onMouseDown={handleSubmit} disabled={!isValid || loading} className="w-full">
