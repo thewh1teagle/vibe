@@ -20,6 +20,10 @@ dev: setup
 build: setup
     cd desktop && pnpm exec tauri build
 
+# Run the website (landing page) in dev mode
+website:
+    cd website && pnpm install && pnpm dev
+
 # Run frontend tests
 test:
     cd desktop && pnpm test
