@@ -14,8 +14,10 @@ export default function BatchPage() {
 			<div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
 				<div className="app-panel space-y-4">
 					<div className="space-y-1">
-					<p className="app-kicker">{m.batch()}</p>
-						<h2 className="text-2xl font-semibold">{m.transcribe()} {m.files()}</h2>
+						<p className="app-kicker">{m.batch()}</p>
+						<h2 className="text-2xl font-semibold">
+							{m.transcribe()} {m.files()}
+						</h2>
 					</div>
 					<LanguageInput />
 					<FormatMultiSelect setFormats={vm.setFormats} formats={vm.formats} />
@@ -31,9 +33,7 @@ export default function BatchPage() {
 							files={vm.files}
 							modelPath={vm.preference.modelPath}
 						/>
-						{!vm.preference.modelPath && (
-							<p className="mt-2 text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>
-						)}
+						{!vm.preference.modelPath && <p className="mt-2 text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>}
 						{!vm.inProgress && !vm.isAborting && (
 							<Button variant="link" onMouseDown={vm.selectFiles} className="mt-2 px-0 text-xs">
 								{m.changeFiles()}

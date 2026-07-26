@@ -9,8 +9,7 @@ export function migrateLegacyLocale() {
 	try {
 		const locale: unknown = JSON.parse(legacyLocale)
 		const paraglideLocale = localStorage.getItem(localStorageKey)
-		const shouldMigrate =
-			paraglideLocale === null || paraglideLocale === baseLocale || !isLocale(paraglideLocale)
+		const shouldMigrate = paraglideLocale === null || paraglideLocale === baseLocale || !isLocale(paraglideLocale)
 		if (isLocale(locale) && paraglideLocale !== locale && shouldMigrate) {
 			setLocale(locale, { reload: false })
 		}

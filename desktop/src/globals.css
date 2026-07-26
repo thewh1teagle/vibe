@@ -169,12 +169,21 @@ html.dictation-indicator-window #root {
 	}
 
 	html {
-		font-family: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+		font-family:
+			'SF Pro Text',
+			'SF Pro Display',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Helvetica Neue',
+			Arial,
+			sans-serif;
 	}
 
 	body {
 		@apply bg-background text-foreground;
-		font-feature-settings: 'rlig' 1, 'calt' 1;
+		font-feature-settings:
+			'rlig' 1,
+			'calt' 1;
 		background-image:
 			radial-gradient(1200px 700px at 15% -10%, hsl(205 90% 88% / 0.55) 0%, transparent 60%),
 			radial-gradient(900px 600px at 100% 0%, hsl(280 70% 88% / 0.35) 0%, transparent 55%),

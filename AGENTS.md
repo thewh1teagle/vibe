@@ -7,6 +7,7 @@
     - Install deps: `pnpm install`
     - Run scripts: `pnpm <script>` (e.g. `pnpm dev`, `pnpm build`)
     - Execute packages: `pnpm exec <cmd>` or `pnpx <cmd>`
+- Task runner: `just` — run `just --list` for available commands
 - Python: `uv`
     - Add deps to scripts: `uv add --script example.py <packages> --bounds exact`
     - Run scripts: `uv run example.py`

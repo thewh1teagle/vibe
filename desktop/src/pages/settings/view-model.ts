@@ -31,7 +31,7 @@ export interface GpuDevice {
 }
 
 async function openModelPath() {
-	let dst = await invoke<string>('get_models_folder')
+	const dst = await invoke<string>('get_models_folder')
 	invoke('open_path', { path: dst })
 }
 
@@ -318,7 +318,7 @@ export function viewModel() {
 		if (isSupported) return
 		preference.setModelOptions({
 			...preference.modelOptions,
-			lang: capabilities.language_detection ? 'auto' : capabilities.languages[0] ?? 'en',
+			lang: capabilities.language_detection ? 'auto' : (capabilities.languages[0] ?? 'en'),
 		})
 	}
 
@@ -438,7 +438,11 @@ export function viewModel() {
 	useEffect(() => {
 		const platform = preference.llmConfig?.platform
 		const llmInstance =
-			platform === 'ollama' ? new Ollama(preference.llmConfig) : platform === 'openai' ? new OpenAICompatible(preference.llmConfig) : new Claude(preference.llmConfig)
+			platform === 'ollama'
+				? new Ollama(preference.llmConfig)
+				: platform === 'openai'
+					? new OpenAICompatible(preference.llmConfig)
+					: new Claude(preference.llmConfig)
 		setLlm(llmInstance)
 	}, [preference.llmConfig])
 

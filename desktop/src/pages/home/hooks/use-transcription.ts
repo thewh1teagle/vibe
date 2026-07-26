@@ -29,7 +29,9 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
 
-	useEffect(() => { preferenceRef.current = preference }, [preference])
+	useEffect(() => {
+		preferenceRef.current = preference
+	}, [preference])
 
 	async function onAbort() {
 		setIsAborting(true)
@@ -92,7 +94,11 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 				if (errorObject?.code && isUserError(errorObject.code)) {
 					toast.error(`${m.error()}: ${errorMessage}`, { position: 'bottom-center' })
 				} else {
-					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, { source: 'home', error_message: errorMessage, file_ext: path.split('.').pop() ?? 'unknown' })
+					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
+						source: 'home',
+						error_message: errorMessage,
+						file_ext: path.split('.').pop() ?? 'unknown',
+					})
 					setErrorModal?.({ log: errorMessage, open: true })
 				}
 				setLoading(false)

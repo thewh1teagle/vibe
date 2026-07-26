@@ -13,16 +13,16 @@ import { m } from '~/paraglide/messages.js'
  * No-op on non-macOS platforms (always returns true).
  */
 export async function ensureSystemAudioPermission(): Promise<boolean> {
-  if (platform() !== 'macos') {
-    return true
-  }
+	if (platform() !== 'macos') {
+		return true
+	}
 
-  const granted = await invoke<boolean>('request_system_audio_permission')
-  if (granted) {
-    return true
-  }
+	const granted = await invoke<boolean>('request_system_audio_permission')
+	if (granted) {
+		return true
+	}
 
-  await invoke('open_system_audio_settings')
+	await invoke('open_system_audio_settings')
 	toast.error(m.permissionAudioRecording())
-  return false
+	return false
 }

@@ -16,7 +16,6 @@ interface ErrorModalProps {
 }
 
 export default function ErrorModal({ state, setState }: ErrorModalProps) {
-
 	async function clearLogAndReset() {
 		setState({ open: false, log: '' })
 		resetApp()

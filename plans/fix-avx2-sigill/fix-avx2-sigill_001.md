@@ -7,6 +7,7 @@
 Root cause: the sona binary is compiled on CI with `GGML_NATIVE=ON` (the default). GitHub Actions runners are Azure VMs with modern Intel CPUs that have AVX2, FMA, F16C, BMI2. The resulting binary unconditionally uses these instructions and crashes with `SIGILL` on older CPUs (pre-Haswell, ~pre-2013) that lack AVX2.
 
 Error signatures observed:
+
 - Windows: `Exception 0xc000001d` (STATUS_ILLEGAL_INSTRUCTION)
 - Linux: `SIGILL: illegal instruction` at `PC=0x7ed010`
 
@@ -68,6 +69,7 @@ Produces: `whisper-libs-linux-x86_64-noavx2.tar.gz`, `whisper-libs-windows-x86_6
 #### 2b. Release workflow: build and upload two sona binaries
 
 Extend the `Release sona` workflow to:
+
 1. Download noavx2 libs via `download-libs.py --variant noavx2`
 2. `go build -o sona-noavx2` linked against noavx2 libs
 3. Upload both `sona` and `sona-noavx2` to the GitHub release
@@ -79,7 +81,8 @@ The error message already includes the releases link. User downloads `sona-noavx
 
 **Option B — Auto-download (follow-up):**
 When Part 1 detects no AVX2:
-1. Show a one-time dialog: *"Your CPU needs a compatible version. Download now? (~15 MB)"*
+
+1. Show a one-time dialog: _"Your CPU needs a compatible version. Download now? (~15 MB)"_
 2. Vibe downloads `sona-noavx2` from GitHub releases for the current sona version
 3. Places it next to sona (e.g. `sona-noavx2.exe`)
 4. On CPUs without AVX2, Vibe always prefers `sona-noavx2`

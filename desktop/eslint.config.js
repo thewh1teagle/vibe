@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint'
 import pluginReactConfig from 'eslint-plugin-react/configs/recommended.js'
 
 export default [
+	{ ignores: ['dist/**', 'src/paraglide/**'] },
 	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
 	{ languageOptions: { globals: globals.browser } },
 	pluginJs.configs.recommended,
@@ -11,6 +12,8 @@ export default [
 	pluginReactConfig,
 	{
 		rules: {
+			// TypeScript already validates props
+			'react/prop-types': 'off',
 			// ignore unsued vars with _ prefix
 			'@typescript-eslint/no-unused-vars': [
 				'warn',

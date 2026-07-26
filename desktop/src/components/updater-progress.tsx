@@ -12,7 +12,7 @@ export default function UpdateProgress() {
 			<DialogContent onInteractOutside={(e) => e.preventDefault()}>
 				<DialogHeader>
 					<DialogTitle>{m.updatingModalTitle()}</DialogTitle>
-				<DialogDescription>{m.updatingModalBody({ version: String(manifest?.version ?? '') })}</DialogDescription>
+					<DialogDescription>{m.updatingModalBody({ version: String(manifest?.version ?? '') })}</DialogDescription>
 				</DialogHeader>
 				<div className="flex justify-center">
 					<Progress value={progress ?? 0} className="w-56" />

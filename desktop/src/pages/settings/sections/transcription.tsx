@@ -6,10 +6,11 @@ import { Switch } from '~/components/ui/switch'
 import { SectionCard, type SettingsViewModel } from './shared'
 
 export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
-
 	return (
 		<div className="space-y-5">
-			<SectionCard><LanguageInput /></SectionCard>
+			<SectionCard>
+				<LanguageInput />
+			</SectionCard>
 			<SectionCard>
 				<div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/45 py-2">
 					<span className="text-sm font-medium">{m.playSoundOnFinish()}</span>
@@ -31,8 +32,14 @@ export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
 							{vm.preference.customRecordingPath ?? vm.defaultRecordingPath}
 						</p>
 						<div className="flex shrink-0 items-center gap-2">
-							{vm.preference.customRecordingPath && <Button variant="ghost" size="sm" onMouseDown={vm.resetRecordingPath}>{m.resetToDefault()}</Button>}
-							<Button variant="outline" size="sm" onMouseDown={vm.changeRecordingPath}>{m.changeRecordingPath()}</Button>
+							{vm.preference.customRecordingPath && (
+								<Button variant="ghost" size="sm" onMouseDown={vm.resetRecordingPath}>
+									{m.resetToDefault()}
+								</Button>
+							)}
+							<Button variant="outline" size="sm" onMouseDown={vm.changeRecordingPath}>
+								{m.changeRecordingPath()}
+							</Button>
 						</div>
 					</div>
 				</SectionCard>

@@ -27,7 +27,9 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 			const progress = Math.ceil(payload)
 			setYtDlpProgress((current) => (!current || progress > current ? progress : current))
 		})
-		return () => { unlisten.then((fn) => fn()) }
+		return () => {
+			unlisten.then((fn) => fn())
+		}
 	}, [])
 
 	async function cancelYtDlpDownload() {
@@ -48,23 +50,44 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 				} catch (error) {
 					console.error('Failed to fetch latest yt-dlp version', error)
 					cachedYtDlpVersion.current = null
-					if (binaryExists) { preference.setHomeTab('link'); return }
+					if (binaryExists) {
+						preference.setHomeTab('link')
+						return
+					}
 				}
 			}
 
 			const needsInstall = !binaryExists
 			const needsUpdate = !needsInstall && preference.shouldCheckYtDlpVersion && latestVersion !== null && latestVersion !== preference.ytDlpVersion
-			if (needsUpdate && skippedUpdatePromptRef.current) { preference.setHomeTab('link'); return }
-			if (!needsInstall && !needsUpdate) { preference.setHomeTab('link'); return }
+			if (needsUpdate && skippedUpdatePromptRef.current) {
+				preference.setHomeTab('link')
+				return
+			}
+			if (!needsInstall && !needsUpdate) {
+				preference.setHomeTab('link')
+				return
+			}
 
 			const confirmed = needsUpdate
-				? await dialog.ask(m.askForUpdateYtdlpMessage(), { title: m.askForUpdateYtdlpTitle(), kind: 'info', cancelLabel: m.later(), okLabel: m.updateNow() })
-				: await dialog.ask(m.askForInstallYtdlpMessage(), { title: m.askForInstallYtdlpTitle(), kind: 'info', cancelLabel: m.cancel(), okLabel: m.installNow() })
+				? await dialog.ask(m.askForUpdateYtdlpMessage(), {
+						title: m.askForUpdateYtdlpTitle(),
+						kind: 'info',
+						cancelLabel: m.later(),
+						okLabel: m.updateNow(),
+					})
+				: await dialog.ask(m.askForInstallYtdlpMessage(), {
+						title: m.askForInstallYtdlpTitle(),
+						kind: 'info',
+						cancelLabel: m.cancel(),
+						okLabel: m.installNow(),
+					})
 
 			if (confirmed) {
 				try {
 					const version = latestVersion ?? preference.ytDlpVersion ?? '2026.02.04'
-					toast.setMessage(m.downloadingYtdlp()); toast.setProgress(0); toast.setOpen(true)
+					toast.setMessage(m.downloadingYtdlp())
+					toast.setProgress(0)
+					toast.setOpen(true)
 					await ytDlp.downloadYtDlp(version)
 					preference.setYtDlpVersion(version)
 					skippedUpdatePromptRef.current = false
@@ -89,7 +112,10 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 		setDownloadingAudio(true)
 		try {
 			const outPath = await ytDlp.downloadAudio(audioUrl, preference.storeRecordInDocuments, preference.customRecordingPath)
-			if (cancelYtDlpRef.current) { cancelYtDlpRef.current = false; return }
+			if (cancelYtDlpRef.current) {
+				cancelYtDlpRef.current = false
+				return
+			}
 			preference.setHomeTab('file')
 			setFiles([{ name: 'audio.m4a', path: outPath }])
 			await transcribe(outPath)
@@ -102,5 +128,16 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 		}
 	}
 
-	return { cancelYtDlpRef, cancelYtDlpDownload, ytdlpProgress, setYtDlpProgress, switchToLinkTab, audioUrl, setAudioUrl, downloadAudio, downloadingAudio, setDownloadingAudio }
+	return {
+		cancelYtDlpRef,
+		cancelYtDlpDownload,
+		ytdlpProgress,
+		setYtDlpProgress,
+		switchToLinkTab,
+		audioUrl,
+		setAudioUrl,
+		downloadAudio,
+		downloadingAudio,
+		setDownloadingAudio,
+	}
 }

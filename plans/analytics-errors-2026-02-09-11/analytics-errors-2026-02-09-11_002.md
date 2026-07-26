@@ -23,12 +23,14 @@ Clear as day: `GLIBCXX_3.4.32 not found`. Sona was compiled against a newer libs
 ## 4. model_load_failed (159 events, 56 users) — THE BIG ONE
 
 Single biggest error bucket. Breakdown:
+
 - **83 events (52%) have non-ASCII paths** — users with e.g. accented or non-Latin usernames (`C:\Users\José\...`, `C:\Users\שלום\...`). Model lives at `C:\Users\{username}\AppData\Local\...\ggml-model.bin` so any non-ASCII username = broken.
 - **76 events with ASCII paths** — likely corrupted downloads, out of disk space, or incompatible model files.
 
 The path flows: Rust `to_str()` → HTTP multipart → Go `C.CString()` → whisper.cpp `fopen()`. On Windows, `fopen()` with a UTF-8 string doesn't work for non-ASCII paths — you need `_wfopen()` with wide chars. The whisper.cpp C library is probably using plain `fopen` internally.
 
 **Fix options**:
+
 - Short-term: Copy model to a temp path with ASCII-only name before loading
 - Long-term: Ensure whisper.cpp uses `_wfopen` on Windows (or use a variant with wide path support)
 
@@ -74,16 +76,16 @@ Sona returns a full HTML `<!DOCTYPE html>` page instead of JSON. Single user beh
 
 ## Priority ranking by impact
 
-| Priority | Issue | Events | Users | Effort |
-|---|---|---|---|---|
-| **P0** | Non-ASCII model paths (Windows) | 83 | ~30 | Medium — temp copy or wfopen |
-| **P0** | Disable transcribe without model | 99 | unknown | Tiny — UI guard |
-| **P1** | Sona spawn silent crash (Windows/Vulkan) | 71 | 18 | Medium — detect + fallback |
-| **P1** | Sona dies mid-session, no detection | 171 | 50 | Small — check process alive on retry |
-| **P2** | Ubuntu GLIBCXX compat | 11 | ~1 | Build infra — older base image |
-| **P2** | macOS Accelerate symbol | 7 | ~3 | Build flag — deployment target |
-| **P3** | OOM on large files | 17 | 2 | Small — file size check |
-| **P3** | ffmpeg not found | 9 | ~5 | Small — verify bundling |
-| **P4** | Server busy / double-click | 26 | ? | Tiny — UI debounce |
+| Priority | Issue                                    | Events | Users   | Effort                               |
+| -------- | ---------------------------------------- | ------ | ------- | ------------------------------------ |
+| **P0**   | Non-ASCII model paths (Windows)          | 83     | ~30     | Medium — temp copy or wfopen         |
+| **P0**   | Disable transcribe without model         | 99     | unknown | Tiny — UI guard                      |
+| **P1**   | Sona spawn silent crash (Windows/Vulkan) | 71     | 18      | Medium — detect + fallback           |
+| **P1**   | Sona dies mid-session, no detection      | 171    | 50      | Small — check process alive on retry |
+| **P2**   | Ubuntu GLIBCXX compat                    | 11     | ~1      | Build infra — older base image       |
+| **P2**   | macOS Accelerate symbol                  | 7      | ~3      | Build flag — deployment target       |
+| **P3**   | OOM on large files                       | 17     | 2       | Small — file size check              |
+| **P3**   | ffmpeg not found                         | 9      | ~5      | Small — verify bundling              |
+| **P4**   | Server busy / double-click               | 26     | ?       | Tiny — UI debounce                   |
 
 Top 4 fixes (P0 + P1) would eliminate ~424 of 681 transcribe_failed events (~62%) and all 89 spawn failures. Roughly **cutting total errors by two thirds**.

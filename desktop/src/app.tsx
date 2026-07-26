@@ -41,9 +41,9 @@ function AppContent() {
 			<ErrorBoundary FallbackComponent={BoundaryFallback}>
 				<ErrorModalProvider>
 					<UpdaterProvider>
-							<TooltipProvider>
-								<ToastProvider>
-									<HotkeyProvider>
+						<TooltipProvider>
+							<ToastProvider>
+								<HotkeyProvider>
 									<ErrorModalWithContext />
 									<UpdateProgress />
 									<FilesProvider>
@@ -55,8 +55,8 @@ function AppContent() {
 									</FilesProvider>
 									<Toaster position="bottom-right" />
 								</HotkeyProvider>
-								</ToastProvider>
-							</TooltipProvider>
+							</ToastProvider>
+						</TooltipProvider>
 					</UpdaterProvider>
 				</ErrorModalProvider>
 			</ErrorBoundary>

@@ -50,10 +50,30 @@ export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 				</SectionCard>
 			</div>
 			<div className="divide-y divide-border/45 rounded-2xl border border-border/60 bg-card/92 shadow-xs">
-				<Button variant="ghost" onMouseDown={vm.copyLogs} className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">{m.copyLogs()} <CopyIcon className="h-4 w-4 text-muted-foreground" /></Button>
-				<Button variant="ghost" onMouseDown={vm.revealLogs} className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">{m.logsFolder()} <FolderIcon className="h-4 w-4 text-muted-foreground" /></Button>
-				<Button variant="ghost" onMouseDown={vm.revealTemp} className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">{m.tempFolder()} <FolderIcon className="h-4 w-4 text-muted-foreground" /></Button>
-				<Button variant="ghost" onClick={vm.askAndReset} className="h-12 w-full justify-between rounded-none px-4 font-medium text-destructive first:rounded-t-2xl last:rounded-b-2xl hover:bg-destructive/12 hover:text-destructive">{m.resetApp()} <ResetIcon className="h-5 w-5" /></Button>
+				<Button
+					variant="ghost"
+					onMouseDown={vm.copyLogs}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
+					{m.copyLogs()} <CopyIcon className="h-4 w-4 text-muted-foreground" />
+				</Button>
+				<Button
+					variant="ghost"
+					onMouseDown={vm.revealLogs}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
+					{m.logsFolder()} <FolderIcon className="h-4 w-4 text-muted-foreground" />
+				</Button>
+				<Button
+					variant="ghost"
+					onMouseDown={vm.revealTemp}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
+					{m.tempFolder()} <FolderIcon className="h-4 w-4 text-muted-foreground" />
+				</Button>
+				<Button
+					variant="ghost"
+					onClick={vm.askAndReset}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium text-destructive first:rounded-t-2xl last:rounded-b-2xl hover:bg-destructive/12 hover:text-destructive">
+					{m.resetApp()} <ResetIcon className="h-5 w-5" />
+				</Button>
 			</div>
 		</div>
 	)
