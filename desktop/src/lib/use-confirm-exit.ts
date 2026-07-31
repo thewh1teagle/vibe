@@ -4,12 +4,19 @@ import { exit } from '@tauri-apps/plugin-process'
 import { m } from '~/paraglide/messages.js'
 import { UnlistenFn } from '@tauri-apps/api/event'
 
-export function useConfirmExit(shouldConfirm: boolean) {
+export function useConfirmExit(closeToTray: boolean, shouldConfirm: boolean) {
 	useEffect(() => {
 		let unlistenFn: UnlistenFn | null = null
-		getCurrentWebviewWindow()
-			.listen('tauri://close-requested', async () => {
+		const currentWindow = getCurrentWebviewWindow()
+		currentWindow
+			.onCloseRequested(async (event) => {
+				if (closeToTray) {
+					event.preventDefault()
+					await currentWindow.hide()
+					return
+				}
 				if (shouldConfirm) {
+					event.preventDefault()
 					if (await confirm(m.confirmExit())) {
 						await exit(0)
 					}
@@ -21,5 +28,5 @@ export function useConfirmExit(shouldConfirm: boolean) {
 				unlistenFn = unlisten
 			})
 		return () => unlistenFn?.()
-	}, [shouldConfirm])
+	}, [closeToTray, shouldConfirm])
 }

@@ -59,8 +59,7 @@ export function viewModel() {
 		setSummarizeSegments(null)
 		setTranscriptTab('transcript')
 	})
-	useConfirmExit((segments?.length ?? 0) > 0 || loading)
-
+	const shouldConfirmExit = (segments?.length ?? 0) > 0 || loading
 	const {
 		files,
 		setFiles,
@@ -75,6 +74,8 @@ export function viewModel() {
 		clearFolderSelection,
 	} = useMediaSelection()
 	const preference = usePreferenceProvider()
+	useConfirmExit(preference.closeToTray, shouldConfirmExit)
+
 	const {
 		cancelYtDlpRef,
 		cancelYtDlpDownload,

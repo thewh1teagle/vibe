@@ -14,7 +14,7 @@ mod logging;
 mod setup;
 mod sona;
 mod transcript;
-use tauri::{Emitter, Manager};
+use tauri::Emitter;
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -23,9 +23,44 @@ mod dock;
 mod custom_protocol;
 
 use eyre::{eyre, Result};
+use tauri::{
+    menu::{MenuBuilder, MenuItemBuilder},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    AppHandle, Manager, State,
+};
+use tauri_plugin_store::StoreExt;
 use tauri_plugin_window_state::StateFlags;
 
 use error::LogError;
+
+#[derive(Default)]
+struct AppLifecycleState {
+    quitting: std::sync::atomic::AtomicBool,
+}
+
+fn show_main_window(app: &tauri::AppHandle) {
+    if let Some(webview) = app.get_webview_window("main") {
+        webview.unminimize().map_err(|e| eyre!("{:?}", e)).log_error();
+        webview.show().map_err(|e| eyre!("{:?}", e)).log_error();
+        webview.set_focus().map_err(|e| eyre!("{:?}", e)).log_error();
+    }
+}
+
+fn hide_main_window(app: &tauri::AppHandle) {
+    if let Some(webview) = app.get_webview_window("main") {
+        webview.hide().map_err(|e| eyre!("{:?}", e)).log_error();
+    }
+}
+
+pub(crate) fn is_close_to_tray_enabled(app: &AppHandle) -> bool {
+    let Ok(store) = app.store(config::STORE_FILENAME) else {
+        return true;
+    };
+    store
+        .get("prefs_close_to_tray")
+        .and_then(|value| value.as_bool())
+        .unwrap_or(true)
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -35,19 +70,55 @@ async fn main() -> Result<()> {
 
     #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
+        .manage(AppLifecycleState::default())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
-            if let Some(webview) = app.get_webview_window("main") {
-                webview.set_focus().map_err(|e| eyre!("{:?}", e)).log_error();
-            }
+            show_main_window(app);
             app.emit("single-instance", argv).map_err(|e| eyre!("{:?}", e)).log_error();
         }))
         .setup(|app| {
             setup::setup(app)?;
             analytics::track_event(app, analytics::events::APP_STARTED);
+
+            let show_item = MenuItemBuilder::with_id("show", "Show Vibe").build(app)?;
+            let hide_item = MenuItemBuilder::with_id("hide", "Hide Vibe").build(app)?;
+            let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
+            let menu = MenuBuilder::new(app)
+                .items(&[&show_item, &hide_item, &quit_item])
+                .build()?;
+            let icon = app.default_window_icon().cloned().ok_or_else(|| eyre!("missing tray icon"))?;
+            let app_handle = app.handle().clone();
+
+            TrayIconBuilder::new()
+                .icon(icon)
+                .menu(&menu)
+                .show_menu_on_left_click(false)
+                .on_tray_icon_event(move |_tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        show_main_window(&app_handle);
+                    }
+                })
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "show" => show_main_window(app),
+                    "hide" => hide_main_window(app),
+                    "quit" => {
+                        let state: State<'_, AppLifecycleState> = app.state();
+                        state
+                            .quitting
+                            .store(true, std::sync::atomic::Ordering::Relaxed);
+                        app.exit(0);
+                    }
+                    _ => {}
+                })
+                .build(app)?;
             Ok(())
         })
         .plugin(
@@ -131,7 +202,25 @@ async fn main() -> Result<()> {
         .expect("error while building tauri application");
 
     app.run(|app, event| match event {
-        tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
+        tauri::RunEvent::ExitRequested { api, .. } => {
+            let state: State<'_, AppLifecycleState> = app.state();
+            if !state
+                .quitting
+                .load(std::sync::atomic::Ordering::Relaxed)
+                && is_close_to_tray_enabled(app)
+            {
+                api.prevent_exit();
+                hide_main_window(app);
+                return;
+            }
+            let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
+            if let Ok(mut guard) = mutex.try_lock() {
+                if let Some(ref mut process) = guard.process {
+                    process.kill();
+                }
+            };
+        }
+        tauri::RunEvent::Exit => {
             let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
             if let Ok(mut guard) = mutex.try_lock() {
                 if let Some(ref mut process) = guard.process {

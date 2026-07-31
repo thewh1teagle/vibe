@@ -10,6 +10,7 @@ import { getLocalizedLanguageName, supportedLanguages } from '~/lib/i18n'
 import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
+import { Switch } from '~/components/ui/switch'
 import { SectionCard, type SettingsViewModel } from './shared'
 
 export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
@@ -17,6 +18,16 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 
 	return (
 		<div className="space-y-5">
+			<SectionCard>
+				<div className="flex items-center justify-between gap-4">
+					<div className="space-y-1">
+						<Label>{m.closeToTrayOnExit()}</Label>
+						<p className="text-sm text-muted-foreground">{m.closeToTrayOnExitInfo()}</p>
+					</div>
+					<Switch checked={vm.preference.closeToTray} onCheckedChange={vm.preference.setCloseToTray} />
+				</div>
+			</SectionCard>
+
 			<SectionCard>
 				<div className="grid grid-cols-1 divide-y divide-border/45 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
 					<div className="space-y-2 sm:pe-5">
