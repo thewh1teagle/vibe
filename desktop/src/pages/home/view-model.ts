@@ -33,14 +33,7 @@ export function viewModel() {
 	const location = useLocation()
 	const [settingsVisible, setSettingsVisible] = useState(location.hash === '#settings')
 	const navigate = useNavigate()
-	const {
-		segments: summarizeSegments,
-		setSegments: setSummarizeSegments,
-		summarizing,
-		transcriptTab,
-		setTranscriptTab,
-		summarize,
-	} = useSummarization()
+	const { segments: summarizeSegments, setSegments: setSummarizeSegments, summarizing, transcriptTab, setTranscriptTab, summarize } = useSummarization()
 	const { loading, isAborting, segments, setSegments, progress, setProgress, transcribe, onAbort } = useTranscription({
 		onResetSummary: () => {
 			setSummarizeSegments(null)
@@ -68,19 +61,35 @@ export function viewModel() {
 	})
 	const shouldConfirmExit = (segments?.length ?? 0) > 0 || loading
 	const {
-		files, setFiles, audio, setAudio, selectedFolder, setSelectedFolder, isCollectingFolder,
-		selectFiles, selectFolder, startFolderBatch, clearFolderSelection,
+		files,
+		setFiles,
+		audio,
+		setAudio,
+		selectedFolder,
+		setSelectedFolder,
+		isCollectingFolder,
+		selectFiles,
+		selectFolder,
+		startFolderBatch,
+		clearFolderSelection,
 	} = useMediaSelection()
 	const preference = usePreferenceProvider()
 	useConfirmExit(preference.closeToTray, shouldConfirmExit)
 
 	const {
-		cancelYtDlpRef, cancelYtDlpDownload, ytdlpProgress, setYtDlpProgress, switchToLinkTab,
-		audioUrl, setAudioUrl, downloadAudio, downloadingAudio, setDownloadingAudio,
+		cancelYtDlpRef,
+		cancelYtDlpDownload,
+		ytdlpProgress,
+		setYtDlpProgress,
+		switchToLinkTab,
+		audioUrl,
+		setAudioUrl,
+		downloadAudio,
+		downloadingAudio,
+		setDownloadingAudio,
 	} = useAudioDownload(transcribe)
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
-
 
 	async function checkIfCrashedRecently() {
 		const isCrashed = await invoke<boolean>('is_crashed_recently')
@@ -90,14 +99,11 @@ export function viewModel() {
 		}
 	}
 
-
 	useEffect(() => {
 		checkIfCrashedRecently()
 	}, [])
 
-
-
-	function setupEventListeners(): (() => void) {
+	function setupEventListeners(): () => void {
 		const unlisteners: Promise<() => void>[] = []
 
 		unlisteners.push(
@@ -106,24 +112,24 @@ export function viewModel() {
 				if (value >= 0 && value <= 100) {
 					setProgress(value)
 				}
-			})
+			}),
 		)
 		unlisteners.push(
 			listen<transcript.Segment>('new_segment', (event) => {
 				const { payload } = event
 				setSegments((prev) => (prev ? [...prev, payload] : [payload]))
-			})
+			}),
 		)
 		unlisteners.push(
 			listen<{ path: string; name: string }>('record_finish', (event) => {
 				if (hotkeyRecordingActive) return
 				const { name, path } = event.payload
 				setSelectedFolder(null)
-				preference.setHomeTab("file")
+				preference.setHomeTab('file')
 				setFiles([{ name, path }])
 				setIsRecording(false)
 				transcribe(path)
-			})
+			}),
 		)
 		unlisteners.push(
 			listen<{ paths: string[] }>('tauri://drag-drop', async (event) => {
@@ -137,15 +143,13 @@ export function viewModel() {
 				if (newFiles.length > 1) {
 					navigate('/batch', { state: { files: newFiles.map((f) => f.path) } })
 				}
-			})
+			}),
 		)
 
 		return () => {
 			unlisteners.forEach((p) => p.then((fn) => fn()))
 		}
 	}
-
-
 
 	async function checkModelExists() {
 		try {
@@ -186,12 +190,9 @@ export function viewModel() {
 		}
 	}, [])
 
-
-
 	async function resummarize(prompt: string) {
 		if (segments) await summarize(segments, prompt, true)
 	}
-
 
 	return {
 		cancelYtDlpRef,

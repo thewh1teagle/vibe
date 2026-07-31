@@ -12,9 +12,7 @@ export default function useUrlActions(handlers: UrlActionHandlers) {
 		if (action && handlers[action]) {
 			handlers[action]()
 			params.delete('action')
-			const newUrl = params.toString()
-				? `${window.location.pathname}?${params}`
-				: window.location.pathname
+			const newUrl = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname
 			window.history.replaceState({}, '', newUrl)
 		}
 	}, []) // eslint-disable-line react-hooks/exhaustive-deps

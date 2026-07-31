@@ -1,12 +1,8 @@
 {
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "dictation-indicator",
-  "description": "Minimal permissions for the global dictation status indicator",
-  "local": true,
-  "windows": ["dictation-indicator"],
-  "permissions": [
-    "core:event:default",
-    "core:path:default",
-    "os:allow-locale"
-  ]
+	"$schema": "../gen/schemas/desktop-schema.json",
+	"identifier": "dictation-indicator",
+	"description": "Minimal permissions for the global dictation status indicator",
+	"local": true,
+	"windows": ["dictation-indicator"],
+	"permissions": ["core:event:default", "core:path:default", "os:allow-locale"]
 }

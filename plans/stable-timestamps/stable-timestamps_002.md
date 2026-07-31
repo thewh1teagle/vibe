@@ -73,10 +73,10 @@ Validation:
 
 ## API surface
 
-| Field | Type | Description |
-|---|---|---|
-| `stable_timestamps` | bool | Enable whisper.cpp VAD-based timestamp stabilization |
-| `vad_model` | string | Path to the VAD model file on disk |
+| Field               | Type   | Description                                          |
+| ------------------- | ------ | ---------------------------------------------------- |
+| `stable_timestamps` | bool   | Enable whisper.cpp VAD-based timestamp stabilization |
+| `vad_model`         | string | Path to the VAD model file on disk                   |
 
 ## Error cases
 

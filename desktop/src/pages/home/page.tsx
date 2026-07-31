@@ -64,7 +64,7 @@ export default function Home() {
 						</TabsList>
 					</Tabs>
 
-					{vm.preference.homeTab === "record" && (
+					{vm.preference.homeTab === 'record' && (
 						<div className="w-full min-w-0 max-w-2xl space-y-5">
 							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 								<AudioDeviceInput device={vm.inputDevice} setDevice={vm.setInputDevice} devices={vm.devices} type="input" />
@@ -85,14 +85,19 @@ export default function Home() {
 								<div className="space-y-2">
 									<Label>{m.saveRecordInDocumentsFolder()}</Label>
 									<div className="flex h-11 items-center justify-between rounded-xl border border-border/40 bg-muted/40 px-4">
-										<span className="text-sm text-muted-foreground">{vm.preference.storeRecordInDocuments ? m.enabled() : m.disabled()}</span>
+										<span className="text-sm text-muted-foreground">
+											{vm.preference.storeRecordInDocuments ? m.enabled() : m.disabled()}
+										</span>
 										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
 									</div>
 								</div>
 							</div>
 
 							{!vm.isRecording ? (
-								<Button onMouseDown={() => vm.startRecord()} className="mt-1 w-full" disabled={!vm.preference.modelPath || (!vm.inputDevice && !vm.outputDevice)}>
+								<Button
+									onMouseDown={() => vm.startRecord()}
+									className="mt-1 w-full"
+									disabled={!vm.preference.modelPath || (!vm.inputDevice && !vm.outputDevice)}>
 									{m.startRecord()}
 								</Button>
 							) : (
@@ -107,18 +112,15 @@ export default function Home() {
 								</Button>
 							)}
 
-							{!vm.preference.modelPath && (
-								<p className="text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>
-							)}
+							{!vm.preference.modelPath && <p className="text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>}
 
 							{vm.inputDevice && <AudioVisualizer isRecording={vm.isRecording} inputDevice={vm.inputDevice} />}
 
 							<DictationPromo />
-
 						</div>
 					)}
 
-					{vm.preference.homeTab === "file" && (
+					{vm.preference.homeTab === 'file' && (
 						<div className="w-full min-w-0 max-w-3xl space-y-5">
 							<div className="space-y-3">
 								<LanguageInput />
@@ -199,16 +201,14 @@ export default function Home() {
 									<Button onMouseDown={() => vm.transcribe(vm.files[0].path)} className="mt-1 w-full" disabled={!vm.preference.modelPath}>
 										{m.transcribe()}
 									</Button>
-									{!vm.preference.modelPath && (
-										<p className="text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>
-									)}
+									{!vm.preference.modelPath && <p className="text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>}
 								</>
 							)}
 							{vm.loading && <ProgressPanel isAborting={vm.isAborting} onAbort={vm.onAbort} progress={vm.progress} />}
 						</div>
 					)}
 
-					{vm.preference.homeTab === "link" && (
+					{vm.preference.homeTab === 'link' && (
 						<div className="w-full min-w-0 max-w-2xl space-y-5">
 							<Input
 								type="text"
@@ -221,7 +221,7 @@ export default function Home() {
 							{vm.downloadingAudio ? (
 								<div className="flex flex-wrap items-center justify-center gap-3 rounded-xl border border-border/40 bg-muted/40 px-4 py-3">
 									<Spinner className="text-primary" />
-					<p>{m.downloading({ progress: String(vm.ytdlpProgress ?? 0) })}</p>
+									<p>{m.downloading({ progress: String(vm.ytdlpProgress ?? 0) })}</p>
 									<Button
 										variant="ghost"
 										size="sm"
@@ -239,16 +239,14 @@ export default function Home() {
 									<Button onMouseDown={vm.downloadAudio} className="w-full" disabled={!vm.preference.modelPath}>
 										{m.downloadFile()}
 									</Button>
-									{!vm.preference.modelPath && (
-										<p className="text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>
-									)}
+									{!vm.preference.modelPath && <p className="text-center text-sm text-muted-foreground">{m.noModelSelected()}</p>}
 								</>
 							)}
 						</div>
 					)}
 				</div>
 
-				{vm.preference.homeTab === "file" && vm.summarizeSegments && !vm.loading && (
+				{vm.preference.homeTab === 'file' && vm.summarizeSegments && !vm.loading && (
 					<div className="flex items-center justify-center gap-2">
 						<Tabs value={vm.transcriptTab} onValueChange={(v) => vm.setTranscriptTab(v as 'transcript' | 'summary')}>
 							<TabsList className="rounded-xl">
@@ -260,16 +258,14 @@ export default function Home() {
 					</div>
 				)}
 
-				{vm.preference.homeTab === "file" && (vm.segments || vm.loading) && (
+				{vm.preference.homeTab === 'file' && (vm.segments || vm.loading) && (
 					<div className="mx-auto flex h-[62vh] min-h-[320px] w-full max-w-4xl min-w-0 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg dark:shadow-2xl">
 						<TextArea
 							file={vm.files[0]}
 							placeholder={m.transcriptWillDisplayedShortly()}
 							segments={vm.transcriptTab === 'transcript' ? vm.segments : vm.summarizeSegments}
 							textFormat={vm.transcriptTab === 'transcript' ? vm.preference.textFormatTranscript : vm.preference.textFormatSummary}
-							setTextFormat={
-								vm.transcriptTab === 'transcript' ? vm.preference.setTextFormatTranscript : vm.preference.setTextFormatSummary
-							}
+							setTextFormat={vm.transcriptTab === 'transcript' ? vm.preference.setTextFormatTranscript : vm.preference.setTextFormatSummary}
 							readonly={vm.loading}
 						/>
 					</div>

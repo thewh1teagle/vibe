@@ -16,8 +16,7 @@ export default function CopyButton({ text }: { text: string }) {
 		<button
 			onClick={handleCopy}
 			className="cursor-pointer shrink-0 p-1 text-muted-foreground/60 transition-colors hover:text-muted-foreground"
-			title={m.copy()}
-		>
+			title={m.copy()}>
 			{copied ? (
 				<svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 					<polyline points="20 6 9 17 4 12" />

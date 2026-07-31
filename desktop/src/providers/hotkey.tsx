@@ -89,16 +89,22 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const indicatorSessionRef = useRef(0)
 	const indicatorTimerRef = useRef<number | null>(null)
 
-	const showIndicator = useCallback((status: 'recording' | 'transcribing' | 'completed' | 'error', details: { output?: HotkeyOutputMode; message?: string } = {}) => {
-		if (indicatorTimerRef.current) window.clearTimeout(indicatorTimerRef.current)
-		showDictationIndicator({ sessionId: indicatorSessionRef.current, status, ...details })
-	}, [])
+	const showIndicator = useCallback(
+		(status: 'recording' | 'transcribing' | 'completed' | 'error', details: { output?: HotkeyOutputMode; message?: string } = {}) => {
+			if (indicatorTimerRef.current) window.clearTimeout(indicatorTimerRef.current)
+			showDictationIndicator({ sessionId: indicatorSessionRef.current, status, ...details })
+		},
+		[],
+	)
 
-	const finishIndicator = useCallback((status: 'completed' | 'error', details: { output?: HotkeyOutputMode; message?: string } = {}) => {
-		const sessionId = indicatorSessionRef.current
-		showIndicator(status, details)
-		indicatorTimerRef.current = window.setTimeout(() => hideDictationIndicator(sessionId), status === 'error' ? 3500 : 1500)
-	}, [showIndicator])
+	const finishIndicator = useCallback(
+		(status: 'completed' | 'error', details: { output?: HotkeyOutputMode; message?: string } = {}) => {
+			const sessionId = indicatorSessionRef.current
+			showIndicator(status, details)
+			indicatorTimerRef.current = window.setTimeout(() => hideDictationIndicator(sessionId), status === 'error' ? 3500 : 1500)
+		},
+		[showIndicator],
+	)
 
 	useEffect(() => {
 		preferenceRef.current = preference
@@ -231,9 +237,12 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		}
 	}, [createLlm, finishIndicator, showIndicator])
 
-	useEffect(() => () => {
-		if (indicatorTimerRef.current) window.clearTimeout(indicatorTimerRef.current)
-	}, [])
+	useEffect(
+		() => () => {
+			if (indicatorTimerRef.current) window.clearTimeout(indicatorTimerRef.current)
+		},
+		[],
+	)
 
 	// Register/unregister shortcut
 	useEffect(() => {

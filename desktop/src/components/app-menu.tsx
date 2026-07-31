@@ -33,8 +33,7 @@ export default function AppMenu({ availableUpdate, updateApp, onClickSettings }:
 						variant="outline"
 						size="icon"
 						className="group relative h-11 w-11 rounded-xl border-border/75 bg-card/92 shadow-xs transition-all hover:-translate-y-px hover:bg-card hover:shadow-sm"
-						aria-label={m.moreOptions()}
-					>
+						aria-label={m.moreOptions()}>
 						<MoreHorizontal className="h-4.5 w-4.5 text-foreground/90 transition-colors group-hover:text-foreground" strokeWidth={2.35} />
 						{availableUpdate && <IndicatorIcon className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 drop-shadow-sm" />}
 					</Button>

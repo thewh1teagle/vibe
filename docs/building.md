@@ -4,6 +4,17 @@
 
 [pnpm](https://pnpm.io/) | [uv](https://docs.astral.sh/uv/) | [Cargo](https://www.rust-lang.org/tools/install)
 
+Optionally install [just](https://github.com/casey/just) to use the shortcuts in the root `justfile` (run `just` to list them):
+
+```console
+# Windows
+winget install Casey.Just
+# macOS
+brew install just
+# Linux
+sudo apt install just   # or: cargo install just
+```
+
 **Linux**:
 
 Based on [tauri/prerequisites/#setting-up-linux](https://v2.tauri.app/start/prerequisites/#linux)

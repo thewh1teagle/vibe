@@ -35,7 +35,9 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 						<Select
 							value={supportedLanguages[vm.preference.displayLanguage] ? vm.preference.displayLanguage : 'en-US'}
 							onValueChange={vm.preference.setDisplayLanguage}>
-							<SelectTrigger className="capitalize"><SelectValue placeholder={m.selectLanguage()} /></SelectTrigger>
+							<SelectTrigger className="capitalize">
+								<SelectValue placeholder={m.selectLanguage()} />
+							</SelectTrigger>
 							<SelectContent>
 								{Object.entries(supportedLanguages).map(([code, name]) => (
 									<SelectItem key={code} value={code} className="capitalize">
@@ -48,9 +50,15 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 					<div className="space-y-2 pt-4 sm:ps-5 sm:pt-0">
 						<Label>{m.theme()}</Label>
 						<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>
-							<SelectTrigger className="capitalize"><SelectValue placeholder={m.selectTheme()} /></SelectTrigger>
+							<SelectTrigger className="capitalize">
+								<SelectValue placeholder={m.selectTheme()} />
+							</SelectTrigger>
 							<SelectContent>
-								{config.themes.map((theme) => <SelectItem key={theme} value={theme} className="capitalize">{themeLabels[theme as keyof typeof themeLabels]()}</SelectItem>)}
+								{config.themes.map((theme) => (
+									<SelectItem key={theme} value={theme} className="capitalize">
+										{themeLabels[theme as keyof typeof themeLabels]()}
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 					</div>
@@ -58,16 +66,28 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 			</SectionCard>
 
 			<div className="divide-y divide-border/45 rounded-2xl border border-border/60 bg-card/92 shadow-xs">
-				<Button variant="ghost" onMouseDown={() => openUrl(config.aboutURL)} className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
+				<Button
+					variant="ghost"
+					onMouseDown={() => openUrl(config.aboutURL)}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
 					{m.projectLink()} <LinkIcon className="h-4 w-4 text-muted-foreground" />
 				</Button>
-				<Button variant="ghost" onMouseDown={vm.reportIssue} className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
+				<Button
+					variant="ghost"
+					onMouseDown={vm.reportIssue}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
 					{m.reportIssue()} <GithubIcon className="h-4 w-4 text-muted-foreground" />
 				</Button>
-				<Button variant="ghost" onMouseDown={() => openUrl(config.supportVibeURL)} className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
+				<Button
+					variant="ghost"
+					onMouseDown={() => openUrl(config.supportVibeURL)}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
 					{m.supportTheProject()} <HeartIcon className="h-4 w-4 fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" />
 				</Button>
-				<Button variant="ghost" onMouseDown={() => openUrl(config.discordURL)} className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
+				<Button
+					variant="ghost"
+					onMouseDown={() => openUrl(config.discordURL)}
+					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
 					{m.discordCommunity()} <DiscordIcon className="h-4 w-4 text-muted-foreground" />
 				</Button>
 			</div>

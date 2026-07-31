@@ -15,11 +15,11 @@ Testing Sona transcription server with a large file to validate upload and strea
 
 - **File**: `/Users/yqbqwlny/Documents/audio/sona-repo/sonapy/ggml-tiny.bin` (77 MB, whisper tiny)
 - **Loaded via**:
-  ```bash
-  curl -s -X POST http://127.0.0.1:54810/v1/models/load \
-    -H 'Content-Type: application/json' \
-    -d '{"path":"/Users/yqbqwlny/Documents/audio/sona-repo/sonapy/ggml-tiny.bin"}'
-  ```
+    ```bash
+    curl -s -X POST http://127.0.0.1:54810/v1/models/load \
+      -H 'Content-Type: application/json' \
+      -d '{"path":"/Users/yqbqwlny/Documents/audio/sona-repo/sonapy/ggml-tiny.bin"}'
+    ```
 - **Response**: `{"model":"ggml-tiny.bin","status":"loaded"}`
 
 ## Test File
@@ -73,8 +73,8 @@ curl -X POST http://127.0.0.1:54810/v1/audio/transcriptions \
 
 ## API Endpoints Verified
 
-| Endpoint | Method | Status |
-|---|---|---|
-| `/ready` | GET | `{"message":"no model loaded","status":"not_ready"}` (before load) |
-| `/v1/models/load` | POST | `{"model":"ggml-tiny.bin","status":"loaded"}` |
-| `/v1/audio/transcriptions` | POST | Streaming segments returned successfully |
+| Endpoint                   | Method | Status                                                             |
+| -------------------------- | ------ | ------------------------------------------------------------------ |
+| `/ready`                   | GET    | `{"message":"no model loaded","status":"not_ready"}` (before load) |
+| `/v1/models/load`          | POST   | `{"model":"ggml-tiny.bin","status":"loaded"}`                      |
+| `/v1/audio/transcriptions` | POST   | Streaming segments returned successfully                           |
