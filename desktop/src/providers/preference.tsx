@@ -76,6 +76,8 @@ export interface Preference {
 
 	gpuDevice: number | null
 	setGpuDevice: ModifyState<number | null>
+	unloadTimeoutMinutes: number
+	setUnloadTimeoutMinutes: ModifyState<number>
 
 	recentLanguages: { code: string; ts: number }[]
 	setRecentLanguages: ModifyState<{ code: string; ts: number }[]>
@@ -178,6 +180,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [diarizeEnabled, setDiarizeEnabled] = useLocalStorage<boolean>('prefs_diarize_enabled', false)
 	const [stableTimestampsEnabled, setStableTimestampsEnabled] = useLocalStorage<boolean>('prefs_stable_timestamps_enabled', false)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
+	const [unloadTimeoutMinutes, setUnloadTimeoutMinutes] = useLocalStorage<number>('prefs_unload_timeout_minutes', 5)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 	useEffect(() => {
@@ -320,6 +323,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setStableTimestampsEnabled,
 		gpuDevice,
 		setGpuDevice,
+		unloadTimeoutMinutes,
+		setUnloadTimeoutMinutes,
 		analyticsEnabled,
 		setAnalyticsEnabled,
 	}

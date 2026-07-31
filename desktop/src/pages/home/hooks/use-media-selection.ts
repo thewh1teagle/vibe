@@ -29,7 +29,10 @@ export function useMediaSelection() {
 	}, [files, selectedFolder])
 
 	async function selectFiles() {
-		const selected = await dialog.open({ multiple: true, filters: [{ name: 'Audio or Video files', extensions: [...config.audioExtensions, ...config.videoExtensions] }] })
+		const selected = await dialog.open({
+			multiple: true,
+			filters: [{ name: 'Audio or Video files', extensions: [...config.audioExtensions, ...config.videoExtensions] }],
+		})
 		if (!selected) return
 		setSelectedFolder(null)
 		const newFiles: NamedPath[] = []
@@ -62,12 +65,26 @@ export function useMediaSelection() {
 	}
 
 	function clearFolderSelection() {
-		setSelectedFolder(null); setFiles([]); setAudio(null)
+		setSelectedFolder(null)
+		setFiles([])
+		setAudio(null)
 	}
 
 	useEffect(() => {
 		if (selectedFolder) loadFolderFiles(selectedFolder, preference.advancedTranscribeOptions.includeSubFolders)
 	}, [selectedFolder, preference.advancedTranscribeOptions.includeSubFolders])
 
-	return { files, setFiles, audio, setAudio, selectedFolder, setSelectedFolder, isCollectingFolder, selectFiles, selectFolder, startFolderBatch, clearFolderSelection }
+	return {
+		files,
+		setFiles,
+		audio,
+		setAudio,
+		selectedFolder,
+		setSelectedFolder,
+		isCollectingFolder,
+		selectFiles,
+		selectFolder,
+		startFolderBatch,
+		clearFolderSelection,
+	}
 }

@@ -29,7 +29,9 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [progress, setProgress] = useState<number | null>(0)
 
-	useEffect(() => { preferenceRef.current = preference }, [preference])
+	useEffect(() => {
+		preferenceRef.current = preference
+	}, [preference])
 
 	async function onAbort() {
 		setIsAborting(true)
@@ -48,6 +50,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 		startKeepAwake()
 		setSegments(null)
 		onResetSummary()
+		setProgress(0)
 		setLoading(true)
 		abortRef.current = false
 		let completedSegments: transcript.Segment[] = []
@@ -56,7 +59,11 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 		try {
 			const current = preferenceRef.current
 			if (!current.modelPath) throw new Error('No model selected. Please download or select a model first.')
-			const loadResult = await invoke<string>('load_model', { modelPath: current.modelPath, gpuDevice: current.gpuDevice })
+			const loadResult = await invoke<string>('load_model', {
+				modelPath: current.modelPath,
+				gpuDevice: current.gpuDevice,
+				unloadTimeoutMinutes: current.unloadTimeoutMinutes,
+			})
 			if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
 
 			const requiresVad = current.modelMetadata?.capabilities.requires_vad ?? false
@@ -87,7 +94,11 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 				if (errorObject?.code && isUserError(errorObject.code)) {
 					toast.error(`${m.error()}: ${errorMessage}`, { position: 'bottom-center' })
 				} else {
-					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, { source: 'home', error_message: errorMessage, file_ext: path.split('.').pop() ?? 'unknown' })
+					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
+						source: 'home',
+						error_message: errorMessage,
+						file_ext: path.split('.').pop() ?? 'unknown',
+					})
 					setErrorModal?.({ log: errorMessage, open: true })
 				}
 				setLoading(false)

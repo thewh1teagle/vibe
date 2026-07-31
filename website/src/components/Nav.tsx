@@ -13,7 +13,6 @@ interface NavProps {
 }
 
 export default function Nav({ locale, availableLocales, onLocaleChange }: NavProps) {
-
 	return (
 		<div className="mx-auto mt-3 flex w-full items-center justify-between px-3 py-2 lg:max-w-[1065px]">
 			<div className="flex-1">

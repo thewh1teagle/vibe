@@ -12,15 +12,15 @@ Almost all on v3.0.9 (73) and v3.0.8 (15), only 1 on 3.0.10.
 
 ## transcribe_failed (681 events, 14.2% failure rate)
 
-| Category | Count | Notes |
-|---|---|---|
-| model_load_failed | 159 | Mostly Windows — non-ASCII paths (e.g. `C:\Users\José\AppData\...`) break model loading |
-| other (whisper codes, binary not found) | 128 | Whisper error codes -4/-7 on Linux; ffmpeg missing on Windows |
-| sona_connection_failed | 124 | Sona died between spawn and use (Win 106, macOS 16) |
-| no_model_selected | 99 | Users hit transcribe without downloading a model |
-| sona_spawn_eof | 86 | Same root cause as sona_spawn_failed |
-| sona_transcribe_error | 59 | "server busy" (26), "no model loaded" (18), invalid audio/ffmpeg (15) |
-| server_busy | 26 | Users double-clicking transcribe |
+| Category                                | Count | Notes                                                                                   |
+| --------------------------------------- | ----- | --------------------------------------------------------------------------------------- |
+| model_load_failed                       | 159   | Mostly Windows — non-ASCII paths (e.g. `C:\Users\José\AppData\...`) break model loading |
+| other (whisper codes, binary not found) | 128   | Whisper error codes -4/-7 on Linux; ffmpeg missing on Windows                           |
+| sona_connection_failed                  | 124   | Sona died between spawn and use (Win 106, macOS 16)                                     |
+| no_model_selected                       | 99    | Users hit transcribe without downloading a model                                        |
+| sona_spawn_eof                          | 86    | Same root cause as sona_spawn_failed                                                    |
+| sona_transcribe_error                   | 59    | "server busy" (26), "no model loaded" (18), invalid audio/ffmpeg (15)                   |
+| server_busy                             | 26    | Users double-clicking transcribe                                                        |
 
 Failure rate by OS: Ubuntu 40.7%, Linux Mint 21.4%, Windows 14.8%, Arch 14.7%, CachyOS 13.3%, macOS 9.8%.
 

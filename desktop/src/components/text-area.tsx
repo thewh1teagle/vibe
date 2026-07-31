@@ -89,7 +89,7 @@ export default function TextArea({
 							? asJson(segments)
 							: textFormat === 'csv'
 								? asCsv(segments)
-							: asText(segments, speakerLabel),
+								: asText(segments, speakerLabel),
 			)
 		} else {
 			setText('')
@@ -161,9 +161,7 @@ export default function TextArea({
 						<Button
 							variant="ghost"
 							size="icon"
-							className={cn(
-								preference.textAreaDirection === 'rtl' ? 'bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary' : '',
-							)}
+							className={cn(preference.textAreaDirection === 'rtl' ? 'bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary' : '')}
 							onMouseDown={() => preference.setTextAreaDirection(preference.textAreaDirection === 'rtl' ? 'ltr' : 'rtl')}>
 							<AlignRight className="h-5 w-5" strokeWidth={2.1} />
 						</Button>

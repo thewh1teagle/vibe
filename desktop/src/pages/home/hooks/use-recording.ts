@@ -35,8 +35,16 @@ export function useRecording(onBeforeStart: () => void) {
 		const newDevices = await invoke<AudioDevice[]>('get_audio_devices')
 		const inputs = newDevices.filter((device) => device.isInput)
 		const outputs = newDevices.filter((device) => !device.isInput)
-		setInputDevice(savedInputDeviceId === null ? inputs.find((device) => device.isDefault) ?? null : inputs.find((device) => device.id === savedInputDeviceId) ?? null)
-		setOutputDevice(savedOutputDeviceId === null ? outputs.find((device) => device.isDefault) ?? null : outputs.find((device) => device.id === savedOutputDeviceId) ?? null)
+		setInputDevice(
+			savedInputDeviceId === null
+				? (inputs.find((device) => device.isDefault) ?? null)
+				: (inputs.find((device) => device.id === savedInputDeviceId) ?? null),
+		)
+		setOutputDevice(
+			savedOutputDeviceId === null
+				? (outputs.find((device) => device.isDefault) ?? null)
+				: (outputs.find((device) => device.id === savedOutputDeviceId) ?? null),
+		)
 		setDevices(newDevices)
 	}
 
@@ -77,7 +85,17 @@ export function useRecording(onBeforeStart: () => void) {
 	}
 
 	return {
-		devices, setDevices, inputDevice, outputDevice, isRecording, setIsRecording, recordingName, setRecordingName,
-		setInputDevice: setInputDeviceAndSave, setOutputDevice: setOutputDeviceAndSave, startRecord, stopRecord,
+		devices,
+		setDevices,
+		inputDevice,
+		outputDevice,
+		isRecording,
+		setIsRecording,
+		recordingName,
+		setRecordingName,
+		setInputDevice: setInputDeviceAndSave,
+		setOutputDevice: setOutputDeviceAndSave,
+		startRecord,
+		stopRecord,
 	}
 }

@@ -24,7 +24,6 @@ interface FormatMultiSelectProps {
 	setFormats: Dispatch<SetStateAction<TextFormat[]>>
 }
 export default function FormatMultiSelect({ formats, setFormats }: FormatMultiSelectProps) {
-
 	const handleFormatButtonClick = (formatOption: TextFormat) => {
 		if (formats.includes(formatOption)) {
 			setFormats(formats.filter((format) => format !== formatOption))

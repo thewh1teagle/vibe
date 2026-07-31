@@ -24,16 +24,16 @@ The export script requires a `.env` file at the repo root with these variables:
 
 The exported CSV contains these columns:
 
-| Column | Description |
-|---|---|
-| `timestamp` | UTC timestamp of the event |
-| `event_name` | Event identifier (see event lifecycle below) |
-| `user_id` | Anonymous user identifier |
-| `app_version` | Semantic version of the app |
-| `os_name` | OS family (e.g. `Windows`, `macOS`, `Linux Mint`) |
-| `os_version` | OS version string |
-| `string_props` | JSON object with event metadata. Failure events contain an `error_message` key with the full error string. |
-| `numeric_props` | JSON object with numeric event metadata |
+| Column          | Description                                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| `timestamp`     | UTC timestamp of the event                                                                                 |
+| `event_name`    | Event identifier (see event lifecycle below)                                                               |
+| `user_id`       | Anonymous user identifier                                                                                  |
+| `app_version`   | Semantic version of the app                                                                                |
+| `os_name`       | OS family (e.g. `Windows`, `macOS`, `Linux Mint`)                                                          |
+| `os_version`    | OS version string                                                                                          |
+| `string_props`  | JSON object with event metadata. Failure events contain an `error_message` key with the full error string. |
+| `numeric_props` | JSON object with numeric event metadata                                                                    |
 
 ## Workflow
 

@@ -12,20 +12,21 @@ interface AudioDeviceInputProps {
 }
 
 export default function AudioDeviceInput({ type, devices, device, setDevice }: AudioDeviceInputProps) {
-
 	const filtered = devices.filter((d) => (d.isInput && type === 'input') || (!d.isInput && type === 'output'))
 
 	return (
 		<div className="space-y-2.5 w-full">
 			<Label>{type === 'input' ? m.microphone() : m.speakers()}</Label>
-			<Select value={device?.id ?? 'none'} onValueChange={(value) => {
-				if (value === 'none') {
-					setDevice(null)
-					return
-				}
-				const next = filtered.find((d) => d.id === value)
-				setDevice(next ?? null)
-			}}>
+			<Select
+				value={device?.id ?? 'none'}
+				onValueChange={(value) => {
+					if (value === 'none') {
+						setDevice(null)
+						return
+					}
+					const next = filtered.find((d) => d.id === value)
+					setDevice(next ?? null)
+				}}>
 				<SelectTrigger>
 					<SelectValue placeholder={m.noRecord()} />
 				</SelectTrigger>
