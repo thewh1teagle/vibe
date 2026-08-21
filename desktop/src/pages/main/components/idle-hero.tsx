@@ -90,7 +90,7 @@ function Segment({ active, label, onClick, children }: { active?: boolean; label
 					aria-label={label}
 					onClick={onClick}
 					className={cn(
-						'inline-flex h-8 w-11 cursor-pointer items-center justify-center rounded-full transition-colors duration-150',
+						'inline-flex h-10 w-14 cursor-pointer items-center justify-center rounded-full transition-colors duration-150',
 						active ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
 					)}>
 					{children}
@@ -231,13 +231,13 @@ export default function IdleHero() {
 			{/* Joined source switcher: one control, three keys; the active source replaces the drop area. */}
 			<div className="mx-auto inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 p-1">
 				<Segment active={panel === 'none'} label="File" onClick={() => selectPanel('none')}>
-					<Upload className="h-4 w-4" />
+					<Upload className="h-[18px] w-[18px]" />
 				</Segment>
 				<Segment active={panel === 'record'} label={m.record()} onClick={() => selectPanel('record')}>
-					<Mic className="h-4 w-4" />
+					<Mic className="h-[18px] w-[18px]" />
 				</Segment>
 				<Segment active={panel === 'link'} label="From link" onClick={() => selectPanel('link')}>
-					<Link2 className="h-4 w-4" />
+					<Link2 className="h-[18px] w-[18px]" />
 				</Segment>
 			</div>
 
