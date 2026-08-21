@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Layout, { SIDEBAR_STORAGE_KEY, TOGGLE_SIDEBAR_EVENT } from '~/components/layout'
 import IdleHero from './components/idle-hero'
 import PlayerBar from './components/player-bar'
@@ -80,11 +80,26 @@ function MainContent() {
 	)
 }
 
-/** Sidebar visibility: user toggle, forced closed while a multi-file (batch) session runs. */
+/**
+ * Sidebar visibility: user toggle everywhere; entering a multi-file (batch) session
+ * closes it ONCE (its own file rail takes the space) but the toggle still reopens it.
+ */
 function useShowSidebar() {
 	const sidebarVisible = useSidebarVisible()
 	const { queue } = useSession()
-	return sidebarVisible && queue.jobs.length <= 1
+	const batch = queue.jobs.length > 1
+	const wasBatch = useRef(batch)
+	const visibleRef = useRef(sidebarVisible)
+	visibleRef.current = sidebarVisible
+
+	useEffect(() => {
+		if (batch && !wasBatch.current && visibleRef.current) {
+			window.dispatchEvent(new CustomEvent(TOGGLE_SIDEBAR_EVENT))
+		}
+		wasBatch.current = batch
+	}, [batch])
+
+	return sidebarVisible
 }
 
 /** Full-width bottom player, ElevenLabs style: spans the whole window under sidebar and content. */
