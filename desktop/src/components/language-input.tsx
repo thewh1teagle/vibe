@@ -314,10 +314,13 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 				{/* The pill itself becomes the input while open — same container, same shape. */}
 				<PopoverAnchor asChild>
 					<div
+						onClick={() => {
+							if (!open) setOpen(true)
+						}}
 						className={cn(
 							'flex items-center gap-2 border text-start transition-colors duration-150',
 							prominent ? 'h-9 w-[200px] rounded-full bg-card px-3 text-[13px] font-medium' : 'h-9 w-full rounded-lg bg-transparent px-3 text-sm',
-							open ? 'border-ring/60' : 'border-border',
+							open ? 'border-ring/60' : 'cursor-pointer border-border hover:bg-muted/60',
 						)}>
 						<Globe className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 						{open ? (
@@ -340,8 +343,7 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 								type="button"
 								aria-label={m.language()}
 								aria-expanded={open}
-								onClick={() => setOpen(true)}
-								className="min-w-0 flex-1 cursor-pointer truncate text-start text-inherit">
+								className="min-w-0 flex-1 cursor-pointer truncate text-start text-inherit outline-none">
 								{triggerLabel}
 							</button>
 						)}
