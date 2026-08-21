@@ -204,7 +204,20 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 
 	const entries = useMemo(() => {
 		const displayNames = new Intl.DisplayNames([preference.displayLanguage], { type: 'language' })
-		const list = (capabilities?.languages ?? []).map((code) => ({ label: displayNames.of(code) ?? code, name: code, code }))
+		const englishNames = new Intl.DisplayNames(['en'], { type: 'language' })
+		const of = (names: Intl.DisplayNames, code: string) => {
+			try {
+				return names.of(code) ?? code
+			} catch {
+				return code
+			}
+		}
+		const list = (capabilities?.languages ?? []).map((code) => ({
+			label: of(displayNames, code),
+			english: of(englishNames, code),
+			name: code,
+			code,
+		}))
 		list.sort((a, b) => a.label.localeCompare(b.label))
 		return list
 	}, [capabilities, preference.displayLanguage])
@@ -225,12 +238,17 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 	const recentCodes = new Set(preference.recentLanguages.filter((r) => isAfter(r.ts, cutoff)).map((r) => r.code))
 	const needle = query.trim().toLowerCase()
 
-	type Entry = { label: string; name: string; code: string }
-	const autoEntry: Entry | null = hasAutoDetect ? { label: stripDecoration(getLocalizedLanguageName('auto')), name: 'auto', code: 'auto' } : null
+	type Entry = { label: string; english: string; name: string; code: string }
+	const autoEntry: Entry | null = hasAutoDetect
+		? { label: stripDecoration(getLocalizedLanguageName('auto')), english: 'auto detect', name: 'auto', code: 'auto' }
+		: null
 
 	const groups = useMemo(() => {
 		if (needle) {
-			const matches = entries.filter((entry) => entry.label.toLowerCase().includes(needle) || entry.code.toLowerCase().includes(needle))
+			const matches = entries.filter(
+				(entry) =>
+					entry.label.toLowerCase().includes(needle) || entry.english.toLowerCase().includes(needle) || entry.code.toLowerCase().includes(needle),
+			)
 			if (autoEntry && autoEntry.label.toLowerCase().includes(needle)) matches.unshift(autoEntry)
 			return [{ label: null as string | null, items: matches }]
 		}
@@ -306,6 +324,10 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 							<input
 								ref={inputRef}
 								autoFocus
+								autoComplete="off"
+								autoCorrect="off"
+								autoCapitalize="none"
+								spellCheck={false}
 								value={query}
 								onChange={(event) => setQuery(event.target.value)}
 								onKeyDown={onInputKeyDown}
