@@ -155,13 +155,14 @@ export default function IdleHero() {
 						exit={{ opacity: 0, y: -6 }}
 						transition={{ duration: 0.18, ease: 'easeOut' }}
 						className={cn(
-							'group relative cursor-pointer overflow-hidden rounded-[1.25rem] border-2 border-dashed bg-card transition-colors duration-150',
-							dragging ? 'border-ring' : 'border-border hover:border-ring/50',
+							'group relative cursor-pointer overflow-hidden rounded-[1.25rem] border-2 border-dashed transition-colors duration-150',
+							dragging ? 'border-ring' : 'border-border bg-muted/30 hover:border-ring/50 hover:bg-muted/50',
 						)}>
+						{/* The aurora is drag feedback only — at rest the zone stays a quiet surface. */}
 						<div
 							className={cn(
 								'aurora pointer-events-none absolute inset-0 transition-opacity duration-200',
-								dragging ? 'opacity-100' : 'opacity-50 group-hover:opacity-80',
+								dragging ? 'opacity-100' : 'opacity-0',
 							)}
 						/>
 

@@ -82,7 +82,7 @@ export default function TranscriptToolbar({ job, query, setQuery }: { job: Job |
 							<DropdownMenuTrigger asChild>
 								<Button variant="ghost" size="sm" disabled={!hasText} className="rounded-full px-3 text-[13px] font-medium">
 									<Download className="h-3.5 w-3.5" />
-									{m.saveTranscript()}
+									{m.save()}
 									<ChevronDown className="h-3.5 w-3.5 opacity-60" />
 								</Button>
 							</DropdownMenuTrigger>

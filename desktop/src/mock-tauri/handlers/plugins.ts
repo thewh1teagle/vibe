@@ -248,11 +248,13 @@ const dialogHandlers: CommandHandlerMap = {
 		if (options.directory) {
 			return options.multiple ? [DOCUMENTS_FOLDER] : DOCUMENTS_FOLDER
 		}
-		// multiple:true simulates a multi-select so the batch queue UI is reachable in browser mode
-		if (options.multiple) {
+		// multiple:true simulates a multi-select so the batch queue UI is reachable in browser
+		// mode; the floating mock toolbar (runtime.ts) can force single-file picks instead.
+		if (options.multiple && localStorage.getItem('mock-dialog-multi') !== 'off') {
 			return [...virtualFs.keys()].filter((key) => key.startsWith(`${DOCUMENTS_FOLDER}/`) && /\.(mp3|mp4|wav)$/.test(key))
 		}
-		return `${DOCUMENTS_FOLDER}/sample.mp3`
+		const single = `${DOCUMENTS_FOLDER}/sample.mp3`
+		return options.multiple ? [single] : single
 	},
 	'plugin:dialog|save': (args) => {
 		const options = (args.options ?? {}) as DialogOpenOptions

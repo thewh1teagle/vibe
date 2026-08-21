@@ -158,4 +158,35 @@ export function installRuntime(handlers: CommandHandlerMap): void {
 
 	installOsPluginInternals()
 	installGlobalTauri()
+	installMockToolbar()
+}
+
+// Tiny floating control for mock-only knobs. Plain DOM so it never touches app code.
+function installMockToolbar(): void {
+	const ID = '__vibe-mock-toolbar'
+	if (document.getElementById(ID)) {
+		return
+	}
+	const label = () => (localStorage.getItem('mock-dialog-multi') === 'off' ? 'mock: pick 1 file' : 'mock: pick 3 files')
+	const button = document.createElement('button')
+	button.id = ID
+	button.type = 'button'
+	button.textContent = label()
+	button.title = 'Browser mock: toggle how many files the fake open-dialog returns'
+	button.style.cssText =
+		'position:fixed;bottom:10px;left:10px;z-index:99999;padding:4px 10px;border-radius:999px;' +
+		'border:1px solid rgba(128,128,128,.35);background:rgba(128,128,128,.12);color:inherit;' +
+		'font:11px/1.6 ui-monospace,monospace;opacity:.55;cursor:pointer;backdrop-filter:blur(4px)'
+	button.addEventListener('mouseenter', () => (button.style.opacity = '1'))
+	button.addEventListener('mouseleave', () => (button.style.opacity = '.55'))
+	button.addEventListener('click', () => {
+		localStorage.setItem('mock-dialog-multi', localStorage.getItem('mock-dialog-multi') === 'off' ? 'on' : 'off')
+		button.textContent = label()
+	})
+	const mount = () => document.body.appendChild(button)
+	if (document.body) {
+		mount()
+	} else {
+		window.addEventListener('DOMContentLoaded', mount, { once: true })
+	}
 }
