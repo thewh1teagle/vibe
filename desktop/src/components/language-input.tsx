@@ -250,7 +250,6 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 		if (popular.length) result.push({ label: m.popular(), items: popular })
 		if (others.length) result.push({ label: m.others(), items: others })
 		return result
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [entries, needle, preference.recentLanguages])
 
 	const flat = useMemo(() => groups.flatMap((group) => group.items), [groups])
