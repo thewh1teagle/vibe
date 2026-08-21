@@ -76,7 +76,7 @@
 	--card-foreground: #1a1c1f;
 	--popover: #ffffff;
 	--popover-foreground: #1a1c1f;
-	--primary: #2563eb;
+	--primary: #1a1c1f;
 	--primary-foreground: #ffffff;
 	--secondary: #f4f4f4;
 	--secondary-foreground: #1a1c1f;
@@ -90,7 +90,7 @@
 	--success-foreground: #f3faf6;
 	--border: #e6e6e6;
 	--input: #e6e6e6;
-	--ring: rgb(37 99 235 / 0.35);
+	--ring: rgb(26 28 31 / 0.25);
 
 	/* Aurora hues — the only chroma in the system */
 	--aurora-1: #5b8def;
@@ -106,7 +106,7 @@
 
 	--sidebar: #f9f9f9;
 	--sidebar-foreground: #1a1c1f;
-	--sidebar-primary: #2563eb;
+	--sidebar-primary: #1a1c1f;
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: #f1f1ee;
 	--sidebar-accent-foreground: #111110;
@@ -132,8 +132,8 @@
 	--card-foreground: #ececec;
 	--popover: #2a2a2a;
 	--popover-foreground: #ececec;
-	--primary: #2563eb;
-	--primary-foreground: #ffffff;
+	--primary: #ececec;
+	--primary-foreground: #1a1c1f;
 	--secondary: #242424;
 	--secondary-foreground: #ececec;
 	--muted: #242424;
@@ -146,7 +146,7 @@
 	--success-foreground: #0d1512;
 	--border: #303030;
 	--input: #303030;
-	--ring: rgb(51 156 255 / 0.4);
+	--ring: rgb(236 236 236 / 0.24);
 
 	--aurora-1: #5b8def;
 	--aurora-2: #b98de3;
@@ -157,7 +157,7 @@
 
 	--sidebar: #212121;
 	--sidebar-foreground: #ececec;
-	--sidebar-primary: #2563eb;
+	--sidebar-primary: #ececec;
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: #2a2a2a;
 	--sidebar-accent-foreground: #ececec;
