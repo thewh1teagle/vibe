@@ -10,7 +10,48 @@ export const DEFAULT_MODEL_FILE = 'ggml-medium.bin'
 export const virtualFs = new Map<string, string | Uint8Array | null>([
 	[`${MODELS_FOLDER}/${DEFAULT_MODEL_FILE}`, null],
 	[`${DOCUMENTS_FOLDER}/sample.mp3`, null],
+	[`${DOCUMENTS_FOLDER}/interview.mp4`, null],
+	[`${DOCUMENTS_FOLDER}/meeting-notes.wav`, null],
 ])
+
+// Pre-saved transcripts so the Recents sidebar has entries to open on first load.
+// Shape, folder layout and stamp must match src/lib/transcripts-store.ts.
+function record(name: string, texts: string[], audioFile?: string) {
+	return JSON.stringify({
+		version: 1,
+		name,
+		sourcePath: `${DOCUMENTS_FOLDER}/${name}.mp3`,
+		createdAt: new Date().toISOString(),
+		language: 'english',
+		modelPath: `${MODELS_FOLDER}/${DEFAULT_MODEL_FILE}`,
+		...(audioFile ? { audioFile } : {}),
+		segments: texts.map((text, index) => ({ start: index * 300, stop: index * 300 + 280, text })),
+	})
+}
+
+/** A project folder: the record plus the copy of the media it was transcribed from. */
+function seedProject(name: string, stamp: string, texts: string[]) {
+	const folder = `${DOCUMENTS_FOLDER}/Vibe/${name}-${stamp}`
+	virtualFs.set(`${folder}/transcript.vibe.json`, record(name, texts, 'audio.mp3'))
+	virtualFs.set(`${folder}/audio.mp3`, null)
+}
+
+seedProject('team-standup', '20260820-093015', [
+	'Quick recap of what everyone shipped yesterday.',
+	'The new release is scheduled for Friday morning.',
+	'Open blockers move to the afternoon sync.',
+])
+seedProject('podcast-episode', '20260818-174200', [
+	'Welcome back to the show, today we talk about local AI.',
+	'On-device transcription keeps your audio private.',
+	'Thanks for listening, see you next week.',
+])
+
+// One save in the pre-project-folder layout, so the mock keeps exercising back-compat.
+virtualFs.set(
+	`${DOCUMENTS_FOLDER}/Vibe/legacy-interview-20260810-101500.vibe.json`,
+	record('legacy-interview', ['This transcript was saved as a flat file by an older build.', 'It still opens, renames and deletes in place.']),
+)
 
 export const sampleSegments: { start: number; stop: number; text: string; speaker?: number }[] = [
 	{ start: 0, stop: 240, text: 'Welcome to Vibe running in browser mock mode.' },

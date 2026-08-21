@@ -107,7 +107,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     } else {
         tracing::debug!("Non CLI mode");
         // Create main window
-        let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+        let builder = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
             .inner_size(800.0, 700.0)
             .min_inner_size(800.0, 700.0)
             .center()
@@ -115,10 +115,31 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .resizable(true)
             .focused(true)
             .shadow(true)
-            .visible(true)
-            .build();
-        if let Err(error) = result {
-            tracing::error!("{:?}", error);
+            .visible(true);
+        // The web content extends under the titlebar so the sidebar toggle can sit
+        // beside the traffic lights (ChatGPT-desktop style); the topbar is a drag region.
+        #[cfg(target_os = "macos")]
+        let builder = builder
+            .title_bar_style(tauri::TitleBarStyle::Overlay)
+            .hidden_title(true)
+            // Centered on the 56px titlebar row so the lights align with the sidebar toggle.
+            .traffic_light_position(tauri::LogicalPosition::new(16.0, 28.0))
+            .transparent(true);
+        match builder.build() {
+            Ok(_window) => {
+                // Glass sidebar: the window is transparent on macOS and an NSVisualEffectView
+                // shows the blurred desktop wherever the web content leaves alpha (the sidebar).
+                #[cfg(target_os = "macos")]
+                {
+                    use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+                    if let Err(error) = apply_vibrancy(&_window, NSVisualEffectMaterial::Sidebar, None, None) {
+                        tracing::warn!("failed to apply vibrancy: {:?}", error);
+                    }
+                }
+            }
+            Err(error) => {
+                tracing::error!("{:?}", error);
+            }
         }
         crate::dictation_indicator::initialize(app.handle());
     }

@@ -6854,6 +6854,7 @@ dependencies = [
  "url",
  "urlencoding",
  "which 8.0.0",
+ "window-vibrancy",
  "windows 0.62.2",
  "winreg",
 ]
