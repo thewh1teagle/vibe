@@ -102,7 +102,6 @@ function RecentRow({
 		return (
 			<div className="flex items-center rounded-xl bg-muted px-2 py-1.5">
 				<input
-					// eslint-disable-next-line jsx-a11y/no-autofocus
 					autoFocus
 					value={draftName}
 					onChange={(event) => setDraftName(event.target.value)}
