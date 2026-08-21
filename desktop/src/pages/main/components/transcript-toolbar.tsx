@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, ChevronDown, Copy, Download, Plus, Search, X } from 'lucide-react'
+import { Check, ChevronDown, Copy, Download, Plus, Search, X, AlignLeft, Braces, Captions, CodeXml, FileText, FileType } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { Button } from '~/components/ui/button'
@@ -7,6 +7,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from '~/lib/style'
 import type { Job } from '../hooks/use-transcribe-queue'
 import { exportFormatLabels, exportFormats, useTranscriptExport } from '../hooks/use-transcript-export'
+
+// One glyph per format so the save menu scans visually.
+const formatIcons: Record<string, typeof AlignLeft> = {
+	normal: AlignLeft,
+	srt: Captions,
+	vtt: Captions,
+	html: CodeXml,
+	pdf: FileText,
+	json: Braces,
+	docx: FileType,
+}
 import { useSession } from '../session'
 
 export default function TranscriptToolbar({ job, query, setQuery }: { job: Job | null; query: string; setQuery: (value: string) => void }) {
@@ -87,11 +98,15 @@ export default function TranscriptToolbar({ job, query, setQuery }: { job: Job |
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="start" className="min-w-[9rem] rounded-xl">
-								{exportFormats.map((format) => (
-									<DropdownMenuItem key={format} onSelect={() => void exportAs(format)} className="rounded-lg text-[13px]">
-										{exportFormatLabels[format]}
-									</DropdownMenuItem>
-								))}
+								{exportFormats.map((format) => {
+									const Icon = formatIcons[format] ?? FileText
+									return (
+										<DropdownMenuItem key={format} onSelect={() => void exportAs(format)} className="gap-2.5 rounded-lg text-[13px]">
+											<Icon className="h-4 w-4 text-muted-foreground" />
+											{exportFormatLabels[format]}
+										</DropdownMenuItem>
+									)
+								})}
 							</DropdownMenuContent>
 						</DropdownMenu>
 
