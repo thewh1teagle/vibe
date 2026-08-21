@@ -63,7 +63,7 @@ function AppMock() {
 		<div
 			dir="ltr"
 			aria-hidden="true"
-			className="pointer-events-none relative z-10 flex w-full min-w-0 select-none overflow-hidden rounded-2xl border shadow-xl"
+			className="pointer-events-none relative z-10 flex w-full min-w-0 select-none overflow-hidden rounded-2xl border shadow-xl sm:aspect-[16/10]"
 			style={{ background: app.surface, borderColor: app.line, color: app.ink }}>
 			{/* Recents sidebar */}
 			<div className="hidden w-[11rem] shrink-0 flex-col border-e sm:flex" style={{ background: app.sidebar, borderColor: app.line }}>
@@ -106,7 +106,7 @@ function AppMock() {
 			</div>
 
 			{/* Main pane — the idle screen: switcher, drop zone, quiet row. */}
-			<div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-3.5 px-4 py-7 sm:px-10 sm:py-10">
+			<div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-4 px-4 py-7 sm:px-12 sm:py-10">
 				{/* Joined, icon-only source switcher */}
 				<div className="inline-flex items-center gap-1 rounded-full border p-[0.1875rem]" style={{ borderColor: app.line, background: app.muted }}>
 					<MockSegment active>
@@ -182,7 +182,7 @@ export default function Home() {
 
 			{/* Aurora showcase */}
 			<section className="mt-16 lg:mt-20">
-				<div className="aurora w-full overflow-hidden rounded-3xl border border-border p-2 sm:p-4 lg:p-8">
+				<div className="aurora mx-auto w-full max-w-[880px] overflow-hidden rounded-3xl border border-border p-2 sm:p-4 lg:p-6">
 					<AppMock />
 				</div>
 			</section>
