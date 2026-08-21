@@ -1,11 +1,9 @@
 import { PanelLeft } from 'lucide-react'
 import { platform } from '@tauri-apps/plugin-os'
-import { ReactNode, useContext, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Button } from '~/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
-import { UpdaterContext } from '~/providers/updater'
-import AppMenu from './app-menu'
 import SettingsModal from './settings-modal'
 import PageTransition from './page-transition'
 import ModelDownloadPrompt from './model-download-prompt'
@@ -55,14 +53,11 @@ interface LayoutProps {
 	sidebar?: ReactNode
 	/** Full-width bar docked at the very bottom of the window (player). */
 	bottomBar?: ReactNode
-	/** When open, the sidebar's footer hosts Settings/update, so the header hides its own. */
-	sidebarOpen?: boolean
 }
 
-export default function Layout({ children, sidebar, bottomBar, sidebarOpen = false }: LayoutProps) {
+export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined)
-	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	// Only the main page renders a Recents sidebar, so only it gets the toggle.
 	const showSidebarToggle = useLocation().pathname === '/'
 
@@ -101,9 +96,7 @@ export default function Layout({ children, sidebar, bottomBar, sidebarOpen = fal
 			<div className="flex min-h-0 flex-1">
 				{sidebar}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col bg-background">
-					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-end gap-4 pe-4">
-						{!sidebarOpen && <AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />}
-					</header>
+					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-end gap-4 pe-4"></header>
 					<div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
 						<PageTransition>
 							<div className="stagger-in h-full">{children}</div>
