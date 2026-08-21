@@ -10,6 +10,8 @@ export const DEFAULT_MODEL_FILE = 'ggml-medium.bin'
 export const virtualFs = new Map<string, string | Uint8Array | null>([
 	[`${MODELS_FOLDER}/${DEFAULT_MODEL_FILE}`, null],
 	[`${DOCUMENTS_FOLDER}/sample.mp3`, null],
+	[`${DOCUMENTS_FOLDER}/interview.mp4`, null],
+	[`${DOCUMENTS_FOLDER}/meeting-notes.wav`, null],
 ])
 
 export const sampleSegments: { start: number; stop: number; text: string; speaker?: number }[] = [

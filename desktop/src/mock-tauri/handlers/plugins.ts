@@ -248,8 +248,11 @@ const dialogHandlers: CommandHandlerMap = {
 		if (options.directory) {
 			return options.multiple ? [DOCUMENTS_FOLDER] : DOCUMENTS_FOLDER
 		}
-		const picked = `${DOCUMENTS_FOLDER}/sample.mp3`
-		return options.multiple ? [picked] : picked
+		// multiple:true simulates a multi-select so the batch queue UI is reachable in browser mode
+		if (options.multiple) {
+			return [...virtualFs.keys()].filter((key) => key.startsWith(`${DOCUMENTS_FOLDER}/`) && /\.(mp3|mp4|wav)$/.test(key))
+		}
+		return `${DOCUMENTS_FOLDER}/sample.mp3`
 	},
 	'plugin:dialog|save': (args) => {
 		const options = (args.options ?? {}) as DialogOpenOptions
