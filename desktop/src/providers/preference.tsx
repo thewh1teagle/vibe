@@ -1,5 +1,6 @@
 import { ReactNode, SetStateAction, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
 import { TextFormat } from '~/components/format-select'
@@ -84,6 +85,10 @@ export interface Preference {
 
 	analyticsEnabled: boolean
 	setAnalyticsEnabled: (value: boolean) => void
+
+	/** Auto-save every finished transcription into Documents/Vibe (powers the Recents sidebar). */
+	saveTranscripts: boolean
+	setSaveTranscripts: ModifyState<boolean>
 }
 
 // Create the context
@@ -181,6 +186,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [stableTimestampsEnabled, setStableTimestampsEnabled] = useLocalStorage<boolean>('prefs_stable_timestamps_enabled', false)
 	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
 	const [unloadTimeoutMinutes, setUnloadTimeoutMinutes] = useLocalStorage<number>('prefs_unload_timeout_minutes', 5)
+	const [saveTranscripts, setSaveTranscripts] = useLocalStorage<boolean>('prefs_save_transcripts', true)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 	useEffect(() => {
@@ -221,6 +227,13 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			document.documentElement.classList.add('dark')
 		} else {
 			document.documentElement.classList.remove('dark')
+		}
+		// Keep the native window appearance in sync so macOS vibrancy (glass sidebar)
+		// renders light glass in light mode instead of the system appearance.
+		try {
+			void getCurrentWebviewWindow().setTheme(theme)
+		} catch {
+			/* browser mode */
 		}
 	}, [theme])
 
@@ -327,6 +340,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setUnloadTimeoutMinutes,
 		analyticsEnabled,
 		setAnalyticsEnabled,
+		saveTranscripts,
+		setSaveTranscripts,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

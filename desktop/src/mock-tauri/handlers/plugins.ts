@@ -54,7 +54,7 @@ function resolveWritePath(args: Record<string, unknown>): string {
 }
 
 function resolveWriteData(args: Record<string, unknown>): Uint8Array {
-	const candidate = args.data ?? args.__payload ?? args.payload ?? args
+	const candidate = args.data ?? args.__body ?? args.__payload ?? args.payload ?? args
 	if (candidate instanceof Uint8Array) {
 		return candidate
 	}
@@ -197,6 +197,30 @@ const fsHandlers: CommandHandlerMap = {
 		}))
 	},
 	'plugin:fs|mkdir': () => null,
+	'plugin:fs|copy_file': (args) => {
+		const from = toPosixPath(args.fromPath ?? args.from)
+		const to = toPosixPath(args.toPath ?? args.to)
+		virtualFs.set(to, virtualFs.get(from) ?? null)
+		return null
+	},
+	// Moves a file, or a whole folder subtree (how a transcript project folder gets renamed).
+	'plugin:fs|rename': (args) => {
+		const from = toPosixPath(args.oldPath ?? args.from)
+		const to = toPosixPath(args.newPath ?? args.to)
+		if (virtualFs.has(from)) {
+			virtualFs.set(to, virtualFs.get(from) ?? null)
+			virtualFs.delete(from)
+			return null
+		}
+		const prefix = `${from}/`
+		for (const key of Array.from(virtualFs.keys())) {
+			if (key.startsWith(prefix)) {
+				virtualFs.set(`${to}/${key.slice(prefix.length)}`, virtualFs.get(key) ?? null)
+				virtualFs.delete(key)
+			}
+		}
+		return null
+	},
 	'plugin:fs|remove': (args) => {
 		const path = toPosixPath(args.path)
 		virtualFs.delete(path)
@@ -224,11 +248,12 @@ const fsHandlers: CommandHandlerMap = {
 		return contents ? Array.from(contents) : []
 	},
 	'plugin:fs|read_text_file': (args) => {
+		// plugin-fs decodes the response via Uint8Array.from(...), so this must be raw bytes.
 		const contents = virtualFs.get(toPosixPath(args.path))
 		if (typeof contents === 'string') {
-			return contents
+			return Array.from(new TextEncoder().encode(contents))
 		}
-		return contents ? new TextDecoder().decode(contents) : ''
+		return contents ? Array.from(contents) : []
 	},
 }
 
@@ -248,8 +273,13 @@ const dialogHandlers: CommandHandlerMap = {
 		if (options.directory) {
 			return options.multiple ? [DOCUMENTS_FOLDER] : DOCUMENTS_FOLDER
 		}
-		const picked = `${DOCUMENTS_FOLDER}/sample.mp3`
-		return options.multiple ? [picked] : picked
+		// multiple:true simulates a multi-select so the batch queue UI is reachable in browser
+		// mode; the floating mock toolbar (runtime.ts) can force single-file picks instead.
+		if (options.multiple && localStorage.getItem('mock-dialog-multi') !== 'off') {
+			return [...virtualFs.keys()].filter((key) => key.startsWith(`${DOCUMENTS_FOLDER}/`) && /\.(mp3|mp4|wav)$/.test(key))
+		}
+		const single = `${DOCUMENTS_FOLDER}/sample.mp3`
+		return options.multiple ? [single] : single
 	},
 	'plugin:dialog|save': (args) => {
 		const options = (args.options ?? {}) as DialogOpenOptions

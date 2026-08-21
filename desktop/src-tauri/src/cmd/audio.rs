@@ -7,7 +7,9 @@ use serde_json::json;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::Instant;
 use tauri::{AppHandle, Emitter, Listener, Manager};
 
 use crate::error::LogError;
@@ -63,6 +65,72 @@ struct StreamHandle(Stream);
 unsafe impl Send for StreamHandle {}
 unsafe impl Sync for StreamHandle {}
 
+/// At most ~10 `record_level` events per second reach the webview.
+const LEVEL_EMIT_INTERVAL_MS: u64 = 100;
+/// Peak is taken from every Nth sample — plenty for a meter, and keeps the callback cheap.
+const LEVEL_SAMPLE_STRIDE: usize = 4;
+
+/// Shared by every capture stream of a recording session, so the emitted value is the max
+/// level across input + output (loopback) devices.
+///
+/// Everything here is atomic and allocation-free: the audio callback only does a few relaxed
+/// loads/stores, and once per 100ms one callback also performs the (non-blocking) `emit_to`.
+struct LevelMeter {
+    app_handle: AppHandle,
+    started_at: Instant,
+    /// Max level seen since the last emit, stored as `f32::to_bits` (monotonic for +0.0..=1.0).
+    peak_bits: AtomicU32,
+    last_emit_ms: AtomicU64,
+}
+
+impl LevelMeter {
+    fn new(app_handle: AppHandle) -> Self {
+        Self {
+            app_handle,
+            started_at: Instant::now(),
+            peak_bits: AtomicU32::new(0),
+            last_emit_ms: AtomicU64::new(0),
+        }
+    }
+
+    /// Accumulate one buffer's peak and emit if the throttle window elapsed.
+    fn push(&self, peak: f32) {
+        self.peak_bits.fetch_max(peak.to_bits(), Ordering::Relaxed);
+
+        let now_ms = self.started_at.elapsed().as_millis() as u64;
+        let last_ms = self.last_emit_ms.load(Ordering::Relaxed);
+        if now_ms.saturating_sub(last_ms) < LEVEL_EMIT_INTERVAL_MS {
+            return;
+        }
+        // Only the stream that wins the swap emits, so two devices can't double-emit a window.
+        if self
+            .last_emit_ms
+            .compare_exchange(last_ms, now_ms, Ordering::Relaxed, Ordering::Relaxed)
+            .is_err()
+        {
+            return;
+        }
+        let level = f32::from_bits(self.peak_bits.swap(0, Ordering::Relaxed)).clamp(0.0, 1.0);
+        self.app_handle.emit_to("main", "record_level", level).ok();
+    }
+}
+
+/// Peak magnitude of a buffer, normalized to 0..1.
+fn buffer_peak<T>(input: &[T]) -> f32
+where
+    T: Sample,
+    f32: FromSample<T>,
+{
+    let mut peak = 0.0f32;
+    for &sample in input.iter().step_by(LEVEL_SAMPLE_STRIDE) {
+        let value = f32::from_sample(sample).abs();
+        if value > peak {
+            peak = value;
+        }
+    }
+    peak.min(1.0)
+}
+
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
 pub async fn start_record(
@@ -77,6 +145,9 @@ pub async fn start_record(
     let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();
     let mut stream_handles = Vec::new();
     let mut stream_writers = Vec::new();
+    // One meter for the whole session: input and output streams both feed it, so the UI sees
+    // the max of the two under a single throttled `record_level` event.
+    let meter = Arc::new(LevelMeter::new(app_handle.clone()));
 
     for device in devices {
         tracing::debug!("Recording from device: {}", device.name);
@@ -102,7 +173,7 @@ pub async fn start_record(
         stream_writers.push(writer.clone());
         let writer_2 = writer.clone();
 
-        let stream = build_input_stream(&device, config, writer_2)?;
+        let stream = build_input_stream(&device, config, writer_2, meter.clone())?;
         stream.play()?;
         tracing::debug!("Stream started playing");
 
@@ -236,25 +307,39 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
     }
 }
 
-fn build_input_stream_typed<T>(device: &Device, config: SupportedStreamConfig, writer: WavWriterHandle) -> Result<Stream>
+fn build_input_stream_typed<T>(
+    device: &Device,
+    config: SupportedStreamConfig,
+    writer: WavWriterHandle,
+    meter: Arc<LevelMeter>,
+) -> Result<Stream>
 where
     T: SizedSample + hound::Sample + FromSample<T> + Mul<Output = T> + Copy,
+    f32: FromSample<T>,
 {
     let stream = device.build_input_stream(
         config.into(),
-        move |data: &[T], _: &_| write_input_data::<T, T>(data, &writer),
+        move |data: &[T], _: &_| {
+            meter.push(buffer_peak(data));
+            write_input_data::<T, T>(data, &writer)
+        },
         |err| tracing::error!("An error occurred on stream: {}", err),
         None,
     )?;
     Ok(stream)
 }
 
-fn build_input_stream(device: &Device, config: SupportedStreamConfig, writer: WavWriterHandle) -> Result<Stream> {
+fn build_input_stream(
+    device: &Device,
+    config: SupportedStreamConfig,
+    writer: WavWriterHandle,
+    meter: Arc<LevelMeter>,
+) -> Result<Stream> {
     match config.sample_format() {
-        cpal::SampleFormat::I8 => build_input_stream_typed::<i8>(device, config, writer),
-        cpal::SampleFormat::I16 => build_input_stream_typed::<i16>(device, config, writer),
-        cpal::SampleFormat::I32 => build_input_stream_typed::<i32>(device, config, writer),
-        cpal::SampleFormat::F32 => build_input_stream_typed::<f32>(device, config, writer),
+        cpal::SampleFormat::I8 => build_input_stream_typed::<i8>(device, config, writer, meter),
+        cpal::SampleFormat::I16 => build_input_stream_typed::<i16>(device, config, writer, meter),
+        cpal::SampleFormat::I32 => build_input_stream_typed::<i32>(device, config, writer, meter),
+        cpal::SampleFormat::F32 => build_input_stream_typed::<f32>(device, config, writer, meter),
         sample_format => bail!("Unsupported sample format '{}'", sample_format),
     }
 }
