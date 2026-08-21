@@ -110,7 +110,7 @@ function Shell() {
 							animate={{ opacity: 1, width: 'auto' }}
 							exit={{ opacity: 0, width: 0 }}
 							transition={{ duration: 0.2, ease: 'easeOut' }}
-							className="flex min-h-0 overflow-hidden bg-background/70 dark:bg-background/50">
+							className="flex min-h-0 overflow-hidden bg-background/90 dark:bg-background/55">
 							<RecentsSidebar />
 						</motion.div>
 					)}
