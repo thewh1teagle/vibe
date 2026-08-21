@@ -80,6 +80,20 @@ export default function PlayerBar({ job }: { job: Job }) {
 		}
 	}, [sourcePath])
 
+	// `timeupdate` only fires ~4x/second which makes the fill step visibly; while playing, the
+	// position is sampled every animation frame instead so the bar glides.
+	useEffect(() => {
+		if (!playing) return
+		let frame = 0
+		const tick = () => {
+			const audio = audioRef.current
+			if (audio) setCurrentTime(audio.currentTime)
+			frame = requestAnimationFrame(tick)
+		}
+		frame = requestAnimationFrame(tick)
+		return () => cancelAnimationFrame(frame)
+	}, [playing])
+
 	const toggle = useCallback(() => {
 		const audio = audioRef.current
 		if (!audio) return
