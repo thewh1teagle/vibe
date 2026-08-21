@@ -224,11 +224,12 @@ const fsHandlers: CommandHandlerMap = {
 		return contents ? Array.from(contents) : []
 	},
 	'plugin:fs|read_text_file': (args) => {
+		// plugin-fs decodes the response via Uint8Array.from(...), so this must be raw bytes.
 		const contents = virtualFs.get(toPosixPath(args.path))
 		if (typeof contents === 'string') {
-			return contents
+			return Array.from(new TextEncoder().encode(contents))
 		}
-		return contents ? new TextDecoder().decode(contents) : ''
+		return contents ? Array.from(contents) : []
 	},
 }
 

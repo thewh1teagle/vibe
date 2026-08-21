@@ -144,51 +144,54 @@ export default function IdleHero() {
 				</Pill>
 			</div>
 
-			<AnimatePresence mode="wait" initial={false}>
-				{panel === 'none' ? (
-					<motion.button
-						key="drop"
-						type="button"
-						onClick={() => void browse()}
-						initial={{ opacity: 0, y: 6 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -6 }}
-						transition={{ duration: 0.18, ease: 'easeOut' }}
-						className={cn(
-							'group relative cursor-pointer overflow-hidden rounded-[1.25rem] border-2 border-dashed transition-colors duration-150',
-							dragging ? 'border-ring' : 'border-border bg-muted/30 hover:border-ring/50 hover:bg-muted/50',
-						)}>
-						{/* The aurora is drag feedback only — at rest the zone stays a quiet surface. */}
-						<div
+			{/* Fixed-height slot sized to the drop zone so switching sources never moves the pills or the quiet row. */}
+			<div className="flex min-h-[220px] w-full flex-col justify-center">
+				<AnimatePresence mode="wait" initial={false}>
+					{panel === 'none' ? (
+						<motion.button
+							key="drop"
+							type="button"
+							onClick={() => void browse()}
+							initial={{ opacity: 0, y: 6 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -6 }}
+							transition={{ duration: 0.18, ease: 'easeOut' }}
 							className={cn(
-								'aurora pointer-events-none absolute inset-0 transition-opacity duration-200',
-								dragging ? 'opacity-100' : 'opacity-0',
-							)}
-						/>
+								'group relative cursor-pointer overflow-hidden rounded-[1.25rem] border-2 border-dashed transition-colors duration-150',
+								dragging ? 'border-ring' : 'border-border bg-muted/30 hover:border-ring/50 hover:bg-muted/50',
+							)}>
+							{/* The aurora is drag feedback only — at rest the zone stays a quiet surface. */}
+							<div
+								className={cn(
+									'aurora pointer-events-none absolute inset-0 transition-opacity duration-200',
+									dragging ? 'opacity-100' : 'opacity-0',
+								)}
+							/>
 
-						<div className="relative flex flex-col items-center gap-3.5 px-8 py-12 text-center">
-							<span className="flex h-12 w-12 items-center justify-center rounded-full bg-background/70 text-foreground shadow-sm">
-								{collectingFolder ? <Spinner className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
-							</span>
-							<div className="space-y-1">
-								<h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">Drop audio, video or a folder here</h1>
-								<p className="text-[13px] text-muted-foreground">or click to browse your files</p>
+							<div className="relative flex flex-col items-center gap-3.5 px-8 py-12 text-center">
+								<span className="flex h-12 w-12 items-center justify-center rounded-full bg-background/70 text-foreground shadow-sm">
+									{collectingFolder ? <Spinner className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
+								</span>
+								<div className="space-y-1">
+									<h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">Drop audio, video or a folder here</h1>
+									<p className="text-[13px] text-muted-foreground">or click to browse your files</p>
+								</div>
 							</div>
-						</div>
-					</motion.button>
-				) : (
-					<motion.div
-						key={panel}
-						initial={{ opacity: 0, y: 6 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -6 }}
-						transition={{ duration: 0.18, ease: 'easeOut' }}
-						// Content-sized: no card chrome, the controls themselves carry the borders.
-						className="flex w-full flex-col">
-						{panel === 'record' ? <RecordPanel /> : <LinkPanel />}
-					</motion.div>
-				)}
-			</AnimatePresence>
+						</motion.button>
+					) : (
+						<motion.div
+							key={panel}
+							initial={{ opacity: 0, y: 6 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -6 }}
+							transition={{ duration: 0.18, ease: 'easeOut' }}
+							// Same footprint as the drop zone so the composition stays anchored.
+							className="flex min-h-[220px] w-full flex-col justify-center rounded-[1.25rem] border border-border bg-muted/30 px-7">
+							{panel === 'record' ? <RecordPanel /> : <LinkPanel />}
+						</motion.div>
+					)}
+				</AnimatePresence>
+			</div>
 
 			<QuietRow />
 		</div>

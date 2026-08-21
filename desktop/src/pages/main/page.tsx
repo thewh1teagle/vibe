@@ -82,23 +82,28 @@ function MainContent() {
 
 function MainShell() {
 	const sidebarVisible = useSidebarVisible()
+	const { queue } = useSession()
+	// A multi-file (batch) session already shows its own file rail — the recents
+	// sidebar closes for it so the layout never runs three columns deep.
+	const batchRunning = queue.jobs.length > 1
+	const showSidebar = sidebarVisible && !batchRunning
 
 	return (
 		<div className="flex h-full min-h-0 w-full">
 			<AnimatePresence initial={false}>
-				{sidebarVisible && (
+				{showSidebar && (
 					<motion.div
 						key="recents"
-						initial={{ opacity: 0, x: -12 }}
-						animate={{ opacity: 1, x: 0 }}
-						exit={{ opacity: 0, x: -12 }}
+						initial={{ opacity: 0, width: 0 }}
+						animate={{ opacity: 1, width: 'auto' }}
+						exit={{ opacity: 0, width: 0 }}
 						transition={{ duration: 0.2, ease: 'easeOut' }}
-						className="flex min-h-0">
+						className="flex min-h-0 overflow-hidden">
 						<RecentsSidebar />
 					</motion.div>
 				)}
 			</AnimatePresence>
-			<div className={cn('flex min-h-0 min-w-0 flex-1 flex-col', sidebarVisible && 'ps-5 md:ps-7')}>
+			<div className={cn('flex min-h-0 min-w-0 flex-1 flex-col', showSidebar && 'ps-5 md:ps-7')}>
 				<MainContent />
 			</div>
 		</div>

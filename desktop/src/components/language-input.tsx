@@ -82,7 +82,7 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 						<SelectValue placeholder={m.language()} />
 					)}
 				</SelectTrigger>
-				<SelectContent>
+				<SelectContent className="min-w-[240px]">
 					{recentEntries.length > 0 && (
 						<SelectGroup>
 							<SelectLabel>{m.recentlyUsed()}</SelectLabel>
