@@ -90,7 +90,7 @@ export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 		<div className="flex h-screen min-h-0 flex-col overflow-hidden">
 			{/* Single toggle, fixed to the window so it never moves when the sidebar opens or closes. */}
 			{showSidebarToggle && (
-				<div className="fixed z-50" style={{ left: titlebarInset(), top: 10 }}>
+				<div className="fixed z-50" style={{ left: titlebarInset(), top: 7 }}>
 					<SidebarToggleButton />
 				</div>
 			)}
