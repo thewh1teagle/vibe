@@ -170,7 +170,7 @@ export default function Home() {
 			{/* Hero */}
 			<section className="flex flex-col items-center pt-14 text-center lg:pt-24">
 				<p className="eyebrow">{m['hero-eyebrow']()}</p>
-				<h1 className="mt-5 max-w-[16ch] text-[2.25rem] leading-[1.05] font-semibold tracking-[-0.03em] text-foreground lg:text-[3.5rem]">
+				<h1 className="mt-5 text-[2rem] leading-[1.08] font-semibold tracking-[-0.03em] text-foreground sm:whitespace-nowrap sm:text-[clamp(2.25rem,4.5vw,3.5rem)]">
 					{m.title()}
 				</h1>
 				<p className="mt-5 max-w-[52ch] text-base leading-7 text-muted-foreground">{m.description()}</p>
