@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { FolderOpen, Link2, Mic, Square, Upload } from 'lucide-react'
+import { Link2, Mic, Square, Upload } from 'lucide-react'
 import { useEffect } from 'react'
 import { m } from '~/paraglide/messages.js'
 import AudioDeviceInput from '~/components/audio-device-input'
@@ -107,7 +107,7 @@ function LinkPanel() {
 }
 
 export default function IdleHero() {
-	const { dragging, browse, browseFolder, collectingFolder, panel, setPanel, link, recording } = useSession()
+	const { dragging, browse, collectingFolder, panel, setPanel, link, recording } = useSession()
 
 	function togglePanel(next: IdlePanel) {
 		if (recording.isRecording) return
@@ -117,36 +117,12 @@ export default function IdleHero() {
 
 	return (
 		<div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 px-6 py-10">
-			{/* One target: the whole card is click-to-browse and the drop zone. */}
-			<motion.button
-				type="button"
-				onClick={() => void browse()}
-				initial={{ opacity: 0, y: 8 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.25, ease: 'easeOut' }}
-				className={cn(
-					'group relative cursor-pointer overflow-hidden rounded-[1.25rem] border-2 border-dashed bg-card transition-colors duration-150',
-					dragging ? 'border-ring' : 'border-border hover:border-ring/50',
-				)}>
-				<div
-					className={cn(
-						'aurora pointer-events-none absolute inset-0 transition-opacity duration-200',
-						dragging ? 'opacity-100' : 'opacity-50 group-hover:opacity-80',
-					)}
-				/>
-
-				<div className="relative flex flex-col items-center gap-4 px-8 py-14 text-center">
-					<span className="flex h-12 w-12 items-center justify-center rounded-full bg-background/70 text-foreground shadow-sm">
-						<Upload className="h-5 w-5" />
-					</span>
-					<div className="space-y-1">
-						<h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">Drop audio or video here</h1>
-						<p className="text-[13px] text-muted-foreground">or click to browse your files</p>
-					</div>
-				</div>
-			</motion.button>
-
+			{/* Source switcher: the active source replaces the drop area entirely. */}
 			<div className="flex flex-wrap items-center justify-center gap-2">
+				<Pill active={panel === 'none'} onClick={() => togglePanel('none')}>
+					<Upload className="h-3.5 w-3.5" />
+					File
+				</Pill>
 				<Pill active={panel === 'record'} onClick={() => togglePanel('record')}>
 					<Mic className="h-3.5 w-3.5" />
 					{m.record()}
@@ -155,21 +131,47 @@ export default function IdleHero() {
 					<Link2 className="h-3.5 w-3.5" />
 					From link
 				</Pill>
-				<Pill onClick={() => void browseFolder()}>
-					{collectingFolder ? <Spinner className="h-3.5 w-3.5" /> : <FolderOpen className="h-3.5 w-3.5" />}
-					{m.selectFolder()}
-				</Pill>
 			</div>
 
-			<AnimatePresence initial={false}>
-				{panel !== 'none' && (
-					<motion.div
-						key={panel}
-						initial={{ opacity: 0, y: -6 }}
+			<AnimatePresence mode="wait" initial={false}>
+				{panel === 'none' ? (
+					<motion.button
+						key="drop"
+						type="button"
+						onClick={() => void browse()}
+						initial={{ opacity: 0, y: 6 }}
 						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: -6 }}
 						transition={{ duration: 0.18, ease: 'easeOut' }}
-						className="mx-auto w-full max-w-lg rounded-2xl border border-border bg-card p-5">
+						className={cn(
+							'group relative cursor-pointer overflow-hidden rounded-[1.25rem] border-2 border-dashed bg-card transition-colors duration-150',
+							dragging ? 'border-ring' : 'border-border hover:border-ring/50',
+						)}>
+						<div
+							className={cn(
+								'aurora pointer-events-none absolute inset-0 transition-opacity duration-200',
+								dragging ? 'opacity-100' : 'opacity-50 group-hover:opacity-80',
+							)}
+						/>
+
+						<div className="relative flex flex-col items-center gap-4 px-8 py-14 text-center">
+							<span className="flex h-12 w-12 items-center justify-center rounded-full bg-background/70 text-foreground shadow-sm">
+								{collectingFolder ? <Spinner className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
+							</span>
+							<div className="space-y-1">
+								<h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">Drop audio, video or a folder here</h1>
+								<p className="text-[13px] text-muted-foreground">or click to browse your files</p>
+							</div>
+						</div>
+					</motion.button>
+				) : (
+					<motion.div
+						key={panel}
+						initial={{ opacity: 0, y: 6 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -6 }}
+						transition={{ duration: 0.18, ease: 'easeOut' }}
+						className="rounded-[1.25rem] border border-border bg-card px-8 py-10">
 						{panel === 'record' ? <RecordPanel /> : <LinkPanel />}
 					</motion.div>
 				)}

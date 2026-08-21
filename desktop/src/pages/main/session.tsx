@@ -37,7 +37,6 @@ export interface Session {
 	link: AudioDownload
 	collectingFolder: boolean
 	browse: () => Promise<void>
-	browseFolder: () => Promise<void>
 	startNew: () => void
 }
 
@@ -64,11 +63,34 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		enqueueRef.current = queue.enqueue
 	}, [queue.enqueue])
 
-	const enqueuePaths = useCallback(async (paths: string[]) => {
-		const files: NamedPath[] = []
-		for (const item of paths) files.push(await pathToNamedPath(item))
-		enqueueRef.current(files)
-	}, [])
+	const enqueuePaths = useCallback(
+		async (paths: string[]) => {
+			const files: NamedPath[] = []
+			for (const item of paths) {
+				// A picked or dropped path may be a folder — detect and expand to its media files.
+				const isMediaFile = mediaExtensions.some((ext) => item.toLowerCase().endsWith(`.${ext.toLowerCase()}`))
+				if (isMediaFile) {
+					files.push(await pathToNamedPath(item))
+					continue
+				}
+				setCollectingFolder(true)
+				try {
+					const expanded = await invoke<string[]>('glob_files', {
+						folder: item,
+						patterns: mediaExtensions,
+						recursive: preference.advancedTranscribeOptions.includeSubFolders,
+					})
+					for (const path of expanded) files.push(await pathToNamedPath(path))
+				} catch {
+					files.push(await pathToNamedPath(item))
+				} finally {
+					setCollectingFolder(false)
+				}
+			}
+			if (files.length) enqueueRef.current(files)
+		},
+		[preference.advancedTranscribeOptions.includeSubFolders],
+	)
 
 	const dragging = useDropTarget(
 		useCallback(
@@ -118,23 +140,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		setPanel('none')
 		await enqueuePaths(Array.isArray(selected) ? selected : [selected])
 	}, [enqueuePaths])
-
-	const browseFolder = useCallback(async () => {
-		const folder = await dialog.open({ multiple: false, directory: true })
-		if (!folder || Array.isArray(folder)) return
-		setPanel('none')
-		setCollectingFolder(true)
-		try {
-			const paths = await invoke<string[]>('glob_files', {
-				folder,
-				patterns: mediaExtensions,
-				recursive: preference.advancedTranscribeOptions.includeSubFolders,
-			})
-			await enqueuePaths(paths)
-		} finally {
-			setCollectingFolder(false)
-		}
-	}, [enqueuePaths, preference.advancedTranscribeOptions.includeSubFolders])
 
 	const startNew = useCallback(() => {
 		queue.reset()
@@ -200,10 +205,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 			link,
 			collectingFolder,
 			browse,
-			browseFolder,
 			startNew,
 		}),
-		[mode, queue, preference, dragging, panel, recording, recordElapsed, link, collectingFolder, browse, browseFolder, startNew],
+		[mode, queue, preference, dragging, panel, recording, recordElapsed, link, collectingFolder, browse, startNew],
 	)
 
 	return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
