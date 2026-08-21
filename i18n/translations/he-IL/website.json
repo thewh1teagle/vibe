@@ -21,5 +21,17 @@
 	"support-vibe": "תמיכה בVibe",
 	"support-while-you-wait": "בזמן שאתה מחכה, שקול לתמוך בפרויקט Vibe כדי לעזור לנו לצמוח!",
 	"title": "תמלל קבצי אודיו או וידאו!",
-	"your-download-is-starting": "ההורדה שלך מתחילה..."
+	"your-download-is-starting": "ההורדה שלך מתחילה...",
+	"hero-eyebrow": "תמלול על המחשב שלכם",
+	"highlight-private-title": "פרטיות כברירת מחדל",
+	"highlight-private-description": "התמלול מתבצע על המחשב שלכם. האודיו לא יוצא מהמכשיר, גם עם חיבור לאינטרנט וגם בלעדיו.",
+	"highlight-languages-title": "כל שפה, כל מודל",
+	"highlight-languages-description": "קרוב ל-100 שפות ומגוון מלא של מודלי Whisper, מהקטן ועד הגדול.",
+	"highlight-batch-title": "עיבוד מרובה ואוטומציה",
+	"highlight-batch-description": "הוסיפו תיקיות שלמות לתור, ייצאו ל-SRT, VTT, TXT, HTML או JSON, והפעילו הכול דרך ה-API.",
+	"closing-band-title": "חינמי, בקוד פתוח, ורץ אצלכם.",
+	"features-eyebrow": "כל מה ש-Vibe יודע לעשות",
+	"post-download-step-open-installer": "פתחו את קובץ ההתקנה מתיקיית ההורדות.",
+	"post-download-step-follow-prompts": "עקבו אחרי ההוראות של תוכנית ההתקנה.",
+	"post-download-step-launch": "הפעילו את Vibe וגררו לתוכו קובץ אודיו או וידאו."
 }

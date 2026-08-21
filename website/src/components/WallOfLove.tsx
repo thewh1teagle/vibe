@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { m } from '../paraglide/messages.js'
+import Heart from '~/icons/Heart'
 
 interface Supporter {
 	id: string
@@ -8,53 +9,39 @@ interface Supporter {
 	time_ago: string
 }
 
-const AVATAR_COLORS = [
-	'bg-rose-500',
-	'bg-pink-500',
-	'bg-fuchsia-500',
-	'bg-purple-500',
-	'bg-violet-500',
-	'bg-indigo-500',
-	'bg-blue-500',
-	'bg-sky-500',
-	'bg-cyan-500',
-	'bg-teal-500',
-	'bg-emerald-500',
-	'bg-green-500',
-	'bg-lime-600',
-	'bg-amber-500',
-	'bg-orange-500',
-	'bg-red-500',
-]
-
-function hashString(str: string): number {
-	let hash = 0
-	for (let i = 0; i < str.length; i++) {
-		hash = str.charCodeAt(i) + ((hash << 5) - hash)
-	}
-	return Math.abs(hash)
-}
+/** Eight muted pastels walked around the aurora hues — see `--wol-*` in globals.css. */
+const TINT_COUNT = 8
 
 function getInitial(name: string): string {
 	return name.charAt(0).toUpperCase()
 }
 
+/** Deterministic per-name tint so a supporter always keeps the same colour. */
+function getTint(name: string): string {
+	let hash = 0
+	for (let i = 0; i < name.length; i += 1) {
+		hash = (hash * 31 + name.charCodeAt(i)) >>> 0
+	}
+	return `var(--wol-${(hash % TINT_COUNT) + 1})`
+}
+
 function SupporterCard({ supporter }: { supporter: Supporter }) {
-	const colorClass = AVATAR_COLORS[hashString(supporter.id) % AVATAR_COLORS.length]
+	const style = { '--wol-tint': getTint(supporter.name) } as CSSProperties
 
 	return (
-		<div className="flex gap-3 rounded-2xl bg-card/45 p-4 shadow-sm transition-colors hover:bg-card/70">
-			<div className={`${colorClass} flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white`}>
+		<figure style={style} className="wol-card flex gap-3.5 rounded-2xl border p-5 transition-shadow duration-200 hover:shadow-md">
+			<div className="wol-avatar flex size-9 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold">
 				{getInitial(supporter.name)}
 			</div>
-			<div className="min-w-0">
-				<div className="flex items-baseline gap-2">
-					<p className="font-semibold">{supporter.name}</p>
-					<span className="shrink-0 text-xs text-muted-foreground/60">{supporter.time_ago}</span>
-				</div>
-				<p className="mt-1 text-sm text-muted-foreground">{supporter.message}</p>
+			<div className="min-w-0 flex-1">
+				<figcaption className="flex items-baseline gap-2">
+					<span className="truncate text-[13px] font-semibold text-foreground">{supporter.name}</span>
+					<Heart className="wol-badge size-3 shrink-0 self-center" />
+					<span className="ms-auto shrink-0 text-[11px] text-muted-foreground">{supporter.time_ago}</span>
+				</figcaption>
+				<blockquote className="mt-1.5 text-[13px] leading-6 break-words text-muted-foreground">{supporter.message}</blockquote>
 			</div>
-		</div>
+		</figure>
 	)
 }
 
@@ -103,8 +90,14 @@ export default function WallOfLove() {
 	const durations = [60, 80, 50]
 
 	return (
-		<section className="m-auto mt-20 w-[95%] [content-visibility:auto] [contain-intrinsic-size:0_700px] lg:w-[1000px]">
-			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{m['loved-by-thousands']()}</h2>
+		<section className="mt-20 w-full [contain-intrinsic-size:0_700px] [content-visibility:auto] lg:mt-28">
+			<div className="mb-10 flex flex-col items-center gap-3">
+				<span className="flex size-9 items-center justify-center rounded-full text-[color:var(--aurora-2)] ring-1 ring-border">
+					<Heart className="size-4" />
+				</span>
+				<h2 className="text-center text-[1.5rem] font-semibold tracking-[-0.02em] text-foreground lg:text-[1.875rem]">{m['loved-by-thousands']()}</h2>
+				<span aria-hidden className="aurora-bar h-[3px] w-24 rounded-full" />
+			</div>
 			{/* Mobile: single column vertical marquee */}
 			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
 				<MarqueeColumn supporters={supporters} duration={120} />
@@ -112,7 +105,7 @@ export default function WallOfLove() {
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background to-transparent" />
 			</div>
 			{/* Desktop: 3 columns */}
-			<div dir="ltr" className="relative hidden overflow-hidden rounded-[3rem] md:block" style={{ maxHeight: '600px' }}>
+			<div dir="ltr" className="relative hidden overflow-hidden md:block" style={{ maxHeight: '600px' }}>
 				<div className="group grid h-[600px] grid-cols-3 gap-4 [&:hover_.animate-marquee-up]:pause">
 					{columns.map((col, i) => (
 						<MarqueeColumn key={i} supporters={col} duration={durations[i]} />

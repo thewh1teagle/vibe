@@ -21,5 +21,17 @@
 	"support-vibe": "Vibeを応援",
 	"support-while-you-wait": "ダウンロードの間に、Vibeプロジェクトの応援もご検討ください！",
 	"title": "自分で文字起こし。",
-	"your-download-is-starting": "ダウンロードを開始しています..."
+	"your-download-is-starting": "ダウンロードを開始しています...",
+	"hero-eyebrow": "デバイス上での文字起こし",
+	"highlight-private-title": "デフォルトでプライベート",
+	"highlight-private-description": "文字起こしはお使いのマシン上で実行されます。オンラインでもオフラインでも、音声がデバイスの外に出ることはありません。",
+	"highlight-languages-title": "あらゆる言語、あらゆるモデル",
+	"highlight-languages-description": "約100言語に対応し、tiny から large まで Whisper モデルを幅広く利用できます。",
+	"highlight-batch-title": "一括処理と自動化",
+	"highlight-batch-description": "フォルダーごとキューに追加し、SRT、VTT、TXT、HTML、JSON で書き出し、API から操作できます。",
+	"closing-band-title": "無料、オープンソース、あなたの手で動かせます。",
+	"features-eyebrow": "Vibe にできること",
+	"post-download-step-open-installer": "ダウンロードフォルダーからインストーラーを開きます。",
+	"post-download-step-follow-prompts": "インストーラーの指示に従います。",
+	"post-download-step-launch": "Vibe を起動し、音声または動画ファイルをドロップします。"
 }
