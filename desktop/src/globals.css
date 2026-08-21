@@ -1,3 +1,4 @@
+@import '@fontsource-variable/inter';
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -32,9 +33,9 @@ html.dictation-indicator-window #root {
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
-	--font-sans: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-	--font-serif: 'SF Pro Text', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-	--radius: 0.9rem;
+	--font-sans: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+	--font-serif: 'Inter Variable', 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+	--radius: 1rem;
 	--tracking-tighter: calc(var(--tracking-normal) - 0.05em);
 	--tracking-tight: calc(var(--tracking-normal) - 0.025em);
 	--tracking-wide: calc(var(--tracking-normal) + 0.025em);
@@ -73,92 +74,111 @@ html.dictation-indicator-window #root {
 }
 
 :root {
-	--radius: 0.75rem;
-	--background: hsl(210 34% 96%);
-	--foreground: hsl(215 22% 17%);
-	--card: hsl(0 0% 100% / 0.95);
-	--card-foreground: hsl(215 22% 17%);
-	--popover: hsl(0 0% 100% / 0.98);
-	--popover-foreground: hsl(215 22% 17%);
-	--primary: hsl(205 74% 43%);
-	--primary-foreground: hsl(0 0% 100%);
-	--secondary: hsl(206 28% 92%);
-	--secondary-foreground: hsl(214 20% 24%);
-	--muted: hsl(207 24% 93%);
-	--muted-foreground: hsl(214 12% 44%);
-	--accent: hsl(206 44% 90%);
-	--accent-foreground: hsl(214 20% 24%);
-	--destructive: hsl(0 78% 57%);
-	--destructive-foreground: hsl(210 40% 98%);
-	--success: hsl(154 64% 38%);
-	--success-foreground: hsl(154 100% 96%);
-	--border: hsl(208 22% 83%);
-	--input: hsl(208 22% 83%);
-	--ring: hsl(205 72% 45%);
-	--chart-1: hsl(205 74% 43%);
-	--chart-2: hsl(197 60% 42%);
-	--chart-3: hsl(28 70% 52%);
-	--chart-4: hsl(45 80% 52%);
-	--chart-5: hsl(265 45% 55%);
-	--sidebar: hsl(0 0% 100% / 0.9);
-	--sidebar-foreground: hsl(215 20% 18%);
-	--sidebar-primary: hsl(205 74% 43%);
-	--sidebar-primary-foreground: hsl(0 0% 100%);
-	--sidebar-accent: hsl(206 30% 92%);
-	--sidebar-accent-foreground: hsl(214 20% 24%);
-	--sidebar-border: hsl(208 20% 84%);
-	--sidebar-ring: hsl(205 72% 45%);
-	--shadow-2xs: 0 1px 1px hsl(211 60% 11% / 0.06);
-	--shadow-xs: 0 1px 2px hsl(211 60% 11% / 0.08);
-	--shadow-sm: 0 4px 12px hsl(220 18% 16% / 0.05);
-	--shadow: 0 8px 20px hsl(220 18% 16% / 0.07);
-	--shadow-md: 0 12px 28px hsl(220 18% 16% / 0.09);
-	--shadow-lg: 0 16px 36px hsl(220 10% 20% / 0.12);
-	--shadow-xl: 0 24px 52px hsl(220 10% 20% / 0.16);
-	--shadow-2xl: 0 32px 68px hsl(220 10% 20% / 0.2);
-	--tracking-normal: 0em;
+	--radius: 1rem;
+
+	/* Paper & ink — light (default) */
+	--background: #fafaf8;
+	--foreground: #111110;
+	--card: #ffffff;
+	--card-foreground: #111110;
+	--popover: #ffffff;
+	--popover-foreground: #111110;
+	--primary: #111110;
+	--primary-foreground: #ffffff;
+	--secondary: #f1f1ee;
+	--secondary-foreground: #111110;
+	--muted: #f1f1ee;
+	--muted-foreground: #6f6f6a;
+	--accent: #f1f1ee;
+	--accent-foreground: #111110;
+	--destructive: #b4453c;
+	--destructive-foreground: #fdf6f5;
+	--success: #3f7d5f;
+	--success-foreground: #f3faf6;
+	--border: #e7e7e2;
+	--input: #e7e7e2;
+	--ring: rgb(17 17 16 / 0.2);
+
+	/* Aurora hues — the only chroma in the system */
+	--aurora-1: #5b8def;
+	--aurora-2: #b98de3;
+	--aurora-3: #e8a87c;
+	--aurora-4: #7cc5a0;
+
+	--chart-1: var(--aurora-1);
+	--chart-2: var(--aurora-2);
+	--chart-3: var(--aurora-3);
+	--chart-4: var(--aurora-4);
+	--chart-5: #6f6f6a;
+
+	--sidebar: #ffffff;
+	--sidebar-foreground: #111110;
+	--sidebar-primary: #111110;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #f1f1ee;
+	--sidebar-accent-foreground: #111110;
+	--sidebar-border: #e7e7e2;
+	--sidebar-ring: rgb(17 17 16 / 0.2);
+
+	--shadow-2xs: 0 1px 1px rgb(17 17 16 / 0.04);
+	--shadow-xs: 0 1px 2px rgb(17 17 16 / 0.05);
+	--shadow-sm: 0 2px 8px rgb(17 17 16 / 0.04);
+	--shadow: 0 6px 18px rgb(17 17 16 / 0.05);
+	--shadow-md: 0 10px 26px rgb(17 17 16 / 0.06);
+	--shadow-lg: 0 16px 36px rgb(17 17 16 / 0.08);
+	--shadow-xl: 0 24px 56px rgb(17 17 16 / 0.1);
+	--shadow-2xl: 0 32px 72px rgb(17 17 16 / 0.12);
+
+	--tracking-normal: -0.01em;
 }
 
 .dark {
-	--background: hsl(220 10% 10%);
-	--foreground: hsl(210 18% 93%);
-	--card: hsl(220 9% 16%);
-	--card-foreground: hsl(210 18% 93%);
-	--popover: hsl(220 9% 17%);
-	--popover-foreground: hsl(210 18% 93%);
-	--primary: hsl(212 100% 56%);
-	--primary-foreground: hsl(0 0% 100%);
-	--secondary: hsl(220 8% 22%);
-	--secondary-foreground: hsl(210 14% 90%);
-	--muted: hsl(220 8% 20%);
-	--muted-foreground: hsl(214 10% 74%);
-	--accent: hsl(220 8% 24%);
-	--accent-foreground: hsl(210 14% 90%);
-	--destructive: hsl(0 70% 48%);
-	--destructive-foreground: hsl(210 28% 96%);
-	--success: hsl(154 64% 45%);
-	--success-foreground: hsl(153 58% 10%);
-	--border: hsl(220 8% 34%);
-	--input: hsl(220 8% 34%);
-	--ring: hsl(212 100% 60%);
-	--chart-1: hsl(212 100% 56%);
-	--chart-2: hsl(197 38% 60%);
-	--chart-3: hsl(30 76% 58%);
-	--chart-4: hsl(50 74% 58%);
-	--chart-5: hsl(270 58% 62%);
-	--sidebar: hsl(220 9% 16%);
-	--sidebar-foreground: hsl(210 18% 93%);
-	--sidebar-primary: hsl(212 100% 56%);
-	--sidebar-primary-foreground: hsl(0 0% 100%);
-	--sidebar-accent: hsl(220 8% 24%);
-	--sidebar-accent-foreground: hsl(210 14% 90%);
-	--sidebar-border: hsl(220 8% 34%);
-	--sidebar-ring: hsl(212 100% 60%);
-	--shadow-sm: 0 8px 20px hsl(225 28% 4% / 0.28);
-	--shadow: 0 12px 28px hsl(225 28% 4% / 0.35);
-	--shadow-md: 0 18px 38px hsl(225 28% 4% / 0.42);
-	--shadow-lg: 0 26px 52px hsl(225 28% 4% / 0.5);
-	--shadow-xl: 0 34px 70px hsl(225 28% 4% / 0.58);
+	--background: #0e0e0d;
+	--foreground: #f4f4f1;
+	--card: #161615;
+	--card-foreground: #f4f4f1;
+	--popover: #161615;
+	--popover-foreground: #f4f4f1;
+	--primary: #f4f4f1;
+	--primary-foreground: #111110;
+	--secondary: #1e1e1c;
+	--secondary-foreground: #f4f4f1;
+	--muted: #1e1e1c;
+	--muted-foreground: #9a9a94;
+	--accent: #232321;
+	--accent-foreground: #f4f4f1;
+	--destructive: #c4655c;
+	--destructive-foreground: #1a0f0e;
+	--success: #6aab8b;
+	--success-foreground: #0d1512;
+	--border: #262624;
+	--input: #262624;
+	--ring: rgb(244 244 241 / 0.24);
+
+	--aurora-1: #5b8def;
+	--aurora-2: #b98de3;
+	--aurora-3: #e8a87c;
+	--aurora-4: #7cc5a0;
+
+	--chart-5: #9a9a94;
+
+	--sidebar: #161615;
+	--sidebar-foreground: #f4f4f1;
+	--sidebar-primary: #f4f4f1;
+	--sidebar-primary-foreground: #111110;
+	--sidebar-accent: #232321;
+	--sidebar-accent-foreground: #f4f4f1;
+	--sidebar-border: #262624;
+	--sidebar-ring: rgb(244 244 241 / 0.24);
+
+	--shadow-2xs: 0 1px 1px rgb(0 0 0 / 0.3);
+	--shadow-xs: 0 1px 2px rgb(0 0 0 / 0.35);
+	--shadow-sm: 0 2px 10px rgb(0 0 0 / 0.4);
+	--shadow: 0 8px 22px rgb(0 0 0 / 0.45);
+	--shadow-md: 0 14px 32px rgb(0 0 0 / 0.5);
+	--shadow-lg: 0 22px 46px rgb(0 0 0 / 0.55);
+	--shadow-xl: 0 30px 64px rgb(0 0 0 / 0.6);
+	--shadow-2xl: 0 40px 80px rgb(0 0 0 / 0.65);
 }
 
 @layer base {
@@ -170,28 +190,35 @@ html.dictation-indicator-window #root {
 
 	html {
 		font-family:
-			'SF Pro Text',
-			'SF Pro Display',
+			'Inter Variable',
+			'Inter',
 			-apple-system,
 			BlinkMacSystemFont,
+			'SF Pro Text',
 			'Helvetica Neue',
 			Arial,
 			sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 	}
 
 	body {
 		@apply bg-background text-foreground;
+		font-size: 14px;
+		line-height: 1.55;
+		letter-spacing: -0.01em;
 		font-feature-settings:
 			'rlig' 1,
-			'calt' 1;
-		background-image:
-			radial-gradient(1200px 700px at 15% -10%, hsl(205 90% 88% / 0.55) 0%, transparent 60%),
-			radial-gradient(900px 600px at 100% 0%, hsl(280 70% 88% / 0.35) 0%, transparent 55%),
-			linear-gradient(180deg, hsl(210 32% 97%) 0%, hsl(210 28% 95%) 100%);
-		background-repeat: no-repeat;
-		background-attachment: fixed;
-		background-size: 100% 100%;
+			'calt' 1,
+			'cv05' 1;
+		background-image: none;
 		overflow-x: hidden;
+	}
+
+	h1,
+	h2,
+	h3 {
+		letter-spacing: -0.03em;
 	}
 
 	html,
@@ -206,22 +233,19 @@ html.dictation-indicator-window #root {
 	}
 
 	.dark body {
-		background-image:
-			radial-gradient(1200px 700px at 15% -10%, hsl(212 100% 30% / 0.16) 0%, transparent 60%),
-			radial-gradient(900px 600px at 100% 0%, hsl(280 60% 30% / 0.12) 0%, transparent 55%),
-			linear-gradient(180deg, hsl(220 10% 11%) 0%, hsl(220 10% 9%) 100%);
+		background-image: none;
 	}
 
 	* {
-		border-color: hsl(var(--border));
+		border-color: var(--border);
 	}
 
 	::selection {
-		background: hsl(205 74% 43% / 0.22);
+		background: rgb(17 17 16 / 0.14);
 	}
 
 	.dark ::selection {
-		background: hsl(212 100% 56% / 0.26);
+		background: rgb(244 244 241 / 0.2);
 	}
 
 	::-webkit-scrollbar {
@@ -234,17 +258,17 @@ html.dictation-indicator-window #root {
 	}
 
 	::-webkit-scrollbar-thumb {
-		background: hsl(210 13% 52% / 0.35);
+		background: rgb(17 17 16 / 0.18);
 		border-radius: 999px;
 	}
 
 	.dark ::-webkit-scrollbar-thumb {
-		background: hsl(214 6% 56% / 0.42);
+		background: rgb(244 244 241 / 0.18);
 	}
 
 	.transcript-editor {
 		scrollbar-width: auto;
-		scrollbar-color: hsl(208 36% 52% / 0.78) hsl(210 18% 90% / 0.85);
+		scrollbar-color: rgb(17 17 16 / 0.28) rgb(17 17 16 / 0.05);
 		scrollbar-gutter: stable;
 	}
 
@@ -255,92 +279,135 @@ html.dictation-indicator-window #root {
 	}
 
 	.transcript-editor::-webkit-scrollbar-thumb {
-		background: hsl(208 36% 52% / 0.8) !important;
-		border: 3px solid hsl(210 18% 90% / 0.85) !important;
+		background: rgb(17 17 16 / 0.28) !important;
+		border: 3px solid transparent !important;
 		background-clip: padding-box !important;
 		border-radius: 999px !important;
 		min-height: 96px !important;
 	}
 
 	.transcript-editor::-webkit-scrollbar-thumb:hover {
-		background: hsl(208 36% 46% / 0.9) !important;
+		background: rgb(17 17 16 / 0.4) !important;
+		background-clip: padding-box !important;
 	}
 
 	.transcript-editor::-webkit-scrollbar-track {
-		background: hsl(210 18% 90% / 0.85) !important;
-		border-left: 1px solid hsl(208 22% 83% / 0.75) !important;
+		background: transparent !important;
+		border-left: 1px solid var(--border) !important;
 	}
 
 	.dark .transcript-editor::-webkit-scrollbar-thumb {
-		background: hsl(214 10% 62% / 0.82) !important;
-		border: 3px solid hsl(220 8% 18% / 0.96) !important;
+		background: rgb(244 244 241 / 0.24) !important;
+		border: 3px solid transparent !important;
 		background-clip: padding-box !important;
 	}
 
 	.dark .transcript-editor::-webkit-scrollbar-thumb:hover {
-		background: hsl(214 12% 70% / 0.9) !important;
+		background: rgb(244 244 241 / 0.36) !important;
+		background-clip: padding-box !important;
 	}
 
 	.dark .transcript-editor::-webkit-scrollbar-track {
-		background: hsl(220 8% 18% / 0.96) !important;
-		border-left: 1px solid hsl(220 8% 34% / 0.8) !important;
+		background: transparent !important;
+		border-left: 1px solid var(--border) !important;
 	}
 
 	.dark .transcript-editor {
-		scrollbar-color: hsl(214 10% 62% / 0.82) hsl(220 8% 18% / 0.96);
+		scrollbar-color: rgb(244 244 241 / 0.24) transparent;
 	}
 }
 
 @layer components {
 	.app-shell {
-		@apply mx-auto w-full max-w-5xl px-4 pb-8 pt-4 md:px-6 md:pt-6;
+		@apply mx-auto w-full max-w-5xl px-5 pb-10 pt-3 md:px-8 md:pt-4;
 	}
 
 	.app-hero {
-		@apply relative mb-4 rounded-xl border border-border/70 bg-card/95 px-5 py-4 shadow-sm md:mb-5 md:px-6;
+		@apply relative mb-5 rounded-xl border border-border bg-card px-6 py-5;
 	}
 
 	.app-panel {
-		@apply rounded-xl border border-border/70 bg-card/95 p-4 shadow-sm md:p-5;
+		@apply rounded-xl border border-border bg-card p-5 md:p-6;
 	}
 
 	.app-subtle {
-		@apply rounded-xl border border-border/70 bg-background/80 p-3;
+		@apply rounded-lg border border-border bg-muted/60 p-3;
 	}
 
-	.dark .app-hero {
-		@apply border-border/70 bg-card text-card-foreground;
-		background-image: none;
-	}
-
+	.dark .app-hero,
 	.dark .app-panel {
-		@apply border-border/85 bg-card text-card-foreground shadow-md;
+		@apply bg-card text-card-foreground;
 		background-image: none;
 	}
 
 	.dark .app-subtle {
-		@apply border-border/80 bg-muted/85 text-card-foreground;
+		@apply bg-muted text-card-foreground;
 	}
 
 	.app-title {
-		@apply text-3xl font-semibold tracking-tight md:text-4xl;
+		@apply text-[28px] font-semibold leading-[1.1] tracking-[-0.03em] md:text-[40px];
 	}
 
-	.app-kicker {
-		@apply text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground;
+	/* Eyebrow label — 11px, uppercase, +0.08em */
+	.app-kicker,
+	.eyebrow {
+		@apply text-[11px] font-medium uppercase leading-none tracking-[0.08em] text-muted-foreground;
 	}
 
 	.app-main-card {
-		@apply rounded-3xl border border-border/60 bg-card/95 p-6 shadow-xl md:p-8;
+		@apply rounded-2xl border border-border bg-card p-6 shadow-sm md:p-9;
 	}
 
 	.dark .app-main-card {
-		@apply border-border/70 bg-card shadow-2xl;
+		@apply bg-card shadow-md;
 		background-image: none;
 	}
 
+	/*
+	 * Aurora — the single expressive surface. Soft multi-hue gradient plus a
+	 * grain overlay. Always behind a card or as a thin fill, never behind body text.
+	 */
+	.aurora {
+		position: relative;
+		isolation: isolate;
+		background-color: var(--muted);
+		background-image:
+			radial-gradient(58% 72% at 14% 16%, #5b8def8c 0%, transparent 68%), radial-gradient(54% 68% at 84% 10%, #b98de37a 0%, transparent 70%),
+			radial-gradient(58% 66% at 80% 88%, #e8a87c73 0%, transparent 70%), radial-gradient(62% 70% at 18% 92%, #7cc5a073 0%, transparent 70%);
+		background-repeat: no-repeat;
+		filter: saturate(0.85);
+	}
+
+	.aurora::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		border-radius: inherit;
+		opacity: 0.28;
+		mix-blend-mode: overlay;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+	}
+
+	.dark .aurora {
+		filter: saturate(0.7) brightness(0.8);
+	}
+
+	/* Thin aurora fill for progress bars */
+	.aurora-bar {
+		background-image: linear-gradient(90deg, var(--aurora-1) 0%, var(--aurora-2) 34%, var(--aurora-3) 67%, var(--aurora-4) 100%);
+		filter: saturate(0.85);
+	}
+
+	/* Radix <Progress> whose indicator is filled with the aurora gradient */
+	.progress-aurora > * {
+		background-color: transparent;
+		background-image: linear-gradient(90deg, var(--aurora-1) 0%, var(--aurora-2) 34%, var(--aurora-3) 67%, var(--aurora-4) 100%);
+		filter: saturate(0.85);
+	}
+
 	.stagger-in {
-		animation: fade-up 380ms ease both;
+		animation: fade-up 240ms ease-out both;
 	}
 }
 
@@ -469,7 +536,7 @@ html.dictation-indicator-window #root {
 @keyframes fade-up {
 	from {
 		opacity: 0;
-		transform: translateY(10px);
+		transform: translateY(6px);
 	}
 
 	to {

@@ -1,0 +1,176 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import { FolderOpen, Link2, Mic, Square } from 'lucide-react'
+import { useEffect } from 'react'
+import { m } from '~/paraglide/messages.js'
+import AudioDeviceInput from '~/components/audio-device-input'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Spinner } from '~/components/ui/spinner'
+import { cn } from '~/lib/style'
+import { useSession, type IdlePanel } from '../session'
+import QuietRow from './quiet-row'
+
+function formatElapsed(seconds: number) {
+	const minutes = Math.floor(seconds / 60)
+	return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
+}
+
+function Pill({ active, onClick, children }: { active?: boolean; onClick: () => void; children: React.ReactNode }) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={cn(
+				'inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-[13px] font-medium transition-colors duration-150',
+				active
+					? 'border-transparent bg-primary/10 text-foreground'
+					: 'text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground',
+			)}>
+			{children}
+		</button>
+	)
+}
+
+function RecordPanel() {
+	const { recording, recordElapsed, preference } = useSession()
+
+	useEffect(() => {
+		// The recording hook loads audio devices for this tab only.
+		preference.setHomeTab('record')
+	}, [])
+
+	if (recording.isRecording) {
+		return (
+			<div className="flex flex-col items-center gap-5">
+				<div className="flex items-center gap-3">
+					<span className="relative flex h-3 w-3">
+						<span className="aurora absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-70" />
+						<span className="aurora relative inline-flex h-3 w-3 rounded-full bg-primary/80" />
+					</span>
+					<span className="font-mono text-2xl tracking-tight tabular-nums">{formatElapsed(recordElapsed)}</span>
+				</div>
+				<Button onClick={() => recording.stopRecord()} className="h-11 rounded-full px-6">
+					<Square className="h-3.5 w-3.5 fill-current" />
+					{m.stopAndTranscribe()}
+				</Button>
+			</div>
+		)
+	}
+
+	return (
+		<div className="flex w-full flex-col gap-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<AudioDeviceInput type="input" devices={recording.devices} device={recording.inputDevice} setDevice={recording.setInputDevice} />
+				<AudioDeviceInput type="output" devices={recording.devices} device={recording.outputDevice} setDevice={recording.setOutputDevice} />
+			</div>
+			<Button
+				onClick={() => recording.startRecord()}
+				disabled={!preference.modelPath || (!recording.inputDevice && !recording.outputDevice)}
+				className="h-11 self-center rounded-full px-6">
+				<Mic className="h-4 w-4" />
+				{m.startRecord()}
+			</Button>
+		</div>
+	)
+}
+
+function LinkPanel() {
+	const { link, preference } = useSession()
+
+	if (link.downloadingAudio) {
+		return (
+			<div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+				<Spinner />
+				<span>{m.downloading({ progress: String(link.ytdlpProgress ?? 0) })}</span>
+				<button type="button" className="cursor-pointer text-destructive hover:underline" onClick={() => link.cancelYtDlpDownload()}>
+					{m.cancel()}
+				</button>
+			</div>
+		)
+	}
+
+	return (
+		<div className="flex w-full items-center gap-2">
+			<Input
+				type="text"
+				value={link.audioUrl}
+				onChange={(event) => link.setAudioUrl(event.target.value)}
+				onKeyDown={(event) => (event.key === 'Enter' ? link.downloadAudio() : null)}
+				placeholder="https://www.youtube.com/watch?v=..."
+				className="h-11 rounded-full px-4"
+			/>
+			<Button onClick={() => link.downloadAudio()} disabled={!preference.modelPath || !link.audioUrl} className="h-11 shrink-0 rounded-full px-5">
+				{m.downloadFile()}
+			</Button>
+		</div>
+	)
+}
+
+export default function IdleHero() {
+	const { dragging, browse, browseFolder, collectingFolder, panel, setPanel, link, recording } = useSession()
+
+	function togglePanel(next: IdlePanel) {
+		if (recording.isRecording) return
+		setPanel(panel === next ? 'none' : next)
+		if (next === 'link' && panel !== 'link') void link.switchToLinkTab()
+	}
+
+	return (
+		<div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-10 px-6 py-10">
+			<motion.section
+				initial={{ opacity: 0, y: 8 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.25, ease: 'easeOut' }}
+				className={cn(
+					'relative overflow-hidden rounded-[1.25rem] border bg-card transition-colors duration-150',
+					dragging ? 'border-transparent ring-2 ring-ring' : 'border-border',
+				)}>
+				<div className={cn('aurora pointer-events-none absolute inset-0 transition-opacity duration-200', dragging ? 'opacity-100' : 'opacity-70')} />
+
+				<div className="relative flex flex-col items-center gap-6 px-8 py-16 text-center sm:px-14">
+					<p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.transcription()}</p>
+
+					<div className="space-y-2">
+						<h1 className="text-[28px] leading-tight font-semibold tracking-[-0.03em] text-foreground sm:text-[36px]">Drop audio or video</h1>
+						<p className="text-sm text-muted-foreground">{m.supportsFormats()}</p>
+					</div>
+
+					<Button onClick={() => void browse()} className="h-11 rounded-full px-7">
+						Browse
+					</Button>
+
+					<div className="flex flex-wrap items-center justify-center gap-2">
+						<Pill active={panel === 'record'} onClick={() => togglePanel('record')}>
+							<Mic className="h-3.5 w-3.5" />
+							{m.record()}
+						</Pill>
+						<Pill active={panel === 'link'} onClick={() => togglePanel('link')}>
+							<Link2 className="h-3.5 w-3.5" />
+							From link
+						</Pill>
+						<Pill onClick={() => void browseFolder()}>
+							{collectingFolder ? <Spinner className="h-3.5 w-3.5" /> : <FolderOpen className="h-3.5 w-3.5" />}
+							{m.selectFolder()}
+						</Pill>
+					</div>
+
+					<AnimatePresence initial={false}>
+						{panel !== 'none' && (
+							<motion.div
+								key={panel}
+								initial={{ opacity: 0, y: -6 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: -6 }}
+								transition={{ duration: 0.18, ease: 'easeOut' }}
+								className="w-full max-w-lg border-t border-border pt-6">
+								{panel === 'record' ? <RecordPanel /> : <LinkPanel />}
+							</motion.div>
+						)}
+					</AnimatePresence>
+				</div>
+			</motion.section>
+
+			<QuietRow />
+		</div>
+	)
+}
