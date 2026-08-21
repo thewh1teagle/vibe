@@ -21,5 +21,17 @@
 	"support-vibe": "Поддержать Vibe",
 	"support-while-you-wait": "Пока вы ждете, возможно вы захотите поддержать проект Vibe, это поможет нам развивать его дальше!",
 	"title": "Транскрибируйте сами",
-	"your-download-is-starting": "Загрузка начинается..."
+	"your-download-is-starting": "Загрузка начинается...",
+	"hero-eyebrow": "Расшифровка на вашем устройстве",
+	"highlight-private-title": "Приватность по умолчанию",
+	"highlight-private-description": "Расшифровка выполняется на вашем компьютере. Аудио никогда не покидает устройство — ни в сети, ни офлайн.",
+	"highlight-languages-title": "Любой язык, любая модель",
+	"highlight-languages-description": "Почти 100 языков и полный набор моделей Whisper, от tiny до large.",
+	"highlight-batch-title": "Пакетная обработка и автоматизация",
+	"highlight-batch-description": "Ставьте в очередь целые папки, экспортируйте в SRT, VTT, TXT, HTML или JSON и управляйте всем через API.",
+	"closing-band-title": "Бесплатно, с открытым исходным кодом и работает у вас.",
+	"features-eyebrow": "Всё, что умеет Vibe",
+	"post-download-step-open-installer": "Откройте установщик из папки «Загрузки».",
+	"post-download-step-follow-prompts": "Следуйте указаниям установщика.",
+	"post-download-step-launch": "Запустите Vibe и перетащите в него аудио- или видеофайл."
 }

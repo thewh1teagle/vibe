@@ -13,19 +13,22 @@ interface LayoutContext {
 
 const highlights = [
 	{
+		id: 'private',
 		icon: ShieldCheck,
-		title: 'Private by default',
-		description: 'Transcription runs on your own machine. Audio never leaves your device, online or offline.',
+		title: m['highlight-private-title'],
+		description: m['highlight-private-description'],
 	},
 	{
+		id: 'languages',
 		icon: Languages,
-		title: 'Every language, every model',
-		description: 'Close to 100 languages and a full range of Whisper models, from tiny to large.',
+		title: m['highlight-languages-title'],
+		description: m['highlight-languages-description'],
 	},
 	{
+		id: 'batch',
 		icon: Layers,
-		title: 'Batch and automate',
-		description: 'Queue whole folders, export SRT, VTT, TXT, HTML or JSON, and drive it from the API.',
+		title: m['highlight-batch-title'],
+		description: m['highlight-batch-description'],
 	},
 ]
 
@@ -138,7 +141,7 @@ export default function Home() {
 		<div className="mx-auto w-full max-w-[1065px] overflow-x-hidden px-5 pb-24">
 			{/* Hero */}
 			<section className="flex flex-col items-center pt-14 text-center lg:pt-24">
-				<p className="eyebrow">On-device transcription</p>
+				<p className="eyebrow">{m['hero-eyebrow']()}</p>
 				<h1 className="mt-5 max-w-[16ch] text-[2.25rem] leading-[1.05] font-semibold tracking-[-0.03em] text-foreground lg:text-[3.5rem]">
 					{m.title()}
 				</h1>
@@ -158,21 +161,14 @@ export default function Home() {
 
 			{/* Highlights */}
 			<section className="mt-16 border-t border-border pt-12 lg:mt-24">
-				{/*
-				 * Untranslated English copy — kept LTR so the sentences read and
-				 * punctuate correctly on RTL pages. Paddings still use logical
-				 * utilities so the block mirrors if these strings ever get keys.
-				 */}
-				<div dir="ltr" className="grid grid-cols-1 gap-8 divide-y divide-border sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-y-0">
+				<div className="grid grid-cols-1 gap-8 divide-y divide-border sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-y-0">
 					{highlights.map((item) => (
-						<div
-							key={item.title}
-							className="flex min-w-0 flex-col gap-3 pb-8 text-start last:pb-0 sm:ps-7 sm:pe-7 sm:pb-0 sm:first:ps-0 sm:last:pe-0">
+						<div key={item.id} className="flex min-w-0 flex-col gap-3 pb-8 text-start last:pb-0 sm:ps-7 sm:pe-7 sm:pb-0 sm:first:ps-0 sm:last:pe-0">
 							<span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-foreground">
 								<item.icon className="size-4" strokeWidth={1.75} aria-hidden />
 							</span>
-							<h2 className="text-[15px] font-medium tracking-[-0.01em] text-balance text-foreground">{item.title}</h2>
-							<p className="text-[13px] leading-6 break-words hyphens-auto text-muted-foreground">{item.description}</p>
+							<h2 className="text-[15px] font-medium tracking-[-0.01em] text-balance text-foreground">{item.title()}</h2>
+							<p className="text-[13px] leading-6 break-words hyphens-auto text-muted-foreground">{item.description()}</p>
 						</div>
 					))}
 				</div>
@@ -184,10 +180,8 @@ export default function Home() {
 			<section className="mt-20 lg:mt-28">
 				<div className="aurora aurora-strong overflow-hidden rounded-3xl border border-border">
 					<div className="relative z-10 flex flex-col items-center gap-6 px-6 py-16 text-center sm:px-12">
-						<h2
-							dir="ltr"
-							className="max-w-[20ch] text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground drop-shadow-sm lg:text-[2.25rem]">
-							Free, open source, and yours to run.
+						<h2 className="max-w-[20ch] text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground drop-shadow-sm lg:text-[2.25rem]">
+							{m['closing-band-title']()}
 						</h2>
 						<Button size="lg" onClick={scrollToCta}>
 							{m.download()}

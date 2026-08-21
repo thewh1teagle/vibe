@@ -20,14 +20,19 @@ const icons: Record<string, LucideIcon> = {
 
 export default function Features() {
 	return (
-		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20" dir="ltr">
+		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20">
 			<header className="max-w-[46ch]">
-				<p className="eyebrow">Everything Vibe does</p>
+				<p className="eyebrow">{m['features-eyebrow']()}</p>
 				<h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground lg:text-[2.75rem]">{m.features()}</h1>
 				<p className="mt-4 text-base leading-7 text-muted-foreground">{m.description()}</p>
 			</header>
 
-			<div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			{/*
+			 * The cards render untranslated English copy from `features.json`, so
+			 * the grid itself stays LTR. The header above follows the page
+			 * direction like the rest of the site.
+			 */}
+			<div dir="ltr" className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{features.map((feature) => (
 					<FeatureCard key={feature.title} {...feature} icon={icons[feature.title]} />
 				))}

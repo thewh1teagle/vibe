@@ -80,30 +80,11 @@ function MainContent() {
 	)
 }
 
-/** Full-height Recents panel for the layout's start-edge slot (Claude-desktop style). */
-function SidebarSlot() {
+/** Sidebar visibility: user toggle, forced closed while a multi-file (batch) session runs. */
+function useShowSidebar() {
 	const sidebarVisible = useSidebarVisible()
 	const { queue } = useSession()
-	// A multi-file (batch) session already shows its own file rail — the recents
-	// sidebar closes for it so the layout never runs three columns deep.
-	const batchRunning = queue.jobs.length > 1
-	const showSidebar = sidebarVisible && !batchRunning
-
-	return (
-		<AnimatePresence initial={false}>
-			{showSidebar && (
-				<motion.div
-					key="recents"
-					initial={{ opacity: 0, width: 0 }}
-					animate={{ opacity: 1, width: 'auto' }}
-					exit={{ opacity: 0, width: 0 }}
-					transition={{ duration: 0.2, ease: 'easeOut' }}
-					className="flex min-h-0 overflow-hidden bg-muted/25">
-					<RecentsSidebar />
-				</motion.div>
-			)}
-		</AnimatePresence>
-	)
+	return sidebarVisible && queue.jobs.length <= 1
 }
 
 /** Full-width bottom player, ElevenLabs style: spans the whole window under sidebar and content. */
@@ -114,12 +95,37 @@ function PlayerSlot() {
 	return <PlayerBar key={selected.id} job={selected} />
 }
 
+function Shell() {
+	const showSidebar = useShowSidebar()
+
+	return (
+		<Layout
+			sidebarOpen={showSidebar}
+			bottomBar={<PlayerSlot />}
+			sidebar={
+				<AnimatePresence initial={false}>
+					{showSidebar && (
+						<motion.div
+							key="recents"
+							initial={{ opacity: 0, width: 0 }}
+							animate={{ opacity: 1, width: 'auto' }}
+							exit={{ opacity: 0, width: 0 }}
+							transition={{ duration: 0.2, ease: 'easeOut' }}
+							className="flex min-h-0 overflow-hidden bg-muted/25">
+							<RecentsSidebar />
+						</motion.div>
+					)}
+				</AnimatePresence>
+			}>
+			<MainContent />
+		</Layout>
+	)
+}
+
 export default function MainPage() {
 	return (
 		<SessionProvider>
-			<Layout sidebar={<SidebarSlot />} bottomBar={<PlayerSlot />}>
-				<MainContent />
-			</Layout>
+			<Shell />
 		</SessionProvider>
 	)
 }

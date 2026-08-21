@@ -8,7 +8,7 @@ interface PostDownloadProps {
 	onOpenKofi: () => void
 }
 
-const steps = ['Open the installer from your Downloads folder.', 'Follow the installer prompts.', 'Launch Vibe and drop in an audio or video file.']
+const steps = [m['post-download-step-open-installer'], m['post-download-step-follow-prompts'], m['post-download-step-launch']]
 
 export default function PostDownload({ open, onOpenChange, onOpenKofi }: PostDownloadProps) {
 	return (
@@ -22,11 +22,11 @@ export default function PostDownload({ open, onOpenChange, onOpenKofi }: PostDow
 
 				<ol className="mt-6 flex flex-col divide-y divide-border border-y border-border">
 					{steps.map((step, index) => (
-						<li key={step} className="flex items-center gap-3 py-3">
+						<li key={index} className="flex items-center gap-3 py-3">
 							<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-medium text-muted-foreground">
 								{index + 1}
 							</span>
-							<span className="text-[13px] leading-6 text-foreground">{step}</span>
+							<span className="text-[13px] leading-6 text-foreground">{step()}</span>
 						</li>
 					))}
 				</ol>

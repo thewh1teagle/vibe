@@ -107,7 +107,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     } else {
         tracing::debug!("Non CLI mode");
         // Create main window
-        let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+        let builder = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
             .inner_size(800.0, 700.0)
             .min_inner_size(800.0, 700.0)
             .center()
@@ -115,8 +115,12 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .resizable(true)
             .focused(true)
             .shadow(true)
-            .visible(true)
-            .build();
+            .visible(true);
+        // The web content extends under the titlebar so the sidebar toggle can sit
+        // beside the traffic lights (ChatGPT-desktop style); the topbar is a drag region.
+        #[cfg(target_os = "macos")]
+        let builder = builder.title_bar_style(tauri::TitleBarStyle::Overlay).hidden_title(true);
+        let result = builder.build();
         if let Err(error) = result {
             tracing::error!("{:?}", error);
         }

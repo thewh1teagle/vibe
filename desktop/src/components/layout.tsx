@@ -1,4 +1,5 @@
 import { PanelLeft } from 'lucide-react'
+import { platform } from '@tauri-apps/plugin-os'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { m } from '~/paraglide/messages.js'
@@ -17,15 +18,44 @@ import ModelDownloadPrompt from './model-download-prompt'
 export const TOGGLE_SIDEBAR_EVENT = 'vibe:toggle-sidebar'
 export const SIDEBAR_STORAGE_KEY = 'vibe_sidebar_collapsed'
 
+/** True in the real macOS app, where the titlebar is an overlay and traffic lights sit over our UI. */
+export function isMacOverlayTitlebar(): boolean {
+	try {
+		return '__TAURI_INTERNALS__' in window && !('__vibeMockTauriRuntime__' in globalThis) && platform() === 'macos'
+	} catch {
+		return false
+	}
+}
+
+export function SidebarToggleButton() {
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					variant="ghost"
+					size="icon"
+					aria-label="Toggle recents"
+					className="h-9 w-9 rounded-full text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground [&_svg]:size-[18px]"
+					onClick={() => window.dispatchEvent(new CustomEvent(TOGGLE_SIDEBAR_EVENT))}>
+					<PanelLeft strokeWidth={1.75} />
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent>Toggle recents</TooltipContent>
+		</Tooltip>
+	)
+}
+
 interface LayoutProps {
 	children: ReactNode
 	/** Full-height panel docked at the window's start edge (Claude-desktop style). */
 	sidebar?: ReactNode
 	/** Full-width bar docked at the very bottom of the window (player). */
 	bottomBar?: ReactNode
+	/** When the sidebar is open it hosts the toggle (next to the traffic lights); the header hosts it otherwise. */
+	sidebarOpen?: boolean
 }
 
-export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
+export default function Layout({ children, sidebar, bottomBar, sidebarOpen = false }: LayoutProps) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
@@ -56,23 +86,10 @@ export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 			<div className="flex min-h-0 flex-1">
 				{sidebar}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col">
-					<header className="flex h-14 shrink-0 items-center justify-between gap-4 px-4">
-						<div className="flex items-center gap-1.5">
-							{showSidebarToggle && (
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon"
-											aria-label="Toggle recents"
-											className="h-9 w-9 rounded-full text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground [&_svg]:size-[18px]"
-											onClick={() => window.dispatchEvent(new CustomEvent(TOGGLE_SIDEBAR_EVENT))}>
-											<PanelLeft strokeWidth={1.75} />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>Toggle recents</TooltipContent>
-								</Tooltip>
-							)}
+					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-between gap-4 px-4">
+						{/* When the sidebar is closed on macOS the traffic lights overlay this corner. */}
+						<div className="flex items-center gap-1.5" style={!sidebarOpen && isMacOverlayTitlebar() ? { paddingLeft: 68 } : undefined}>
+							{showSidebarToggle && !sidebarOpen && <SidebarToggleButton />}
 							<span className="select-none text-[17px] font-semibold tracking-[-0.03em] text-foreground">{m.appTitle()}</span>
 						</div>
 						<AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />

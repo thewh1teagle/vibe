@@ -21,5 +21,17 @@
 	"support-vibe": "Støtt Vibe",
 	"support-while-you-wait": "Mens du venter, vurder å støtte Vibe-prosjektet for å hjelpe oss med å vokse!",
 	"title": "Transkriber. På din egen måte.",
-	"your-download-is-starting": "Nedlastingen din starter..."
+	"your-download-is-starting": "Nedlastingen din starter...",
+	"hero-eyebrow": "Transkripsjon på din egen enhet",
+	"highlight-private-title": "Privat som standard",
+	"highlight-private-description": "Transkripsjonen kjører på din egen maskin. Lyden forlater aldri enheten din, verken på nett eller offline.",
+	"highlight-languages-title": "Alle språk, alle modeller",
+	"highlight-languages-description": "Nesten 100 språk og hele spekteret av Whisper-modeller, fra tiny til large.",
+	"highlight-batch-title": "Kjør i batch og automatiser",
+	"highlight-batch-description": "Legg hele mapper i kø, eksporter til SRT, VTT, TXT, HTML eller JSON, og styr det hele fra API-et.",
+	"closing-band-title": "Gratis, åpen kildekode, og ditt å kjøre.",
+	"features-eyebrow": "Alt Vibe kan",
+	"post-download-step-open-installer": "Åpne installasjonsfilen fra Nedlastinger-mappen.",
+	"post-download-step-follow-prompts": "Følg instruksjonene i installasjonsprogrammet.",
+	"post-download-step-launch": "Start Vibe og slipp inn en lyd- eller videofil."
 }

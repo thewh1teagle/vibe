@@ -33,5 +33,17 @@
 	"support-vibe": "Support Vibe",
 	"support-while-you-wait": "While you wait, consider supporting the Vibe project to help us grow!",
 	"title": "Transcribe. on Your Own.",
-	"your-download-is-starting": "Your download is starting..."
+	"your-download-is-starting": "Your download is starting...",
+	"hero-eyebrow": "On-device transcription",
+	"highlight-private-title": "Private by default",
+	"highlight-private-description": "Transcription runs on your own machine. Audio never leaves your device, online or offline.",
+	"highlight-languages-title": "Every language, every model",
+	"highlight-languages-description": "Close to 100 languages and a full range of Whisper models, from tiny to large.",
+	"highlight-batch-title": "Batch and automate",
+	"highlight-batch-description": "Queue whole folders, export SRT, VTT, TXT, HTML or JSON, and drive it from the API.",
+	"closing-band-title": "Free, open source, and yours to run.",
+	"features-eyebrow": "Everything Vibe does",
+	"post-download-step-open-installer": "Open the installer from your Downloads folder.",
+	"post-download-step-follow-prompts": "Follow the installer prompts.",
+	"post-download-step-launch": "Launch Vibe and drop in an audio or video file."
 }
