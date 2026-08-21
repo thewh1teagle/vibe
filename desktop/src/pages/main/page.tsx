@@ -106,7 +106,8 @@ function useShowSidebar() {
 function PlayerSlot() {
 	const { queue } = useSession()
 	const selected = queue.selectedJob
-	if (!selected || (selected.status !== 'done' && !selected.hydrated)) return null
+	// The source media exists as soon as a job does — listening while it transcribes is fine.
+	if (!selected) return null
 	return <PlayerBar key={selected.id} job={selected} />
 }
 
