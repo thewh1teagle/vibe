@@ -1,5 +1,6 @@
 import { ReactNode, SetStateAction, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
 import { TextFormat } from '~/components/format-select'
@@ -226,6 +227,13 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 			document.documentElement.classList.add('dark')
 		} else {
 			document.documentElement.classList.remove('dark')
+		}
+		// Keep the native window appearance in sync so macOS vibrancy (glass sidebar)
+		// renders light glass in light mode instead of the system appearance.
+		try {
+			void getCurrentWebviewWindow().setTheme(theme)
+		} catch {
+			/* browser mode */
 		}
 	}, [theme])
 

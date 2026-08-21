@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link2, Mic, Square, Upload } from 'lucide-react'
-import { siBilibili, siFacebook, siInstagram, siSoundcloud, siTiktok, siTwitch, siVimeo, siX, siYoutube } from 'simple-icons'
+import { siFacebook, siInstagram, siTiktok, siX, siYoutube } from 'simple-icons'
 import { useEffect } from 'react'
 import { m } from '~/paraglide/messages.js'
 import AudioDeviceInput from '~/components/audio-device-input'
@@ -90,10 +90,6 @@ const linkSources: { title: string; path: string }[] = [
 	{ title: siInstagram.title, path: siInstagram.path },
 	{ title: siX.title, path: siX.path },
 	{ title: siFacebook.title, path: siFacebook.path },
-	{ title: siVimeo.title, path: siVimeo.path },
-	{ title: siTwitch.title, path: siTwitch.path },
-	{ title: siSoundcloud.title, path: siSoundcloud.path },
-	{ title: siBilibili.title, path: siBilibili.path },
 ]
 
 function LinkPanel() {
