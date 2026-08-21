@@ -24,12 +24,13 @@ dev-web:
 build: setup
     cd desktop && pnpm exec tauri build
 
-# Build a fresh vibe.app, replace the installed one and relaunch it (macOS)
+# Build a fresh vibe.app, replace the installed one and relaunch it (macOS).
+# Updater artifacts are skipped locally — signing them needs the CI private key.
 upgrade: setup
-    cd desktop && pnpm exec tauri build --bundles app
+    cd desktop && pnpm exec tauri build --bundles app --config '{"bundle":{"createUpdaterArtifacts":false}}'
     -osascript -e 'quit app "vibe"' 2>/dev/null
     rm -rf /Applications/vibe.app
-    cp -R desktop/src-tauri/target/release/bundle/macos/vibe.app /Applications/
+    cp -R target/release/bundle/macos/vibe.app /Applications/
     open /Applications/vibe.app
     @echo "vibe upgraded and relaunched"
 
