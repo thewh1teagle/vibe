@@ -139,7 +139,7 @@ html.dictation-indicator-window #root {
 	--card-foreground: #ececec;
 	--popover: #2a2a2a;
 	--popover-foreground: #ececec;
-	--primary: #339cff;
+	--primary: #2563eb;
 	--primary-foreground: #ffffff;
 	--secondary: #242424;
 	--secondary-foreground: #ececec;
@@ -164,7 +164,7 @@ html.dictation-indicator-window #root {
 
 	--sidebar: #212121;
 	--sidebar-foreground: #ececec;
-	--sidebar-primary: #339cff;
+	--sidebar-primary: #2563eb;
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: #2a2a2a;
 	--sidebar-accent-foreground: #ececec;
