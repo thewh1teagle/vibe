@@ -8,7 +8,7 @@ import Github from '~/icons/Github'
 import Linux from '~/icons/Linux'
 import Mac from '~/icons/Mac'
 import Windows from '~/icons/Windows'
-import latestRelease from '~/lib/latest_release.json'
+import { isVersionOverride, release as latestRelease } from '~/lib/release'
 import linuxInstallOptions from '~/lib/linux_install_options.json'
 import CopyButton from './CopyButton'
 import PostDownload from './PostDownload'
@@ -164,6 +164,13 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 				</div>
 				<span dir="ltr" className="text-center font-mono text-[11px] leading-none tracking-[0.04em] text-muted-foreground">
 					{latestRelease.version}
+					{isVersionOverride && (
+						<span
+							dir="ltr"
+							className="ms-2 inline-flex items-center rounded-full border border-rose-500/40 bg-rose-500/10 px-1.5 py-px align-middle font-mono text-[9px] font-semibold tracking-[0.1em] text-rose-500 uppercase">
+							Beta
+						</span>
+					)}
 				</span>
 			</div>
 
