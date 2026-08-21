@@ -38,13 +38,14 @@ const highlights = [
  * monochrome, like the real idle screen.
  */
 const app = {
-	surface: '#ffffff',
-	sidebar: '#f9f9f9',
-	muted: '#f4f4f4',
-	line: '#e6e6e6',
-	ink: '#1a1c1f',
-	inkMuted: '#6e6e6e',
-	inkFaint: '#dcdcdc',
+	surface: '#181818',
+	sidebar: '#212121',
+	muted: '#242424',
+	line: '#303030',
+	ink: '#ececec',
+	inkMuted: '#9a9a9a',
+	inkFaint: '#3a3a3a',
+	active: '#2a2a2a',
 }
 
 /** One key of the joined, icon-only source switcher. The active key reads as raised. */
@@ -88,11 +89,22 @@ function AppMock() {
 					Recents
 				</p>
 
-				<div className="flex flex-col gap-2.5 px-4 pb-3">
-					{[0.86, 0.62, 0.74].map((width, index) => (
-						<span key={index} className="flex flex-col gap-1">
-							<span className="h-[0.375rem] rounded-full" style={{ width: `${width * 100}%`, background: app.inkFaint }} />
-							<span className="h-[0.25rem] rounded-full" style={{ width: `${width * 55}%`, background: app.muted }} />
+				<div className="flex flex-col gap-1 px-2 pb-3">
+					{[
+						{ name: 'team-standup', time: 'just now', active: true },
+						{ name: 'podcast-episode', time: '2h ago', active: false },
+						{ name: 'interview', time: 'yesterday', active: false },
+					].map((row) => (
+						<span
+							key={row.name}
+							className="flex flex-col gap-[0.125rem] rounded-[0.625rem] px-2.5 py-1.5"
+							style={row.active ? { background: app.active } : undefined}>
+							<span className="text-[0.6875rem] font-medium" style={{ color: app.ink }}>
+								{row.name}
+							</span>
+							<span className="text-[0.5625rem]" style={{ color: app.inkMuted }}>
+								{row.time}
+							</span>
 						</span>
 					))}
 				</div>
