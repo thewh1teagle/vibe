@@ -374,57 +374,34 @@
 	}
 
 	/*
-	 * Louder aurora for bands where the gradient itself is the subject (the
-	 * closing CTA). The plain `.aurora` is deliberately dimmed in dark mode so
-	 * it can sit behind a card; here it has to carry the block on its own.
+	 * Closing CTA surface — a calm card, not a gradient show. The card sits one
+	 * step off the page background with a hairline border; the only chroma is a
+	 * single low-alpha radial of `--primary` bloomed behind the headline.
 	 */
-	.aurora-strong {
-		filter: none;
+	.site-cta {
+		position: relative;
+		isolation: isolate;
+		background-color: var(--card);
+		background-image: linear-gradient(180deg, color-mix(in oklab, var(--primary) 4%, var(--card)) 0%, var(--card) 62%);
 	}
 
-	.aurora-strong::after {
-		opacity: 0.16;
+	.site-cta::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		border-radius: inherit;
+		background-image: radial-gradient(46% 58% at 50% 8%, color-mix(in oklab, var(--primary) 22%, transparent) 0%, transparent 72%);
+		opacity: 0.55;
 	}
 
-	.dark .aurora-strong {
-		background-color: #1c1c1a;
-		background-image:
-			radial-gradient(58% 72% at 14% 16%, #5b8defc4 0%, transparent 68%), radial-gradient(54% 68% at 84% 10%, #b98de3b8 0%, transparent 70%),
-			radial-gradient(58% 66% at 80% 88%, #e8a87cad 0%, transparent 70%), radial-gradient(62% 70% at 18% 92%, #7cc5a0ad 0%, transparent 70%);
-		filter: none;
+	.dark .site-cta {
+		background-image: linear-gradient(180deg, color-mix(in oklab, var(--primary) 7%, var(--card)) 0%, var(--card) 62%);
 	}
 
-	/*
-	 * Wall of Love — warm tinted card surfaces. `--wol-tint` is set inline per
-	 * card from the eight-hue palette above.
-	 */
-	.wol-card {
-		background-color: color-mix(in oklab, var(--wol-tint) 9%, var(--card));
-		border-color: color-mix(in oklab, var(--wol-tint) 26%, var(--border));
-	}
-
-	.wol-avatar {
-		background-color: color-mix(in oklab, var(--wol-tint) 34%, var(--card));
-		color: color-mix(in oklab, var(--wol-tint) 55%, var(--foreground));
-	}
-
-	.wol-badge {
-		color: color-mix(in oklab, var(--wol-tint) 60%, var(--foreground));
-	}
-
-	/* Dark mode needs a heavier fill for the same perceived tint. */
-	.dark .wol-card {
-		background-color: color-mix(in oklab, var(--wol-tint) 15%, var(--card));
-		border-color: color-mix(in oklab, var(--wol-tint) 34%, var(--border));
-	}
-
-	.dark .wol-avatar {
-		background-color: color-mix(in oklab, var(--wol-tint) 40%, var(--card));
-		color: color-mix(in oklab, var(--wol-tint) 45%, var(--foreground));
-	}
-
-	.dark .wol-badge {
-		color: color-mix(in oklab, var(--wol-tint) 55%, var(--foreground));
+	.dark .site-cta::before {
+		opacity: 0.7;
 	}
 
 	/* Thin aurora fill for progress bars and hairline accents */

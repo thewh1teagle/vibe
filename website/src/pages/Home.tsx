@@ -1,10 +1,9 @@
 import { useCallback, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { Languages, Layers, ShieldCheck, UploadCloud } from 'lucide-react'
+import { FolderOpen, Globe, Languages, Layers, Link2, Mic, Plus, Settings, ShieldCheck, SlidersHorizontal, Upload } from 'lucide-react'
 import { m } from '../paraglide/messages.js'
 import Cta from '~/components/Cta'
 import WallOfLove from '~/components/WallOfLove'
-import Logo from '~/icons/Logo'
 import { Button } from '~/components/ui/button'
 
 interface LayoutContext {
@@ -33,17 +32,30 @@ const highlights = [
 ]
 
 /*
- * Code-drawn mock of the desktop app — no bitmap, so it stays crisp at any
- * density. It carries its own fixed "paper" palette rather than the site
- * tokens: the window has to read as the app in both light and dark mode.
+ * Code-drawn mock of the desktop app's idle screen — no bitmap, so it stays
+ * crisp at any density. It pins the app's light ChatGPT palette rather than the
+ * site tokens: the window has to read as the app on either page theme. Kept
+ * monochrome, like the real idle screen.
  */
-const paper = {
-	surface: '#fbfbf9',
-	chrome: '#f0f0ec',
-	line: '#e4e4de',
-	ink: '#1a1a18',
-	inkMuted: '#8a8a82',
-	inkFaint: '#c9c9c2',
+const app = {
+	surface: '#ffffff',
+	sidebar: '#f9f9f9',
+	muted: '#f4f4f4',
+	line: '#e6e6e6',
+	ink: '#1a1c1f',
+	inkMuted: '#6e6e6e',
+	inkFaint: '#dcdcdc',
+}
+
+/** One key of the joined, icon-only source switcher. The active key reads as raised. */
+function MockSegment({ active, children }: { active?: boolean; children: React.ReactNode }) {
+	return (
+		<span
+			className="inline-flex h-[1.75rem] w-[2.5rem] items-center justify-center rounded-full"
+			style={active ? { background: app.surface, color: app.ink, boxShadow: '0 1px 2px rgb(0 0 0 / 0.08)' } : { color: app.inkMuted }}>
+			{children}
+		</span>
+	)
 }
 
 function AppMock() {
@@ -51,78 +63,94 @@ function AppMock() {
 		<div
 			dir="ltr"
 			aria-hidden="true"
-			className="pointer-events-none relative z-10 w-full select-none overflow-hidden rounded-2xl border shadow-xl"
-			style={{ background: paper.surface, borderColor: paper.line, color: paper.ink }}>
-			{/* Title bar */}
-			<div className="flex h-9 items-center gap-2 border-b px-3" style={{ background: paper.chrome, borderColor: paper.line }}>
-				<span className="flex items-center gap-[0.3125rem]">
+			className="pointer-events-none relative z-10 flex w-full min-w-0 select-none overflow-hidden rounded-2xl border shadow-xl"
+			style={{ background: app.surface, borderColor: app.line, color: app.ink }}>
+			{/* Recents sidebar */}
+			<div className="hidden w-[11rem] shrink-0 flex-col border-e sm:flex" style={{ background: app.sidebar, borderColor: app.line }}>
+				{/* Titlebar strip: traffic lights sit beside the wordmark, ChatGPT style. */}
+				<div className="flex h-[2rem] items-center gap-[0.3125rem] px-3">
 					<span className="size-[0.5rem] rounded-full" style={{ background: '#e0796d' }} />
 					<span className="size-[0.5rem] rounded-full" style={{ background: '#dcb264' }} />
 					<span className="size-[0.5rem] rounded-full" style={{ background: '#7cbc8b' }} />
-				</span>
-				<span className="ms-2 flex items-center gap-1.5">
-					<Logo className="size-[0.875rem]" />
-					<span className="text-[0.6875rem] font-semibold tracking-[-0.02em]">Vibe</span>
-				</span>
-			</div>
+				</div>
+				<div className="px-3 pb-2">
+					<span className="text-[0.8125rem] font-semibold tracking-[-0.03em]">Vibe</span>
+				</div>
 
-			<div className="flex">
-				{/* Recents sidebar hint */}
-				<div className="hidden w-[8.5rem] shrink-0 flex-col gap-2 border-e p-3 sm:flex" style={{ borderColor: paper.line }}>
-					<span className="text-[0.5625rem] font-medium tracking-[0.08em] uppercase" style={{ color: paper.inkMuted }}>
-						Recents
+				<div className="px-2">
+					<span className="flex items-center gap-2 rounded-[0.625rem] px-2.5 py-1.5 text-[0.6875rem] font-medium">
+						<Plus className="size-[0.75rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+						New transcription
 					</span>
-					{[0.85, 0.6, 0.72, 0.45].map((width, index) => (
-						<span key={index} className="flex items-center gap-1.5">
-							<span className="size-[0.75rem] shrink-0 rounded-[0.25rem]" style={{ background: paper.chrome }} />
-							<span className="h-[0.375rem] rounded-full" style={{ width: `${width * 100}%`, background: paper.inkFaint }} />
+				</div>
+
+				<p className="px-3 pt-3 pb-1.5 text-[0.5625rem] font-medium tracking-[0.08em] uppercase" style={{ color: app.inkMuted }}>
+					Recents
+				</p>
+
+				<div className="flex flex-col gap-2.5 px-4 pb-3">
+					{[0.86, 0.62, 0.74].map((width, index) => (
+						<span key={index} className="flex flex-col gap-1">
+							<span className="h-[0.375rem] rounded-full" style={{ width: `${width * 100}%`, background: app.inkFaint }} />
+							<span className="h-[0.25rem] rounded-full" style={{ width: `${width * 55}%`, background: app.muted }} />
 						</span>
 					))}
 				</div>
 
-				{/* Main pane */}
-				<div className="flex min-w-0 flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-5">
-					{/* Source pills */}
-					<div className="flex flex-wrap items-center gap-1.5">
-						{['File', 'Folder', 'URL', 'Microphone'].map((source, index) => (
-							<span
-								key={source}
-								className="rounded-full border px-2.5 py-[0.1875rem] text-[0.625rem] font-medium"
-								style={
-									index === 0
-										? { background: paper.ink, borderColor: paper.ink, color: paper.surface }
-										: { background: paper.surface, borderColor: paper.line, color: paper.inkMuted }
-								}>
-								{source}
-							</span>
-						))}
-					</div>
+				<div className="mt-auto border-t p-2" style={{ borderColor: app.line }}>
+					<span className="flex items-center gap-2 rounded-[0.625rem] px-2.5 py-1.5 text-[0.6875rem] font-medium">
+						<Settings className="size-[0.75rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+						Settings
+					</span>
+				</div>
+			</div>
 
-					{/* Drop zone */}
-					<div
-						className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center sm:py-12"
-						style={{ borderColor: paper.line, background: paper.chrome }}>
-						<UploadCloud className="size-[1.5rem]" strokeWidth={1.5} style={{ color: paper.inkMuted }} />
-						<span className="text-[0.75rem] font-medium">Drop audio, video or a folder here</span>
-						<span className="text-[0.625rem]" style={{ color: paper.inkMuted }}>
-							mp3 · wav · m4a · mp4 · mkv · webm
-						</span>
-					</div>
+			{/* Main pane — the idle screen: switcher, drop zone, quiet row. */}
+			<div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-3.5 px-4 py-7 sm:px-10 sm:py-10">
+				{/* Joined, icon-only source switcher */}
+				<div className="inline-flex items-center gap-1 rounded-full border p-[0.1875rem]" style={{ borderColor: app.line, background: app.muted }}>
+					<MockSegment active>
+						<FolderOpen className="size-[0.8125rem]" strokeWidth={1.75} />
+					</MockSegment>
+					<MockSegment>
+						<Mic className="size-[0.8125rem]" strokeWidth={1.75} />
+					</MockSegment>
+					<MockSegment>
+						<Link2 className="size-[0.8125rem]" strokeWidth={1.75} />
+					</MockSegment>
+				</div>
 
-					{/* Quiet language / model row */}
-					<div className="flex flex-wrap items-center gap-1.5">
-						{['English', 'Auto detect', 'large-v3-turbo', 'GPU'].map((label) => (
-							<span
-								key={label}
-								className="rounded-full px-2 py-[0.125rem] text-[0.5625rem]"
-								style={{ background: paper.chrome, color: paper.inkMuted }}>
-								{label}
-							</span>
-						))}
-						<span className="ms-auto text-[0.5625rem]" style={{ color: paper.inkFaint }}>
-							Ready
+				{/* Quiet drop zone */}
+				<div
+					className="flex w-full flex-col items-center gap-2.5 rounded-[1.125rem] border-2 border-dashed px-6 py-8 text-center sm:py-11"
+					style={{ borderColor: app.line, background: app.muted }}>
+					<span
+						className="flex size-[2rem] items-center justify-center rounded-full"
+						style={{ background: app.surface, boxShadow: '0 1px 2px rgb(0 0 0 / 0.06)' }}>
+						<Upload className="size-[0.875rem]" strokeWidth={1.75} />
+					</span>
+					<span className="flex flex-col gap-0.5">
+						<span className="text-[0.8125rem] font-semibold tracking-[-0.02em]">Drop audio, video or a folder here</span>
+						<span className="text-[0.625rem]" style={{ color: app.inkMuted }}>
+							or click to browse your files
 						</span>
-					</div>
+					</span>
+				</div>
+
+				{/* Quiet row: language pill, then the More Options ghost label */}
+				<div className="flex w-full items-center gap-2">
+					<span
+						className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[0.25rem] text-[0.625rem] font-medium"
+						style={{ borderColor: app.line, background: app.surface }}>
+						<Globe className="size-[0.6875rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+						Auto Detect
+					</span>
+					<span
+						className="inline-flex items-center gap-1.5 rounded-full px-2 py-[0.25rem] text-[0.625rem] font-medium"
+						style={{ color: app.inkMuted }}>
+						<SlidersHorizontal className="size-[0.6875rem]" strokeWidth={1.75} />
+						More Options
+					</span>
 				</div>
 			</div>
 		</div>
@@ -178,9 +206,9 @@ export default function Home() {
 
 			{/* Closing band */}
 			<section className="mt-20 lg:mt-28">
-				<div className="aurora aurora-strong overflow-hidden rounded-3xl border border-border">
-					<div className="relative z-10 flex flex-col items-center gap-6 px-6 py-16 text-center sm:px-12">
-						<h2 className="max-w-[20ch] text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground drop-shadow-sm lg:text-[2.25rem]">
+				<div className="site-cta overflow-hidden rounded-3xl border border-border">
+					<div className="flex flex-col items-center gap-7 px-6 py-20 text-center sm:px-12 lg:py-24">
+						<h2 className="max-w-[20ch] text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground lg:text-[2.25rem]">
 							{m['closing-band-title']()}
 						</h2>
 						<Button size="lg" onClick={scrollToCta}>
