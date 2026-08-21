@@ -132,7 +132,7 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 				</div>
 			)}
 
-			<div className="mt-6 flex items-center gap-3">
+			<div className="mt-6 flex flex-col items-center gap-2.5">
 				<div className="flex items-center gap-1 rounded-full border border-border p-1">
 					<Button
 						variant="ghost"
@@ -162,7 +162,9 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 						<Linux className="size-4" />
 					</Button>
 				</div>
-				<span className="eyebrow">{latestRelease.version}</span>
+				<span dir="ltr" className="text-center font-mono text-[11px] leading-none tracking-[0.04em] text-muted-foreground">
+					{latestRelease.version}
+				</span>
 			</div>
 
 			<Dialog open={mobileModalOpen} onOpenChange={setMobileModalOpen}>
@@ -182,8 +184,8 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 
 			<Dialog open={linuxModalOpen} onOpenChange={setLinuxModalOpen}>
 				<DialogContent className="w-[88vw] max-w-[88vw] overflow-hidden p-6 sm:!max-w-3xl md:p-8">
-					<h3 className="pr-8 text-[24px] font-semibold tracking-[-0.03em] md:text-[28px]">{m['install-on-linux']()}</h3>
-					<div className="mt-2 max-h-[70vh] overflow-y-auto pr-1">
+					<h3 className="pe-8 text-[24px] font-semibold tracking-[-0.03em] md:text-[28px]">{m['install-on-linux']()}</h3>
+					<div className="mt-2 max-h-[70vh] overflow-y-auto pe-1">
 						{linuxInstallOptions.map((option) => (
 							<div key={option.title} className="mt-6 first:mt-2" dir="ltr">
 								<div className="eyebrow mb-2">{option.title}</div>

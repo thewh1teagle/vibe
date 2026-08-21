@@ -43,7 +43,7 @@ export default function Docs() {
 			</header>
 
 			<div className="mt-10 flex flex-col gap-10 lg:flex-row lg:gap-14">
-				<nav className="flex shrink-0 flex-row flex-wrap gap-1 border-b border-border pb-4 lg:sticky lg:top-8 lg:h-fit lg:w-44 lg:flex-col lg:border-b-0 lg:border-s lg:pb-0 lg:ps-4">
+				<nav className="flex shrink-0 flex-row flex-wrap gap-1 border-b border-border pb-4 lg:sticky lg:top-24 lg:h-fit lg:max-h-[calc(100dvh-8rem)] lg:w-44 lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-s lg:pb-0 lg:ps-4">
 					{docs.map((doc) => {
 						const active = content === doc.content
 						return (

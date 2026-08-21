@@ -232,7 +232,7 @@ export default function PlayerBar({ job }: { job: Job }) {
 						seekable ? 'cursor-pointer' : 'cursor-default opacity-60',
 					)}>
 					<div className="h-1 w-full overflow-hidden rounded-full bg-muted">
-						<div className="aurora-bar h-full rounded-full" style={{ width: `${progress * 100}%` }} />
+						<div className="h-full rounded-full bg-foreground" style={{ width: `${progress * 100}%` }} />
 					</div>
 					<div
 						aria-hidden

@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import Layout, { SIDEBAR_STORAGE_KEY, TOGGLE_SIDEBAR_EVENT } from '~/components/layout'
-import { cn } from '~/lib/style'
 import IdleHero from './components/idle-hero'
+import PlayerBar from './components/player-bar'
 import RecentsSidebar from './components/recents-sidebar'
 import SessionView from './components/session-view'
 import { SessionProvider, useSession } from './session'
@@ -11,9 +11,9 @@ import { SessionProvider, useSession } from './session'
 function useSidebarVisible() {
 	const [visible, setVisible] = useState(() => {
 		try {
-			return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) !== 'collapsed'
+			return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'expanded'
 		} catch {
-			return true
+			return false
 		}
 	})
 
@@ -80,7 +80,8 @@ function MainContent() {
 	)
 }
 
-function MainShell() {
+/** Full-height Recents panel for the layout's start-edge slot (Claude-desktop style). */
+function SidebarSlot() {
 	const sidebarVisible = useSidebarVisible()
 	const { queue } = useSession()
 	// A multi-file (batch) session already shows its own file rail — the recents
@@ -89,33 +90,36 @@ function MainShell() {
 	const showSidebar = sidebarVisible && !batchRunning
 
 	return (
-		<div className="flex h-full min-h-0 w-full">
-			<AnimatePresence initial={false}>
-				{showSidebar && (
-					<motion.div
-						key="recents"
-						initial={{ opacity: 0, width: 0 }}
-						animate={{ opacity: 1, width: 'auto' }}
-						exit={{ opacity: 0, width: 0 }}
-						transition={{ duration: 0.2, ease: 'easeOut' }}
-						className="flex min-h-0 overflow-hidden">
-						<RecentsSidebar />
-					</motion.div>
-				)}
-			</AnimatePresence>
-			<div className={cn('flex min-h-0 min-w-0 flex-1 flex-col', showSidebar && 'ps-5 md:ps-7')}>
-				<MainContent />
-			</div>
-		</div>
+		<AnimatePresence initial={false}>
+			{showSidebar && (
+				<motion.div
+					key="recents"
+					initial={{ opacity: 0, width: 0 }}
+					animate={{ opacity: 1, width: 'auto' }}
+					exit={{ opacity: 0, width: 0 }}
+					transition={{ duration: 0.2, ease: 'easeOut' }}
+					className="flex min-h-0 overflow-hidden bg-muted/25">
+					<RecentsSidebar />
+				</motion.div>
+			)}
+		</AnimatePresence>
 	)
+}
+
+/** Full-width bottom player, ElevenLabs style: spans the whole window under sidebar and content. */
+function PlayerSlot() {
+	const { queue } = useSession()
+	const selected = queue.selectedJob
+	if (!selected || (selected.status !== 'done' && !selected.hydrated)) return null
+	return <PlayerBar key={selected.id} job={selected} />
 }
 
 export default function MainPage() {
 	return (
-		<Layout>
-			<SessionProvider>
-				<MainShell />
-			</SessionProvider>
-		</Layout>
+		<SessionProvider>
+			<Layout sidebar={<SidebarSlot />} bottomBar={<PlayerSlot />}>
+				<MainContent />
+			</Layout>
+		</SessionProvider>
 	)
 }

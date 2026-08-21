@@ -197,7 +197,7 @@ export default function RecentsSidebar() {
 	}
 
 	return (
-		<aside className="flex min-h-[420px] w-[260px] shrink-0 flex-col border-e border-border">
+		<aside className="flex h-full w-[260px] shrink-0 flex-col border-e border-border">
 			<div className="px-2 pt-1">
 				<button
 					type="button"

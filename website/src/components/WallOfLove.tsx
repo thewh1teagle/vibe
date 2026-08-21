@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { m } from '../paraglide/messages.js'
+import Heart from '~/icons/Heart'
 
 interface Supporter {
 	id: string
@@ -8,22 +9,37 @@ interface Supporter {
 	time_ago: string
 }
 
+/** Eight muted pastels walked around the aurora hues — see `--wol-*` in globals.css. */
+const TINT_COUNT = 8
+
 function getInitial(name: string): string {
 	return name.charAt(0).toUpperCase()
 }
 
+/** Deterministic per-name tint so a supporter always keeps the same colour. */
+function getTint(name: string): string {
+	let hash = 0
+	for (let i = 0; i < name.length; i += 1) {
+		hash = (hash * 31 + name.charCodeAt(i)) >>> 0
+	}
+	return `var(--wol-${(hash % TINT_COUNT) + 1})`
+}
+
 function SupporterCard({ supporter }: { supporter: Supporter }) {
+	const style = { '--wol-tint': getTint(supporter.name) } as CSSProperties
+
 	return (
-		<figure className="flex gap-3 rounded-xl border border-border bg-card p-4">
-			<div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-[13px] font-medium text-muted-foreground">
+		<figure style={style} className="wol-card flex gap-3.5 rounded-2xl border p-5 transition-shadow duration-200 hover:shadow-md">
+			<div className="wol-avatar flex size-9 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold">
 				{getInitial(supporter.name)}
 			</div>
-			<div className="min-w-0">
+			<div className="min-w-0 flex-1">
 				<figcaption className="flex items-baseline gap-2">
-					<span className="text-[13px] font-medium text-foreground">{supporter.name}</span>
-					<span className="shrink-0 text-[11px] text-muted-foreground">{supporter.time_ago}</span>
+					<span className="truncate text-[13px] font-semibold text-foreground">{supporter.name}</span>
+					<Heart className="wol-badge size-3 shrink-0 self-center" />
+					<span className="ms-auto shrink-0 text-[11px] text-muted-foreground">{supporter.time_ago}</span>
 				</figcaption>
-				<blockquote className="mt-1 text-[13px] leading-6 text-muted-foreground">{supporter.message}</blockquote>
+				<blockquote className="mt-1.5 text-[13px] leading-6 break-words text-muted-foreground">{supporter.message}</blockquote>
 			</div>
 		</figure>
 	)
@@ -75,7 +91,13 @@ export default function WallOfLove() {
 
 	return (
 		<section className="mt-20 w-full [contain-intrinsic-size:0_700px] [content-visibility:auto] lg:mt-28">
-			<h2 className="mb-8 text-center text-[1.5rem] font-semibold tracking-[-0.02em] text-foreground lg:text-[1.875rem]">{m['loved-by-thousands']()}</h2>
+			<div className="mb-10 flex flex-col items-center gap-3">
+				<span className="flex size-9 items-center justify-center rounded-full text-[color:var(--aurora-2)] ring-1 ring-border">
+					<Heart className="size-4" />
+				</span>
+				<h2 className="text-center text-[1.5rem] font-semibold tracking-[-0.02em] text-foreground lg:text-[1.875rem]">{m['loved-by-thousands']()}</h2>
+				<span aria-hidden className="aurora-bar h-[3px] w-24 rounded-full" />
+			</div>
 			{/* Mobile: single column vertical marquee */}
 			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
 				<MarqueeColumn supporters={supporters} duration={120} />

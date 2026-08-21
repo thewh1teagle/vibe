@@ -17,7 +17,15 @@ import ModelDownloadPrompt from './model-download-prompt'
 export const TOGGLE_SIDEBAR_EVENT = 'vibe:toggle-sidebar'
 export const SIDEBAR_STORAGE_KEY = 'vibe_sidebar_collapsed'
 
-export default function Layout({ children }: { children: ReactNode }) {
+interface LayoutProps {
+	children: ReactNode
+	/** Full-height panel docked at the window's start edge (Claude-desktop style). */
+	sidebar?: ReactNode
+	/** Full-width bar docked at the very bottom of the window (player). */
+	bottomBar?: ReactNode
+}
+
+export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
@@ -42,35 +50,41 @@ export default function Layout({ children }: { children: ReactNode }) {
 	}, [])
 
 	return (
-		<div className="min-h-screen">
+		<div className="flex h-screen min-h-0 flex-col overflow-hidden">
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} scrollTo={settingsScrollTo} />}
 			<ModelDownloadPrompt />
-			<div className="app-shell">
-				<header className="mb-8 flex h-14 items-center justify-between gap-4">
-					<div className="flex items-center gap-1.5">
-						{showSidebarToggle && (
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon"
-										aria-label="Toggle recents"
-										className="h-9 w-9 rounded-full text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground [&_svg]:size-[18px]"
-										onClick={() => window.dispatchEvent(new CustomEvent(TOGGLE_SIDEBAR_EVENT))}>
-										<PanelLeft strokeWidth={1.75} />
-									</Button>
-								</TooltipTrigger>
-								<TooltipContent>Toggle recents</TooltipContent>
-							</Tooltip>
-						)}
-						<span className="select-none text-[17px] font-semibold tracking-[-0.03em] text-foreground">{m.appTitle()}</span>
+			<div className="flex min-h-0 flex-1">
+				{sidebar}
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col">
+					<header className="flex h-14 shrink-0 items-center justify-between gap-4 px-4">
+						<div className="flex items-center gap-1.5">
+							{showSidebarToggle && (
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											aria-label="Toggle recents"
+											className="h-9 w-9 rounded-full text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground [&_svg]:size-[18px]"
+											onClick={() => window.dispatchEvent(new CustomEvent(TOGGLE_SIDEBAR_EVENT))}>
+											<PanelLeft strokeWidth={1.75} />
+										</Button>
+									</TooltipTrigger>
+									<TooltipContent>Toggle recents</TooltipContent>
+								</Tooltip>
+							)}
+							<span className="select-none text-[17px] font-semibold tracking-[-0.03em] text-foreground">{m.appTitle()}</span>
+						</div>
+						<AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />
+					</header>
+					<div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+						<PageTransition>
+							<div className="stagger-in h-full">{children}</div>
+						</PageTransition>
 					</div>
-					<AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />
-				</header>
-				<PageTransition>
-					<div className="stagger-in">{children}</div>
-				</PageTransition>
+				</div>
 			</div>
+			{bottomBar}
 		</div>
 	)
 }
