@@ -1,12 +1,12 @@
 import { subDays, isAfter } from 'date-fns'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Globe, Search } from 'lucide-react'
+import { Check, Globe } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
 import { getI18nLanguageName, getLocalizedLanguageName } from '~/lib/i18n'
 import { cn } from '~/lib/style'
 import { usePreferenceProvider } from '~/providers/preference'
 import { Label } from '~/components/ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+import { Popover, PopoverAnchor, PopoverContent } from '~/components/ui/popover'
 
 interface LanguageInputProps {
 	/**
@@ -293,35 +293,42 @@ export default function LanguageInput({ variant = 'default' }: LanguageInputProp
 		<div className={cn('w-full', prominent ? '' : 'space-y-2')}>
 			{prominent ? null : <Label>{m.language()}</Label>}
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger asChild>
-					<button
-						type="button"
-						aria-label={m.language()}
-						aria-expanded={open}
+				{/* The pill itself becomes the input while open — same container, same shape. */}
+				<PopoverAnchor asChild>
+					<div
 						className={cn(
-							'flex cursor-pointer items-center gap-2 border border-border text-start transition-colors duration-150',
-							prominent
-								? 'h-9 rounded-full bg-card px-3 text-[13px] font-medium text-foreground hover:bg-muted/60'
-								: 'h-9 w-full rounded-lg bg-transparent px-3 text-sm text-foreground',
+							'flex items-center gap-2 border text-start transition-colors duration-150',
+							prominent ? 'h-9 w-[200px] rounded-full bg-card px-3 text-[13px] font-medium' : 'h-9 w-full rounded-lg bg-transparent px-3 text-sm',
+							open ? 'border-ring/60' : 'border-border',
 						)}>
 						<Globe className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-						<span className="min-w-0 flex-1 truncate">{triggerLabel}</span>
-					</button>
-				</PopoverTrigger>
-				<PopoverContent align="start" className="w-[280px] rounded-2xl p-0">
-					<div className="flex items-center gap-2 border-b border-border px-3">
-						<Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-						<input
-							ref={inputRef}
-							autoFocus
-							value={query}
-							onChange={(event) => setQuery(event.target.value)}
-							onKeyDown={onInputKeyDown}
-							placeholder={m.selectLanguage()}
-							aria-label={m.language()}
-							className="h-10 w-full min-w-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-						/>
+						{open ? (
+							<input
+								ref={inputRef}
+								autoFocus
+								value={query}
+								onChange={(event) => setQuery(event.target.value)}
+								onKeyDown={onInputKeyDown}
+								placeholder={triggerLabel}
+								aria-label={m.language()}
+								className="w-full min-w-0 bg-transparent text-inherit outline-none placeholder:text-muted-foreground"
+							/>
+						) : (
+							<button
+								type="button"
+								aria-label={m.language()}
+								aria-expanded={open}
+								onClick={() => setOpen(true)}
+								className="min-w-0 flex-1 cursor-pointer truncate text-start text-inherit">
+								{triggerLabel}
+							</button>
+						)}
 					</div>
+				</PopoverAnchor>
+				<PopoverContent
+					align="start"
+					onOpenAutoFocus={(event) => event.preventDefault()}
+					className={cn('rounded-2xl p-0', prominent ? 'w-[240px]' : 'w-[var(--radix-popper-anchor-width)] min-w-[240px]')}>
 					<div ref={listRef} className="max-h-72 overflow-y-auto p-1.5">
 						{flat.length === 0 && <p className="px-3 py-6 text-center text-[13px] text-muted-foreground">No matches</p>}
 						{groups.map((group, groupIndex) => (
