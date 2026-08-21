@@ -9,10 +9,9 @@ interface SupportButtonProps {
 export default function SupportButton({ onOpenKofi }: SupportButtonProps) {
 	return (
 		<Button
-			variant="outline"
 			onClick={onOpenKofi}
-			className="cursor-pointer border-rose-500/30 bg-rose-500/10 text-foreground transition-colors hover:border-rose-500/50 hover:bg-rose-500/15 dark:border-rose-400/25 dark:bg-rose-400/10 dark:hover:bg-rose-400/15">
-			<Heart className="size-4 fill-rose-500 text-rose-500" />
+			className="cursor-pointer border-0 bg-rose-500 text-white shadow-[0_2px_12px_rgb(244_63_94/0.35)] transition-colors hover:bg-rose-600 dark:bg-rose-500 dark:text-white dark:hover:bg-rose-400">
+			<Heart className="size-4 fill-white text-white" />
 			{m['support-project']()}
 		</Button>
 	)
