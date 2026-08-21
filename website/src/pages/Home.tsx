@@ -208,7 +208,7 @@ export default function Home() {
 			<section className="mt-20 lg:mt-28">
 				<div className="site-cta overflow-hidden rounded-3xl border border-border">
 					<div className="flex flex-col items-center gap-7 px-6 py-20 text-center sm:px-12 lg:py-24">
-						<h2 className="max-w-[20ch] text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground lg:text-[2.25rem]">
+						<h2 className="text-[1.5rem] leading-[1.1] font-semibold tracking-[-0.03em] text-foreground sm:whitespace-nowrap sm:text-[clamp(1.625rem,3vw,2.25rem)]">
 							{m['closing-band-title']()}
 						</h2>
 						<Button size="lg" onClick={scrollToCta}>
