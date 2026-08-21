@@ -4,6 +4,7 @@ import { Button } from '~/components/ui/button'
 import Logo from '~/icons/Logo'
 import type { Locale } from '../paraglide/runtime.js'
 import LanguageSelector from './LanguageSelector'
+import { Moon, Sun } from 'lucide-react'
 
 interface NavProps {
 	locale: Locale
@@ -46,6 +47,16 @@ export default function Nav({ locale, availableLocales, onLocaleChange }: NavPro
 				</nav>
 
 				<ul className="ms-auto flex items-center gap-4">
+					{import.meta.env.DEV && (
+						<button
+							type="button"
+							aria-label="Toggle theme (dev)"
+							onClick={() => document.documentElement.classList.toggle('dark')}
+							className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+							<Sun className="size-4 dark:hidden" />
+							<Moon className="hidden size-4 dark:block" />
+						</button>
+					)}
 					{import.meta.env.DEV && (
 						<LanguageSelector locale={locale} availableLocales={availableLocales} onLocaleChange={onLocaleChange} showDevBadge />
 					)}
