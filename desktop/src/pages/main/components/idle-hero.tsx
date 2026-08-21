@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { FolderOpen, Link2, Mic, Square } from 'lucide-react'
+import { FolderOpen, Link2, Mic, Square, Upload } from 'lucide-react'
 import { useEffect } from 'react'
 import { m } from '~/paraglide/messages.js'
 import AudioDeviceInput from '~/components/audio-device-input'
@@ -116,59 +116,64 @@ export default function IdleHero() {
 	}
 
 	return (
-		<div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-10 px-6 py-10">
-			<motion.section
+		<div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 px-6 py-10">
+			{/* One target: the whole card is click-to-browse and the drop zone. */}
+			<motion.button
+				type="button"
+				onClick={() => void browse()}
 				initial={{ opacity: 0, y: 8 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.25, ease: 'easeOut' }}
 				className={cn(
-					'relative overflow-hidden rounded-[1.25rem] border bg-card transition-colors duration-150',
-					dragging ? 'border-transparent ring-2 ring-ring' : 'border-border',
+					'group relative cursor-pointer overflow-hidden rounded-[1.25rem] border-2 border-dashed bg-card transition-colors duration-150',
+					dragging ? 'border-ring' : 'border-border hover:border-ring/50',
 				)}>
-				<div className={cn('aurora pointer-events-none absolute inset-0 transition-opacity duration-200', dragging ? 'opacity-100' : 'opacity-70')} />
+				<div
+					className={cn(
+						'aurora pointer-events-none absolute inset-0 transition-opacity duration-200',
+						dragging ? 'opacity-100' : 'opacity-50 group-hover:opacity-80',
+					)}
+				/>
 
-				<div className="relative flex flex-col items-center gap-6 px-8 py-16 text-center sm:px-14">
-					<p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.transcription()}</p>
-
-					<div className="space-y-2">
-						<h1 className="text-[28px] leading-tight font-semibold tracking-[-0.03em] text-foreground sm:text-[36px]">Drop audio or video</h1>
-						<p className="text-sm text-muted-foreground">{m.supportsFormats()}</p>
+				<div className="relative flex flex-col items-center gap-4 px-8 py-14 text-center">
+					<span className="flex h-12 w-12 items-center justify-center rounded-full bg-background/70 text-foreground shadow-sm">
+						<Upload className="h-5 w-5" />
+					</span>
+					<div className="space-y-1">
+						<h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">Drop audio or video here</h1>
+						<p className="text-[13px] text-muted-foreground">or click to browse your files</p>
 					</div>
-
-					<Button onClick={() => void browse()} className="h-11 rounded-full px-7">
-						Browse
-					</Button>
-
-					<div className="flex flex-wrap items-center justify-center gap-2">
-						<Pill active={panel === 'record'} onClick={() => togglePanel('record')}>
-							<Mic className="h-3.5 w-3.5" />
-							{m.record()}
-						</Pill>
-						<Pill active={panel === 'link'} onClick={() => togglePanel('link')}>
-							<Link2 className="h-3.5 w-3.5" />
-							From link
-						</Pill>
-						<Pill onClick={() => void browseFolder()}>
-							{collectingFolder ? <Spinner className="h-3.5 w-3.5" /> : <FolderOpen className="h-3.5 w-3.5" />}
-							{m.selectFolder()}
-						</Pill>
-					</div>
-
-					<AnimatePresence initial={false}>
-						{panel !== 'none' && (
-							<motion.div
-								key={panel}
-								initial={{ opacity: 0, y: -6 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -6 }}
-								transition={{ duration: 0.18, ease: 'easeOut' }}
-								className="w-full max-w-lg border-t border-border pt-6">
-								{panel === 'record' ? <RecordPanel /> : <LinkPanel />}
-							</motion.div>
-						)}
-					</AnimatePresence>
 				</div>
-			</motion.section>
+			</motion.button>
+
+			<div className="flex flex-wrap items-center justify-center gap-2">
+				<Pill active={panel === 'record'} onClick={() => togglePanel('record')}>
+					<Mic className="h-3.5 w-3.5" />
+					{m.record()}
+				</Pill>
+				<Pill active={panel === 'link'} onClick={() => togglePanel('link')}>
+					<Link2 className="h-3.5 w-3.5" />
+					From link
+				</Pill>
+				<Pill onClick={() => void browseFolder()}>
+					{collectingFolder ? <Spinner className="h-3.5 w-3.5" /> : <FolderOpen className="h-3.5 w-3.5" />}
+					{m.selectFolder()}
+				</Pill>
+			</div>
+
+			<AnimatePresence initial={false}>
+				{panel !== 'none' && (
+					<motion.div
+						key={panel}
+						initial={{ opacity: 0, y: -6 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -6 }}
+						transition={{ duration: 0.18, ease: 'easeOut' }}
+						className="mx-auto w-full max-w-lg rounded-2xl border border-border bg-card p-5">
+						{panel === 'record' ? <RecordPanel /> : <LinkPanel />}
+					</motion.div>
+				)}
+			</AnimatePresence>
 
 			<QuietRow />
 		</div>

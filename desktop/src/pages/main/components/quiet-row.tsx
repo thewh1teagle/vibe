@@ -5,12 +5,7 @@ import { Button } from '~/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { Switch } from '~/components/ui/switch'
 import { openSettingsSection } from '~/lib/app'
-import { getFriendlyModelName } from '~/lib/model'
 import { useSession } from '../session'
-
-function basename(value: string) {
-	return value.split(/[\\/]/).pop() ?? value
-}
 
 function OptionRow({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
 	return (
@@ -23,8 +18,6 @@ function OptionRow({ label, checked, onChange }: { label: string; checked: boole
 
 export default function QuietRow() {
 	const { preference } = useSession()
-	const modelFile = preference.modelPath ? basename(preference.modelPath) : null
-	const modelLabel = modelFile ? (preference.modelDisplayNames[preference.modelPath ?? ''] ?? getFriendlyModelName(modelFile)) : m.noModelSelected()
 
 	return (
 		<div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
@@ -32,14 +25,6 @@ export default function QuietRow() {
 			<div className="w-[190px] [&>div]:space-y-0 [&_label]:sr-only [&_button]:h-9 [&_button]:rounded-full [&_button]:border-border [&_button]:bg-transparent [&_button]:text-[13px] [&_button]:shadow-none">
 				<LanguageInput />
 			</div>
-
-			<button
-				type="button"
-				onClick={() => openSettingsSection('models')}
-				className="inline-flex cursor-pointer items-center gap-1 text-[13px] text-muted-foreground transition-colors duration-150 hover:text-foreground">
-				{modelLabel}
-				<ChevronRight className="h-3.5 w-3.5" />
-			</button>
 
 			<Popover>
 				<PopoverTrigger asChild>
