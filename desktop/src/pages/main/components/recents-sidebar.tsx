@@ -202,7 +202,10 @@ export default function RecentsSidebar() {
 			{/* Titlebar strip: hosts the toggle beside the macOS traffic lights (ChatGPT style). */}
 			<div data-tauri-drag-region className="flex h-14 shrink-0 items-center" style={{ paddingLeft: titlebarInset() }}>
 				<SidebarToggleButton />
-				<span className="ms-1.5 select-none text-[15px] font-semibold tracking-[-0.03em] text-foreground">{m.appTitle()}</span>
+			</div>
+			{/* Codex-style: the wordmark gets its own row under the titlebar strip. */}
+			<div className="px-4 pt-0.5 pb-2">
+				<span className="select-none text-[17px] font-semibold tracking-[-0.03em] text-foreground">{m.appTitle()}</span>
 			</div>
 			<div className="px-2">
 				<button

@@ -119,7 +119,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         // The web content extends under the titlebar so the sidebar toggle can sit
         // beside the traffic lights (ChatGPT-desktop style); the topbar is a drag region.
         #[cfg(target_os = "macos")]
-        let builder = builder.title_bar_style(tauri::TitleBarStyle::Overlay).hidden_title(true);
+        let builder = builder
+            .title_bar_style(tauri::TitleBarStyle::Overlay)
+            .hidden_title(true)
+            // Centered on the 56px titlebar row so the lights align with the sidebar toggle.
+            .traffic_light_position(tauri::LogicalPosition::new(16.0, 22.0));
         let result = builder.build();
         if let Err(error) = result {
             tracing::error!("{:?}", error);
