@@ -79,16 +79,16 @@ function LevelMeter() {
 	)
 }
 
-function Pill({ active, onClick, children }: { active?: boolean; onClick: () => void; children: React.ReactNode }) {
+/** One segment of the joined source switcher: the active one reads as a raised key. */
+function Segment({ active, onClick, children }: { active?: boolean; onClick: () => void; children: React.ReactNode }) {
 	return (
 		<button
 			type="button"
+			aria-pressed={active}
 			onClick={onClick}
 			className={cn(
-				'inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-border px-4 text-[13px] font-medium transition-colors duration-150',
-				active
-					? 'border-transparent bg-primary/10 text-foreground'
-					: 'text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground',
+				'inline-flex h-8 cursor-pointer items-center gap-2 rounded-full px-4 text-[13px] font-medium transition-colors duration-150',
+				active ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
 			)}>
 			{children}
 		</button>
@@ -213,29 +213,29 @@ function LinkPanel() {
 export default function IdleHero() {
 	const { dragging, browse, collectingFolder, panel, setPanel, link, recording } = useSession()
 
-	function togglePanel(next: IdlePanel) {
-		if (recording.isRecording) return
-		setPanel(panel === next ? 'none' : next)
-		if (next === 'link' && panel !== 'link') void link.switchToLinkTab()
+	function selectPanel(next: IdlePanel) {
+		if (recording.isRecording || next === panel) return
+		setPanel(next)
+		if (next === 'link') void link.switchToLinkTab()
 	}
 
 	return (
 		// One optical column: pills, active source and quiet row all span max-w-xl with a 20px rhythm.
 		<div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-5 px-6 py-10">
-			{/* Source switcher: the active source replaces the drop area entirely. */}
-			<div className="flex flex-wrap items-center justify-center gap-2">
-				<Pill active={panel === 'none'} onClick={() => togglePanel('none')}>
+			{/* Joined source switcher: one control, three keys; the active source replaces the drop area. */}
+			<div className="mx-auto inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 p-1">
+				<Segment active={panel === 'none'} onClick={() => selectPanel('none')}>
 					<Upload className="h-3.5 w-3.5" />
 					File
-				</Pill>
-				<Pill active={panel === 'record'} onClick={() => togglePanel('record')}>
+				</Segment>
+				<Segment active={panel === 'record'} onClick={() => selectPanel('record')}>
 					<Mic className="h-3.5 w-3.5" />
 					{m.record()}
-				</Pill>
-				<Pill active={panel === 'link'} onClick={() => togglePanel('link')}>
+				</Segment>
+				<Segment active={panel === 'link'} onClick={() => selectPanel('link')}>
 					<Link2 className="h-3.5 w-3.5" />
 					From link
-				</Pill>
+				</Segment>
 			</div>
 
 			{/* Fixed-height slot sized to the drop zone so switching sources never moves the pills or the quiet row. */}
