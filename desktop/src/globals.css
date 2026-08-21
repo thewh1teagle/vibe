@@ -76,28 +76,28 @@ html.dictation-indicator-window #root {
 :root {
 	--radius: 1rem;
 
-	/* Paper & ink — light (default) */
-	--background: #fafaf8;
-	--foreground: #111110;
+	/* ChatGPT-style neutrals — light (default) */
+	--background: #ffffff;
+	--foreground: #1a1c1f;
 	--card: #ffffff;
-	--card-foreground: #111110;
+	--card-foreground: #1a1c1f;
 	--popover: #ffffff;
-	--popover-foreground: #111110;
-	--primary: #111110;
+	--popover-foreground: #1a1c1f;
+	--primary: #2563eb;
 	--primary-foreground: #ffffff;
-	--secondary: #f1f1ee;
-	--secondary-foreground: #111110;
-	--muted: #f1f1ee;
-	--muted-foreground: #6f6f6a;
-	--accent: #f1f1ee;
-	--accent-foreground: #111110;
+	--secondary: #f4f4f4;
+	--secondary-foreground: #1a1c1f;
+	--muted: #f4f4f4;
+	--muted-foreground: #6e6e6e;
+	--accent: #f4f4f4;
+	--accent-foreground: #1a1c1f;
 	--destructive: #b4453c;
 	--destructive-foreground: #fdf6f5;
 	--success: #3f7d5f;
 	--success-foreground: #f3faf6;
-	--border: #e7e7e2;
-	--input: #e7e7e2;
-	--ring: rgb(17 17 16 / 0.2);
+	--border: #e6e6e6;
+	--input: #e6e6e6;
+	--ring: rgb(37 99 235 / 0.35);
 
 	/* Aurora hues — the only chroma in the system */
 	--aurora-1: #5b8def;
@@ -111,9 +111,9 @@ html.dictation-indicator-window #root {
 	--chart-4: var(--aurora-4);
 	--chart-5: #6f6f6a;
 
-	--sidebar: #ffffff;
-	--sidebar-foreground: #111110;
-	--sidebar-primary: #111110;
+	--sidebar: #f9f9f9;
+	--sidebar-foreground: #1a1c1f;
+	--sidebar-primary: #2563eb;
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: #f1f1ee;
 	--sidebar-accent-foreground: #111110;
@@ -133,27 +133,27 @@ html.dictation-indicator-window #root {
 }
 
 .dark {
-	--background: #0e0e0d;
-	--foreground: #f4f4f1;
-	--card: #161615;
-	--card-foreground: #f4f4f1;
-	--popover: #161615;
-	--popover-foreground: #f4f4f1;
-	--primary: #f4f4f1;
-	--primary-foreground: #111110;
-	--secondary: #1e1e1c;
-	--secondary-foreground: #f4f4f1;
-	--muted: #1e1e1c;
-	--muted-foreground: #9a9a94;
-	--accent: #232321;
-	--accent-foreground: #f4f4f1;
+	--background: #181818;
+	--foreground: #ececec;
+	--card: #212121;
+	--card-foreground: #ececec;
+	--popover: #2a2a2a;
+	--popover-foreground: #ececec;
+	--primary: #339cff;
+	--primary-foreground: #ffffff;
+	--secondary: #242424;
+	--secondary-foreground: #ececec;
+	--muted: #242424;
+	--muted-foreground: #9a9a9a;
+	--accent: #2a2a2a;
+	--accent-foreground: #ececec;
 	--destructive: #c4655c;
 	--destructive-foreground: #1a0f0e;
 	--success: #6aab8b;
 	--success-foreground: #0d1512;
-	--border: #262624;
-	--input: #262624;
-	--ring: rgb(244 244 241 / 0.24);
+	--border: #303030;
+	--input: #303030;
+	--ring: rgb(51 156 255 / 0.4);
 
 	--aurora-1: #5b8def;
 	--aurora-2: #b98de3;
@@ -162,14 +162,14 @@ html.dictation-indicator-window #root {
 
 	--chart-5: #9a9a94;
 
-	--sidebar: #161615;
-	--sidebar-foreground: #f4f4f1;
-	--sidebar-primary: #f4f4f1;
-	--sidebar-primary-foreground: #111110;
-	--sidebar-accent: #232321;
-	--sidebar-accent-foreground: #f4f4f1;
-	--sidebar-border: #262624;
-	--sidebar-ring: rgb(244 244 241 / 0.24);
+	--sidebar: #212121;
+	--sidebar-foreground: #ececec;
+	--sidebar-primary: #339cff;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #2a2a2a;
+	--sidebar-accent-foreground: #ececec;
+	--sidebar-border: #303030;
+	--sidebar-ring: rgb(51 156 255 / 0.4);
 
 	--shadow-2xs: 0 1px 1px rgb(0 0 0 / 0.3);
 	--shadow-xs: 0 1px 2px rgb(0 0 0 / 0.35);
