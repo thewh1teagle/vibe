@@ -6,6 +6,7 @@ import App from './App'
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 function syncThemeWithSystem(isDark: boolean) {
 	document.documentElement.classList.toggle('dark', isDark)
+	document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
 }
 
 syncThemeWithSystem(mediaQuery.matches)

@@ -12,6 +12,7 @@ import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { isUserError } from '~/lib/sona-errors'
 import type { Segment, Transcript } from '~/lib/transcript'
+import { notifyTranscriptsChanged, saveTranscript, type TranscriptRecord } from '~/lib/transcripts-store'
 import type { NamedPath } from '~/lib/types'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
@@ -29,6 +30,10 @@ export interface Job {
 	error?: string
 	/** wall clock seconds the transcription took */
 	seconds?: number
+	/** path of the .vibe.json this job was saved to / loaded from, when persisted */
+	savedPath?: string
+	/** true when the job was loaded from the store rather than transcribed in this session */
+	hydrated?: boolean
 }
 
 export interface TranscribeQueue {
@@ -41,6 +46,8 @@ export interface TranscribeQueue {
 	hasResults: boolean
 	selectJob: (id: string) => void
 	enqueue: (files: NamedPath[]) => void
+	/** Replace the session with a transcript loaded from the store, shown as a finished job. */
+	hydrate: (record: TranscriptRecord, savedPath: string) => void
 	cancelCurrent: () => void
 	cancelAll: () => void
 	reset: () => void
@@ -149,6 +156,29 @@ export function useTranscribeQueue(): TranscribeQueue {
 		[commit],
 	)
 
+	/**
+	 * Auto-save a finished job into the transcripts store. Fire-and-forget on purpose: persistence
+	 * must never delay or break the queue, so failures only surface in the console.
+	 */
+	const persist = useCallback(
+		(job: Job, segments: Segment[]) => {
+			const current = preferenceRef.current
+			if (!current.saveTranscripts || segments.length === 0) return
+			void saveTranscript({
+				name: job.name,
+				sourcePath: job.path,
+				segments,
+				language: current.modelOptions.lang,
+				modelPath: current.modelPath,
+			}).then((savedPath) => {
+				if (!savedPath) return
+				patch(job.id, { savedPath })
+				notifyTranscriptsChanged()
+			})
+		},
+		[patch],
+	)
+
 	const runLoop = useCallback(async () => {
 		if (runningRef.current) return
 		runningRef.current = true
@@ -209,6 +239,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 					const seconds = Math.round((performance.now() - startedAt) / 1000)
 					patch(next.id, { status: 'done', progress: 100, segments: result.segments, seconds })
 					completedAny = true
+					persist(next, result.segments)
 					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, {
 						source: 'main',
 						duration_seconds: seconds,
@@ -266,7 +297,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 			// A file enqueued while the loop was winding down would otherwise stay queued forever.
 			if (!abortAllRef.current && jobsRef.current.some((job) => job.status === 'queued')) void runLoop()
 		}
-	}, [commit, failPending, patch, select, setErrorModal])
+	}, [commit, failPending, patch, persist, select, setErrorModal])
 
 	const enqueue = useCallback(
 		(files: NamedPath[]) => {
@@ -289,6 +320,28 @@ export function useTranscribeQueue(): TranscribeQueue {
 			void runLoop()
 		},
 		[commit, runLoop, select],
+	)
+
+	/** Load a saved transcript as the whole session: one finished job the done view can render. */
+	const hydrate = useCallback(
+		(record: TranscriptRecord, savedPath: string) => {
+			if (runningRef.current) return
+			const job: Job = {
+				id: nextJobId(),
+				name: record.name,
+				// The original media path is kept so "Re-transcribe" can enqueue it again.
+				path: record.sourcePath,
+				status: 'done',
+				progress: 100,
+				segments: record.segments,
+				savedPath,
+				hydrated: true,
+			}
+			pinnedRef.current = true
+			commit([job])
+			select(job.id)
+		},
+		[commit, select],
 	)
 
 	const cancelCurrent = useCallback(() => {
@@ -326,6 +379,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 		hasResults,
 		selectJob,
 		enqueue,
+		hydrate,
 		cancelCurrent,
 		cancelAll,
 		reset,

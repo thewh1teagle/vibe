@@ -54,7 +54,7 @@ function resolveWritePath(args: Record<string, unknown>): string {
 }
 
 function resolveWriteData(args: Record<string, unknown>): Uint8Array {
-	const candidate = args.data ?? args.__payload ?? args.payload ?? args
+	const candidate = args.data ?? args.__body ?? args.__payload ?? args.payload ?? args
 	if (candidate instanceof Uint8Array) {
 		return candidate
 	}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DocViewer from '~/components/DocViewer'
-import { Button } from '~/components/ui/button'
+import { cn } from '~/lib/style'
 import installDoc from '../../../docs/install.md?raw'
 import modelsDoc from '../../../docs/models.md?raw'
 import debugDoc from '../../../docs/debug.md?raw'
@@ -36,25 +36,36 @@ export default function Docs() {
 	}, [])
 
 	return (
-		<div className="m-auto max-w-[81%] lg:max-w-[680px]" dir="ltr">
-			<h1 className="mb-6 text-4xl font-bold">{m.vibeDocumentation()}</h1>
+		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20" dir="ltr">
+			<header>
+				<p className="eyebrow">Documentation</p>
+				<h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground lg:text-[2.5rem]">{m.vibeDocumentation()}</h1>
+			</header>
 
-			<div className="mb-8 flex flex-wrap justify-center gap-2 rounded-xl border border-border bg-card/60 p-2">
-				{docs.map((doc) => (
-					<Button
-						key={doc.name}
-						variant={content === doc.content ? 'default' : 'ghost'}
-						size="sm"
-						onClick={() => {
-							setContent(doc.content)
-							window.location.hash = doc.name.toLowerCase()
-						}}>
-						{doc.label()}
-					</Button>
-				))}
+			<div className="mt-10 flex flex-col gap-10 lg:flex-row lg:gap-14">
+				<nav className="flex shrink-0 flex-row flex-wrap gap-1 border-b border-border pb-4 lg:sticky lg:top-8 lg:h-fit lg:w-44 lg:flex-col lg:border-b-0 lg:border-s lg:pb-0 lg:ps-4">
+					{docs.map((doc) => {
+						const active = content === doc.content
+						return (
+							<button
+								key={doc.name}
+								type="button"
+								onClick={() => {
+									setContent(doc.content)
+									window.location.hash = doc.name.toLowerCase()
+								}}
+								className={cn(
+									'cursor-pointer rounded-full px-3 py-1.5 text-start text-[13px] transition-colors lg:rounded-md',
+									active ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
+								)}>
+								{doc.label()}
+							</button>
+						)
+					})}
+				</nav>
+
+				<DocViewer content={content} />
 			</div>
-
-			<DocViewer content={content} />
-		</div>
+		</main>
 	)
 }

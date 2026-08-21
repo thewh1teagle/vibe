@@ -1,253 +1,164 @@
 import { message } from '@tauri-apps/plugin-dialog'
+import { RotateCcw, Wand2 } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
-import { InfoTooltip } from '~/components/info-tooltip'
-import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Switch } from '~/components/ui/switch'
 import { Textarea } from '~/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
-import { Field, SectionCard, type SettingsViewModel } from './shared'
+import { ActionRow, SettingsField, SettingsGroup, SettingsNote, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
+
+const numberInputClass = 'w-24 text-end'
+const textareaClass = 'min-h-24 max-h-60 w-full resize-none overflow-y-auto rounded-lg bg-muted/40 text-sm'
 
 export function TuningSection({ vm }: { vm: SettingsViewModel }) {
+	const promptLength = vm.preference.modelOptions?.init_prompt?.length ?? 0
+	const isGreedy = vm.preference.modelOptions.sampling_strategy === 'greedy'
+
 	return (
-		<div className="space-y-5">
-			<div className="space-y-2">
-				<span className="px-1 text-sm font-semibold text-foreground/95">{m.speakerTiming()}</span>
-				<SectionCard>
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<span className="flex items-center gap-1 text-sm font-medium">
-								<InfoTooltip text={m.infoDiarization()} />
-								{m.enableDiarization()}
-							</span>
-							<Switch checked={vm.preference.diarizeEnabled} onCheckedChange={vm.toggleDiarization} />
-						</div>
-						{vm.preference.diarizeEnabled && <p className="text-sm italic text-muted-foreground">{m.diarizeMaxSpeakersNote()}</p>}
-						<div className="h-px bg-border/45" />
-						<div className="flex items-center justify-between">
-							<span className="flex items-center gap-1 text-sm font-medium">
-								<InfoTooltip text={m.stableTimestampsInfo()} />
-								{m.enableStableTimestamps()}
-							</span>
-							<Switch checked={vm.preference.stableTimestampsEnabled} onCheckedChange={vm.handleStableTimestampsToggle} />
-						</div>
-						{vm.preference.stableTimestampsEnabled && <p className="text-sm italic text-muted-foreground">{m.stableTimestampsSlowNote()}</p>}
-					</div>
-				</SectionCard>
-			</div>
+		<div className="space-y-6">
+			<SettingsGroup title={m.speakerTiming()}>
+				<SettingsRow label={m.enableDiarization()} description={m.infoDiarization()}>
+					<Switch checked={vm.preference.diarizeEnabled} onCheckedChange={vm.toggleDiarization} />
+				</SettingsRow>
+				{vm.preference.diarizeEnabled && <SettingsNote>{m.diarizeMaxSpeakersNote()}</SettingsNote>}
+				<SettingsRow label={m.enableStableTimestamps()} description={m.stableTimestampsInfo()}>
+					<Switch checked={vm.preference.stableTimestampsEnabled} onCheckedChange={vm.handleStableTimestampsToggle} />
+				</SettingsRow>
+				{vm.preference.stableTimestampsEnabled && <SettingsNote>{m.stableTimestampsSlowNote()}</SettingsNote>}
+			</SettingsGroup>
 
-			<div className="space-y-2">
-				<span className="px-1 text-sm font-semibold text-foreground/95">{m.modelOptions()}</span>
-				<SectionCard>
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<span className="flex items-center gap-1 text-sm font-medium">
-								<InfoTooltip text={m.infoTranslateToEnglish()} />
-								{m.translateToEnglish()}
-							</span>
-							<Switch
-								checked={Boolean(vm.preference.modelOptions.translate)}
-								onCheckedChange={(checked) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, translate: checked })}
-							/>
-						</div>
-						{vm.preference.modelOptions.translate && <p className="text-sm italic text-muted-foreground">{m.translateWhisperModelNote()}</p>}
+			<SettingsGroup title={m.modelOptions()}>
+				<SettingsRow label={m.translateToEnglish()} description={m.infoTranslateToEnglish()}>
+					<Switch
+						checked={Boolean(vm.preference.modelOptions.translate)}
+						onCheckedChange={(checked) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, translate: checked })}
+					/>
+				</SettingsRow>
+				{vm.preference.modelOptions.translate && <SettingsNote>{m.translateWhisperModelNote()}</SettingsNote>}
 
-						<Field
-							label={
-								<>
-									<InfoTooltip text={m.infoPrompt()} />
-									{m.prompt()} ({m.leftover()} {1024 - (vm.preference.modelOptions?.init_prompt?.length ?? 0)} {m.characters()})
-								</>
-							}>
-							<Textarea
-								value={vm.preference.modelOptions?.init_prompt}
-								onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, init_prompt: e.target.value.slice(0, 1024) })}
-								className="min-h-[80px]"
-							/>
-						</Field>
+				<SettingsRow label={m.useWordTimestamps()} description={m.infoUseWordTimestamps()}>
+					<Switch
+						checked={Boolean(vm.preference.modelOptions.word_timestamps)}
+						onCheckedChange={(checked) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, word_timestamps: checked })}
+					/>
+				</SettingsRow>
 
-						<div className="flex items-center justify-between">
-							<span className="flex items-center gap-1 text-sm font-medium">
-								<InfoTooltip text={m.infoUseWordTimestamps()} />
-								{m.useWordTimestamps()}
-							</span>
-							<Switch
-								checked={Boolean(vm.preference.modelOptions.word_timestamps)}
-								onCheckedChange={(checked) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, word_timestamps: checked })}
-							/>
-						</div>
+				<SettingsRow label={m.maxSentenceLen()} description={m.infoMaxSentenceLen()}>
+					<Input
+						type="number"
+						value={vm.preference.modelOptions.max_sentence_len}
+						onChange={(e) => {
+							if (!vm.preference.modelOptions.word_timestamps) message(m.pleaseEnableWordTimestamps())
+							vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_sentence_len: vm.parseIntOr(e.target.value, 1) })
+						}}
+						className={`${numberInputClass} ${rowControlClass}`}
+					/>
+				</SettingsRow>
 
-						<div className="grid grid-cols-2 gap-4">
-							<Field
-								label={
-									<>
-										<InfoTooltip text={m.infoMaxSentenceLen()} />
-										{m.maxSentenceLen()}
-									</>
-								}>
-								<Input
-									type="number"
-									value={vm.preference.modelOptions.max_sentence_len}
-									onChange={(e) => {
-										if (!vm.preference.modelOptions.word_timestamps) message(m.pleaseEnableWordTimestamps())
-										vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_sentence_len: vm.parseIntOr(e.target.value, 1) })
-									}}
-								/>
-							</Field>
+				<SettingsField
+					label={m.prompt()}
+					description={m.infoPrompt()}
+					footer={promptLength > 0 ? `${1024 - promptLength} ${m.characters()} ${m.leftover().toLowerCase()}` : undefined}>
+					<Textarea
+						value={vm.preference.modelOptions?.init_prompt}
+						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, init_prompt: e.target.value.slice(0, 1024) })}
+						placeholder="Names, jargon or spellings you expect in the audio — for example: Vibe, Tauri, Whisper"
+						className={textareaClass}
+					/>
+				</SettingsField>
+			</SettingsGroup>
 
-							<Field
-								label={
-									<>
-										<InfoTooltip text={m.infoThreads()} />
-										{m.threads()}
-									</>
-								}>
-								<Input
-									type="number"
-									value={vm.preference.modelOptions.n_threads}
-									onChange={(e) =>
-										vm.preference.setModelOptions({ ...vm.preference.modelOptions, n_threads: vm.parseIntOr(e.target.value, 1) })
-									}
-								/>
-							</Field>
+			<SettingsGroup title="Decoding">
+				<SettingsRow label={m.samplingStrategy()} description={m.samplingStrategyInfo()}>
+					<Select
+						value={vm.preference.modelOptions.sampling_strategy}
+						onValueChange={(value) =>
+							vm.preference.setModelOptions({ ...vm.preference.modelOptions, sampling_strategy: value as 'greedy' | 'beam search' })
+						}>
+						<SelectTrigger className={`w-40 capitalize ${rowControlClass}`}>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{['beam search', 'greedy'].map((name) => (
+								<SelectItem key={name} value={name} className="capitalize">
+									{name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</SettingsRow>
 
-							<Field
-								label={
-									<>
-										<InfoTooltip text={m.infoTemperature()} />
-										{m.temperature()}
-									</>
-								}>
-								<Input
-									type="number"
-									step={0.1}
-									value={vm.preference.modelOptions.temperature}
-									onChange={(e) =>
-										vm.preference.setModelOptions({ ...vm.preference.modelOptions, temperature: parseFloat(e.target.value) || 0 })
-									}
-								/>
-							</Field>
+				<SettingsRow label={isGreedy ? m.bestOf() : m.beamSize()} description={isGreedy ? m.greedyInfo() : m.beamInfo()}>
+					<Input
+						type="number"
+						step={1}
+						value={isGreedy ? (vm.preference.modelOptions.best_of ?? 5) : (vm.preference.modelOptions.beam_size ?? 5)}
+						onChange={(e) => {
+							const val = vm.parseIntOr(e.target.value, 5)
+							if (isGreedy) {
+								vm.preference.setModelOptions({ ...vm.preference.modelOptions, best_of: val })
+							} else {
+								vm.preference.setModelOptions({ ...vm.preference.modelOptions, beam_size: val })
+							}
+						}}
+						className={`${numberInputClass} ${rowControlClass}`}
+					/>
+				</SettingsRow>
 
-							<Field
-								label={
-									<>
-										<InfoTooltip text={m.infoMaxTextCtx()} />
-										{m.maxTextCtx()}
-									</>
-								}>
-								<Input
-									type="number"
-									step={1}
-									value={vm.preference.modelOptions.max_text_ctx ?? 0}
-									onChange={(e) =>
-										vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_text_ctx: vm.parseIntOr(e.target.value, 0) })
-									}
-								/>
-							</Field>
-						</div>
+				<SettingsRow label={m.temperature()} description={m.infoTemperature()}>
+					<Input
+						type="number"
+						step={0.1}
+						value={vm.preference.modelOptions.temperature}
+						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, temperature: parseFloat(e.target.value) || 0 })}
+						className={`${numberInputClass} ${rowControlClass}`}
+					/>
+				</SettingsRow>
 
-						<div className="grid grid-cols-2 gap-4">
-							<Field
-								label={
-									<>
-										<InfoTooltip text={m.samplingStrategyInfo()} />
-										{m.samplingStrategy()}
-									</>
-								}>
-								<Select
-									value={vm.preference.modelOptions.sampling_strategy}
-									onValueChange={(value) =>
-										vm.preference.setModelOptions({ ...vm.preference.modelOptions, sampling_strategy: value as 'greedy' | 'beam search' })
-									}>
-									<SelectTrigger className="capitalize">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										{['beam search', 'greedy'].map((name) => (
-											<SelectItem key={name} value={name} className="capitalize">
-												{name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</Field>
+				<SettingsRow label={m.maxTextCtx()} description={m.infoMaxTextCtx()}>
+					<Input
+						type="number"
+						step={1}
+						value={vm.preference.modelOptions.max_text_ctx ?? 0}
+						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_text_ctx: vm.parseIntOr(e.target.value, 0) })}
+						className={`${numberInputClass} ${rowControlClass}`}
+					/>
+				</SettingsRow>
 
-							<Field
-								label={
-									<>
-										<InfoTooltip text={vm.preference.modelOptions.sampling_strategy === 'greedy' ? m.greedyInfo() : m.beamInfo()} />
-										{vm.preference.modelOptions.sampling_strategy === 'greedy' ? m.bestOf() : m.beamSize()}
-									</>
-								}>
-								<Input
-									type="number"
-									step={1}
-									value={
-										vm.preference.modelOptions.sampling_strategy === 'greedy'
-											? (vm.preference.modelOptions.best_of ?? 5)
-											: (vm.preference.modelOptions.beam_size ?? 5)
-									}
-									onChange={(e) => {
-										const val = vm.parseIntOr(e.target.value, 5)
-										if (vm.preference.modelOptions.sampling_strategy === 'greedy') {
-											vm.preference.setModelOptions({ ...vm.preference.modelOptions, best_of: val })
-										} else {
-											vm.preference.setModelOptions({ ...vm.preference.modelOptions, beam_size: val })
-										}
-									}}
-								/>
-							</Field>
-						</div>
-					</div>
-				</SectionCard>
-			</div>
+				<SettingsRow label={m.threads()} description={m.infoThreads()}>
+					<Input
+						type="number"
+						value={vm.preference.modelOptions.n_threads}
+						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, n_threads: vm.parseIntOr(e.target.value, 1) })}
+						className={`${numberInputClass} ${rowControlClass}`}
+					/>
+				</SettingsRow>
+			</SettingsGroup>
 
-			<div className="space-y-2">
-				<span className="px-1 text-sm font-semibold text-foreground/95">{m.ffmpegOptions()}</span>
-				<SectionCard>
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<span className="flex items-center gap-1 text-sm font-medium">
-								<InfoTooltip text={m.infoNormalizeLoudness()} />
-								{m.normalizeLoudness()}
-							</span>
-							<Switch
-								checked={vm.preference.ffmpegOptions.normalize_loudness}
-								onCheckedChange={(checked) => vm.preference.setFfmpegOptions({ ...vm.preference.ffmpegOptions, normalize_loudness: checked })}
-							/>
-						</div>
+			<SettingsGroup title={m.ffmpegOptions()}>
+				<SettingsRow label={m.normalizeLoudness()} description={m.infoNormalizeLoudness()}>
+					<Switch
+						checked={vm.preference.ffmpegOptions.normalize_loudness}
+						onCheckedChange={(checked) => vm.preference.setFfmpegOptions({ ...vm.preference.ffmpegOptions, normalize_loudness: checked })}
+					/>
+				</SettingsRow>
+				<SettingsRow
+					label={m.customFfmpegCommand()}
+					description="ffmpeg -i {input} -ar 16000 -ac 1 -c:a pcm_s16le {custom_command} -hide_banner -y -loglevel error">
+					<Input
+						value={vm.preference.ffmpegOptions.custom_command ?? ''}
+						onChange={(e) => vm.preference.setFfmpegOptions({ ...vm.preference.ffmpegOptions, custom_command: e.target.value || null })}
+						placeholder={vm.preference.ffmpegOptions.normalize_loudness ? '-af loudnorm=I=-16:TP=-1.5:LRA=11' : '-af ...'}
+						type="text"
+						className={`w-64 ${rowControlClass}`}
+					/>
+				</SettingsRow>
+			</SettingsGroup>
 
-						<Field
-							label={
-								<>
-									<InfoTooltip text={'ffmpeg -i {input} -ar 16000 -ac 1 -c:a pcm_s16le {custom_command} -hide_banner -y -loglevel error'} />
-									{m.customFfmpegCommand()}
-								</>
-							}>
-							<Input
-								value={vm.preference.ffmpegOptions.custom_command ?? ''}
-								onChange={(e) => vm.preference.setFfmpegOptions({ ...vm.preference.ffmpegOptions, custom_command: e.target.value || null })}
-								placeholder={vm.preference.ffmpegOptions.normalize_loudness ? '-af loudnorm=I=-16:TP=-1.5:LRA=11' : ''}
-								type="text"
-							/>
-						</Field>
-					</div>
-				</SectionCard>
-			</div>
-
-			<div className="space-y-2">
-				<span className="px-1 text-sm font-semibold text-foreground/95">{m.presets()}</span>
-				<SectionCard>
-					<div className="flex gap-4">
-						<Button variant="secondary" onClick={vm.preference.enableSubtitlesPreset} className="flex-1">
-							{m.presetForSubtitles()}
-						</Button>
-						<Button variant="secondary" onClick={vm.preference.resetOptions} className="flex-1">
-							{m.resetOptions()}
-						</Button>
-					</div>
-				</SectionCard>
-			</div>
+			<SettingsGroup title={m.presets()}>
+				<ActionRow label={m.presetForSubtitles()} icon={<Wand2 className="h-4 w-4" />} onClick={vm.preference.enableSubtitlesPreset} />
+				<ActionRow label={m.resetOptions()} icon={<RotateCcw className="h-4 w-4" />} onClick={vm.preference.resetOptions} />
+			</SettingsGroup>
 		</div>
 	)
 }

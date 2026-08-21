@@ -8,53 +8,24 @@ interface Supporter {
 	time_ago: string
 }
 
-const AVATAR_COLORS = [
-	'bg-rose-500',
-	'bg-pink-500',
-	'bg-fuchsia-500',
-	'bg-purple-500',
-	'bg-violet-500',
-	'bg-indigo-500',
-	'bg-blue-500',
-	'bg-sky-500',
-	'bg-cyan-500',
-	'bg-teal-500',
-	'bg-emerald-500',
-	'bg-green-500',
-	'bg-lime-600',
-	'bg-amber-500',
-	'bg-orange-500',
-	'bg-red-500',
-]
-
-function hashString(str: string): number {
-	let hash = 0
-	for (let i = 0; i < str.length; i++) {
-		hash = str.charCodeAt(i) + ((hash << 5) - hash)
-	}
-	return Math.abs(hash)
-}
-
 function getInitial(name: string): string {
 	return name.charAt(0).toUpperCase()
 }
 
 function SupporterCard({ supporter }: { supporter: Supporter }) {
-	const colorClass = AVATAR_COLORS[hashString(supporter.id) % AVATAR_COLORS.length]
-
 	return (
-		<div className="flex gap-3 rounded-2xl bg-card/45 p-4 shadow-sm transition-colors hover:bg-card/70">
-			<div className={`${colorClass} flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white`}>
+		<figure className="flex gap-3 rounded-xl border border-border bg-card p-4">
+			<div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-[13px] font-medium text-muted-foreground">
 				{getInitial(supporter.name)}
 			</div>
 			<div className="min-w-0">
-				<div className="flex items-baseline gap-2">
-					<p className="font-semibold">{supporter.name}</p>
-					<span className="shrink-0 text-xs text-muted-foreground/60">{supporter.time_ago}</span>
-				</div>
-				<p className="mt-1 text-sm text-muted-foreground">{supporter.message}</p>
+				<figcaption className="flex items-baseline gap-2">
+					<span className="text-[13px] font-medium text-foreground">{supporter.name}</span>
+					<span className="shrink-0 text-[11px] text-muted-foreground">{supporter.time_ago}</span>
+				</figcaption>
+				<blockquote className="mt-1 text-[13px] leading-6 text-muted-foreground">{supporter.message}</blockquote>
 			</div>
-		</div>
+		</figure>
 	)
 }
 
@@ -103,8 +74,8 @@ export default function WallOfLove() {
 	const durations = [60, 80, 50]
 
 	return (
-		<section className="m-auto mt-20 w-[95%] [content-visibility:auto] [contain-intrinsic-size:0_700px] lg:w-[1000px]">
-			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{m['loved-by-thousands']()}</h2>
+		<section className="mt-20 w-full [contain-intrinsic-size:0_700px] [content-visibility:auto] lg:mt-28">
+			<h2 className="mb-8 text-center text-[1.5rem] font-semibold tracking-[-0.02em] text-foreground lg:text-[1.875rem]">{m['loved-by-thousands']()}</h2>
 			{/* Mobile: single column vertical marquee */}
 			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
 				<MarqueeColumn supporters={supporters} duration={120} />
@@ -112,7 +83,7 @@ export default function WallOfLove() {
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background to-transparent" />
 			</div>
 			{/* Desktop: 3 columns */}
-			<div dir="ltr" className="relative hidden overflow-hidden rounded-[3rem] md:block" style={{ maxHeight: '600px' }}>
+			<div dir="ltr" className="relative hidden overflow-hidden md:block" style={{ maxHeight: '600px' }}>
 				<div className="group grid h-[600px] grid-cols-3 gap-4 [&:hover_.animate-marquee-up]:pause">
 					{columns.map((col, i) => (
 						<MarqueeColumn key={i} supporters={col} duration={durations[i]} />

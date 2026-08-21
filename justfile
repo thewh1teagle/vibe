@@ -16,6 +16,10 @@ install:
 dev: setup
     cd desktop && pnpm exec tauri dev
 
+# Run only the desktop frontend in the browser (mock Tauri, no Rust build)
+dev-web:
+    cd desktop && pnpm dev
+
 # Build the app for production (runs pre-build first)
 build: setup
     cd desktop && pnpm exec tauri build

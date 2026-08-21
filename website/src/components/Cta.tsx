@@ -80,17 +80,19 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 
 	return (
 		<>
-			<div className="flex flex-col gap-3 lg:flex-row">
+			<div id="download" className="flex scroll-mt-24 flex-col items-center gap-3 sm:flex-row sm:justify-center">
 				{isMobile ? (
-					<Button onMouseDown={ctaClick}>{m.download()}</Button>
+					<Button size="lg" onMouseDown={ctaClick}>
+						{m.download()}
+					</Button>
 				) : currentPlatform === 'macos' ? (
-					<Button className="hidden lg:flex" onMouseDown={ctaClick}>
+					<Button size="lg" className="hidden lg:flex" onMouseDown={ctaClick}>
 						<Mac className="size-[18px]" />
 						{m['download-for']()}
 						{asset?.platform}
 					</Button>
 				) : currentPlatform === 'windows' ? (
-					<Button className="hidden md:flex" asChild>
+					<Button size="lg" className="hidden md:flex" asChild>
 						<a href={asset?.url} onClick={() => setPostDownloadOpen(true)}>
 							<Windows className="size-[18px]" />
 							{m['download-for']()}
@@ -98,14 +100,14 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 						</a>
 					</Button>
 				) : currentPlatform === 'linux' ? (
-					<Button className="hidden md:flex" onClick={() => setLinuxModalOpen(true)}>
+					<Button size="lg" className="hidden md:flex" onClick={() => setLinuxModalOpen(true)}>
 						<Linux className="size-[18px]" />
 						{m['download-for']()}
 						{asset?.platform}
 					</Button>
 				) : null}
 
-				<Button variant="outline" asChild>
+				<Button variant="outline" size="lg" asChild>
 					<a href="https://github.com/thewh1teagle/vibe" target="_blank" rel="noreferrer">
 						<Github width="18" height="18" />
 						{m['star-on-github']()}
@@ -113,10 +115,8 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 				</Button>
 			</div>
 
-			<div className="mt-2 text-center text-sm text-muted-foreground">{latestRelease.version}</div>
-
 			{currentPlatform === 'macos' && ctaClicked && (
-				<div className="mt-3 flex gap-2">
+				<div className="mt-4 flex gap-2">
 					<Button variant="outline" size="sm" className="animate-pulse-glow" asChild>
 						<a href={macSiliconAsset?.url} onClick={() => setPostDownloadOpen(true)}>
 							<Mac className="size-4" />
@@ -132,22 +132,43 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 				</div>
 			)}
 
-			<div className="mt-4 flex gap-2">
-				<Button variant="ghost" size="icon" onMouseDown={() => changePlatform('macos')}>
-					<Mac className="size-6" />
-				</Button>
-				<Button variant="ghost" size="icon" onClick={() => changePlatform('windows')}>
-					<Windows className="size-6" />
-				</Button>
-				<Button variant="ghost" size="icon" onClick={() => changePlatform('linux')}>
-					<Linux className="size-6" />
-				</Button>
+			<div className="mt-6 flex items-center gap-3">
+				<div className="flex items-center gap-1 rounded-full border border-border p-1">
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						aria-label="macOS"
+						aria-pressed={currentPlatform === 'macos'}
+						className={currentPlatform === 'macos' ? 'bg-secondary text-foreground' : ''}
+						onMouseDown={() => changePlatform('macos')}>
+						<Mac className="size-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						aria-label="Windows"
+						aria-pressed={currentPlatform === 'windows'}
+						className={currentPlatform === 'windows' ? 'bg-secondary text-foreground' : ''}
+						onClick={() => changePlatform('windows')}>
+						<Windows className="size-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						aria-label="Linux"
+						aria-pressed={currentPlatform === 'linux'}
+						className={currentPlatform === 'linux' ? 'bg-secondary text-foreground' : ''}
+						onClick={() => changePlatform('linux')}>
+						<Linux className="size-4" />
+					</Button>
+				</div>
+				<span className="eyebrow">{latestRelease.version}</span>
 			</div>
 
 			<Dialog open={mobileModalOpen} onOpenChange={setMobileModalOpen}>
 				<DialogContent className="w-[92vw] max-w-md p-6">
-					<h3 className="text-center text-lg font-bold">{m['download-on-pc']()}</h3>
-					<p className="py-4 text-center">{m['available-for']()} macOS / Windows / Linux</p>
+					<h3 className="text-center text-lg font-semibold tracking-[-0.03em]">{m['download-on-pc']()}</h3>
+					<p className="py-4 text-center text-muted-foreground">{m['available-for']()} macOS / Windows / Linux</p>
 					<div className="flex justify-center">
 						<Button onClick={() => navigator.clipboard.writeText(currentURL)}>{m['copy-download-link']()}</Button>
 					</div>
@@ -160,14 +181,16 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 			</Dialog>
 
 			<Dialog open={linuxModalOpen} onOpenChange={setLinuxModalOpen}>
-				<DialogContent className="w-[88vw] max-w-[88vw] overflow-hidden p-6 sm:!max-w-3xl">
-					<h3 className="pr-8 text-3xl font-bold">{m['install-on-linux']()}</h3>
+				<DialogContent className="w-[88vw] max-w-[88vw] overflow-hidden p-6 sm:!max-w-3xl md:p-8">
+					<h3 className="pr-8 text-[24px] font-semibold tracking-[-0.03em] md:text-[28px]">{m['install-on-linux']()}</h3>
 					<div className="mt-2 max-h-[70vh] overflow-y-auto pr-1">
 						{linuxInstallOptions.map((option) => (
-							<div key={option.title} className="mt-5 first:mt-3" dir="ltr">
-								<div className="mb-2 text-3xl text-primary opacity-80">{option.title}</div>
-								<div className="flex w-full items-center gap-1 overflow-x-auto rounded-sm bg-[#2b2b2b] pr-1">
-									<code className="block flex-1 whitespace-nowrap p-2 text-sm">{option.command.replace('{tag}', latestRelease.version)}</code>
+							<div key={option.title} className="mt-6 first:mt-2" dir="ltr">
+								<div className="eyebrow mb-2">{option.title}</div>
+								<div className="flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-border bg-muted pe-1">
+									<code className="block flex-1 whitespace-nowrap p-3 font-mono text-[13px] text-foreground">
+										{option.command.replace('{tag}', latestRelease.version)}
+									</code>
 									<CopyButton text={option.command.replace('{tag}', latestRelease.version)} />
 								</div>
 							</div>

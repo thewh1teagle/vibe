@@ -1,5 +1,5 @@
 <!doctype html>
-<html data-theme="dark" lang="en" class="dark">
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,7 +9,17 @@
 			content="Vibe is a local-first transcription app for audio and video. Transcribe files, URLs, and recordings with AI summaries, multilingual support, and privacy-focused processing." />
 		<link rel="author" href="https://github.com/thewh1teagle" />
 		<meta name="keywords" content="transcription, audio transcription, video transcription, speech to text, AI assistant, local app, whisper" />
-		<meta name="theme-color" content="#0d1117" />
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafaf8" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e0e0d" />
+
+		<!-- Apply the system theme before first paint to avoid a flash -->
+		<script>
+			;(function () {
+				var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+				document.documentElement.classList.toggle('dark', isDark)
+				document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+			})()
+		</script>
 		<meta name="robots" content="index, follow" />
 		<link rel="canonical" href="https://thewh1teagle.github.io/vibe/" />
 

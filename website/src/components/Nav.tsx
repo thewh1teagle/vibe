@@ -1,5 +1,5 @@
 import { m } from '../paraglide/messages.js'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '~/components/ui/button'
 import Github from '~/icons/Github'
 import Logo from '~/icons/Logo'
@@ -12,23 +12,71 @@ interface NavProps {
 	onLocaleChange: (locale: Locale) => void
 }
 
+const links = [
+	{ to: '/features', label: () => m.features() },
+	{ to: '/docs', label: () => m.documentation() },
+]
+
 export default function Nav({ locale, availableLocales, onLocaleChange }: NavProps) {
+	const navigate = useNavigate()
+	const location = useLocation()
+
+	function onDownloadClick(event: React.MouseEvent<HTMLAnchorElement>) {
+		event.preventDefault()
+		const scrollToDownload = () => {
+			const target = document.getElementById('download')
+			if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+			else window.scrollTo({ top: 0, behavior: 'smooth' })
+		}
+
+		if (location.pathname === '/') {
+			scrollToDownload()
+			return
+		}
+		navigate('/')
+		requestAnimationFrame(scrollToDownload)
+	}
+
 	return (
-		<div className="mx-auto mt-3 flex w-full items-center justify-between px-3 py-2 lg:max-w-[1065px]">
-			<div className="flex-1">
-				<Button variant="ghost" asChild className="text-sm lg:text-xl">
-					<Link to="/" aria-label={m.home()}>
-						<Logo className="size-7 lg:size-8" />
-						<span className="opacity-95">Vibe</span>
-					</Link>
-				</Button>
+		<header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+			<div className="site-container flex h-16 items-center gap-3">
+				<Link to="/" aria-label={m.home()} className="flex items-center gap-2.5 text-foreground transition-opacity hover:opacity-80">
+					<Logo className="size-7" />
+					<span className="text-[17px] font-semibold tracking-[-0.03em]">Vibe</span>
+				</Link>
+
+				<nav className="ms-6 hidden items-center gap-1 md:flex">
+					{links.map((link) => (
+						<Link
+							key={link.to}
+							to={link.to}
+							className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+							{link.label()}
+						</Link>
+					))}
+				</nav>
+
+				<ul className="ms-auto flex items-center gap-1" dir="ltr">
+					<LanguageSelector locale={locale} availableLocales={availableLocales} onLocaleChange={onLocaleChange} />
+					<li>
+						<a
+							href="https://github.com/thewh1teagle/vibe"
+							target="_blank"
+							rel="noreferrer"
+							aria-label={m['star-on-github']()}
+							className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:outline-none">
+							<Github width="16" height="16" />
+						</a>
+					</li>
+					<li className="ms-1">
+						<Button size="sm" asChild>
+							<a href="#download" onClick={onDownloadClick}>
+								{m.download()}
+							</a>
+						</Button>
+					</li>
+				</ul>
 			</div>
-			<ul className="flex items-center gap-2 px-1" dir="ltr">
-				<LanguageSelector locale={locale} availableLocales={availableLocales} onLocaleChange={onLocaleChange} />
-				<a href="https://github.com/thewh1teagle/vibe" target="_blank" rel="noreferrer">
-					<Github width="28" height="28" />
-				</a>
-			</ul>
-		</div>
+		</header>
 	)
 }

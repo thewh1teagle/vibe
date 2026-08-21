@@ -20,10 +20,10 @@ export default function QuietRow() {
 	const { preference } = useSession()
 
 	return (
-		<div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-			{/* LanguageInput restyled in place: its label is redundant on a one-line row. */}
-			<div className="w-[190px] [&>div]:space-y-0 [&_label]:sr-only [&_button]:h-9 [&_button]:rounded-full [&_button]:border-border [&_button]:bg-transparent [&_button]:text-[13px] [&_button]:shadow-none">
-				<LanguageInput />
+		<div className="flex flex-wrap items-center gap-2">
+			{/* Language leads the row: it changes the output, so it gets the only bordered control here. */}
+			<div className="w-auto max-w-[220px]">
+				<LanguageInput variant="prominent" />
 			</div>
 
 			<Popover>
@@ -33,7 +33,7 @@ export default function QuietRow() {
 						{m.moreOptions()}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent align="center" className="w-72 rounded-2xl p-4">
+				<PopoverContent align="start" className="w-72 rounded-2xl p-4">
 					<p className="mb-2 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.modelOptions()}</p>
 					<div className="divide-y divide-border">
 						<OptionRow label={m.recognizeSpeakers()} checked={preference.diarizeEnabled} onChange={preference.setDiarizeEnabled} />
