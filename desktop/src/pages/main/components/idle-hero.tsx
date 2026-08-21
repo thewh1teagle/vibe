@@ -1,6 +1,6 @@
 import { listen } from '@tauri-apps/api/event'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Link2, Mic, Square, Upload } from 'lucide-react'
+import { FileAudio2, Link2, Mic, Square, Upload } from 'lucide-react'
 import { siFacebook, siInstagram, siTiktok, siX, siYoutube } from 'simple-icons'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
@@ -231,7 +231,7 @@ export default function IdleHero() {
 			{/* Joined source switcher: one control, three keys; the active source replaces the drop area. */}
 			<div className="mx-auto inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 p-1">
 				<Segment active={panel === 'none'} label="File" onClick={() => selectPanel('none')}>
-					<Upload className="h-[18px] w-[18px]" />
+					<FileAudio2 className="h-[18px] w-[18px]" />
 				</Segment>
 				<Segment active={panel === 'record'} label={m.record()} onClick={() => selectPanel('record')}>
 					<Mic className="h-[18px] w-[18px]" />
