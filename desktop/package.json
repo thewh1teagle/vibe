@@ -58,6 +58,7 @@
 		"react-error-boundary": "^6.1.0",
 		"react-markdown": "^10.1.0",
 		"react-router-dom": "^7.13.0",
+		"simple-icons": "^16.28.0",
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.4.0",
 		"tailwindcss-animate": "^1.0.7",

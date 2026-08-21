@@ -8,7 +8,7 @@ import { m } from '~/paraglide/messages.js'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import { cn } from '~/lib/style'
 import { deleteTranscript, listTranscripts, readTranscript, renameTranscript, TRANSCRIPTS_CHANGED_EVENT, type TranscriptEntry } from '~/lib/transcripts-store'
-import { isMacOverlayTitlebar, SidebarToggleButton } from '~/components/layout'
+import { SidebarToggleButton, titlebarInset } from '~/components/layout'
 import { useSession } from '../session'
 
 /** "just now" / "14m ago" / "3h ago" / "2d ago" / "Aug 19" / "Aug 19, 2024" */
@@ -200,8 +200,9 @@ export default function RecentsSidebar() {
 	return (
 		<aside className="flex h-full w-[260px] shrink-0 flex-col border-e border-border">
 			{/* Titlebar strip: hosts the toggle beside the macOS traffic lights (ChatGPT style). */}
-			<div data-tauri-drag-region className="flex h-14 shrink-0 items-center" style={{ paddingLeft: isMacOverlayTitlebar() ? 76 : 10 }}>
+			<div data-tauri-drag-region className="flex h-14 shrink-0 items-center" style={{ paddingLeft: titlebarInset() }}>
 				<SidebarToggleButton />
+				<span className="ms-1.5 select-none text-[15px] font-semibold tracking-[-0.03em] text-foreground">{m.appTitle()}</span>
 			</div>
 			<div className="px-2">
 				<button

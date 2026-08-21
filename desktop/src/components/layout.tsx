@@ -2,7 +2,6 @@ import { PanelLeft } from 'lucide-react'
 import { platform } from '@tauri-apps/plugin-os'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { m } from '~/paraglide/messages.js'
 import { Button } from '~/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { UpdaterContext } from '~/providers/updater'
@@ -17,6 +16,11 @@ import ModelDownloadPrompt from './model-download-prompt'
  */
 export const TOGGLE_SIDEBAR_EVENT = 'vibe:toggle-sidebar'
 export const SIDEBAR_STORAGE_KEY = 'vibe_sidebar_collapsed'
+
+/** Start inset that clears the macOS traffic lights; identical for header and sidebar so the toggle never moves. */
+export function titlebarInset(): number {
+	return isMacOverlayTitlebar() ? 76 : 10
+}
 
 /** True in the real macOS app, where the titlebar is an overlay and traffic lights sit over our UI. */
 export function isMacOverlayTitlebar(): boolean {
@@ -86,11 +90,10 @@ export default function Layout({ children, sidebar, bottomBar, sidebarOpen = fal
 			<div className="flex min-h-0 flex-1">
 				{sidebar}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col">
-					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-between gap-4 px-4">
-						{/* When the sidebar is closed on macOS the traffic lights overlay this corner. */}
-						<div className="flex items-center gap-1.5" style={!sidebarOpen && isMacOverlayTitlebar() ? { paddingLeft: 68 } : undefined}>
+					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-between gap-4 pe-4">
+						{/* The toggle keeps the exact same spot as in the open sidebar (ChatGPT style); the wordmark lives in the sidebar. */}
+						<div className="flex items-center" style={{ paddingLeft: titlebarInset() }}>
 							{showSidebarToggle && !sidebarOpen && <SidebarToggleButton />}
-							<span className="select-none text-[17px] font-semibold tracking-[-0.03em] text-foreground">{m.appTitle()}</span>
 						</div>
 						<AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />
 					</header>

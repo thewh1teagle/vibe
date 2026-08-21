@@ -1,11 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link2, Mic, Square, Upload } from 'lucide-react'
+import { siBilibili, siFacebook, siInstagram, siSoundcloud, siTiktok, siTwitch, siVimeo, siX, siYoutube } from 'simple-icons'
 import { useEffect } from 'react'
 import { m } from '~/paraglide/messages.js'
 import AudioDeviceInput from '~/components/audio-device-input'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Spinner } from '~/components/ui/spinner'
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { cn } from '~/lib/style'
 import { useSession, type IdlePanel } from '../session'
 import QuietRow from './quiet-row'
@@ -80,6 +82,20 @@ function RecordPanel() {
 	)
 }
 
+// Bundled monochrome brand marks of the most-used yt-dlp sources — fills the panel with a
+// "works with" row instead of dead space. Rendered tiny and muted so it stays quiet.
+const linkSources: { title: string; path: string }[] = [
+	{ title: siYoutube.title, path: siYoutube.path },
+	{ title: siTiktok.title, path: siTiktok.path },
+	{ title: siInstagram.title, path: siInstagram.path },
+	{ title: siX.title, path: siX.path },
+	{ title: siFacebook.title, path: siFacebook.path },
+	{ title: siVimeo.title, path: siVimeo.path },
+	{ title: siTwitch.title, path: siTwitch.path },
+	{ title: siSoundcloud.title, path: siSoundcloud.path },
+	{ title: siBilibili.title, path: siBilibili.path },
+]
+
 function LinkPanel() {
 	const { link, preference } = useSession()
 
@@ -96,22 +112,45 @@ function LinkPanel() {
 	}
 
 	return (
-		<div className="flex w-full items-center gap-3 py-2.5">
-			<Input
-				type="text"
-				value={link.audioUrl}
-				onChange={(event) => link.setAudioUrl(event.target.value)}
-				onKeyDown={(event) => (event.key === 'Enter' ? link.downloadAudio() : null)}
-				// Short enough to stay fully readable when the window is narrow.
-				placeholder="Paste a video or audio link"
-				className="h-10 min-w-0 flex-1 rounded-xl px-3.5 text-sm"
-			/>
-			<Button
-				onClick={() => link.downloadAudio()}
-				disabled={!preference.modelPath || !link.audioUrl}
-				className="h-10 shrink-0 rounded-xl px-4 disabled:opacity-40">
-				{m.transcribe()}
-			</Button>
+		<div className="flex w-full flex-col items-center gap-5 py-2.5">
+			<div className="flex w-full items-center gap-3">
+				<Input
+					type="text"
+					value={link.audioUrl}
+					onChange={(event) => link.setAudioUrl(event.target.value)}
+					onKeyDown={(event) => (event.key === 'Enter' ? link.downloadAudio() : null)}
+					// Short enough to stay fully readable when the window is narrow.
+					placeholder="Paste a video or audio link"
+					className="h-10 min-w-0 flex-1 rounded-xl px-3.5 text-sm"
+				/>
+				<Button
+					onClick={() => link.downloadAudio()}
+					disabled={!preference.modelPath || !link.audioUrl}
+					className="h-10 shrink-0 rounded-xl px-4 disabled:opacity-40">
+					{m.transcribe()}
+				</Button>
+			</div>
+
+			<div className="flex flex-col items-center gap-3">
+				<p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground/80 uppercase">Works with</p>
+				<div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-muted-foreground/70">
+					{linkSources.map((source) => (
+						<Tooltip key={source.title}>
+							<TooltipTrigger asChild>
+								<svg
+									viewBox="0 0 24 24"
+									aria-label={source.title}
+									role="img"
+									className="h-[18px] w-[18px] transition-colors duration-150 hover:text-foreground">
+									<path d={source.path} fill="currentColor" />
+								</svg>
+							</TooltipTrigger>
+							<TooltipContent side="bottom">{source.title}</TooltipContent>
+						</Tooltip>
+					))}
+					<span className="text-[12px] text-muted-foreground/70">+1000 more</span>
+				</div>
+			</div>
 		</div>
 	)
 }
