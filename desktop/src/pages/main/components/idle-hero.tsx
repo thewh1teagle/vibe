@@ -79,19 +79,25 @@ function LevelMeter() {
 	)
 }
 
-/** One segment of the joined source switcher: the active one reads as a raised key. */
-function Segment({ active, onClick, children }: { active?: boolean; onClick: () => void; children: React.ReactNode }) {
+/** One segment of the joined source switcher: icon-only keys, the active one reads as raised. */
+function Segment({ active, label, onClick, children }: { active?: boolean; label: string; onClick: () => void; children: React.ReactNode }) {
 	return (
-		<button
-			type="button"
-			aria-pressed={active}
-			onClick={onClick}
-			className={cn(
-				'inline-flex h-8 cursor-pointer items-center gap-2 rounded-full px-4 text-[13px] font-medium transition-colors duration-150',
-				active ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
-			)}>
-			{children}
-		</button>
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<button
+					type="button"
+					aria-pressed={active}
+					aria-label={label}
+					onClick={onClick}
+					className={cn(
+						'inline-flex h-8 w-11 cursor-pointer items-center justify-center rounded-full transition-colors duration-150',
+						active ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+					)}>
+					{children}
+				</button>
+			</TooltipTrigger>
+			<TooltipContent side="bottom">{label}</TooltipContent>
+		</Tooltip>
 	)
 }
 
@@ -224,17 +230,14 @@ export default function IdleHero() {
 		<div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-5 px-6 py-10">
 			{/* Joined source switcher: one control, three keys; the active source replaces the drop area. */}
 			<div className="mx-auto inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 p-1">
-				<Segment active={panel === 'none'} onClick={() => selectPanel('none')}>
-					<Upload className="h-3.5 w-3.5" />
-					File
+				<Segment active={panel === 'none'} label="File" onClick={() => selectPanel('none')}>
+					<Upload className="h-4 w-4" />
 				</Segment>
-				<Segment active={panel === 'record'} onClick={() => selectPanel('record')}>
-					<Mic className="h-3.5 w-3.5" />
-					{m.record()}
+				<Segment active={panel === 'record'} label={m.record()} onClick={() => selectPanel('record')}>
+					<Mic className="h-4 w-4" />
 				</Segment>
-				<Segment active={panel === 'link'} onClick={() => selectPanel('link')}>
-					<Link2 className="h-3.5 w-3.5" />
-					From link
+				<Segment active={panel === 'link'} label="From link" onClick={() => selectPanel('link')}>
+					<Link2 className="h-4 w-4" />
 				</Segment>
 			</div>
 
