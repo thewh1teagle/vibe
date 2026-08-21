@@ -470,3 +470,29 @@
 		@apply italic;
 	}
 }
+
+
+/* Hero download pill: solid ink/paper core wrapped in a hairline aurora ring with a soft
+   matching glow — the one magical accent, kept crisp and professional. */
+.cta-hero {
+	position: relative;
+	z-index: 0;
+}
+.cta-hero::before,
+.cta-hero::after {
+	content: '';
+	position: absolute;
+	inset: -2px;
+	border-radius: 9999px;
+	background: linear-gradient(120deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-4), var(--aurora-1));
+	z-index: -1;
+}
+.cta-hero::after {
+	filter: blur(14px);
+	opacity: 0.35;
+	z-index: -2;
+	transition: opacity 0.2s ease-out;
+}
+.cta-hero:hover::after {
+	opacity: 0.55;
+}

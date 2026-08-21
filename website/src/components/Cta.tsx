@@ -82,17 +82,17 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 		<>
 			<div id="download" className="flex scroll-mt-24 flex-col items-center gap-3 sm:flex-row sm:justify-center">
 				{isMobile ? (
-					<Button size="lg" onMouseDown={ctaClick}>
+					<Button size="lg" className="cta-hero" onMouseDown={ctaClick}>
 						{m.download()}
 					</Button>
 				) : currentPlatform === 'macos' ? (
-					<Button size="lg" className="hidden lg:flex" onMouseDown={ctaClick}>
+					<Button size="lg" className="cta-hero hidden lg:flex" onMouseDown={ctaClick}>
 						<Mac className="size-[18px]" />
 						{m['download-for']()}
 						{asset?.platform}
 					</Button>
 				) : currentPlatform === 'windows' ? (
-					<Button size="lg" className="hidden md:flex" asChild>
+					<Button size="lg" className="cta-hero hidden md:flex" asChild>
 						<a href={asset?.url} onClick={() => setPostDownloadOpen(true)}>
 							<Windows className="size-[18px]" />
 							{m['download-for']()}
