@@ -15,6 +15,7 @@ const MOCK_AUDIO_DEVICES: MockAudioDevice[] = [
 ]
 
 const RECORD_FINISH_DELAY_MS = 200
+const RECORD_LEVEL_TICK_MS = 100
 const YTDLP_TICKS = 20
 const YTDLP_TICK_MS = 100
 
@@ -23,6 +24,18 @@ let dictationIndicatorEnabled = false
 
 function sleep(ms: number) {
 	return new Promise<void>((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Fake speech envelope: two slow sines (syllables + phrase breathing) plus jitter, so the mock
+ * meter moves like a voice instead of a metronome. Returns 0.05..0.9.
+ */
+function mockSpeechLevel(tick: number) {
+	const syllables = 0.5 + 0.5 * Math.sin(tick * 0.55)
+	const phrase = 0.55 + 0.45 * Math.sin(tick * 0.09 + 1.3)
+	const jitter = Math.random() * 0.18
+	const level = syllables * phrase * 0.8 + jitter
+	return Math.min(0.9, Math.max(0.05, level))
 }
 
 function basename(path: string) {
@@ -53,9 +66,16 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 	start_record: (args) => {
 		console.info('[mock] start_record', args)
 		const path = `${DOCUMENTS_FOLDER}/recording.wav`
+		// Stand in for the capture callbacks: a level event every 100ms, like the throttled Rust side.
+		let tick = 0
+		const levelTimer = window.setInterval(() => {
+			tick += 1
+			emitMockEvent('record_level', mockSpeechLevel(tick))
+		}, RECORD_LEVEL_TICK_MS)
 		// The frontend stops recording by emitting `stop_record` on the event bus.
 		const unsub = onMockEvent('stop_record', () => {
 			unsub()
+			window.clearInterval(levelTimer)
 			setTimeout(() => {
 				virtualFs.set(path, null)
 				emitMockEvent('record_finish', { path, name: basename(path) })

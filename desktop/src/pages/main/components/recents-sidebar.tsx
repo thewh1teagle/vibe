@@ -7,7 +7,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import { cn } from '~/lib/style'
-import { deleteTranscript, listTranscripts, readTranscript, renameTranscript, TRANSCRIPTS_CHANGED_EVENT, type TranscriptEntry } from '~/lib/transcripts-store'
+import {
+	deleteTranscript,
+	listTranscripts,
+	readTranscript,
+	renameTranscript,
+	resolveProjectAudio,
+	TRANSCRIPTS_CHANGED_EVENT,
+	type TranscriptEntry,
+} from '~/lib/transcripts-store'
 
 import { useSession } from '../session'
 
@@ -27,7 +35,7 @@ function relativeDate(date: Date) {
 }
 
 interface RowMenuState {
-	/** null while the source path is still being read from disk */
+	/** media to re-transcribe: the original file, else the project folder's copy; null when neither */
 	sourcePath: string | null
 	sourceExists: boolean
 }
@@ -52,21 +60,27 @@ function RecentRow({
 	const [renaming, setRenaming] = useState(false)
 	const [draftName, setDraftName] = useState(entry.name)
 
-	// The list is built from filenames only, so the original media path is read lazily — the first
-	// time the row's menu opens — to decide whether "Re-transcribe" can do anything.
+	// The list is built from names only, so the media is located lazily — the first time the row's
+	// menu opens — to decide whether "Re-transcribe" can do anything. The original file wins; the
+	// project folder's copy keeps re-transcribing possible once the original is gone.
 	const loadSource = useCallback(async () => {
 		const record = await readTranscript(entry.path)
-		if (!record?.sourcePath) {
+		if (!record) {
 			setMenu({ sourcePath: null, sourceExists: false })
 			return
 		}
 		let sourceExists = false
 		try {
-			sourceExists = await fs.exists(record.sourcePath)
+			sourceExists = !!record.sourcePath && (await fs.exists(record.sourcePath))
 		} catch (error) {
 			console.warn('failed to check source file:', error)
 		}
-		setMenu({ sourcePath: record.sourcePath, sourceExists })
+		if (sourceExists) {
+			setMenu({ sourcePath: record.sourcePath, sourceExists: true })
+			return
+		}
+		const copy = await resolveProjectAudio(entry.path, record)
+		setMenu({ sourcePath: copy ?? (record.sourcePath || null), sourceExists: !!copy })
 	}, [entry.path])
 
 	async function reveal() {
@@ -78,7 +92,7 @@ function RecentRow({
 	}
 
 	async function remove() {
-		const confirmed = await dialog.ask(`Delete “${entry.name}”? The transcript file will be removed.`, {
+		const confirmed = await dialog.ask(`Delete “${entry.name}”? The transcript and its copy of the audio will be removed.`, {
 			title: 'Delete transcript',
 			kind: 'warning',
 		})
@@ -194,7 +208,8 @@ export default function RecentsSidebar() {
 	async function open(entry: TranscriptEntry) {
 		const record = await readTranscript(entry.path)
 		if (!record) return
-		queue.hydrate(record, entry.path)
+		// Resolved here rather than in the queue so `hydrate` stays synchronous.
+		queue.hydrate(record, entry.path, await resolveProjectAudio(entry.path, record))
 	}
 
 	return (

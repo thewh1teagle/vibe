@@ -203,6 +203,24 @@ const fsHandlers: CommandHandlerMap = {
 		virtualFs.set(to, virtualFs.get(from) ?? null)
 		return null
 	},
+	// Moves a file, or a whole folder subtree (how a transcript project folder gets renamed).
+	'plugin:fs|rename': (args) => {
+		const from = toPosixPath(args.oldPath ?? args.from)
+		const to = toPosixPath(args.newPath ?? args.to)
+		if (virtualFs.has(from)) {
+			virtualFs.set(to, virtualFs.get(from) ?? null)
+			virtualFs.delete(from)
+			return null
+		}
+		const prefix = `${from}/`
+		for (const key of Array.from(virtualFs.keys())) {
+			if (key.startsWith(prefix)) {
+				virtualFs.set(`${to}/${key.slice(prefix.length)}`, virtualFs.get(key) ?? null)
+				virtualFs.delete(key)
+			}
+		}
+		return null
+	},
 	'plugin:fs|remove': (args) => {
 		const path = toPosixPath(args.path)
 		virtualFs.delete(path)

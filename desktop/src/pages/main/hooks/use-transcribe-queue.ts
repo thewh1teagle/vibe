@@ -46,8 +46,12 @@ export interface TranscribeQueue {
 	hasResults: boolean
 	selectJob: (id: string) => void
 	enqueue: (files: NamedPath[]) => void
-	/** Replace the session with a transcript loaded from the store, shown as a finished job. */
-	hydrate: (record: TranscriptRecord, savedPath: string) => void
+	/**
+	 * Replace the session with a transcript loaded from the store, shown as a finished job.
+	 * `audioPath` is the media copy kept in the project folder, when it still has one; it becomes the
+	 * job's path so the player keeps working after the original file moved away.
+	 */
+	hydrate: (record: TranscriptRecord, savedPath: string, audioPath?: string | null) => void
 	/** Inline edit of one segment's text. Persists to the job's saved file when it has one. */
 	updateSegmentText: (jobId: string, segmentIndex: number, text: string) => void
 	cancelCurrent: () => void
@@ -326,13 +330,13 @@ export function useTranscribeQueue(): TranscribeQueue {
 
 	/** Load a saved transcript as the whole session: one finished job the done view can render. */
 	const hydrate = useCallback(
-		(record: TranscriptRecord, savedPath: string) => {
+		(record: TranscriptRecord, savedPath: string, audioPath?: string | null) => {
 			if (runningRef.current) return
 			const job: Job = {
 				id: nextJobId(),
 				name: record.name,
-				// The original media path is kept so "Re-transcribe" can enqueue it again.
-				path: record.sourcePath,
+				// The project folder's own copy of the media, else the original path it came from.
+				path: audioPath || record.sourcePath,
 				status: 'done',
 				progress: 100,
 				segments: record.segments,
