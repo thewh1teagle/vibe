@@ -188,7 +188,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		void showWindow()
 	}, [])
 
-	useConfirmExit(queue.running || queue.hasResults)
+	// Results persist the moment they exist, so closing only warns when something would
+	// actually be lost: a run in flight, or finished results that never reached disk
+	// (saving disabled or failed).
+	const hasUnsavedResults = queue.jobs.some((job) => job.status === 'done' && !job.hydrated && !job.savedPath)
+	useConfirmExit(queue.running || hasUnsavedResults)
 
 	const mode: SessionMode = queue.jobs.length === 0 ? 'idle' : queue.running || queue.jobs.some((job) => job.status === 'queued') ? 'working' : 'done'
 
