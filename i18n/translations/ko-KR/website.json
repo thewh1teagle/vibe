@@ -21,17 +21,5 @@
 	"support-vibe": "Vibe 지원하기",
 	"support-while-you-wait": "기다리는 동안, Vibe 프로젝트를 후원하여 저희의 성장을 도와주는 것을 고려해 주세요!",
 	"title": "받아쓰기. 나의 기기에서.",
-	"your-download-is-starting": "다운로드가 시작되었습니다...",
-	"hero-eyebrow": "기기 내 전사",
-	"highlight-private-title": "기본값이 프라이버시",
-	"highlight-private-description": "전사는 사용자의 컴퓨터에서 실행됩니다. 온라인이든 오프라인이든 오디오가 기기를 벗어나지 않습니다.",
-	"highlight-languages-title": "모든 언어, 모든 모델",
-	"highlight-languages-description": "약 100개 언어와 tiny부터 large까지 다양한 Whisper 모델을 지원합니다.",
-	"highlight-batch-title": "일괄 처리와 자동화",
-	"highlight-batch-description": "폴더 전체를 대기열에 넣고 SRT, VTT, TXT, HTML, JSON으로 내보내며 API로 제어하세요.",
-	"closing-band-title": "무료, 오픈 소스, 그리고 직접 실행하세요.",
-	"features-eyebrow": "Vibe가 할 수 있는 모든 것",
-	"post-download-step-open-installer": "다운로드 폴더에서 설치 파일을 엽니다.",
-	"post-download-step-follow-prompts": "설치 관리자의 안내를 따릅니다.",
-	"post-download-step-launch": "Vibe를 실행하고 오디오나 비디오 파일을 끌어다 놓습니다."
+	"your-download-is-starting": "다운로드가 시작되었습니다..."
 }

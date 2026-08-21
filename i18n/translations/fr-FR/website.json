@@ -21,17 +21,5 @@
 	"support-vibe": "Ambiance de soutien",
 	"support-while-you-wait": "En attendant, pensez à soutenir le projet Vibe pour nous aider à grandir !",
 	"title": "Transcription audio locale.",
-	"your-download-is-starting": "Votre téléchargement commence...",
-	"hero-eyebrow": "Transcription sur votre appareil",
-	"highlight-private-title": "Privé par défaut",
-	"highlight-private-description": "La transcription s'exécute sur votre propre machine. L'audio ne quitte jamais votre appareil, en ligne comme hors ligne.",
-	"highlight-languages-title": "Toutes les langues, tous les modèles",
-	"highlight-languages-description": "Près de 100 langues et toute la gamme de modèles Whisper, de tiny à large.",
-	"highlight-batch-title": "Traitement par lots et automatisation",
-	"highlight-batch-description": "Mettez des dossiers entiers en file d'attente, exportez en SRT, VTT, TXT, HTML ou JSON, et pilotez le tout depuis l'API.",
-	"closing-band-title": "Gratuit, open source, et à vous de l'exécuter.",
-	"features-eyebrow": "Tout ce que fait Vibe",
-	"post-download-step-open-installer": "Ouvrez le programme d'installation depuis votre dossier Téléchargements.",
-	"post-download-step-follow-prompts": "Suivez les instructions de l'installateur.",
-	"post-download-step-launch": "Lancez Vibe et déposez-y un fichier audio ou vidéo."
+	"your-download-is-starting": "Votre téléchargement commence..."
 }

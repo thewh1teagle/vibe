@@ -21,17 +21,5 @@
 	"support-vibe": "Wspomóż Vibe",
 	"support-while-you-wait": "Czekając, rozważ wsparcie projektu Vibe, który pomoże nam się rozwijać!",
 	"title": "Transkrybuj. po swojemu.",
-	"your-download-is-starting": "Rozpoczyna się pobieranie...",
-	"hero-eyebrow": "Transkrypcja na Twoim urządzeniu",
-	"highlight-private-title": "Prywatność domyślnie",
-	"highlight-private-description": "Transkrypcja działa na Twoim komputerze. Dźwięk nigdy nie opuszcza urządzenia, online i offline.",
-	"highlight-languages-title": "Każdy język, każdy model",
-	"highlight-languages-description": "Blisko 100 języków i pełen zakres modeli Whisper, od tiny do large.",
-	"highlight-batch-title": "Przetwarzanie wsadowe i automatyzacja",
-	"highlight-batch-description": "Kolejkuj całe foldery, eksportuj do SRT, VTT, TXT, HTML lub JSON i steruj wszystkim przez API.",
-	"closing-band-title": "Darmowe, open source i działa u Ciebie.",
-	"features-eyebrow": "Wszystko, co potrafi Vibe",
-	"post-download-step-open-installer": "Otwórz instalator z folderu Pobrane.",
-	"post-download-step-follow-prompts": "Postępuj zgodnie ze wskazówkami instalatora.",
-	"post-download-step-launch": "Uruchom Vibe i przeciągnij do niego plik audio lub wideo."
+	"your-download-is-starting": "Rozpoczyna się pobieranie..."
 }

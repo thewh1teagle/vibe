@@ -21,17 +21,5 @@
 	"support-vibe": "支持 Vibe",
 	"support-while-you-wait": "等待時，不妨考慮支持 Vibe 項目，幫助我們成長！",
 	"title": "自主轉錄。",
-	"your-download-is-starting": "您的下載即將開始...",
-	"hero-eyebrow": "裝置本機轉錄",
-	"highlight-private-title": "預設保護私隱",
-	"highlight-private-description": "轉錄在您自己的電腦上執行。無論在線或離線，音訊都不會離開您的裝置。",
-	"highlight-languages-title": "涵蓋各種語言與模型",
-	"highlight-languages-description": "支援接近 100 種語言，以及由 tiny 到 large 的全系列 Whisper 模型。",
-	"highlight-batch-title": "批次處理與自動化",
-	"highlight-batch-description": "將整個資料夾加入佇列，匯出 SRT、VTT、TXT、HTML 或 JSON，並透過 API 操作。",
-	"closing-band-title": "免費、開源，完全由您掌控。",
-	"features-eyebrow": "Vibe 的所有功能",
-	"post-download-step-open-installer": "從「下載」資料夾開啟安裝程式。",
-	"post-download-step-follow-prompts": "依照安裝程式的指示操作。",
-	"post-download-step-launch": "啟動 Vibe，拖入音訊或影片檔案。"
+	"your-download-is-starting": "您的下載即將開始..."
 }

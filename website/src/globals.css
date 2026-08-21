@@ -1,4 +1,3 @@
-@import '@fontsource-variable/inter';
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -28,9 +27,6 @@
 	--color-accent: var(--accent);
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
-	--color-destructive-foreground: var(--destructive-foreground);
-	--color-success: var(--success);
-	--color-success-foreground: var(--success-foreground);
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
@@ -47,213 +43,93 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
-	--font-sans: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
-	--font-serif: 'Inter Variable', 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
-	--tracking-tighter: calc(var(--tracking-normal) - 0.05em);
-	--tracking-tight: calc(var(--tracking-normal) - 0.025em);
-	--tracking-wide: calc(var(--tracking-normal) + 0.025em);
-	--tracking-wider: calc(var(--tracking-normal) + 0.05em);
-	--tracking-widest: calc(var(--tracking-normal) + 0.1em);
-	--tracking-normal: var(--tracking-normal);
-	--shadow-2xl: var(--shadow-2xl);
-	--shadow-xl: var(--shadow-xl);
-	--shadow-lg: var(--shadow-lg);
-	--shadow-md: var(--shadow-md);
-	--shadow: var(--shadow);
-	--shadow-sm: var(--shadow-sm);
-	--shadow-xs: var(--shadow-xs);
-	--shadow-2xs: var(--shadow-2xs);
 }
 
 :root {
-	--radius: 1rem;
-
-	/* Paper & ink — light (default) */
-	--background: #fafaf8;
-	--foreground: #111110;
-	--card: #ffffff;
-	--card-foreground: #111110;
-	--popover: #ffffff;
-	--popover-foreground: #111110;
-	--primary: #111110;
-	--primary-foreground: #ffffff;
-	--secondary: #f1f1ee;
-	--secondary-foreground: #111110;
-	--muted: #f1f1ee;
-	--muted-foreground: #6f6f6a;
-	--accent: #f1f1ee;
-	--accent-foreground: #111110;
-	--destructive: #b4453c;
-	--destructive-foreground: #fdf6f5;
-	--success: #3f7d5f;
-	--success-foreground: #f3faf6;
-	--border: #e7e7e2;
-	--input: #e7e7e2;
-	--ring: rgb(17 17 16 / 0.2);
-
-	/* Aurora hues — the only chroma in the system */
-	--aurora-1: #5b8def;
-	--aurora-2: #b98de3;
-	--aurora-3: #e8a87c;
-	--aurora-4: #7cc5a0;
-
-	/*
-	 * Wall of Love tints — eight muted pastels walked around the aurora hues
-	 * (the four aurora stops plus their midpoints). Deterministically assigned
-	 * per supporter so a name always keeps the same colour.
-	 */
-	--wol-1: #5b8def;
-	--wol-2: #8a8de9;
-	--wol-3: #b98de3;
-	--wol-4: #d09aaf;
-	--wol-5: #e8a87c;
-	--wol-6: #b2b68e;
-	--wol-7: #7cc5a0;
-	--wol-8: #6ba9c7;
-
-	--chart-1: var(--aurora-1);
-	--chart-2: var(--aurora-2);
-	--chart-3: var(--aurora-3);
-	--chart-4: var(--aurora-4);
-	--chart-5: #6f6f6a;
-
-	--sidebar: #ffffff;
-	--sidebar-foreground: #111110;
-	--sidebar-primary: #111110;
-	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: #f1f1ee;
-	--sidebar-accent-foreground: #111110;
-	--sidebar-border: #e7e7e2;
-	--sidebar-ring: rgb(17 17 16 / 0.2);
-
-	--shadow-2xs: 0 1px 1px rgb(17 17 16 / 0.04);
-	--shadow-xs: 0 1px 2px rgb(17 17 16 / 0.05);
-	--shadow-sm: 0 2px 8px rgb(17 17 16 / 0.04);
-	--shadow: 0 6px 18px rgb(17 17 16 / 0.05);
-	--shadow-md: 0 10px 26px rgb(17 17 16 / 0.06);
-	--shadow-lg: 0 16px 36px rgb(17 17 16 / 0.08);
-	--shadow-xl: 0 24px 56px rgb(17 17 16 / 0.1);
-	--shadow-2xl: 0 32px 72px rgb(17 17 16 / 0.12);
-
-	--tracking-normal: -0.01em;
+	--radius: 0.75rem;
+	--background: hsl(210 34% 96%);
+	--foreground: hsl(215 22% 17%);
+	--card: hsl(0 0% 100% / 0.95);
+	--card-foreground: hsl(215 22% 17%);
+	--popover: hsl(0 0% 100% / 0.98);
+	--popover-foreground: hsl(215 22% 17%);
+	--primary: hsl(205 74% 43%);
+	--primary-foreground: hsl(0 0% 100%);
+	--secondary: hsl(206 28% 92%);
+	--secondary-foreground: hsl(214 20% 24%);
+	--muted: hsl(207 24% 93%);
+	--muted-foreground: hsl(214 12% 44%);
+	--accent: hsl(206 44% 90%);
+	--accent-foreground: hsl(214 20% 24%);
+	--destructive: hsl(0 78% 57%);
+	--border: hsl(208 22% 83%);
+	--input: hsl(208 22% 83%);
+	--ring: hsl(205 72% 45%);
+	--chart-1: hsl(205 74% 43%);
+	--chart-2: hsl(197 60% 42%);
+	--chart-3: hsl(28 70% 52%);
+	--chart-4: hsl(45 80% 52%);
+	--chart-5: hsl(265 45% 55%);
+	--sidebar: hsl(0 0% 100% / 0.9);
+	--sidebar-foreground: hsl(215 20% 18%);
+	--sidebar-primary: hsl(205 74% 43%);
+	--sidebar-primary-foreground: hsl(0 0% 100%);
+	--sidebar-accent: hsl(206 30% 92%);
+	--sidebar-accent-foreground: hsl(214 20% 24%);
+	--sidebar-border: hsl(208 20% 84%);
+	--sidebar-ring: hsl(205 72% 45%);
 }
 
 .dark {
-	--background: #0e0e0d;
-	--foreground: #f4f4f1;
-	--card: #161615;
-	--card-foreground: #f4f4f1;
-	--popover: #161615;
-	--popover-foreground: #f4f4f1;
-	--primary: #f4f4f1;
-	--primary-foreground: #111110;
-	--secondary: #1e1e1c;
-	--secondary-foreground: #f4f4f1;
-	--muted: #1e1e1c;
-	--muted-foreground: #9a9a94;
-	--accent: #232321;
-	--accent-foreground: #f4f4f1;
-	--destructive: #c4655c;
-	--destructive-foreground: #1a0f0e;
-	--success: #6aab8b;
-	--success-foreground: #0d1512;
-	--border: #262624;
-	--input: #262624;
-	--ring: rgb(244 244 241 / 0.24);
-
-	--aurora-1: #5b8def;
-	--aurora-2: #b98de3;
-	--aurora-3: #e8a87c;
-	--aurora-4: #7cc5a0;
-
-	--chart-5: #9a9a94;
-
-	--sidebar: #161615;
-	--sidebar-foreground: #f4f4f1;
-	--sidebar-primary: #f4f4f1;
-	--sidebar-primary-foreground: #111110;
-	--sidebar-accent: #232321;
-	--sidebar-accent-foreground: #f4f4f1;
-	--sidebar-border: #262624;
-	--sidebar-ring: rgb(244 244 241 / 0.24);
-
-	--shadow-2xs: 0 1px 1px rgb(0 0 0 / 0.3);
-	--shadow-xs: 0 1px 2px rgb(0 0 0 / 0.35);
-	--shadow-sm: 0 2px 10px rgb(0 0 0 / 0.4);
-	--shadow: 0 8px 22px rgb(0 0 0 / 0.45);
-	--shadow-md: 0 14px 32px rgb(0 0 0 / 0.5);
-	--shadow-lg: 0 22px 46px rgb(0 0 0 / 0.55);
-	--shadow-xl: 0 30px 64px rgb(0 0 0 / 0.6);
-	--shadow-2xl: 0 40px 80px rgb(0 0 0 / 0.65);
+	--background: hsl(220 10% 10%);
+	--foreground: hsl(210 18% 93%);
+	--card: hsl(220 9% 16%);
+	--card-foreground: hsl(210 18% 93%);
+	--popover: hsl(220 9% 17%);
+	--popover-foreground: hsl(210 18% 93%);
+	--primary: hsl(208 94% 66%);
+	--primary-foreground: hsl(220 15% 10%);
+	--secondary: hsl(220 8% 22%);
+	--secondary-foreground: hsl(210 14% 90%);
+	--muted: hsl(220 8% 20%);
+	--muted-foreground: hsl(214 10% 74%);
+	--accent: hsl(220 8% 24%);
+	--accent-foreground: hsl(210 14% 90%);
+	--destructive: hsl(0 70% 48%);
+	--border: hsl(220 8% 34%);
+	--input: hsl(220 8% 34%);
+	--ring: hsl(208 94% 66%);
+	--chart-1: hsl(208 94% 66%);
+	--chart-2: hsl(197 38% 60%);
+	--chart-3: hsl(30 76% 58%);
+	--chart-4: hsl(50 74% 58%);
+	--chart-5: hsl(270 58% 62%);
+	--sidebar: hsl(220 9% 16%);
+	--sidebar-foreground: hsl(210 18% 93%);
+	--sidebar-primary: hsl(208 94% 66%);
+	--sidebar-primary-foreground: hsl(220 15% 10%);
+	--sidebar-accent: hsl(220 8% 24%);
+	--sidebar-accent-foreground: hsl(210 14% 90%);
+	--sidebar-border: hsl(220 8% 34%);
+	--sidebar-ring: hsl(208 94% 66%);
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
-
-	html {
-		font-family:
-			'Inter Variable',
-			'Inter',
-			-apple-system,
-			BlinkMacSystemFont,
-			'SF Pro Text',
-			'Helvetica Neue',
-			Arial,
-			sans-serif;
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-	}
-
 	body {
 		@apply bg-background text-foreground;
-		font-size: 15px;
-		line-height: 1.6;
-		letter-spacing: -0.01em;
-		font-feature-settings:
-			'rlig' 1,
-			'calt' 1,
-			'cv05' 1;
-		background-image: none;
-		overflow-x: hidden;
+		background-image: linear-gradient(180deg, hsl(210 32% 97%) 0%, hsl(210 28% 95%) 100%);
 	}
-
 	.dark body {
-		background-image: none;
+		background-image: linear-gradient(180deg, hsl(220 10% 11%) 0%, hsl(220 10% 9%) 100%);
 	}
-
-	h1,
-	h2,
-	h3 {
-		letter-spacing: -0.03em;
-	}
-
 	::selection {
-		background: rgb(17 17 16 / 0.14);
+		background: hsl(205 74% 43% / 0.22);
 	}
-
 	.dark ::selection {
-		background: rgb(244 244 241 / 0.2);
-	}
-
-	::-webkit-scrollbar {
-		height: 10px;
-		width: 10px;
-	}
-
-	::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background: rgb(17 17 16 / 0.18);
-		border-radius: 999px;
-	}
-
-	.dark ::-webkit-scrollbar-thumb {
-		background: rgb(244 244 241 / 0.18);
+		background: hsl(208 94% 66% / 0.28);
 	}
 }
 
@@ -275,24 +151,23 @@
 	}
 }
 
-@keyframes pulse-ring {
+@keyframes pulse-glow {
 	0%,
 	100% {
-		box-shadow: 0 0 0 0 var(--ring);
+		box-shadow: 0 0 8px hsl(205 74% 43% / 0.4);
 	}
 	50% {
-		box-shadow: 0 0 0 4px var(--ring);
+		box-shadow: 0 0 16px hsl(205 74% 43% / 0.6);
 	}
 }
 
-@keyframes fade-up {
-	from {
-		opacity: 0;
-		transform: translateY(6px);
+.dark @keyframes pulse-glow {
+	0%,
+	100% {
+		box-shadow: 0 0 8px hsl(208 94% 66% / 0.3);
 	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
+	50% {
+		box-shadow: 0 0 16px hsl(208 94% 66% / 0.5);
 	}
 }
 
@@ -305,203 +180,65 @@
 	.animate-marquee-left {
 		animation: marquee-left linear infinite;
 	}
-	/* Kept for API compatibility — now a quiet monochrome ring, not a colored glow */
 	.animate-pulse-glow {
-		animation: pulse-ring 2s ease-in-out 3;
+		animation: pulse-glow 2s ease-in-out 3;
 	}
 	.pause {
 		animation-play-state: paused;
 	}
-	.stagger-in {
-		animation: fade-up 240ms ease-out both;
-	}
 }
 
 @layer components {
-	/*
-	 * Shell layout rhythm — shared container so every page lines up with the
-	 * nav and footer. `site-container` for content, `site-section` for vertical
-	 * rhythm between blocks.
-	 */
-	.site-container {
-		@apply mx-auto w-full max-w-[1080px] px-5 md:px-8;
-	}
-
-	.site-section {
-		@apply py-16 md:py-24;
-	}
-
-	.site-panel {
-		@apply rounded-2xl border border-border bg-card p-6 md:p-8;
-	}
-
-	.site-title {
-		@apply text-[32px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[56px];
-	}
-
-	.site-heading {
-		@apply text-[24px] font-semibold leading-[1.15] tracking-[-0.03em] md:text-[32px];
-	}
-
-	.site-lead {
-		@apply text-base leading-relaxed text-muted-foreground md:text-lg;
-	}
-
-	/* Eyebrow label — 11px, uppercase, +0.08em */
-	.eyebrow {
-		@apply text-[11px] font-medium uppercase leading-none tracking-[0.08em] text-muted-foreground;
-	}
-
-	/* Hairline rule that matches the nav/footer borders */
-	.hairline {
-		@apply border-t border-border;
-	}
-
-	/*
-	 * Aurora — the single expressive surface. Soft multi-hue gradient plus a
-	 * grain overlay. Always behind a card or as a thin fill, never behind body text.
-	 */
-	.aurora {
-		position: relative;
-		isolation: isolate;
-		background-color: var(--muted);
-		background-image:
-			radial-gradient(58% 72% at 14% 16%, #5b8def8c 0%, transparent 68%), radial-gradient(54% 68% at 84% 10%, #b98de37a 0%, transparent 70%),
-			radial-gradient(58% 66% at 80% 88%, #e8a87c73 0%, transparent 70%), radial-gradient(62% 70% at 18% 92%, #7cc5a073 0%, transparent 70%);
-		background-repeat: no-repeat;
-		filter: saturate(0.85);
-	}
-
-	.aurora::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		border-radius: inherit;
-		opacity: 0.28;
-		mix-blend-mode: overlay;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-	}
-
-	.dark .aurora {
-		filter: saturate(0.7) brightness(0.8);
-	}
-
-	/*
-	 * Louder aurora for bands where the gradient itself is the subject (the
-	 * closing CTA). The plain `.aurora` is deliberately dimmed in dark mode so
-	 * it can sit behind a card; here it has to carry the block on its own.
-	 */
-	.aurora-strong {
-		filter: none;
-	}
-
-	.aurora-strong::after {
-		opacity: 0.16;
-	}
-
-	.dark .aurora-strong {
-		background-color: #1c1c1a;
-		background-image:
-			radial-gradient(58% 72% at 14% 16%, #5b8defc4 0%, transparent 68%), radial-gradient(54% 68% at 84% 10%, #b98de3b8 0%, transparent 70%),
-			radial-gradient(58% 66% at 80% 88%, #e8a87cad 0%, transparent 70%), radial-gradient(62% 70% at 18% 92%, #7cc5a0ad 0%, transparent 70%);
-		filter: none;
-	}
-
-	/*
-	 * Wall of Love — warm tinted card surfaces. `--wol-tint` is set inline per
-	 * card from the eight-hue palette above.
-	 */
-	.wol-card {
-		background-color: color-mix(in oklab, var(--wol-tint) 9%, var(--card));
-		border-color: color-mix(in oklab, var(--wol-tint) 26%, var(--border));
-	}
-
-	.wol-avatar {
-		background-color: color-mix(in oklab, var(--wol-tint) 34%, var(--card));
-		color: color-mix(in oklab, var(--wol-tint) 55%, var(--foreground));
-	}
-
-	.wol-badge {
-		color: color-mix(in oklab, var(--wol-tint) 60%, var(--foreground));
-	}
-
-	/* Dark mode needs a heavier fill for the same perceived tint. */
-	.dark .wol-card {
-		background-color: color-mix(in oklab, var(--wol-tint) 15%, var(--card));
-		border-color: color-mix(in oklab, var(--wol-tint) 34%, var(--border));
-	}
-
-	.dark .wol-avatar {
-		background-color: color-mix(in oklab, var(--wol-tint) 40%, var(--card));
-		color: color-mix(in oklab, var(--wol-tint) 45%, var(--foreground));
-	}
-
-	.dark .wol-badge {
-		color: color-mix(in oklab, var(--wol-tint) 55%, var(--foreground));
-	}
-
-	/* Thin aurora fill for progress bars and hairline accents */
-	.aurora-bar {
-		background-image: linear-gradient(90deg, var(--aurora-1) 0%, var(--aurora-2) 34%, var(--aurora-3) 67%, var(--aurora-4) 100%);
-		filter: saturate(0.85);
-	}
-
 	.markdown h1 {
-		@apply mb-4 text-[32px] font-semibold tracking-[-0.03em] md:text-[40px];
+		@apply text-4xl font-bold mb-4;
 	}
 	.markdown h2 {
-		@apply mt-10 mb-3.5 text-[24px] font-semibold tracking-[-0.03em] md:text-[28px];
+		@apply text-3xl font-bold mb-3.5;
 	}
 	.markdown h3 {
-		@apply mt-8 mb-3 text-xl font-semibold tracking-[-0.03em];
+		@apply text-2xl font-bold mb-3;
 	}
 	.markdown h4 {
-		@apply mb-2.5 text-lg font-semibold;
+		@apply text-xl font-bold mb-2.5;
 	}
 	.markdown h5 {
-		@apply mb-2 text-base font-semibold;
+		@apply text-base font-bold mb-2;
 	}
 	.markdown h6 {
-		@apply mb-1.5 text-sm font-semibold;
+		@apply text-sm font-bold mb-1.5;
 	}
 	.markdown p {
-		@apply mb-4 text-base leading-relaxed;
+		@apply text-base leading-relaxed mb-4;
 	}
 	.markdown ul,
 	.markdown ol {
-		@apply mb-4 ps-5;
-	}
-	.markdown ul {
-		@apply list-disc;
-	}
-	.markdown ol {
-		@apply list-decimal;
+		@apply mb-4 pl-5;
 	}
 	.markdown li {
-		@apply mb-2 text-base leading-relaxed;
+		@apply text-base leading-relaxed mb-2;
 	}
 	.markdown blockquote {
-		@apply mb-4 border-s border-border ps-4 text-base text-muted-foreground;
+		@apply text-lg italic border-l-4 border-muted pl-4 mb-4 text-muted-foreground;
 	}
 	.markdown code,
 	.markdown pre {
-		@apply rounded-md bg-muted px-1 py-0.5 font-mono text-[13px] text-foreground;
+		@apply font-mono bg-muted rounded px-1 py-0.5 text-foreground;
+	}
+	.dark .markdown code,
+	.dark .markdown pre {
+		@apply bg-[#272727];
 	}
 	.markdown pre {
-		@apply overflow-x-auto rounded-xl border border-border p-3;
+		@apply p-2 overflow-x-auto;
 	}
 	.markdown a {
-		@apply text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground;
+		@apply text-blue-400 no-underline hover:underline;
 	}
 	.markdown img {
-		@apply mx-auto block h-auto max-w-full rounded-xl;
-	}
-	.markdown hr {
-		@apply my-8 border-t border-border;
+		@apply max-w-full h-auto block mx-auto;
 	}
 	.markdown strong {
-		@apply font-semibold;
+		@apply font-bold;
 	}
 	.markdown em {
 		@apply italic;

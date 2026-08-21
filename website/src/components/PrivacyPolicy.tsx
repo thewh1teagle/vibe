@@ -11,8 +11,8 @@ export default function PrivacyPolicy({ open, onOpenChange }: PrivacyPolicyProps
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent
 				showCloseButton={false}
-				className="m-0 !h-[80vh] !w-[95vw] !max-w-[880px] select-none overflow-hidden rounded-2xl border border-border !p-0 sm:!h-[96vh] sm:!w-[75vw]">
-				<iframe src="/vibe/privacy_policy.pdf" className="m-0 h-full w-full border-0 bg-muted p-0" title={m['privacy-policy']()} />
+				className="m-0 !h-[80vh] !w-[95vw] !max-w-[880px] select-none overflow-hidden !p-0 sm:!h-[96vh] sm:!w-[75vw]">
+				<iframe src="/vibe/privacy_policy.pdf" className="m-0 h-full w-full border-0 p-0" title={m['privacy-policy']()} />
 			</DialogContent>
 		</Dialog>
 	)
