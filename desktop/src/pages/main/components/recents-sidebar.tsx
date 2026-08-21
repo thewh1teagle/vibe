@@ -2,10 +2,11 @@ import { invoke } from '@tauri-apps/api/core'
 import * as pathApi from '@tauri-apps/api/path'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
-import { MoreHorizontal, Plus, Search } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Download, MoreHorizontal, Plus, Search, Settings } from 'lucide-react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { cn } from '~/lib/style'
 import {
 	deleteTranscript,
@@ -17,6 +18,8 @@ import {
 	type TranscriptEntry,
 } from '~/lib/transcripts-store'
 
+import { openSettingsSection } from '~/lib/app'
+import { UpdaterContext } from '~/providers/updater'
 import { useSession } from '../session'
 
 /** "just now" / "14m ago" / "3h ago" / "2d ago" / "Aug 19" / "Aug 19, 2024" */
@@ -183,6 +186,7 @@ function RecentRow({
 
 export default function RecentsSidebar() {
 	const { queue, startNew } = useSession()
+	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const [entries, setEntries] = useState<TranscriptEntry[]>([])
 	const [query, setQuery] = useState('')
 
@@ -261,6 +265,33 @@ export default function RecentsSidebar() {
 						/>
 					))
 				)}
+			</div>
+
+			{/* Footer, ChatGPT-style: Settings row with a small update badge when one is waiting. */}
+			<div className="mt-auto border-t border-border/60 p-2">
+				<div className="flex items-center gap-1">
+					<button
+						type="button"
+						onClick={() => openSettingsSection('')}
+						className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-foreground transition-colors duration-150 hover:bg-muted/60">
+						<Settings className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+						{m.settings()}
+					</button>
+					{availableUpdate && (
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<button
+									type="button"
+									aria-label={m.updateVersion()}
+									onClick={updateApp}
+									className="me-1 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity duration-150 hover:opacity-90">
+									<Download className="h-3.5 w-3.5" />
+								</button>
+							</TooltipTrigger>
+							<TooltipContent side="top">{m.updateVersion()}</TooltipContent>
+						</Tooltip>
+					)}
+				</div>
 			</div>
 		</aside>
 	)

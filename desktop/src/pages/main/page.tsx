@@ -115,6 +115,7 @@ function Shell() {
 
 	return (
 		<Layout
+			sidebarOpen={showSidebar}
 			bottomBar={<PlayerSlot />}
 			sidebar={
 				<AnimatePresence initial={false}>

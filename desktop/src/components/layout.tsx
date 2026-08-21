@@ -55,9 +55,11 @@ interface LayoutProps {
 	sidebar?: ReactNode
 	/** Full-width bar docked at the very bottom of the window (player). */
 	bottomBar?: ReactNode
+	/** When open, the sidebar's footer hosts Settings/update, so the header hides its own. */
+	sidebarOpen?: boolean
 }
 
-export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
+export default function Layout({ children, sidebar, bottomBar, sidebarOpen = false }: LayoutProps) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
@@ -100,7 +102,7 @@ export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 				{sidebar}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col bg-background">
 					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-end gap-4 pe-4">
-						<AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />
+						{!sidebarOpen && <AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />}
 					</header>
 					<div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
 						<PageTransition>
