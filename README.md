@@ -78,12 +78,6 @@ Get started with local development [here](docs/building.md).
 PRs are welcomed!
 In addition, you're welcome to add translations.
 
-We would like to express our sincere gratitude to all the contributors.
-
-<a href="https://github.com/thewh1teagle/vibe/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=thewh1teagle/vibe" />
-</a>
-
 # Community
 
 [![Discord](https://img.shields.io/badge/chat-discord-7289da.svg)](https://discord.gg/EcxWSstQN8)
