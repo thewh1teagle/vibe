@@ -12,7 +12,7 @@ import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { isUserError } from '~/lib/sona-errors'
 import type { Segment, Transcript } from '~/lib/transcript'
-import { notifyTranscriptsChanged, saveTranscript, type TranscriptRecord } from '~/lib/transcripts-store'
+import { notifyTranscriptsChanged, saveTranscript, updateTranscriptSegments, type TranscriptRecord } from '~/lib/transcripts-store'
 import type { NamedPath } from '~/lib/types'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
@@ -48,6 +48,8 @@ export interface TranscribeQueue {
 	enqueue: (files: NamedPath[]) => void
 	/** Replace the session with a transcript loaded from the store, shown as a finished job. */
 	hydrate: (record: TranscriptRecord, savedPath: string) => void
+	/** Inline edit of one segment's text. Persists to the job's saved file when it has one. */
+	updateSegmentText: (jobId: string, segmentIndex: number, text: string) => void
 	cancelCurrent: () => void
 	cancelAll: () => void
 	reset: () => void
@@ -344,6 +346,22 @@ export function useTranscribeQueue(): TranscribeQueue {
 		[commit, select],
 	)
 
+	/**
+	 * Replace the text of one segment. The write back to the store is fire-and-forget for the same
+	 * reason `persist` is: an unwritable file must not cost the user their edit on screen.
+	 */
+	const updateSegmentText = useCallback(
+		(jobId: string, segmentIndex: number, text: string) => {
+			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
+			const segment = job?.segments[segmentIndex]
+			if (!job || !segment || segment.text === text) return
+			const segments = job.segments.map((item, index) => (index === segmentIndex ? { ...item, text } : item))
+			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, segments } : candidate)))
+			if (job.savedPath) void updateTranscriptSegments(job.savedPath, segments)
+		},
+		[commit],
+	)
+
 	const cancelCurrent = useCallback(() => {
 		if (!activeIdRef.current) return
 		abortCurrentRef.current = true
@@ -380,6 +398,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 		selectJob,
 		enqueue,
 		hydrate,
+		updateSegmentText,
 		cancelCurrent,
 		cancelAll,
 		reset,

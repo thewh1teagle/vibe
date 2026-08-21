@@ -12,6 +12,12 @@ import { cn } from '~/lib/style'
 import type { NamedPath } from '~/lib/types'
 import type { Job } from '../hooks/use-transcribe-queue'
 
+/**
+ * Fired on `window` with `{ seconds }` to move this player, so anything on screen (a transcript
+ * timestamp, for one) can seek without a handle on the audio element.
+ */
+export const PLAYER_SEEK_EVENT = 'vibe:player-seek'
+
 /** mm:ss, or --:-- when the media has no usable duration (streams, failed metadata). */
 function formatTime(seconds: number) {
 	if (!Number.isFinite(seconds) || seconds < 0) return '--:--'
@@ -111,6 +117,28 @@ export default function PlayerBar({ job }: { job: Job }) {
 		},
 		[duration, seekable],
 	)
+
+	// Seek requests from elsewhere in the window (transcript timestamps). Read straight off the
+	// element so the handler never goes stale, and no-op while there is nothing to seek yet.
+	useEffect(() => {
+		const onSeekRequest = (event: Event) => {
+			const seconds = (event as CustomEvent<{ seconds?: number }>).detail?.seconds
+			const audio = audioRef.current
+			if (!audio || typeof seconds !== 'number' || !Number.isFinite(seconds)) return
+			const limit = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : Number.POSITIVE_INFINITY
+			const next = Math.min(Math.max(seconds, 0), limit)
+			try {
+				audio.currentTime = next
+			} catch {
+				// The media has no seekable range yet; nothing to do.
+				return
+			}
+			setCurrentTime(next)
+			if (audio.paused) void audio.play().catch(() => setPlaying(false))
+		}
+		window.addEventListener(PLAYER_SEEK_EVENT, onSeekRequest)
+		return () => window.removeEventListener(PLAYER_SEEK_EVENT, onSeekRequest)
+	}, [])
 
 	const seekToClientX = useCallback(
 		(clientX: number) => {

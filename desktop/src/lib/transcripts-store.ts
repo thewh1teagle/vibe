@@ -172,6 +172,23 @@ export async function readTranscript(path: string): Promise<TranscriptRecord | n
 }
 
 /**
+ * Rewrite the segments of an already stored transcript, keeping every other field untouched.
+ * Used by inline editing, which changes text only.
+ * @returns whether the file now holds the new segments (never throws).
+ */
+export async function updateTranscriptSegments(path: string, segments: Segment[]): Promise<boolean> {
+	try {
+		const record = await readTranscript(path)
+		if (!record) return false
+		await fs.writeTextFile(path, JSON.stringify({ ...record, segments }, null, '\t'))
+		return true
+	} catch (error) {
+		console.warn('failed to update transcript segments:', path, error)
+		return false
+	}
+}
+
+/**
  * Fired on `window` whenever the store changed (a save or a delete) so open lists can refresh
  * without the writer having to know about them.
  */
