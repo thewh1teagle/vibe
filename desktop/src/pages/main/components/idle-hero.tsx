@@ -129,7 +129,7 @@ function RecordPanel() {
 		// tool row instead of a form. Restyled from here to keep AudioDeviceInput's API untouched.
 		<div
 			className={cn(
-				'flex w-full flex-col gap-3 py-2.5',
+				'flex w-full flex-col gap-5 py-2.5',
 				'[&_label]:text-[11px] [&_label]:font-medium [&_label]:tracking-[0.08em] [&_label]:text-muted-foreground [&_label]:uppercase',
 			)}>
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 [&>div]:space-y-1.5 [&_button]:h-10 [&_button]:rounded-xl">
