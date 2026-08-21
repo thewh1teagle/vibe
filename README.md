@@ -29,7 +29,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://thewh1teagle.github.io/vibe/">
-    	<img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
+    	<img width=720 src="./design/app-preview.png">
 	</a>
 </p>
 
