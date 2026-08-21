@@ -55,11 +55,9 @@ interface LayoutProps {
 	sidebar?: ReactNode
 	/** Full-width bar docked at the very bottom of the window (player). */
 	bottomBar?: ReactNode
-	/** When the sidebar is open it hosts the toggle (next to the traffic lights); the header hosts it otherwise. */
-	sidebarOpen?: boolean
 }
 
-export default function Layout({ children, sidebar, bottomBar, sidebarOpen = false }: LayoutProps) {
+export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 	const [settingsVisible, setSettingsVisible] = useState(false)
 	const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined)
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
@@ -70,6 +68,11 @@ export default function Layout({ children, sidebar, bottomBar, sidebarOpen = fal
 		setSettingsScrollTo(scrollTo)
 		setSettingsVisible(true)
 	}
+
+	useEffect(() => {
+		// Vibrancy: the macOS window is transparent; html/body must not paint over it.
+		if (isMacOverlayTitlebar()) document.documentElement.classList.add('mac-vibrancy')
+	}, [])
 
 	useEffect(() => {
 		function onOpenSettings(event: Event) {
@@ -85,16 +88,18 @@ export default function Layout({ children, sidebar, bottomBar, sidebarOpen = fal
 
 	return (
 		<div className="flex h-screen min-h-0 flex-col overflow-hidden">
+			{/* Single toggle, fixed to the window so it never moves when the sidebar opens or closes. */}
+			{showSidebarToggle && (
+				<div className="fixed z-50" style={{ left: titlebarInset(), top: 10 }}>
+					<SidebarToggleButton />
+				</div>
+			)}
 			{settingsVisible && <SettingsModal visible={settingsVisible} setVisible={setSettingsVisible} scrollTo={settingsScrollTo} />}
 			<ModelDownloadPrompt />
 			<div className="flex min-h-0 flex-1">
 				{sidebar}
-				<div className="flex min-h-0 min-w-0 flex-1 flex-col">
-					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-between gap-4 pe-4">
-						{/* The toggle keeps the exact same spot as in the open sidebar (ChatGPT style); the wordmark lives in the sidebar. */}
-						<div className="flex items-center" style={{ paddingLeft: titlebarInset() }}>
-							{showSidebarToggle && !sidebarOpen && <SidebarToggleButton />}
-						</div>
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col bg-background">
+					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-end gap-4 pe-4">
 						<AppMenu onClickSettings={openSettings} availableUpdate={availableUpdate} updateApp={updateApp} />
 					</header>
 					<div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">

@@ -123,10 +123,23 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .title_bar_style(tauri::TitleBarStyle::Overlay)
             .hidden_title(true)
             // Centered on the 56px titlebar row so the lights align with the sidebar toggle.
-            .traffic_light_position(tauri::LogicalPosition::new(16.0, 22.0));
-        let result = builder.build();
-        if let Err(error) = result {
-            tracing::error!("{:?}", error);
+            .traffic_light_position(tauri::LogicalPosition::new(16.0, 28.0))
+            .transparent(true);
+        match builder.build() {
+            Ok(_window) => {
+                // Glass sidebar: the window is transparent on macOS and an NSVisualEffectView
+                // shows the blurred desktop wherever the web content leaves alpha (the sidebar).
+                #[cfg(target_os = "macos")]
+                {
+                    use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+                    if let Err(error) = apply_vibrancy(&_window, NSVisualEffectMaterial::Sidebar, None, None) {
+                        tracing::warn!("failed to apply vibrancy: {:?}", error);
+                    }
+                }
+            }
+            Err(error) => {
+                tracing::error!("{:?}", error);
+            }
         }
         crate::dictation_indicator::initialize(app.handle());
     }

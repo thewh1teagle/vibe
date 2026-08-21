@@ -544,3 +544,10 @@ html.dictation-indicator-window #root {
 		transform: translateY(0);
 	}
 }
+
+/* macOS vibrancy: the window itself is transparent; only the content column paints a solid
+   background, so the sidebar area shows the blurred desktop through its translucent tint. */
+html.mac-vibrancy,
+html.mac-vibrancy body {
+	background: transparent;
+}

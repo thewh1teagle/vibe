@@ -100,7 +100,6 @@ function Shell() {
 
 	return (
 		<Layout
-			sidebarOpen={showSidebar}
 			bottomBar={<PlayerSlot />}
 			sidebar={
 				<AnimatePresence initial={false}>
@@ -111,7 +110,7 @@ function Shell() {
 							animate={{ opacity: 1, width: 'auto' }}
 							exit={{ opacity: 0, width: 0 }}
 							transition={{ duration: 0.2, ease: 'easeOut' }}
-							className="flex min-h-0 overflow-hidden bg-muted/25">
+							className="flex min-h-0 overflow-hidden bg-background/50">
 							<RecentsSidebar />
 						</motion.div>
 					)}
