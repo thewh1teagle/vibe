@@ -24,6 +24,15 @@ dev-web:
 build: setup
     cd desktop && pnpm exec tauri build
 
+# Build a fresh vibe.app, replace the installed one and relaunch it (macOS)
+upgrade: setup
+    cd desktop && pnpm exec tauri build --bundles app
+    -osascript -e 'quit app "vibe"' 2>/dev/null
+    rm -rf /Applications/vibe.app
+    cp -R desktop/src-tauri/target/release/bundle/macos/vibe.app /Applications/
+    open /Applications/vibe.app
+    @echo "vibe upgraded and relaunched"
+
 # Run the website (landing page) in dev mode
 website:
     cd website && pnpm install && pnpm dev
