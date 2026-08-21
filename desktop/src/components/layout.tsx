@@ -107,9 +107,10 @@ export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 							<div className="stagger-in h-full">{children}</div>
 						</PageTransition>
 					</div>
+					{/* The player fills only the content column; the sidebar stays full height beside it. */}
+					{bottomBar}
 				</div>
 			</div>
-			{bottomBar}
 		</div>
 	)
 }
