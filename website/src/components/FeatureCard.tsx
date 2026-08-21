@@ -17,7 +17,7 @@ export default function FeatureCard({ title, description, videoURL, imageURL, ic
 				<Icon className="size-4" strokeWidth={1.75} aria-hidden />
 			</span>
 
-			<div className="flex flex-col gap-2">
+			<div className="flex flex-col gap-2 text-start">
 				<h3 className="text-[15px] font-medium tracking-[-0.01em] text-foreground">{title}</h3>
 				<p className="text-[13px] leading-6 text-muted-foreground">{description}</p>
 			</div>

@@ -4,18 +4,23 @@ import FeatureCard from '~/components/FeatureCard'
 import features from '~/lib/features.json'
 import { m } from '~/paraglide/messages.js'
 
-const icons: Record<string, LucideIcon> = {
-	'Transcribe almost every language': Languages,
-	'Multiple formats': FileDown,
-	'Transcribe from popular websites': Link2,
-	'Real-time Transcription Preview': Radio,
-	'Summarize With AI': Sparkles,
-	'Ollama Integration': Bot,
-	'Transcribe audio / video': FileAudio,
-	'Transcribe microphone / speakers': Mic,
-	'Optimized for GPU': Cpu,
-	'Ultimate privacy': ShieldCheck,
-	'Total Freedom': Settings2,
+/*
+ * Icon + copy for every feature slug in `features.json`. The message functions
+ * are held by reference and called during render, so switching locale without a
+ * reload swaps the text too.
+ */
+const content: Record<string, { icon: LucideIcon; title: () => string; description: () => string }> = {
+	languages: { icon: Languages, title: m['feature-languages-title'], description: m['feature-languages-description'] },
+	formats: { icon: FileDown, title: m['feature-formats-title'], description: m['feature-formats-description'] },
+	url: { icon: Link2, title: m['feature-url-title'], description: m['feature-url-description'] },
+	realtime: { icon: Radio, title: m['feature-realtime-title'], description: m['feature-realtime-description'] },
+	summarize: { icon: Sparkles, title: m['feature-summarize-title'], description: m['feature-summarize-description'] },
+	ollama: { icon: Bot, title: m['feature-ollama-title'], description: m['feature-ollama-description'] },
+	'audio-video': { icon: FileAudio, title: m['feature-audio-video-title'], description: m['feature-audio-video-description'] },
+	devices: { icon: Mic, title: m['feature-devices-title'], description: m['feature-devices-description'] },
+	gpu: { icon: Cpu, title: m['feature-gpu-title'], description: m['feature-gpu-description'] },
+	privacy: { icon: ShieldCheck, title: m['feature-privacy-title'], description: m['feature-privacy-description'] },
+	customize: { icon: Settings2, title: m['feature-customize-title'], description: m['feature-customize-description'] },
 }
 
 export default function Features() {
@@ -27,15 +32,16 @@ export default function Features() {
 				<p className="mt-4 text-base leading-7 text-muted-foreground">{m.description()}</p>
 			</header>
 
-			{/*
-			 * The cards render untranslated English copy from `features.json`, so
-			 * the grid itself stays LTR. The header above follows the page
-			 * direction like the rest of the site.
-			 */}
-			<div dir="ltr" className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{features.map((feature) => (
-					<FeatureCard key={feature.title} {...feature} icon={icons[feature.title]} />
-				))}
+			<div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{features.map((feature) => {
+					const entry = content[feature.slug]
+					if (!entry) {
+						return null
+					}
+					return (
+						<FeatureCard key={feature.slug} title={entry.title()} description={entry.description()} imageURL={feature.imageURL} icon={entry.icon} />
+					)
+				})}
 			</div>
 		</main>
 	)
