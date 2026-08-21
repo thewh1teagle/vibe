@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { m } from '../paraglide/messages.js'
+import Heart from '~/icons/Heart'
 
 interface Supporter {
 	id: string
@@ -8,53 +9,20 @@ interface Supporter {
 	time_ago: string
 }
 
-const AVATAR_COLORS = [
-	'bg-rose-500',
-	'bg-pink-500',
-	'bg-fuchsia-500',
-	'bg-purple-500',
-	'bg-violet-500',
-	'bg-indigo-500',
-	'bg-blue-500',
-	'bg-sky-500',
-	'bg-cyan-500',
-	'bg-teal-500',
-	'bg-emerald-500',
-	'bg-green-500',
-	'bg-lime-600',
-	'bg-amber-500',
-	'bg-orange-500',
-	'bg-red-500',
-]
-
-function hashString(str: string): number {
-	let hash = 0
-	for (let i = 0; i < str.length; i++) {
-		hash = str.charCodeAt(i) + ((hash << 5) - hash)
-	}
-	return Math.abs(hash)
-}
-
-function getInitial(name: string): string {
-	return name.charAt(0).toUpperCase()
-}
+/** Softens the top and bottom of a marquee viewport without painting over the page background. */
+const FADE_MASK =
+	'[mask-image:linear-gradient(to_bottom,transparent_0%,black_9%,black_91%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_9%,black_91%,transparent_100%)]'
 
 function SupporterCard({ supporter }: { supporter: Supporter }) {
-	const colorClass = AVATAR_COLORS[hashString(supporter.id) % AVATAR_COLORS.length]
-
 	return (
-		<div className="flex gap-3 rounded-2xl bg-card/45 p-4 shadow-sm transition-colors hover:bg-card/70">
-			<div className={`${colorClass} flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white`}>
-				{getInitial(supporter.name)}
-			</div>
-			<div className="min-w-0">
-				<div className="flex items-baseline gap-2">
-					<p className="font-semibold">{supporter.name}</p>
-					<span className="shrink-0 text-xs text-muted-foreground/60">{supporter.time_ago}</span>
-				</div>
-				<p className="mt-1 text-sm text-muted-foreground">{supporter.message}</p>
-			</div>
-		</div>
+		<figure className="rounded-2xl border border-border bg-card p-5">
+			<blockquote className="line-clamp-4 text-[14px] leading-6 break-words text-foreground/90">{supporter.message}</blockquote>
+			<figcaption className="mt-4 flex items-center gap-2">
+				<Heart className="size-3 shrink-0 text-muted-foreground/70" />
+				<span className="truncate text-[13px] font-medium text-foreground">{supporter.name}</span>
+				<span className="ms-auto shrink-0 text-[12px] text-muted-foreground">{supporter.time_ago}</span>
+			</figcaption>
+		</figure>
 	)
 }
 
@@ -103,25 +71,24 @@ export default function WallOfLove() {
 	const durations = [60, 80, 50]
 
 	return (
-		<section className="m-auto mt-20 w-[95%] [content-visibility:auto] [contain-intrinsic-size:0_700px] lg:w-[1000px]">
-			<h2 className="mb-8 text-center text-2xl font-bold lg:text-3xl">{m['loved-by-thousands']()}</h2>
+		<section className="mt-20 w-full [contain-intrinsic-size:0_700px] [content-visibility:auto] lg:mt-28">
+			<div className="mb-10 flex flex-col items-center gap-4">
+				<span className="flex size-9 items-center justify-center rounded-full text-primary ring-1 ring-border">
+					<Heart className="size-4 fill-rose-500 text-rose-500" />
+				</span>
+				<h2 className="text-center text-[1.5rem] font-semibold tracking-[-0.02em] text-foreground lg:text-[1.875rem]">{m['loved-by-thousands']()}</h2>
+			</div>
 			{/* Mobile: single column vertical marquee */}
-			<div dir="ltr" className="relative h-[450px] overflow-hidden md:hidden">
+			<div dir="ltr" className={`group relative h-[450px] overflow-hidden md:hidden ${FADE_MASK} [&:hover_.animate-marquee-up]:pause`}>
 				<MarqueeColumn supporters={supporters} duration={120} />
-				<div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-background to-transparent" />
-				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-background to-transparent" />
 			</div>
 			{/* Desktop: 3 columns */}
-			<div dir="ltr" className="relative hidden overflow-hidden rounded-[3rem] md:block" style={{ maxHeight: '600px' }}>
+			<div dir="ltr" className={`relative hidden overflow-hidden md:block ${FADE_MASK}`}>
 				<div className="group grid h-[600px] grid-cols-3 gap-4 [&:hover_.animate-marquee-up]:pause">
 					{columns.map((col, i) => (
 						<MarqueeColumn key={i} supporters={col} duration={durations[i]} />
 					))}
 				</div>
-				<div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-background to-transparent" />
-				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent" />
-				<div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
-				<div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
 			</div>
 		</section>
 	)
