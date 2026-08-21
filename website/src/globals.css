@@ -472,27 +472,35 @@
 }
 
 
-/* Hero download pill: solid ink/paper core wrapped in a hairline aurora ring with a soft
-   matching glow — the one magical accent, kept crisp and professional. */
+/* Hero download pill: a white pearl — white fill carrying a soft unicorn wash, ink text,
+   and a gentle matching glow. Premium and quiet, with just a hint of magic. */
 .cta-hero {
 	position: relative;
 	z-index: 0;
+	background: linear-gradient(
+		120deg,
+		color-mix(in srgb, var(--aurora-1) 14%, #ffffff),
+		color-mix(in srgb, var(--aurora-2) 14%, #ffffff),
+		color-mix(in srgb, var(--aurora-3) 12%, #ffffff),
+		color-mix(in srgb, var(--aurora-4) 14%, #ffffff)
+	) !important;
+	color: #1a1c1f !important;
+	border: 1px solid rgb(26 28 31 / 0.08) !important;
 }
-.cta-hero::before,
+.cta-hero:hover {
+	filter: saturate(1.15) brightness(1.02);
+}
 .cta-hero::after {
 	content: '';
 	position: absolute;
 	inset: -2px;
 	border-radius: 9999px;
-	background: linear-gradient(120deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-4), var(--aurora-1));
+	background: linear-gradient(120deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-4));
+	filter: blur(16px);
+	opacity: 0.22;
 	z-index: -1;
-}
-.cta-hero::after {
-	filter: blur(14px);
-	opacity: 0.35;
-	z-index: -2;
 	transition: opacity 0.2s ease-out;
 }
 .cta-hero:hover::after {
-	opacity: 0.55;
+	opacity: 0.4;
 }
