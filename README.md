@@ -29,7 +29,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://thewh1teagle.github.io/vibe/">
-    	<img width=720 src="./design/app-preview.png">
+    	<img width=720 src="./design/app-preview-light.png">
 	</a>
 </p>
 

@@ -504,3 +504,26 @@
 .cta-hero:hover::after {
 	opacity: 0.4;
 }
+
+
+/* App-mock palette follows the site theme (light window in light, dark window in dark). */
+:root {
+	--mock-surface: #ffffff;
+	--mock-sidebar: #f9f9f9;
+	--mock-muted: #f4f4f4;
+	--mock-line: #e6e6e6;
+	--mock-ink: #1a1c1f;
+	--mock-ink-muted: #6e6e6e;
+	--mock-faint: #dcdcdc;
+	--mock-active: #ececec;
+}
+.dark {
+	--mock-surface: #181818;
+	--mock-sidebar: #212121;
+	--mock-muted: #242424;
+	--mock-line: #303030;
+	--mock-ink: #ececec;
+	--mock-ink-muted: #9a9a9a;
+	--mock-faint: #3a3a3a;
+	--mock-active: #2a2a2a;
+}

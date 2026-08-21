@@ -38,14 +38,14 @@ const highlights = [
  * monochrome, like the real idle screen.
  */
 const app = {
-	surface: '#181818',
-	sidebar: '#212121',
-	muted: '#242424',
-	line: '#303030',
-	ink: '#ececec',
-	inkMuted: '#9a9a9a',
-	inkFaint: '#3a3a3a',
-	active: '#2a2a2a',
+	surface: 'var(--mock-surface)',
+	sidebar: 'var(--mock-sidebar)',
+	muted: 'var(--mock-muted)',
+	line: 'var(--mock-line)',
+	ink: 'var(--mock-ink)',
+	inkMuted: 'var(--mock-ink-muted)',
+	inkFaint: 'var(--mock-faint)',
+	active: 'var(--mock-active)',
 }
 
 /** One key of the joined, icon-only source switcher. The active key reads as raised. */
