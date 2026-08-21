@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useSession } from '../session'
 import FileQueue from './file-queue'
+import PlayerBar from './player-bar'
 import TranscriptToolbar from './transcript-toolbar'
 import TranscriptView from './transcript-view'
 
@@ -30,6 +31,7 @@ export default function SessionView() {
 			<div className="flex min-h-0 min-w-0 flex-1 flex-col">
 				<TranscriptToolbar job={selected} query={query} setQuery={setQuery} />
 				<div className="min-h-0 flex-1">{selected && <TranscriptView job={selected} query={query} />}</div>
+				{selected && (selected.status === 'done' || selected.hydrated) && <PlayerBar key={selected.id} job={selected} />}
 			</div>
 		</motion.div>
 	)

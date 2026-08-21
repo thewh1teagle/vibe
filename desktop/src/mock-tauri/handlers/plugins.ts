@@ -197,6 +197,12 @@ const fsHandlers: CommandHandlerMap = {
 		}))
 	},
 	'plugin:fs|mkdir': () => null,
+	'plugin:fs|copy_file': (args) => {
+		const from = toPosixPath(args.fromPath ?? args.from)
+		const to = toPosixPath(args.toPath ?? args.to)
+		virtualFs.set(to, virtualFs.get(from) ?? null)
+		return null
+	},
 	'plugin:fs|remove': (args) => {
 		const path = toPosixPath(args.path)
 		virtualFs.delete(path)

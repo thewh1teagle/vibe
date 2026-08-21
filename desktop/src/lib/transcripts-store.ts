@@ -191,3 +191,29 @@ export async function deleteTranscript(path: string): Promise<boolean> {
 		return false
 	}
 }
+
+/**
+ * Rename a stored transcript: updates the record's `name` and moves the file to a filename
+ * carrying the new name while keeping the original timestamp stamp.
+ * @returns the new entry, or null on failure (never throws).
+ */
+export async function renameTranscript(path: string, newName: string): Promise<TranscriptEntry | null> {
+	try {
+		const record = await readTranscript(path)
+		if (!record) return null
+		const stem = toFileStem(newName)
+		const filename = path.split(/[/\\]/).pop() ?? path
+		const oldStem = filename.slice(0, -TRANSCRIPT_EXTENSION.length)
+		const stampMatch = oldStem.match(stampPattern)
+		const keptStamp = stampMatch ? oldStem.slice(stampMatch.index) : `-${stamp(new Date())}`
+		const folder = path.slice(0, path.length - filename.length - 1) || (await transcriptsFolder())
+		const target = await pathApi.join(folder, `${stem}${keptStamp}${TRANSCRIPT_EXTENSION}`)
+		if (target === path) return { path, name: stem, createdAt: parseStamp(oldStem).createdAt }
+		await fs.writeTextFile(target, JSON.stringify({ ...record, name: stem }, null, '\t'))
+		await fs.remove(path)
+		return { path: target, name: stem, createdAt: parseStamp(`${stem}${keptStamp}`).createdAt }
+	} catch (error) {
+		console.warn('failed to rename transcript:', path, error)
+		return null
+	}
+}

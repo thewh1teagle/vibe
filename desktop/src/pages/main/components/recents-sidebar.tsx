@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import { cn } from '~/lib/style'
-import { deleteTranscript, listTranscripts, readTranscript, TRANSCRIPTS_CHANGED_EVENT, type TranscriptEntry } from '~/lib/transcripts-store'
+import { deleteTranscript, listTranscripts, readTranscript, renameTranscript, TRANSCRIPTS_CHANGED_EVENT, type TranscriptEntry } from '~/lib/transcripts-store'
 import { useSession } from '../session'
 
 /** "just now" / "14m ago" / "3h ago" / "2d ago" / "Aug 19" / "Aug 19, 2024" */
@@ -37,15 +37,19 @@ function RecentRow({
 	disabled,
 	onOpen,
 	onDeleted,
+	onRenamed,
 }: {
 	entry: TranscriptEntry
 	active: boolean
 	disabled: boolean
 	onOpen: () => void
 	onDeleted: () => void
+	onRenamed: () => void
 }) {
 	const { queue } = useSession()
 	const [menu, setMenu] = useState<RowMenuState>({ sourcePath: null, sourceExists: false })
+	const [renaming, setRenaming] = useState(false)
+	const [draftName, setDraftName] = useState(entry.name)
 
 	// The list is built from filenames only, so the original media path is read lazily — the first
 	// time the row's menu opens — to decide whether "Re-transcribe" can do anything.
@@ -87,6 +91,33 @@ function RecentRow({
 		queue.enqueue([{ name: entry.name, path: menu.sourcePath }])
 	}
 
+	async function commitRename() {
+		const next = draftName.trim()
+		setRenaming(false)
+		if (!next || next === entry.name) return
+		if (await renameTranscript(entry.path, next)) onRenamed()
+	}
+
+	if (renaming) {
+		return (
+			<div className="flex items-center rounded-xl bg-muted px-2 py-1.5">
+				<input
+					// eslint-disable-next-line jsx-a11y/no-autofocus
+					autoFocus
+					value={draftName}
+					onChange={(event) => setDraftName(event.target.value)}
+					onKeyDown={(event) => {
+						if (event.key === 'Enter') void commitRename()
+						if (event.key === 'Escape') setRenaming(false)
+					}}
+					onBlur={() => void commitRename()}
+					aria-label="Transcript name"
+					className="h-7 w-full min-w-0 rounded-lg border border-ring/40 bg-background px-2 text-[13px] text-foreground outline-none"
+				/>
+			</div>
+		)
+	}
+
 	return (
 		<div className={cn('group relative flex items-center rounded-xl transition-colors duration-150', active ? 'bg-muted' : 'hover:bg-muted/60')}>
 			<button
@@ -117,6 +148,13 @@ function RecentRow({
 				<DropdownMenuContent align="end" className="w-48">
 					<DropdownMenuItem disabled={disabled || !menu.sourceExists} onSelect={retranscribe}>
 						Re-transcribe
+					</DropdownMenuItem>
+					<DropdownMenuItem
+						onSelect={() => {
+							setDraftName(entry.name)
+							setRenaming(true)
+						}}>
+						Rename
 					</DropdownMenuItem>
 					<DropdownMenuItem onSelect={() => void reveal()}>{m.showInFolder()}</DropdownMenuItem>
 					<DropdownMenuSeparator />
@@ -198,6 +236,7 @@ export default function RecentsSidebar() {
 							disabled={queue.running}
 							onOpen={() => void open(entry)}
 							onDeleted={refresh}
+							onRenamed={refresh}
 						/>
 					))
 				)}
