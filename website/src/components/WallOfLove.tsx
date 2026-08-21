@@ -18,7 +18,7 @@ function SupporterCard({ supporter }: { supporter: Supporter }) {
 		<figure className="rounded-2xl border border-border bg-card p-5">
 			<blockquote className="line-clamp-4 text-[14px] leading-6 break-words text-foreground/90">{supporter.message}</blockquote>
 			<figcaption className="mt-4 flex items-center gap-2">
-				<Heart className="size-3 shrink-0 fill-rose-500 text-rose-500" />
+				<Heart className="size-3 shrink-0 text-muted-foreground/70" />
 				<span className="truncate text-[13px] font-medium text-foreground">{supporter.name}</span>
 				<span className="ms-auto shrink-0 text-[12px] text-muted-foreground">{supporter.time_ago}</span>
 			</figcaption>
