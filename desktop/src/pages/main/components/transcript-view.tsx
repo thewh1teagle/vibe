@@ -113,10 +113,15 @@ function SegmentBlock({ segment, index, query, animate, editable, editing, onSta
 			initial={animate ? { opacity: 0, y: 4 } : false}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.15, ease: 'easeOut' }}
-			className={cn('relative', textClass)}>
+			// The whole line is the edit target — clicking near the text (not just on it) starts editing.
+			onClick={editable && !editing ? beginEdit : undefined}
+			className={cn('relative', textClass, editable && !editing && 'cursor-text rounded-sm transition-colors duration-150 hover:bg-muted/40')}>
 			<button
 				type="button"
-				onClick={seek}
+				onClick={(event) => {
+					event.stopPropagation()
+					seek()
+				}}
 				aria-label={`Play from ${formatTimestamp(segment.start, false, '', false)}`}
 				className="me-3 cursor-pointer font-mono text-[11px] tracking-tight text-muted-foreground tabular-nums underline-offset-4 transition-colors duration-150 select-none hover:text-foreground hover:underline focus-visible:rounded-sm focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
 				{formatTimestamp(segment.start, false, '', false)}
@@ -170,7 +175,7 @@ function SegmentBlock({ segment, index, query, animate, editable, editing, onSta
 							beginEdit()
 						}
 					}}
-					className="cursor-text rounded-sm transition-colors duration-150 hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
+					className="cursor-text rounded-sm focus-visible:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
 					<Highlight text={text} query={query} />
 				</span>
 			) : (
