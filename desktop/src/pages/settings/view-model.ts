@@ -14,6 +14,7 @@ import { NamedPath } from '~/lib/types'
 import { ls } from '~/lib/fs'
 import { getIssueUrl, resetApp } from '~/lib/app'
 import { usePreferenceProvider } from '~/providers/preference'
+import { useModelGates } from '~/providers/model-gates'
 import { useToastProvider } from '~/providers/toast'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
@@ -114,6 +115,7 @@ export function viewModel() {
 	const isMacOS = platform() === 'macos'
 	const navigate = useNavigate()
 	const progressToast = useToastProvider()
+	const modelGates = useModelGates()
 	const [llm, setLlm] = useState<Llm | null>(null)
 	const [llmError, setLlmError] = useState<string | null>(null)
 	const [llmErrorCopied, setLlmErrorCopied] = useState(false)
@@ -161,72 +163,6 @@ export function viewModel() {
 			setLlmErrorCopied(false)
 			llmErrorCopyTimer.current = null
 		}, 2000)
-	}
-
-	async function toggleDiarization(checked: boolean) {
-		if (!checked) {
-			preference.setDiarizeEnabled(false)
-			return
-		}
-		try {
-			const modelsFolder = await invoke<string>('get_models_folder')
-			const modelPath = await join(modelsFolder, config.diarizeModelFilename)
-			const exists = await fs.exists(modelPath)
-			if (exists) {
-				preference.setDiarizeEnabled(true)
-				return
-			}
-			const confirmed = await ask(m.downloadDiarizeModel(), { title: m.diarization(), kind: 'info' })
-			if (confirmed) {
-				progressToast.setMessage(m.downloadingDiarizeModel() as string)
-				progressToast.setOpen(true)
-				progressToast.setProgress(0)
-				try {
-					await invoke('download_model', { url: config.diarizeModelUrl, path: modelPath })
-					preference.setDiarizeEnabled(true)
-					toast.success(m.downloadComplete())
-				} finally {
-					progressToast.setOpen(false)
-					progressToast.setProgress(null)
-				}
-			}
-		} catch (e) {
-			console.error('diarization setup failed:', e)
-			toast.error(String(e))
-		}
-	}
-
-	async function handleStableTimestampsToggle(checked: boolean) {
-		if (!checked) {
-			preference.setStableTimestampsEnabled(false)
-			return
-		}
-		try {
-			const modelsFolder = await invoke<string>('get_models_folder')
-			const modelPath = await join(modelsFolder, config.vadModelFilename)
-			const exists = await fs.exists(modelPath)
-			if (exists) {
-				preference.setStableTimestampsEnabled(true)
-			} else {
-				const confirmed = await ask(m.stableTimestampsConfirm(), { title: m.stableTimestamps(), kind: 'info' })
-				if (confirmed) {
-					progressToast.setMessage(m.downloadingVadModel())
-					progressToast.setOpen(true)
-					progressToast.setProgress(0)
-					try {
-						await invoke('download_model', { url: config.vadModelUrl, path: modelPath })
-						preference.setStableTimestampsEnabled(true)
-						toast.success(m.downloadComplete())
-					} finally {
-						progressToast.setOpen(false)
-						progressToast.setProgress(null)
-					}
-				}
-			}
-		} catch (e) {
-			console.error('stable timestamps setup failed:', e)
-			toast.error(String(e))
-		}
 	}
 
 	async function askAndReset() {
@@ -502,8 +438,8 @@ export function viewModel() {
 		copyLlmError,
 		onEnableLlm,
 		validateLlmPrompt,
-		toggleDiarization,
-		handleStableTimestampsToggle,
+		toggleDiarization: modelGates.toggleDiarization,
+		handleStableTimestampsToggle: modelGates.toggleStableTimestamps,
 		parseIntOr,
 	}
 }

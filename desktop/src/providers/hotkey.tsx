@@ -26,6 +26,8 @@ interface HotkeyContextType {
 	setHotkeyEnabled: (enabled: boolean) => void
 	hotkeyShortcut: string
 	setHotkeyShortcut: (shortcut: string) => void
+	/** While true the shortcut is unregistered, so recording a new one cannot trigger dictation. */
+	setHotkeyCapturing: (capturing: boolean) => void
 	hotkeyOutputMode: HotkeyOutputMode
 	setHotkeyOutputMode: (mode: HotkeyOutputMode) => void
 	hotkeyActivationMode: HotkeyActivationMode
@@ -73,6 +75,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
 	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
+	const [hotkeyCapturing, setHotkeyCapturingState] = useState(false)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
 	const [hotkeyActivationMode, setHotkeyActivationMode] = useLocalStorage<HotkeyActivationMode>('prefs_hotkey_activation_mode', 'push-to-talk')
 	const shortcutOperationRef = useRef<Promise<void>>(Promise.resolve())
@@ -262,7 +265,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				registeredShortcutRef.current = null
 			}
 
-			if (!hotkeyEnabled || !hotkeyShortcut || cancelled) return
+			if (!hotkeyEnabled || hotkeyCapturing || !hotkeyShortcut || cancelled) return
 
 			try {
 				await register(hotkeyShortcut, (event) => {
@@ -307,13 +310,35 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				}
 			})
 		}
-	}, [hotkeyEnabled, hotkeyShortcut, hotkeyActivationMode, handleHotkeyDown, handleHotkeyUp])
+	}, [hotkeyEnabled, hotkeyCapturing, hotkeyShortcut, hotkeyActivationMode, handleHotkeyDown, handleHotkeyUp])
+
+	/**
+	 * A registered global shortcut is swallowed system-wide — the settings recorder would never see
+	 * the very combo it is trying to replace. Release it the moment capture starts instead of waiting
+	 * for the registration effect to catch up.
+	 */
+	const setHotkeyCapturing = useCallback((capturing: boolean) => {
+		setHotkeyCapturingState(capturing)
+		if (!capturing) return
+		shortcutOperationRef.current = shortcutOperationRef.current.then(async () => {
+			const shortcut = registeredShortcutRef.current
+			if (!shortcut) return
+			try {
+				if (await isRegistered(shortcut)) await unregister(shortcut)
+			} catch (error) {
+				console.error('Failed to release shortcut for capture:', error)
+			} finally {
+				registeredShortcutRef.current = null
+			}
+		})
+	}, [])
 
 	const value: HotkeyContextType = {
 		hotkeyEnabled,
 		setHotkeyEnabled,
 		hotkeyShortcut,
 		setHotkeyShortcut,
+		setHotkeyCapturing,
 		hotkeyOutputMode,
 		setHotkeyOutputMode,
 		hotkeyActivationMode,

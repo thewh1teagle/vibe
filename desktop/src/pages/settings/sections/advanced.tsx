@@ -1,4 +1,6 @@
+import { useContext } from 'react'
 import { m } from '~/paraglide/messages.js'
+import { UpdaterContext, devToolsEnabled } from '~/providers/updater'
 import { Switch } from '~/components/ui/switch'
 import { Input } from '~/components/ui/input'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
@@ -7,8 +9,18 @@ import { ReactComponent as ResetIcon } from '~/icons/reset.svg'
 import { ActionRow, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 
 export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
+	const { fakeUpdate, setFakeUpdate } = useContext(UpdaterContext)
+
 	return (
 		<div className="space-y-6">
+			{/* Dev builds only: flips the update affordances on without waiting for a real release. */}
+			{devToolsEnabled && (
+				<SettingsGroup title={m.developer()}>
+					<SettingsRow label={m.fakeUpdateAvailable()} description={m.fakeUpdateAvailableInfo()}>
+						<Switch checked={fakeUpdate} onCheckedChange={setFakeUpdate} />
+					</SettingsRow>
+				</SettingsGroup>
+			)}
 			<SettingsGroup title={m.ytdlpOptions()}>
 				<SettingsRow label={m.checkYtdlpUpdates()} description={m.ytdlpOptionsInfo()}>
 					<Switch checked={vm.preference.shouldCheckYtDlpVersion} onCheckedChange={vm.preference.setShouldCheckYtDlpVersion} />

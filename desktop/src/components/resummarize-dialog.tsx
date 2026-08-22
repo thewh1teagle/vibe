@@ -10,9 +10,12 @@ import { promptTemplates, type PromptTemplate } from '~/lib/prompt-templates'
 interface ResummarizeDialogProps {
 	onSubmit: (prompt: string) => void
 	loading: boolean
+	/** Controlled mode: opened from somewhere else (a menu item), so no trigger is rendered. */
+	open?: boolean
+	onOpenChange?: (open: boolean) => void
 }
 
-export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDialogProps) {
+export default function ResummarizeDialog({ onSubmit, loading, open: openProp, onOpenChange }: ResummarizeDialogProps) {
 	const templateLabels = {
 		'prompt-template-meeting-notes': m.promptTemplateMeetingNotes,
 		'prompt-template-tldr': m.promptTemplateTldr,
@@ -22,7 +25,10 @@ export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDial
 	const lang = new Intl.DisplayNames([getLocale()], { type: 'language' }).of(getLocale()) ?? 'English'
 	const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate>(promptTemplates[0])
 	const [prompt, setPrompt] = useState(() => promptTemplates[0].prompt(lang))
-	const [open, setOpen] = useState(false)
+	const [openState, setOpenState] = useState(false)
+	const controlled = openProp !== undefined
+	const open = controlled ? openProp : openState
+	const setOpen = (next: boolean) => (controlled ? onOpenChange?.(next) : setOpenState(next))
 
 	const isValid = prompt.includes('%s')
 
@@ -39,11 +45,13 @@ export default function ResummarizeDialog({ onSubmit, loading }: ResummarizeDial
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" disabled={loading}>
-					<Sparkles className="h-4 w-4" />
-				</Button>
-			</DialogTrigger>
+			{!controlled && (
+				<DialogTrigger asChild>
+					<Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" disabled={loading}>
+						<Sparkles className="h-4 w-4" />
+					</Button>
+				</DialogTrigger>
+			)}
 			<DialogContent className="max-w-lg rounded-2xl border-border/60 bg-card/95 p-6 shadow-xl">
 				<DialogHeader>
 					<DialogTitle className="text-lg font-semibold">{m.resummarize()}</DialogTitle>

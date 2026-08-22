@@ -18,6 +18,20 @@ import type { Job } from '../hooks/use-transcribe-queue'
  */
 export const PLAYER_SEEK_EVENT = 'vibe:player-seek'
 
+/**
+ * Fired on `window` with `{ seconds, playing }` while the media plays (and on every seek, play and
+ * pause) so the transcript can follow along without owning the audio element.
+ */
+export const PLAYER_TIME_EVENT = 'vibe:player-time'
+
+/** Fired on `window` to play/pause from elsewhere — the transcript's spacebar shortcut. */
+export const PLAYER_TOGGLE_EVENT = 'vibe:player-toggle'
+
+export interface PlayerTimeDetail {
+	seconds: number
+	playing: boolean
+}
+
 /** mm:ss, or --:-- when the media has no usable duration (streams, failed metadata). */
 function formatTime(seconds: number) {
 	if (!Number.isFinite(seconds) || seconds < 0) return '--:--'
@@ -48,6 +62,11 @@ export default function PlayerBar({ job }: { job: Job }) {
 	const sourcePath = job.path
 	const seekable = Number.isFinite(duration) && duration > 0
 
+	// The transcript highlights the line being spoken; it reads the position from these events.
+	const broadcast = useCallback((seconds: number, isPlaying: boolean) => {
+		window.dispatchEvent(new CustomEvent<PlayerTimeDetail>(PLAYER_TIME_EVENT, { detail: { seconds, playing: isPlaying } }))
+	}, [])
+
 	// One audio element per source: switching files stops playback and swaps the stream.
 	useEffect(() => {
 		const audio = new Audio(convertFileSrc(sourcePath))
@@ -56,14 +75,25 @@ export default function PlayerBar({ job }: { job: Job }) {
 		setPlaying(false)
 		setCurrentTime(0)
 		setDuration(Number.NaN)
+		broadcast(0, false)
 
-		const onTime = () => setCurrentTime(audio.currentTime)
+		const onTime = () => {
+			setCurrentTime(audio.currentTime)
+			broadcast(audio.currentTime, !audio.paused)
+		}
 		const onMetadata = () => setDuration(audio.duration)
-		const onPlay = () => setPlaying(true)
-		const onPause = () => setPlaying(false)
+		const onPlay = () => {
+			setPlaying(true)
+			broadcast(audio.currentTime, true)
+		}
+		const onPause = () => {
+			setPlaying(false)
+			broadcast(audio.currentTime, false)
+		}
 		const onEnded = () => {
 			setPlaying(false)
 			setCurrentTime(0)
+			broadcast(0, false)
 		}
 
 		audio.addEventListener('timeupdate', onTime)
@@ -84,7 +114,7 @@ export default function PlayerBar({ job }: { job: Job }) {
 			audio.src = ''
 			if (audioRef.current === audio) audioRef.current = null
 		}
-	}, [sourcePath])
+	}, [broadcast, sourcePath])
 
 	// `timeupdate` only fires ~4x/second which makes the fill step visibly; while playing, the
 	// position is sampled every animation frame instead so the bar glides.
@@ -93,7 +123,10 @@ export default function PlayerBar({ job }: { job: Job }) {
 		let frame = 0
 		const tick = () => {
 			const audio = audioRef.current
-			if (audio) setCurrentTime(audio.currentTime)
+			if (audio) {
+				setCurrentTime(audio.currentTime)
+				broadcast(audio.currentTime, true)
+			}
 			frame = requestAnimationFrame(tick)
 		}
 		frame = requestAnimationFrame(tick)
@@ -114,8 +147,9 @@ export default function PlayerBar({ job }: { job: Job }) {
 			const next = Math.min(Math.max(seconds, 0), duration)
 			audio.currentTime = next
 			setCurrentTime(next)
+			broadcast(next, !audio.paused)
 		},
-		[duration, seekable],
+		[broadcast, duration, seekable],
 	)
 
 	// Seek requests from elsewhere in the window (transcript timestamps). Read straight off the
@@ -134,11 +168,16 @@ export default function PlayerBar({ job }: { job: Job }) {
 				return
 			}
 			setCurrentTime(next)
+			broadcast(next, true)
 			if (audio.paused) void audio.play().catch(() => setPlaying(false))
 		}
 		window.addEventListener(PLAYER_SEEK_EVENT, onSeekRequest)
-		return () => window.removeEventListener(PLAYER_SEEK_EVENT, onSeekRequest)
-	}, [])
+		window.addEventListener(PLAYER_TOGGLE_EVENT, toggle)
+		return () => {
+			window.removeEventListener(PLAYER_SEEK_EVENT, onSeekRequest)
+			window.removeEventListener(PLAYER_TOGGLE_EVENT, toggle)
+		}
+	}, [broadcast, toggle])
 
 	const seekToClientX = useCallback(
 		(clientX: number) => {
@@ -156,7 +195,7 @@ export default function PlayerBar({ job }: { job: Job }) {
 		try {
 			await invoke('open_path', { path: dirname(sourcePath) })
 		} catch {
-			toast.error('Could not open the containing folder', { position: 'bottom-center' })
+			toast.error(m.couldNotOpenFolder(), { position: 'bottom-center' })
 		}
 	}
 
@@ -183,7 +222,7 @@ export default function PlayerBar({ job }: { job: Job }) {
 				action: { label: m.findHere(), onClick: () => void invoke('open_path', { path: dirname(target) }) },
 			})
 		} catch {
-			toast.error('Saving a copy of the audio is not available here', { position: 'bottom-center' })
+			toast.error(m.audioCopyUnavailable(), { position: 'bottom-center' })
 		}
 	}
 
@@ -195,26 +234,27 @@ export default function PlayerBar({ job }: { job: Job }) {
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.2, ease: 'easeOut' }}
 			className="sticky bottom-0 z-10 flex h-16 shrink-0 items-center gap-4 border-t border-border bg-background/85 px-4 backdrop-blur-md">
-			<div className="hidden min-w-0 basis-[200px] flex-col justify-center sm:flex">
+			<div className="hidden min-w-0 basis-[150px] flex-col justify-center sm:flex">
 				<div className="truncate text-[13px] font-medium text-foreground">{job.name}</div>
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<button
 							type="button"
 							onClick={() => void revealInFolder()}
-							className="truncate text-start text-[12px] text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
+							className="cursor-pointer truncate text-start text-[12px] text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
 							{sourcePath}
 						</button>
 					</TooltipTrigger>
-					<TooltipContent side="top">Show in folder</TooltipContent>
+					<TooltipContent side="top">{m.showInFolder()}</TooltipContent>
 				</Tooltip>
 			</div>
 
-			<div className="flex min-w-0 flex-1 items-center gap-3">
+			{/* Transport controls read left-to-right in every locale, like the timeline they drive. */}
+			<div dir="ltr" className="flex min-w-0 flex-1 items-center gap-3">
 				<Button
 					size="icon"
 					onClick={toggle}
-					aria-label={playing ? 'Pause' : 'Play'}
+					aria-label={playing ? m.pause() : m.play()}
 					className="h-9 w-9 shrink-0 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
 					{playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
 				</Button>
@@ -225,7 +265,7 @@ export default function PlayerBar({ job }: { job: Job }) {
 					ref={trackRef}
 					role="slider"
 					tabIndex={seekable ? 0 : -1}
-					aria-label="Seek"
+					aria-label={m.seek()}
 					aria-valuemin={0}
 					aria-valuemax={seekable ? Math.floor(duration) : 0}
 					aria-valuenow={Math.floor(currentTime)}

@@ -62,13 +62,13 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 					<Textarea
 						value={vm.preference.modelOptions?.init_prompt}
 						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, init_prompt: e.target.value.slice(0, 1024) })}
-						placeholder="Names, jargon or spellings you expect in the audio — for example: Vibe, Tauri, Whisper"
+						placeholder={m.promptPlaceholder()}
 						className={textareaClass}
 					/>
 				</SettingsField>
 			</SettingsGroup>
 
-			<SettingsGroup title="Decoding">
+			<SettingsGroup title={m.decoding()}>
 				<SettingsRow label={m.samplingStrategy()} description={m.samplingStrategyInfo()}>
 					<Select
 						value={vm.preference.modelOptions.sampling_strategy}

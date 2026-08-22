@@ -471,7 +471,6 @@
 	}
 }
 
-
 /* Hero download pill: a white pearl — white fill carrying a soft unicorn wash, ink text,
    and a gentle matching glow. Premium and quiet, with just a hint of magic. */
 .cta-hero {
@@ -505,7 +504,6 @@
 	opacity: 0.4;
 }
 
-
 /* App-mock palette follows the site theme (light window in light, dark window in dark). */
 :root {
 	--mock-surface: #ffffff;
@@ -516,6 +514,8 @@
 	--mock-ink-muted: #6e6e6e;
 	--mock-faint: #dcdcdc;
 	--mock-active: #ececec;
+	--mock-accent: #2f6df6;
+	--mock-accent-ink: #ffffff;
 }
 .dark {
 	--mock-surface: #181818;
@@ -526,4 +526,6 @@
 	--mock-ink-muted: #9a9a9a;
 	--mock-faint: #3a3a3a;
 	--mock-active: #2a2a2a;
+	--mock-accent: #4c8bff;
+	--mock-accent-ink: #0d1117;
 }

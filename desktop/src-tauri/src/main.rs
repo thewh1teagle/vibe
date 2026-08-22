@@ -88,6 +88,7 @@ async fn main() -> Result<()> {
             cmd::app::get_cargo_features,
             cmd::transcribe::transcribe,
             cmd::files::glob_files,
+            cmd::files::pick_media_paths,
             cmd::download::download_model,
             cmd::sona_cmd::load_model,
             cmd::sona_cmd::get_gpu_devices,
