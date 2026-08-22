@@ -5,13 +5,29 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 		<title>Vibe Phone</title>
 		<link rel="manifest" href="/manifest.webmanifest" />
+
+		<!--
+			Browser chrome follows the OS theme, matching the tokens the app itself
+			renders with: `--background` is #ffffff in light and #181818 in dark
+			(desktop/src/globals.css). `color-scheme` keeps form controls and the
+			scrollbar in the same theme.
+		-->
+		<meta name="color-scheme" content="light dark" />
 		<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#181818" media="(prefers-color-scheme: dark)" />
+
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-title" content="Vibe Phone" />
+		<meta name="apple-mobile-web-app-title" content="Vibe" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-		<link rel="apple-touch-icon" href="/icons/icon-192.png" />
-		<link rel="icon" type="image/png" href="/icons/icon-192.png" />
+
+		<!--
+			iOS ignores the manifest when adding to the home screen and reads this
+			tag instead, so it needs its own opaque 180x180 render — a transparent
+			PNG would be composited onto black.
+		-->
+		<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
+		<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
 	</head>
 
 	<body>

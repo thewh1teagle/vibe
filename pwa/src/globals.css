@@ -1,3 +1,7 @@
+/* Inter, self-hosted and bundled — the same variable face the desktop app uses
+   (desktop/src/globals.css). Loaded from node_modules so the phone never
+   depends on a font CDN it may not reach. */
+@import '@fontsource-variable/inter';
 @import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
