@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
-import { Input } from '~/components/ui/input'
+import ShortcutRecorder from '~/components/shortcut-recorder'
 import { Switch } from '~/components/ui/switch'
-import { useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
-import { SettingsGroup, SettingsRow, rowControlClass } from './shared'
+import { DEFAULT_HOTKEY_SHORTCUT, useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
+import { SettingsGroup, SettingsRow } from './shared'
 import { getDictationIndicatorEnabled, setDictationIndicatorEnabled } from '~/lib/dictation-indicator'
 
 function SegmentedControl<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
@@ -39,7 +39,6 @@ export function DictationSection() {
 			console.error(error)
 		}
 	}
-	const isMac = navigator.platform.toUpperCase().includes('MAC')
 	const activationDescriptions = {
 		'push-to-talk': m.hotkeyActivationPushToTalkDescription,
 		toggle: m.hotkeyActivationToggleDescription,
@@ -52,18 +51,6 @@ export function DictationSection() {
 		{ value: 'clipboard', label: m.hotkeyOutputClipboard() },
 		{ value: 'type', label: m.hotkeyOutputType() },
 	]
-	const shortcutKeys = useMemo(() => {
-		const keyMap: Record<string, string> = {
-			CmdOrCtrl: isMac ? '⌘' : 'Ctrl',
-			Cmd: '⌘',
-			Ctrl: isMac ? '⌃' : 'Ctrl',
-			Shift: isMac ? '⇧' : 'Shift',
-			Alt: isMac ? '⌥' : 'Alt',
-			Option: '⌥',
-		}
-		return hotkey.hotkeyShortcut.split('+').map((key) => keyMap[key] ?? key)
-	}, [hotkey.hotkeyShortcut, isMac])
-
 	return (
 		<div className="space-y-6">
 			<SettingsGroup description={m.globalDictationPromo()}>
@@ -81,24 +68,12 @@ export function DictationSection() {
 							<SegmentedControl value={hotkey.hotkeyActivationMode} options={activationOptions} onChange={hotkey.setHotkeyActivationMode} />
 						</SettingsRow>
 
-						<SettingsRow
-							label={m.globalHotkeyShortcut()}
-							description={
-								<span className="flex items-center gap-1">
-									{shortcutKeys.map((key, i) => (
-										<kbd
-											key={i}
-											className="inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-border/80 bg-muted/50 px-1 font-mono text-[10px] font-medium text-foreground/80">
-											{key}
-										</kbd>
-									))}
-								</span>
-							}>
-							<Input
-								type="text"
+						<SettingsRow label={m.globalHotkeyShortcut()} description={m.globalHotkeyDescription()}>
+							<ShortcutRecorder
 								value={hotkey.hotkeyShortcut}
-								onChange={(e) => hotkey.setHotkeyShortcut(e.target.value)}
-								className={`w-48 ${rowControlClass}`}
+								onChange={hotkey.setHotkeyShortcut}
+								defaultValue={DEFAULT_HOTKEY_SHORTCUT}
+								onCapturingChange={hotkey.setHotkeyCapturing}
 							/>
 						</SettingsRow>
 

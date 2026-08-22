@@ -136,6 +136,8 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 
 	// --- yt-dlp -----------------------------------------------------------------
 
+	pick_media_paths: async () => null,
+
 	download_audio: async (args) => {
 		const outPath = String(args?.outPath ?? `${APP_LOCAL_DATA}/tmp.m4a`)
 		let cancelled = false

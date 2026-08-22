@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
+import { m } from '~/paraglide/messages.js'
 import Layout, { SIDEBAR_STORAGE_KEY, TOGGLE_SIDEBAR_EVENT } from '~/components/layout'
 import IdleHero from './components/idle-hero'
 import PlayerBar from './components/player-bar'
@@ -11,9 +12,10 @@ import { SessionProvider, useSession } from './session'
 function useSidebarVisible() {
 	const [visible, setVisible] = useState(() => {
 		try {
-			return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'expanded'
+			// Open by default: only an explicit collapse keeps it shut.
+			return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) !== 'collapsed'
 		} catch {
-			return false
+			return true
 		}
 	})
 
@@ -71,7 +73,7 @@ function MainContent() {
 						transition={{ duration: 0.15, ease: 'easeOut' }}
 						className="pointer-events-none absolute inset-3 rounded-[1.25rem] border-2 border-dashed border-ring/40 bg-background/60 backdrop-blur-[2px]">
 						<div className="flex h-full items-center justify-center">
-							<p className="text-sm font-medium text-muted-foreground">Drop to add to the queue</p>
+							<p className="text-sm font-medium text-muted-foreground">{m.dropToAddToQueue()}</p>
 						</div>
 					</motion.div>
 				)}

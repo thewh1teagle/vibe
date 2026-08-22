@@ -15,7 +15,7 @@ export function PrivacySection({ vm }: { vm: SettingsViewModel }) {
 					clampDescription={false}>
 					<Switch checked={vm.preference.analyticsEnabled} onCheckedChange={vm.preference.setAnalyticsEnabled} />
 				</SettingsRow>
-				<SettingsRow label="Save transcripts to Documents" description="Keep a local copy of every transcript so you can reopen it later">
+				<SettingsRow label={m.saveTranscriptsToDocuments()} description={m.saveTranscriptsToDocumentsInfo()}>
 					<Switch checked={vm.preference.saveTranscripts} onCheckedChange={vm.preference.setSaveTranscripts} />
 				</SettingsRow>
 			</SettingsGroup>

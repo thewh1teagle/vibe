@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { FolderOpen, Globe, Languages, Layers, Link2, Mic, Plus, Settings, ShieldCheck, SlidersHorizontal, Upload } from 'lucide-react'
+import { Copy, Download, Languages, Layers, Pause, Plus, Search, Settings, ShieldCheck, SlidersHorizontal } from 'lucide-react'
 import { m } from '../paraglide/messages.js'
 import Cta from '~/components/Cta'
 import WallOfLove from '~/components/WallOfLove'
@@ -46,19 +46,36 @@ const app = {
 	inkMuted: 'var(--mock-ink-muted)',
 	inkFaint: 'var(--mock-faint)',
 	active: 'var(--mock-active)',
+	accent: 'var(--mock-accent)',
+	accentInk: 'var(--mock-accent-ink)',
 }
 
-/** One key of the joined, icon-only source switcher. The active key reads as raised. */
-function MockSegment({ active, children }: { active?: boolean; children: React.ReactNode }) {
+/** One transcript line: the timestamp gutter plus the text. The spoken line carries a soft wash. */
+function MockLine({ time, text, active }: { time: string; text: string; active?: boolean }) {
 	return (
-		<span
-			className="inline-flex h-[1.75rem] w-[2.5rem] items-center justify-center rounded-full"
-			style={active ? { background: app.surface, color: app.ink, boxShadow: '0 1px 2px rgb(0 0 0 / 0.08)' } : { color: app.inkMuted }}>
-			{children}
+		<span className="relative flex gap-2.5 rounded-[0.625rem] px-2 py-1.5">
+			{active && (
+				<span
+					className="pointer-events-none absolute inset-0 rounded-[0.625rem]"
+					style={{ background: `linear-gradient(90deg, ${app.active} 0%, transparent 85%)` }}
+				/>
+			)}
+			<span
+				className="relative mt-[0.125rem] shrink-0 text-[0.5625rem] tabular-nums"
+				style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', color: active ? app.accent : app.inkMuted }}>
+				{time}
+			</span>
+			<span className="relative text-[0.6875rem] leading-[1.6]" style={{ color: app.ink }}>
+				{text}
+			</span>
 		</span>
 	)
 }
 
+/**
+ * Code-drawn mock of the app's transcript screen — no bitmap, so it stays crisp at any density and
+ * follows the page theme through the `--mock-*` tokens.
+ */
 function AppMock() {
 	return (
 		<div
@@ -85,14 +102,23 @@ function AppMock() {
 					</span>
 				</div>
 
+				<div className="px-3 pt-1.5">
+					<span
+						className="flex items-center gap-1.5 rounded-full border px-2.5 py-[0.25rem] text-[0.5625rem]"
+						style={{ borderColor: app.line, color: app.inkMuted }}>
+						<Search className="size-[0.625rem]" strokeWidth={1.75} />
+						Search recents
+					</span>
+				</div>
+
 				<p className="px-3 pt-3 pb-1.5 text-[0.5625rem] font-medium tracking-[0.08em] uppercase" style={{ color: app.inkMuted }}>
 					Recents
 				</p>
 
 				<div className="flex flex-col gap-1 px-2 pb-3">
 					{[
-						{ name: 'team-standup', time: 'just now', active: true },
-						{ name: 'podcast-episode', time: '2h ago', active: false },
+						{ name: 'podcast-episode', time: 'just now', active: true },
+						{ name: 'team-standup', time: '2h ago', active: false },
 						{ name: 'interview', time: 'yesterday', active: false },
 					].map((row) => (
 						<span
@@ -117,51 +143,61 @@ function AppMock() {
 				</div>
 			</div>
 
-			{/* Main pane — the idle screen: switcher, drop zone, quiet row. */}
-			<div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-4 px-4 py-7 sm:px-12 sm:py-10">
-				{/* Joined, icon-only source switcher */}
-				<div className="inline-flex items-center gap-1 rounded-full border p-[0.1875rem]" style={{ borderColor: app.line, background: app.muted }}>
-					<MockSegment active>
-						<FolderOpen className="size-[0.8125rem]" strokeWidth={1.75} />
-					</MockSegment>
-					<MockSegment>
-						<Mic className="size-[0.8125rem]" strokeWidth={1.75} />
-					</MockSegment>
-					<MockSegment>
-						<Link2 className="size-[0.8125rem]" strokeWidth={1.75} />
-					</MockSegment>
+			{/* Main pane — the transcript: toolbar, lines, player. */}
+			<div className="flex min-w-0 flex-1 flex-col">
+				<div className="flex h-[2.25rem] shrink-0 items-center gap-3 border-b px-3" style={{ borderColor: app.line }}>
+					<span className="flex items-center gap-1.5 text-[0.625rem] font-medium">
+						<Copy className="size-[0.6875rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+						Copy
+					</span>
+					<span className="flex items-center gap-1.5 text-[0.625rem] font-medium">
+						<Download className="size-[0.6875rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+						Save
+					</span>
+					<Search className="size-[0.6875rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+					<SlidersHorizontal className="size-[0.6875rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+					<span className="ms-auto flex items-center gap-1.5 text-[0.625rem] font-medium">
+						<Plus className="size-[0.6875rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
+						New
+					</span>
 				</div>
 
-				{/* Quiet drop zone */}
-				<div
-					className="flex w-full flex-col items-center gap-2.5 rounded-[1.125rem] border-2 border-dashed px-6 py-8 text-center sm:py-11"
-					style={{ borderColor: app.line, background: app.muted }}>
-					<span
-						className="flex size-[2rem] items-center justify-center rounded-full"
-						style={{ background: app.surface, boxShadow: '0 1px 2px rgb(0 0 0 / 0.06)' }}>
-						<Upload className="size-[0.875rem]" strokeWidth={1.75} />
-					</span>
-					<span className="flex flex-col gap-0.5">
-						<span className="text-[0.8125rem] font-semibold tracking-[-0.02em]">Drop audio, video or a folder here</span>
-						<span className="text-[0.625rem]" style={{ color: app.inkMuted }}>
-							or click to browse your files
+				<div className="flex min-h-0 flex-1 flex-col gap-1 px-4 py-4 sm:px-8 sm:py-6">
+					<p className="pb-2 text-[0.5625rem] font-medium tracking-[0.08em] uppercase" style={{ color: app.inkMuted }}>
+						podcast-episode
+					</p>
+					<MockLine time="00:00" text="Welcome back to the show — today we talk about local AI." />
+					<MockLine time="00:12" text="Everything runs on your machine, so nothing leaves your laptop." active />
+					<MockLine time="00:24" text="Drop in a whole folder and it works through the queue on its own." />
+					<MockLine time="00:36" text="Transcripts, subtitles and summaries, all offline." />
+					<MockLine time="00:48" text="Speaker labels come from the audio itself, no cloud round trip." />
+					<MockLine time="01:02" text="Click any line to fix a word, or a timestamp to hear it again." />
+					<MockLine time="01:15" text="Then export to SRT, VTT, PDF or plain text in one click." />
+				</div>
+
+				{/* Player bar */}
+				<div className="flex h-[2.75rem] shrink-0 items-center gap-3 border-t px-3" style={{ borderColor: app.line }}>
+					<span className="hidden min-w-0 flex-col sm:flex">
+						<span className="truncate text-[0.625rem] font-medium">podcast-episode.mp3</span>
+						<span className="truncate text-[0.5625rem]" style={{ color: app.inkMuted }}>
+							Documents/Vibe
 						</span>
 					</span>
-				</div>
-
-				{/* Quiet row: language pill, then the More Options ghost label */}
-				<div className="flex w-full items-center gap-2">
-					<span
-						className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[0.25rem] text-[0.625rem] font-medium"
-						style={{ borderColor: app.line, background: app.surface }}>
-						<Globe className="size-[0.6875rem]" strokeWidth={1.75} style={{ color: app.inkMuted }} />
-						Auto Detect
+					<span className="flex size-[1.375rem] shrink-0 items-center justify-center rounded-full" style={{ background: app.accent }}>
+						<Pause className="size-[0.625rem]" fill="currentColor" style={{ color: app.accentInk }} />
 					</span>
 					<span
-						className="inline-flex items-center gap-1.5 rounded-full px-2 py-[0.25rem] text-[0.625rem] font-medium"
-						style={{ color: app.inkMuted }}>
-						<SlidersHorizontal className="size-[0.6875rem]" strokeWidth={1.75} />
-						More Options
+						className="text-[0.5625rem] tabular-nums"
+						style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', color: app.inkMuted }}>
+						0:14
+					</span>
+					<span className="h-[0.1875rem] min-w-0 flex-1 overflow-hidden rounded-full" style={{ background: app.muted }}>
+						<span className="block h-full w-[22%] rounded-full" style={{ background: app.ink }} />
+					</span>
+					<span
+						className="text-[0.5625rem] tabular-nums"
+						style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', color: app.inkMuted }}>
+						2:38
 					</span>
 				</div>
 			</div>

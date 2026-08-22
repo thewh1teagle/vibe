@@ -161,13 +161,45 @@ function LinkPanel() {
 	const { link, preference } = useSession()
 
 	if (link.downloadingAudio) {
+		const percent = link.ytdlpProgress ?? 0
+		// yt-dlp reports nothing until the stream starts; show motion rather than a stuck 0%.
+		const started = percent > 0
 		return (
-			<div className="flex h-10 items-center justify-center gap-3 py-2.5 text-sm text-muted-foreground">
-				<Spinner />
-				<span>{m.downloading({ progress: String(link.ytdlpProgress ?? 0) })}</span>
-				<button type="button" className="cursor-pointer text-destructive hover:underline" onClick={() => link.cancelYtDlpDownload()}>
+			<div className="flex w-full flex-col items-center gap-4 py-2.5">
+				<span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-background/70 text-foreground shadow-sm">
+					<span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-foreground/5" />
+					<Link2 className="h-5 w-5" />
+				</span>
+
+				<div className="w-full max-w-sm space-y-2">
+					<div className="flex items-baseline justify-between gap-3">
+						<span className="truncate text-[13px] font-medium text-foreground">{m.downloading({ progress: String(percent) })}</span>
+						<span className="shrink-0 font-mono text-[12px] tabular-nums text-muted-foreground">{started ? `${percent}%` : '—'}</span>
+					</div>
+
+					<div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+						{started ? (
+							<div className="h-full rounded-full bg-foreground transition-[width] duration-300 ease-out" style={{ width: `${percent}%` }} />
+						) : (
+							// Indeterminate: a short bar sweeping the track while we wait for the first byte.
+							<div className="download-sweep h-full w-1/3 rounded-full bg-foreground/70" />
+						)}
+					</div>
+
+					{link.audioUrl && (
+						<p dir="ltr" className="truncate text-center text-[12px] text-muted-foreground/80">
+							{link.audioUrl}
+						</p>
+					)}
+				</div>
+
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => link.cancelYtDlpDownload()}
+					className="h-8 rounded-full px-4 text-[13px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
 					{m.cancel()}
-				</button>
+				</Button>
 			</div>
 		)
 	}
@@ -181,7 +213,7 @@ function LinkPanel() {
 					onChange={(event) => link.setAudioUrl(event.target.value)}
 					onKeyDown={(event) => (event.key === 'Enter' ? link.downloadAudio() : null)}
 					// Short enough to stay fully readable when the window is narrow.
-					placeholder="Paste a video or audio link"
+					placeholder={m.pasteMediaLink()}
 					className="h-10 min-w-0 flex-1 rounded-xl px-3.5 text-sm"
 				/>
 				<Button
@@ -193,7 +225,7 @@ function LinkPanel() {
 			</div>
 
 			<div className="flex flex-col items-center gap-3">
-				<p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground/80 uppercase">Works with</p>
+				<p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground/80 uppercase">{m.worksWith()}</p>
 				<div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-muted-foreground/70">
 					{linkSources.map((source) => (
 						<Tooltip key={source.title}>
@@ -209,7 +241,7 @@ function LinkPanel() {
 							<TooltipContent side="bottom">{source.title}</TooltipContent>
 						</Tooltip>
 					))}
-					<span className="text-[12px] text-muted-foreground/70">+1000 more</span>
+					<span className="text-[12px] text-muted-foreground/70">{m.moreSources()}</span>
 				</div>
 			</div>
 		</div>
@@ -227,16 +259,17 @@ export default function IdleHero() {
 
 	return (
 		// One optical column: pills, active source and quiet row all span max-w-xl with a 20px rhythm.
-		<div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-5 px-6 py-10">
+		// The extra bottom padding lifts the column above the true centre — optically centred reads better.
+		<div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-5 px-6 pt-4 pb-[30vh]">
 			{/* Joined source switcher: one control, three keys; the active source replaces the drop area. */}
 			<div className="mx-auto inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 p-1">
-				<Segment active={panel === 'none'} label="File" onClick={() => selectPanel('none')}>
+				<Segment active={panel === 'none'} label={m.fromFile()} onClick={() => selectPanel('none')}>
 					<FolderOpen className="h-[18px] w-[18px]" />
 				</Segment>
 				<Segment active={panel === 'record'} label={m.record()} onClick={() => selectPanel('record')}>
 					<Mic className="h-[18px] w-[18px]" />
 				</Segment>
-				<Segment active={panel === 'link'} label="From link" onClick={() => selectPanel('link')}>
+				<Segment active={panel === 'link'} label={m.fromLink()} onClick={() => selectPanel('link')}>
 					<Link2 className="h-[18px] w-[18px]" />
 				</Segment>
 			</div>
@@ -270,8 +303,8 @@ export default function IdleHero() {
 									{collectingFolder ? <Spinner className="h-5 w-5" /> : <Upload className="h-5 w-5" />}
 								</span>
 								<div className="space-y-1">
-									<h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">Drop audio, video or a folder here</h1>
-									<p className="text-[13px] text-muted-foreground">or click to browse your files</p>
+									<h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">{m.dropFilesHere()}</h1>
+									<p className="text-[13px] text-muted-foreground">{m.orClickToBrowse()}</p>
 								</div>
 							</div>
 						</motion.button>

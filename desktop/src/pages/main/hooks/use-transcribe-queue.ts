@@ -12,7 +12,7 @@ import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { isUserError } from '~/lib/sona-errors'
 import type { Segment, Transcript } from '~/lib/transcript'
-import { notifyTranscriptsChanged, saveTranscript, updateTranscriptSegments, type TranscriptRecord } from '~/lib/transcripts-store'
+import { notifyTranscriptsChanged, saveTranscript, updateTranscriptSegments, updateTranscriptSummary, type TranscriptRecord } from '~/lib/transcripts-store'
 import type { NamedPath } from '~/lib/types'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
@@ -34,6 +34,8 @@ export interface Job {
 	savedPath?: string
 	/** true when the job was loaded from the store rather than transcribed in this session */
 	hydrated?: boolean
+	/** Last AI summary of this transcript, when one was made. */
+	summary?: string
 }
 
 export interface TranscribeQueue {
@@ -54,6 +56,8 @@ export interface TranscribeQueue {
 	hydrate: (record: TranscriptRecord, savedPath: string, audioPath?: string | null) => void
 	/** Inline edit of one segment's text. Persists to the job's saved file when it has one. */
 	updateSegmentText: (jobId: string, segmentIndex: number, text: string) => void
+	/** Attach an AI summary to a job. Persists to the job's saved file when it has one. */
+	setJobSummary: (jobId: string, summary: string) => void
 	cancelCurrent: () => void
 	cancelAll: () => void
 	reset: () => void
@@ -342,6 +346,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 				segments: record.segments,
 				savedPath,
 				hydrated: true,
+				summary: record.summary,
 			}
 			pinnedRef.current = true
 			commit([job])
@@ -362,6 +367,17 @@ export function useTranscribeQueue(): TranscribeQueue {
 			const segments = job.segments.map((item, index) => (index === segmentIndex ? { ...item, text } : item))
 			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, segments } : candidate)))
 			if (job.savedPath) void updateTranscriptSegments(job.savedPath, segments)
+		},
+		[commit],
+	)
+
+	/** Same fire-and-forget write-back as the segment edits: the screen must not wait on the disk. */
+	const setJobSummary = useCallback(
+		(jobId: string, summary: string) => {
+			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
+			if (!job || job.summary === summary) return
+			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, summary } : candidate)))
+			if (job.savedPath) void updateTranscriptSummary(job.savedPath, summary)
 		},
 		[commit],
 	)
@@ -403,6 +419,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 		enqueue,
 		hydrate,
 		updateSegmentText,
+		setJobSummary,
 		cancelCurrent,
 		cancelAll,
 		reset,

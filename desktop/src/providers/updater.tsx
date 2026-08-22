@@ -10,6 +10,10 @@ import { openUrl as open } from '@tauri-apps/plugin-opener'
 import { latestReleaseURL } from '~/lib/config'
 // Define the context type
 
+/** Dev-only: pretend an update is waiting so the update affordances can be eyeballed. */
+export const FAKE_UPDATE_KEY = 'vibe_fake_update'
+export const devToolsEnabled = import.meta.env.DEV
+
 type UpdaterContextType = {
 	availableUpdate: boolean
 	setAvailableUpdate: ModifyState<boolean>
@@ -19,6 +23,9 @@ type UpdaterContextType = {
 	setManifest: ModifyState<Update | undefined>
 	updateApp: () => Promise<void>
 	progress: number | null
+	/** Dev-only switch that fakes `availableUpdate`; always false in release builds. */
+	fakeUpdate: boolean
+	setFakeUpdate: (value: boolean) => void
 }
 
 // Create the context
@@ -30,6 +37,8 @@ export const UpdaterContext = createContext<UpdaterContextType>({
 	setManifest: () => {},
 	updateApp: async () => {},
 	progress: null,
+	fakeUpdate: false,
+	setFakeUpdate: () => {},
 })
 
 export function UpdaterProvider({ children }: { children: React.ReactNode }) {
@@ -40,6 +49,23 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	const [partSize, setPartSize] = useState<number | null>(null)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const [progress, setProgress] = useState<number | null>(null)
+	const [fakeUpdate, setFakeUpdateState] = useState(() => {
+		if (!devToolsEnabled) return false
+		try {
+			return localStorage.getItem(FAKE_UPDATE_KEY) === '1'
+		} catch {
+			return false
+		}
+	})
+
+	function setFakeUpdate(value: boolean) {
+		setFakeUpdateState(value)
+		try {
+			localStorage.setItem(FAKE_UPDATE_KEY, value ? '1' : '0')
+		} catch {
+			/* private mode — the flag still holds for this session */
+		}
+	}
 
 	useEffect(() => {
 		if (partSize && totalSize) {
@@ -108,6 +134,10 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	async function updateApp() {
+		if (fakeUpdate && !update) {
+			await dialog.message('This is a faked update (dev mode). No download will happen.', { title: m.updateVersion(), kind: 'info' })
+			return
+		}
 		const avx2Enabled = await invoke('is_avx2_enabled')
 
 		if (!avx2Enabled) {
@@ -134,7 +164,18 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 
 	return (
 		<UpdaterContext.Provider
-			value={{ availableUpdate, setAvailableUpdate, manifest: update, setManifest: setUpdate, updating, setUpdating, updateApp, progress }}>
+			value={{
+				availableUpdate: availableUpdate || fakeUpdate,
+				setAvailableUpdate,
+				fakeUpdate,
+				setFakeUpdate,
+				manifest: update,
+				setManifest: setUpdate,
+				updating,
+				setUpdating,
+				updateApp,
+				progress,
+			}}>
 			{children}
 		</UpdaterContext.Provider>
 	)

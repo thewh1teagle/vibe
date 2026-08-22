@@ -36,6 +36,8 @@ export interface TranscriptRecord {
 	/** Filename of the media copy inside the project folder, relative to it (e.g. `audio.mp3`). */
 	audioFile?: string
 	segments: Segment[]
+	/** Last AI summary of this transcript, when one was made. */
+	summary?: string
 }
 
 export interface TranscriptEntry {
@@ -277,6 +279,19 @@ export async function updateTranscriptSegments(path: string, segments: Segment[]
 		return true
 	} catch (error) {
 		console.warn('failed to update transcript segments:', path, error)
+		return false
+	}
+}
+
+/** Store the AI summary alongside an already saved transcript. @returns whether it was written. */
+export async function updateTranscriptSummary(path: string, summary: string): Promise<boolean> {
+	try {
+		const record = await readTranscript(path)
+		if (!record) return false
+		await fs.writeTextFile(path, serialize({ ...record, summary }))
+		return true
+	} catch (error) {
+		console.warn('failed to update transcript summary:', path, error)
 		return false
 	}
 }

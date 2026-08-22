@@ -17,6 +17,7 @@ import { usePreferenceProvider, type Preference } from '~/providers/preference'
 import { useAudioDownload } from '~/pages/home/hooks/use-audio-download'
 import { useRecording } from '~/pages/home/hooks/use-recording'
 import { useDropTarget } from './hooks/use-drop-target'
+import { useSummaries, type Summaries } from './hooks/use-summaries'
 import { useTranscribeQueue, type TranscribeQueue } from './hooks/use-transcribe-queue'
 
 export type SessionMode = 'idle' | 'working' | 'done'
@@ -28,6 +29,8 @@ type AudioDownload = ReturnType<typeof useAudioDownload>
 export interface Session {
 	mode: SessionMode
 	queue: TranscribeQueue
+	/** AI summaries of finished transcripts (settings → Summarize). */
+	summaries: Summaries
 	preference: Preference
 	dragging: boolean
 	panel: IdlePanel
@@ -54,6 +57,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
 	const queue = useTranscribeQueue()
+	const summaries = useSummaries(queue)
 	const [panel, setPanel] = useState<IdlePanel>('none')
 	const [collectingFolder, setCollectingFolder] = useState(false)
 	const [recordElapsed, setRecordElapsed] = useState(0)
@@ -135,10 +139,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 	}, [recording.setIsRecording])
 
 	const browse = useCallback(async () => {
-		const selected = await dialog.open({ multiple: true, filters: [{ name: 'Audio or Video files', extensions: mediaExtensions }] })
-		if (!selected) return
+		/**
+		 * One picker for both: macOS' open panel takes files and folders together, so the native
+		 * command handles it there. Everywhere else it returns null and the plugin dialog (files
+		 * only) stands in — folders still arrive by drag and drop.
+		 */
+		let picked: string[] | null = null
+		try {
+			picked = await invoke<string[] | null>('pick_media_paths', { extensions: mediaExtensions })
+		} catch (error) {
+			console.warn('native picker unavailable:', error)
+		}
+		if (!picked) {
+			const selected = await dialog.open({ multiple: true, filters: [{ name: 'Audio or Video files', extensions: mediaExtensions }] })
+			if (!selected) return
+			picked = Array.isArray(selected) ? selected : [selected]
+		}
+		if (!picked.length) return
 		setPanel('none')
-		await enqueuePaths(Array.isArray(selected) ? selected : [selected])
+		await enqueuePaths(picked)
 	}, [enqueuePaths])
 
 	const startNew = useCallback(() => {
@@ -200,6 +219,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		() => ({
 			mode,
 			queue,
+			summaries,
 			preference,
 			dragging,
 			panel,
@@ -211,7 +231,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 			browse,
 			startNew,
 		}),
-		[mode, queue, preference, dragging, panel, recording, recordElapsed, link, collectingFolder, browse, startNew],
+		[mode, queue, summaries, preference, dragging, panel, recording, recordElapsed, link, collectingFolder, browse, startNew],
 	)
 
 	return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>

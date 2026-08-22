@@ -560,7 +560,6 @@ html.mac-vibrancy body {
 	background: transparent;
 }
 
-
 /* Desktop app: no page-level rubber banding — the window itself must never bounce or nudge
    sideways; only inner scroll areas scroll, and they don't chain past their edges. */
 html,
@@ -574,4 +573,18 @@ body {
 .overflow-x-auto,
 .overflow-auto {
 	overscroll-behavior: contain;
+}
+
+/* Indeterminate download bar: a short segment sweeping its track until real progress arrives. */
+@keyframes download-sweep {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(300%);
+	}
+}
+
+.download-sweep {
+	animation: download-sweep 1.4s ease-in-out infinite;
 }
