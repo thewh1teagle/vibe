@@ -63,8 +63,12 @@ jobs:
                   # exactly, or the CLI refuses to process the module.
                   tool: wasm-bindgen-cli@0.2.122
 
+            # Pinned, not apt: the distro binaryen is older and produces a
+            # different module, which is how a broken wasm shipped once already.
             - name: install binaryen
-              run: sudo apt-get update && sudo apt-get install -y binaryen
+              run: |
+                curl -sSfL https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-linux.tar.gz | tar xz
+                echo "$PWD/binaryen-version_132/bin" >> "$GITHUB_PATH"
 
             - name: Build
               run: |
