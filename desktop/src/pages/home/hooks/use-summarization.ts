@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import { CONFIG_KEYS } from '~/lib/config-keys'
@@ -9,18 +9,18 @@ import { usePreferenceProvider } from '~/providers/preference'
 
 export function useSummarization() {
 	const preference = usePreferenceProvider()
-	const [llm, setLlm] = useState<Llm | null>(null)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [summarizing, setSummarizing] = useState(false)
 	const [transcriptTab, setTranscriptTab] = usePersisted<'transcript' | 'summary'>(CONFIG_KEYS.transcriptTab, 'transcript')
 
-	useEffect(() => {
+	// Built during render rather than in an effect: a recording that finishes fast could call
+	// summarize() before the effect had set the client, and the run was dropped in silence (#983).
+	const llm = useMemo<Llm>(() => {
 		const config = preference.llmConfig
-		setLlm(config.platform === 'ollama' ? new Ollama(config) : config.platform === 'openai' ? new OpenAICompatible(config) : new Claude(config))
+		return config.platform === 'ollama' ? new Ollama(config) : config.platform === 'openai' ? new OpenAICompatible(config) : new Claude(config)
 	}, [preference.llmConfig])
 
 	async function summarize(source: transcript.Segment[], prompt: string, showSummary = false) {
-		if (!llm) return
 		setSummarizing(true)
 		try {
 			const question = prompt.replace('%s', transcript.asText(source, m.speakerPrefix()))
