@@ -1,6 +1,5 @@
 name: Bug Report
 description: File a bug report
-title: "[Title here. keep it short]"
 labels: ["bug"]
 assignees:
     - octocat
@@ -21,19 +20,18 @@ body:
       attributes:
           label: What happened?
           description: Also tell us, what did you expect to happen?
-          placeholder: Tell us what you see!
-          value: "A bug happened!"
+          placeholder: What you did, what happened instead, and what you expected.
       validations:
           required: true
     - type: textarea
       id: steps-to-reproduce
       attributes:
           label: Steps to reproduce
-          description: Also tell us, what did you expect to happen?
-          placeholder: Tell us what you see!
-          value: |
-              1. step one...
-              2. step two...
+          description: The shortest path from a fresh start to the bug.
+          placeholder: |
+              1. Open Vibe and pick a model
+              2. Drop in a 3 minute mp3
+              3. Transcription stops at 40%
       validations:
           required: true
     - type: dropdown
