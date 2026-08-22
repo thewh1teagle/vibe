@@ -27,8 +27,13 @@ wasm-bindgen ./target/wasm32-unknown-unknown/release/handoff_wasm.wasm \
 # binaryen installed we keep the unoptimized artifact rather than failing.
 WASM="$OUT_DIR/handoff_wasm_bg.wasm"
 if command -v wasm-opt >/dev/null 2>&1; then
-  wasm-opt --enable-nontrapping-float-to-int --enable-bulk-memory -Os \
-    -o "$WASM.opt" "$WASM"
+  # `-all` on purpose. Naming individual --enable-* flags DISABLES every feature
+  # not listed, and older binaryen then strips ones wasm-bindgen's glue relies on
+  # (call-indirect-overlong, reference types). That corrupts the function table and
+  # the module dies at init with:
+  #   WebAssembly.Table.set(): Argument 1 is invalid for table:
+  #   function-typed object must be null (if nullable) or a Wasm function object
+  wasm-opt -all -Os -o "$WASM.opt" "$WASM"
   mv "$WASM.opt" "$WASM"
   echo "wasm-opt: $WASM is now $(wc -c <"$WASM" | tr -d ' ') bytes"
 else
