@@ -16,13 +16,9 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
     match glob::glob(&search_pattern) {
         Ok(paths) => {
             for entry in paths.filter_map(Result::ok) {
-                if entry.is_file() {
-                    if let Some(file_name) = entry.file_name().and_then(|n| n.to_str()) {
-                        if patterns.iter().any(|p| file_name.ends_with(p)) {
-                            if let Ok(path_str) = entry.into_os_string().into_string() {
-                                files.push(path_str);
-                            }
-                        }
+                if entry.is_file() && has_matching_extension(&entry, &patterns) {
+                    if let Ok(path_str) = entry.into_os_string().into_string() {
+                        files.push(path_str);
                     }
                 }
             }
@@ -33,6 +29,18 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
     }
 
     files
+}
+
+/// Recorders and phones write `.MP3` and `.MOV`, so the extension is matched without regard to
+/// case — otherwise those files vanish from every folder scan. Patterns may carry a leading dot.
+fn has_matching_extension(path: &Path, patterns: &[String]) -> bool {
+    let Some(extension) = path.extension().and_then(|extension| extension.to_str()) else {
+        return false;
+    };
+
+    patterns
+        .iter()
+        .any(|pattern| pattern.trim_start_matches('.').eq_ignore_ascii_case(extension))
 }
 
 #[tauri::command]
@@ -180,4 +188,25 @@ fn macos_open_panel(extensions: &[String]) -> Option<Vec<String>> {
         }
     }
     Some(paths)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::has_matching_extension;
+    use std::path::Path;
+
+    #[test]
+    fn matches_the_extension_whatever_its_case() {
+        let patterns = vec!["mp3".to_string(), "mov".to_string()];
+        assert!(has_matching_extension(Path::new("/tmp/interview.mp3"), &patterns));
+        assert!(has_matching_extension(Path::new("/tmp/interview.MP3"), &patterns));
+        assert!(has_matching_extension(Path::new("/tmp/call 17.8.2026.MOV"), &patterns));
+    }
+
+    #[test]
+    fn ignores_names_that_only_end_with_the_pattern() {
+        let patterns = vec!["mp3".to_string()];
+        assert!(!has_matching_extension(Path::new("/tmp/notesmp3"), &patterns));
+        assert!(!has_matching_extension(Path::new("/tmp/notes.pdf"), &patterns));
+    }
 }
