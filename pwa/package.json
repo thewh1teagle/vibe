@@ -3,6 +3,7 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
+	"packageManager": "pnpm@10.4.1",
 	"scripts": {
 		"dev": "vite --port 8088 --host",
 		"build": "tsc && vite build",
@@ -14,6 +15,7 @@
 		"@radix-ui/react-slot": "^1.2.4",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"idb": "^8.0.3",
 		"lucide-react": "^0.563.0",
 		"react": "^19.2.4",
 		"react-dom": "^19.2.4",
