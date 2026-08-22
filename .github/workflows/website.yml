@@ -27,7 +27,61 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
+    # Built on Linux on purpose: the iroh client pulls in `ring`, which compiles C
+    # for wasm32, and the macOS runners' Apple clang has no wasm target.
+    pwa:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: pwa/package.json
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: setup Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  targets: wasm32-unknown-unknown
+
+            - name: cache Rust build
+              uses: Swatinem/rust-cache@v2
+              with:
+                  workspaces: handoff-wasm
+
+            - name: install wasm-bindgen-cli
+              uses: taiki-e/install-action@v2
+              with:
+                  # Must match the pinned `wasm-bindgen` dependency in handoff-wasm/Cargo.toml
+                  # exactly, or the CLI refuses to process the module.
+                  tool: wasm-bindgen-cli@0.2.122
+
+            - name: install binaryen
+              run: sudo apt-get update && sudo apt-get install -y binaryen
+
+            - name: Build
+              run: |
+                ./handoff-wasm/build.sh
+                pnpm --dir pwa install
+                pnpm --dir pwa build
+              env:
+                PWA_BASE: /vibe/phone/
+
+            - name: Upload phone PWA
+              uses: actions/upload-artifact@v4
+              with:
+                  name: pwa-dist
+                  path: pwa/dist
+                  if-no-files-found: error
+
     build:
+        needs: pwa
         runs-on: macos-latest
         steps:
             - name: Checkout
@@ -58,37 +112,11 @@ jobs:
               env:
                 GH_TOKEN: ${{ github.token }}
 
-            # The phone PWA ships inside the same Pages artifact, at /vibe/phone/.
-            # Its iroh client is Rust compiled to wasm, so it needs a toolchain.
-            - name: setup Rust for the wasm client
-              uses: dtolnay/rust-toolchain@stable
+            - name: Download phone PWA
+              uses: actions/download-artifact@v5
               with:
-                  targets: wasm32-unknown-unknown
-
-            - name: cache Rust build
-              uses: Swatinem/rust-cache@v2
-              with:
-                  workspaces: handoff-wasm
-
-            - name: install wasm-bindgen-cli
-              uses: taiki-e/install-action@v2
-              with:
-                  # Must match the pinned `wasm-bindgen` dependency in handoff-wasm/Cargo.toml
-                  # exactly, or the CLI refuses to process the module.
-                  tool: wasm-bindgen-cli@0.2.122
-
-            - name: install binaryen
-              run: brew install binaryen
-
-            - name: Build phone PWA
-              run: |
-                ./handoff-wasm/build.sh
-                pnpm --dir pwa install
-                pnpm --dir pwa build
-                mkdir -p website/dist/phone
-                cp -R pwa/dist/. website/dist/phone/
-              env:
-                PWA_BASE: /vibe/phone/
+                  name: pwa-dist
+                  path: website/dist/phone
 
             - name: Setup Pages
               uses: actions/configure-pages@v6
