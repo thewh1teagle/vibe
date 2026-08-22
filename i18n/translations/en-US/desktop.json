@@ -438,5 +438,7 @@
 	"textDirection": "Text direction",
 	"pressShortcutKeys": "Press the keys…",
 	"shortcutNeedsModifier": "Hold ⌘, ⌃, ⌥ or ⇧ as well",
-	"changeShortcut": "Change shortcut"
+	"changeShortcut": "Change shortcut",
+	"never": "Never",
+	"configFile": "Config file"
 }

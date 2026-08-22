@@ -1,4 +1,5 @@
-import { useLocalStorage } from 'usehooks-ts'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 
 export type TranscriptTextSize = 'sm' | 'md' | 'lg'
 
@@ -16,9 +17,9 @@ export interface TranscriptViewOptions {
 
 /** Reading preferences for the transcript page — they belong to the view, not to a transcription run. */
 export function useTranscriptViewOptions(): TranscriptViewOptions {
-	const [textSize, setTextSize] = useLocalStorage<TranscriptTextSize>('prefs_transcript_text_size', 'md')
-	const [showTimestamps, setShowTimestamps] = useLocalStorage<boolean>('prefs_transcript_show_timestamps', true)
-	const [showSpeakers, setShowSpeakers] = useLocalStorage<boolean>('prefs_transcript_show_speakers', true)
+	const [textSize, setTextSize] = usePersisted<TranscriptTextSize>(CONFIG_KEYS.textSize, 'md')
+	const [showTimestamps, setShowTimestamps] = usePersisted<boolean>(CONFIG_KEYS.showTimestamps, true)
+	const [showSpeakers, setShowSpeakers] = usePersisted<boolean>(CONFIG_KEYS.showSpeakers, true)
 	return { textSize, setTextSize, showTimestamps, setShowTimestamps, showSpeakers, setShowSpeakers }
 }
 

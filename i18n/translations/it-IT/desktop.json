@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Tieni premuto anche ⌘, ⌃, ⌥ o ⇧",
 	"changeShortcut": "Cambia scorciatoia",
 	"inProgress": "In corso",
-	"queued": "In coda"
+	"queued": "In coda",
+	"never": "Mai",
+	"configFile": "File di configurazione"
 }

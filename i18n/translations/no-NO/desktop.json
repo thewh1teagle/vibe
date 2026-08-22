@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Hold også ⌘, ⌃, ⌥ eller ⇧",
 	"changeShortcut": "Endre hurtigtast",
 	"inProgress": "Pågår",
-	"queued": "I kø"
+	"queued": "I kø",
+	"never": "Aldri",
+	"configFile": "Konfigurasjonsfil"
 }

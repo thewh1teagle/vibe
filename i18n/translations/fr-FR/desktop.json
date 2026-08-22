@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Maintenez aussi ⌘, ⌃, ⌥ ou ⇧",
 	"changeShortcut": "Modifier le raccourci",
 	"inProgress": "En cours",
-	"queued": "En attente"
+	"queued": "En attente",
+	"never": "Jamais",
+	"configFile": "Fichier de configuration"
 }

@@ -1,16 +1,18 @@
 import { message } from '@tauri-apps/plugin-dialog'
 import { RotateCcw, Wand2 } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
+import NumberField from '~/components/number-field'
 import { Input } from '~/components/ui/input'
 import { Switch } from '~/components/ui/switch'
 import { Textarea } from '~/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { ActionRow, SettingsField, SettingsGroup, SettingsNote, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 
-const numberInputClass = 'w-24 text-end'
 const textareaClass = 'min-h-24 max-h-60 w-full resize-none overflow-y-auto rounded-lg bg-muted/40 text-sm'
 
 export function TuningSection({ vm }: { vm: SettingsViewModel }) {
+	// More threads than cores only makes decoding slower, so the stepper stops there.
+	const maxThreads = Math.max(1, navigator.hardwareConcurrency || 8)
 	const promptLength = vm.preference.modelOptions?.init_prompt?.length ?? 0
 	const isGreedy = vm.preference.modelOptions.sampling_strategy === 'greedy'
 
@@ -44,14 +46,15 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 				</SettingsRow>
 
 				<SettingsRow label={m.maxSentenceLen()} description={m.infoMaxSentenceLen()}>
-					<Input
-						type="number"
-						value={vm.preference.modelOptions.max_sentence_len}
-						onChange={(e) => {
+					<NumberField
+						aria-label={m.maxSentenceLen()}
+						value={vm.preference.modelOptions.max_sentence_len ?? 0}
+						min={0}
+						max={512}
+						onChange={(value) => {
 							if (!vm.preference.modelOptions.word_timestamps) message(m.pleaseEnableWordTimestamps())
-							vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_sentence_len: vm.parseIntOr(e.target.value, 1) })
+							vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_sentence_len: value })
 						}}
-						className={`${numberInputClass} ${rowControlClass}`}
 					/>
 				</SettingsRow>
 
@@ -89,48 +92,50 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 				</SettingsRow>
 
 				<SettingsRow label={isGreedy ? m.bestOf() : m.beamSize()} description={isGreedy ? m.greedyInfo() : m.beamInfo()}>
-					<Input
-						type="number"
-						step={1}
+					<NumberField
+						aria-label={isGreedy ? m.bestOf() : m.beamSize()}
 						value={isGreedy ? (vm.preference.modelOptions.best_of ?? 5) : (vm.preference.modelOptions.beam_size ?? 5)}
-						onChange={(e) => {
-							const val = vm.parseIntOr(e.target.value, 5)
+						min={1}
+						max={10}
+						onChange={(value) => {
 							if (isGreedy) {
-								vm.preference.setModelOptions({ ...vm.preference.modelOptions, best_of: val })
+								vm.preference.setModelOptions({ ...vm.preference.modelOptions, best_of: value })
 							} else {
-								vm.preference.setModelOptions({ ...vm.preference.modelOptions, beam_size: val })
+								vm.preference.setModelOptions({ ...vm.preference.modelOptions, beam_size: value })
 							}
 						}}
-						className={`${numberInputClass} ${rowControlClass}`}
 					/>
 				</SettingsRow>
 
 				<SettingsRow label={m.temperature()} description={m.infoTemperature()}>
-					<Input
-						type="number"
+					<NumberField
+						aria-label={m.temperature()}
+						value={vm.preference.modelOptions.temperature ?? 0}
+						min={0}
+						max={1}
 						step={0.1}
-						value={vm.preference.modelOptions.temperature}
-						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, temperature: parseFloat(e.target.value) || 0 })}
-						className={`${numberInputClass} ${rowControlClass}`}
+						onChange={(value) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, temperature: value })}
 					/>
 				</SettingsRow>
 
 				<SettingsRow label={m.maxTextCtx()} description={m.infoMaxTextCtx()}>
-					<Input
-						type="number"
-						step={1}
+					<NumberField
+						aria-label={m.maxTextCtx()}
 						value={vm.preference.modelOptions.max_text_ctx ?? 0}
-						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_text_ctx: vm.parseIntOr(e.target.value, 0) })}
-						className={`${numberInputClass} ${rowControlClass}`}
+						min={0}
+						max={16384}
+						step={64}
+						onChange={(value) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, max_text_ctx: value })}
 					/>
 				</SettingsRow>
 
 				<SettingsRow label={m.threads()} description={m.infoThreads()}>
-					<Input
-						type="number"
-						value={vm.preference.modelOptions.n_threads}
-						onChange={(e) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, n_threads: vm.parseIntOr(e.target.value, 1) })}
-						className={`${numberInputClass} ${rowControlClass}`}
+					<NumberField
+						aria-label={m.threads()}
+						value={vm.preference.modelOptions.n_threads ?? 1}
+						min={1}
+						max={maxThreads}
+						onChange={(value) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, n_threads: value })}
 					/>
 				</SettingsRow>
 			</SettingsGroup>

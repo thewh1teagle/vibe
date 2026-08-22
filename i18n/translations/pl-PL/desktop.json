@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Przytrzymaj też ⌘, ⌃, ⌥ lub ⇧",
 	"changeShortcut": "Zmień skrót",
 	"inProgress": "W toku",
-	"queued": "W kolejce"
+	"queued": "W kolejce",
+	"never": "Nigdy",
+	"configFile": "Plik konfiguracyjny"
 }

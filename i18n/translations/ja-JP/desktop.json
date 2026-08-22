@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "⌘、⌃、⌥、⇧ も一緒に押してください",
 	"changeShortcut": "ショートカットを変更",
 	"inProgress": "処理中",
-	"queued": "待機中"
+	"queued": "待機中",
+	"never": "しない",
+	"configFile": "設定ファイル"
 }

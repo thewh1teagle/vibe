@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "⌘, ⌃, ⌥ 또는 ⇧ 도 함께 누르세요",
 	"changeShortcut": "단축키 변경",
 	"inProgress": "진행 중",
-	"queued": "대기 중"
+	"queued": "대기 중",
+	"never": "안 함",
+	"configFile": "설정 파일"
 }

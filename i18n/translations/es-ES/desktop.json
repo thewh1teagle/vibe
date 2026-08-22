@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Mantén también ⌘, ⌃, ⌥ o ⇧",
 	"changeShortcut": "Cambiar el atajo",
 	"inProgress": "En curso",
-	"queued": "En cola"
+	"queued": "En cola",
+	"never": "Nunca",
+	"configFile": "Archivo de configuración"
 }

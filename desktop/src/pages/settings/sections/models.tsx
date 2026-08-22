@@ -4,10 +4,12 @@ import { m } from '~/paraglide/messages.js'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as WrenchIcon } from '~/icons/wrench.svg'
+import NumberField from '~/components/number-field'
 import { Input } from '~/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { ActionRow, IconAction, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 import { getFriendlyModelName } from '~/lib/model'
+import { ModelGlyph } from '~/components/brand-glyph'
 
 export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 	const [editingPath, setEditingPath] = useState<string | null>(null)
@@ -61,7 +63,10 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 								<SelectContent>
 									{vm.models.map((model, index) => (
 										<SelectItem key={index} value={model.path}>
-											{vm.preference.modelDisplayNames[model.path] ?? getFriendlyModelName(model.name)}
+											<span className="flex items-center gap-2">
+												<ModelGlyph name={model.name} className="text-muted-foreground" />
+												{vm.preference.modelDisplayNames[model.path] ?? getFriendlyModelName(model.name)}
+											</span>
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -98,15 +103,14 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 								</SelectContent>
 							</Select>
 						) : (
-							<Input
-								type="number"
-								value={vm.preference.gpuDevice ?? ''}
-								onChange={(e) => {
-									const val = e.target.value
-									vm.preference.setGpuDevice(val === '' ? null : parseInt(val, 10))
-								}}
-								placeholder={m.gpuDevicePlaceholder()}
-								className={`w-40 ${rowControlClass}`}
+							<NumberField
+								aria-label={m.gpuDevice()}
+								value={vm.preference.gpuDevice ?? -1}
+								min={-1}
+								max={16}
+								// Below zero means "no device pinned" — the placeholder the empty field used to show.
+								format={(device) => (device < 0 ? m.auto() : undefined)}
+								onChange={(value) => vm.preference.setGpuDevice(value < 0 ? null : value)}
 							/>
 						)}
 					</SettingsRow>

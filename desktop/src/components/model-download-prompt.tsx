@@ -1,17 +1,16 @@
 import { Download, X } from 'lucide-react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useLocalStorage } from 'usehooks-ts'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 import { m } from '~/paraglide/messages.js'
 import { usePreferenceProvider } from '~/providers/preference'
 import { Button } from './ui/button'
 
-const DISMISSED_KEY = 'prefs_no_model_prompt_dismissed'
-
 export default function ModelDownloadPrompt() {
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
-	const [dismissed, setDismissed] = useLocalStorage(DISMISSED_KEY, false)
+	const [dismissed, setDismissed] = usePersisted(CONFIG_KEYS.modelPromptDismissed, false)
 
 	useEffect(() => {
 		if (preference.modelPath && dismissed) {

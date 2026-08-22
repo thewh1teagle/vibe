@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "⌘, ⌃, ⌥ veya ⇧ tuşunu da basılı tutun",
 	"changeShortcut": "Kısayolu değiştir",
 	"inProgress": "Devam ediyor",
-	"queued": "Sırada"
+	"queued": "Sırada",
+	"never": "Asla",
+	"configFile": "Yapılandırma dosyası"
 }
