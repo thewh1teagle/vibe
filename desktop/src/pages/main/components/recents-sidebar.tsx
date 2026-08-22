@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core'
 import * as pathApi from '@tauri-apps/api/path'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
-import { Download, MoreHorizontal, Plus, Search, Settings } from 'lucide-react'
+import { Download, MoreHorizontal, Plus, Search, Settings, Smartphone } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
@@ -428,6 +428,18 @@ export default function RecentsSidebar() {
 						<Settings className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
 						{m.settings()}
 					</button>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<button
+								type="button"
+								aria-label={m.phone()}
+								onClick={() => openSettingsSection('phone')}
+								className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-xl transition-colors duration-150 hover:bg-muted/60">
+								<Smartphone className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+							</button>
+						</TooltipTrigger>
+						<TooltipContent side="top">{m.phone()}</TooltipContent>
+					</Tooltip>
 					{availableUpdate && (
 						<Tooltip>
 							<TooltipTrigger asChild>

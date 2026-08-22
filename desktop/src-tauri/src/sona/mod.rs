@@ -123,9 +123,15 @@ where
 
 impl SonaProcess {
     pub async fn model_metadata(&self, path: &str) -> Result<ModelMetadata> {
-        let response = self
-            .client
-            .post(format!("{}/v1/models/metadata", self.base_url()))
+        Self::model_metadata_with(&self.client, &self.base_url(), path).await
+    }
+
+    /// Same request as [`SonaProcess::model_metadata`], but taking a cloned client
+    /// and base url like [`SonaProcess::transcribe_stream`] does, so callers can
+    /// release the `SonaState` mutex before the round trip.
+    pub async fn model_metadata_with(client: &reqwest::Client, base_url: &str, path: &str) -> Result<ModelMetadata> {
+        let response = client
+            .post(format!("{}/v1/models/metadata", base_url))
             .json(&serde_json::json!({ "path": path }))
             .send()
             .await

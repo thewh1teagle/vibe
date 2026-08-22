@@ -18,6 +18,14 @@ pub mod events {
     pub const APP_STARTED: &str = "app_started";
     pub const CLI_STARTED: &str = "cli_started";
     pub const SONA_SPAWN_FAILED: &str = "sona_spawn_failed";
+
+    // Phone handoff. Props are technical facts only: never a transcript, filename,
+    // saved path, endpoint id, pairing token, model path, or chosen language.
+    pub const HANDOFF_ENABLED: &str = "handoff_enabled";
+    pub const HANDOFF_DISABLED: &str = "handoff_disabled";
+    pub const HANDOFF_TRANSCRIBE: &str = "handoff_transcribe";
+    pub const HANDOFF_CAPABILITIES: &str = "handoff_capabilities";
+    pub const HANDOFF_PAIRING_REGENERATED: &str = "handoff_pairing_regenerated";
 }
 
 fn is_analytics_enabled(app_handle: &AppHandle) -> bool {

@@ -1,0 +1,32 @@
+{
+	"name": "Vibe Phone",
+	"short_name": "Vibe",
+	"description": "Record on your phone, transcribe on your Vibe desktop.",
+	"start_url": "./",
+	"scope": "./",
+	"id": "./",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#181818",
+	"theme_color": "#2563eb",
+	"icons": [
+		{
+			"src": "./icons/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "./icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "./icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
+	]
+}

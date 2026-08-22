@@ -11,6 +11,7 @@ mod diagnostics;
 mod dictation_indicator;
 mod error;
 mod ffmpeg;
+mod handoff;
 mod logging;
 mod setup;
 mod sona;
@@ -39,6 +40,7 @@ async fn main() -> Result<()> {
     #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
         .manage(tray::TrayState::default())
+        .manage(tokio::sync::Mutex::<Option<handoff::HandoffState>>::new(None))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -66,7 +68,11 @@ async fn main() -> Result<()> {
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
-        .plugin(tauri_plugin_notification::init());
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            None,
+        ));
 
     if analytics::is_aptabase_configured() {
         let options = tauri_plugin_aptabase::InitOptions {
@@ -88,6 +94,10 @@ async fn main() -> Result<()> {
     let app = builder
         .invoke_handler(tauri::generate_handler![
             cmd::download::download_file,
+            cmd::handoff_cmd::handoff_status,
+            cmd::handoff_cmd::handoff_start,
+            cmd::handoff_cmd::handoff_stop,
+            cmd::handoff_cmd::handoff_regenerate_token,
             cmd::app::get_cargo_features,
             cmd::config::write_config_atomically,
             cmd::config::get_config_path,
@@ -152,6 +162,11 @@ async fn main() -> Result<()> {
                 if let Some(ref mut process) = guard.process {
                     process.kill();
                 }
+            };
+            // Drop the handoff router so the iroh endpoint closes cleanly.
+            let handoff = app.state::<tokio::sync::Mutex<Option<handoff::HandoffState>>>();
+            if let Ok(mut guard) = handoff.try_lock() {
+                guard.take();
             };
         }
         _ => {}
