@@ -1,0 +1,505 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--font-sans: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+	--font-serif: 'Inter Variable', 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
+	--radius: 1rem;
+	--tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+	--tracking-tight: calc(var(--tracking-normal) - 0.025em);
+	--tracking-wide: calc(var(--tracking-normal) + 0.025em);
+	--tracking-wider: calc(var(--tracking-normal) + 0.05em);
+	--tracking-widest: calc(var(--tracking-normal) + 0.1em);
+	--tracking-normal: var(--tracking-normal);
+	--shadow-2xl: var(--shadow-2xl);
+	--shadow-xl: var(--shadow-xl);
+	--shadow-lg: var(--shadow-lg);
+	--shadow-md: var(--shadow-md);
+	--shadow: var(--shadow);
+	--shadow-sm: var(--shadow-sm);
+	--shadow-xs: var(--shadow-xs);
+	--shadow-2xs: var(--shadow-2xs);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar: var(--sidebar);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--radius-2xl: calc(var(--radius) + 8px);
+	--radius-3xl: calc(var(--radius) + 12px);
+	--radius-4xl: calc(var(--radius) + 16px);
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+:root {
+	--radius: 1rem;
+
+	/* ChatGPT-style neutrals — light (default) */
+	--background: #ffffff;
+	--foreground: #1a1c1f;
+	--card: #ffffff;
+	--card-foreground: #1a1c1f;
+	--popover: #ffffff;
+	--popover-foreground: #1a1c1f;
+	--primary: #2563eb;
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f4;
+	--secondary-foreground: #1a1c1f;
+	--muted: #f4f4f4;
+	--muted-foreground: #6e6e6e;
+	--accent: #f4f4f4;
+	--accent-foreground: #1a1c1f;
+	--destructive: #b4453c;
+	--destructive-foreground: #fdf6f5;
+	--success: #3f7d5f;
+	--success-foreground: #f3faf6;
+	--border: #e6e6e6;
+	--input: #e6e6e6;
+	--ring: rgb(37 99 235 / 0.35);
+
+	/* Aurora hues — the only chroma in the system */
+	--aurora-1: #5b8def;
+	--aurora-2: #b98de3;
+	--aurora-3: #e8a87c;
+	--aurora-4: #7cc5a0;
+
+	--chart-1: var(--aurora-1);
+	--chart-2: var(--aurora-2);
+	--chart-3: var(--aurora-3);
+	--chart-4: var(--aurora-4);
+	--chart-5: #6f6f6a;
+
+	--sidebar: #f9f9f9;
+	--sidebar-foreground: #1a1c1f;
+	--sidebar-primary: #2563eb;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #f1f1ee;
+	--sidebar-accent-foreground: #111110;
+	--sidebar-border: #e7e7e2;
+	--sidebar-ring: rgb(17 17 16 / 0.2);
+
+	--shadow-2xs: 0 1px 1px rgb(17 17 16 / 0.04);
+	--shadow-xs: 0 1px 2px rgb(17 17 16 / 0.05);
+	--shadow-sm: 0 2px 8px rgb(17 17 16 / 0.04);
+	--shadow: 0 6px 18px rgb(17 17 16 / 0.05);
+	--shadow-md: 0 10px 26px rgb(17 17 16 / 0.06);
+	--shadow-lg: 0 16px 36px rgb(17 17 16 / 0.08);
+	--shadow-xl: 0 24px 56px rgb(17 17 16 / 0.1);
+	--shadow-2xl: 0 32px 72px rgb(17 17 16 / 0.12);
+
+	--tracking-normal: -0.01em;
+}
+
+.dark {
+	--background: #181818;
+	--foreground: #ececec;
+	--card: #212121;
+	--card-foreground: #ececec;
+	--popover: #2a2a2a;
+	--popover-foreground: #ececec;
+	--primary: #2563eb;
+	--primary-foreground: #ffffff;
+	--secondary: #242424;
+	--secondary-foreground: #ececec;
+	--muted: #242424;
+	--muted-foreground: #9a9a9a;
+	--accent: #2a2a2a;
+	--accent-foreground: #ececec;
+	--destructive: #c4655c;
+	--destructive-foreground: #1a0f0e;
+	--success: #6aab8b;
+	--success-foreground: #0d1512;
+	--border: #303030;
+	--input: #303030;
+	--ring: rgb(51 156 255 / 0.4);
+
+	--aurora-1: #5b8def;
+	--aurora-2: #b98de3;
+	--aurora-3: #e8a87c;
+	--aurora-4: #7cc5a0;
+
+	--chart-5: #9a9a94;
+
+	--sidebar: #212121;
+	--sidebar-foreground: #ececec;
+	--sidebar-primary: #2563eb;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #2a2a2a;
+	--sidebar-accent-foreground: #ececec;
+	--sidebar-border: #303030;
+	--sidebar-ring: rgb(51 156 255 / 0.4);
+
+	--shadow-2xs: 0 1px 1px rgb(0 0 0 / 0.3);
+	--shadow-xs: 0 1px 2px rgb(0 0 0 / 0.35);
+	--shadow-sm: 0 2px 10px rgb(0 0 0 / 0.4);
+	--shadow: 0 8px 22px rgb(0 0 0 / 0.45);
+	--shadow-md: 0 14px 32px rgb(0 0 0 / 0.5);
+	--shadow-lg: 0 22px 46px rgb(0 0 0 / 0.55);
+	--shadow-xl: 0 30px 64px rgb(0 0 0 / 0.6);
+	--shadow-2xl: 0 40px 80px rgb(0 0 0 / 0.65);
+}
+
+@layer base {
+	html,
+	body,
+	#root {
+		height: 100%;
+	}
+
+	html {
+		font-family:
+			'Inter Variable',
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'SF Pro Text',
+			'Helvetica Neue',
+			Arial,
+			sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	body {
+		@apply bg-background text-foreground;
+		font-size: 14px;
+		line-height: 1.55;
+		letter-spacing: -0.01em;
+		font-feature-settings:
+			'rlig' 1,
+			'calt' 1,
+			'cv05' 1;
+		background-image: none;
+		overflow-x: hidden;
+	}
+
+	h1,
+	h2,
+	h3 {
+		letter-spacing: -0.03em;
+	}
+
+	html,
+	body {
+		scrollbar-width: none;
+	}
+
+	html::-webkit-scrollbar,
+	body::-webkit-scrollbar {
+		width: 0;
+		height: 0;
+	}
+
+	.dark body {
+		background-image: none;
+	}
+
+	* {
+		border-color: var(--border);
+	}
+
+	::selection {
+		background: rgb(17 17 16 / 0.14);
+	}
+
+	.dark ::selection {
+		background: rgb(244 244 241 / 0.2);
+	}
+
+	::-webkit-scrollbar {
+		height: 6px;
+		width: 6px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: rgb(17 17 16 / 0.14);
+		border-radius: 999px;
+	}
+
+	:hover::-webkit-scrollbar-thumb {
+		background: rgb(17 17 16 / 0.22);
+	}
+
+	.dark ::-webkit-scrollbar-thumb {
+		background: rgb(244 244 241 / 0.14);
+	}
+
+	.dark :hover::-webkit-scrollbar-thumb {
+		background: rgb(244 244 241 / 0.22);
+	}
+
+	.transcript-editor {
+		scrollbar-width: auto;
+		scrollbar-color: rgb(17 17 16 / 0.28) rgb(17 17 16 / 0.05);
+		scrollbar-gutter: stable;
+	}
+
+	.transcript-editor::-webkit-scrollbar {
+		width: 16px !important;
+		height: 0 !important;
+		background: transparent !important;
+	}
+
+	.transcript-editor::-webkit-scrollbar-thumb {
+		background: rgb(17 17 16 / 0.28) !important;
+		border: 3px solid transparent !important;
+		background-clip: padding-box !important;
+		border-radius: 999px !important;
+		min-height: 96px !important;
+	}
+
+	.transcript-editor::-webkit-scrollbar-thumb:hover {
+		background: rgb(17 17 16 / 0.4) !important;
+		background-clip: padding-box !important;
+	}
+
+	.transcript-editor::-webkit-scrollbar-track {
+		background: transparent !important;
+		border-left: 1px solid var(--border) !important;
+	}
+
+	.dark .transcript-editor::-webkit-scrollbar-thumb {
+		background: rgb(244 244 241 / 0.24) !important;
+		border: 3px solid transparent !important;
+		background-clip: padding-box !important;
+	}
+
+	.dark .transcript-editor::-webkit-scrollbar-thumb:hover {
+		background: rgb(244 244 241 / 0.36) !important;
+		background-clip: padding-box !important;
+	}
+
+	.dark .transcript-editor::-webkit-scrollbar-track {
+		background: transparent !important;
+		border-left: 1px solid var(--border) !important;
+	}
+
+	.dark .transcript-editor {
+		scrollbar-color: rgb(244 244 241 / 0.24) transparent;
+	}
+}
+
+@layer components {
+	.app-shell {
+		@apply mx-auto w-full max-w-5xl px-5 pb-10 pt-3 md:px-8 md:pt-4;
+	}
+
+	.app-hero {
+		@apply relative mb-5 rounded-xl border border-border bg-card px-6 py-5;
+	}
+
+	.app-panel {
+		@apply rounded-xl border border-border bg-card p-5 md:p-6;
+	}
+
+	.app-subtle {
+		@apply rounded-lg border border-border bg-muted/60 p-3;
+	}
+
+	.dark .app-hero,
+	.dark .app-panel {
+		@apply bg-card text-card-foreground;
+		background-image: none;
+	}
+
+	.dark .app-subtle {
+		@apply bg-muted text-card-foreground;
+	}
+
+	.app-title {
+		@apply text-[28px] font-semibold leading-[1.1] tracking-[-0.03em] md:text-[40px];
+	}
+
+	/* Eyebrow label — 11px, uppercase, +0.08em */
+	.app-kicker,
+	.eyebrow {
+		@apply text-[11px] font-medium uppercase leading-none tracking-[0.08em] text-muted-foreground;
+	}
+
+	.app-main-card {
+		@apply rounded-2xl border border-border bg-card p-6 shadow-sm md:p-9;
+	}
+
+	.dark .app-main-card {
+		@apply bg-card shadow-md;
+		background-image: none;
+	}
+
+	/*
+	 * Aurora — the single expressive surface. Soft multi-hue gradient plus a
+	 * grain overlay. Always behind a card or as a thin fill, never behind body text.
+	 */
+	.aurora {
+		position: relative;
+		isolation: isolate;
+		background-color: var(--muted);
+		background-image:
+			radial-gradient(58% 72% at 14% 16%, #5b8def8c 0%, transparent 68%), radial-gradient(54% 68% at 84% 10%, #b98de37a 0%, transparent 70%),
+			radial-gradient(58% 66% at 80% 88%, #e8a87c73 0%, transparent 70%), radial-gradient(62% 70% at 18% 92%, #7cc5a073 0%, transparent 70%);
+		background-repeat: no-repeat;
+		filter: saturate(0.85);
+	}
+
+	.aurora::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		border-radius: inherit;
+		opacity: 0.28;
+		mix-blend-mode: overlay;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+	}
+
+	.dark .aurora {
+		filter: saturate(0.7) brightness(0.8);
+	}
+
+	/* Thin aurora fill for progress bars */
+	.aurora-bar {
+		background-image: linear-gradient(90deg, var(--aurora-1) 0%, var(--aurora-2) 34%, var(--aurora-3) 67%, var(--aurora-4) 100%);
+		filter: saturate(0.85);
+	}
+
+	/* Radix <Progress> whose indicator is filled with the aurora gradient */
+	.progress-aurora > * {
+		background-color: transparent;
+		background-image: linear-gradient(90deg, var(--aurora-1) 0%, var(--aurora-2) 34%, var(--aurora-3) 67%, var(--aurora-4) 100%);
+		filter: saturate(0.85);
+	}
+
+	.stagger-in {
+		animation: fade-up 240ms ease-out both;
+	}
+}
+
+
+/* ---- phone-specific base ---------------------------------------------- */
+
+@layer base {
+	html,
+	body,
+	#root {
+		min-height: 100%;
+		height: auto;
+	}
+
+	body {
+		/* Mobile-first: slightly larger base text than the desktop app. */
+		font-size: 15px;
+		overscroll-behavior-y: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	button,
+	select,
+	a {
+		touch-action: manipulation;
+	}
+}
+
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes record-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--destructive) 45%, transparent);
+	}
+
+	50% {
+		box-shadow: 0 0 0 22px color-mix(in srgb, var(--destructive) 0%, transparent);
+	}
+}
+
+@layer utilities {
+	.record-pulse {
+		animation: record-pulse 1.6s ease-in-out infinite;
+	}
+
+	.safe-top {
+		padding-top: max(0.75rem, env(safe-area-inset-top));
+	}
+
+	.safe-bottom {
+		padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.record-pulse,
+	.stagger-in {
+		animation: none;
+	}
+}
+
+/* Indeterminate bar: a short segment sweeping its track, for work whose
+   duration the desktop cannot report (loading a model into Sona). Ported from
+   the desktop app's download bar so the two read the same. */
+@keyframes handoff-sweep {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(300%);
+	}
+}
+
+.handoff-sweep {
+	animation: handoff-sweep 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.handoff-sweep {
+		animation: none;
+		transform: translateX(0);
+		width: 100% !important;
+		opacity: 0.5;
+	}
+}

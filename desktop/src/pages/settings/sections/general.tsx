@@ -1,5 +1,8 @@
+import { disable, enable, isEnabled } from '@tauri-apps/plugin-autostart'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { Moon, Sun } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
 import { ReactComponent as DiscordIcon } from '~/icons/discord.svg'
 import { ReactComponent as GithubIcon } from '~/icons/github.svg'
@@ -10,6 +13,54 @@ import { DisplayLanguageInput } from '~/components/display-language-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Switch } from '~/components/ui/switch'
 import { ActionRow, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
+
+/**
+ * The OS owns this setting, not our config: the user can remove the login item from
+ * system settings and a reinstall can clear it. So we read the real state on mount and
+ * re-read it after every write instead of persisting a key that would drift.
+ */
+function LaunchAtStartupSwitch() {
+	const [enabled, setEnabled] = useState(false)
+	const [busy, setBusy] = useState(false)
+
+	useEffect(() => {
+		let cancelled = false
+		isEnabled()
+			.then((value) => {
+				if (!cancelled) {
+					setEnabled(value)
+				}
+			})
+			.catch((error) => {
+				console.error('failed to read autostart state', error)
+			})
+		return () => {
+			cancelled = true
+		}
+	}, [])
+
+	async function onCheckedChange(next: boolean) {
+		setBusy(true)
+		try {
+			if (next) {
+				await enable()
+			} else {
+				await disable()
+			}
+		} catch (error) {
+			const message = next ? m.couldNotEnableLaunchAtStartup : m.couldNotDisableLaunchAtStartup
+			toast.error(message({ error: String(error) }))
+		}
+		try {
+			setEnabled(await isEnabled())
+		} catch (error) {
+			console.error('failed to read autostart state', error)
+		}
+		setBusy(false)
+	}
+
+	return <Switch checked={enabled} disabled={busy} onCheckedChange={onCheckedChange} />
+}
 
 export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 	const themeLabels = { light: m.light, dark: m.dark } as const
@@ -23,6 +74,9 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 				</SettingsRow>
 				<SettingsRow label={m.closeToTray()} description={m.closeToTrayInfo()}>
 					<Switch checked={vm.preference.closeToTray} onCheckedChange={vm.preference.setCloseToTray} />
+				</SettingsRow>
+				<SettingsRow label={m.launchAtStartup()} description={m.launchAtStartupInfo()}>
+					<LaunchAtStartupSwitch />
 				</SettingsRow>
 				<SettingsRow label={m.theme()}>
 					<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>

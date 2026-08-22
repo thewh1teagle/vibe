@@ -13,6 +13,7 @@ import { usePreferenceProvider } from './providers/preference'
 import { ErrorBoundary } from 'react-error-boundary'
 import { BoundaryFallback } from './components/boundary-fallback'
 import ErrorModalWithContext from './components/error-modal-with-context'
+import HandoffTranscriptSaver from './components/handoff-transcript-saver'
 import { FilesProvider } from './providers/files-provider'
 import { HotkeyProvider } from './providers/hotkey'
 import { ToastProvider } from './providers/toast'
@@ -47,6 +48,8 @@ function AppContent() {
 								<HotkeyProvider>
 									<ErrorModalWithContext />
 									<UpdateProgress />
+									{/* Phone transcriptions arrive while the user is elsewhere, so this must outlive any page. */}
+									<HandoffTranscriptSaver />
 									<FilesProvider>
 										<Routes>
 											<Route path="/" element={<MainPage />} />

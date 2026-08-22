@@ -8,6 +8,8 @@ on:
             - "website/**"
             - "i18n/**"
             - "scripts/website_links.py"
+            - "pwa/**"
+            - "handoff-wasm/**"
     release:
         types: [published]
     workflow_dispatch:
@@ -55,6 +57,38 @@ jobs:
               working-directory: website
               env:
                 GH_TOKEN: ${{ github.token }}
+
+            # The phone PWA ships inside the same Pages artifact, at /vibe/phone/.
+            # Its iroh client is Rust compiled to wasm, so it needs a toolchain.
+            - name: setup Rust for the wasm client
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  targets: wasm32-unknown-unknown
+
+            - name: cache Rust build
+              uses: Swatinem/rust-cache@v2
+              with:
+                  workspaces: handoff-wasm
+
+            - name: install wasm-bindgen-cli
+              uses: taiki-e/install-action@v2
+              with:
+                  # Must match the pinned `wasm-bindgen` dependency in handoff-wasm/Cargo.toml
+                  # exactly, or the CLI refuses to process the module.
+                  tool: wasm-bindgen-cli@0.2.122
+
+            - name: install binaryen
+              run: brew install binaryen
+
+            - name: Build phone PWA
+              run: |
+                ./handoff-wasm/build.sh
+                pnpm --dir pwa install
+                pnpm --dir pwa build
+                mkdir -p website/dist/phone
+                cp -R pwa/dist/. website/dist/phone/
+              env:
+                PWA_BASE: /vibe/phone/
 
             - name: Setup Pages
               uses: actions/configure-pages@v6

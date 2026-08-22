@@ -153,5 +153,8 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         }
         crate::dictation_indicator::initialize(app.handle());
     }
+    // Bring phone handoff back up if the user had it on. Returns immediately and binds
+    // in the background, so an offline or slow network never delays launch.
+    crate::handoff::restore_on_startup(app.handle());
     Ok(())
 }

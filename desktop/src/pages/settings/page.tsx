@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
-import { Bot, Cpu, Globe, Mic, ShieldCheck, SlidersHorizontal, Sparkles, Terminal, Wrench, X } from 'lucide-react'
+import { Bot, Cpu, Globe, Mic, ShieldCheck, SlidersHorizontal, Smartphone, Sparkles, Terminal, Wrench, X } from 'lucide-react'
 import { ModifyState } from '~/lib/types'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -9,6 +9,7 @@ import { ApiSection } from './sections/api'
 import { DictationSection } from './sections/dictation'
 import { GeneralSection } from './sections/general'
 import { ModelsSection } from './sections/models'
+import { PhoneSection } from './sections/phone'
 import { PrivacySection } from './sections/privacy'
 import { SummarizeSection } from './sections/summarize'
 import { TranscriptionSection } from './sections/transcription'
@@ -19,7 +20,7 @@ interface SettingsPageProps {
 	scrollTo?: string
 }
 
-type SectionId = 'general' | 'transcription' | 'models' | 'summarize' | 'tuning' | 'dictation' | 'api' | 'privacy' | 'advanced'
+type SectionId = 'general' | 'transcription' | 'models' | 'summarize' | 'tuning' | 'dictation' | 'phone' | 'api' | 'privacy' | 'advanced'
 
 interface SettingsSection {
 	id: SectionId
@@ -56,6 +57,7 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 			sections: [
 				{ id: 'dictation', label: m.globalDictation(), icon: <Mic className="h-4 w-4" /> },
 				{ id: 'summarize', label: m.processWithLlm(), icon: <Sparkles className="h-4 w-4" /> },
+				{ id: 'phone', label: m.phone(), icon: <Smartphone className="h-4 w-4" /> },
 			],
 		},
 		{
@@ -124,6 +126,8 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 					{activeSection === 'tuning' && <TuningSection vm={vm} />}
 
 					{activeSection === 'dictation' && <DictationSection />}
+
+					{activeSection === 'phone' && <PhoneSection vm={vm} />}
 
 					{activeSection === 'api' && <ApiSection vm={vm} />}
 
