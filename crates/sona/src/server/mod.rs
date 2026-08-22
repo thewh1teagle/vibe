@@ -1,6 +1,6 @@
 mod diarization;
 mod form;
-mod format;
+pub(crate) mod format;
 mod routes;
 mod stream;
 mod transcription;

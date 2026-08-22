@@ -2,6 +2,7 @@ use crate::engine::Engine;
 use clap::{Parser, Subcommand};
 use whisper_rs::{ContextOptions, TranscribeOptions};
 
+use crate::server::format;
 use crate::{audio, pull, server};
 
 const VERSION: &str = match option_env!("SONA_VERSION") {
@@ -192,7 +193,13 @@ async fn transcribe_command(args: TranscribeArgs, config: AppConfig) -> anyhow::
             temperature: args.temperature,
             max_text_ctx: args.max_text_ctx,
             word_timestamps: args.word_timestamps,
-            max_segment_len: args.max_segment_len,
+            // One word per segment is what --word-timestamps is asking for, unless
+            // the caller picked a length themselves.
+            max_segment_len: if args.word_timestamps && args.max_segment_len == 0 {
+                1
+            } else {
+                args.max_segment_len
+            },
             best_of: args.best_of,
             beam_size: args.beam_size,
             vad_model_path: args.vad_model,
@@ -200,7 +207,22 @@ async fn transcribe_command(args: TranscribeArgs, config: AppConfig) -> anyhow::
         },
     )
     .inspect_err(|err| tracing::error!("transcription failed: {err:#}"))?;
-    println!("{}", result.text());
+
+    if args.word_timestamps {
+        // whisper.cpp emits one segment per word here, plus a leading empty one for
+        // the silence before speech starts.
+        let words = result.segments.iter().filter(|segment| !segment.text.trim().is_empty());
+        for word in words {
+            println!(
+                "[{} --> {}] {}",
+                format::cs_to_vtt_time(word.start),
+                format::cs_to_vtt_time(word.end),
+                word.text.trim()
+            );
+        }
+    } else {
+        println!("{}", result.text());
+    }
     Ok(())
 }
 

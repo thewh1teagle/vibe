@@ -18,7 +18,7 @@ fn cs_to_srt_time(cs: i64) -> String {
     format!("{h:02}:{m:02}:{s:02},{ms:03}")
 }
 
-fn cs_to_vtt_time(cs: i64) -> String {
+pub(crate) fn cs_to_vtt_time(cs: i64) -> String {
     cs_to_srt_time(cs).replace(',', ".")
 }
 
