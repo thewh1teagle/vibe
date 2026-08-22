@@ -41,7 +41,11 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 				<SettingsRow label={m.useWordTimestamps()} description={m.infoUseWordTimestamps()}>
 					<Switch
 						checked={Boolean(vm.preference.modelOptions.word_timestamps)}
-						onCheckedChange={(checked) => vm.preference.setModelOptions({ ...vm.preference.modelOptions, word_timestamps: checked })}
+						onCheckedChange={(checked) => {
+							// The switch does nothing without a length, so say so rather than letting it look broken.
+							if (checked && !vm.preference.modelOptions.max_sentence_len) message(m.pleaseSetMaxSentenceLen())
+							vm.preference.setModelOptions({ ...vm.preference.modelOptions, word_timestamps: checked })
+						}}
 					/>
 				</SettingsRow>
 
