@@ -1,6 +1,6 @@
 {
 	"baseLocale": "en-US",
-	"locales": ["en-US", "cs-CZ", "es-MX", "fr-FR", "he-IL", "ja-JP", "ko-KR", "no-NO", "pl-PL", "pt-BR", "ru-RU", "zh-CN", "zh-HK"],
+	"locales": ["en-US", "bg-BG", "cs-CZ", "de-DE", "es-MX", "fr-FR", "he-IL", "ja-JP", "ko-KR", "no-NO", "pl-PL", "pt-BR", "ru-RU", "zh-CN", "zh-HK"],
 	"modules": [
 		"https://cdn.jsdelivr.net/npm/@inlang/plugin-message-format@latest/dist/index.js",
 		"https://cdn.jsdelivr.net/npm/@inlang/plugin-m-function-matcher@latest/dist/index.js"
