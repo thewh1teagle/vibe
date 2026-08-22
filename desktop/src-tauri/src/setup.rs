@@ -45,6 +45,16 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     crate::cleaner::clean_updater_files().log_error();
     tracing::debug!("Vibe App Running");
 
+    // Settings live in app_config.json so a person or an agent can edit it directly; the store
+    // plugin never re-reads the file, so a watcher has to push external edits into it.
+    match crate::config_watcher::start(app.handle()) {
+        // Kept in state so the watcher lives as long as the app.
+        Ok(watcher) => {
+            app.manage(watcher);
+        }
+        Err(error) => tracing::error!("could not start config watcher: {:?}", error),
+    }
+
     // Crash handler
 
     let _handler = crash_handler::CrashHandler::attach(unsafe {

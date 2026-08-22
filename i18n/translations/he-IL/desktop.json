@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "החזיקו גם ⌘, ⌃, ⌥ או ⇧",
 	"changeShortcut": "שינוי קיצור הדרך",
 	"inProgress": "בתהליך",
-	"queued": "בתור"
+	"queued": "בתור",
+	"never": "אף פעם",
+	"configFile": "קובץ הגדרות"
 }

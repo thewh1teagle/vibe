@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Giữ thêm ⌘, ⌃, ⌥ hoặc ⇧",
 	"changeShortcut": "Đổi phím tắt",
 	"inProgress": "Đang xử lý",
-	"queued": "Trong hàng đợi"
+	"queued": "Trong hàng đợi",
+	"never": "Không bao giờ",
+	"configFile": "Tệp cấu hình"
 }

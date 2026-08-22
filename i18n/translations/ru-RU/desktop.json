@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Удерживайте также ⌘, ⌃, ⌥ или ⇧",
 	"changeShortcut": "Изменить сочетание клавиш",
 	"inProgress": "Выполняется",
-	"queued": "В очереди"
+	"queued": "В очереди",
+	"never": "Никогда",
+	"configFile": "Файл конфигурации"
 }

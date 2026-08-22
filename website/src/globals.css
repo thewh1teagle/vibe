@@ -518,14 +518,15 @@
 	--mock-accent-ink: #ffffff;
 }
 .dark {
-	--mock-surface: #181818;
-	--mock-sidebar: #212121;
-	--mock-muted: #242424;
-	--mock-line: #303030;
+	/* ChatGPT's arrangement: the rail is the darkest surface, the content sits a step above it. */
+	--mock-surface: #212121;
+	--mock-sidebar: #0f0f0f;
+	--mock-muted: #2b2b2b;
+	--mock-line: #343434;
 	--mock-ink: #ececec;
-	--mock-ink-muted: #9a9a9a;
-	--mock-faint: #3a3a3a;
-	--mock-active: #2a2a2a;
+	--mock-ink-muted: #9b9b9b;
+	--mock-faint: #3d3d3d;
+	--mock-active: #303030;
 	--mock-accent: #4c8bff;
 	--mock-accent-ink: #0d1117;
 }

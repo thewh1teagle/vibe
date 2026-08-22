@@ -3,8 +3,9 @@ import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
-import { useLocalStorage } from 'usehooks-ts'
 import { AudioDevice } from '~/lib/audio'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -73,13 +74,13 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const preference = usePreferenceProvider()
 	const preferenceRef = useRef(preference)
 
-	const [hotkeyEnabled, setHotkeyEnabled] = useLocalStorage('prefs_hotkey_enabled', false)
-	const [hotkeyShortcut, setHotkeyShortcut] = useLocalStorage('prefs_hotkey_shortcut', DEFAULT_HOTKEY_SHORTCUT)
+	const [hotkeyEnabled, setHotkeyEnabled] = usePersisted(CONFIG_KEYS.hotkeyEnabled, false)
+	const [hotkeyShortcut, setHotkeyShortcut] = usePersisted(CONFIG_KEYS.hotkeyShortcut, DEFAULT_HOTKEY_SHORTCUT)
 	const [hotkeyCapturing, setHotkeyCapturingState] = useState(false)
-	const [hotkeyOutputMode, setHotkeyOutputMode] = useLocalStorage<HotkeyOutputMode>('prefs_hotkey_output_mode', 'clipboard')
-	const [hotkeyActivationMode, setHotkeyActivationMode] = useLocalStorage<HotkeyActivationMode>('prefs_hotkey_activation_mode', 'push-to-talk')
+	const [hotkeyOutputMode, setHotkeyOutputMode] = usePersisted<HotkeyOutputMode>(CONFIG_KEYS.hotkeyOutputMode, 'clipboard')
+	const [hotkeyActivationMode, setHotkeyActivationMode] = usePersisted<HotkeyActivationMode>(CONFIG_KEYS.hotkeyActivationMode, 'push-to-talk')
 	const shortcutOperationRef = useRef<Promise<void>>(Promise.resolve())
-	const [hotkeyNormalizeOutput, setHotkeyNormalizeOutput] = useLocalStorage('prefs_hotkey_normalize_output', true)
+	const [hotkeyNormalizeOutput, setHotkeyNormalizeOutput] = usePersisted(CONFIG_KEYS.hotkeyNormalizeOutput, true)
 	const [isHotkeyRecording, setIsHotkeyRecording] = useState(false)
 
 	const isHotkeyRecordingRef = useRef(false)

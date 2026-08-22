@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "請同時按住 ⌘、⌃、⌥ 或 ⇧",
 	"changeShortcut": "更改快速鍵",
 	"inProgress": "進行中",
-	"queued": "排隊中"
+	"queued": "排隊中",
+	"never": "永不",
+	"configFile": "設定檔"
 }

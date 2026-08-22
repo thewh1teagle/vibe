@@ -333,17 +333,62 @@ export function viewModel() {
 		toast.success('cURL example copied to clipboard')
 	}
 
+	/**
+	 * Sona's `/skill` covers the transcription API only. An agent working on someone's behalf also
+	 * needs to know where Vibe keeps its settings and how to change them safely, so that part is
+	 * appended here rather than baked into the runner.
+	 */
 	async function copyAgentSkill() {
 		if (!apiBaseUrl) return
 		try {
 			const res = await tauriFetch(`${apiBaseUrl}/skill`)
 			const text = await res.text()
-			await clipboard.writeText(text)
+			await clipboard.writeText(`${text.trimEnd()}\n\n${await settingsSkillSection()}`)
 			toast.success(m.agentInstructionsCopied())
 		} catch (error) {
 			console.error(error)
 			toast.error(m.localApiUnreachable())
 		}
+	}
+
+	/** Show the settings file in the file manager, so it can be opened, edited or handed to an agent. */
+	async function revealConfigFile() {
+		try {
+			const path = await invoke<string>('get_config_path')
+			await invoke('open_path', { path })
+		} catch (error) {
+			console.error('failed to reveal the config file:', error)
+			toast.error(String(error))
+		}
+	}
+
+	async function settingsSkillSection() {
+		const path = await invoke<string>('get_config_path').catch(() => null)
+		return [
+			'# Vibe settings',
+			'',
+			'Vibe keeps every setting in one JSON file, safe to read and edit:',
+			'',
+			path ? `  ${path}` : '  (ask the user to open Settings → API & Agents → Config file)',
+			'',
+			'Keys are flat and named after the setting they control, for example:',
+			'',
+			'~~~json',
+			'{',
+			'  "general.theme": "dark",',
+			'  "general.displayLanguage": "en-US",',
+			'  "transcription.recognizeSpeakers": false,',
+			'  "transcription.modelOptions": { "lang": "en", "n_threads": 4 },',
+			'  "dictation.shortcut": "CmdOrCtrl+Shift+Space"',
+			'}',
+			'~~~',
+			'',
+			'Vibe watches the file, so an edit applies immediately — no restart, and no need to ask the',
+			'user to reopen the app. Write the whole file atomically (write a temporary file beside it,',
+			'then rename it over the original) so Vibe can never read a half-written config.',
+			'',
+			`Source and docs: ${config.repoURL}`,
+		].join('\n')
 	}
 
 	async function stopApiServer() {
@@ -413,6 +458,7 @@ export function viewModel() {
 		refreshApiServerStatus,
 		copyCurlExample,
 		copyAgentSkill,
+		revealConfigFile,
 		preference: preference,
 		askAndReset,
 		openModelPath,

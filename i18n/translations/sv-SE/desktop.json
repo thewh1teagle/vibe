@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Håll även ned ⌘, ⌃, ⌥ eller ⇧",
 	"changeShortcut": "Ändra kortkommando",
 	"inProgress": "Pågår",
-	"queued": "I kö"
+	"queued": "I kö",
+	"never": "Aldrig",
+	"configFile": "Konfigurationsfil"
 }

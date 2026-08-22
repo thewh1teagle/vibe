@@ -2,11 +2,11 @@ import { useContext } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { UpdaterContext, devToolsEnabled } from '~/providers/updater'
 import { Switch } from '~/components/ui/switch'
-import { Input } from '~/components/ui/input'
+import NumberField from '~/components/number-field'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as ResetIcon } from '~/icons/reset.svg'
-import { ActionRow, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
+import { ActionRow, SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
 
 export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 	const { fakeUpdate, setFakeUpdate } = useContext(UpdaterContext)
@@ -29,19 +29,16 @@ export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 
 			<SettingsGroup title={m.modelMemory()}>
 				<SettingsRow label={m.unloadModelAfterInactivity()} description={`${m.unloadModelAfterInactivityInfo()} ${m.zeroMeansNever()}`}>
-					<Input
-						type="number"
+					<NumberField
+						aria-label={m.unloadModelAfterInactivity()}
+						value={vm.preference.unloadTimeoutMinutes}
 						min={0}
 						max={1440}
-						step={1}
-						value={vm.preference.unloadTimeoutMinutes}
-						onChange={(event) => {
-							const minutes = Number(event.target.value)
-							if (Number.isFinite(minutes)) vm.preference.setUnloadTimeoutMinutes(Math.min(1440, Math.max(0, Math.floor(minutes))))
-						}}
-						className={`w-24 text-end ${rowControlClass}`}
+						step={5}
+						suffix={m.minutes()}
+						format={(minutes) => (minutes === 0 ? m.never() : undefined)}
+						onChange={vm.preference.setUnloadTimeoutMinutes}
 					/>
-					<span className="text-sm text-muted-foreground">{m.minutes()}</span>
 				</SettingsRow>
 			</SettingsGroup>
 

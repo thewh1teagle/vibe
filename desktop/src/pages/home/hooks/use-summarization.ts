@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
-import { useLocalStorage } from 'usehooks-ts'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 import { Claude, type Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -11,7 +12,7 @@ export function useSummarization() {
 	const [llm, setLlm] = useState<Llm | null>(null)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [summarizing, setSummarizing] = useState(false)
-	const [transcriptTab, setTranscriptTab] = useLocalStorage<'transcript' | 'summary'>('prefs_transcript_tab', 'transcript')
+	const [transcriptTab, setTranscriptTab] = usePersisted<'transcript' | 'summary'>(CONFIG_KEYS.transcriptTab, 'transcript')
 
 	useEffect(() => {
 		const config = preference.llmConfig

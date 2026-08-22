@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "请同时按住 ⌘、⌃、⌥ 或 ⇧",
 	"changeShortcut": "更改快捷键",
 	"inProgress": "进行中",
-	"queued": "排队中"
+	"queued": "排队中",
+	"never": "从不",
+	"configFile": "配置文件"
 }

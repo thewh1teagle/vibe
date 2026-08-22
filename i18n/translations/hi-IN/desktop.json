@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "साथ में ⌘, ⌃, ⌥ या ⇧ भी दबाए रखें",
 	"changeShortcut": "शॉर्टकट बदलें",
 	"inProgress": "चल रहा है",
-	"queued": "कतार में"
+	"queued": "कतार में",
+	"never": "कभी नहीं",
+	"configFile": "कॉन्फ़िग फ़ाइल"
 }

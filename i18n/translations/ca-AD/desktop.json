@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Mantén també ⌘, ⌃, ⌥ o ⇧",
 	"changeShortcut": "Canviar la drecera",
 	"inProgress": "En curs",
-	"queued": "A la cua"
+	"queued": "A la cua",
+	"never": "Mai",
+	"configFile": "Fitxer de configuració"
 }

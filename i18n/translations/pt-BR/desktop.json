@@ -438,5 +438,7 @@
 	"shortcutNeedsModifier": "Segure também ⌘, ⌃, ⌥ ou ⇧",
 	"changeShortcut": "Alterar atalho",
 	"inProgress": "Em andamento",
-	"queued": "Na fila"
+	"queued": "Na fila",
+	"never": "Nunca",
+	"configFile": "Arquivo de configuração"
 }
