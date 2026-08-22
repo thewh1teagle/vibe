@@ -1,13 +1,20 @@
 import { invoke } from '@tauri-apps/api/core'
 import { load } from '@tauri-apps/plugin-store'
 import { storeFilename } from '~/lib/config'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { readConfig, writeConfig } from '~/lib/config-store'
+import { getMediaDurationSeconds } from '~/lib/media'
 
 export const analyticsEvents = {
 	TRANSCRIBE_STARTED: 'transcribe_started',
 	TRANSCRIBE_SUCCEEDED: 'transcribe_succeeded',
 	TRANSCRIBE_FAILED: 'transcribe_failed',
+	TRANSCRIBE_CANCELLED: 'transcribe_cancelled',
 	AVX2_NOT_SUPPORTED: 'avx2_not_supported',
 } as const
+
+/** Which of the four transcription entry points an event came from. */
+export type TranscribeSource = 'home' | 'batch' | 'main' | 'hotkey'
 
 type AnalyticsProps = Record<string, string | number>
 
@@ -27,4 +34,65 @@ export async function trackAnalyticsEvent(eventName: string, props?: AnalyticsPr
 	}).catch((error) => {
 		console.debug('analytics track failed', error)
 	})
+}
+
+function fileExt(path: string) {
+	return path.split('.').pop() ?? 'unknown'
+}
+
+/**
+ * Every transcription must report exactly one terminal event — succeeded, failed or cancelled — so
+ * a start without one means the app died mid-run rather than "the user stopped it".
+ *
+ * The start event carries what is known before the run: the file's extension and how long the audio
+ * is. Those are the denominator; attaching them only to successes made "do long files fail more?"
+ * unanswerable.
+ */
+export async function trackTranscribeStarted(source: TranscribeSource, path: string) {
+	// The duration read is a metadata load, which is why the event is not awaited by its callers.
+	const seconds = await getMediaDurationSeconds(path)
+	await trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_STARTED, {
+		source,
+		file_ext: fileExt(path),
+		...(seconds === null ? {} : { audio_duration_seconds: seconds }),
+	})
+}
+
+export function trackTranscribeSucceeded(source: TranscribeSource, options: { durationSeconds: number; segmentsCount: number }) {
+	return trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, {
+		source,
+		duration_seconds: options.durationSeconds,
+		segments_count: options.segmentsCount,
+	})
+}
+
+/**
+ * `error_kind` separates the failures worth acting on from the ones the person caused (a broken
+ * file, a bad request); user errors used to emit nothing at all, which lost their start events.
+ */
+export function trackTranscribeFailed(source: TranscribeSource, path: string, options: { errorMessage: string; userError?: boolean }) {
+	return trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
+		source,
+		error_message: options.errorMessage,
+		file_ext: fileExt(path),
+		error_kind: options.userError ? 'user' : 'internal',
+	})
+}
+
+/** The user stopped this run. The backend returns the partial result as a success, so only the UI knows. */
+export function trackTranscribeCancelled(source: TranscribeSource, path: string) {
+	return trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_CANCELLED, {
+		source,
+		file_ext: fileExt(path),
+	})
+}
+
+/**
+ * Once per install, not once per attempt: the CPU cannot grow AVX2 support between transcriptions,
+ * so repeating the event only inflated it (2,531 events from 949 installs) and hid the machine count.
+ */
+export function trackAvx2NotSupported() {
+	if (readConfig<boolean>(CONFIG_KEYS.avx2NotSupportedReported, false)) return
+	writeConfig(CONFIG_KEYS.avx2NotSupportedReported, true)
+	void trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
 }

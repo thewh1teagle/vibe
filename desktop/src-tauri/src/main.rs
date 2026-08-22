@@ -32,6 +32,9 @@ use tauri_plugin_window_state::StateFlags;
 
 use error::LogError;
 
+/// Guards the clean-exit event: `ExitRequested` and `Exit` both fire on a quit.
+static EXIT_REPORTED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 #[tokio::main]
 async fn main() -> Result<()> {
     // Attach console in Windows:
@@ -105,6 +108,8 @@ async fn main() -> Result<()> {
             cmd::files::glob_files,
             cmd::files::pick_media_paths,
             cmd::download::download_model,
+            cmd::download::check_model_files,
+            cmd::download::cleanup_partial_downloads,
             cmd::sona_cmd::load_model,
             cmd::sona_cmd::get_gpu_devices,
             cmd::sona_cmd::get_model_metadata,
@@ -156,6 +161,14 @@ async fn main() -> Result<()> {
             }
         }
         tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
+            // Both events fire on a normal quit (and the tray's `app.exit(0)` bypasses the
+            // webview entirely), so report the clean exit exactly once, from whichever
+            // arrives first. Nothing here prevents the exit, so this is never a false signal.
+            if !EXIT_REPORTED.swap(true, std::sync::atomic::Ordering::SeqCst) {
+                analytics::track_event_handle(app, analytics::events::APP_EXITED);
+                // Bounded: a slow or unreachable ingest host must not hold up quitting.
+                analytics::flush_events_bounded(app, std::time::Duration::from_secs(2));
+            }
             let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
             if let Ok(mut guard) = mutex.try_lock() {
                 if let Some(ref mut process) = guard.process {

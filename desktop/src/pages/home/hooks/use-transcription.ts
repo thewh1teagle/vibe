@@ -6,7 +6,7 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
-import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
+import { trackAvx2NotSupported, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { isUserError } from '~/lib/sona-errors'
@@ -42,7 +42,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 	async function transcribe(path: string) {
 		const avx2 = await invoke<boolean>('is_avx2_enabled')
 		if (!avx2) {
-			trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
+			trackAvx2NotSupported()
 			await dialog.message(m.avx2NotSupported(), { kind: 'error' })
 			return
 		}
@@ -54,7 +54,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 		setLoading(true)
 		abortRef.current = false
 		let completedSegments: transcript.Segment[] = []
-		trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_STARTED, { source: 'home' })
+		trackTranscribeStarted('home', path)
 
 		try {
 			const current = preferenceRef.current
@@ -84,21 +84,22 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 			completedSegments = result.segments
 			setSegments(result.segments)
 			toast.success(m.transcribeTook({ total: String(total) }), { position: 'bottom-center' })
-			trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, { source: 'home', duration_seconds: total, segments_count: result.segments.length })
+			// An abort resolves as a success carrying the partial segments, so only this flag tells them apart.
+			if (abortRef.current) trackTranscribeCancelled('home', path)
+			else trackTranscribeSucceeded('home', { durationSeconds: total, segmentsCount: result.segments.length })
 		} catch (error) {
-			if (!abortRef.current) {
+			if (abortRef.current) {
+				trackTranscribeCancelled('home', path)
+			} else {
 				stopKeepAwake(KEEP_AWAKE.transcribe)
 				console.error('error: ', error)
 				const errorObject = typeof error === 'object' && error !== null ? (error as { code?: string; message?: string }) : null
 				const errorMessage = errorObject?.message || String(error)
-				if (errorObject?.code && isUserError(errorObject.code)) {
+				const userError = Boolean(errorObject?.code && isUserError(errorObject.code))
+				trackTranscribeFailed('home', path, { errorMessage, userError })
+				if (userError) {
 					toast.error(`${m.error()}: ${errorMessage}`, { position: 'bottom-center' })
 				} else {
-					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
-						source: 'home',
-						error_message: errorMessage,
-						file_ext: path.split('.').pop() ?? 'unknown',
-					})
 					setErrorModal?.({ log: errorMessage, open: true })
 				}
 				setLoading(false)

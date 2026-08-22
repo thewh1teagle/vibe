@@ -16,3 +16,14 @@ export async function ls(where: string): Promise<NamedPath[]> {
 	}
 	return paths
 }
+
+/** Regular files only — `readDir` also reports directories, and a folder named `x.bin` is no model. */
+export async function lsFiles(where: string): Promise<NamedPath[]> {
+	const entries = await fsExt.readDir(where)
+	const paths: NamedPath[] = []
+	for (const entry of entries) {
+		if (!entry.isFile) continue
+		paths.push({ name: entry.name, path: await pathExt.join(where, entry.name) })
+	}
+	return paths
+}

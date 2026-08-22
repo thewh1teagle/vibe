@@ -119,7 +119,7 @@ def download_sona(script_root: Path, target_triple: str | None) -> None:
             print(f"FFmpeg sidecar already exists at {ffmpeg_dest}; skipping download.")
         return
 
-    url = f"https://github.com/thewh1teagle/sona/releases/download/{tag}/{asset_name}"
+    url = f"https://github.com/vibe-transcribe/sona/releases/download/{tag}/{asset_name}"
 
     try:
         with httpx.Client(follow_redirects=True, timeout=120) as client:

@@ -1,11 +1,11 @@
 import { invoke } from '@tauri-apps/api/core'
 import { join } from '@tauri-apps/api/path'
 import { ask } from '@tauri-apps/plugin-dialog'
-import * as fs from '@tauri-apps/plugin-fs'
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
 import * as config from '~/lib/config'
+import { isModelFileUsable } from '~/lib/model'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useToastProvider } from '~/providers/toast'
 
@@ -23,7 +23,8 @@ export function useModelGates() {
 		async (options: { filename: string; url: string; title: string; question: string; downloading: string }) => {
 			const modelsFolder = await invoke<string>('get_models_folder')
 			const modelPath = await join(modelsFolder, options.filename)
-			if (await fs.exists(modelPath)) return true
+			// A file that fails its integrity check does not count as installed — download it again.
+			if (await isModelFileUsable(modelPath)) return true
 
 			const confirmed = await ask(options.question, { title: options.title, kind: 'info' })
 			if (!confirmed) return false

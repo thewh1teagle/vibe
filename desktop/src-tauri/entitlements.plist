@@ -1,10 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+    Hardened runtime entitlements. Applied to the main `vibe` binary AND to the
+    `sona` / `ffmpeg` sidecars, which Tauri re-signs with the same entitlements
+    (see tauri.macos.conf.json: hardenedRuntime = true).
+
+    Keep this list minimal: every entitlement here is a hole in the hardened
+    runtime, and the sidecars inherit all of them.
+
+    Deliberately NOT present, and why (verified against the shipped v3.1.1
+    bundle with `otool -L` / `codesign -dvvv`):
+
+      com.apple.security.cs.disable-library-validation
+          Not needed. `sona` and `ffmpeg` link only Apple system frameworks and
+          /usr/lib; the bundle ships no third-party dylibs, and nothing is
+          dlopen'd at runtime on macOS. (The libonnxruntime_providers_*.dylib
+          strings inside `sona` are CUDA/TensorRT/OpenVINO/QNN/CANN execution
+          providers - non-Apple platforms, never loaded here.) Adding this would
+          let any unsigned or foreign-team dylib be injected into the sidecars
+          for no benefit.
+
+      com.apple.security.cs.allow-unsigned-executable-memory
+          Not needed and much broader than allow-jit: it disables code-signing
+          enforcement on all executable pages rather than permitting only
+          explicitly-requested MAP_JIT regions. No evidence any component needs
+          writable+executable memory.
+-->
 <plist version="1.0">
 <dict>
+    <!--
+        Microphone access. Required under the hardened runtime for the app to
+        open an input device (paired with NSMicrophoneUsageDescription).
+    -->
     <key>com.apple.security.device.audio-input</key>
     <true/>
+
+    <!--
+        Outbound network access: model downloads, update checks, analytics.
+    -->
     <key>com.apple.security.network.client</key>
+    <true/>
+
+    <!--
+        Permits MAP_JIT mappings (write-then-execute pages requested explicitly
+        via mmap MAP_JIT). Added for the `sona` sidecar's GPU path.
+
+        Why: `sona` links Metal/MetalKit and embeds the ggml Metal kernels as
+        *source* rather than a precompiled .metallib - the binary contains
+        `ggml_metal_library_init_from_source`, `newLibraryWithSource:options:error:`
+        and ~125 raw `kernel void` shader bodies. Shaders are therefore compiled
+        at runtime on every model load, and pipeline objects are built in-process
+        by the GPU driver.
+
+        Confidence: this is a hedge, not a proven fix. The source->AIR step runs
+        out-of-process in MTLCompilerService.xpc, so it should not need allow-jit,
+        and Apple does not list Metal among the JIT use cases. But the in-process
+        driver-side pipeline compilation is the one place this sidecar could trip
+        W^X enforcement, and the observed failure mode (sidecar SIGKILLed
+        mid-request with no stderr) is what such a violation looks like.
+
+        This is the narrow option: unlike allow-unsigned-executable-memory it
+        grants nothing unless code explicitly asks for MAP_JIT.
+    -->
+    <key>com.apple.security.cs.allow-jit</key>
     <true/>
 </dict>
 </plist>

@@ -46,3 +46,27 @@ async fn accepts_result_lines_larger_than_the_default_codec_limit() {
 
     assert!(matches!(events.as_slice(), [Ok(SonaEvent::Result { text: result })] if result == &text));
 }
+
+#[test]
+fn stderr_tail_keeps_the_newest_output() {
+    let mut tail = super::StderrTail::default();
+    for index in 0..2000 {
+        tail.push(&format!("line {index}\n"));
+    }
+    let snapshot = tail.snapshot();
+
+    assert!(snapshot.len() <= super::StderrTail::LIMIT);
+    // The crash message is the last thing a dying child writes, so that is the
+    // end that has to survive the cap.
+    assert!(snapshot.ends_with("line 1999"), "{snapshot}");
+    assert!(!snapshot.contains("line 0\n"), "{snapshot}");
+}
+
+#[test]
+fn stderr_tail_reports_a_read_failure_instead_of_looking_empty() {
+    let mut tail = super::StderrTail::default();
+    tail.finish(Some("stream did not contain valid UTF-8".to_string()));
+
+    assert!(tail.is_finished());
+    assert!(tail.snapshot().contains("stream did not contain valid UTF-8"));
+}

@@ -14,6 +14,8 @@ export const CONFIG_KEYS = {
 	closeToTray: 'general.closeToTray',
 	preventSleep: 'general.preventSleep',
 	analyticsEnabled: 'analytics_enabled',
+	/** Set once the machine has reported it has no AVX2, so the event counts machines, not attempts. */
+	avx2NotSupportedReported: 'analytics.avx2NotSupportedReported',
 
 	// Model
 	modelPath: 'model.path',

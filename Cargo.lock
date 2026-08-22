@@ -2733,7 +2733,7 @@ dependencies = [
  "tokio",
  "tower-service",
  "tracing",
- "windows-registry 0.6.1",
+ "windows-registry 0.5.3",
 ]
 
 [[package]]
@@ -2748,7 +2748,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.62.2",
+ "windows-core 0.58.0",
 ]
 
 [[package]]
@@ -6932,7 +6932,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-aptabase"
 version = "1.0.0"
-source = "git+https://github.com/thewh1teagle/tauri-plugin-aptabase?branch=deterministic-daily-session#ef066b3ffafc451fd7a1e4fc788ae57313149a6d"
+source = "git+https://github.com/vibe-transcribe/tauri-plugin-aptabase?branch=deterministic-daily-session#ef066b3ffafc451fd7a1e4fc788ae57313149a6d"
 dependencies = [
  "futures",
  "log",
@@ -8104,6 +8104,7 @@ dependencies = [
  "reqwest 0.13.2",
  "serde",
  "serde_json",
+ "sha2 0.10.9",
  "showfile",
  "subtle",
  "tauri",
@@ -8131,6 +8132,7 @@ dependencies = [
  "tracing-subscriber",
  "url",
  "urlencoding",
+ "uuid",
  "which",
  "window-vibrancy",
  "windows 0.62.2",

@@ -16,7 +16,7 @@ Vibe is a desktop transcription app built with **Tauri** (Rust + TypeScript fron
 ### Sona Runner (`sona/` folder)
 
 - **Language**: Rust + whisper.cpp bindings
-- **Location**: Separate repository at `github.com/thewh1teagle/sona` (also cloned locally in `./sona`)
+- **Location**: Separate repository at `github.com/vibe-transcribe/sona` (also cloned locally in `./sona`)
 - **Purpose**: Single local runner process for audio transcription, model loading, streaming, and diarization
 - Bundled as one `sona` binary sidecar with the desktop app
 - Diarization is in-process in Sona via `diarize-rs`; Vibe does not bundle or spawn a separate `sona-diarize` binary
