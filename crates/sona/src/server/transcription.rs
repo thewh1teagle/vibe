@@ -80,6 +80,7 @@ pub(super) async fn transcribe(
 
     let opts = build_options(&form, verbose, stable_timestamps, vad_model_path);
     let result = ctx.transcribe(&samples, opts).map_err(|err| {
+        tracing::error!(samples = samples.len(), "transcription failed: {err:#}");
         error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "internal_error",

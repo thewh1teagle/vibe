@@ -111,7 +111,11 @@ pub(super) fn stream_transcription(
                     }),
                 );
             }
-            Err(err) if !tx.is_closed() => {
+            Err(err) => {
+                tracing::error!("streaming transcription failed: {err:#}");
+                if tx.is_closed() {
+                    return;
+                }
                 let _ = send_event(
                     &tx,
                     serde_json::json!({
@@ -120,7 +124,6 @@ pub(super) fn stream_transcription(
                     }),
                 );
             }
-            Err(_) => {}
         }
     });
 

@@ -1,4 +1,7 @@
 mod error;
+// The pre-flight checks are pure Rust, so they stay testable without the FFI.
+#[cfg_attr(not(feature = "ffi"), allow(dead_code))]
+mod model_file;
 mod options;
 
 #[cfg(feature = "ffi")]
@@ -20,6 +23,13 @@ mod stub;
 
 pub use error::{Error, Result};
 pub use options::{ContextOptions, StreamCallbacks, TranscribeOptions};
+
+/// Checks that a file is a whisper.cpp model that can be loaded, without
+/// loading it. Callers that only need to identify a file should use this
+/// instead of assuming anything that is not another format is whisper.
+pub fn validate_model_file(path: impl AsRef<std::path::Path>) -> Result<()> {
+    model_file::validate(path.as_ref()).map(|_| ())
+}
 
 #[cfg(feature = "ffi")]
 pub fn supported_languages() -> Vec<String> {

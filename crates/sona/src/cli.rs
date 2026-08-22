@@ -178,7 +178,8 @@ async fn transcribe_command(args: TranscribeArgs, config: AppConfig) -> anyhow::
             gpu_device: args.gpu_device,
             no_gpu: false,
         },
-    )?;
+    )
+    .inspect_err(|err| tracing::error!(model = args.model, "failed to load model: {err:#}"))?;
     let result = ctx.transcribe(
         &samples,
         TranscribeOptions {
@@ -197,7 +198,8 @@ async fn transcribe_command(args: TranscribeArgs, config: AppConfig) -> anyhow::
             vad_model_path: args.vad_model,
             ..TranscribeOptions::default()
         },
-    )?;
+    )
+    .inspect_err(|err| tracing::error!("transcription failed: {err:#}"))?;
     println!("{}", result.text());
     Ok(())
 }

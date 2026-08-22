@@ -13,7 +13,9 @@ path = "src/lib.rs"
 [dependencies]
 hound = { version = "3.5", optional = true }
 libc = "0.2"
+sysinfo = { version = "0.39", default-features = false, features = ["system"] }
 thiserror = "2.0"
+tracing = "0.1"
 whisper-cpp-sys = { path = "../whisper-cpp-sys", optional = true }
 vad-rs = { path = "../vad-rs", optional = true }
 
@@ -22,6 +24,9 @@ windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
     "Win32_System_LibraryLoader",
 ] }
+
+[dev-dependencies]
+tempfile = "3"
 
 [features]
 default = []

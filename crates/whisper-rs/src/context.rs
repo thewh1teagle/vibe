@@ -1,8 +1,12 @@
 use std::ffi::{CStr, CString, c_void};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::ptr;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Once;
 
 use crate::callbacks::{CallbackState, install_stream_callbacks};
+use crate::model_file;
 use crate::{
     ContextOptions, Error, Result, Segment, StreamCallbacks, TranscribeOptions, TranscribeResult,
 };
@@ -16,13 +20,12 @@ pub struct Context {
 impl Context {
     pub fn new(model_path: impl AsRef<Path>, options: ContextOptions) -> Result<Self> {
         let path = model_path.as_ref();
-        let mut model = std::fs::read(path).map_err(|source| Error::ReadModel {
-            path: path.to_path_buf(),
-            source,
-        })?;
-        if model.is_empty() {
-            return Err(Error::EmptyModel(path.to_path_buf()));
-        }
+        install_abort_handler();
+
+        // whisper.cpp turns a malformed header into a GGML_ASSERT, so the file
+        // is checked here while a failure can still be reported.
+        let size = model_file::validate(path)?;
+        model_file::check_available_memory(path, size)?;
 
         let mut params = unsafe { ffi::whisper_context_default_params() };
         params.use_gpu = !options.no_gpu && platform::vulkan_available();
@@ -30,20 +33,14 @@ impl Context {
             params.gpu_device = options.gpu_device;
         }
 
-        let ctx = unsafe {
-            ffi::whisper_init_from_buffer_with_params(
-                model.as_mut_ptr().cast::<c_void>(),
-                model.len(),
-                params,
-            )
-        };
+        // Loading from the path keeps a single copy of the weights in memory;
+        // the buffer entry point would hold the whole file alongside them.
+        let path_cstring = CString::new(path.as_os_str().to_string_lossy().as_ref())?;
+        let ctx = unsafe { ffi::whisper_init_from_file_with_params(path_cstring.as_ptr(), params) };
         if ctx.is_null() {
             return Err(Error::LoadModel(PathBuf::from(path)));
         }
 
-        // whisper.cpp has finished reading the input buffer once initialization
-        // returns, so keeping the complete model file resident would only
-        // duplicate its memory for the lifetime of the context.
         Ok(Self { ctx })
     }
 
@@ -114,17 +111,25 @@ impl Drop for Context {
 
 unsafe impl Send for Context {}
 
+/// Whether whisper.cpp's informational logging is forwarded to stderr.
+/// Warnings and errors are always forwarded, whatever this is set to.
+static VERBOSE: AtomicBool = AtomicBool::new(false);
+
 pub fn set_verbose(verbose: bool) {
-    unsafe {
-        ffi::whisper_log_set(
-            if verbose {
-                Some(whisper_log_callback)
-            } else {
-                Some(quiet_log_callback)
-            },
-            ptr::null_mut(),
-        );
-    }
+    VERBOSE.store(verbose, Ordering::Relaxed);
+    install_abort_handler();
+    unsafe { ffi::whisper_log_set(Some(whisper_log_callback), ptr::null_mut()) };
+}
+
+/// Registers the ggml abort hook so a `GGML_ASSERT` message reaches stderr
+/// before the process dies. ggml calls `abort()` right after the hook returns,
+/// so this only records the message.
+pub(crate) fn install_abort_handler() {
+    static INSTALLED: Once = Once::new();
+
+    INSTALLED.call_once(|| {
+        unsafe { ffi::ggml_set_abort_callback(Some(ggml_abort_callback)) };
+    });
 }
 
 pub(crate) fn option_cstring(value: Option<&str>) -> Result<Option<CString>> {
@@ -202,18 +207,42 @@ fn segment_at(ctx: *mut ffi::whisper_context, index: i32) -> Segment {
 }
 
 extern "C" fn whisper_log_callback(
-    _level: ffi::ggml_log_level,
+    level: ffi::ggml_log_level,
     text: *const libc::c_char,
     _user_data: *mut c_void,
 ) {
-    if !text.is_null() {
-        eprint!("{}", unsafe { CStr::from_ptr(text) }.to_string_lossy());
+    if text.is_null() || !should_log(level) {
+        return;
     }
+    eprint!("{}", unsafe { CStr::from_ptr(text) }.to_string_lossy());
+    let _ = std::io::stderr().flush();
 }
 
-extern "C" fn quiet_log_callback(
-    _level: ffi::ggml_log_level,
-    _text: *const libc::c_char,
-    _user_data: *mut c_void,
-) {
+/// Warnings and errors always get through; everything else needs `--verbose`.
+/// A `CONT` line continues whichever line was logged before it, so it follows
+/// the same decision.
+fn should_log(level: ffi::ggml_log_level) -> bool {
+    static LAST_LOGGED: AtomicBool = AtomicBool::new(false);
+
+    let logged = match level {
+        ffi::ggml_log_level_GGML_LOG_LEVEL_WARN | ffi::ggml_log_level_GGML_LOG_LEVEL_ERROR => true,
+        ffi::ggml_log_level_GGML_LOG_LEVEL_CONT => LAST_LOGGED.load(Ordering::Relaxed),
+        _ => VERBOSE.load(Ordering::Relaxed),
+    };
+    if level != ffi::ggml_log_level_GGML_LOG_LEVEL_CONT {
+        LAST_LOGGED.store(logged, Ordering::Relaxed);
+    }
+    logged
+}
+
+extern "C" fn ggml_abort_callback(message: *const libc::c_char) {
+    let message = if message.is_null() {
+        "(no message)".to_string()
+    } else {
+        unsafe { CStr::from_ptr(message) }.to_string_lossy().into_owned()
+    };
+    // ggml aborts as soon as this returns, so the message has to be flushed now.
+    eprintln!("ggml fatal error: {}", message.trim_end());
+    let _ = std::io::stderr().flush();
+    tracing::error!(target: "whisper_rs", "ggml fatal error: {}", message.trim_end());
 }

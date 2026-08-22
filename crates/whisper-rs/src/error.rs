@@ -15,6 +15,28 @@ pub enum Error {
     },
     #[error("model file is empty or corrupt: {0}")]
     EmptyModel(std::path::PathBuf),
+    #[error("model file {path} is not a whisper.cpp model ({reason}, {size} bytes)")]
+    CorruptModel {
+        path: std::path::PathBuf,
+        size: u64,
+        reason: String,
+    },
+    #[error("model file {path} holds a '{kind}' model, not a whisper transcription model")]
+    NotATranscriptionModel {
+        path: std::path::PathBuf,
+        kind: String,
+    },
+    #[error("model file {path} uses unsupported quantization (ftype {ftype})")]
+    UnsupportedFtype {
+        path: std::path::PathBuf,
+        ftype: i32,
+    },
+    #[error("not enough memory to load {path}: needs {required} bytes, {available} bytes available")]
+    InsufficientMemory {
+        path: std::path::PathBuf,
+        required: u64,
+        available: u64,
+    },
     #[error("failed to load model from {0}")]
     LoadModel(std::path::PathBuf),
     #[error("no samples")]

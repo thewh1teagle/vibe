@@ -63,7 +63,9 @@ impl ServerState {
 
         self.unload_model();
         let no_gpu = no_gpu.unwrap_or(false);
-        let ctx = Engine::load(path, ContextOptions { gpu_device, no_gpu })?;
+        let ctx = Engine::load(path, ContextOptions { gpu_device, no_gpu }).inspect_err(|err| {
+            tracing::error!(model = path, gpu_device, no_gpu, "failed to load model: {err:#}");
+        })?;
         self.model_name = Path::new(path).file_name().unwrap_or_default().to_string_lossy().into_owned();
         self.model_path = path.to_string();
         self.gpu_device = gpu_device;
