@@ -12,6 +12,7 @@ mod dictation_indicator;
 mod error;
 mod ffmpeg;
 mod handoff;
+mod keepawake;
 mod logging;
 mod setup;
 mod sona;
@@ -40,6 +41,7 @@ async fn main() -> Result<()> {
     #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
         .manage(tray::TrayState::default())
+        .manage(keepawake::KeepAwake::new())
         .manage(tokio::sync::Mutex::<Option<handoff::HandoffState>>::new(None))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
@@ -86,11 +88,6 @@ async fn main() -> Result<()> {
         );
     }
 
-    #[cfg(feature = "keepawake")]
-    {
-        builder = builder.plugin(tauri_plugin_keepawake::init());
-    }
-
     let app = builder
         .invoke_handler(tauri::generate_handler![
             cmd::download::download_file,
@@ -98,6 +95,8 @@ async fn main() -> Result<()> {
             cmd::handoff_cmd::handoff_start,
             cmd::handoff_cmd::handoff_stop,
             cmd::handoff_cmd::handoff_regenerate_token,
+            cmd::keepawake_cmd::keepawake_start,
+            cmd::keepawake_cmd::keepawake_stop,
             cmd::app::get_cargo_features,
             cmd::config::write_config_atomically,
             cmd::config::get_config_path,

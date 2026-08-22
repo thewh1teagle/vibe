@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Obre Vibe automàticament quan inicies la sessió a l'ordinador.",
 	"couldNotEnableLaunchAtStartup": "No s'ha pogut activar l'obertura en iniciar la sessió: {error}",
 	"couldNotDisableLaunchAtStartup": "No s'ha pogut desactivar l'obertura en iniciar la sessió: {error}",
+	"preventSleep": "Evita que l'ordinador s'adormi",
+	"preventSleepInfo": "Impedeix que el temporitzador d'inactivitat adormi l'ordinador mentre Vibe s'executa, de manera que es manté accessible — el telèfon hi pot enviar una gravació en qualsevol moment. La pantalla sí que s'apaga. Consumeix més bateria.",
 	"phone": "Telèfon",
 	"phoneHandoff": "Gravació des del telèfon",
 	"phoneHandoffInfo": "Grava amb el telèfon i deixa que aquest ordinador faci la transcripció — el text torna directament al telèfon.",

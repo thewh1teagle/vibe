@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
-import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
+import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { isUserError } from '~/lib/sona-errors'
 import * as transcript from '~/lib/transcript'
 import { ErrorModalContext } from '~/providers/error-modal'
@@ -47,7 +47,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 			return
 		}
 
-		startKeepAwake()
+		startKeepAwake(KEEP_AWAKE.transcribe)
 		setSegments(null)
 		onResetSummary()
 		setProgress(0)
@@ -87,7 +87,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 			trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, { source: 'home', duration_seconds: total, segments_count: result.segments.length })
 		} catch (error) {
 			if (!abortRef.current) {
-				stopKeepAwake()
+				stopKeepAwake(KEEP_AWAKE.transcribe)
 				console.error('error: ', error)
 				const errorObject = typeof error === 'object' && error !== null ? (error as { code?: string; message?: string }) : null
 				const errorMessage = errorObject?.message || String(error)
@@ -104,7 +104,7 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 				setLoading(false)
 			}
 		} finally {
-			stopKeepAwake()
+			stopKeepAwake(KEEP_AWAKE.transcribe)
 			setLoading(false)
 			setIsAborting(false)
 			setProgress(null)

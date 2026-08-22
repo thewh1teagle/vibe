@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Tự động mở Vibe khi bạn đăng nhập vào máy tính.",
 	"couldNotEnableLaunchAtStartup": "Không thể bật khởi chạy cùng hệ thống: {error}",
 	"couldNotDisableLaunchAtStartup": "Không thể tắt khởi chạy cùng hệ thống: {error}",
+	"preventSleep": "Ngăn máy tính vào chế độ ngủ",
+	"preventSleepInfo": "Ngăn bộ đếm thời gian chờ đưa máy tính vào chế độ ngủ khi Vibe đang chạy, để máy luôn sẵn sàng kết nối — điện thoại có thể chuyển một bản ghi âm sang bất cứ lúc nào. Màn hình vẫn tắt như bình thường. Tiêu hao pin nhiều hơn.",
 	"phone": "Điện thoại",
 	"phoneHandoff": "Ghi âm từ điện thoại",
 	"phoneHandoffInfo": "Ghi âm trên điện thoại và để máy tính này lo việc phiên âm — bản phiên âm sẽ được gửi thẳng về điện thoại.",

@@ -12,6 +12,7 @@ export const CONFIG_KEYS = {
 	firstRun: 'general.firstRun',
 	skippedSetup: 'general.skippedSetup',
 	closeToTray: 'general.closeToTray',
+	preventSleep: 'general.preventSleep',
 	analyticsEnabled: 'analytics_enabled',
 
 	// Model

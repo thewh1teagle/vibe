@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Abre o Vibe automaticamente quando você faz login no computador.",
 	"couldNotEnableLaunchAtStartup": "Não foi possível ativar o início automático: {error}",
 	"couldNotDisableLaunchAtStartup": "Não foi possível desativar o início automático: {error}",
+	"preventSleep": "Impedir que o computador entre em suspensão",
+	"preventSleepInfo": "Impede que o temporizador de inatividade coloque o computador em suspensão enquanto o Vibe está em execução, então ele continua acessível — o celular pode entregar uma gravação a ele a qualquer momento. A tela continua sendo desligada. Consome mais bateria.",
 	"phone": "Celular",
 	"phoneHandoff": "Gravação pelo celular",
 	"phoneHandoffInfo": "Grave no celular e deixe a transcrição com este computador — o texto volta direto para o celular.",

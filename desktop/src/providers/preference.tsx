@@ -3,6 +3,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
 import { CONFIG_KEYS } from '~/lib/config-keys'
+import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { usePersisted } from '~/lib/config-store'
 import { TextFormat } from '~/components/format-select'
 import { ModifyState } from '~/lib/types'
@@ -41,6 +42,8 @@ export interface Preference {
 	setSkippedSetup: ModifyState<boolean>
 	closeToTray: boolean
 	setCloseToTray: ModifyState<boolean>
+	preventSleep: boolean
+	setPreventSleep: ModifyState<boolean>
 	textAreaDirection: Direction
 	setTextAreaDirection: ModifyState<Direction>
 	textFormatTranscript: TextFormat
@@ -164,6 +167,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [skippedSetup, setSkippedSetup] = usePersisted<boolean>(CONFIG_KEYS.skippedSetup, false)
 	// Opt-in: a tray icon nobody asked for is clutter, and quitting from the X is what people expect.
 	const [closeToTray, setCloseToTray] = usePersisted<boolean>(CONFIG_KEYS.closeToTray, false)
+	// Off by default: holding a laptop awake around the clock is not something to opt someone into.
+	const [preventSleep, setPreventSleep] = usePersisted<boolean>(CONFIG_KEYS.preventSleep, false)
 	const [textAreaDirection, setTextAreaDirection] = usePersisted<Direction>(CONFIG_KEYS.textAreaDirection, 'ltr')
 	const [textFormatTranscript, setTextFormatTranscript] = usePersisted<TextFormat>(CONFIG_KEYS.textFormatTranscript, 'pdf')
 	const [textFormatSummary, setTextFormatSummary] = usePersisted<TextFormat>(CONFIG_KEYS.textFormatSummary, 'md')
@@ -194,6 +199,24 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [saveTranscripts, setSaveTranscripts] = usePersisted<boolean>(CONFIG_KEYS.saveTranscripts, true)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
+
+	/**
+	 * The background hold: idle only, never the display. It exists so the app stays
+	 * reachable while it sits in the tray — most of all for phone handoff, where the
+	 * machine sleeping takes the endpoint down and the phone finds nothing to talk to.
+	 * Keeping the screen lit for that would be plainly wrong.
+	 */
+	useEffect(() => {
+		if (!preventSleep) {
+			stopKeepAwake(KEEP_AWAKE.background)
+			return
+		}
+		startKeepAwake(KEEP_AWAKE.background, { idle: true })
+		return () => {
+			stopKeepAwake(KEEP_AWAKE.background)
+		}
+	}, [preventSleep])
+
 	useEffect(() => {
 		if (!modelPath) {
 			setModelMetadata(null)
@@ -311,6 +334,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setSkippedSetup,
 		closeToTray,
 		setCloseToTray,
+		preventSleep,
+		setPreventSleep,
 		displayLanguage: language,
 		setDisplayLanguage,
 		soundOnFinish,

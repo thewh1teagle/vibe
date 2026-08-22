@@ -5,6 +5,7 @@ pub mod config;
 pub mod download;
 pub mod files;
 pub mod handoff_cmd;
+pub mod keepawake_cmd;
 pub mod permissions;
 pub mod sona_cmd;
 pub mod transcribe;

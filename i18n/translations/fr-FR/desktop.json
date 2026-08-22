@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Ouvre Vibe automatiquement lorsque vous ouvrez une session sur votre ordinateur.",
 	"couldNotEnableLaunchAtStartup": "Impossible d'activer le lancement au démarrage : {error}",
 	"couldNotDisableLaunchAtStartup": "Impossible de désactiver le lancement au démarrage : {error}",
+	"preventSleep": "Empêcher l'ordinateur de se mettre en veille",
+	"preventSleepInfo": "Empêche la minuterie d'inactivité de mettre l'ordinateur en veille pendant que Vibe s'exécute, afin qu'il reste joignable : votre téléphone peut lui transférer un enregistrement à tout moment. L'écran s'éteint toujours. Consomme plus de batterie.",
 	"phone": "Téléphone",
 	"phoneHandoff": "Transfert depuis le téléphone",
 	"phoneHandoffInfo": "Enregistrez depuis votre téléphone et laissez cet ordinateur faire la transcription : le texte revient directement sur le téléphone.",

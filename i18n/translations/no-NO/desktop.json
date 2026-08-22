@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Åpner Vibe automatisk når du logger på datamaskinen.",
 	"couldNotEnableLaunchAtStartup": "Kunne ikke slå på start ved pålogging: {error}",
 	"couldNotDisableLaunchAtStartup": "Kunne ikke slå av start ved pålogging: {error}",
+	"preventSleep": "Hindre datamaskinen i å gå i dvale",
+	"preventSleepInfo": "Hindrer at inaktivitetstidsuret setter datamaskinen i dvale mens Vibe kjører, slik at den forblir tilgjengelig — telefonen din kan når som helst overlevere et opptak til den. Skjermen slås fortsatt av. Bruker mer batteri.",
 	"phone": "Telefon",
 	"phoneHandoff": "Overlevering fra telefon",
 	"phoneHandoffInfo": "Ta opp på telefonen og la denne datamaskinen stå for transkripsjonen — teksten kommer rett tilbake til telefonen.",

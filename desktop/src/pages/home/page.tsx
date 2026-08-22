@@ -13,7 +13,7 @@ import { ReactComponent as MicrphoneIcon } from '~/icons/microphone.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { useEffect } from 'react'
 import { webviewWindow } from '@tauri-apps/api'
-import * as keepAwake from 'tauri-plugin-keepawake-api'
+import { KEEP_AWAKE, stopKeepAwake } from '~/lib/keep-awake'
 import { Button } from '~/components/ui/button'
 import DictationPromo from '~/components/dictation-promo'
 import { Input } from '~/components/ui/input'
@@ -103,7 +103,7 @@ export default function Home() {
 							) : (
 								<Button
 									onMouseDown={() => {
-										keepAwake.stop()
+										stopKeepAwake(KEEP_AWAKE.record)
 										vm.stopRecord()
 									}}
 									className="mt-1 w-full bg-success text-success-foreground hover:bg-success/90">

@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Open Vibe automatically when you log in to your computer.",
 	"couldNotEnableLaunchAtStartup": "Could not enable launch at startup: {error}",
 	"couldNotDisableLaunchAtStartup": "Could not disable launch at startup: {error}",
+	"preventSleep": "Prevent the computer from sleeping",
+	"preventSleepInfo": "Stops the idle timer from putting the computer to sleep while Vibe runs, so it stays reachable — your phone can hand off a recording to it at any time. The screen still turns off. Uses more battery.",
 	"phone": "Phone",
 	"phoneHandoff": "Phone handoff",
 	"phoneHandoffInfo": "Record on your phone and let this computer do the transcribing — the transcript comes straight back to the phone.",

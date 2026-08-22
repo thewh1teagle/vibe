@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Öppnar Vibe automatiskt när du loggar in på datorn.",
 	"couldNotEnableLaunchAtStartup": "Kunde inte aktivera start vid inloggning: {error}",
 	"couldNotDisableLaunchAtStartup": "Kunde inte inaktivera start vid inloggning: {error}",
+	"preventSleep": "Hindra datorn från att gå in i viloläge",
+	"preventSleepInfo": "Hindrar inaktivitetstimern från att försätta datorn i viloläge medan Vibe körs, så att den förblir nåbar — telefonen kan lämna över en inspelning när som helst. Skärmen stängs fortfarande av. Drar mer batteri.",
 	"phone": "Telefon",
 	"phoneHandoff": "Överlämning från telefon",
 	"phoneHandoffInfo": "Spela in på telefonen och låt den här datorn sköta transkriberingen — texten kommer direkt tillbaka till telefonen.",
