@@ -2,8 +2,10 @@
 	"baseLocale": "en-US",
 	"locales": [
 		"en-US",
+		"bg-BG",
 		"ca-AD",
 		"cs-CZ",
+		"de-DE",
 		"es-ES",
 		"es-MX",
 		"fr-FR",
