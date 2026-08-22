@@ -8,6 +8,7 @@ import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import * as config from '~/lib/config'
 import { DisplayLanguageInput } from '~/components/display-language-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
+import { Switch } from '~/components/ui/switch'
 import { ActionRow, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 
 export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
@@ -19,6 +20,9 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 			<SettingsGroup>
 				<SettingsRow label={m.language()}>
 					<DisplayLanguageInput value={vm.preference.displayLanguage} onSelect={vm.preference.setDisplayLanguage} className="w-52" />
+				</SettingsRow>
+				<SettingsRow label={m.closeToTray()} description={m.closeToTrayInfo()}>
+					<Switch checked={vm.preference.closeToTray} onCheckedChange={vm.preference.setCloseToTray} />
 				</SettingsRow>
 				<SettingsRow label={m.theme()}>
 					<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>

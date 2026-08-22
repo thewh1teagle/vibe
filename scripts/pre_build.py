@@ -194,6 +194,8 @@ def main() -> int:
             "cmake",
             "libasound2-dev",
             "libxdo-dev",
+            # Tray icon support on Linux goes through the appindicator bindings.
+            "libayatana-appindicator3-dev",
         ]
         run_cmd("sudo", "apt-get", "update")
         for pkg in apt_packages:

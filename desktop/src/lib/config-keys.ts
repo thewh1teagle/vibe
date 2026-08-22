@@ -11,6 +11,7 @@ export const CONFIG_KEYS = {
 	theme: 'general.theme',
 	firstRun: 'general.firstRun',
 	skippedSetup: 'general.skippedSetup',
+	closeToTray: 'general.closeToTray',
 	analyticsEnabled: 'analytics_enabled',
 
 	// Model

@@ -39,6 +39,8 @@ export interface Preference {
 	setModelDisplayNames: ModifyState<Record<string, string>>
 	skippedSetup: boolean
 	setSkippedSetup: ModifyState<boolean>
+	closeToTray: boolean
+	setCloseToTray: ModifyState<boolean>
 	textAreaDirection: Direction
 	setTextAreaDirection: ModifyState<Direction>
 	textFormatTranscript: TextFormat
@@ -160,6 +162,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [modelMetadata, setModelMetadata] = useState<ModelMetadata | null>(null)
 	const [modelDisplayNames, setModelDisplayNames] = usePersisted<Record<string, string>>(CONFIG_KEYS.modelDisplayNames, {})
 	const [skippedSetup, setSkippedSetup] = usePersisted<boolean>(CONFIG_KEYS.skippedSetup, false)
+	// Opt-in: a tray icon nobody asked for is clutter, and quitting from the X is what people expect.
+	const [closeToTray, setCloseToTray] = usePersisted<boolean>(CONFIG_KEYS.closeToTray, false)
 	const [textAreaDirection, setTextAreaDirection] = usePersisted<Direction>(CONFIG_KEYS.textAreaDirection, 'ltr')
 	const [textFormatTranscript, setTextFormatTranscript] = usePersisted<TextFormat>(CONFIG_KEYS.textFormatTranscript, 'pdf')
 	const [textFormatSummary, setTextFormatSummary] = usePersisted<TextFormat>(CONFIG_KEYS.textFormatSummary, 'md')
@@ -305,6 +309,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setTextAreaDirection,
 		skippedSetup,
 		setSkippedSetup,
+		closeToTray,
+		setCloseToTray,
 		displayLanguage: language,
 		setDisplayLanguage,
 		soundOnFinish,
