@@ -138,6 +138,14 @@ async fn main() -> Result<()> {
         .expect("error while building tauri application");
 
     app.run(|app, event| match event {
+        // Clicking the dock icon while the window is hidden in the tray has to bring it back;
+        // macOS reports the click here rather than as a window event.
+        #[cfg(target_os = "macos")]
+        tauri::RunEvent::Reopen { has_visible_windows, .. } => {
+            if !has_visible_windows {
+                tray::show_main_window(app);
+            }
+        }
         tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
             let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
             if let Ok(mut guard) = mutex.try_lock() {
