@@ -6,11 +6,11 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
 import { m } from '~/paraglide/messages.js'
-import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
+import { trackAvx2NotSupported, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
-import { isUserError } from '~/lib/sona-errors'
+import { fatalRunError, isUserError } from '~/lib/sona-errors'
 import type { Segment, Transcript } from '~/lib/transcript'
 import { notifyTranscriptsChanged, saveTranscript, updateTranscriptSegments, updateTranscriptSummary, type TranscriptRecord } from '~/lib/transcripts-store'
 import type { NamedPath } from '~/lib/types'
@@ -201,7 +201,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 		try {
 			const avx2 = await invoke<boolean>('is_avx2_enabled')
 			if (!avx2) {
-				trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
+				trackAvx2NotSupported()
 				await dialog.message(m.avx2NotSupported(), { kind: 'error' })
 				failPending(m.avx2NotSupported())
 				return
@@ -241,7 +241,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 				abortCurrentRef.current = false
 
 				const startedAt = performance.now()
-				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_STARTED, { source: 'main' })
+				trackTranscribeStarted('main', next.path)
 				try {
 					const result = await invoke<Transcript>('transcribe', {
 						options: { path: next.path, ...preferenceRef.current.modelOptions, ...shared },
@@ -250,29 +250,31 @@ export function useTranscribeQueue(): TranscribeQueue {
 					patch(next.id, { status: 'done', progress: 100, segments: result.segments, seconds })
 					completedAny = true
 					persist(next, result.segments)
-					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, {
-						source: 'main',
-						duration_seconds: seconds,
-						segments_count: result.segments.length,
-					})
+					// An abort resolves as a success carrying the partial segments, so only these flags tell them apart.
+					if (abortCurrentRef.current || abortAllRef.current) {
+						trackTranscribeCancelled('main', next.path)
+					} else {
+						trackTranscribeSucceeded('main', { durationSeconds: seconds, segmentsCount: result.segments.length })
+					}
 				} catch (error) {
 					if (abortCurrentRef.current || abortAllRef.current) {
 						patch(next.id, { status: 'cancelled', progress: 0 })
+						trackTranscribeCancelled('main', next.path)
 					} else {
 						const { code, message } = errorParts(error)
 						patch(next.id, { status: 'error', progress: 0, error: message })
-						if (code && isUserError(code)) {
+						const userError = Boolean(code && isUserError(code))
+						trackTranscribeFailed('main', next.path, { errorMessage: message, userError })
+						if (userError) {
 							toast.error(`${m.error()}: ${message}`, { position: 'bottom-center' })
 						} else {
-							trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
-								source: 'main',
-								error_message: message,
-								file_ext: next.path.split('.').pop() ?? 'unknown',
-							})
 							setErrorModal?.({ log: message, open: true })
-							// Every following file would fail the same way.
-							if (message.includes('no model loaded')) {
-								toast.error(m.noModelLoadedBatchStopped(), { position: 'bottom-center' })
+							// A dead sidecar or an unloaded model fails every following file the same way.
+							const fatal = fatalRunError(code, message)
+							if (fatal) {
+								toast.error(fatal === 'no_model' ? m.noModelLoadedBatchStopped() : m.transcribeEngineStoppedBatchStopped(), {
+									position: 'bottom-center',
+								})
 								failPending(message)
 								break
 							}

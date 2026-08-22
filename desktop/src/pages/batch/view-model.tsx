@@ -4,7 +4,7 @@ import { m } from '~/paraglide/messages.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/format-select'
 import { Segment, Transcript, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
-import { isUserError } from '~/lib/sona-errors'
+import { fatalRunError, isUserError } from '~/lib/sona-errors'
 import { NamedPath } from '~/lib/types'
 import { pathToNamedPath } from '~/lib/fs'
 import { validPath } from '~/lib/media'
@@ -12,7 +12,7 @@ import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
-import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
+import { trackAvx2NotSupported, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import successSound from '~/assets/success.mp3'
 import * as fs from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
@@ -154,7 +154,7 @@ export function viewModel() {
 
 		const avx2 = await invoke<boolean>('is_avx2_enabled')
 		if (!avx2) {
-			trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
+			trackAvx2NotSupported()
 			await dialog.message(m.avx2NotSupported(), { kind: 'error' })
 			return
 		}
@@ -188,6 +188,8 @@ export function viewModel() {
 		setCurrentIndex(localIndex)
 		const loopStartTime = performance.now()
 		for (const file of files) {
+			// `file.path` is rewritten to the output path further down, so keep the media path for analytics.
+			const sourcePath = file.path
 			try {
 				if (isAbortingRef.current) {
 					break
@@ -219,9 +221,7 @@ export function viewModel() {
 					continue
 				}
 
-				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_STARTED, {
-					source: 'batch',
-				})
+				trackTranscribeStarted('batch', sourcePath)
 				const res: Transcript = await invoke('transcribe', {
 					options,
 				})
@@ -229,11 +229,12 @@ export function viewModel() {
 				// Calculate time
 				const total = Math.round((performance.now() - startTime) / 1000)
 				console.info(`Transcribe ${file.name} took ${total} seconds.`)
-				trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_SUCCEEDED, {
-					source: 'batch',
-					duration_seconds: total,
-					segments_count: res.segments.length,
-				})
+				// An abort resolves as a success carrying the partial segments, so only this flag tells them apart.
+				if (isAbortingRef.current) {
+					trackTranscribeCancelled('batch', sourcePath)
+				} else {
+					trackTranscribeSucceeded('batch', { durationSeconds: total, segmentsCount: res.segments.length })
+				}
 
 				let llmSegments: Segment[] | null = null
 				if (llm && preference.llmConfig?.enabled) {
@@ -275,27 +276,22 @@ export function viewModel() {
 				const errorCode = errorObj?.code
 				const errorMessage = errorObj?.message || String(error)
 
-				// Check if this is a user error
-				if (errorCode && isUserError(errorCode)) {
-					// User error: show toast, skip analytics
+				if (isAbortingRef.current) {
+					trackTranscribeCancelled('batch', sourcePath)
+					navigate('/')
+				} else if (errorCode && isUserError(errorCode)) {
+					// The person's own file or request is at fault: a toast, not the error modal.
+					trackTranscribeFailed('batch', sourcePath, { errorMessage, userError: true })
 					toast.error(`${m.error()}: ${errorMessage}`)
 					console.error(`skipping file ${file.name} due to user error: `, error)
 				} else {
-					// Internal error: track analytics
-					trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
-						source: 'batch',
-						error_message: errorMessage,
-						file_ext: file.name.split('.').pop() ?? 'unknown',
-					})
-					if (isAbortingRef.current) {
-						navigate('/')
-					} else {
-						console.error(`error while transcribe ${file.name}: `, error)
-					}
+					trackTranscribeFailed('batch', sourcePath, { errorMessage })
+					console.error(`error while transcribe ${file.name}: `, error)
 
-					// Stop batch if model is not loaded — all subsequent files will fail too
-					if (String(error).includes('no model loaded')) {
-						toast.error(m.noModelLoadedBatchStopped())
+					// A dead sidecar or an unloaded model fails every following file the same way.
+					const fatal = fatalRunError(errorCode, errorMessage)
+					if (fatal) {
+						toast.error(fatal === 'no_model' ? m.noModelLoadedBatchStopped() : m.transcribeEngineStoppedBatchStopped())
 						break
 					}
 				}

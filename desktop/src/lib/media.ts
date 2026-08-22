@@ -1,3 +1,4 @@
+import { convertFileSrc } from '@tauri-apps/api/core'
 import * as config from './config'
 
 const mediaExtensions = [...config.videoExtensions, ...config.audioExtensions]
@@ -15,4 +16,40 @@ export function validPath(path: string) {
 	}
 
 	return mediaExtensions.includes(name.slice(dot + 1).toLowerCase())
+}
+
+/**
+ * How long the media at `path` runs, in whole seconds, or `null` when the webview cannot read it —
+ * an exotic container, a file that moved away, a decoder that never answers. Analytics uses it as
+ * the denominator of a transcription: without it, "do long files fail more?" has no answer.
+ *
+ * Metadata only: nothing is decoded or downloaded beyond the header.
+ */
+export function getMediaDurationSeconds(path: string, timeoutMs = 5000): Promise<number | null> {
+	return new Promise((resolve) => {
+		let audio: HTMLAudioElement
+		try {
+			audio = new Audio(convertFileSrc(path))
+		} catch {
+			resolve(null)
+			return
+		}
+		audio.preload = 'metadata'
+
+		let timer = 0
+		const finish = (seconds: number | null) => {
+			window.clearTimeout(timer)
+			audio.removeEventListener('loadedmetadata', onMetadata)
+			audio.removeEventListener('error', onError)
+			// Let the element go before it buffers anything.
+			audio.src = ''
+			resolve(seconds)
+		}
+		const onMetadata = () => finish(Number.isFinite(audio.duration) && audio.duration > 0 ? Math.round(audio.duration) : null)
+		const onError = () => finish(null)
+
+		audio.addEventListener('loadedmetadata', onMetadata)
+		audio.addEventListener('error', onError)
+		timer = window.setTimeout(() => finish(null), timeoutMs)
+	})
 }

@@ -3,10 +3,12 @@ import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
+import { trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import { AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { isUserError } from '~/lib/sona-errors'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 import { m } from '~/paraglide/messages.js'
@@ -68,6 +70,14 @@ function getErrorMessage(error: unknown): string {
 		if (typeof message === 'string') return message
 	}
 	return String(error)
+}
+
+function getErrorCode(error: unknown): string | undefined {
+	if (typeof error === 'object' && error !== null && 'code' in error) {
+		const code = (error as { code?: unknown }).code
+		if (typeof code === 'string') return code
+	}
+	return undefined
 }
 
 export function HotkeyProvider({ children }: { children: ReactNode }) {
@@ -182,6 +192,9 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			const { path } = event.payload
 			showIndicator('transcribing')
 
+			// Dictation is a transcription like any other: one start, one terminal event.
+			trackTranscribeStarted('hotkey', path)
+			let transcribed = false
 			try {
 				const modelPath = preferenceRef.current.modelPath
 				if (!modelPath) {
@@ -200,7 +213,13 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					...preferenceRef.current.modelOptions,
 					...(requiresVad ? { vad_model: `${modelsFolder}/${config.vadModelFilename}` } : {}),
 				}
+				const startedAt = performance.now()
 				const res: transcript.Transcript = await invoke('transcribe', { options })
+				transcribed = true
+				trackTranscribeSucceeded('hotkey', {
+					durationSeconds: Math.round((performance.now() - startedAt) / 1000),
+					segmentsCount: res.segments.length,
+				})
 				let resultText = transcript.asText(res.segments, m.speakerPrefix())
 
 				// Optional LLM summarization
@@ -226,6 +245,12 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			} catch (error) {
 				console.error('Hotkey transcription error:', error)
 				const message = getErrorMessage(error)
+				// Dictation has no cancel and no error modal, so the failure event is the only trace it leaves.
+				// Anything that goes wrong after the transcript is in hand already reported its success.
+				if (!transcribed) {
+					const code = getErrorCode(error)
+					trackTranscribeFailed('hotkey', path, { errorMessage: message, userError: Boolean(code && isUserError(code)) })
+				}
 				finishIndicator('error', { message })
 				await notify('Vibe', message)
 			} finally {
