@@ -25,35 +25,60 @@
 !macroend
 
 Section
-    ; Check if the VC++ Redistributable is already installed
+    ; The runtime we need is 14.40 or newer. MSVC 17.10 made std::mutex's constructor
+    ; constexpr, so a binary built with it faults inside an older MSVCP140.dll -- an
+    ; access violation with no output, which is what #1403 and #1345 report.
+    ;
+    ; "Installed" is 1 for any VC++ 2015-2022 runtime, so checking only that leaves a
+    ; machine with 14.24 believing it is fine. Read the version out of the same key.
     ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
-    
-    ${If} $0 != ""
-        DetailPrint "vc_redist found! Skipping installation."
+    ReadRegDWORD $2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Major"
+    ReadRegDWORD $3 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Minor"
+
+    ; $4 marks whether a runtime is already present: an upgrade that fails leaves the
+    ; machine no worse than it was, so it must not abort an otherwise fine install.
+    ; A missing runtime is different -- the app cannot start at all without it.
+    StrCpy $4 "0"
+    ${If} $0 == ""
+        StrCpy $R0 "1"
+        DetailPrint "vc_redist not found, installing."
     ${Else}
-        ; Define download URL and target path for vc_redist.x64.exe
+        StrCpy $4 "1"
+        ${If} $2 < 14
+        ${OrIf} $2 == 14
+            ${AndIf} $3 < 40
+            StrCpy $R0 "1"
+            DetailPrint "vc_redist $2.$3 is older than 14.40, upgrading."
+        ${Else}
+            StrCpy $R0 "0"
+            DetailPrint "vc_redist $2.$3 is recent enough, skipping."
+        ${EndIf}
+    ${EndIf}
+
+    ${If} $R0 == "1"
         StrCpy $0 "https://aka.ms/vs/17/release/vc_redist.x64.exe"
         StrCpy $1 "$TEMP\vc_redist.x64.exe"
 
-        ; Download the vc_redist.x64.exe installer
         NSISdl::download $0 $1
         Pop $0
         ${If} $0 == "success"
             DetailPrint "vc_redist downloaded successfully"
+            ExecWait '"$1" /install /passive /norestart' $0
+            ${If} $0 == 0
+                DetailPrint "vc_redist installation completed successfully"
+            ${ElseIf} $4 == "1"
+                DetailPrint "vc_redist upgrade failed ($0), keeping the existing runtime"
+            ${Else}
+                DetailPrint "vc_redist installation failed"
+                Call InstallFailed
+                Abort "vc_redist installation failed, aborting process"
+            ${EndIf}
+        ${ElseIf} $4 == "1"
+            DetailPrint "vc_redist download failed, keeping the existing runtime"
         ${Else}
             DetailPrint "vc_redist failed to download"
             Call InstallFailed
             Abort "vc_redist download failed, aborting installation"
-        ${EndIf}
-
-        ; Execute the downloaded installer
-        ExecWait '"$1" /install /passive /norestart' $0
-        ${If} $0 == 0
-            DetailPrint "vc_redist installation completed successfully"
-        ${Else}
-            DetailPrint "vc_redist installation failed"
-            Call InstallFailed
-            Abort "vc_redist installation failed, aborting process"
         ${EndIf}
     ${EndIf}
 SectionEnd

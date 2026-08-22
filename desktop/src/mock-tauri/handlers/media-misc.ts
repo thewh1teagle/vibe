@@ -164,7 +164,7 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 		}
 	},
 
-	get_latest_ytdlp_version: () => '2026.01.01',
+	get_latest_ytdlp_version: () => '2026.08.19',
 
 	// --- Shell / system no-ops --------------------------------------------------
 
