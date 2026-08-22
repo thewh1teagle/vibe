@@ -117,11 +117,7 @@ impl KeepAwake {
     }
 
     fn reconcile(&self, holds: &HashMap<String, Flags>) {
-        let wanted = holds
-            .values()
-            .copied()
-            .reduce(Flags::union)
-            .filter(|flags| !flags.is_empty());
+        let wanted = holds.values().copied().reduce(Flags::union).filter(|flags| !flags.is_empty());
         // The worker outlives the app, so a send only fails if it panicked —
         // in which case we are not keeping anything awake anyway.
         let _ = self.tx.send(Apply(wanted));
