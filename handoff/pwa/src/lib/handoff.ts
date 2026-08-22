@@ -2,7 +2,7 @@
  * Wire types and the wasm bridge.
  *
  * The wasm bundle is produced by the `handoff-wasm` crate and dropped into
- * `pwa/public/wasm/`. Vite copies `public/` verbatim, so we load it with an
+ * `handoff/pwa/public/wasm/`. Vite copies `public/` verbatim, so we load it with an
  * explicit runtime import of an absolute URL — never a bundler-resolved one —
  * and rebuilding the crate is picked up without touching the app.
  */

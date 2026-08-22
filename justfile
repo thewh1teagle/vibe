@@ -67,30 +67,30 @@ check-types:
 
 # --- Phone handoff -----------------------------------------------------------
 
-# Build the browser wasm client (writes pwa/public/wasm/)
+# Build the browser wasm client (writes handoff/pwa/public/wasm/)
 phone-wasm:
-    ./handoff-wasm/build.sh
+    ./handoff/wasm/build.sh
 
 # Run the phone PWA locally on http://localhost:8088 (builds wasm first)
 phone: phone-wasm
-    cd pwa && pnpm install && pnpm dev
+    cd handoff/pwa && pnpm install && pnpm dev
 
 # Send an audio file to a running Vibe as if you were the phone.
 # Copy the pairing URL from Vibe -> Settings -> Phone.
 #   just phone-probe 'http://localhost:8088/#<endpointId>:<token>' samples/single.wav
 phone-probe url file:
-    cd handoff-probe && cargo run --quiet -- --url '{{url}}' --file '../{{file}}'
+    cd handoff/probe && cargo run --quiet -- --url '{{url}}' --file '../../{{file}}'
 
 # Ask a running Vibe what it supports, without sending audio.
 #   just phone-caps 'http://localhost:8088/#<endpointId>:<token>'
 phone-caps url:
-    cd handoff-probe && cargo run --quiet -- --url '{{url}}' --capabilities
+    cd handoff/probe && cargo run --quiet -- --url '{{url}}' --capabilities
 
 # Serve the phone PWA over an HTTPS tunnel so a real phone can load it.
 # Needs `cloudflared` (brew install cloudflared). Prints a https://…trycloudflare.com URL.
 # Start Vibe with that URL so the QR points at it:
 #   VIBE_PWA_ORIGIN=https://<host> just dev
 phone-tunnel: phone-wasm
-    cd pwa && pnpm install && PWA_BASE=/ pnpm build
-    @echo "Serving pwa/dist and opening a tunnel — copy the https:// URL below."
-    uv run pwa/serve.py & cloudflared tunnel --url http://localhost:8088
+    cd handoff/pwa && pnpm install && PWA_BASE=/ pnpm build
+    @echo "Serving handoff/pwa/dist and opening a tunnel — copy the https:// URL below."
+    uv run handoff/pwa/serve.py & cloudflared tunnel --url http://localhost:8088

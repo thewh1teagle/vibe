@@ -3,12 +3,12 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-"""Serve the *built* Vibe Phone PWA (`pwa/dist/`) over HTTP.
+"""Serve the *built* Vibe Phone PWA (`handoff/pwa/dist/`) over HTTP.
 
-For development use Vite instead: `pnpm -C pwa dev` (port 8088). This script is
+For development use Vite instead: `pnpm -C handoff/pwa dev` (port 8088). This script is
 for checking a production build without a bundler in the loop:
 
-    pnpm -C pwa build && uv run pwa/serve.py     # http://localhost:8088
+    pnpm -C handoff/pwa build && uv run handoff/pwa/serve.py     # http://localhost:8088
 
 Sets the MIME types browsers require for `.wasm` and `.webmanifest`, disables
 caching (so a rebuilt wasm is always picked up) and sends permissive CORS plus
@@ -83,7 +83,7 @@ def main() -> None:
     args = ap.parse_args()
 
     if not ROOT.is_dir():
-        raise SystemExit(f"{ROOT} does not exist — run `pnpm -C pwa build` first.")
+        raise SystemExit(f"{ROOT} does not exist — run `pnpm -C handoff/pwa build` first.")
 
     handler = functools.partial(Handler, directory=str(ROOT))
     with Server((args.host, args.port), handler) as httpd:
