@@ -10,6 +10,7 @@ on:
             - "scripts/website_links.py"
             - "pwa/**"
             - "handoff-wasm/**"
+            - ".github/workflows/website.yml"
     release:
         types: [published]
     workflow_dispatch:
