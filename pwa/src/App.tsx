@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { InstallHint } from '~/components/install-hint'
 import { OutboxCard } from '~/components/outbox-card'
 import { SettingsSheet } from '~/components/settings-sheet'
+import { VibeMark } from '~/components/vibe-mark'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
@@ -882,8 +883,11 @@ function Shell({ children, onSettings, badge }: { children: React.ReactNode; onS
 	return (
 		<div className="safe-bottom mx-auto flex min-h-dvh w-full max-w-md flex-col px-4">
 			<header className="safe-top flex items-center justify-between pb-2">
-				<div className="flex items-center gap-2">
-					<h1 className="text-base font-semibold tracking-tight">Vibe Phone</h1>
+				<div className="flex min-w-0 items-center gap-2">
+					<VibeMark className="size-6" />
+					<h1 className="text-base font-semibold">
+						Vibe <span className="font-normal text-muted-foreground">Phone</span>
+					</h1>
 					{badge}
 				</div>
 				{onSettings && (

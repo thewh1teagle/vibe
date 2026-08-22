@@ -11,7 +11,7 @@
 // screen and survive a flaky network. It deliberately NEVER cache-firsts the
 // handoff wasm, which is rebuilt constantly during development.
 
-const CACHE = 'vibe-phone-v1'
+const CACHE = 'vibe-phone-v2'
 
 /** Directory this worker was served from — `/` in dev, `/vibe/phone/` in production. */
 const BASE = new URL('./', self.location).href
@@ -19,7 +19,7 @@ const BASE = new URL('./', self.location).href
 const at = (path) => new URL(path, BASE).href
 
 // Hashed Vite assets are cached on demand; only the entry document is precached.
-const SHELL = [at('.'), at('index.html'), at('manifest.webmanifest'), at('icons/icon-192.png'), at('icons/icon-512.png')]
+const SHELL = [at('.'), at('index.html'), at('manifest.webmanifest'), at('icons/icon-192.png'), at('icons/icon-512.png'), at('icons/apple-touch-icon.png'), at('logo.svg')]
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(

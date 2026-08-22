@@ -58,7 +58,7 @@
 - 🖥️ CLI support: Use Vibe directly from the command line interface! (see `--help`)
 - 👥 Speaker diarization
 - 🎬 Stable timestamps mode for subtitle/movie-grade timing (VAD-backed, slower)
-- 📱 ~iOS & Android support~ (coming soon)
+- 📱 Record from your phone: scan a QR code once, then your computer does the transcribing and sends the text straight back — works on iOS and Android with nothing to install from an app store
 - 📥 Integrate custom models from your own site: Use `vibe://download/?url=<model url>`
 - 📹 Choose caption length optimized for videos / reels
 - ⚡ HTTP API with Swagger docs and agent skills
