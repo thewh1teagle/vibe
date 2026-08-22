@@ -440,5 +440,10 @@
 	"inProgress": "En curs",
 	"queued": "A la cua",
 	"never": "Mai",
-	"configFile": "Fitxer de configuració"
+	"configFile": "Fitxer de configuració",
+	"closeToTray": "Mantén l'execució a la safata del sistema",
+	"closeToTrayInfo": "En tancar la finestra, Vibe continua executant-se a la safata del sistema, de manera que el dictat global segueix funcionant. Pots sortir-ne des del menú de la safata.",
+	"trayShow": "Obre Vibe",
+	"trayHide": "Amaga Vibe",
+	"trayQuit": "Surt de Vibe"
 }

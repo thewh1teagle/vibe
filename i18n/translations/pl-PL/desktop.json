@@ -440,5 +440,10 @@
 	"inProgress": "W toku",
 	"queued": "W kolejce",
 	"never": "Nigdy",
-	"configFile": "Plik konfiguracyjny"
+	"configFile": "Plik konfiguracyjny",
+	"closeToTray": "Działaj dalej w zasobniku systemowym",
+	"closeToTrayInfo": "Zamknięcie okna pozostawia Vibe działający w zasobniku systemowym, więc dyktowanie globalne nadal działa. Zamknij go z menu w zasobniku.",
+	"trayShow": "Otwórz Vibe",
+	"trayHide": "Ukryj Vibe",
+	"trayQuit": "Zakończ Vibe"
 }

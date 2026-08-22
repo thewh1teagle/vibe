@@ -440,5 +440,10 @@
 	"inProgress": "In corso",
 	"queued": "In coda",
 	"never": "Mai",
-	"configFile": "File di configurazione"
+	"configFile": "File di configurazione",
+	"closeToTray": "Continua a funzionare nell'area di notifica",
+	"closeToTrayInfo": "Chiudendo la finestra, Vibe resta in esecuzione nell'area di notifica, così la dettatura globale continua a funzionare. Puoi uscire dal menu dell'icona.",
+	"trayShow": "Apri Vibe",
+	"trayHide": "Nascondi Vibe",
+	"trayQuit": "Esci da Vibe"
 }

@@ -440,5 +440,10 @@
 	"inProgress": "进行中",
 	"queued": "排队中",
 	"never": "从不",
-	"configFile": "配置文件"
+	"configFile": "配置文件",
+	"closeToTray": "关闭窗口后保留在托盘",
+	"closeToTrayInfo": "关闭窗口后 Vibe 会继续在系统托盘中运行，全局听写仍然可用。可从托盘菜单退出。",
+	"trayShow": "打开 Vibe",
+	"trayHide": "隐藏 Vibe",
+	"trayQuit": "退出 Vibe"
 }

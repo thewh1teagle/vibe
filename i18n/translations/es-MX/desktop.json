@@ -440,5 +440,10 @@
 	"inProgress": "En curso",
 	"queued": "En cola",
 	"never": "Nunca",
-	"configFile": "Archivo de configuración"
+	"configFile": "Archivo de configuración",
+	"closeToTray": "Mantener en la bandeja del sistema",
+	"closeToTrayInfo": "Al cerrar la ventana, Vibe sigue ejecutándose en la bandeja del sistema, así que el dictado global continúa funcionando. Puedes salir desde el menú de la bandeja.",
+	"trayShow": "Abrir Vibe",
+	"trayHide": "Ocultar Vibe",
+	"trayQuit": "Salir de Vibe"
 }

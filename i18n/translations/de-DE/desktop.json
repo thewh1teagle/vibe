@@ -440,5 +440,10 @@
 	"shortcutNeedsModifier": "Halten Sie zusätzlich ⌘, ⌃, ⌥ oder ⇧ gedrückt",
 	"changeShortcut": "Tastenkombination ändern",
 	"never": "Nie",
-	"configFile": "Konfigurationsdatei"
+	"configFile": "Konfigurationsdatei",
+	"closeToTray": "Im Infobereich weiterlaufen lassen",
+	"closeToTrayInfo": "Beim Schließen des Fensters läuft Vibe im Infobereich weiter, sodass das globale Diktat weiterhin funktioniert. Beenden können Sie es über das Menü im Infobereich.",
+	"trayShow": "Vibe öffnen",
+	"trayHide": "Vibe ausblenden",
+	"trayQuit": "Vibe beenden"
 }

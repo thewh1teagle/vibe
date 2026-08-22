@@ -440,5 +440,10 @@
 	"inProgress": "En cours",
 	"queued": "En attente",
 	"never": "Jamais",
-	"configFile": "Fichier de configuration"
+	"configFile": "Fichier de configuration",
+	"closeToTray": "Garder Vibe dans la zone de notification",
+	"closeToTrayInfo": "Fermer la fenêtre laisse Vibe s'exécuter dans la zone de notification, la dictée globale continue donc de fonctionner. Quittez-le depuis le menu de l'icône.",
+	"trayShow": "Ouvrir Vibe",
+	"trayHide": "Masquer Vibe",
+	"trayQuit": "Quitter Vibe"
 }

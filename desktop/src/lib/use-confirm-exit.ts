@@ -17,7 +17,8 @@ export function useConfirmExit(closeToTray: boolean, shouldConfirm: boolean) {
 			.onCloseRequested(async (event) => {
 				if (closeToTray) {
 					event.preventDefault()
-					await currentWindow.hide()
+					// Leaving the window open is the safer failure: quitting unasked would lose work.
+					await currentWindow.hide().catch((error) => console.error('failed to hide the window:', error))
 					return
 				}
 				if (shouldConfirm) {

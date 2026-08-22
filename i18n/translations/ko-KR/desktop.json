@@ -440,5 +440,10 @@
 	"inProgress": "진행 중",
 	"queued": "대기 중",
 	"never": "안 함",
-	"configFile": "설정 파일"
+	"configFile": "설정 파일",
+	"closeToTray": "트레이에서 계속 실행",
+	"closeToTrayInfo": "창을 닫아도 Vibe가 시스템 트레이에서 계속 실행되어 전역 받아쓰기를 그대로 사용할 수 있습니다. 종료하려면 트레이 메뉴를 사용하세요.",
+	"trayShow": "Vibe 열기",
+	"trayHide": "Vibe 숨기기",
+	"trayQuit": "Vibe 종료"
 }

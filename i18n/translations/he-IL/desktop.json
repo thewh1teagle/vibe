@@ -440,5 +440,10 @@
 	"inProgress": "בתהליך",
 	"queued": "בתור",
 	"never": "אף פעם",
-	"configFile": "קובץ הגדרות"
+	"configFile": "קובץ הגדרות",
+	"closeToTray": "המשך פעולה במגש המערכת",
+	"closeToTrayInfo": "סגירת החלון משאירה את Vibe פועל במגש המערכת, כך שההכתבה הגלובלית ממשיכה לעבוד. אפשר לצאת מתפריט המגש.",
+	"trayShow": "פתיחת Vibe",
+	"trayHide": "הסתרת Vibe",
+	"trayQuit": "יציאה מ-Vibe"
 }

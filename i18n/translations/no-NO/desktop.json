@@ -440,5 +440,10 @@
 	"inProgress": "Pågår",
 	"queued": "I kø",
 	"never": "Aldri",
-	"configFile": "Konfigurasjonsfil"
+	"configFile": "Konfigurasjonsfil",
+	"closeToTray": "Fortsett å kjøre i systemstatusfeltet",
+	"closeToTrayInfo": "Når du lukker vinduet, fortsetter Vibe å kjøre i systemstatusfeltet, slik at global diktering fortsatt virker. Avslutt det fra menyen i systemstatusfeltet.",
+	"trayShow": "Åpne Vibe",
+	"trayHide": "Skjul Vibe",
+	"trayQuit": "Avslutt Vibe"
 }
