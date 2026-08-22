@@ -8,8 +8,8 @@ on:
             - "website/**"
             - "i18n/**"
             - "scripts/website_links.py"
-            - "pwa/**"
-            - "handoff-wasm/**"
+            - "handoff/pwa/**"
+            - "handoff/wasm/**"
             - ".github/workflows/website.yml"
     release:
         types: [published]
@@ -39,7 +39,7 @@ jobs:
             - name: setup pnpm
               uses: pnpm/action-setup@v4
               with:
-                  package_json_file: pwa/package.json
+                  package_json_file: handoff/pwa/package.json
 
             - name: setup Node.js
               uses: actions/setup-node@v4
@@ -54,12 +54,12 @@ jobs:
             - name: cache Rust build
               uses: Swatinem/rust-cache@v2
               with:
-                  workspaces: handoff-wasm
+                  workspaces: handoff/wasm
 
             - name: install wasm-bindgen-cli
               uses: taiki-e/install-action@v2
               with:
-                  # Must match the pinned `wasm-bindgen` dependency in handoff-wasm/Cargo.toml
+                  # Must match the pinned `wasm-bindgen` dependency in handoff/wasm/Cargo.toml
                   # exactly, or the CLI refuses to process the module.
                   tool: wasm-bindgen-cli@0.2.122
 
@@ -72,9 +72,9 @@ jobs:
 
             - name: Build
               run: |
-                ./handoff-wasm/build.sh
-                pnpm --dir pwa install
-                pnpm --dir pwa build
+                ./handoff/wasm/build.sh
+                pnpm --dir handoff/pwa install
+                pnpm --dir handoff/pwa build
               env:
                 PWA_BASE: /vibe/phone/
 
@@ -82,7 +82,7 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: pwa-dist
-                  path: pwa/dist
+                  path: handoff/pwa/dist
                   if-no-files-found: error
 
     build:
