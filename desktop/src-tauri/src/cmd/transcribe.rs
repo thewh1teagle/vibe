@@ -51,6 +51,27 @@ pub struct TranscribeOptions {
     pub vad_model: Option<String>,
 }
 
+pub(crate) const SONA_DIED: &str = "sona process died during transcription";
+
+/// Turn a transcription failure into something diagnosable: a send failure or a
+/// mid-stream decode error is usually the sidecar dying, and only the child
+/// itself knows the exit code, the signal, and what it printed on the way out.
+async fn transcribe_error(sona_state: &State<'_, Mutex<SonaState>>, error: eyre::Error) -> CommandError {
+    if let Some(api_error) = error.downcast_ref::<crate::sona::SonaApiError>() {
+        return CommandError {
+            code: api_error.code.clone(),
+            message: api_error.message.clone(),
+        };
+    }
+    match crate::sona::death_report(sona_state, SONA_DIED).await {
+        Some(message) => CommandError {
+            code: "internal_error".to_string(),
+            message,
+        },
+        None => CommandError::from(error),
+    }
+}
+
 #[tauri::command]
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
@@ -92,18 +113,10 @@ pub async fn transcribe(
 
     let start = std::time::Instant::now();
 
-    let stream = crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options)
-        .await
-        .map_err(|e| {
-            if let Some(api_err) = e.downcast_ref::<crate::sona::SonaApiError>() {
-                CommandError {
-                    code: api_err.code.clone(),
-                    message: api_err.message.clone(),
-                }
-            } else {
-                CommandError::from(e)
-            }
-        })?;
+    let stream = match crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options).await {
+        Ok(stream) => stream,
+        Err(e) => return Err(transcribe_error(&sona_state, e).await),
+    };
 
     tokio::pin!(stream);
 
@@ -152,7 +165,7 @@ pub async fn transcribe(
             Err(e) => {
                 tracing::error!("stream error: {:?}", e);
                 let _ = set_progress_bar(&app_handle, None);
-                return Err(CommandError::from(e));
+                return Err(transcribe_error(&sona_state, e).await);
             }
         }
     }
@@ -160,9 +173,14 @@ pub async fn transcribe(
     let _ = set_progress_bar(&app_handle, None);
 
     if !abort_atomic.load(Ordering::Relaxed) && !completed {
+        // A stream that just stops is almost always the sidecar dying under it;
+        // say how it died rather than reporting a truncated stream.
+        let message = crate::sona::death_report(&sona_state, SONA_DIED)
+            .await
+            .unwrap_or_else(|| "Sona transcription stream ended before completion".to_string());
         return Err(CommandError {
             code: "internal_error".to_string(),
-            message: "Sona transcription stream ended before completion".to_string(),
+            message,
         });
     }
 

@@ -325,6 +325,18 @@ impl From<eyre::Error> for TransferError {
     }
 }
 
+/// Sona failures reach us as send or decode errors even when the real cause is
+/// the sidecar dying, so ask the child before reporting the surface error.
+async fn sona_transfer_error(sona_state: &tokio::sync::Mutex<crate::setup::SonaState>, error: eyre::Error) -> TransferError {
+    if let Some(api_error) = error.downcast_ref::<crate::sona::SonaApiError>() {
+        return TransferError::new(&api_error.code, api_error.message.clone());
+    }
+    match crate::sona::death_report(sona_state, crate::cmd::transcribe::SONA_DIED).await {
+        Some(message) => TransferError::new("internal_error", message),
+        None => TransferError::from(error),
+    }
+}
+
 impl HandoffHandler {
     fn emit_activity(&self, state: &'static str, message: Option<String>) {
         self.app_handle
@@ -582,15 +594,10 @@ impl HandoffHandler {
         };
 
         let start = std::time::Instant::now();
-        let stream = crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options)
-            .await
-            .map_err(|error| {
-                if let Some(api_error) = error.downcast_ref::<crate::sona::SonaApiError>() {
-                    TransferError::new(&api_error.code, api_error.message.clone())
-                } else {
-                    TransferError::from(error)
-                }
-            })?;
+        let stream = match crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options).await {
+            Ok(stream) => stream,
+            Err(error) => return Err(sona_transfer_error(&sona_state, error).await),
+        };
         tokio::pin!(stream);
 
         let mut full_text: Option<String> = None;
@@ -636,7 +643,7 @@ impl HandoffHandler {
                 }
                 Err(error) => {
                     tracing::error!("handoff sona stream error: {:?}", error);
-                    return Err(TransferError::from(error));
+                    return Err(sona_transfer_error(&sona_state, error).await);
                 }
             }
         }
@@ -644,10 +651,12 @@ impl HandoffHandler {
         let text = match full_text {
             Some(text) => text,
             None => {
-                return Err(TransferError::new(
-                    "internal_error",
-                    "Sona transcription stream ended before completion",
-                ))
+                // Same as the desktop path: a stream that stops early is usually
+                // the sidecar dying, so report how it died when it did.
+                let message = crate::sona::death_report(&sona_state, crate::cmd::transcribe::SONA_DIED)
+                    .await
+                    .unwrap_or_else(|| "Sona transcription stream ended before completion".to_string());
+                return Err(TransferError::new("internal_error", message));
             }
         };
         let processing_time_sec = start.elapsed().as_secs();

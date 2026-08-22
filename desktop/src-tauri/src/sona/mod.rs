@@ -49,8 +49,65 @@ pub struct SonaProcess {
     port: u16,
     unload_timeout_minutes: u32,
     child: Child,
+    /// Cached because `try_wait` hands the status over exactly once.
+    exit_status: Option<std::process::ExitStatus>,
     client: reqwest::Client,
-    stderr_buf: Arc<Mutex<String>>,
+    stderr_buf: Arc<Mutex<StderrTail>>,
+}
+
+/// The child's most recent stderr. A crash message is the *last* thing written,
+/// so the cap drops the oldest output rather than the newest — a chatty startup
+/// used to push the interesting line out of the buffer.
+#[derive(Default)]
+struct StderrTail {
+    text: String,
+    /// Set when the collector stopped: `None` on a clean EOF, `Some` when a read
+    /// failed (invalid UTF-8, say), which otherwise looks like silence.
+    read_error: Option<String>,
+    finished: bool,
+}
+
+impl StderrTail {
+    const LIMIT: usize = 8192;
+
+    fn push(&mut self, line: &str) {
+        self.text.push_str(line);
+        if self.text.len() > Self::LIMIT {
+            // Keep the tail, on a char boundary so the string stays valid.
+            let mut cut = self.text.len() - Self::LIMIT;
+            while cut < self.text.len() && !self.text.is_char_boundary(cut) {
+                cut += 1;
+            }
+            self.text.drain(..cut);
+        }
+    }
+
+    fn finish(&mut self, read_error: Option<String>) {
+        self.read_error = read_error;
+        self.finished = true;
+    }
+
+    fn is_finished(&self) -> bool {
+        self.finished
+    }
+
+    fn snapshot(&self) -> String {
+        let text = self.text.trim();
+        match &self.read_error {
+            Some(error) if text.is_empty() => format!("<stderr read failed: {error}>"),
+            Some(error) => format!("{text}\n<stderr read failed: {error}>"),
+            None => text.to_string(),
+        }
+    }
+}
+
+/// Ask the sidecar whether it is still alive, and describe its death if not. The
+/// transcribe paths hold only a client and a url — the child lives in shared
+/// state — so a mid-stream death reaches them as a decode error unless they come
+/// back and ask.
+pub async fn death_report(state: &tokio::sync::Mutex<crate::setup::SonaState>, context: &str) -> Option<String> {
+    let mut state = state.lock().await;
+    state.process.as_mut()?.death_report(context).await
 }
 
 #[derive(Debug, Deserialize)]
@@ -108,6 +165,13 @@ impl std::fmt::Display for SonaApiError {
 
 impl std::error::Error for SonaApiError {}
 
+/// True for failures that happened before the server could act on the request —
+/// a dead pooled socket or a refused connect. Anything that got a response, or
+/// failed while streaming the body, is left alone.
+fn is_connection_failure(error: &reqwest::Error) -> bool {
+    error.is_connect() || (error.is_request() && !error.is_body())
+}
+
 fn decode_event_reader<R>(reader: R) -> impl futures_util::Stream<Item = Result<SonaEvent>>
 where
     R: AsyncRead,
@@ -142,12 +206,9 @@ impl SonaProcess {
         response.json().await.context("failed to parse model metadata")
     }
 
-    pub async fn transcribe_stream(
-        client: &reqwest::Client,
-        base_url: &str,
-        options: &crate::cmd::TranscribeOptions,
-    ) -> Result<impl futures_util::Stream<Item = Result<SonaEvent>>> {
-        let url = format!("{}/v1/audio/transcriptions", base_url);
+    /// Built per attempt: the file part is a stream, so a retry needs a fresh
+    /// form rather than a clone of the consumed one.
+    async fn transcribe_form(options: &crate::cmd::TranscribeOptions) -> Result<multipart::Form> {
         let file = tokio::fs::File::open(&options.path)
             .await
             .context("failed to open audio file")?;
@@ -186,7 +247,9 @@ impl SonaProcess {
                 form = form.text(name, value.to_string());
             }
         }
-        if let Some(value) = options.max_sentence_len.filter(|value| *value > 1) {
+        // 0 is the UI's "unset"; 1 is a real request for one segment per word, so it has
+        // to reach sona rather than being filtered out with it.
+        if let Some(value) = options.max_sentence_len.filter(|value| *value > 0) {
             form = form.text("max_segment_len", value.to_string());
         }
         if let Some(temperature) = options.temperature.filter(|value| *value > 0.0) {
@@ -212,12 +275,36 @@ impl SonaProcess {
             }
         }
 
-        let response = client
-            .post(&url)
-            .multipart(form)
-            .send()
-            .await
-            .map_err(|error| eyre::eyre!("failed to send transcribe request to sona: {error}"))?;
+        Ok(form)
+    }
+
+    pub async fn transcribe_stream(
+        client: &reqwest::Client,
+        base_url: &str,
+        options: &crate::cmd::TranscribeOptions,
+    ) -> Result<impl futures_util::Stream<Item = Result<SonaEvent>>> {
+        let url = format!("{}/v1/audio/transcriptions", base_url);
+
+        // A pooled connection the server has already closed fails before the
+        // request is ever seen, so one retry costs nothing and hides the race.
+        // Transcription is a read, so replaying it is safe.
+        let mut response = None;
+        for attempt in 0..2 {
+            let form = Self::transcribe_form(options).await?;
+            match client.post(&url).multipart(form).send().await {
+                Ok(ok) => {
+                    response = Some(ok);
+                    break;
+                }
+                Err(error) if attempt == 0 && is_connection_failure(&error) => {
+                    tracing::warn!("retrying transcribe request after connection failure: {error}");
+                }
+                Err(error) => bail!("failed to send transcribe request to sona: {error}"),
+            }
+        }
+        let Some(response) = response else {
+            bail!("failed to send transcribe request to sona");
+        };
         if !response.status().is_success() {
             let body = response.text().await.unwrap_or_default();
             if let Ok(parsed) = serde_json::from_str::<SonaErrorResponse>(&body) {

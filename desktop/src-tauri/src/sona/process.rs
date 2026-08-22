@@ -1,9 +1,107 @@
-use super::{ReadySignal, SonaProcess};
+use super::{ReadySignal, SonaProcess, StderrTail};
 use eyre::{bail, Context, ContextCompat, Result};
 use std::io::BufRead;
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, ExitStatus, Stdio};
+use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+
+/// A sidecar that hangs before printing its ready line used to block the calling
+/// thread forever; fail with a clear error instead.
+const READY_TIMEOUT: Duration = Duration::from_secs(60);
+/// `try_wait` can see the child gone before the reader thread has drained the
+/// pipe, so death paths wait this long for the collector to reach EOF.
+const STDERR_DRAIN_TIMEOUT: Duration = Duration::from_millis(500);
+const STDERR_POLL_INTERVAL: Duration = Duration::from_millis(20);
+/// Nothing on a connection can go idle longer than this before we throw it away.
+/// Shorter than any idle close on the sona side, so a request is never handed a
+/// socket the server has already dropped.
+const POOL_IDLE_TIMEOUT: Duration = Duration::from_secs(15);
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
+const TCP_KEEPALIVE: Duration = Duration::from_secs(15);
+
+/// How the child died, in the most diagnostic terms the platform offers. On Unix
+/// the termination signal is the single most useful bit (SIGKILL is the OOM
+/// killer or a sandbox, SIGABRT/SIGILL is ggml giving up), and it is only
+/// reachable through `ExitStatusExt`.
+pub(super) fn describe_exit(status: ExitStatus) -> String {
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::ExitStatusExt;
+        if let Some(signal) = status.signal() {
+            let core = if status.core_dumped() { ", core dumped" } else { "" };
+            return match signal_name(signal) {
+                Some(name) => format!("killed by signal {signal} ({name}{core})"),
+                None => format!("killed by signal {signal}{core}"),
+            };
+        }
+    }
+    match status.code() {
+        Some(code) => format!("exited with code {code}"),
+        None => format!("exited: {status}"),
+    }
+}
+
+#[cfg(unix)]
+fn signal_name(signal: i32) -> Option<&'static str> {
+    #[cfg(target_os = "linux")]
+    const SIGBUS: i32 = 7;
+    #[cfg(not(target_os = "linux"))]
+    const SIGBUS: i32 = 10;
+
+    Some(match signal {
+        1 => "SIGHUP",
+        2 => "SIGINT",
+        3 => "SIGQUIT",
+        4 => "SIGILL",
+        5 => "SIGTRAP",
+        6 => "SIGABRT",
+        8 => "SIGFPE",
+        9 => "SIGKILL",
+        11 => "SIGSEGV",
+        13 => "SIGPIPE",
+        14 => "SIGALRM",
+        15 => "SIGTERM",
+        24 => "SIGXCPU",
+        25 => "SIGXFSZ",
+        signal if signal == SIGBUS => "SIGBUS",
+        _ => return None,
+    })
+}
+
+fn stderr_snapshot(stderr: &Arc<Mutex<StderrTail>>) -> String {
+    stderr.lock().map(|tail| tail.snapshot()).unwrap_or_default()
+}
+
+fn stderr_finished(stderr: &Arc<Mutex<StderrTail>>) -> bool {
+    // A poisoned mutex means the collector thread panicked: no more output is
+    // coming, so treat it as finished rather than waiting out the timeout.
+    stderr.lock().map(|tail| tail.is_finished()).unwrap_or(true)
+}
+
+/// Blocking counterpart of [`SonaProcess::stderr_after_exit`], for the spawn path
+/// (which is not async).
+fn wait_for_stderr_blocking(stderr: &Arc<Mutex<StderrTail>>) -> String {
+    let deadline = Instant::now() + STDERR_DRAIN_TIMEOUT;
+    while !stderr_finished(stderr) && Instant::now() < deadline {
+        std::thread::sleep(STDERR_POLL_INTERVAL);
+    }
+    stderr_snapshot(stderr)
+}
+
+fn build_client() -> Result<reqwest::Client> {
+    reqwest::Client::builder()
+        .no_proxy()
+        .connect_timeout(CONNECT_TIMEOUT)
+        .pool_idle_timeout(POOL_IDLE_TIMEOUT)
+        .tcp_keepalive(TCP_KEEPALIVE)
+        // Deliberately no blanket request `timeout`: a transcription streams for
+        // as long as the audio takes, and a whole-request deadline would cut off
+        // exactly the long jobs that matter most.
+        .build()
+        .context("failed to build sona http client")
+}
 
 impl SonaProcess {
     pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, unload_timeout_minutes: u32) -> Result<Self> {
@@ -17,7 +115,15 @@ impl SonaProcess {
         cmd.args(["serve", "--port", "0"])
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .env("SONA_UNLOAD_TIMEOUT", unload_timeout);
+            .env("SONA_UNLOAD_TIMEOUT", unload_timeout)
+            // ggml_print_backtrace forks gdb/lldb on abort, which can hang the
+            // dying child and produces nothing useful in a shipped build.
+            .env("GGML_NO_BACKTRACE", "1");
+        // Whatever sona logs at warn/error is our only window into a crash, so ask
+        // for it — without clobbering a level the user set deliberately.
+        if std::env::var_os("RUST_LOG").is_none() {
+            cmd.env("RUST_LOG", "warn");
+        }
 
         if let Some(ffmpeg) = ffmpeg_path {
             tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
@@ -30,73 +136,98 @@ impl SonaProcess {
         }
 
         let mut child = cmd.spawn().context("failed to spawn sona binary")?;
-        let mut stderr = child.stderr.take();
+        let stderr = child.stderr.take();
         let stdout = child.stdout.take().context("failed to get sona stdout")?;
-        let mut reader = std::io::BufReader::new(stdout);
-        let mut line = String::new();
-        let mut read_stderr = || -> String {
-            let Some(stderr) = stderr.take() else {
-                return String::new();
-            };
-            let mut output = String::new();
-            let _ = std::io::BufReader::new(stderr).read_line(&mut output);
-            output.truncate(4096);
-            output
-        };
 
-        if let Err(error) = reader.read_line(&mut line) {
-            let stderr_output = read_stderr();
-            if stderr_output.is_empty() {
-                return Err(error).context("failed to read sona ready signal");
-            }
-            bail!(
-                "failed to read sona ready signal: {error}\n\nsona stderr: {}",
-                stderr_output.trim()
-            );
+        // Start the collector before the handshake. Reading the pipe inline here
+        // instead would leave the collector with nothing to read for the rest of
+        // the process's life, so every later crash would report empty stderr.
+        let stderr_buf = Arc::new(Mutex::new(StderrTail::default()));
+        if let Some(stderr) = stderr {
+            let buf_clone = stderr_buf.clone();
+            std::thread::spawn(move || {
+                let mut reader = std::io::BufReader::new(stderr);
+                let mut line = String::new();
+                loop {
+                    match reader.read_line(&mut line) {
+                        Ok(0) => break,
+                        Ok(_) => {
+                            tracing::debug!("sona stderr: {}", line.trim());
+                            if let Ok(mut buf) = buf_clone.lock() {
+                                buf.push(&line);
+                            }
+                            line.clear();
+                        }
+                        // Invalid UTF-8 used to end this loop silently; say so
+                        // instead, otherwise the tail looks merely empty.
+                        Err(error) => {
+                            if let Ok(mut buf) = buf_clone.lock() {
+                                buf.finish(Some(error.to_string()));
+                            }
+                            return;
+                        }
+                    }
+                }
+                if let Ok(mut buf) = buf_clone.lock() {
+                    buf.finish(None);
+                }
+            });
+        } else if let Ok(mut buf) = stderr_buf.lock() {
+            buf.finish(None);
         }
-        let signal: ReadySignal = serde_json::from_str(line.trim()).map_err(|error| {
-            let stderr_output = read_stderr();
-            if stderr_output.is_empty() {
-                eyre::eyre!("failed to parse sona ready signal: {error}")
-            } else {
-                eyre::eyre!(
-                    "failed to parse sona ready signal: {error}\n\nsona stderr: {}",
-                    stderr_output.trim()
-                )
-            }
-        })?;
-        tracing::debug!("sona ready on port {}", signal.port);
 
+        // The ready line is read on its own thread so the wait can be bounded; the
+        // same thread goes on to drain stdout for the rest of the run.
+        let (ready_tx, ready_rx) = mpsc::channel();
         std::thread::spawn(move || {
+            let mut reader = std::io::BufReader::new(stdout);
+            let mut line = String::new();
+            let first = reader.read_line(&mut line).map(|_| std::mem::take(&mut line));
+            if ready_tx.send(first).is_err() {
+                return;
+            }
             let mut line = String::new();
             while reader.read_line(&mut line).unwrap_or(0) > 0 {
                 tracing::trace!("sona stdout: {}", line.trim());
                 line.clear();
             }
         });
-        let stderr_buf = Arc::new(Mutex::new(String::new()));
-        if let Some(stderr) = stderr {
-            let buf_clone = stderr_buf.clone();
-            std::thread::spawn(move || {
-                let mut reader = std::io::BufReader::new(stderr);
-                let mut line = String::new();
-                while reader.read_line(&mut line).unwrap_or(0) > 0 {
-                    tracing::debug!("sona stderr: {}", line.trim());
-                    if let Ok(mut buf) = buf_clone.lock() {
-                        if buf.len() < 8192 {
-                            buf.push_str(&line);
-                        }
-                    }
-                    line.clear();
-                }
-            });
+
+        let line = match ready_rx.recv_timeout(READY_TIMEOUT) {
+            Ok(Ok(line)) => line,
+            Ok(Err(error)) => {
+                let detail = kill_and_describe(&mut child, &stderr_buf);
+                bail!("failed to read sona ready signal: {error}{detail}");
+            }
+            Err(_) => {
+                let detail = kill_and_describe(&mut child, &stderr_buf);
+                bail!(
+                    "timed out after {}s waiting for sona to report it was ready{detail}",
+                    READY_TIMEOUT.as_secs()
+                );
+            }
+        };
+        // An empty first line means stdout hit EOF: the child is already gone.
+        if line.trim().is_empty() {
+            let detail = kill_and_describe(&mut child, &stderr_buf);
+            bail!("sona exited before reporting it was ready{detail}");
         }
+
+        let signal: ReadySignal = match serde_json::from_str(line.trim()) {
+            Ok(signal) => signal,
+            Err(error) => {
+                let detail = kill_and_describe(&mut child, &stderr_buf);
+                bail!("failed to parse sona ready signal: {error}{detail}");
+            }
+        };
+        tracing::debug!("sona ready on port {}", signal.port);
 
         Ok(Self {
             port: signal.port,
             unload_timeout_minutes,
             child,
-            client: reqwest::Client::builder().no_proxy().build().unwrap(),
+            exit_status: None,
+            client: build_client()?,
             stderr_buf,
         })
     }
@@ -109,16 +240,50 @@ impl SonaProcess {
         self.client.clone()
     }
 
+    /// `try_wait` reports the status exactly once and then forgets it, so the
+    /// result is cached: every later death report can still name the exit code
+    /// and the signal.
+    pub fn exit_status(&mut self) -> Option<ExitStatus> {
+        if self.exit_status.is_none() {
+            if let Ok(Some(status)) = self.child.try_wait() {
+                self.exit_status = Some(status);
+            }
+        }
+        self.exit_status
+    }
+
     pub fn is_alive(&mut self) -> bool {
-        matches!(self.child.try_wait(), Ok(None))
+        self.exit_status().is_none()
     }
 
     pub fn unload_timeout_minutes(&self) -> u32 {
         self.unload_timeout_minutes
     }
 
+    /// Bounded wait for the collector to reach EOF before snapshotting: the child
+    /// being reaped does not mean its output has been read yet.
+    async fn stderr_after_exit(&self) -> String {
+        let deadline = Instant::now() + STDERR_DRAIN_TIMEOUT;
+        while !stderr_finished(&self.stderr_buf) && Instant::now() < deadline {
+            tokio::time::sleep(STDERR_POLL_INTERVAL).await;
+        }
+        stderr_snapshot(&self.stderr_buf)
+    }
+
     fn recent_stderr(&self) -> String {
-        self.stderr_buf.lock().map(|buf| buf.trim().to_string()).unwrap_or_default()
+        stderr_snapshot(&self.stderr_buf)
+    }
+
+    /// `Some(message)` when the child is gone, describing how it died and what it
+    /// last printed. `None` while it is still running.
+    pub async fn death_report(&mut self, context: &str) -> Option<String> {
+        let status = self.exit_status()?;
+        let stderr = self.stderr_after_exit().await;
+        let mut message = format!("{context} ({})", describe_exit(status));
+        if !stderr.is_empty() {
+            message.push_str(&format!("\n\nsona stderr: {stderr}"));
+        }
+        Some(message)
     }
 
     pub async fn load_model(&mut self, path: &str, gpu_device: Option<i32>, no_gpu: bool) -> Result<()> {
@@ -134,12 +299,8 @@ impl SonaProcess {
         let mut last_error = None;
         for attempt in 0..3 {
             if attempt > 0 {
-                if !self.is_alive() {
-                    let stderr = self.recent_stderr();
-                    if stderr.is_empty() {
-                        bail!("sona process died during model loading");
-                    }
-                    bail!("sona process died during model loading\n\nsona stderr: {stderr}");
+                if let Some(report) = self.death_report("sona process died during model loading").await {
+                    bail!("{report}");
                 }
                 tracing::debug!("retrying load_model (attempt {})", attempt + 1);
                 tokio::time::sleep(std::time::Duration::from_millis(500 * (1 << attempt))).await;
@@ -154,6 +315,9 @@ impl SonaProcess {
             }
         }
 
+        if let Some(report) = self.death_report("sona process died during model loading").await {
+            bail!("{report}");
+        }
         let error = Err(last_error.unwrap()).context("failed to send load_model request to sona after 3 attempts");
         let stderr = self.recent_stderr();
         if stderr.is_empty() {
@@ -165,9 +329,37 @@ impl SonaProcess {
 
     pub fn kill(&mut self) {
         tracing::debug!("killing sona process");
+        if self.exit_status().is_some() {
+            return;
+        }
         let _ = self.child.kill();
-        let _ = self.child.wait();
+        if let Ok(status) = self.child.wait() {
+            self.exit_status = Some(status);
+        }
     }
+}
+
+/// Give up on a child that never handed us a usable ready line, and describe how
+/// it went: its exit status if it died on its own, plus whatever it printed. The
+/// status is only worth reporting when it was not us who ended it.
+fn kill_and_describe(child: &mut Child, stderr_buf: &Arc<Mutex<StderrTail>>) -> String {
+    let status = match child.try_wait() {
+        Ok(Some(status)) => Some(status),
+        _ => {
+            let _ = child.kill();
+            let _ = child.wait();
+            None
+        }
+    };
+    let mut detail = String::new();
+    if let Some(status) = status {
+        detail.push_str(&format!(" (sona {})", describe_exit(status)));
+    }
+    let stderr = wait_for_stderr_blocking(stderr_buf);
+    if !stderr.is_empty() {
+        detail.push_str(&format!("\n\nsona stderr: {stderr}"));
+    }
+    detail
 }
 
 impl Drop for SonaProcess {
