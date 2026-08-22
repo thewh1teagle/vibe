@@ -72,6 +72,10 @@ export interface Preference {
 	setYtDlpVersion: ModifyState<string | null>
 	shouldCheckYtDlpVersion: boolean
 	setShouldCheckYtDlpVersion: ModifyState<boolean>
+	ytDlpLastUpdateCheck: number
+	setYtDlpLastUpdateCheck: ModifyState<number>
+	ytDlpDeclinedVersion: string | null
+	setYtDlpDeclinedVersion: ModifyState<string | null>
 
 	advancedTranscribeOptions: AdvancedTranscribeOptions
 	setAdvancedTranscribeOptions: ModifyState<AdvancedTranscribeOptions>
@@ -185,6 +189,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [llmConfig, setLlmConfig] = usePersisted<LlmConfig>(CONFIG_KEYS.llmConfig, defaultOptions.llmConfig)
 	const [ytDlpVersion, setYtDlpVersion] = usePersisted<string | null>(CONFIG_KEYS.ytDlpVersion, null)
 	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = usePersisted<boolean>(CONFIG_KEYS.shouldCheckYtDlpVersion, true)
+	const [ytDlpLastUpdateCheck, setYtDlpLastUpdateCheck] = usePersisted<number>(CONFIG_KEYS.ytDlpLastUpdateCheck, 0)
+	const [ytDlpDeclinedVersion, setYtDlpDeclinedVersion] = usePersisted<string | null>(CONFIG_KEYS.ytDlpDeclinedVersion, null)
 	const [advancedTranscribeOptions, setAdvancedTranscribeOptions] = usePersisted<AdvancedTranscribeOptions>(CONFIG_KEYS.advancedOptions, {
 		includeSubFolders: false,
 		saveNextToAudioFile: true,
@@ -358,6 +364,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setYtDlpVersion,
 		shouldCheckYtDlpVersion,
 		setShouldCheckYtDlpVersion,
+		ytDlpLastUpdateCheck,
+		setYtDlpLastUpdateCheck,
+		ytDlpDeclinedVersion,
+		setYtDlpDeclinedVersion,
 		advancedTranscribeOptions,
 		setAdvancedTranscribeOptions,
 		recentLanguages,

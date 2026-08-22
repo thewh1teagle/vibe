@@ -63,6 +63,10 @@ export const CONFIG_KEYS = {
 	// Tools
 	ytDlpVersion: 'tools.ytDlpVersion',
 	shouldCheckYtDlpVersion: 'tools.checkYtDlpUpdates',
+	/** Epoch ms of the last GitHub release lookup, so the check runs weekly instead of every launch. */
+	ytDlpLastUpdateCheck: 'tools.ytDlpLastUpdateCheck',
+	/** The newest version the user said "later" to — never offered again, only something newer is. */
+	ytDlpDeclinedVersion: 'tools.ytDlpDeclinedVersion',
 
 	// UI state that is remembered but not really a setting
 	homeTab: 'ui.homeTab',
