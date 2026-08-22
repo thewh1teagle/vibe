@@ -1,11 +1,28 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
-import { InfoTooltip } from '~/components/info-tooltip'
-import { Input } from '~/components/ui/input'
+import ShortcutRecorder from '~/components/shortcut-recorder'
 import { Switch } from '~/components/ui/switch'
-import { useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
-import { Field, SectionCard } from './shared'
+import { DEFAULT_HOTKEY_SHORTCUT, useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
+import { SettingsGroup, SettingsRow } from './shared'
 import { getDictationIndicatorEnabled, setDictationIndicatorEnabled } from '~/lib/dictation-indicator'
+
+function SegmentedControl<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
+	return (
+		<div className="flex items-center gap-1 rounded-lg border border-border/65 bg-muted/40 p-0.5">
+			{options.map((option) => (
+				<button
+					key={option.value}
+					type="button"
+					onClick={() => onChange(option.value)}
+					className={`h-8 cursor-pointer rounded-md px-2.5 text-xs font-medium transition-colors ${
+						value === option.value ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+					}`}>
+					{option.label}
+				</button>
+			))}
+		</div>
+	)
+}
 
 export function DictationSection() {
 	const hotkey = useHotkeyProvider()
@@ -22,114 +39,54 @@ export function DictationSection() {
 			console.error(error)
 		}
 	}
-	const isMac = navigator.platform.toUpperCase().includes('MAC')
-	const activationLabels = {
-		'push-to-talk': m.hotkeyActivationPushToTalk,
-		toggle: m.hotkeyActivationToggle,
-	} as const
 	const activationDescriptions = {
 		'push-to-talk': m.hotkeyActivationPushToTalkDescription,
 		toggle: m.hotkeyActivationToggleDescription,
 	} as const
-	const outputLabels = {
-		clipboard: m.hotkeyOutputClipboard,
-		type: m.hotkeyOutputType,
-	} as const
-	const shortcutKeys = useMemo(() => {
-		const keyMap: Record<string, string> = {
-			CmdOrCtrl: isMac ? '⌘' : 'Ctrl',
-			Cmd: '⌘',
-			Ctrl: isMac ? '⌃' : 'Ctrl',
-			Shift: isMac ? '⇧' : 'Shift',
-			Alt: isMac ? '⌥' : 'Alt',
-			Option: '⌥',
-		}
-		return hotkey.hotkeyShortcut.split('+').map((key) => keyMap[key] ?? key)
-	}, [hotkey.hotkeyShortcut, isMac])
+	const activationOptions: { value: HotkeyActivationMode; label: string }[] = [
+		{ value: 'push-to-talk', label: m.hotkeyActivationPushToTalk() },
+		{ value: 'toggle', label: m.hotkeyActivationToggle() },
+	]
+	const outputOptions: { value: HotkeyOutputMode; label: string }[] = [
+		{ value: 'clipboard', label: m.hotkeyOutputClipboard() },
+		{ value: 'type', label: m.hotkeyOutputType() },
+	]
 	return (
-		<div className="space-y-5">
-			<p className="px-1 text-sm text-muted-foreground">{m.globalDictationPromo()}</p>
-			<SectionCard>
-				<div className="space-y-4">
-					<div className="flex items-center justify-between">
-						<span className="text-sm font-medium">{m.globalHotkeyEnabled()}</span>
-						<Switch checked={hotkey.hotkeyEnabled} onCheckedChange={hotkey.setHotkeyEnabled} />
-					</div>
+		<div className="space-y-6">
+			<SettingsGroup description={m.globalDictationPromo()}>
+				<SettingsRow label={m.globalHotkeyEnabled()}>
+					<Switch checked={hotkey.hotkeyEnabled} onCheckedChange={hotkey.setHotkeyEnabled} />
+				</SettingsRow>
 
-					{hotkey.hotkeyEnabled && (
-						<>
-							<div className="flex items-center justify-between gap-3">
-								<span className="flex items-center gap-1 text-sm font-medium">
-									<InfoTooltip text={m.dictationIndicatorSettingInfo()} />
-									{m.dictationIndicatorSetting()}
-								</span>
-								<Switch checked={indicatorEnabled} onCheckedChange={changeIndicatorEnabled} />
-							</div>
-							<div className="h-px bg-border/45" />
-							<Field label={m.hotkeyActivationMode()}>
-								<div className="flex gap-2">
-									{(['push-to-talk', 'toggle'] as HotkeyActivationMode[]).map((mode) => (
-										<button
-											key={mode}
-											type="button"
-											onClick={() => hotkey.setHotkeyActivationMode(mode)}
-											className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-												hotkey.hotkeyActivationMode === mode
-													? 'border-primary bg-primary/10 text-primary'
-													: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
-											}`}>
-											{activationLabels[mode]()}
-										</button>
-									))}
-								</div>
-							</Field>
-							<Field
-								label={
-									<span className="flex items-center gap-2">
-										{m.globalHotkeyShortcut()}
-										<span className="flex items-center gap-1">
-											{shortcutKeys.map((key, i) => (
-												<kbd
-													key={i}
-													className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-border/80 bg-background/70 px-1.5 font-mono text-[11px] font-medium text-foreground/80 shadow-[0_1px_0_1px_rgba(0,0,0,0.04)]">
-													{key}
-												</kbd>
-											))}
-										</span>
-									</span>
-								}>
-								<Input type="text" value={hotkey.hotkeyShortcut} onChange={(e) => hotkey.setHotkeyShortcut(e.target.value)} />
-							</Field>
-							<div className="flex gap-2">
-								{(['clipboard', 'type'] as HotkeyOutputMode[]).map((mode) => (
-									<button
-										key={mode}
-										type="button"
-										onClick={() => hotkey.setHotkeyOutputMode(mode)}
-										className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-											hotkey.hotkeyOutputMode === mode
-												? 'border-primary bg-primary/10 text-primary'
-												: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
-										}`}>
-										{outputLabels[mode]()}
-									</button>
-								))}
-							</div>
-							<p className="text-xs italic text-muted-foreground">{activationDescriptions[hotkey.hotkeyActivationMode]()}</p>
+				{hotkey.hotkeyEnabled && (
+					<>
+						<SettingsRow label={m.dictationIndicatorSetting()} description={m.dictationIndicatorSettingInfo()}>
+							<Switch checked={indicatorEnabled} onCheckedChange={changeIndicatorEnabled} />
+						</SettingsRow>
 
-							<div className="h-px bg-border/45" />
+						<SettingsRow label={m.hotkeyActivationMode()} description={activationDescriptions[hotkey.hotkeyActivationMode]()}>
+							<SegmentedControl value={hotkey.hotkeyActivationMode} options={activationOptions} onChange={hotkey.setHotkeyActivationMode} />
+						</SettingsRow>
 
-							<div className="flex items-center justify-between gap-3">
-								<span className="flex items-center gap-1 text-sm font-medium">
-									<InfoTooltip text={m.normalizeHotkeyOutputInfo()} />
-									{m.normalizeHotkeyOutput()}
-								</span>
-								<Switch checked={hotkey.hotkeyNormalizeOutput} onCheckedChange={hotkey.setHotkeyNormalizeOutput} />
-							</div>
-						</>
-					)}
-				</div>
-			</SectionCard>
+						<SettingsRow label={m.globalHotkeyShortcut()} description={m.globalHotkeyDescription()}>
+							<ShortcutRecorder
+								value={hotkey.hotkeyShortcut}
+								onChange={hotkey.setHotkeyShortcut}
+								defaultValue={DEFAULT_HOTKEY_SHORTCUT}
+								onCapturingChange={hotkey.setHotkeyCapturing}
+							/>
+						</SettingsRow>
+
+						<SettingsRow label={m.hotkeyOutputMode()}>
+							<SegmentedControl value={hotkey.hotkeyOutputMode} options={outputOptions} onChange={hotkey.setHotkeyOutputMode} />
+						</SettingsRow>
+
+						<SettingsRow label={m.normalizeHotkeyOutput()} description={m.normalizeHotkeyOutputInfo()}>
+							<Switch checked={hotkey.hotkeyNormalizeOutput} onCheckedChange={hotkey.setHotkeyNormalizeOutput} />
+						</SettingsRow>
+					</>
+				)}
+			</SettingsGroup>
 		</div>
 	)
 }

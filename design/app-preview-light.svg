@@ -1,0 +1,131 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" font-family="Inter, 'Helvetica Neue', Arial, sans-serif">
+	<defs>
+		<radialGradient id="glow1" cx="20%" cy="10%" r="60%">
+			<stop offset="0%" stop-color="#5b8def" stop-opacity="0.5"/>
+			<stop offset="100%" stop-color="#5b8def" stop-opacity="0"/>
+		</radialGradient>
+		<radialGradient id="glow2" cx="85%" cy="20%" r="55%">
+			<stop offset="0%" stop-color="#b98de3" stop-opacity="0.45"/>
+			<stop offset="100%" stop-color="#b98de3" stop-opacity="0"/>
+		</radialGradient>
+		<radialGradient id="glow3" cx="30%" cy="95%" r="55%">
+			<stop offset="0%" stop-color="#7cc5a0" stop-opacity="0.4"/>
+			<stop offset="100%" stop-color="#7cc5a0" stop-opacity="0"/>
+		</radialGradient>
+		<radialGradient id="glow4" cx="88%" cy="90%" r="50%">
+			<stop offset="0%" stop-color="#e8a87c" stop-opacity="0.38"/>
+			<stop offset="100%" stop-color="#e8a87c" stop-opacity="0"/>
+		</radialGradient>
+		<filter id="windowShadow" x="-20%" y="-20%" width="140%" height="140%">
+			<feDropShadow dx="0" dy="24" stdDeviation="36" flood-color="#000000" flood-opacity="0.16"/>
+		</filter>
+		<linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#4C8DF6"/>
+			<stop offset="55%" stop-color="#6D7CEF"/>
+			<stop offset="100%" stop-color="#8E6CE6"/>
+		</linearGradient>
+	</defs>
+
+	<!-- backdrop -->
+	<rect width="1600" height="1000" fill="#f2f2f0"/>
+	<rect width="1600" height="1000" fill="url(#glow1)"/>
+	<rect width="1600" height="1000" fill="url(#glow2)"/>
+	<rect width="1600" height="1000" fill="url(#glow3)"/>
+	<rect width="1600" height="1000" fill="url(#glow4)"/>
+
+	<!-- window -->
+	<g filter="url(#windowShadow)">
+		<rect x="120" y="80" width="1360" height="840" rx="22" fill="#ffffff" stroke="#e6e6e6"/>
+	</g>
+	<clipPath id="win"><rect x="120" y="80" width="1360" height="840" rx="22"/></clipPath>
+	<g clip-path="url(#win)">
+		<!-- sidebar -->
+		<rect x="120" y="80" width="272" height="840" fill="#f9f9f9"/>
+		<line x1="392" y1="80" x2="392" y2="920" stroke="#e6e6e6" stroke-width="1"/>
+
+		<!-- traffic lights -->
+		<circle cx="152" cy="112" r="6.5" fill="#ff5f57"/>
+		<circle cx="174" cy="112" r="6.5" fill="#febc2e"/>
+		<circle cx="196" cy="112" r="6.5" fill="#28c840"/>
+		<!-- sidebar toggle glyph -->
+		<g transform="translate(222,103)" stroke="#6e6e6e" stroke-width="1.6" fill="none">
+			<rect x="0" y="0" width="18" height="16" rx="4"/>
+			<line x1="6.5" y1="0" x2="6.5" y2="16"/>
+		</g>
+
+		<!-- wordmark -->
+		<text x="146" y="166" font-size="21" font-weight="650" fill="#1a1c1f" letter-spacing="-0.5">Vibe</text>
+
+		<!-- new transcription -->
+		<g transform="translate(140,190)">
+			<rect width="232" height="40" rx="12" fill="#ececec" opacity="0.0"/>
+			<text x="14" y="26" font-size="14.5" font-weight="550" fill="#1a1c1f">+&#160;&#160;New transcription</text>
+		</g>
+
+		<!-- recents -->
+		<text x="154" y="268" font-size="11" font-weight="600" fill="#6e6e6e" letter-spacing="1.6">RECENTS</text>
+		<g font-size="14" font-weight="550" fill="#1a1c1f">
+			<rect x="140" y="284" width="232" height="52" rx="12" fill="#ececec"/>
+			<text x="154" y="306">team-standup</text>
+			<text x="154" y="326" font-size="11.5" font-weight="400" fill="#6e6e6e">just now</text>
+			<text x="154" y="366">podcast-episode</text>
+			<text x="154" y="386" font-size="11.5" font-weight="400" fill="#6e6e6e">2h ago</text>
+			<text x="154" y="426">interview</text>
+			<text x="154" y="446" font-size="11.5" font-weight="400" fill="#6e6e6e">yesterday</text>
+		</g>
+
+		<!-- settings footer -->
+		<line x1="120" y1="856" x2="392" y2="856" stroke="#e6e6e6"/>
+		<g transform="translate(154,876)" stroke="#6e6e6e" stroke-width="1.5" fill="none">
+			<circle cx="8" cy="8" r="3.2"/>
+			<path d="M8 1.2v2.2M8 12.6v2.2M1.2 8h2.2M12.6 8h2.2M3.2 3.2l1.6 1.6M11.2 11.2l1.6 1.6M12.8 3.2l-1.6 1.6M4.8 11.2l-1.6 1.6"/>
+		</g>
+		<text x="182" y="889" font-size="14" font-weight="550" fill="#1a1c1f">Settings</text>
+
+		<!-- ===== main pane ===== -->
+		<!-- segmented switcher -->
+		<g transform="translate(816,182)">
+			<rect x="0" y="0" width="240" height="52" rx="26" fill="#f4f4f4" stroke="#e6e6e6"/>
+			<rect x="5" y="5" width="74" height="42" rx="21" fill="#ffffff"/>
+			<!-- folder (active) -->
+			<g transform="translate(31,16)" stroke="#1a1c1f" stroke-width="1.7" fill="none">
+				<path d="M1 4.5C1 3.4 1.9 2.5 3 2.5h4l2 2.6h9c1.1 0 2 .9 2 2l-1.6 8.4c-.2 1-1 1.7-2 1.7H3.4c-1.1 0-2-.9-2-2z"/>
+			</g>
+			<!-- mic -->
+			<g transform="translate(111,14)" stroke="#6e6e6e" stroke-width="1.7" fill="none">
+				<rect x="6.5" y="0" width="9" height="15" rx="4.5"/>
+				<path d="M2 10.5c0 5 4 8.5 9 8.5s9-3.5 9-8.5M11 19v5"/>
+			</g>
+			<!-- link -->
+			<g transform="translate(188,17)" stroke="#6e6e6e" stroke-width="1.7" fill="none">
+				<path d="M8.5 11.5l6-6M10.5 3.5l2-2a4.6 4.6 0 016.5 6.5l-2 2M12.5 13.5l-2 2A4.6 4.6 0 014 9l2-2"/>
+			</g>
+		</g>
+
+		<!-- dropzone -->
+		<rect x="620" y="278" width="632" height="304" rx="20" fill="#f4f4f4" opacity="0.55"/>
+		<rect x="620" y="278" width="632" height="304" rx="20" fill="none" stroke="#cfcfcf" stroke-width="2" stroke-dasharray="9 8"/>
+		<circle cx="936" cy="386" r="30" fill="#ffffff"/>
+		<g transform="translate(925,373)" stroke="#1a1c1f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M11 16.5V4.5M5.5 10L11 4.5 16.5 10"/>
+			<path d="M3 19.5v2.4c0 1.2 1 2.1 2.2 2.1h11.6c1.2 0 2.2-.9 2.2-2.1v-2.4" transform="translate(0,-2)"/>
+		</g>
+		<text x="936" y="472" font-size="23" font-weight="650" fill="#1a1c1f" text-anchor="middle" letter-spacing="-0.4">Drop audio, video or a folder here</text>
+		<text x="936" y="504" font-size="14.5" fill="#6e6e6e" text-anchor="middle">or click to browse your files</text>
+
+		<!-- quiet row -->
+		<g transform="translate(620,624)">
+			<rect x="0" y="0" width="196" height="44" rx="22" fill="#f9f9f9" stroke="#e6e6e6"/>
+			<g transform="translate(18,13)" stroke="#6e6e6e" stroke-width="1.5" fill="none">
+				<circle cx="9" cy="9" r="8"/>
+				<path d="M1 9h16M9 1c2.6 2.4 2.6 13.6 0 16M9 1c-2.6 2.4-2.6 13.6 0 16"/>
+			</g>
+			<text x="48" y="28" font-size="14.5" font-weight="550" fill="#1a1c1f">Auto Detect</text>
+			<g transform="translate(240,14)" stroke="#6e6e6e" stroke-width="1.6" fill="none" stroke-linecap="round">
+				<line x1="0" y1="3" x2="16" y2="3"/><circle cx="5" cy="3" r="2.6" fill="#ffffff"/>
+				<line x1="0" y1="12" x2="16" y2="12"/><circle cx="11.5" cy="12" r="2.6" fill="#ffffff"/>
+			</g>
+			<text x="266" y="28" font-size="14.5" fill="#6e6e6e">More Options</text>
+		</g>
+	</g>
+</svg>

@@ -7,9 +7,11 @@ interface LanguageSelectorProps {
 	locale: Locale
 	availableLocales: readonly Locale[]
 	onLocaleChange: (locale: Locale) => void
+	/** Renders a tiny muted "dev" badge next to the trigger. */
+	showDevBadge?: boolean
 }
 
-export default function LanguageSelector({ locale, availableLocales, onLocaleChange }: LanguageSelectorProps) {
+export default function LanguageSelector({ locale, availableLocales, onLocaleChange, showDevBadge = false }: LanguageSelectorProps) {
 	const [open, setOpen] = useState(false)
 	const menuRef = useRef<HTMLLIElement>(null)
 	const languageNames = new Intl.DisplayNames([locale], { type: 'language' })
@@ -29,11 +31,18 @@ export default function LanguageSelector({ locale, availableLocales, onLocaleCha
 				aria-label={m.language()}
 				aria-expanded={open}
 				onClick={() => setOpen((value) => !value)}
-				className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+				className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full px-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring">
 				<Languages aria-hidden="true" className="size-4" />
+				{showDevBadge && (
+					<span
+						dir="ltr"
+						className="rounded-full border border-border px-1.5 py-px font-mono text-[9px] leading-[1.4] tracking-[0.08em] text-muted-foreground uppercase">
+						dev
+					</span>
+				)}
 			</button>
 			{open && (
-				<div className="absolute top-full right-0 z-50 mt-2 min-w-52 rounded-xl border border-white/15 bg-popover/75 p-1.5 text-popover-foreground shadow-xl shadow-black/10 backdrop-blur-xl dark:border-white/10 dark:bg-popover/65">
+				<div className="absolute top-full end-0 z-50 mt-2 min-w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg">
 					{availableLocales.map((code) => (
 						<button
 							key={code}
@@ -42,9 +51,11 @@ export default function LanguageSelector({ locale, availableLocales, onLocaleCha
 								onLocaleChange(code)
 								setOpen(false)
 							}}
-							className="flex w-full items-center justify-between gap-4 whitespace-nowrap rounded-lg px-3 py-2 text-start text-sm transition-colors hover:bg-accent">
+							className={`flex w-full items-center justify-between gap-4 whitespace-nowrap rounded-lg px-3 py-2 text-start text-sm transition-colors hover:bg-accent hover:text-foreground ${
+								code === locale ? 'text-foreground' : 'text-muted-foreground'
+							}`}>
 							<span>{languageNames.of(code) ?? code}</span>
-							{code === locale && <Check aria-hidden="true" className="size-3.5 text-primary" />}
+							{code === locale && <Check aria-hidden="true" className="size-3.5 text-foreground" />}
 						</button>
 					))}
 				</div>

@@ -32,9 +32,11 @@ export default function Layout() {
 	})
 
 	return (
-		<div dir={direction}>
+		<div dir={direction} className="flex min-h-dvh flex-col bg-background text-foreground">
 			<Nav locale={locale} availableLocales={availableLocales} onLocaleChange={onLocaleChange} />
-			<Outlet context={{ onOpenKofi }} />
+			<main className="flex-1">
+				<Outlet context={{ onOpenKofi }} />
+			</main>
 			<Footer onOpenKofi={onOpenKofi} onOpenPrivacyPolicy={onOpenPrivacyPolicy} />
 			<KofiDialog open={kofiOpen} onOpenChange={setKofiOpen} />
 			<PrivacyPolicy open={privacyOpen} onOpenChange={setPrivacyOpen} />

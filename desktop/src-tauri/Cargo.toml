@@ -56,6 +56,8 @@ tracing = { version = "0.1.44", features = ["log"] }
 tracing-log = "0.2.0"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter", "json"] }
 glob = "0.3.3"
+# Watch app_config.json for edits made outside the app
+notify = "8"
 
 chrono = "0.4.43"
 crash-handler = "0.7.0"
@@ -83,7 +85,9 @@ libc-stdhandle = "=0.1.0"
 # macOS
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6.4"
-objc2-app-kit = { version = "0.3.2", features = ["NSApplication", "NSWindow"] }
+objc2-app-kit = { version = "0.3.2", features = ["NSApplication", "NSWindow", "NSOpenPanel", "NSSavePanel", "NSPanel"] }
+objc2-foundation = { version = "0.3.2", features = ["NSArray", "NSString", "NSURL"] }
+window-vibrancy = "0.6"
 
 [features]
 default = []

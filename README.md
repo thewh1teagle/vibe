@@ -29,7 +29,7 @@
 
 <p align="center">
 	<a target="_blank" href="https://thewh1teagle.github.io/vibe/">
-    	<img width=600 src="https://github.com/thewh1teagle/vibe/assets/61390950/22779ac6-9e49-4c21-b528-29647f039da2">
+    	<img width=720 src="./design/app-preview-light.png">
 	</a>
 </p>
 
@@ -77,12 +77,6 @@ Get started with local development [here](docs/building.md).
 
 PRs are welcomed!
 In addition, you're welcome to add translations.
-
-We would like to express our sincere gratitude to all the contributors.
-
-<a href="https://github.com/thewh1teagle/vibe/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=thewh1teagle/vibe" />
-</a>
 
 # Community
 

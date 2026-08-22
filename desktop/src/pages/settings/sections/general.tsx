@@ -1,96 +1,57 @@
 import { openUrl } from '@tauri-apps/plugin-opener'
+import { Moon, Sun } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
-import { getLocale } from '~/paraglide/runtime.js'
 import { ReactComponent as DiscordIcon } from '~/icons/discord.svg'
 import { ReactComponent as GithubIcon } from '~/icons/github.svg'
 import { ReactComponent as HeartIcon } from '~/icons/heart.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import * as config from '~/lib/config'
-import { getLocalizedLanguageName, supportedLanguages } from '~/lib/i18n'
-import { Button } from '~/components/ui/button'
-import { Label } from '~/components/ui/label'
+import { DisplayLanguageInput } from '~/components/display-language-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
-import { Switch } from '~/components/ui/switch'
-import { SectionCard, type SettingsViewModel } from './shared'
+import { ActionRow, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 
 export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 	const themeLabels = { light: m.light, dark: m.dark } as const
+	const themeIcons = { light: Sun, dark: Moon } as const
 
 	return (
-		<div className="space-y-5">
-			<SectionCard>
-				<div className="flex items-center justify-between gap-4">
-					<div className="space-y-1">
-						<Label>{m.closeToTrayOnExit()}</Label>
-						<p className="text-sm text-muted-foreground">{m.closeToTrayOnExitInfo()}</p>
-					</div>
-					<Switch checked={vm.preference.closeToTray} onCheckedChange={vm.preference.setCloseToTray} />
-				</div>
-			</SectionCard>
-
-			<SectionCard>
-				<div className="grid grid-cols-1 divide-y divide-border/45 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-					<div className="space-y-2 sm:pe-5">
-						<Label>{m.language()}</Label>
-						<Select
-							value={supportedLanguages[vm.preference.displayLanguage] ? vm.preference.displayLanguage : 'en-US'}
-							onValueChange={vm.preference.setDisplayLanguage}>
-							<SelectTrigger className="capitalize">
-								<SelectValue placeholder={m.selectLanguage()} />
-							</SelectTrigger>
-							<SelectContent>
-								{Object.entries(supportedLanguages).map(([code, name]) => (
-									<SelectItem key={code} value={code} className="capitalize">
-										{code === getLocale() ? getLocalizedLanguageName(name) : name}
+		<div className="space-y-6">
+			<SettingsGroup>
+				<SettingsRow label={m.language()}>
+					<DisplayLanguageInput value={vm.preference.displayLanguage} onSelect={vm.preference.setDisplayLanguage} className="w-52" />
+				</SettingsRow>
+				<SettingsRow label={m.theme()}>
+					<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>
+						<SelectTrigger className={`w-36 ${rowControlClass}`}>
+							<SelectValue placeholder={m.selectTheme()} />
+						</SelectTrigger>
+						<SelectContent>
+							{config.themes.map((theme) => {
+								const Icon = themeIcons[theme as keyof typeof themeIcons]
+								return (
+									<SelectItem key={theme} value={theme}>
+										<span className="flex items-center gap-2">
+											{Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" />}
+											<span className="capitalize">{themeLabels[theme as keyof typeof themeLabels]()}</span>
+										</span>
 									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-					<div className="space-y-2 pt-4 sm:ps-5 sm:pt-0">
-						<Label>{m.theme()}</Label>
-						<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>
-							<SelectTrigger className="capitalize">
-								<SelectValue placeholder={m.selectTheme()} />
-							</SelectTrigger>
-							<SelectContent>
-								{config.themes.map((theme) => (
-									<SelectItem key={theme} value={theme} className="capitalize">
-										{themeLabels[theme as keyof typeof themeLabels]()}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-			</SectionCard>
+								)
+							})}
+						</SelectContent>
+					</Select>
+				</SettingsRow>
+			</SettingsGroup>
 
-			<div className="divide-y divide-border/45 rounded-2xl border border-border/60 bg-card/92 shadow-xs">
-				<Button
-					variant="ghost"
-					onMouseDown={() => openUrl(config.aboutURL)}
-					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
-					{m.projectLink()} <LinkIcon className="h-4 w-4 text-muted-foreground" />
-				</Button>
-				<Button
-					variant="ghost"
-					onMouseDown={vm.reportIssue}
-					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
-					{m.reportIssue()} <GithubIcon className="h-4 w-4 text-muted-foreground" />
-				</Button>
-				<Button
-					variant="ghost"
-					onMouseDown={() => openUrl(config.supportVibeURL)}
-					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
-					{m.supportTheProject()} <HeartIcon className="h-4 w-4 fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" />
-				</Button>
-				<Button
-					variant="ghost"
-					onMouseDown={() => openUrl(config.discordURL)}
-					className="h-12 w-full justify-between rounded-none px-4 font-medium first:rounded-t-2xl last:rounded-b-2xl hover:bg-accent/55">
-					{m.discordCommunity()} <DiscordIcon className="h-4 w-4 text-muted-foreground" />
-				</Button>
-			</div>
+			<SettingsGroup>
+				<ActionRow label={m.projectLink()} icon={<LinkIcon className="h-4 w-4" />} onClick={() => openUrl(config.aboutURL)} />
+				<ActionRow label={m.reportIssue()} icon={<GithubIcon className="h-4 w-4" />} onClick={vm.reportIssue} />
+				<ActionRow
+					label={m.supportTheProject()}
+					icon={<HeartIcon className="h-4 w-4 fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400" />}
+					onClick={() => openUrl(config.supportVibeURL)}
+				/>
+				<ActionRow label={m.discordCommunity()} icon={<DiscordIcon className="h-4 w-4" />} onClick={() => openUrl(config.discordURL)} />
+			</SettingsGroup>
 		</div>
 	)
 }

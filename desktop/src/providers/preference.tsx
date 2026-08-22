@@ -1,7 +1,9 @@
 import { ReactNode, SetStateAction, createContext, useContext, useEffect, useRef, useState } from 'react'
-import { useLocalStorage } from 'usehooks-ts'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 import { TextFormat } from '~/components/format-select'
 import { ModifyState } from '~/lib/types'
 import { supportedLanguages } from '~/lib/i18n'
@@ -25,8 +27,6 @@ export interface AdvancedTranscribeOptions {
 export interface Preference {
 	displayLanguage: string
 	setDisplayLanguage: ModifyState<string>
-	closeToTray: boolean
-	setCloseToTray: ModifyState<boolean>
 	soundOnFinish: boolean
 	setSoundOnFinish: ModifyState<boolean>
 	focusOnFinish: boolean
@@ -86,6 +86,10 @@ export interface Preference {
 
 	analyticsEnabled: boolean
 	setAnalyticsEnabled: (value: boolean) => void
+
+	/** Auto-save every finished transcription into Documents/Vibe (powers the Recents sidebar). */
+	saveTranscripts: boolean
+	setSaveTranscripts: ModifyState<boolean>
 }
 
 // Create the context
@@ -120,7 +124,6 @@ const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-sche
 const defaultDisplayLanguage = 'en-US'
 
 const defaultOptions = {
-	closeToTray: true,
 	soundOnFinish: true,
 	focusOnFinish: true,
 	modelPath: null,
@@ -150,41 +153,41 @@ const defaultOptions = {
 // Preference provider component
 export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const previousLanguage = useRef(getLocale())
-	const [language, setLanguage] = useLocalStorage('prefs_display_language', defaultDisplayLanguage)
-	const [isFirstRun, setIsFirstRun] = useLocalStorage('prefs_first_localstorage_read', true)
+	const [language, setLanguage] = usePersisted(CONFIG_KEYS.displayLanguage, defaultDisplayLanguage)
+	const [isFirstRun, setIsFirstRun] = usePersisted(CONFIG_KEYS.firstRun, true)
 
-	const [modelPath, setModelPath] = useLocalStorage<string | null>('prefs_model_path', null)
+	const [modelPath, setModelPath] = usePersisted<string | null>(CONFIG_KEYS.modelPath, null)
 	const [modelMetadata, setModelMetadata] = useState<ModelMetadata | null>(null)
-	const [modelDisplayNames, setModelDisplayNames] = useLocalStorage<Record<string, string>>('prefs_model_display_names', {})
-	const [skippedSetup, setSkippedSetup] = useLocalStorage<boolean>('prefs_skipped_setup', false)
-	const [textAreaDirection, setTextAreaDirection] = useLocalStorage<Direction>('prefs_textarea_direction', 'ltr')
-	const [textFormatTranscript, setTextFormatTranscript] = useLocalStorage<TextFormat>('prefs_text_format_transcript', 'pdf')
-	const [textFormatSummary, setTextFormatSummary] = useLocalStorage<TextFormat>('prefs_text_format_summary', 'md')
+	const [modelDisplayNames, setModelDisplayNames] = usePersisted<Record<string, string>>(CONFIG_KEYS.modelDisplayNames, {})
+	const [skippedSetup, setSkippedSetup] = usePersisted<boolean>(CONFIG_KEYS.skippedSetup, false)
+	const [textAreaDirection, setTextAreaDirection] = usePersisted<Direction>(CONFIG_KEYS.textAreaDirection, 'ltr')
+	const [textFormatTranscript, setTextFormatTranscript] = usePersisted<TextFormat>(CONFIG_KEYS.textFormatTranscript, 'pdf')
+	const [textFormatSummary, setTextFormatSummary] = usePersisted<TextFormat>(CONFIG_KEYS.textFormatSummary, 'md')
 	const isMounted = useRef<boolean>(false)
-	const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('prefs_theme', systemIsDark ? 'dark' : 'light')
-	const [homeTab, setHomeTab] = useLocalStorage<HomeTab>('prefs_home_tab', 'file')
+	const [theme, setTheme] = usePersisted<'dark' | 'light'>(CONFIG_KEYS.theme, systemIsDark ? 'dark' : 'light')
+	const [homeTab, setHomeTab] = usePersisted<HomeTab>(CONFIG_KEYS.homeTab, 'file')
 
-	const [soundOnFinish, setSoundOnFinish] = useLocalStorage('prefs_sound_on_finish', defaultOptions.soundOnFinish)
-	const [focusOnFinish, setFocusOnFinish] = useLocalStorage('prefs_focus_on_finish', defaultOptions.focusOnFinish)
-	const [closeToTray, setCloseToTray] = useLocalStorage('prefs_close_to_tray', defaultOptions.closeToTray)
-	const [modelOptions, setModelOptions] = useLocalStorage<ModelOptions>('prefs_modal_args', defaultOptions.modelOptions)
-	const [ffmpegOptions, setFfmpegOptions] = useLocalStorage<FfmpegOptions>('prefs_ffmpeg_options', defaultOptions.ffmpegOptions)
-	const [storeRecordInDocuments, setStoreRecordInDocuments] = useLocalStorage('prefs_store_record_in_documents', defaultOptions.storeRecordInDocuments)
-	const [customRecordingPath, setCustomRecordingPath] = useLocalStorage<string | null>('prefs_custom_recording_path', null)
-	const [llmConfig, setLlmConfig] = useLocalStorage<LlmConfig>('prefs_llm_config', defaultOptions.llmConfig)
-	const [ytDlpVersion, setYtDlpVersion] = useLocalStorage<string | null>('prefs_ytdlp_version', null)
-	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = useLocalStorage<boolean>('prefs_should_check_ytdlp_version', true)
-	const [advancedTranscribeOptions, setAdvancedTranscribeOptions] = useLocalStorage<AdvancedTranscribeOptions>('prefs_advanced_transcribe_options', {
+	const [soundOnFinish, setSoundOnFinish] = usePersisted(CONFIG_KEYS.soundOnFinish, defaultOptions.soundOnFinish)
+	const [focusOnFinish, setFocusOnFinish] = usePersisted(CONFIG_KEYS.focusOnFinish, defaultOptions.focusOnFinish)
+	const [modelOptions, setModelOptions] = usePersisted<ModelOptions>(CONFIG_KEYS.modelOptions, defaultOptions.modelOptions)
+	const [ffmpegOptions, setFfmpegOptions] = usePersisted<FfmpegOptions>(CONFIG_KEYS.ffmpegOptions, defaultOptions.ffmpegOptions)
+	const [storeRecordInDocuments, setStoreRecordInDocuments] = usePersisted(CONFIG_KEYS.storeRecordInDocuments, defaultOptions.storeRecordInDocuments)
+	const [customRecordingPath, setCustomRecordingPath] = usePersisted<string | null>(CONFIG_KEYS.customRecordingPath, null)
+	const [llmConfig, setLlmConfig] = usePersisted<LlmConfig>(CONFIG_KEYS.llmConfig, defaultOptions.llmConfig)
+	const [ytDlpVersion, setYtDlpVersion] = usePersisted<string | null>(CONFIG_KEYS.ytDlpVersion, null)
+	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = usePersisted<boolean>(CONFIG_KEYS.shouldCheckYtDlpVersion, true)
+	const [advancedTranscribeOptions, setAdvancedTranscribeOptions] = usePersisted<AdvancedTranscribeOptions>(CONFIG_KEYS.advancedOptions, {
 		includeSubFolders: false,
 		saveNextToAudioFile: true,
 		skipIfExists: true,
 	})
 
-	const [recentLanguages, setRecentLanguages] = useLocalStorage<{ code: string; ts: number }[]>('prefs_recent_languages', [])
-	const [diarizeEnabled, setDiarizeEnabled] = useLocalStorage<boolean>('prefs_diarize_enabled', false)
-	const [stableTimestampsEnabled, setStableTimestampsEnabled] = useLocalStorage<boolean>('prefs_stable_timestamps_enabled', false)
-	const [gpuDevice, setGpuDevice] = useLocalStorage<number | null>('prefs_gpu_device', null)
-	const [unloadTimeoutMinutes, setUnloadTimeoutMinutes] = useLocalStorage<number>('prefs_unload_timeout_minutes', 5)
+	const [recentLanguages, setRecentLanguages] = usePersisted<{ code: string; ts: number }[]>(CONFIG_KEYS.recentLanguages, [])
+	const [diarizeEnabled, setDiarizeEnabled] = usePersisted<boolean>(CONFIG_KEYS.diarizeEnabled, false)
+	const [stableTimestampsEnabled, setStableTimestampsEnabled] = usePersisted<boolean>(CONFIG_KEYS.stableTimestampsEnabled, false)
+	const [gpuDevice, setGpuDevice] = usePersisted<number | null>(CONFIG_KEYS.gpuDevice, null)
+	const [unloadTimeoutMinutes, setUnloadTimeoutMinutes] = usePersisted<number>(CONFIG_KEYS.unloadTimeoutMinutes, 5)
+	const [saveTranscripts, setSaveTranscripts] = usePersisted<boolean>(CONFIG_KEYS.saveTranscripts, true)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 	useEffect(() => {
@@ -226,6 +229,13 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		} else {
 			document.documentElement.classList.remove('dark')
 		}
+		// Keep the native window appearance in sync so macOS vibrancy (glass sidebar)
+		// renders light glass in light mode instead of the system appearance.
+		try {
+			void getCurrentWebviewWindow().setTheme(theme)
+		} catch {
+			/* browser mode */
+		}
 	}, [theme])
 
 	function setLanguageDefaults() {
@@ -259,7 +269,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	}, [language, setLanguage])
 
 	function resetOptions() {
-		setCloseToTray(defaultOptions.closeToTray)
 		setSoundOnFinish(defaultOptions.soundOnFinish)
 		setFocusOnFinish(defaultOptions.focusOnFinish)
 		setModelOptions(defaultOptions.modelOptions)
@@ -298,8 +307,6 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setSkippedSetup,
 		displayLanguage: language,
 		setDisplayLanguage,
-		closeToTray,
-		setCloseToTray,
 		soundOnFinish,
 		setSoundOnFinish,
 		focusOnFinish,
@@ -334,6 +341,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setUnloadTimeoutMinutes,
 		analyticsEnabled,
 		setAnalyticsEnabled,
+		saveTranscripts,
+		setSaveTranscripts,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

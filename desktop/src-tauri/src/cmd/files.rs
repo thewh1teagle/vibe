@@ -16,13 +16,9 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
     match glob::glob(&search_pattern) {
         Ok(paths) => {
             for entry in paths.filter_map(Result::ok) {
-                if entry.is_file() {
-                    if let Some(file_name) = entry.file_name().and_then(|n| n.to_str()) {
-                        if patterns.iter().any(|p| file_name.ends_with(p)) {
-                            if let Ok(path_str) = entry.into_os_string().into_string() {
-                                files.push(path_str);
-                            }
-                        }
+                if entry.is_file() && has_matching_extension(&entry, &patterns) {
+                    if let Ok(path_str) = entry.into_os_string().into_string() {
+                        files.push(path_str);
                     }
                 }
             }
@@ -33,6 +29,18 @@ pub async fn glob_files(folder: String, patterns: Vec<String>, recursive: bool) 
     }
 
     files
+}
+
+/// Recorders and phones write `.MP3` and `.MOV`, so the extension is matched without regard to
+/// case — otherwise those files vanish from every folder scan. Patterns may carry a leading dot.
+fn has_matching_extension(path: &Path, patterns: &[String]) -> bool {
+    let Some(extension) = path.extension().and_then(|extension| extension.to_str()) else {
+        return false;
+    };
+
+    patterns
+        .iter()
+        .any(|pattern| pattern.trim_start_matches('.').eq_ignore_ascii_case(extension))
 }
 
 #[tauri::command]
@@ -120,4 +128,85 @@ pub fn get_ffmpeg_path() -> String {
     crate::ffmpeg::find_ffmpeg_path()
         .map(|p| p.to_str().unwrap().to_string())
         .unwrap_or_default()
+}
+
+/// Media picker that accepts files *and* folders in one dialog.
+///
+/// Only macOS' open panel can offer both at once (`NSOpenPanel` takes two independent flags); the
+/// dialog plugin — and the cross-platform picker it wraps — is one or the other. Elsewhere this
+/// returns `None` so the caller falls back to the plugin's file dialog.
+#[tauri::command]
+pub async fn pick_media_paths(app_handle: AppHandle, extensions: Vec<String>) -> Result<Option<Vec<String>>> {
+    #[cfg(target_os = "macos")]
+    {
+        let (sender, receiver) = tokio::sync::oneshot::channel();
+        app_handle.run_on_main_thread(move || {
+            let _ = sender.send(macos_open_panel(&extensions));
+        })?;
+        Ok(receiver.await?)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        // Nothing to open here; the caller falls back to the plugin dialog.
+        let _ = (app_handle, extensions);
+        Ok(None)
+    }
+}
+
+/// `None` when the user cancelled. Must run on the main thread — AppKit panels are modal there.
+#[cfg(target_os = "macos")]
+fn macos_open_panel(extensions: &[String]) -> Option<Vec<String>> {
+    use objc2::rc::Retained;
+    use objc2_app_kit::NSOpenPanel;
+    use objc2_foundation::{MainThreadMarker, NSArray, NSString};
+
+    const NS_MODAL_RESPONSE_OK: isize = 1;
+
+    let mtm = MainThreadMarker::new()?;
+    let panel = NSOpenPanel::openPanel(mtm);
+    panel.setCanChooseFiles(true);
+    panel.setCanChooseDirectories(true);
+    panel.setAllowsMultipleSelection(true);
+
+    // The filter applies to files only; folders stay selectable whatever it says.
+    if !extensions.is_empty() {
+        let types: Vec<Retained<NSString>> = extensions.iter().map(|extension| NSString::from_str(extension)).collect();
+        let refs: Vec<&NSString> = types.iter().map(|value| value.as_ref()).collect();
+        // Deprecated in favour of UTTypes, but still honoured and it keeps the extension list simple.
+        #[allow(deprecated)]
+        panel.setAllowedFileTypes(Some(&NSArray::from_slice(&refs)));
+    }
+
+    if panel.runModal() != NS_MODAL_RESPONSE_OK {
+        return None;
+    }
+
+    let mut paths = Vec::new();
+    for url in panel.URLs().iter() {
+        if let Some(path) = url.path() {
+            paths.push(path.to_string());
+        }
+    }
+    Some(paths)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::has_matching_extension;
+    use std::path::Path;
+
+    #[test]
+    fn matches_the_extension_whatever_its_case() {
+        let patterns = vec!["mp3".to_string(), "mov".to_string()];
+        assert!(has_matching_extension(Path::new("/tmp/interview.mp3"), &patterns));
+        assert!(has_matching_extension(Path::new("/tmp/interview.MP3"), &patterns));
+        assert!(has_matching_extension(Path::new("/tmp/call 17.8.2026.MOV"), &patterns));
+    }
+
+    #[test]
+    fn ignores_names_that_only_end_with_the_pattern() {
+        let patterns = vec!["mp3".to_string()];
+        assert!(!has_matching_extension(Path::new("/tmp/notesmp3"), &patterns));
+        assert!(!has_matching_extension(Path::new("/tmp/notes.pdf"), &patterns));
+    }
 }

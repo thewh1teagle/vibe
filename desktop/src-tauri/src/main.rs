@@ -6,6 +6,7 @@ mod cleaner;
 mod cli;
 mod cmd;
 mod config;
+mod config_watcher;
 mod diagnostics;
 mod dictation_indicator;
 mod error;
@@ -157,8 +158,11 @@ async fn main() -> Result<()> {
         .invoke_handler(tauri::generate_handler![
             cmd::download::download_file,
             cmd::app::get_cargo_features,
+            cmd::config::write_config_atomically,
+            cmd::config::get_config_path,
             cmd::transcribe::transcribe,
             cmd::files::glob_files,
+            cmd::files::pick_media_paths,
             cmd::download::download_model,
             cmd::sona_cmd::load_model,
             cmd::sona_cmd::get_gpu_devices,

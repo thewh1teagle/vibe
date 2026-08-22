@@ -1,25 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
-import { useLocalStorage } from 'usehooks-ts'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 import { Claude, type Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
 
 export function useSummarization() {
 	const preference = usePreferenceProvider()
-	const [llm, setLlm] = useState<Llm | null>(null)
 	const [segments, setSegments] = useState<transcript.Segment[] | null>(null)
 	const [summarizing, setSummarizing] = useState(false)
-	const [transcriptTab, setTranscriptTab] = useLocalStorage<'transcript' | 'summary'>('prefs_transcript_tab', 'transcript')
+	const [transcriptTab, setTranscriptTab] = usePersisted<'transcript' | 'summary'>(CONFIG_KEYS.transcriptTab, 'transcript')
 
-	useEffect(() => {
+	// Built during render rather than in an effect: a recording that finishes fast could call
+	// summarize() before the effect had set the client, and the run was dropped in silence (#983).
+	const llm = useMemo<Llm>(() => {
 		const config = preference.llmConfig
-		setLlm(config.platform === 'ollama' ? new Ollama(config) : config.platform === 'openai' ? new OpenAICompatible(config) : new Claude(config))
+		return config.platform === 'ollama' ? new Ollama(config) : config.platform === 'openai' ? new OpenAICompatible(config) : new Claude(config)
 	}, [preference.llmConfig])
 
 	async function summarize(source: transcript.Segment[], prompt: string, showSummary = false) {
-		if (!llm) return
 		setSummarizing(true)
 		try {
 			const question = prompt.replace('%s', transcript.asText(source, m.speakerPrefix()))

@@ -1,6 +1,8 @@
 import { app } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/core'
 import { ls } from './fs'
+import { CONFIG_KEYS } from './config-keys'
+import { readConfig } from './config-store'
 import * as os from '@tauri-apps/plugin-os'
 
 export async function getPrettyVersion() {
@@ -29,7 +31,7 @@ export async function getAppInfo() {
 		.filter((e) => e.name?.endsWith('.bin'))
 		.map((e) => e.name)
 		.join(', ')
-	const defaultModel = localStorage.getItem('prefs_model_path')?.split('/')?.pop() ?? 'Not Found'
+	const defaultModel = readConfig<string | null>(CONFIG_KEYS.modelPath, null)?.split('/')?.pop() ?? 'Not Found'
 	const cargoFeatures = (await invoke<string[]>('get_cargo_features')) || 'n/a'
 	return [
 		`App Version: ${appVersion}`,

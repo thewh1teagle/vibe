@@ -1,5 +1,8 @@
 [
+	{ "code": "bg-BG", "name": "bulgarian", "desktop": true, "website": true },
 	{ "code": "ca-AD", "name": "catalan", "desktop": true, "website": false },
+	{ "code": "cs-CZ", "name": "czech", "desktop": true, "website": true },
+	{ "code": "de-DE", "name": "german", "desktop": true, "website": true },
 	{ "code": "en-US", "name": "english", "desktop": true, "website": true },
 	{ "code": "es-ES", "name": "spanish (ES)", "desktop": true, "website": false },
 	{ "code": "es-MX", "name": "spanish (MX)", "desktop": true, "website": true },

@@ -14,6 +14,7 @@ import { NamedPath } from '~/lib/types'
 import { ls } from '~/lib/fs'
 import { getIssueUrl, resetApp } from '~/lib/app'
 import { usePreferenceProvider } from '~/providers/preference'
+import { useModelGates } from '~/providers/model-gates'
 import { useToastProvider } from '~/providers/toast'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
@@ -114,6 +115,7 @@ export function viewModel() {
 	const isMacOS = platform() === 'macos'
 	const navigate = useNavigate()
 	const progressToast = useToastProvider()
+	const modelGates = useModelGates()
 	const [llm, setLlm] = useState<Llm | null>(null)
 	const [llmError, setLlmError] = useState<string | null>(null)
 	const [llmErrorCopied, setLlmErrorCopied] = useState(false)
@@ -161,72 +163,6 @@ export function viewModel() {
 			setLlmErrorCopied(false)
 			llmErrorCopyTimer.current = null
 		}, 2000)
-	}
-
-	async function toggleDiarization(checked: boolean) {
-		if (!checked) {
-			preference.setDiarizeEnabled(false)
-			return
-		}
-		try {
-			const modelsFolder = await invoke<string>('get_models_folder')
-			const modelPath = await join(modelsFolder, config.diarizeModelFilename)
-			const exists = await fs.exists(modelPath)
-			if (exists) {
-				preference.setDiarizeEnabled(true)
-				return
-			}
-			const confirmed = await ask(m.downloadDiarizeModel(), { title: m.diarization(), kind: 'info' })
-			if (confirmed) {
-				progressToast.setMessage(m.downloadingDiarizeModel() as string)
-				progressToast.setOpen(true)
-				progressToast.setProgress(0)
-				try {
-					await invoke('download_model', { url: config.diarizeModelUrl, path: modelPath })
-					preference.setDiarizeEnabled(true)
-					toast.success(m.downloadComplete())
-				} finally {
-					progressToast.setOpen(false)
-					progressToast.setProgress(null)
-				}
-			}
-		} catch (e) {
-			console.error('diarization setup failed:', e)
-			toast.error(String(e))
-		}
-	}
-
-	async function handleStableTimestampsToggle(checked: boolean) {
-		if (!checked) {
-			preference.setStableTimestampsEnabled(false)
-			return
-		}
-		try {
-			const modelsFolder = await invoke<string>('get_models_folder')
-			const modelPath = await join(modelsFolder, config.vadModelFilename)
-			const exists = await fs.exists(modelPath)
-			if (exists) {
-				preference.setStableTimestampsEnabled(true)
-			} else {
-				const confirmed = await ask(m.stableTimestampsConfirm(), { title: m.stableTimestamps(), kind: 'info' })
-				if (confirmed) {
-					progressToast.setMessage(m.downloadingVadModel())
-					progressToast.setOpen(true)
-					progressToast.setProgress(0)
-					try {
-						await invoke('download_model', { url: config.vadModelUrl, path: modelPath })
-						preference.setStableTimestampsEnabled(true)
-						toast.success(m.downloadComplete())
-					} finally {
-						progressToast.setOpen(false)
-						progressToast.setProgress(null)
-					}
-				}
-			}
-		} catch (e) {
-			console.error('stable timestamps setup failed:', e)
-			toast.error(String(e))
-		}
 	}
 
 	async function askAndReset() {
@@ -397,17 +333,62 @@ export function viewModel() {
 		toast.success('cURL example copied to clipboard')
 	}
 
+	/**
+	 * Sona's `/skill` covers the transcription API only. An agent working on someone's behalf also
+	 * needs to know where Vibe keeps its settings and how to change them safely, so that part is
+	 * appended here rather than baked into the runner.
+	 */
 	async function copyAgentSkill() {
 		if (!apiBaseUrl) return
 		try {
 			const res = await tauriFetch(`${apiBaseUrl}/skill`)
 			const text = await res.text()
-			await clipboard.writeText(text)
+			await clipboard.writeText(`${text.trimEnd()}\n\n${await settingsSkillSection()}`)
 			toast.success(m.agentInstructionsCopied())
 		} catch (error) {
 			console.error(error)
 			toast.error(m.localApiUnreachable())
 		}
+	}
+
+	/** Show the settings file in the file manager, so it can be opened, edited or handed to an agent. */
+	async function revealConfigFile() {
+		try {
+			const path = await invoke<string>('get_config_path')
+			await invoke('open_path', { path })
+		} catch (error) {
+			console.error('failed to reveal the config file:', error)
+			toast.error(String(error))
+		}
+	}
+
+	async function settingsSkillSection() {
+		const path = await invoke<string>('get_config_path').catch(() => null)
+		return [
+			'# Vibe settings',
+			'',
+			'Vibe keeps every setting in one JSON file, safe to read and edit:',
+			'',
+			path ? `  ${path}` : '  (ask the user to open Settings → API & Agents → Config file)',
+			'',
+			'Keys are flat and named after the setting they control, for example:',
+			'',
+			'~~~json',
+			'{',
+			'  "general.theme": "dark",',
+			'  "general.displayLanguage": "en-US",',
+			'  "transcription.recognizeSpeakers": false,',
+			'  "transcription.modelOptions": { "lang": "en", "n_threads": 4 },',
+			'  "dictation.shortcut": "CmdOrCtrl+Shift+Space"',
+			'}',
+			'~~~',
+			'',
+			'Vibe watches the file, so an edit applies immediately — no restart, and no need to ask the',
+			'user to reopen the app. Write the whole file atomically (write a temporary file beside it,',
+			'then rename it over the original) so Vibe can never read a half-written config.',
+			'',
+			`Source and docs: ${config.repoURL}`,
+		].join('\n')
 	}
 
 	async function stopApiServer() {
@@ -477,6 +458,7 @@ export function viewModel() {
 		refreshApiServerStatus,
 		copyCurlExample,
 		copyAgentSkill,
+		revealConfigFile,
 		preference: preference,
 		askAndReset,
 		openModelPath,
@@ -502,8 +484,8 @@ export function viewModel() {
 		copyLlmError,
 		onEnableLlm,
 		validateLlmPrompt,
-		toggleDiarization,
-		handleStableTimestampsToggle,
+		toggleDiarization: modelGates.toggleDiarization,
+		handleStableTimestampsToggle: modelGates.toggleStableTimestamps,
 		parseIntOr,
 	}
 }

@@ -1,8 +1,9 @@
 import { emit } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
 import { type SetStateAction, useContext, useEffect, useState } from 'react'
-import { useLocalStorage } from 'usehooks-ts'
 import type { AudioDevice } from '~/lib/audio'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { ensureSystemAudioPermission } from '~/lib/permissions'
 import { ErrorModalContext } from '~/providers/error-modal'
@@ -12,8 +13,8 @@ export function useRecording(onBeforeStart: () => void) {
 	const preference = usePreferenceProvider()
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const [devices, setDevices] = useState<AudioDevice[]>([])
-	const [savedInputDeviceId, setSavedInputDeviceId] = useLocalStorage<string | null>('prefs_input_device_id', null)
-	const [savedOutputDeviceId, setSavedOutputDeviceId] = useLocalStorage<string | null>('prefs_output_device_id', null)
+	const [savedInputDeviceId, setSavedInputDeviceId] = usePersisted<string | null>(CONFIG_KEYS.inputDeviceId, null)
+	const [savedOutputDeviceId, setSavedOutputDeviceId] = usePersisted<string | null>(CONFIG_KEYS.outputDeviceId, null)
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 	const [isRecording, setIsRecording] = useState(false)

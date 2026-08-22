@@ -45,6 +45,16 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     crate::cleaner::clean_updater_files().log_error();
     tracing::debug!("Vibe App Running");
 
+    // Settings live in app_config.json so a person or an agent can edit it directly; the store
+    // plugin never re-reads the file, so a watcher has to push external edits into it.
+    match crate::config_watcher::start(app.handle()) {
+        // Kept in state so the watcher lives as long as the app.
+        Ok(watcher) => {
+            app.manage(watcher);
+        }
+        Err(error) => tracing::error!("could not start config watcher: {:?}", error),
+    }
+
     // Crash handler
 
     let _handler = crash_handler::CrashHandler::attach(unsafe {
@@ -107,7 +117,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     } else {
         tracing::debug!("Non CLI mode");
         // Create main window
-        let result = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
+        let builder = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
             .inner_size(800.0, 700.0)
             .min_inner_size(800.0, 700.0)
             .center()
@@ -115,19 +125,27 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .resizable(true)
             .focused(true)
             .shadow(true)
-            .visible(true)
-            .build();
-        match result {
-            Ok(window) => {
-                let window_for_events = window.clone();
-                window.on_window_event(move |event| {
-                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                    if crate::is_close_to_tray_enabled(&window_for_events.app_handle()) {
-                        api.prevent_close();
-                        window_for_events.hide().map_err(|error| eyre!("{:?}", error)).log_error();
+            .visible(true);
+        // The web content extends under the titlebar so the sidebar toggle can sit
+        // beside the traffic lights (ChatGPT-desktop style); the topbar is a drag region.
+        #[cfg(target_os = "macos")]
+        let builder = builder
+            .title_bar_style(tauri::TitleBarStyle::Overlay)
+            .hidden_title(true)
+            // Centered on the 56px titlebar row so the lights align with the sidebar toggle.
+            .traffic_light_position(tauri::LogicalPosition::new(16.0, 28.0))
+            .transparent(true);
+        match builder.build() {
+            Ok(_window) => {
+                // Glass sidebar: the window is transparent on macOS and an NSVisualEffectView
+                // shows the blurred desktop wherever the web content leaves alpha (the sidebar).
+                #[cfg(target_os = "macos")]
+                {
+                    use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+                    if let Err(error) = apply_vibrancy(&_window, NSVisualEffectMaterial::Sidebar, None, None) {
+                        tracing::warn!("failed to apply vibrancy: {:?}", error);
                     }
                 }
-            });
             }
             Err(error) => {
                 tracing::error!("{:?}", error);

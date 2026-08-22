@@ -1,4 +1,5 @@
 import { migrateLegacyLocale } from './migrate-legacy-locale'
+import { migratePrefsToConfig } from './migrate-prefs-to-config'
 
 /**
  * Local storage migration versioning
@@ -11,8 +12,14 @@ import { migrateLegacyLocale } from './migrate-legacy-locale'
  * The stored version advances only after a migration succeeds, so keep each
  * migration idempotent to make retries safe.
  */
-const migrations = [{ version: 1, run: migrateLegacyLocale }]
+const migrations = [
+	{ version: 1, run: migrateLegacyLocale },
+	{ version: 2, run: migratePrefsToConfig },
+]
 const MIGRATION_VERSION_KEY = 'vibe:migration-version'
+
+/** The version a fully migrated install sits at — the last entry above. */
+export const LATEST_MIGRATION_VERSION = migrations[migrations.length - 1].version
 
 function readMigrationVersion() {
 	const version = Number(localStorage.getItem(MIGRATION_VERSION_KEY) ?? 0)
