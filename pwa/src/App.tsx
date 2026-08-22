@@ -3,6 +3,7 @@ import { AlertTriangle, Check, Copy, HardDriveDownload, Mic, QrCode, RefreshCw, 
 import { toast } from 'sonner'
 
 import { InstallHint } from '~/components/install-hint'
+import { OutboxCard } from '~/components/outbox-card'
 import { SettingsSheet } from '~/components/settings-sheet'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
@@ -28,7 +29,18 @@ import {
 import { languageLabel } from '~/lib/languages'
 import { canRecord, filenameFor, formatDuration, formatSize, pickMimeType } from '~/lib/recorder'
 import { cn } from '~/lib/style'
-import { requestPersistentStorage } from '~/lib/use-install'
+import {
+	addRecording,
+	blobFor,
+	deleteEntry,
+	getEntry,
+	isStoragePersisted,
+	listOutbox,
+	markAttempt,
+	OutboxFullError,
+	requestPersistentStorage,
+	type OutboxSummary,
+} from '~/lib/outbox'
 import { useWakeLock } from '~/lib/use-wake-lock'
 
 type Phase = 'idle' | 'recording' | 'sending' | 'done' | 'failed'
@@ -55,6 +67,10 @@ export function App() {
 	const [savedPath, setSavedPath] = useState<string | null>(null)
 	const [sizeWarning, setSizeWarning] = useState(false)
 	const [loadingModel, setLoadingModel] = useState(false)
+	// Durable queue of recordings that the desktop has not confirmed yet.
+	const [outbox, setOutbox] = useState<OutboxSummary[]>([])
+	const [persisted, setPersisted] = useState(true)
+	const [activeId, setActiveId] = useState<string | null>(null)
 	const [settingsOpen, setSettingsOpen] = useState(false)
 
 	// What the desktop says it can do. Never assumed locally.
@@ -194,10 +210,27 @@ export function App() {
 
 	/* ------------------------------------------------------------- send --- */
 
-	const send = useCallback(async () => {
+	const refreshOutbox = useCallback(async () => {
+		try {
+			const [entries, persistedNow] = await Promise.all([listOutbox(), isStoragePersisted()])
+			setOutbox(entries)
+			setPersisted(persistedNow)
+		} catch {
+			/* storage unavailable; the in-memory path still works */
+		}
+	}, [])
+
+	const send = useCallback(async (entryId: string) => {
 		const currentPeer = peerRef.current
-		const blob = blobRef.current
-		if (!currentPeer || !blob || sendingRef.current) return
+		if (!currentPeer || sendingRef.current) return
+
+		const entry = await getEntry(entryId)
+		if (!entry) {
+			await refreshOutbox()
+			return
+		}
+		const blob = blobFor(entry)
+		blobRef.current = blob
 
 		// Refuse an upload the desktop is going to reject on arrival — no point
 		// burning cellular data on it. A missing or zero cap means "unknown".
@@ -226,12 +259,15 @@ export function App() {
 		setTranscribePct(null)
 		setSavedPath(null)
 		setLoadingModel(false)
+		setActiveId(entryId)
 		setPhase('sending')
 		setStatus('Connecting to your desktop…')
 
-		const mime = blob.type || 'application/octet-stream'
-		const filename = filenameFor(mime)
-		const wireLang = langRef.current ? langRef.current : null
+		const mime = entry.mime || blob.type || 'application/octet-stream'
+		const filename = entry.filename
+		// The language chosen when the recording was made travels with it, so a
+		// queued recording is not retried under a language picked later.
+		const wireLang = entry.lang
 
 		try {
 			const client = await getClient()
@@ -285,6 +321,9 @@ export function App() {
 						break
 					case 'done':
 						release()
+						// Confirmed terminal success: the only point at which the
+						// recording may be dropped from durable storage.
+						void deleteEntry(entryId).then(refreshOutbox)
 						setLoadingModel(false)
 						if (typeof event.text === 'string') setTranscript(event.text.trim())
 						if (typeof event.savedPath === 'string' && event.savedPath) setSavedPath(event.savedPath)
@@ -296,6 +335,7 @@ export function App() {
 						break
 					case 'error':
 						release()
+						void markAttempt(entryId, event.message).then(refreshOutbox)
 						setLoadingModel(false)
 						setFailure({ code: event.code || 'error', message: event.message || 'The desktop reported an error.' })
 						setPhase('failed')
@@ -313,17 +353,65 @@ export function App() {
 				return 'failed'
 			})
 		} catch (err) {
-			setFailure({ code: 'transport', message: err instanceof Error ? err.message : String(err) })
+			const message = err instanceof Error ? err.message : String(err)
+			void markAttempt(entryId, message).then(refreshOutbox)
+			setFailure({ code: 'transport', message })
 			setPhase('failed')
 			setStatus('')
 		} finally {
 			sendingRef.current = false
+			setActiveId(null)
 			clearStallTimer()
 			// Backstop: covers the transport catch, a stream that ends without a
 			// terminal event, and any path the cases above missed.
 			release()
+			void refreshOutbox()
 		}
-	}, [])
+	}, [refreshOutbox, release, acquire, clearStallTimer])
+
+	/**
+	 * Attempt the oldest pending recording. Deliberately sequential and
+	 * re-entrancy guarded: two sends would fight over one relay connection.
+	 *
+	 * Background Sync would be the natural home for this, but Safari/iOS does
+	 * not implement it, and a retry path that only ever fires on Android would
+	 * mean two different behaviours to reason about. So retries are driven by
+	 * events the phone actually gets: app open, return to foreground, and the
+	 * network coming back.
+	 */
+	const pumpOutbox = useCallback(async () => {
+		if (sendingRef.current || recorderRef.current) return
+		if (!peerRef.current) return
+		try {
+			const entries = await listOutbox()
+			if (entries.length === 0) return
+			await send(entries[0].id)
+		} catch {
+			/* storage unavailable */
+		}
+	}, [send])
+
+	/* ----------------------------------------------------------- outbox --- */
+
+	// On open: show what is queued immediately, then try to drain it.
+	useEffect(() => {
+		if (!peer) return
+		let cancelled = false
+		void (async () => {
+			await refreshOutbox()
+			if (!cancelled) void pumpOutbox()
+		})()
+		return () => {
+			cancelled = true
+		}
+	}, [peer, refreshOutbox, pumpOutbox])
+
+	// Retry when the network returns.
+	useEffect(() => {
+		const onOnline = () => void pumpOutbox()
+		window.addEventListener('online', onOnline)
+		return () => window.removeEventListener('online', onOnline)
+	}, [pumpOutbox])
 
 	/* -------------------------------------------------------- recording --- */
 
@@ -396,7 +484,43 @@ export function App() {
 				setPhase('failed')
 				return
 			}
-			void send()
+
+			// A recording the desktop can never accept should not be queued
+			// forever; say so instead of silently hoarding it.
+			const cap = maxBytesRef.current
+			if (cap > 0 && blob.size > cap) {
+				release()
+				setFailure({
+					code: 'too_large',
+					message: `This recording is ${formatSize(blob.size)}, over your desktop's ${formatSize(cap)} limit. It was not saved or uploaded — record a shorter take.`,
+				})
+				setPhase('failed')
+				setStatus('')
+				return
+			}
+
+			// Write to durable storage BEFORE the first send attempt, so a crash
+			// or a closed tab mid-upload still leaves the recording recoverable.
+			void (async () => {
+				setStatus('Saving recording…')
+				try {
+					const summary = await addRecording({ blob, filename: filenameFor(type), mime: type, lang: langRef.current || null })
+					await refreshOutbox()
+					await send(summary.id)
+				} catch (err) {
+					release()
+					const full = err instanceof OutboxFullError
+					setFailure({
+						code: full ? 'outbox_full' : 'storage',
+						message: full
+							? err.message
+							: `The recording could not be saved on this device: ${err instanceof Error ? err.message : String(err)}. It is still in memory — do not close this tab.`,
+					})
+					setPhase('failed')
+					setStatus('')
+					await refreshOutbox()
+				}
+			})()
 		}
 
 		recorder.onerror = () => {
@@ -410,7 +534,7 @@ export function App() {
 		setElapsed(0)
 		setPhase('recording')
 		void acquire()
-	}, [acquire, release, send])
+	}, [acquire, release, send, refreshOutbox])
 
 	const stopRecording = useCallback(() => {
 		const recorder = recorderRef.current
@@ -446,10 +570,11 @@ export function App() {
 			// Back on screen: the spec dropped our lock, so take it back.
 			reacquireIfWanted()
 			if (sendingRef.current) armStallTimer()
+			else void pumpOutbox()
 		}
 		document.addEventListener('visibilitychange', onVisibility)
 		return () => document.removeEventListener('visibilitychange', onVisibility)
-	}, [stopRecording, reacquireIfWanted, armStallTimer])
+	}, [stopRecording, reacquireIfWanted, armStallTimer, pumpOutbox])
 
 	/* ---------------------------------------------------------- actions --- */
 
@@ -468,6 +593,7 @@ export function App() {
 		release()
 		clearStallTimer()
 		abandonedRef.current = true
+		if (activeId) void deleteEntry(activeId).then(refreshOutbox)
 		blobRef.current = null
 		segmentsRef.current = []
 		setTranscript('')
@@ -478,8 +604,9 @@ export function App() {
 		setSavedPath(null)
 		setSizeWarning(false)
 		setLoadingModel(false)
+		setActiveId(null)
 		setPhase('idle')
-	}, [])
+	}, [activeId, refreshOutbox, release, clearStallTimer])
 
 	const onUnpair = useCallback(() => {
 		clearPeer()
@@ -597,6 +724,15 @@ export function App() {
 				</Card>
 			)}
 
+			<OutboxCard
+				entries={outbox}
+				activeId={activeId}
+				busy={busy}
+				persisted={persisted}
+				onSendNow={() => void pumpOutbox()}
+				onDelete={(id) => void deleteEntry(id).then(refreshOutbox)}
+			/>
+
 			<div className="flex flex-col items-center py-8">
 				<button
 					type="button"
@@ -670,7 +806,7 @@ export function App() {
 						{(failure || phase === 'done') && (
 							<div className="flex flex-wrap gap-2">
 								{failure && hasRecording && (
-									<Button className="h-12 flex-1" onClick={() => void send()}>
+									<Button className="h-12 flex-1" onClick={() => void pumpOutbox()}>
 										<RotateCcw />
 										Retry send
 									</Button>
