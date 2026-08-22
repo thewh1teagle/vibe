@@ -82,6 +82,12 @@
 		</g>
 		<text x="182" y="889" font-size="14" font-weight="550" fill="#ececec">Settings</text>
 
+				<!-- phone handoff, right end of the footer row -->
+		<g transform="translate(343,876)" stroke="#9a9a9a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+			<rect x="3.6" y="1.2" width="8.8" height="13.6" rx="1.8"/>
+			<path d="M8 12.3h.01"/>
+		</g>
+
 		<!-- ===== main pane ===== -->
 		<!-- segmented switcher -->
 		<g transform="translate(816,182)">
