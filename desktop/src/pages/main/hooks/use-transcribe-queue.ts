@@ -8,7 +8,7 @@ import successSound from '~/assets/success.mp3'
 import { m } from '~/paraglide/messages.js'
 import { analyticsEvents, trackAnalyticsEvent } from '~/lib/analytics'
 import * as config from '~/lib/config'
-import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
+import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { isUserError } from '~/lib/sona-errors'
 import type { Segment, Transcript } from '~/lib/transcript'
@@ -195,7 +195,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 		setRunning(true)
 		abortAllRef.current = false
 		setIsAborting(false)
-		startKeepAwake()
+		startKeepAwake(KEEP_AWAKE.queue)
 		let completedAny = false
 
 		try {
@@ -288,7 +288,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 				commit(jobsRef.current.map((job) => (job.status === 'queued' ? { ...job, status: 'cancelled' } : job)))
 			}
 		} finally {
-			stopKeepAwake()
+			stopKeepAwake(KEEP_AWAKE.queue)
 			activeIdRef.current = null
 			setActiveId(null)
 			runningRef.current = false

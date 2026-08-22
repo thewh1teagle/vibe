@@ -4,10 +4,10 @@ import { pathHandlers } from './handlers/path'
 import { sonaHandlers } from './handlers/sona'
 import { mediaMiscHandlers } from './handlers/media-misc'
 
-// Third-party plugins with no dedicated handler group.
+// Commands with no dedicated handler group.
 const extraHandlers = {
-	'plugin:keepawake|start': () => undefined,
-	'plugin:keepawake|stop': () => undefined,
+	keepawake_start: () => undefined,
+	keepawake_stop: () => undefined,
 }
 
 // Entry point for browser mock mode. Must run before any app module is imported

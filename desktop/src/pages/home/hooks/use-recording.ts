@@ -4,7 +4,7 @@ import { type SetStateAction, useContext, useEffect, useState } from 'react'
 import type { AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
-import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
+import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { ensureSystemAudioPermission } from '~/lib/permissions'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -55,7 +55,7 @@ export function useRecording(onBeforeStart: () => void) {
 
 	async function startRecord() {
 		if (outputDevice && !(await ensureSystemAudioPermission())) return
-		startKeepAwake()
+		startKeepAwake(KEEP_AWAKE.record)
 		onBeforeStart()
 		setIsRecording(true)
 		const selectedDevices = [inputDevice, outputDevice].filter((device): device is AudioDevice => device !== null)
@@ -67,7 +67,7 @@ export function useRecording(onBeforeStart: () => void) {
 				recordingName: recordingName.trim() || null,
 			})
 		} catch (error) {
-			stopKeepAwake()
+			stopKeepAwake(KEEP_AWAKE.record)
 			setIsRecording(false)
 			console.error('startRecord error: ', error)
 			setErrorModal?.({ log: String(error), open: true })
@@ -78,7 +78,7 @@ export function useRecording(onBeforeStart: () => void) {
 		try {
 			await emit('stop_record')
 		} catch (error) {
-			stopKeepAwake()
+			stopKeepAwake(KEEP_AWAKE.record)
 			setIsRecording(false)
 			console.error('stopRecord error: ', error)
 			setErrorModal?.({ log: String(error), open: true })

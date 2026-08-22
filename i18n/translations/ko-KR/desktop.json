@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "컴퓨터에 로그인하면 Vibe를 자동으로 실행합니다.",
 	"couldNotEnableLaunchAtStartup": "시작 시 자동 실행을 켤 수 없습니다: {error}",
 	"couldNotDisableLaunchAtStartup": "시작 시 자동 실행을 끌 수 없습니다: {error}",
+	"preventSleep": "컴퓨터가 절전 모드로 전환되지 않도록 하기",
+	"preventSleepInfo": "Vibe가 실행되는 동안 유휴 타이머가 컴퓨터를 절전 모드로 전환하지 못하게 하여, 휴대폰에서 언제든지 녹음을 넘길 수 있도록 연결 상태를 유지합니다. 화면은 그대로 꺼집니다. 배터리를 더 많이 사용합니다.",
 	"phone": "휴대폰",
 	"phoneHandoff": "휴대폰 연동",
 	"phoneHandoffInfo": "휴대폰으로 녹음하면 이 컴퓨터가 받아쓰기를 처리하고, 결과는 곧바로 휴대폰으로 돌아갑니다.",

@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "登入電腦後自動開啟 Vibe。",
 	"couldNotEnableLaunchAtStartup": "無法開啟開機啟動：{error}",
 	"couldNotDisableLaunchAtStartup": "無法關閉開機啟動：{error}",
+	"preventSleep": "防止電腦進入睡眠",
+	"preventSleepInfo": "Vibe 運行期間會阻止閒置計時器讓電腦進入睡眠，這樣電腦始終可以連線，手機隨時都能把錄音交給它。螢幕仍會照常關閉。會更耗電。",
 	"phone": "手機",
 	"phoneHandoff": "手機接力",
 	"phoneHandoffInfo": "在手機上錄音，由這部電腦完成轉錄，轉錄結果會直接傳回手機。",

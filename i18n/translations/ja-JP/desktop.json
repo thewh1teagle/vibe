@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "コンピューターにログインしたときにVibeを自動的に起動します。",
 	"couldNotEnableLaunchAtStartup": "自動起動を有効にできませんでした: {error}",
 	"couldNotDisableLaunchAtStartup": "自動起動を無効にできませんでした: {error}",
+	"preventSleep": "コンピューターをスリープさせない",
+	"preventSleepInfo": "Vibeの実行中は、アイドルタイマーによってコンピューターがスリープするのを防ぎます。接続できる状態が保たれるため、スマートフォンからいつでも録音を引き継げます。画面はこれまでどおりオフになります。バッテリーの消費は増えます。",
 	"phone": "スマートフォン",
 	"phoneHandoff": "スマートフォン連携",
 	"phoneHandoffInfo": "スマートフォンで録音し、文字起こしはこのコンピューターが行います。結果はそのままスマートフォンに戻ります。",

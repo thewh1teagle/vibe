@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Apre Vibe automaticamente quando accedi al computer.",
 	"couldNotEnableLaunchAtStartup": "Impossibile attivare l'avvio all'accesso: {error}",
 	"couldNotDisableLaunchAtStartup": "Impossibile disattivare l'avvio all'accesso: {error}",
+	"preventSleep": "Impedisci al computer di andare in sospensione",
+	"preventSleepInfo": "Mentre Vibe è in esecuzione, impedisce al timer di inattività di mettere il computer in sospensione, così resta raggiungibile e il telefono può trasferirgli una registrazione in qualsiasi momento. Lo schermo si spegne comunque. Consuma più batteria.",
 	"phone": "Telefono",
 	"phoneHandoff": "Trasferimento dal telefono",
 	"phoneHandoffInfo": "Registra dal telefono e lascia che sia questo computer a trascrivere: la trascrizione torna direttamente sul telefono.",

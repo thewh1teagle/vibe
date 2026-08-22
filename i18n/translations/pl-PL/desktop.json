@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Otwiera Vibe automatycznie po zalogowaniu się do komputera.",
 	"couldNotEnableLaunchAtStartup": "Nie udało się włączyć uruchamiania przy starcie systemu: {error}",
 	"couldNotDisableLaunchAtStartup": "Nie udało się wyłączyć uruchamiania przy starcie systemu: {error}",
+	"preventSleep": "Zapobiegaj usypianiu komputera",
+	"preventSleepInfo": "Nie pozwala, aby licznik bezczynności uśpił komputer, gdy Vibe działa, dzięki czemu pozostaje on osiągalny — telefon może w każdej chwili przekazać do niego nagranie. Ekran nadal się wyłącza. Zużywa więcej baterii.",
 	"phone": "Telefon",
 	"phoneHandoff": "Przekazywanie z telefonu",
 	"phoneHandoffInfo": "Nagrywaj na telefonie, a transkrypcję wykona ten komputer — gotowy tekst wróci prosto na telefon.",

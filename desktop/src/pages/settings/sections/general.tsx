@@ -78,6 +78,9 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 				<SettingsRow label={m.launchAtStartup()} description={m.launchAtStartupInfo()}>
 					<LaunchAtStartupSwitch />
 				</SettingsRow>
+				<SettingsRow label={m.preventSleep()} description={m.preventSleepInfo()}>
+					<Switch checked={vm.preference.preventSleep} onCheckedChange={vm.preference.setPreventSleep} />
+				</SettingsRow>
 				<SettingsRow label={m.theme()}>
 					<Select value={vm.preference.theme} onValueChange={(value) => vm.preference.setTheme(value as 'light' | 'dark')}>
 						<SelectTrigger className={`w-36 ${rowControlClass}`}>

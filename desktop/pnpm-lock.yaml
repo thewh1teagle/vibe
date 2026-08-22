@@ -155,9 +155,6 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.18)
-      tauri-plugin-keepawake-api:
-        specifier: ^0.1.0
-        version: 0.1.0
       usehooks-ts:
         specifier: ^3.1.1
         version: 3.1.1(react@19.2.4)
@@ -3264,9 +3261,6 @@ packages:
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
-
-  tauri-plugin-keepawake-api@0.1.0:
-    resolution: {integrity: sha512-XPUl66zUYiB7kCRxsTdmCoNjFM/++NWCJ4kdTo2NUOgBUa8UVYfayDWnnTzGIQbhT7qNAHs+jgKSjhqSKs/QHA==}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -6913,10 +6907,6 @@ snapshots:
   tailwindcss@4.1.18: {}
 
   tapable@2.3.0: {}
-
-  tauri-plugin-keepawake-api@0.1.0:
-    dependencies:
-      '@tauri-apps/api': 2.10.1
 
   tinybench@2.9.0: {}
 

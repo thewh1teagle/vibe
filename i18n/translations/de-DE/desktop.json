@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Vibe automatisch öffnen, wenn Sie sich an Ihrem Computer anmelden.",
 	"couldNotEnableLaunchAtStartup": "Start beim Anmelden konnte nicht aktiviert werden: {error}",
 	"couldNotDisableLaunchAtStartup": "Start beim Anmelden konnte nicht deaktiviert werden: {error}",
+	"preventSleep": "Ruhezustand des Computers verhindern",
+	"preventSleepInfo": "Verhindert, dass der Leerlauf-Timer den Computer in den Ruhezustand versetzt, solange Vibe läuft, sodass er erreichbar bleibt – Ihr Telefon kann ihm jederzeit eine Aufnahme übergeben. Der Bildschirm schaltet sich trotzdem aus. Verbraucht mehr Akku.",
 	"phone": "Telefon",
 	"phoneHandoff": "Übergabe vom Telefon",
 	"phoneHandoffInfo": "Nehmen Sie auf Ihrem Telefon auf und lassen Sie diesen Computer transkribieren – das Transkript kommt direkt auf das Telefon zurück.",

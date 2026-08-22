@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Bilgisayarınızda oturum açtığınızda Vibe otomatik olarak açılır.",
 	"couldNotEnableLaunchAtStartup": "Başlangıçta çalıştırma etkinleştirilemedi: {error}",
 	"couldNotDisableLaunchAtStartup": "Başlangıçta çalıştırma devre dışı bırakılamadı: {error}",
+	"preventSleep": "Bilgisayarın uyku moduna geçmesini engelle",
+	"preventSleepInfo": "Vibe çalışırken boşta kalma zamanlayıcısının bilgisayarı uyku moduna almasını engeller, böylece bilgisayar erişilebilir kalır — telefonunuz istediği an ona bir kayıt aktarabilir. Ekran yine de kapanır. Daha fazla pil harcar.",
 	"phone": "Telefon",
 	"phoneHandoff": "Telefondan kayıt",
 	"phoneHandoffInfo": "Telefonunuzla kaydedin, transkripsiyonu bu bilgisayar yapsın — metin doğrudan telefonunuza geri döner.",

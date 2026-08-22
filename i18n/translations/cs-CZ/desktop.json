@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Otevře Vibe automaticky, když se přihlásíte k počítači.",
 	"couldNotEnableLaunchAtStartup": "Nepodařilo se zapnout spouštění po přihlášení: {error}",
 	"couldNotDisableLaunchAtStartup": "Nepodařilo se vypnout spouštění po přihlášení: {error}",
+	"preventSleep": "Zabránit uspání počítače",
+	"preventSleepInfo": "Zabrání časovači nečinnosti uspat počítač, dokud Vibe běží, takže zůstane dostupný — telefon mu může kdykoli předat nahrávku. Obrazovka se přesto vypne. Spotřebuje více baterie.",
 	"phone": "Telefon",
 	"phoneHandoff": "Předání z telefonu",
 	"phoneHandoffInfo": "Nahrávejte na telefonu a přepis nechte na tomto počítači — hotový text se vrátí rovnou do telefonu.",

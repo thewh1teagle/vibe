@@ -8,7 +8,7 @@ import { isUserError } from '~/lib/sona-errors'
 import { NamedPath } from '~/lib/types'
 import { pathToNamedPath } from '~/lib/fs'
 import { validPath } from '~/lib/media'
-import { startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
+import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
@@ -161,7 +161,7 @@ export function viewModel() {
 
 		setInProgress(true)
 
-		startKeepAwake()
+		startKeepAwake(KEEP_AWAKE.batch)
 
 		let localIndex = 0
 		if (!preference.modelPath) {
@@ -270,7 +270,7 @@ export function viewModel() {
 				await new Promise((resolve) => setTimeout(resolve, 100))
 				setCurrentIndex(localIndex)
 			} catch (error) {
-				stopKeepAwake()
+				stopKeepAwake(KEEP_AWAKE.batch)
 				const errorObj = typeof error === 'object' && error !== null ? (error as any) : null
 				const errorCode = errorObj?.code
 				const errorMessage = errorObj?.message || String(error)
@@ -304,7 +304,7 @@ export function viewModel() {
 				setCurrentIndex(localIndex)
 			}
 		}
-		stopKeepAwake()
+		stopKeepAwake(KEEP_AWAKE.batch)
 		setCurrentIndex(files.length + 1)
 		setInProgress(false)
 		setIsAborting(false)

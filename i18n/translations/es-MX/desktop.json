@@ -450,6 +450,8 @@
 	"launchAtStartupInfo": "Abre Vibe automáticamente cuando inicias sesión en la computadora.",
 	"couldNotEnableLaunchAtStartup": "No se pudo activar la apertura al iniciar sesión: {error}",
 	"couldNotDisableLaunchAtStartup": "No se pudo desactivar la apertura al iniciar sesión: {error}",
+	"preventSleep": "Impedir que la computadora se suspenda",
+	"preventSleepInfo": "Evita que el temporizador de inactividad suspenda la computadora mientras Vibe se está ejecutando, para que siga accesible: tu celular puede enviarle una grabación en cualquier momento. La pantalla se sigue apagando. Consume más batería.",
 	"phone": "Celular",
 	"phoneHandoff": "Transferencia desde el celular",
 	"phoneHandoffInfo": "Graba en tu celular y deja que esta computadora haga la transcripción: el texto regresa directo al celular.",
