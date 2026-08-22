@@ -43,6 +43,30 @@ pub(super) fn describe_exit(status: ExitStatus) -> String {
     }
 }
 
+/// An illegal instruction from a binary that runs everywhere else means the CPU is
+/// missing an instruction set the build assumes. Naming it here is what turns these
+/// reports from a bare "sona process died" into something identifiable.
+fn illegal_instruction_hint(status: ExitStatus) -> Option<&'static str> {
+    const MESSAGE: &str = "This looks like a CPU without AVX2 support: sona is built to require it, so it stops on the first instruction it cannot run. Vibe cannot transcribe on this machine.";
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::ExitStatusExt;
+        if status.signal() == Some(4) {
+            return Some(MESSAGE);
+        }
+    }
+    #[cfg(windows)]
+    {
+        // STATUS_ILLEGAL_INSTRUCTION, which Windows surfaces as the exit code.
+        if status.code() == Some(0xC000_001D_u32 as i32) {
+            return Some(MESSAGE);
+        }
+    }
+    let _ = status;
+    None
+}
+
 #[cfg(unix)]
 fn signal_name(signal: i32) -> Option<&'static str> {
     #[cfg(target_os = "linux")]
@@ -280,6 +304,9 @@ impl SonaProcess {
         let status = self.exit_status()?;
         let stderr = self.stderr_after_exit().await;
         let mut message = format!("{context} ({})", describe_exit(status));
+        if let Some(hint) = illegal_instruction_hint(status) {
+            message.push_str(&format!("\n\n{hint}"));
+        }
         if !stderr.is_empty() {
             message.push_str(&format!("\n\nsona stderr: {stderr}"));
         }
