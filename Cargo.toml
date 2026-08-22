@@ -14,4 +14,4 @@ resolver = "2"
 [workspace.package]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/thewh1teagle/sona"
+repository = "https://github.com/vibe-transcribe/sona"

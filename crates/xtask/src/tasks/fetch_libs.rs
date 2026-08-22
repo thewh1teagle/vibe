@@ -2,7 +2,7 @@ use anyhow::Result;
 
 use crate::tools::{archives, download, paths};
 
-const GITHUB_REPO: &str = "thewh1teagle/sona";
+const GITHUB_REPO: &str = "vibe-transcribe/sona";
 
 pub fn run() -> Result<()> {
     let root = paths::repo_root()?;

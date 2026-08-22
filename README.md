@@ -55,7 +55,7 @@ Sona is intentionally simple and predictable, so it can be embedded into larger 
 
 ### 1. Download a release binary
 
-https://github.com/thewh1teagle/sona/releases
+https://github.com/vibe-transcribe/sona/releases
 
 ### 2. Download a model
 
@@ -119,4 +119,4 @@ Sona is a good fit if you want:
 
 - API reference: /docs
 - OpenAPI schema: /openapi.json
-- Releases: https://github.com/thewh1teagle/sona/releases
+- Releases: https://github.com/vibe-transcribe/sona/releases
