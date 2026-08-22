@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import ShortcutRecorder from '~/components/shortcut-recorder'
 import { Switch } from '~/components/ui/switch'
-import { DEFAULT_HOTKEY_SHORTCUT, useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
+import { getDefaultHotkeyShortcut, useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
 import { SettingsGroup, SettingsRow } from './shared'
 import { getDictationIndicatorEnabled, setDictationIndicatorEnabled } from '~/lib/dictation-indicator'
 
@@ -72,7 +72,7 @@ export function DictationSection() {
 							<ShortcutRecorder
 								value={hotkey.hotkeyShortcut}
 								onChange={hotkey.setHotkeyShortcut}
-								defaultValue={DEFAULT_HOTKEY_SHORTCUT}
+								defaultValue={getDefaultHotkeyShortcut()}
 								onCapturingChange={hotkey.setHotkeyCapturing}
 							/>
 						</SettingsRow>

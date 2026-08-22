@@ -19,7 +19,14 @@ import * as config from '~/lib/config'
 // when hotkey-triggered recording finishes
 export let hotkeyRecordingActive = false
 
-export const DEFAULT_HOTKEY_SHORTCUT = 'CmdOrCtrl+Shift+Space'
+/**
+ * Option+Space on macOS, Ctrl+Space elsewhere. Resolved on call rather than at module scope:
+ * reading the platform at import time makes this file unimportable outside a webview.
+ */
+export function getDefaultHotkeyShortcut() {
+	const isMac = navigator.platform.toUpperCase().includes('MAC')
+	return isMac ? 'Alt+Space' : 'Ctrl+Space'
+}
 
 export type HotkeyOutputMode = 'clipboard' | 'type'
 export type HotkeyActivationMode = 'push-to-talk' | 'toggle'
@@ -85,7 +92,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const preferenceRef = useRef(preference)
 
 	const [hotkeyEnabled, setHotkeyEnabled] = usePersisted(CONFIG_KEYS.hotkeyEnabled, false)
-	const [hotkeyShortcut, setHotkeyShortcut] = usePersisted(CONFIG_KEYS.hotkeyShortcut, DEFAULT_HOTKEY_SHORTCUT)
+	const [hotkeyShortcut, setHotkeyShortcut] = usePersisted(CONFIG_KEYS.hotkeyShortcut, getDefaultHotkeyShortcut())
 	const [hotkeyCapturing, setHotkeyCapturingState] = useState(false)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = usePersisted<HotkeyOutputMode>(CONFIG_KEYS.hotkeyOutputMode, 'clipboard')
 	const [hotkeyActivationMode, setHotkeyActivationMode] = usePersisted<HotkeyActivationMode>(CONFIG_KEYS.hotkeyActivationMode, 'push-to-talk')
