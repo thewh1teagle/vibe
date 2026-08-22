@@ -27,15 +27,30 @@ wasm-bindgen ./target/wasm32-unknown-unknown/release/handoff_wasm.wasm \
 # binaryen installed we keep the unoptimized artifact rather than failing.
 WASM="$OUT_DIR/handoff_wasm_bg.wasm"
 if command -v wasm-opt >/dev/null 2>&1; then
-  # `-all` on purpose. Naming individual --enable-* flags DISABLES every feature
-  # not listed, and older binaryen then strips ones wasm-bindgen's glue relies on
-  # (call-indirect-overlong, reference types). That corrupts the function table and
-  # the module dies at init with:
-  #   WebAssembly.Table.set(): Argument 1 is invalid for table:
-  #   function-typed object must be null (if nullable) or a Wasm function object
-  wasm-opt -all -Os -o "$WASM.opt" "$WASM"
+  # No --enable-* flags on purpose. wasm-bindgen emits a target-features section
+  # and binaryen honours it, so the module keeps exactly the features it needs.
+  # Naming features explicitly disables the unnamed ones (that shipped a module
+  # with a corrupt function table once); `-all` is worse still, because it turns
+  # on compact-imports and emits an encoding engines reject outright with
+  # "unknown import kind 0x7f".
+  wasm-opt -Os -o "$WASM.opt" "$WASM"
   mv "$WASM.opt" "$WASM"
   echo "wasm-opt: $WASM is now $(wc -c <"$WASM" | tr -d ' ') bytes"
+
+  # Sanity-check the optimised module actually compiles. A wasm-opt flag mix has
+  # already shipped a module that only failed at load time in the browser, which
+  # is an expensive way to find out. Skipped silently if node is unavailable.
+  if command -v node >/dev/null 2>&1; then
+    if node --input-type=module -e "
+      import fs from 'node:fs'
+      new WebAssembly.Module(fs.readFileSync('$WASM'))
+    " 2>/dev/null; then
+      echo "wasm-opt: module compiles"
+    else
+      echo "ERROR: the optimised module does not compile; refusing to ship it" >&2
+      exit 1
+    fi
+  fi
 else
   echo "WARNING: wasm-opt not found on PATH; shipping the unoptimized module" >&2
   echo "         (roughly 2x larger). Install binaryen to shrink it:" >&2
