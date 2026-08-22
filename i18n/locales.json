@@ -1,5 +1,6 @@
 [
 	{ "code": "ca-AD", "name": "catalan", "desktop": true, "website": false },
+	{ "code": "cs-CZ", "name": "czech", "desktop": true, "website": false },
 	{ "code": "en-US", "name": "english", "desktop": true, "website": true },
 	{ "code": "es-ES", "name": "spanish (ES)", "desktop": true, "website": false },
 	{ "code": "es-MX", "name": "spanish (MX)", "desktop": true, "website": true },
