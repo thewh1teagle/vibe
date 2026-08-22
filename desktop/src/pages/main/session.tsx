@@ -1,15 +1,14 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
-import { path as pathApi } from '@tauri-apps/api'
 import { webviewWindow } from '@tauri-apps/api'
 import * as dialog from '@tauri-apps/plugin-dialog'
-import * as fs from '@tauri-apps/plugin-fs'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
 import * as config from '~/lib/config'
-import { ls, pathToNamedPath } from '~/lib/fs'
-import { isModelFile } from '~/lib/model'
+import { pathToNamedPath } from '~/lib/fs'
+import { cleanupPartialDownloads, listInstalledModels, type InstalledModel } from '~/lib/model'
 import type { NamedPath } from '~/lib/types'
 import { useConfirmExit } from '~/lib/use-confirm-exit'
 import { hotkeyRecordingActive } from '~/providers/hotkey'
@@ -178,17 +177,36 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 			}
 		}
 
+		/** A truncated or corrupt file is not a model, so say so instead of letting sona fail on it. */
+		function reportCorruptModels(corrupt: InstalledModel[]) {
+			for (const model of corrupt) {
+				console.error(`corrupt model file ${model.path}: ${model.reason}`)
+				toast.error(m.modelFileCorrupt(), {
+					description: m.modelFileCorruptDescription({ name: model.name }),
+					action: {
+						label: m.reDownload(),
+						// Re-downloading writes over the broken file rather than beside it.
+						onClick: () => navigate('/setup', { state: { replacePath: model.path } }),
+					},
+				})
+			}
+		}
+
 		async function checkModelExists() {
 			try {
 				const modelsFolder = await invoke<string>('get_models_folder')
-				const models = (await ls(modelsFolder)).filter((entry) => isModelFile(entry.name))
+				// Partial downloads cannot be resumed, so a leftover `.part` is only wasted space.
+				await cleanupPartialDownloads(modelsFolder)
+				const installed = await listInstalledModels(modelsFolder)
+				const models = installed.filter((model) => model.valid)
+				reportCorruptModels(installed.filter((model) => !model.valid))
 				if (models.length === 0) {
 					preference.setModelPath(null)
 					if (!preference.skippedSetup) navigate('/setup')
 					return
 				}
-				if (!preference.modelPath || !(await fs.exists(preference.modelPath))) {
-					preference.setModelPath(await pathApi.join(modelsFolder, models[0].name))
+				if (!preference.modelPath || !models.some((model) => model.path === preference.modelPath)) {
+					preference.setModelPath(models[0].path)
 				}
 			} catch (error) {
 				console.error(error)

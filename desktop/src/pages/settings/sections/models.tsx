@@ -129,6 +129,21 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 				</SettingsRow>
 			</SettingsGroup>
 
+			{vm.corruptModels.length > 0 && (
+				<SettingsGroup title={m.modelFileCorrupt()}>
+					{vm.corruptModels.map((model) => (
+						<SettingsRow
+							key={model.path}
+							label={getFriendlyModelName(model.name)}
+							description={m.modelFileCorruptDescription({ name: model.name })}
+							clampDescription={false}>
+							<IconAction label={m.reDownload()} icon={<Download className="h-4 w-4" />} onClick={() => vm.redownloadModel(model)} />
+							<IconAction label={m.showInFolder()} icon={<FolderOpen className="h-4 w-4" />} onClick={() => vm.openSelectedModel(model.path)} />
+						</SettingsRow>
+					))}
+				</SettingsGroup>
+			)}
+
 			<SettingsGroup>
 				<ActionRow label={m.downloadModelsLink()} icon={<LinkIcon className="h-4 w-4" />} onClick={vm.openModelsUrl} />
 				<ActionRow label={m.modelsFolder()} icon={<FolderIcon className="h-4 w-4" />} onClick={vm.openModelPath} />

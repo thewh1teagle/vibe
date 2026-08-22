@@ -1,9 +1,7 @@
 import '@fontsource/roboto/400.css'
-import { path } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import * as dialog from '@tauri-apps/plugin-dialog'
-import * as fs from '@tauri-apps/plugin-fs'
 import { useContext, useEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -11,7 +9,7 @@ import { TextFormat } from '~/components/format-select'
 import * as transcript from '~/lib/transcript'
 import { useConfirmExit } from '~/lib/use-confirm-exit'
 import { NamedPath } from '~/lib/types'
-import { ls, pathToNamedPath } from '~/lib/fs'
+import { pathToNamedPath } from '~/lib/fs'
 import { openPath } from '~/lib/app'
 import { ModelOptions, usePreferenceProvider } from '~/providers/preference'
 import { UpdaterContext } from '~/providers/updater'
@@ -21,7 +19,7 @@ import { useRecording } from './hooks/use-recording'
 import { useAudioDownload } from './hooks/use-audio-download'
 import { useMediaSelection } from './hooks/use-media-selection'
 import { useTranscription } from './hooks/use-transcription'
-import { isModelFile } from '~/lib/model'
+import { cleanupPartialDownloads, listInstalledModels } from '~/lib/model'
 
 export interface BatchOptions {
 	files: NamedPath[]
@@ -154,8 +152,14 @@ export function viewModel() {
 	async function checkModelExists() {
 		try {
 			const configPath = await invoke<string>('get_models_folder')
-			const entries = await ls(configPath)
-			const filtered = entries.filter((e) => isModelFile(e.name))
+			// Leftover `.part` files cannot be resumed, so drop them before looking for models.
+			await cleanupPartialDownloads(configPath)
+			const installed = await listInstalledModels(configPath)
+			// Truncated or corrupt files carry a model extension but are not models.
+			const filtered = installed.filter((model) => model.valid)
+			for (const corrupt of installed.filter((model) => !model.valid)) {
+				console.error(`corrupt model file ${corrupt.path}: ${corrupt.reason}`)
+			}
 			if (filtered.length === 0) {
 				preference.setModelPath(null)
 				// Download new model if no models and it's not manual installation
@@ -163,10 +167,9 @@ export function viewModel() {
 					navigate('/setup')
 				}
 			} else {
-				if (!preference.modelPath || !(await fs.exists(preference.modelPath))) {
+				if (!preference.modelPath || !filtered.some((model) => model.path === preference.modelPath)) {
 					// if model path not found set another one as default
-					const absPath = await path.join(configPath, filtered[0].name)
-					preference.setModelPath(absPath)
+					preference.setModelPath(filtered[0].path)
 				}
 			}
 		} catch (e) {

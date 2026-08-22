@@ -8,7 +8,6 @@ import * as utils from '~/lib/model'
 import * as osExt from '@tauri-apps/plugin-os'
 import * as config from '~/lib/config'
 import { ask } from '@tauri-apps/plugin-dialog'
-import * as fs from '@tauri-apps/plugin-fs'
 import { join } from '@tauri-apps/api/path'
 
 export function viewModel() {
@@ -46,7 +45,7 @@ export function viewModel() {
 		if (!metadata?.capabilities.requires_vad) return true
 		const modelsFolder = await invoke<string>('get_models_folder')
 		const vadPath = await join(modelsFolder, config.vadModelFilename)
-		if (await fs.exists(vadPath)) return true
+		if (await utils.isModelFileUsable(vadPath)) return true
 
 		const confirmed = await ask('Nemotron requires the Silero VAD model. Download it before selecting Nemotron?', {
 			title: 'Download required VAD model',
@@ -71,12 +70,14 @@ export function viewModel() {
 		let lastError = null
 
 		try {
-			let urls = []
+			let urls: config.ModelDownload[] = []
 
 			// Determine model URLs
 			if (location?.state?.downloadURL) {
-				urls = [location.state.downloadURL]
-				console.log(`[model] Using provided model URL: ${urls[0]}`)
+				// A URL the user supplied carries no size or hash, so the backend falls back to the
+				// size and magic-byte checks it runs on every download.
+				urls = [{ url: location.state.downloadURL }]
+				console.log(`[model] Using provided model URL: ${urls[0].url}`)
 			} else {
 				urls = [...config.modelUrls.default]
 				const locale = await osExt.locale()
@@ -89,10 +90,12 @@ export function viewModel() {
 			}
 
 			// Try downloading from each URL
-			for (const url of urls) {
+			for (const source of urls) {
 				try {
-					console.log(`[model] Attempting to download from: ${url}`)
-					const path = await utils.downloadModel(url)
+					console.log(`[model] Attempting to download from: ${source.url}`)
+					// Re-downloading a corrupt model overwrites it in place instead of dropping a
+					// second, randomly named copy next to the broken one.
+					const path = await utils.downloadModel(source, { replacePath: location?.state?.replacePath })
 					if (!path) {
 						console.log('[model] Download cancelled')
 						return
@@ -105,7 +108,7 @@ export function viewModel() {
 					navigate('/', { replace: true, state: { disableBack: true } })
 					return
 				} catch (err) {
-					console.error(`[model] Failed to download from ${url}:`, err)
+					console.error(`[model] Failed to download from ${source.url}:`, err)
 					lastError = err
 				}
 			}

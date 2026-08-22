@@ -7,11 +7,9 @@ import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
-import * as fs from '@tauri-apps/plugin-fs'
 import { join } from '@tauri-apps/api/path'
 import * as config from '~/lib/config'
 import { NamedPath } from '~/lib/types'
-import { ls } from '~/lib/fs'
 import { getIssueUrl, resetApp } from '~/lib/app'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useModelGates } from '~/providers/model-gates'
@@ -22,7 +20,7 @@ import { useNavigate } from 'react-router-dom'
 import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/use-store-value'
 import { collectLogs, getPrettyVersion } from '~/lib/logs'
-import { isModelFile, type ModelMetadata } from '~/lib/model'
+import { cleanupPartialDownloads, isModelFileUsable, listInstalledModels, type InstalledModel, type ModelMetadata } from '~/lib/model'
 
 export interface GpuDevice {
 	index: number
@@ -103,6 +101,7 @@ export function viewModel() {
 	const [isLogToFileSet, setLogToFile] = useStoreValue<boolean>('prefs_log_to_file')
 
 	const [models, setModels] = useState<NamedPath[]>([])
+	const [corruptModels, setCorruptModels] = useState<InstalledModel[]>([])
 	const [appVersion, setAppVersion] = useState('')
 	const [defaultRecordingPath, setDefaultRecordingPath] = useState<string>('')
 	const preference = usePreferenceProvider()
@@ -189,10 +188,12 @@ export function viewModel() {
 	}
 
 	async function loadModels() {
-		const modelsFolder = await invoke<string>('get_models_folder')
-		const entries = await ls(modelsFolder)
-		const found = entries.filter((e) => isModelFile(e.name))
+		const installed = await listInstalledModels()
+		const found = installed.filter((model) => model.valid)
 		setModels(found)
+		setCorruptModels(installed.filter((model) => !model.valid))
+		// A file that fails its integrity check is not a model the app can select, even though it
+		// sits in the folder with the right extension.
 		if (preference.modelPath && !found.some((model) => model.path === preference.modelPath)) {
 			preference.setModelPath(null)
 		}
@@ -200,15 +201,16 @@ export function viewModel() {
 
 	async function getDefaultModel() {
 		if (!preference.modelPath) {
-			const modelsFolder = await invoke<string>('get_models_folder')
-
-			let files = await ls(modelsFolder)
-			files = files.filter((f) => isModelFile(f.name))
-			if (files) {
-				const defaultModelPath = files?.[0].path
-				preference.setModelPath(defaultModelPath as string)
+			const files = (await listInstalledModels()).filter((model) => model.valid)
+			if (files.length > 0) {
+				preference.setModelPath(files[0].path)
 			}
 		}
+	}
+
+	/** Replace a broken model in place, so a retry never leaves a second copy next to the bad file. */
+	function redownloadModel(model: InstalledModel) {
+		navigate('/setup', { state: { replacePath: model.path } })
 	}
 
 	async function readModelMetadata(modelPath: string) {
@@ -225,7 +227,7 @@ export function viewModel() {
 		if (!metadata?.capabilities.requires_vad) return true
 		const modelsFolder = await invoke<string>('get_models_folder')
 		const vadPath = await join(modelsFolder, config.vadModelFilename)
-		if (await fs.exists(vadPath)) return true
+		if (await isModelFileUsable(vadPath)) return true
 
 		const confirmed = await ask('Nemotron requires the Silero VAD model. Download it before selecting Nemotron?', {
 			title: 'Download required VAD model',
@@ -405,7 +407,8 @@ export function viewModel() {
 
 	useEffect(() => {
 		loadMeta()
-		loadModels()
+		// Unresumable leftovers from an interrupted download only take up space.
+		cleanupPartialDownloads().then(loadModels).catch(console.error)
 		getDefaultModel()
 		refreshApiServerStatus()
 		loadGpuDevices()
@@ -467,6 +470,8 @@ export function viewModel() {
 		revealLogs,
 		revealTemp,
 		models,
+		corruptModels,
+		redownloadModel,
 		appVersion,
 		reportIssue,
 		loadModels,
