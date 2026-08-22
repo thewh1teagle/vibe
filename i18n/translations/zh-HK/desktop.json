@@ -440,5 +440,10 @@
 	"inProgress": "進行中",
 	"queued": "排隊中",
 	"never": "永不",
-	"configFile": "設定檔"
+	"configFile": "設定檔",
+	"closeToTray": "關閉視窗後保留在系統匣",
+	"closeToTrayInfo": "關閉視窗後 Vibe 會繼續在系統匣中運行，全域語音輸入仍然可用。可從系統匣選單結束程式。",
+	"trayShow": "開啟 Vibe",
+	"trayHide": "隱藏 Vibe",
+	"trayQuit": "結束 Vibe"
 }

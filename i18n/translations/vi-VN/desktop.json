@@ -440,5 +440,10 @@
 	"inProgress": "Đang xử lý",
 	"queued": "Trong hàng đợi",
 	"never": "Không bao giờ",
-	"configFile": "Tệp cấu hình"
+	"configFile": "Tệp cấu hình",
+	"closeToTray": "Tiếp tục chạy trong khay hệ thống",
+	"closeToTrayInfo": "Đóng cửa sổ sẽ để Vibe tiếp tục chạy trong khay hệ thống, nên đọc chính tả toàn cục vẫn hoạt động. Thoát bằng menu ở khay hệ thống.",
+	"trayShow": "Mở Vibe",
+	"trayHide": "Ẩn Vibe",
+	"trayQuit": "Thoát Vibe"
 }

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { getTextDirection } from '~/paraglide/runtime.js'
+import { useTray } from '~/lib/tray'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import UpdateProgress from '~/components/updater-progress'
 import '~/globals.css'
@@ -28,8 +29,9 @@ export default function App() {
 }
 
 function AppContent() {
-	const { displayLanguage } = usePreferenceProvider()
+	const { displayLanguage, closeToTray } = usePreferenceProvider()
 	const dir = getTextDirection(displayLanguage)
+	useTray(closeToTray, displayLanguage)
 
 	useEffect(() => {
 		document.body.dir = dir

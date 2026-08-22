@@ -138,6 +138,8 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 
 	pick_media_paths: async () => null,
 
+	set_tray: async () => null,
+
 	download_audio: async (args) => {
 		const outPath = String(args?.outPath ?? `${APP_LOCAL_DATA}/tmp.m4a`)
 		let cancelled = false

@@ -440,5 +440,10 @@
 	"inProgress": "処理中",
 	"queued": "待機中",
 	"never": "しない",
-	"configFile": "設定ファイル"
+	"configFile": "設定ファイル",
+	"closeToTray": "閉じても通知領域で実行を続ける",
+	"closeToTrayInfo": "ウィンドウを閉じてもVibeは通知領域で動作を続けるため、グローバル音声入力をそのまま使えます。終了するには通知領域のメニューから操作してください。",
+	"trayShow": "Vibeを開く",
+	"trayHide": "Vibeを隠す",
+	"trayQuit": "Vibeを終了"
 }

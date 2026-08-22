@@ -440,5 +440,10 @@
 	"shortcutNeedsModifier": "Hold ⌘, ⌃, ⌥ or ⇧ as well",
 	"changeShortcut": "Change shortcut",
 	"never": "Never",
-	"configFile": "Config file"
+	"configFile": "Config file",
+	"closeToTray": "Keep running in the tray",
+	"closeToTrayInfo": "Closing the window leaves Vibe running in the tray, so global dictation keeps working. Quit it from the tray menu.",
+	"trayShow": "Open Vibe",
+	"trayHide": "Hide Vibe",
+	"trayQuit": "Quit Vibe"
 }

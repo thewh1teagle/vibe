@@ -440,5 +440,10 @@
 	"inProgress": "Devam ediyor",
 	"queued": "Sırada",
 	"never": "Asla",
-	"configFile": "Yapılandırma dosyası"
+	"configFile": "Yapılandırma dosyası",
+	"closeToTray": "Sistem tepsisinde çalışmaya devam et",
+	"closeToTrayInfo": "Pencereyi kapattığınızda Vibe sistem tepsisinde çalışmayı sürdürür, böylece genel dikte çalışmaya devam eder. Tepsi menüsünden çıkabilirsiniz.",
+	"trayShow": "Vibe'ı aç",
+	"trayHide": "Vibe'ı gizle",
+	"trayQuit": "Vibe'dan çık"
 }

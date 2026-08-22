@@ -440,5 +440,10 @@
 	"inProgress": "Pågår",
 	"queued": "I kö",
 	"never": "Aldrig",
-	"configFile": "Konfigurationsfil"
+	"configFile": "Konfigurationsfil",
+	"closeToTray": "Fortsätt köra i systemfältet",
+	"closeToTrayInfo": "När du stänger fönstret fortsätter Vibe att köra i systemfältet, så global diktering fungerar fortfarande. Avsluta det från menyn i systemfältet.",
+	"trayShow": "Öppna Vibe",
+	"trayHide": "Dölj Vibe",
+	"trayQuit": "Avsluta Vibe"
 }

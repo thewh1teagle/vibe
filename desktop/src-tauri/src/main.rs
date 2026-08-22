@@ -15,7 +15,8 @@ mod logging;
 mod setup;
 mod sona;
 mod transcript;
-use tauri::{Emitter, Manager};
+mod tray;
+use tauri::Emitter;
 
 #[cfg(target_os = "macos")]
 mod dock;
@@ -24,6 +25,7 @@ mod dock;
 mod custom_protocol;
 
 use eyre::{eyre, Result};
+use tauri::Manager;
 use tauri_plugin_window_state::StateFlags;
 
 use error::LogError;
@@ -36,19 +38,19 @@ async fn main() -> Result<()> {
 
     #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
+        .manage(tray::TrayState::default())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::debug!("{}, {argv:?}, {cwd}", app.package_info().name);
-            if let Some(webview) = app.get_webview_window("main") {
-                webview.set_focus().map_err(|e| eyre!("{:?}", e)).log_error();
-            }
+            tray::show_main_window(app);
             app.emit("single-instance", argv).map_err(|e| eyre!("{:?}", e)).log_error();
         }))
         .setup(|app| {
             setup::setup(app)?;
             analytics::track_event(app, analytics::events::APP_STARTED);
+
             Ok(())
         })
         .plugin(
@@ -89,6 +91,7 @@ async fn main() -> Result<()> {
             cmd::app::get_cargo_features,
             cmd::config::write_config_atomically,
             cmd::config::get_config_path,
+            tray::set_tray,
             cmd::transcribe::transcribe,
             cmd::files::glob_files,
             cmd::files::pick_media_paths,
@@ -135,6 +138,14 @@ async fn main() -> Result<()> {
         .expect("error while building tauri application");
 
     app.run(|app, event| match event {
+        // Clicking the dock icon while the window is hidden in the tray has to bring it back;
+        // macOS reports the click here rather than as a window event.
+        #[cfg(target_os = "macos")]
+        tauri::RunEvent::Reopen { has_visible_windows, .. } => {
+            if !has_visible_windows {
+                tray::show_main_window(app);
+            }
+        }
         tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
             let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
             if let Ok(mut guard) = mutex.try_lock() {

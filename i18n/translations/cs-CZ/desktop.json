@@ -440,5 +440,10 @@
 	"shortcutNeedsModifier": "Podržte také ⌘, ⌃, ⌥ nebo ⇧",
 	"changeShortcut": "Změnit zkratku",
 	"never": "Nikdy",
-	"configFile": "Konfigurační soubor"
+	"configFile": "Konfigurační soubor",
+	"closeToTray": "Ponechat běžet v oznamovací oblasti",
+	"closeToTrayInfo": "Zavření okna ponechá Vibe běžet v oznamovací oblasti, takže globální diktování dál funguje. Ukončit ho můžete z nabídky ikony.",
+	"trayShow": "Otevřít Vibe",
+	"trayHide": "Skrýt Vibe",
+	"trayQuit": "Ukončit Vibe"
 }
