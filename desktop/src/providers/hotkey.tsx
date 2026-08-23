@@ -19,14 +19,8 @@ import * as config from '~/lib/config'
 // when hotkey-triggered recording finishes
 export let hotkeyRecordingActive = false
 
-/**
- * Option+Space on macOS, Ctrl+Space elsewhere. Resolved on call rather than at module scope:
- * reading the platform at import time makes this file unimportable outside a webview.
- */
-export function getDefaultHotkeyShortcut() {
-	const isMac = navigator.platform.toUpperCase().includes('MAC')
-	return isMac ? 'Alt+Space' : 'Ctrl+Space'
-}
+// Lives in lib/config so modules without a React dependency (the agent skill) can read the default.
+export const getDefaultHotkeyShortcut = config.getDefaultHotkeyShortcut
 
 export type HotkeyOutputMode = 'clipboard' | 'type'
 export type HotkeyActivationMode = 'push-to-talk' | 'toggle'

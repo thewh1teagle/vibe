@@ -1,14 +1,35 @@
 use crate::config::STORE_FILENAME;
-use eyre::{Context, Result};
+use eyre::{eyre, Context, Result};
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 use tauri::Manager;
+use tauri_plugin_store::StoreExt;
+
+/// Config key holding the base URL of the running local API. Must match `CONFIG_KEYS.apiBaseUrl`.
+pub const API_BASE_URL_KEY: &str = "api.baseUrl";
 
 /// Absolute path of `app_config.json`, so the UI (and agents told where to look) can find it.
 #[tauri::command]
 pub fn get_config_path(app_handle: tauri::AppHandle) -> Result<PathBuf> {
     Ok(app_handle.path().app_config_dir()?.join(STORE_FILENAME))
+}
+
+/// Publish (or clear) the local API's base URL in the config file.
+///
+/// The port is picked per run and lives in memory only, so an agent outside the app has no way to
+/// find it. Writing it where the skill already points solves that; clearing it on stop and on exit
+/// keeps a dead port from outliving the server it belonged to.
+pub fn set_api_base_url(app_handle: &tauri::AppHandle, base_url: Option<&str>) -> Result<()> {
+    let store = app_handle.store(STORE_FILENAME).map_err(|e| eyre!("{:?}", e))?;
+    match base_url {
+        Some(url) => store.set(API_BASE_URL_KEY, serde_json::Value::String(url.to_string())),
+        None => {
+            store.delete(API_BASE_URL_KEY);
+        }
+    }
+    store.save().map_err(|e| eyre!("{:?}", e))?;
+    Ok(())
 }
 
 /// Write the whole config file in a way that never leaves a truncated file behind.

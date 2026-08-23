@@ -68,3 +68,13 @@ export function ytDlpDownloadUrl(version: string, key: string): string {
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm', 'mxf']
 export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a', 'm4b', 'wma']
 export const themes = ['light', 'dark']
+
+/**
+ * Default dictation shortcut: Option+Space on macOS, Ctrl+Space elsewhere. Resolved on call rather
+ * than at module scope: reading the platform at import time makes this file unimportable outside a
+ * webview (and untestable).
+ */
+export function getDefaultHotkeyShortcut() {
+	const isMac = navigator.platform.toUpperCase().includes('MAC')
+	return isMac ? 'Alt+Space' : 'Ctrl+Space'
+}

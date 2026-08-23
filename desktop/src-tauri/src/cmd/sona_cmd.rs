@@ -1,3 +1,4 @@
+use crate::error::LogError;
 use crate::setup::SonaState;
 use eyre::{bail, Context, ContextCompat, Result};
 use std::path::PathBuf;
@@ -197,12 +198,17 @@ pub async fn start_api_server(
         state_guard.process = Some(process);
     }
     let process = state_guard.process.as_ref().context("API server process missing")?;
-    Ok(process.base_url())
+    let base_url = process.base_url();
+    // Best-effort: an agent losing the hint is not a reason to fail starting the server.
+    crate::cmd::config::set_api_base_url(&app_handle, Some(&base_url)).log_error();
+    Ok(base_url)
 }
 
 #[tauri::command]
-pub async fn stop_api_server(sona_state: State<'_, Mutex<SonaState>>) -> Result<bool> {
+pub async fn stop_api_server(app_handle: tauri::AppHandle, sona_state: State<'_, Mutex<SonaState>>) -> Result<bool> {
     let mut state_guard = sona_state.lock().await;
+    // The port dies with the process, so the hint in the config file has to go with it.
+    crate::cmd::config::set_api_base_url(&app_handle, None).log_error();
     if let Some(mut process) = state_guard.process.take() {
         process.kill();
         return Ok(true);
