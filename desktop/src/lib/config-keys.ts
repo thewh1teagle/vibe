@@ -60,6 +60,10 @@ export const CONFIG_KEYS = {
 	// AI summaries
 	llmConfig: 'summarize.llm',
 
+	// Local API. Written by the app while the server runs so agents can find the per-run port;
+	// removed on stop and on exit. Not a user setting.
+	apiBaseUrl: 'api.baseUrl',
+
 	// Tools
 	ytDlpVersion: 'tools.ytDlpVersion',
 	shouldCheckYtDlpVersion: 'tools.checkYtDlpUpdates',

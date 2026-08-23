@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
-import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
 import { join } from '@tauri-apps/api/path'
 import * as config from '~/lib/config'
 import { NamedPath } from '~/lib/types'
@@ -21,6 +20,7 @@ import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/use-store-value'
 import { collectLogs, getPrettyVersion } from '~/lib/logs'
 import { cleanupPartialDownloads, isModelFileUsable, listInstalledModels, type InstalledModel, type ModelMetadata } from '~/lib/model'
+import { STARTER_PROMPT, buildSkill, installSkill, type SkillTarget } from '~/lib/skill'
 
 export interface GpuDevice {
 	index: number
@@ -335,22 +335,33 @@ export function viewModel() {
 		toast.success('cURL example copied to clipboard')
 	}
 
-	/**
-	 * Sona's `/skill` covers the transcription API only. An agent working on someone's behalf also
-	 * needs to know where Vibe keeps its settings and how to change them safely, so that part is
-	 * appended here rather than baked into the runner.
-	 */
 	async function copyAgentSkill() {
 		if (!apiBaseUrl) return
 		try {
-			const res = await tauriFetch(`${apiBaseUrl}/skill`)
-			const text = await res.text()
-			await clipboard.writeText(`${text.trimEnd()}\n\n${await settingsSkillSection()}`)
+			await clipboard.writeText(await buildSkill(apiBaseUrl))
 			toast.success(m.agentInstructionsCopied())
 		} catch (error) {
 			console.error(error)
 			toast.error(m.localApiUnreachable())
 		}
+	}
+
+	/** Write the same skill to disk, so every future agent session has it instead of one pasted chat. */
+	async function installAgentSkill(target: SkillTarget) {
+		if (!apiBaseUrl) return
+		try {
+			const path = await installSkill(target, apiBaseUrl)
+			toast.success(m.agentSkillInstalled({ path }))
+		} catch (error) {
+			console.error('failed to install the agent skill:', error)
+			toast.error(String(error))
+		}
+	}
+
+	/** The starter line a user pastes into a terminal once the skill is installed. */
+	async function copyStarterPrompt() {
+		await clipboard.writeText(STARTER_PROMPT)
+		toast.success(m.starterPromptCopied())
 	}
 
 	/** Show the settings file in the file manager, so it can be opened, edited or handed to an agent. */
@@ -362,35 +373,6 @@ export function viewModel() {
 			console.error('failed to reveal the config file:', error)
 			toast.error(String(error))
 		}
-	}
-
-	async function settingsSkillSection() {
-		const path = await invoke<string>('get_config_path').catch(() => null)
-		return [
-			'# Vibe settings',
-			'',
-			'Vibe keeps every setting in one JSON file, safe to read and edit:',
-			'',
-			path ? `  ${path}` : '  (ask the user to open Settings → API & Agents → Config file)',
-			'',
-			'Keys are flat and named after the setting they control, for example:',
-			'',
-			'~~~json',
-			'{',
-			'  "general.theme": "dark",',
-			'  "general.displayLanguage": "en-US",',
-			'  "transcription.recognizeSpeakers": false,',
-			'  "transcription.modelOptions": { "lang": "en", "n_threads": 4 },',
-			'  "dictation.shortcut": "CmdOrCtrl+Shift+Space"',
-			'}',
-			'~~~',
-			'',
-			'Vibe watches the file, so an edit applies immediately — no restart, and no need to ask the',
-			'user to reopen the app. Write the whole file atomically (write a temporary file beside it,',
-			'then rename it over the original) so Vibe can never read a half-written config.',
-			'',
-			`Source and docs: ${config.repoURL}`,
-		].join('\n')
 	}
 
 	async function stopApiServer() {
@@ -461,6 +443,8 @@ export function viewModel() {
 		refreshApiServerStatus,
 		copyCurlExample,
 		copyAgentSkill,
+		installAgentSkill,
+		copyStarterPrompt,
 		revealConfigFile,
 		preference: preference,
 		askAndReset,

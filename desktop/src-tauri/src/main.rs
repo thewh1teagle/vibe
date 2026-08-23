@@ -103,6 +103,8 @@ async fn main() -> Result<()> {
             cmd::app::get_cargo_features,
             cmd::config::write_config_atomically,
             cmd::config::get_config_path,
+            cmd::skill::install_agent_skill,
+            cmd::skill::get_agent_paths,
             tray::set_tray,
             cmd::transcribe::transcribe,
             cmd::files::glob_files,
@@ -169,6 +171,8 @@ async fn main() -> Result<()> {
                 // Bounded: a slow or unreachable ingest host must not hold up quitting.
                 analytics::flush_events_bounded(app, std::time::Duration::from_secs(2));
             }
+            // A base URL left in the config file would point an agent at a dead port.
+            cmd::config::set_api_base_url(app, None).log_error();
             let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
             if let Ok(mut guard) = mutex.try_lock() {
                 if let Some(ref mut process) = guard.process {

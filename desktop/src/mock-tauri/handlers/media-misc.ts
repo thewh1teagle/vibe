@@ -1,5 +1,5 @@
 import { emitMockEvent, onMockEvent } from '../event-bus'
-import { APP_LOCAL_DATA, DOCUMENTS_FOLDER, virtualFs } from '../state'
+import { APP_LOCAL_DATA, DOCUMENTS_FOLDER, HOME_FOLDER, virtualFs } from '../state'
 import type { CommandHandlerMap } from '../types'
 
 interface MockAudioDevice {
@@ -133,6 +133,16 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 	get_default_recording_path: () => `${DOCUMENTS_FOLDER}/recordings`,
 
 	get_temp_path: (args) => `${APP_LOCAL_DATA}/tmp.${String(args?.ext ?? 'tmp')}`,
+
+	get_agent_paths: () => ({ sona: `${APP_LOCAL_DATA}/sona`, vibe: `${APP_LOCAL_DATA}/vibe` }),
+
+	// Mirrors the Rust command: `<home>/.claude|.codex/skills/vibe/SKILL.md`, parents created.
+	install_agent_skill: (args) => {
+		const folder = String(args?.target ?? 'claude') === 'codex' ? '.codex' : '.claude'
+		const path = `${HOME_FOLDER}/${folder}/skills/vibe/SKILL.md`
+		virtualFs.set(path, String(args?.contents ?? ''))
+		return path
+	},
 
 	// --- yt-dlp -----------------------------------------------------------------
 

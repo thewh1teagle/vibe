@@ -7,6 +7,7 @@ pub mod files;
 pub mod handoff_cmd;
 pub mod keepawake_cmd;
 pub mod permissions;
+pub mod skill;
 pub mod sona_cmd;
 pub mod transcribe;
 pub mod ui;

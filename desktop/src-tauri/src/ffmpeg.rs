@@ -122,9 +122,12 @@ pub fn merge_wav_files(a: PathBuf, b: PathBuf, dst: PathBuf) -> Result<()> {
         "-i",
         b.to_str().context("tostr")?,
         "-filter_complex",
-        "amix=inputs=2:duration=shortest",
-        "-ac",
-        "2",
+        // amix averages by default, which costs 6 dB on a two-input mix, and `-ac 2` used to
+        // add another 3 dB of mono->stereo rematrix on top -- 9 dB thrown away on every
+        // recording that had system audio selected. Sum instead, and let normalize() do the
+        // single downmix to mono rather than producing stereo here just to collapse it later.
+        // Summing can clip when the mic and the meeting are both loud, so cap the peaks.
+        "amix=inputs=2:duration=longest:dropout_transition=0:normalize=0,alimiter=limit=0.97",
         output,
         "-hide_banner",
         "-y",
