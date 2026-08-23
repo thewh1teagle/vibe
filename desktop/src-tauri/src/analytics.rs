@@ -116,7 +116,12 @@ pub fn flush_events_bounded(app_handle: &AppHandle, timeout: Duration) {
     }
     let (sender, receiver) = std::sync::mpsc::channel();
     let handle = app_handle.clone();
+    // flush_events_blocking ends in a reqwest call, which panics without a tokio runtime in
+    // scope. A bare thread has none, and the release profile aborts on panic, so that panic
+    // took the whole app down on quit rather than just losing the flush. Carry the runtime in.
+    let runtime = tauri::async_runtime::handle();
     std::thread::spawn(move || {
+        let _guard = runtime.inner().enter();
         handle.flush_events_blocking();
         let _ = sender.send(());
     });
