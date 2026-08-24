@@ -2,6 +2,7 @@
 
 mod decoder;
 mod encoder;
+mod load;
 mod mel;
 mod model;
 mod ops;
