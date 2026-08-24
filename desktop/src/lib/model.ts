@@ -105,8 +105,9 @@ export async function listInstalledModels(folder?: string): Promise<InstalledMod
 }
 
 /**
- * Whether a file the app depends on is usable. Weights are validated against their magic bytes;
- * anything else (the ONNX diarization models, yt-dlp) has no magic, so existence is all we have.
+ * Whether a file the app depends on is usable. Weights are validated against their magic bytes —
+ * which now includes the diarization model, a GGUF since it moved off ONNX Runtime. Anything else
+ * (the legacy ONNX embedding/segmentation pair, yt-dlp) has no magic, so existence is all we have.
  */
 export async function isModelFileUsable(path: string) {
 	if (!(await fsExt.exists(path))) return false

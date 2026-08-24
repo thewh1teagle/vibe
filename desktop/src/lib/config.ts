@@ -42,8 +42,25 @@ export const segmentModelFilename = 'segmentation-3.0.onnx'
 export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
-export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.1.onnx'
-export const diarizeModelUrl = 'https://huggingface.co/altunenes/parakeet-rs/resolve/main/diar_streaming_sortformer_4spk-v2.1.onnx'
+/**
+ * Diarization runs NVIDIA Sortformer on ggml now, not ONNX Runtime, so this is a GGUF built from
+ * the original `.nemo` checkpoint rather than an ONNX export. Q8_0: the k-quant tiers are unsafe
+ * for this model — its speaker-cache compression makes discrete near-tie decisions that quant
+ * error can flip, permuting speaker labels mid-stream.
+ *
+ * Mirrored into the vibe-app org from `nvidia/diar_streaming_sortformer_4spk-v2` (cc-by-4.0).
+ *
+ * Anyone upgrading still has the old `.onnx` sitting in their models folder. Nothing reads it any
+ * more and it is not a `.gguf`/`.bin`, so it stays invisible to the model listing; the gate simply
+ * finds this file missing and offers the download. Deleting the stale 492 MB file is left to them.
+ */
+export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.q8_0.gguf'
+export const diarizeModelUrl =
+	'https://huggingface.co/vibe-app/diar-streaming-sortformer-4spk-v2-gguf/resolve/main/diar_streaming_sortformer_4spk-v2.q8_0.gguf'
+export const diarizeModelIntegrity: ModelIntegrity = {
+	size: 147075776,
+	sha256: '0679cfeb1ce356d0dea9470b31274f4bfc7eb927497d82005483770666da998a',
+}
 export const vadModelFilename = 'ggml-silero-v6.2.0.bin'
 export const vadModelUrl = 'https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin'
 

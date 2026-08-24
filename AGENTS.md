@@ -28,3 +28,9 @@ Quote minutes, never days: single tasks 1–10 min, multi-agent work tens of min
 ```
 minutes ≈ (LOC × 40) / (6000 × N_agents) + ~2 min per stage
 ```
+
+## File size
+
+700 lines max. On hitting it, ask before splitting.
+
+Split by responsibility into halves — find where the file does two jobs and move one out whole. Not a line-count cut, not a `utils` skim. Keep the public API where callers expect it; move tests with their code.

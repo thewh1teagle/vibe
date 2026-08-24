@@ -5,6 +5,7 @@ import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
 import * as config from '~/lib/config'
+import type { ModelIntegrity } from '~/lib/config'
 import { isModelFileUsable } from '~/lib/model'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useToastProvider } from '~/providers/toast'
@@ -20,7 +21,14 @@ export function useModelGates() {
 	const progressToast = useToastProvider()
 
 	const ensureModel = useCallback(
-		async (options: { filename: string; url: string; title: string; question: string; downloading: string }) => {
+		async (options: {
+			filename: string
+			url: string
+			title: string
+			question: string
+			downloading: string
+			integrity?: ModelIntegrity
+		}) => {
 			const modelsFolder = await invoke<string>('get_models_folder')
 			const modelPath = await join(modelsFolder, options.filename)
 			// A file that fails its integrity check does not count as installed — download it again.
@@ -33,7 +41,7 @@ export function useModelGates() {
 			progressToast.setOpen(true)
 			progressToast.setProgress(0)
 			try {
-				await invoke('download_model', { url: options.url, path: modelPath })
+				await invoke('download_model', { url: options.url, path: modelPath, integrity: options.integrity })
 				toast.success(m.downloadComplete())
 				return true
 			} finally {
@@ -54,6 +62,7 @@ export function useModelGates() {
 				const ready = await ensureModel({
 					filename: config.diarizeModelFilename,
 					url: config.diarizeModelUrl,
+					integrity: config.diarizeModelIntegrity,
 					title: m.diarization(),
 					question: m.downloadDiarizeModel(),
 					downloading: m.downloadingDiarizeModel(),
