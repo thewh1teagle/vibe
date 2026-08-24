@@ -74,7 +74,7 @@ fn remove_if_exists(path: &Path) -> Result<()> {
 }
 
 /// Only `.bin` and `.gguf` downloads are model weights. Everything else that goes through this
-/// module (yt-dlp, the ONNX diarization models) has no magic we can rely on.
+/// module (yt-dlp, the legacy ONNX embedding/segmentation models) has no magic we can rely on.
 fn is_model_path(path: &Path) -> bool {
     matches!(
         path.extension()
