@@ -11,7 +11,15 @@ name = "diarize_rs"
 path = "src/lib.rs"
 
 [dependencies]
-parakeet-rs = { version = "0.3.2", features = ["sortformer"] }
+# The ggml/GGUF backend. Replaces ONNX Runtime.
+whisper-cpp-sys = { path = "../whisper-cpp-sys" }
+# Host-side DSP and state machine (`src/host/`), vendored from parakeet-rs.
+# Same versions the upstream crate used, so the arithmetic is unchanged.
+ndarray = "0.17"
+realfft = "3"
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 
+
+[dev-dependencies]
+hound = "3.5"

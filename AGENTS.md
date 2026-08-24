@@ -29,3 +29,8 @@ Think in agent mode, not human mode.
 Assume nonstop focus, parallel moves, and instant iteration.
 Push timelines aggressively, speed is the default.
 If something feels heavy, split it until it becomes obvious and fast.
+## File size
+
+700 lines max. On hitting it, ask before splitting.
+
+Split by responsibility into halves — find where the file does two jobs and move one out whole. Not a line-count cut, not a `utils` skim. Keep the public API where callers expect it; move tests with their code.
