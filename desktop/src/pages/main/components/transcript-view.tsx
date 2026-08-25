@@ -1,10 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { defaultRangeExtractor, useVirtualizer, type Range as VirtualRange } from '@tanstack/react-virtual'
-import { ArrowDownToLine, Play } from 'lucide-react'
+import { ArrowDownToLine, AudioLines, Play } from 'lucide-react'
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
+import { getLocale, getTextDirection } from '~/paraglide/runtime.js'
 import Markdown from 'react-markdown'
 import { Spinner } from '~/components/ui/spinner'
+import { Button } from '~/components/ui/button'
 import { formatTimestamp, type Segment } from '~/lib/transcript'
 import { cn } from '~/lib/style'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -12,6 +14,8 @@ import { useSession } from '../session'
 import type { Job } from '../hooks/use-transcribe-queue'
 import { textSizeClass, type TranscriptTab, type TranscriptViewOptions } from '../hooks/use-transcript-view'
 import { PLAYER_SEEK_EVENT, PLAYER_TOGGLE_EVENT, PLAYER_TIME_EVENT, type PlayerTimeDetail } from './player-bar'
+import { ProjectNameEditor } from './project-name-editor'
+import QuietRow from './quiet-row'
 
 /** Segment timestamps are centiseconds (see `formatTimestamp` / `asJson` in lib/transcript). */
 const CENTISECONDS_PER_SECOND = 100
@@ -354,6 +358,7 @@ export default function TranscriptView({
 	tab?: TranscriptTab
 }) {
 	const preference = usePreferenceProvider()
+	const interfaceDirection = getTextDirection(getLocale())
 	const { queue, summaries } = useSession()
 	const scrollRef = useRef<HTMLDivElement>(null)
 	const listRef = useRef<HTMLDivElement>(null)
@@ -557,6 +562,11 @@ export default function TranscriptView({
 
 	const showJump = playing && jumpVisible && !following && activeIndex >= 0 && tab === 'transcript'
 	const summarizing = Boolean(summaries.pending[job.id])
+	const canTranscribeSaved =
+		job.hydrated === true &&
+		['done', 'error', 'cancelled'].includes(job.status) &&
+		job.segments.length === 0 &&
+		Boolean(job.savedPath && job.path)
 
 	if (tab === 'summary') {
 		return (
@@ -591,15 +601,43 @@ export default function TranscriptView({
 		<div className="relative h-full min-h-0">
 			<div ref={scrollRef} onScroll={onScroll} className="transcript-editor h-full min-h-0 overflow-x-hidden overflow-y-auto">
 				<div dir={preference.textAreaDirection} className="mx-auto w-full max-w-[86ch] px-8 py-10 xl:max-w-[96ch]">
-					<p className="mb-8 truncate text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{job.name}</p>
+					<ProjectNameEditor
+						name={job.name}
+						disabled={job.status === 'queued' || job.status === 'running'}
+						onDraftChange={(name) => queue.previewJobName(job.id, name)}
+						onRename={(name) => queue.renameJob(job.id, name)}
+					/>
 
 					{job.status === 'error' && <p className="mb-8 text-sm text-destructive">{job.error}</p>}
 
-					{visible.length === 0 && (
+					{canTranscribeSaved && !query ? (
+						<div className="flex min-h-[46vh] items-center justify-center py-10">
+							<div
+								dir={interfaceDirection}
+								className="flex w-full max-w-md flex-col items-center rounded-2xl border border-border/60 bg-card/55 px-8 py-10 text-center shadow-xs">
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-muted text-muted-foreground">
+									<AudioLines className="h-5 w-5" />
+								</div>
+								<h2 className="text-base font-semibold text-foreground">{m.recordingReady()}</h2>
+								<p className="mt-1.5 max-w-sm text-sm leading-6 text-muted-foreground">{m.recordingReadyInfo()}</p>
+								<div className="mt-5">
+									<QuietRow />
+								</div>
+								<Button
+									type="button"
+									className="mt-3 min-w-32"
+									disabled={!preference.modelPath}
+									onClick={() => queue.transcribeJob(job.id)}>
+									<AudioLines className="h-4 w-4" />
+									{m.transcribe()}
+								</Button>
+							</div>
+						</div>
+					) : visible.length === 0 ? (
 						<p className="text-sm text-muted-foreground">
 							{query ? m.noMatchingLines() : running ? m.transcriptWillDisplayedShortly() : job.status === 'queued' ? m.loading() : ''}
 						</p>
-					)}
+					) : null}
 
 					<div ref={listRef} className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
 						{rowVirtualizer.getVirtualItems().map((virtualRow) => {

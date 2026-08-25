@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use tauri::{AppHandle, Emitter, Listener, Manager};
+use tauri::{AppHandle, Emitter, Listener};
 
 use crate::error::LogError;
 use crate::ffmpeg::{get_local_time, random_string};
@@ -131,15 +131,27 @@ where
     peak.min(1.0)
 }
 
+fn best_raw_capture(wav_paths: &[(PathBuf, u32)]) -> Option<PathBuf> {
+    wav_paths
+        .iter()
+        .max_by_key(|(_, samples)| *samples)
+        .map(|(path, _)| path.clone())
+}
+
+fn remove_recording_intermediates(paths: impl IntoIterator<Item = PathBuf>, keep: &PathBuf) {
+    for path in paths {
+        if path != *keep && path.exists() {
+            std::fs::remove_file(path).map_err(|e| eyre!("{e:?}")).log_error();
+        }
+    }
+}
+
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(
-    app_handle: AppHandle,
-    devices: Vec<AudioDevice>,
-    store_in_documents: bool,
-    custom_path: Option<String>,
-    recording_name: Option<String>,
-) -> Result<()> {
+pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, recording_name: Option<String>) -> Result<()> {
+    if devices.is_empty() {
+        bail!("At least one audio device is required");
+    }
     let host = cpal::default_host();
 
     let mut wav_paths: Vec<(PathBuf, u32)> = Vec::new();
@@ -201,20 +213,39 @@ pub async fn start_record(
             }
         }
 
-        let dst = if wav_paths.len() == 1 {
-            wav_paths[0].0.clone()
-        } else if wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
+        let Some(best_raw) = best_raw_capture(&wav_paths) else {
+            tracing::error!("Recording stopped without any capture files");
+            app_handle_clone
+                .emit(
+                    "record_error",
+                    json!({"message": "Recording stopped without any captured audio"}),
+                )
+                .map_err(|e| eyre!("{e:?}"))
+                .log_error();
+            crate::meeting_prompt::recording_stopped(&app_handle_clone);
+            return;
+        };
+
+        let (dst, mut warning) = if wav_paths.len() > 1 && wav_paths[0].1 > 0 && wav_paths[1].1 > 0 {
             let dst = get_vibe_temp_folder().join(format!("{}.wav", random_string(10)));
             tracing::debug!("Merging WAV files");
-            crate::ffmpeg::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()).map_err(|e| eyre!("{e:?}")).log_error();
-            dst
-        } else if wav_paths[0].1 > wav_paths[1].1 {
-            // First WAV file has a larger sample count, choose it
-            wav_paths[0].0.clone()
+            match crate::ffmpeg::merge_wav_files(wav_paths[0].0.clone(), wav_paths[1].0.clone(), dst.clone()) {
+                Ok(()) if dst.is_file() => (dst, None),
+                Ok(()) => {
+                    std::fs::remove_file(&dst).ok();
+                    let message = "Audio merge produced no output; preserving the best raw capture".to_string();
+                    tracing::error!("{message}");
+                    (best_raw, Some(message))
+                }
+                Err(error) => {
+                    std::fs::remove_file(&dst).ok();
+                    let message = format!("Audio merge failed; preserving the best raw capture: {error:#}");
+                    tracing::error!("{message}");
+                    (best_raw, Some(message))
+                }
+            }
         } else {
-            // Second WAV file has a larger sample count or both have non-positive sample counts,
-            // choose the second WAV file or fallback to the first one
-            wav_paths[1].0.clone()
+            (best_raw, None)
         };
 
         tracing::debug!("Emitting record_finish event");
@@ -224,62 +255,48 @@ pub async fn start_record(
             .filter(|name| !name.is_empty())
             .unwrap_or_else(get_local_time);
         let temp_dir = get_vibe_temp_folder();
-        let mut normalized = crate::cmd::files::available_path(&temp_dir, &recording_stem, "wav");
-        crate::ffmpeg::normalize(dst.clone(), normalized.clone(), None).map_err(|e| eyre!("{e:?}")).log_error();
-
-        if store_in_documents {
-            if normalized.file_name().is_some() {
-                let save_dir = if let Some(ref cp) = custom_path {
-                    Some(PathBuf::from(cp))
-                } else {
-                    app_handle_clone.path().document_dir().map(|d| d.join(crate::config::DOCUMENTS_SUBFOLDER)).map_err(|e| eyre!("{e:?}")).log_error()
+        let normalized = crate::cmd::files::available_path(&temp_dir, &recording_stem, "wav");
+        let output = match crate::ffmpeg::normalize(dst.clone(), normalized.clone(), None) {
+            Ok(()) if normalized.is_file() => normalized,
+            result => {
+                std::fs::remove_file(&normalized).ok();
+                let detail = match result {
+                    Ok(()) => "normalization produced no output".to_string(),
+                    Err(error) => format!("{error:#}"),
                 };
-                if let Some(save_dir) = save_dir {
-                    if std::fs::create_dir_all(&save_dir)
-                        .context("Failed to create recording directory")
-                        .map_err(|e| eyre!("{e:?}"))
-                        .is_ok()
-                    {
-                        let target_path = crate::cmd::files::available_path(&save_dir, &recording_stem, "wav");
-                        let moved = std::fs::rename(&normalized, &target_path)
-                            .context("Failed to move file to directory")
-                            .map_err(|e| eyre!("{e:?}"))
-                            .is_ok();
-                        let copied = if moved {
-                            false
-                        } else {
-                            // Cross-filesystem moves can fail; copy as fallback.
-                            std::fs::copy(&normalized, &target_path)
-                                .context("Failed to copy file to directory")
-                                .map_err(|e| eyre!("{e:?}"))
-                                .is_ok()
-                        };
+                let message = format!("Audio normalization failed; preserving the unnormalized capture: {detail}");
+                tracing::error!("{message}");
+                warning = Some(match warning {
+                    Some(previous) => format!("{previous}; {message}"),
+                    None => message,
+                });
 
-                        if moved || copied {
-                            if copied {
-                                std::fs::remove_file(&normalized).map_err(|e| eyre!("{e:?}")).log_error();
-                            }
-                            normalized = target_path;
-                        }
-                    }
+                let recovery = crate::cmd::files::available_path(&temp_dir, &recording_stem, "wav");
+                if dst != recovery && std::fs::rename(&dst, &recovery).is_ok() {
+                    recovery
+                } else {
+                    dst.clone()
                 }
-            } else {
-                tracing::error!("Failed to retrieve file name from destination path");
             }
-        }
+        };
 
-        // Clean files
-        for (path, _) in wav_paths {
-            if path.exists() {
-                std::fs::remove_file(path).map_err(|e| eyre!("{e:?}")).log_error();
-            }
-        }
-        app_handle_clone.emit(
-            "record_finish",
-            json!({"path": normalized.to_string_lossy(), "name": normalized.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default()}),
-        ).map_err(|e| eyre!("{e:?}")).log_error();
+        let intermediates = wav_paths.into_iter().map(|(path, _)| path).chain(std::iter::once(dst));
+        remove_recording_intermediates(intermediates, &output);
+        app_handle_clone
+            .emit(
+                "record_finish",
+                json!({
+                    "path": output.to_string_lossy(),
+                    "name": output.file_name().map(|n| n.to_str().unwrap_or_default()).unwrap_or_default(),
+                    "warning": warning,
+                }),
+            )
+            .map_err(|e| eyre!("{e:?}"))
+            .log_error();
+        crate::meeting_prompt::recording_stopped(&app_handle_clone);
     });
 
+    crate::meeting_prompt::recording_started(&app_handle);
     Ok(())
 }
 
@@ -375,5 +392,18 @@ where
                 writer.write_sample(sample).ok();
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::best_raw_capture;
+    use std::path::PathBuf;
+
+    #[test]
+    fn recovery_prefers_the_capture_with_the_most_samples() {
+        let captures = vec![(PathBuf::from("short.wav"), 12), (PathBuf::from("long.wav"), 42)];
+        assert_eq!(best_raw_capture(&captures), Some(PathBuf::from("long.wav")));
+        assert_eq!(best_raw_capture(&[]), None);
     }
 }

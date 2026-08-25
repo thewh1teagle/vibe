@@ -1,12 +1,10 @@
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { Bot, FileJson } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
-import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { Switch } from '~/components/ui/switch'
 import { ClaudeCodeMark, CodexMark } from '~/components/agent-marks'
-import { ActionRow, SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
-import { STARTER_PROMPT } from '~/lib/skill'
+import { ActionRow, SettingsGroup, SettingsNote, SettingsRow, type SettingsViewModel } from './shared'
 
 export function ApiSection({ vm }: { vm: SettingsViewModel }) {
 	const apiDocsUrl = vm.apiBaseUrl ? `${vm.apiBaseUrl}/docs` : null
@@ -32,7 +30,6 @@ export function ApiSection({ vm }: { vm: SettingsViewModel }) {
 					disabled={!apiDocsUrl}
 					onClick={() => (apiDocsUrl ? openUrl(apiDocsUrl) : null)}
 				/>
-				<ActionRow label={m.copyCurlExample()} icon={<CopyIcon className="h-4 w-4" />} disabled={!vm.apiBaseUrl} onClick={vm.copyCurlExample} />
 				<ActionRow label={m.copyAgentSkill()} icon={<Bot className="h-4 w-4" />} disabled={!vm.apiBaseUrl} onClick={vm.copyAgentSkill} />
 			</SettingsGroup>
 
@@ -46,12 +43,9 @@ export function ApiSection({ vm }: { vm: SettingsViewModel }) {
 					onClick={() => vm.installAgentSkill('claude')}
 				/>
 				<ActionRow label={m.installSkillCodex()} icon={<CodexMark />} disabled={!vm.apiBaseUrl} onClick={() => vm.installAgentSkill('codex')} />
-				<ActionRow
-					label={<code className="font-mono text-xs">{STARTER_PROMPT}</code>}
-					description={m.starterPromptDescription()}
-					icon={<CopyIcon className="h-4 w-4" />}
-					onClick={vm.copyStarterPrompt}
-				/>
+				<SettingsNote>
+					<span className="italic">{m.agentPromptHint()}</span>
+				</SettingsNote>
 			</SettingsGroup>
 
 			{/* The settings file is the other half of the agent story: it works whether or not the API runs. */}

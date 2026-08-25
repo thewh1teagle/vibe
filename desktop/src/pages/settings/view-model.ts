@@ -20,7 +20,7 @@ import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/use-store-value'
 import { collectLogs, getPrettyVersion } from '~/lib/logs'
 import { cleanupPartialDownloads, isModelFileUsable, listInstalledModels, type InstalledModel, type ModelMetadata } from '~/lib/model'
-import { STARTER_PROMPT, buildSkill, installSkill, type SkillTarget } from '~/lib/skill'
+import { buildSkill, installSkill, type SkillTarget } from '~/lib/skill'
 
 export interface GpuDevice {
 	index: number
@@ -103,7 +103,7 @@ export function viewModel() {
 	const [models, setModels] = useState<NamedPath[]>([])
 	const [corruptModels, setCorruptModels] = useState<InstalledModel[]>([])
 	const [appVersion, setAppVersion] = useState('')
-	const [defaultRecordingPath, setDefaultRecordingPath] = useState<string>('')
+	const [defaultProjectsPath, setDefaultProjectsPath] = useState<string>('')
 	const preference = usePreferenceProvider()
 	const listenersRef = useRef<UnlistenFn[]>([])
 	const [downloadURL, setDownloadURL] = useState('')
@@ -268,15 +268,15 @@ export function viewModel() {
 		preference.setModelPath(modelPath)
 	}
 
-	async function changeRecordingPath() {
+	async function changeProjectsPath() {
 		const path = await open({ directory: true, multiple: false })
 		if (path) {
-			preference.setCustomRecordingPath(path)
+			preference.setProjectsPath(path)
 		}
 	}
 
-	async function resetRecordingPath() {
-		preference.setCustomRecordingPath(null)
+	async function resetProjectsPath() {
+		preference.setProjectsPath(null)
 	}
 
 	async function changeModelsFolder() {
@@ -327,14 +327,6 @@ export function viewModel() {
 		}
 	}
 
-	async function copyCurlExample() {
-		if (!apiBaseUrl) return
-		const snippet = `curl ${apiBaseUrl}/v1/audio/transcriptions \\
-  -F "file=@/path/to/audio.mp3"`
-		await clipboard.writeText(snippet)
-		toast.success('cURL example copied to clipboard')
-	}
-
 	async function copyAgentSkill() {
 		if (!apiBaseUrl) return
 		try {
@@ -356,12 +348,6 @@ export function viewModel() {
 			console.error('failed to install the agent skill:', error)
 			toast.error(String(error))
 		}
-	}
-
-	/** The starter line a user pastes into a terminal once the skill is installed. */
-	async function copyStarterPrompt() {
-		await clipboard.writeText(STARTER_PROMPT)
-		toast.success(m.starterPromptCopied())
 	}
 
 	/** Show the settings file in the file manager, so it can be opened, edited or handed to an agent. */
@@ -395,7 +381,7 @@ export function viewModel() {
 		refreshApiServerStatus()
 		loadGpuDevices()
 		onWindowFocus()
-		invoke<string>('get_default_recording_path').then(setDefaultRecordingPath).catch(console.error)
+		invoke<string>('get_default_projects_path').then(setDefaultProjectsPath).catch(console.error)
 		return () => {
 			listenersRef.current.forEach((unlisten) => unlisten())
 		}
@@ -441,10 +427,8 @@ export function viewModel() {
 		startApiServer,
 		stopApiServer,
 		refreshApiServerStatus,
-		copyCurlExample,
 		copyAgentSkill,
 		installAgentSkill,
-		copyStarterPrompt,
 		revealConfigFile,
 		preference: preference,
 		askAndReset,
@@ -461,9 +445,9 @@ export function viewModel() {
 		loadModels,
 		selectModel,
 		changeModelsFolder,
-		changeRecordingPath,
-		resetRecordingPath,
-		defaultRecordingPath,
+		changeProjectsPath,
+		resetProjectsPath,
+		defaultProjectsPath,
 		gpuDevices,
 		isMacOS,
 		llm,

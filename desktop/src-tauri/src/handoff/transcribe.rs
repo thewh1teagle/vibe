@@ -88,7 +88,7 @@ impl HandoffHandler {
 
         // The recording exists nowhere but the phone until this point, so it is
         // kept like any other Vibe recording rather than deleted after use.
-        let (audio_path, audio_bytes) = receive_audio(&self.app_handle, recv, header.filename.as_deref()).await?;
+        let (audio_path, audio_bytes) = receive_audio(recv, header.filename.as_deref()).await?;
         stats.audio_bytes = Some(audio_bytes);
         let saved_path = audio_path.to_string_lossy().to_string();
         tracing::info!("handoff saved phone recording to {}", saved_path);

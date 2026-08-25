@@ -3,7 +3,7 @@
 	"identifier": "default",
 	"description": "default permissions",
 	"local": true,
-	"windows": ["main"],
+	"windows": ["main", "meeting-prompt"],
 	"permissions": [
 		"http:default",
 		"http:allow-fetch",

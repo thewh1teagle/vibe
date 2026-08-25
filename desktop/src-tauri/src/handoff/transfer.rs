@@ -7,7 +7,7 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use eyre::{bail, Context, Result};
+use eyre::{bail, Result};
 use iroh::endpoint::Connection;
 use iroh::protocol::{AcceptError, ProtocolHandler};
 use subtle::ConstantTimeEq;
@@ -221,15 +221,12 @@ async fn read_header(recv: &mut iroh::endpoint::RecvStream) -> Result<HandoffHea
 /// Stream the audio body to a temp file, enforcing the size cap as we go so a
 /// hostile peer can never fill the disk.
 pub(super) async fn receive_audio(
-    app_handle: &tauri::AppHandle,
     recv: &mut iroh::endpoint::RecvStream,
     filename: Option<&str>,
 ) -> Result<(PathBuf, u64), TransferError> {
-    let path = recording_path(app_handle, filename)
+    let (path, file) = reserve_recording_file(filename)
         .map_err(|error| TransferError::new("internal_error", format!("failed to pick a save path: {error:#}")))?;
-    let mut file = tokio::fs::File::create(&path)
-        .await
-        .map_err(|error| TransferError::new("internal_error", format!("failed to create recording file: {error}")))?;
+    let mut file = tokio::fs::File::from_std(file);
 
     let mut buffer = vec![0u8; 64 * 1024];
     let mut total: u64 = 0;
@@ -280,34 +277,30 @@ fn audio_extension(filename: Option<&str>) -> String {
         .to_lowercase()
 }
 
-/// Where to save an incoming phone recording: `~/Documents/Vibe`, the same
-/// folder `cmd::files::get_default_recording_path` hands the frontend.
+/// Stage an incoming phone recording in Vibe's temp folder until the frontend
+/// moves it into its project. This keeps a completed transfer available while
+/// avoiding a second permanent copy outside the project.
 ///
 /// The name is timestamped so recordings sort chronologically, and a numeric
 /// suffix is added rather than overwriting an existing file.
-fn recording_path(app_handle: &tauri::AppHandle, filename: Option<&str>) -> Result<PathBuf> {
-    let folder = app_handle
-        .path()
-        .document_dir()
-        .map_err(|error| eyre::eyre!("failed to resolve documents dir: {error:?}"))?
-        .join(crate::config::DOCUMENTS_SUBFOLDER);
-    std::fs::create_dir_all(&folder).with_context(|| format!("failed to create {}", folder.display()))?;
-
+fn reserve_recording_file(filename: Option<&str>) -> Result<(PathBuf, std::fs::File)> {
+    let folder = crate::ffmpeg::get_vibe_temp_folder();
     let extension = audio_extension(filename);
     let stem = format!("phone-{}", chrono::Local::now().format("%Y-%m-%d-%H-%M-%S"));
+    reserve_recording_file_in(&folder, &stem, &extension)
+}
 
-    let candidate = folder.join(format!("{stem}.{extension}"));
-    if !candidate.exists() {
-        return Ok(candidate);
-    }
-    // Two recordings can land in the same second; never clobber the earlier one.
-    for suffix in 1..1000 {
-        let candidate = folder.join(format!("{stem}-{suffix}.{extension}"));
-        if !candidate.exists() {
-            return Ok(candidate);
+fn reserve_recording_file_in(folder: &std::path::Path, stem: &str, extension: &str) -> Result<(PathBuf, std::fs::File)> {
+    for suffix in 0..1000 {
+        let suffix = if suffix == 0 { String::new() } else { format!("-{suffix}") };
+        let candidate = folder.join(format!("{stem}{suffix}.{extension}"));
+        match std::fs::OpenOptions::new().write(true).create_new(true).open(&candidate) {
+            Ok(file) => return Ok((candidate, file)),
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(error) => bail!("failed to reserve {}: {error}", candidate.display()),
         }
     }
-    bail!("could not find a free filename for {}", candidate.display())
+    bail!("could not reserve a free phone recording filename in {}", folder.display())
 }
 
 #[cfg(test)]
@@ -325,5 +318,35 @@ mod tests {
         assert_eq!(audio_extension(Some("../../etc/passwd")), "m4a");
         assert_eq!(audio_extension(Some("x.verylongextension")), "m4a");
         assert_eq!(audio_extension(Some("x.m4a/../..")), "m4a");
+    }
+
+    #[test]
+    fn phone_recordings_are_staged_in_vibe_temp() {
+        let (path, file) = reserve_recording_file(Some("phone-recording.wav")).expect("temp recording path");
+        drop(file);
+
+        assert_eq!(path.parent(), Some(crate::ffmpeg::get_vibe_temp_folder().as_path()));
+        assert_eq!(path.extension().and_then(|ext| ext.to_str()), Some("wav"));
+        assert!(path
+            .file_stem()
+            .and_then(|stem| stem.to_str())
+            .unwrap_or_default()
+            .starts_with("phone-"));
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn simultaneous_phone_recordings_are_reserved_without_clobbering() {
+        let folder = std::env::temp_dir().join(format!("vibe-handoff-test-{}", crate::ffmpeg::random_string(12)));
+        std::fs::create_dir(&folder).unwrap();
+
+        let (first_path, first_file) = reserve_recording_file_in(&folder, "phone-same-second", "m4a").unwrap();
+        let (second_path, second_file) = reserve_recording_file_in(&folder, "phone-same-second", "m4a").unwrap();
+        drop((first_file, second_file));
+
+        assert_ne!(first_path, second_path);
+        assert!(first_path.exists());
+        assert!(second_path.exists());
+        std::fs::remove_dir_all(folder).unwrap();
     }
 }

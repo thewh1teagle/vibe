@@ -11,10 +11,16 @@ export interface Summaries {
 	enabled: boolean
 	/** Job ids currently waiting on the model. */
 	pending: Record<string, boolean>
-	summarize: (job: Job, prompt?: string) => Promise<void>
+	/** Last failure for a job; cleared as soon as a retry begins. */
+	errors: Record<string, string>
+	summarize: (job: Job, prompt?: string) => Promise<boolean>
 	/** Job whose summary arrived on its own, so the view can switch to it once. */
 	autoSummarized: string | null
 	clearAutoSummarized: () => void
+}
+
+export function shouldAutoSummarize(job: Pick<Job, 'status' | 'hydrated' | 'summary' | 'segments'>, previousStatus?: Job['status']) {
+	return previousStatus !== undefined && previousStatus !== 'done' && job.status === 'done' && !job.hydrated && !job.summary && job.segments.length > 0
 }
 
 /**
@@ -26,8 +32,12 @@ export function useSummaries(queue: TranscribeQueue): Summaries {
 	const preference = usePreferenceProvider()
 	const [pending, setPending] = useState<Record<string, boolean>>({})
 	const [autoSummarized, setAutoSummarized] = useState<string | null>(null)
-	// Jobs already handed to the model once, so a failure does not retry forever.
-	const attempted = useRef<Set<string>>(new Set())
+	const [errors, setErrors] = useState<Record<string, string>>({})
+	// State updates are not synchronous; this set closes the gap where two callers can start the
+	// same job before `pending` renders.
+	const inFlight = useRef<Set<string>>(new Set())
+	const autoAttempted = useRef<Set<string>>(new Set())
+	const previousStatuses = useRef<Map<string, Job['status']>>(new Map())
 
 	const config = preference.llmConfig
 	const enabled = Boolean(config?.enabled && config.prompt?.includes('%s'))
@@ -42,23 +52,36 @@ export function useSummaries(queue: TranscribeQueue): Summaries {
 	const summarize = useCallback(
 		async (job: Job, prompt?: string) => {
 			const template = prompt ?? config?.prompt
-			if (!llm || !template || !job.segments.length) return
+			if (!llm || !template || !job.segments.length || inFlight.current.has(job.id)) return false
+			inFlight.current.add(job.id)
 			setPending((previous) => ({ ...previous, [job.id]: true }))
+			setErrors((previous) => {
+				const next = { ...previous }
+				delete next[job.id]
+				return next
+			})
 			try {
 				const question = template.replace('%s', asText(job.segments, m.speakerPrefix()))
-				const answer = llm.ask(question)
+				const answer = llm.ask(question).then((value) => {
+					const text = value?.trim()
+					if (!text) throw new Error(m.summaryFailed())
+					return text
+				})
 				toast.promise(answer, {
 					loading: m.summarizeLoading(),
-					error: (error) => String(error),
+					error: m.summaryFailed(),
 					success: m.summarizeSuccess(),
 					position: 'bottom-center',
 				})
-				const text = (await answer)?.trim()
-				if (text) queue.setJobSummary(job.id, text)
-				return
+				const text = await answer
+				queue.setJobSummary(job.id, text)
+				return true
 			} catch (error) {
 				console.error('summarize failed:', error)
+				setErrors((previous) => ({ ...previous, [job.id]: String(error) }))
+				return false
 			} finally {
+				inFlight.current.delete(job.id)
 				setPending((previous) => {
 					const next = { ...previous }
 					delete next[job.id]
@@ -69,18 +92,32 @@ export function useSummaries(queue: TranscribeQueue): Summaries {
 		[config?.prompt, llm, queue],
 	)
 
-	// Auto-run for transcriptions produced in this session.
+	// Auto-run only on a real status transition in this session. Turning the setting on later must
+	// not sweep over already-finished work, and hydrated projects are always manual-only.
 	useEffect(() => {
-		if (!enabled) return
+		const completed: Job[] = []
+		const liveIds = new Set<string>()
 		for (const job of queue.jobs) {
-			if (job.status !== 'done' || job.hydrated || job.summary || !job.segments.length) continue
-			if (attempted.current.has(job.id) || pending[job.id]) continue
-			attempted.current.add(job.id)
-			void summarize(job).then(() => setAutoSummarized(job.id))
+			liveIds.add(job.id)
+			const previous = previousStatuses.current.get(job.id)
+			if (shouldAutoSummarize(job, previous)) completed.push(job)
+			previousStatuses.current.set(job.id, job.status)
 		}
-	}, [enabled, pending, queue.jobs, summarize])
+		for (const id of previousStatuses.current.keys()) {
+			if (!liveIds.has(id)) previousStatuses.current.delete(id)
+		}
+
+		if (!enabled || !preference.autoSummarizeOnFinish) return
+		for (const job of completed) {
+			if (autoAttempted.current.has(job.id)) continue
+			autoAttempted.current.add(job.id)
+			void summarize(job).then((succeeded) => {
+				if (succeeded) setAutoSummarized(job.id)
+			})
+		}
+	}, [enabled, preference.autoSummarizeOnFinish, queue.jobs, summarize])
 
 	const clearAutoSummarized = useCallback(() => setAutoSummarized(null), [])
 
-	return { enabled, pending, summarize, autoSummarized, clearAutoSummarized }
+	return { enabled, pending, errors, summarize, autoSummarized, clearAutoSummarized }
 }

@@ -62,8 +62,6 @@ export function useRecording(onBeforeStart: () => void) {
 		try {
 			await invoke('start_record', {
 				devices: selectedDevices,
-				storeInDocuments: preference.storeRecordInDocuments,
-				customPath: preference.customRecordingPath,
 				recordingName: recordingName.trim() || null,
 			})
 		} catch (error) {

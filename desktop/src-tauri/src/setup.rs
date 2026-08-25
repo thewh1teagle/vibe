@@ -164,6 +164,9 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         crate::dictation_indicator::initialize(app.handle());
+        if let Err(error) = crate::meeting_prompt::initialize(app.handle()) {
+            tracing::error!("could not initialize meeting prompt: {error}");
+        }
     }
     // Bring phone handoff back up if the user had it on. Returns immediately and binds
     // in the background, so an offline or slow network never delays launch.

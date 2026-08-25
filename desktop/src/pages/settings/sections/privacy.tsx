@@ -15,7 +15,7 @@ export function PrivacySection({ vm }: { vm: SettingsViewModel }) {
 					clampDescription={false}>
 					<Switch checked={vm.preference.analyticsEnabled} onCheckedChange={vm.preference.setAnalyticsEnabled} />
 				</SettingsRow>
-				<SettingsRow label={m.saveTranscriptsToDocuments()} description={m.saveTranscriptsToDocumentsInfo()}>
+				<SettingsRow label={m.saveProjects()} description={m.saveProjectsInfo()}>
 					<Switch checked={vm.preference.saveTranscripts} onCheckedChange={vm.preference.setSaveTranscripts} />
 				</SettingsRow>
 			</SettingsGroup>

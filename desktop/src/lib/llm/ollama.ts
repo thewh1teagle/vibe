@@ -7,7 +7,8 @@ curl http://localhost:11434/api/generate -d '{
 }'
 */
 import { fetch } from '@tauri-apps/plugin-http'
-import { Llm, type LlmConfig } from './index'
+import type { Llm, LlmConfig } from './index'
+import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MAX_TOKENS, outputTokensForContext } from './context'
 
 export function defaultConfig(language = 'English') {
 	return {
@@ -16,9 +17,23 @@ export function defaultConfig(language = 'English') {
 		ollamaBaseUrl: 'http://localhost:11434',
 		platform: 'ollama',
 		prompt: `Output only the requested content. No introductions, explanations, or commentary.\n\nWrite a concise summary of this transcript in ${language} using markdown. Include:\n- A short overview paragraph\n- 3-5 key takeaways as bullet points\n- Action items as a checklist if there are any\n\n"""\n%s\n"""`,
-
+		contextTokens: DEFAULT_CONTEXT_TOKENS,
+		maxTokens: DEFAULT_MAX_TOKENS,
 		claudeApiKey: '',
 	} satisfies LlmConfig
+}
+
+export function ollamaRequestBody(config: LlmConfig, prompt: string) {
+	const contextTokens = config.contextTokens ?? DEFAULT_CONTEXT_TOKENS
+	return {
+		model: config.model,
+		prompt,
+		stream: false,
+		options: {
+			num_ctx: contextTokens,
+			num_predict: outputTokensForContext(contextTokens, config.maxTokens ?? DEFAULT_MAX_TOKENS),
+		},
+	}
 }
 
 export class Ollama implements Llm {
@@ -29,11 +44,7 @@ export class Ollama implements Llm {
 	}
 
 	async ask(prompt: string): Promise<string> {
-		const body = JSON.stringify({
-			model: this.config.model,
-			prompt,
-			stream: false,
-		})
+		const body = JSON.stringify(ollamaRequestBody(this.config, prompt))
 		const response = await fetch(`${this.config.ollamaBaseUrl}/api/generate`, {
 			method: 'POST',
 			headers: {

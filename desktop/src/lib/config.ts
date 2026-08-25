@@ -55,8 +55,7 @@ export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/do
  * finds this file missing and offers the download. Deleting the stale 492 MB file is left to them.
  */
 export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.q8_0.gguf'
-export const diarizeModelUrl =
-	'https://huggingface.co/vibe-app/diar-streaming-sortformer-4spk-v2-gguf/resolve/main/diar_streaming_sortformer_4spk-v2.q8_0.gguf'
+export const diarizeModelUrl = 'https://huggingface.co/vibe-app/diar-streaming-sortformer-4spk-v2-gguf/resolve/main/diar_streaming_sortformer_4spk-v2.q8_0.gguf'
 export const diarizeModelIntegrity: ModelIntegrity = {
 	size: 147075776,
 	sha256: '0679cfeb1ce356d0dea9470b31274f4bfc7eb927497d82005483770666da998a',
@@ -85,6 +84,7 @@ export function ytDlpDownloadUrl(version: string, key: string): string {
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm', 'mxf']
 export const audioExtensions = ['mp3', 'wav', 'aac', 'flac', 'oga', 'ogg', 'opic', 'opus', 'm4a', 'm4b', 'wma']
 export const themes = ['light', 'dark']
+export const defaultAutoSummarizeOnFinish = false
 
 /**
  * Default dictation shortcut: Option+Space on macOS, Ctrl+Space elsewhere. Resolved on call rather
@@ -94,4 +94,9 @@ export const themes = ['light', 'dark']
 export function getDefaultHotkeyShortcut() {
 	const isMac = navigator.platform.toUpperCase().includes('MAC')
 	return isMac ? 'Alt+Space' : 'Ctrl+Space'
+}
+
+/** Global recording uses one portable accelerator on every desktop platform. */
+export function getDefaultRecordingShortcut() {
+	return 'CmdOrCtrl+Shift+R'
 }

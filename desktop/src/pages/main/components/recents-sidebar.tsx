@@ -316,15 +316,15 @@ function SessionRow({ job, active, onOpen }: { job: Job; active: boolean; onOpen
 }
 
 export default function RecentsSidebar() {
-	const { queue, startNew } = useSession()
+	const { queue, startNew, preference } = useSession()
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 	const { width, dragging, handleProps } = useResizableWidth()
 	const [entries, setEntries] = useState<TranscriptEntry[]>([])
 	const [query, setQuery] = useState('')
 
 	const refresh = useCallback(() => {
-		void listTranscripts().then(setEntries)
-	}, [])
+		void listTranscripts(preference.projectsPath).then(setEntries)
+	}, [preference.projectsPath])
 
 	useEffect(() => {
 		refresh()
@@ -348,8 +348,11 @@ export default function RecentsSidebar() {
 	async function open(entry: TranscriptEntry) {
 		const record = await readTranscript(entry.path)
 		if (!record) return
+		// The folder entry is the canonical project title. Older records may still contain the
+		// original media extension even though the sidebar and project folder do not.
+		const projectRecord = record.name === entry.name ? record : { ...record, name: entry.name }
 		// Resolved here rather than in the queue so `hydrate` stays synchronous.
-		queue.hydrate(record, entry.path, await resolveProjectAudio(entry.path, record))
+		queue.hydrate(projectRecord, entry.path, await resolveProjectAudio(entry.path, record))
 	}
 
 	return (
@@ -406,7 +409,7 @@ export default function RecentsSidebar() {
 					filtered.map((entry) => (
 						<RecentRow
 							key={entry.path}
-							entry={entry}
+							entry={entry.path === activePath && queue.selectedJob ? { ...entry, name: queue.selectedJob.name } : entry}
 							active={entry.path === activePath}
 							// Loading another transcript mid-run would fight the queue for the view.
 							disabled={queue.running}

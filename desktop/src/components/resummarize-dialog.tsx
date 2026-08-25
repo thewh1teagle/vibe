@@ -54,7 +54,7 @@ export default function ResummarizeDialog({ onSubmit, loading, open: openProp, o
 			)}
 			<DialogContent className="max-w-lg rounded-2xl border-border/60 bg-card/95 p-6 shadow-xl">
 				<DialogHeader>
-					<DialogTitle className="text-lg font-semibold">{m.resummarize()}</DialogTitle>
+					<DialogTitle className="text-lg font-semibold">{m.customizeSummary()}</DialogTitle>
 				</DialogHeader>
 				<div className="space-y-4 pt-2">
 					<div className="flex flex-wrap gap-1.5">
@@ -79,7 +79,7 @@ export default function ResummarizeDialog({ onSubmit, loading, open: openProp, o
 					</div>
 
 					<Button onMouseDown={handleSubmit} disabled={!isValid || loading} className="w-full">
-						{loading ? m.summarizeLoading() : m.resummarize()}
+						{loading ? m.summarizeLoading() : m.summarizeTranscript()}
 					</Button>
 				</div>
 			</DialogContent>

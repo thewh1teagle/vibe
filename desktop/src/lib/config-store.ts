@@ -68,6 +68,13 @@ export function writeConfig<T>(key: string, value: T) {
 	void store?.set(key, value)
 }
 
+/** Remove a setting from both the live cache and the persisted config file. */
+export function deleteConfig(key: string) {
+	cache.delete(key)
+	notify(key)
+	void store?.delete(key)
+}
+
 function subscribe(key: string, listener: () => void) {
 	const existing = listeners.get(key) ?? new Set<() => void>()
 	existing.add(listener)

@@ -109,9 +109,20 @@ function SummaryMenu({ job, tab, setTab }: { job: Job | null; tab: TranscriptTab
 	const [promptOpen, setPromptOpen] = useState(false)
 
 	const summarizing = job ? Boolean(summaries.pending[job.id]) : false
+	const summaryError = job ? summaries.errors[job.id] : undefined
 	const hasSummary = Boolean(job?.summary)
 	const hasText = (job?.segments.length ?? 0) > 0
 	const canSummarize = summaries.enabled && hasText && job?.status !== 'running'
+	const actionLabel =
+		!canSummarize && hasSummary
+			? m.summaryTab()
+			: summarizing
+				? m.summarizeLoading()
+				: summaryError
+					? m.retrySummary()
+					: hasSummary
+						? m.regenerateSummary()
+						: m.summarizeTranscript()
 
 	// Nothing to offer: the feature is off in settings and this transcript has no summary either.
 	if (!canSummarize && !hasSummary) return null
@@ -127,12 +138,13 @@ function SummaryMenu({ job, tab, setTab }: { job: Job | null; tab: TranscriptTab
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<PopoverTrigger asChild>
-							<Button variant="ghost" size="sm" className="rounded-full px-3 text-[13px] font-medium" aria-label={m.processWithLlm()}>
+							<Button variant="ghost" size="sm" className="rounded-full px-3 text-[13px] font-medium" aria-label={actionLabel}>
 								{summarizing ? <Spinner className="h-3.5 w-3.5" /> : <NotebookPen className="h-3.5 w-3.5" />}
+								{actionLabel}
 							</Button>
 						</PopoverTrigger>
 					</TooltipTrigger>
-					<TooltipContent>{m.processWithLlm()}</TooltipContent>
+					<TooltipContent>{actionLabel}</TooltipContent>
 				</Tooltip>
 				<PopoverContent align="end" className="w-64 rounded-2xl p-4">
 					<p className="mb-2 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.processWithLlm()}</p>
@@ -163,7 +175,7 @@ function SummaryMenu({ job, tab, setTab }: { job: Job | null; tab: TranscriptTab
 									onClick={() => run()}
 									className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm text-foreground transition-colors duration-150 hover:bg-muted/70 disabled:pointer-events-none disabled:opacity-50">
 									<Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
-									{hasSummary ? m.resummarize() : m.processWithLlm()}
+									{summaryError ? m.retrySummary() : hasSummary ? m.regenerateSummary() : m.summarizeTranscript()}
 								</button>
 							)}
 							{canSummarize && (
@@ -176,9 +188,10 @@ function SummaryMenu({ job, tab, setTab }: { job: Job | null; tab: TranscriptTab
 									}}
 									className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-start text-sm text-foreground transition-colors duration-150 hover:bg-muted/70 disabled:pointer-events-none disabled:opacity-50">
 									<Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-									{m.llmPrompt()}
+									{m.customizeSummary()}
 								</button>
 							)}
+							{summaryError && <p className="px-2 pt-1 text-xs text-destructive">{m.summaryFailed()}</p>}
 						</div>
 					</div>
 				</PopoverContent>
@@ -241,6 +254,10 @@ export default function TranscriptToolbar({
 	function closeSearch() {
 		setSearching(false)
 		setQuery('')
+	}
+
+	async function saveExport() {
+		if (await exporter.save()) setExportOpen(false)
 	}
 
 	const hasText = (job?.segments.length ?? 0) > 0
@@ -344,7 +361,7 @@ export default function TranscriptToolbar({
 				direction={preference.textAreaDirection}
 				theme={preference.theme}
 				onCopy={exporter.copy}
-				onSave={exporter.save}
+				onSave={saveExport}
 			/>
 		</>
 	)

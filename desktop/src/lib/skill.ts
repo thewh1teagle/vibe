@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { fetch as tauriFetch } from '@tauri-apps/plugin-http'
 import * as config from './config'
 import { CONFIG_KEYS } from './config-keys'
+import { readConfig } from './config-store'
 import { transcriptsFolder } from './transcripts-store'
 
 /** Executables an agent can drive, as resolved by `cmd::skill::get_agent_paths`. */
@@ -26,9 +27,6 @@ interface AgentPaths {
 
 /** Agent runtimes we can install the skill for. Must match `cmd::skill::runtime_folder` in Rust. */
 export type SkillTarget = 'claude' | 'codex'
-
-/** Starter line for a freshly installed skill — short enough to paste into any terminal. */
-export const STARTER_PROMPT = 'claude "summarize my latest Vibe transcript"'
 
 export interface SkillContext {
 	/** Base URL of the running local API, baked in at write time. */
@@ -236,7 +234,7 @@ async function skillContext(baseUrl: string): Promise<SkillContext> {
 	return {
 		baseUrl,
 		sonaSkill: await response.text(),
-		transcriptsFolder: await transcriptsFolder().catch(() => null),
+		transcriptsFolder: await transcriptsFolder(readConfig<string | null>(CONFIG_KEYS.projectsPath, null)).catch(() => null),
 		configPath: await invoke<string>('get_config_path').catch(() => null),
 		dictationShortcut: config.getDefaultHotkeyShortcut(),
 		sonaBinary: paths.sona,

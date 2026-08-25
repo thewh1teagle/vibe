@@ -6,14 +6,14 @@ import { m } from '~/paraglide/messages.js'
 import { getLocale } from '~/paraglide/runtime.js'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import * as config from '~/lib/config'
-import { defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig } from '~/lib/llm'
+import { DEFAULT_CONTEXT_TOKENS, defaultClaudeConfig, defaultOllamaConfig, defaultOpenAIConfig } from '~/lib/llm'
 import NumberField from '~/components/number-field'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Switch } from '~/components/ui/switch'
 import { Textarea } from '~/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
-import { ActionRow, IconAction, SettingsField, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
+import { ActionRow, IconAction, SettingsField, SettingsGroup, SettingsNote, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 
 const inlineLinkClass = 'h-6 w-6 rounded-md [&_svg]:size-3.5'
 
@@ -55,6 +55,13 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 			<SettingsGroup>
 				<SettingsRow label={m.processWithLlm()} description={m.infoLlmSummarize()}>
 					<Switch checked={vm.preference.llmConfig?.enabled} onCheckedChange={vm.onEnableLlm} />
+				</SettingsRow>
+				<SettingsRow label={m.autoSummarizeOnFinish()} description={m.autoSummarizeOnFinishInfo()}>
+					<Switch
+						checked={vm.preference.autoSummarizeOnFinish}
+						onCheckedChange={vm.preference.setAutoSummarizeOnFinish}
+						disabled={!vm.preference.llmConfig?.enabled}
+					/>
 				</SettingsRow>
 			</SettingsGroup>
 
@@ -176,26 +183,19 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 					</>
 				)}
 
-				<SettingsRow label={m.maxTokens()} description={m.infoMaxTokens()}>
+				<SettingsRow label={m.contextSize()} description={m.infoContextSize()}>
 					<NumberField
-						aria-label={m.maxTokens()}
-						value={vm.preference.llmConfig?.maxTokens ?? 0}
-						min={256}
-						max={32768}
-						step={256}
-						onChange={(value) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, maxTokens: value })}
+						aria-label={m.contextSize()}
+						value={vm.preference.llmConfig?.contextTokens ?? DEFAULT_CONTEXT_TOKENS}
+						min={8192}
+						max={1_048_576}
+						step={8192}
+						onChange={(value) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, contextTokens: value })}
 					/>
 				</SettingsRow>
-
-				<SettingsField label={m.llmPrompt()} description={m.infoLlmPrompt()}>
-					<Textarea
-						value={vm.preference.llmConfig?.prompt}
-						onChange={(e) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, prompt: e.target.value })}
-						onBlur={vm.validateLlmPrompt}
-						placeholder={m.llmPromptPlaceholder()}
-						className="min-h-24 max-h-60 w-full resize-none overflow-y-auto rounded-lg bg-muted/40 text-sm"
-					/>
-				</SettingsField>
+				<SettingsNote>
+					<span className="italic">{m.contextSizeRuleOfThumb()}</span>
+				</SettingsNote>
 			</SettingsGroup>
 
 			<SettingsGroup>
@@ -224,6 +224,18 @@ export function SummarizeSection({ vm }: { vm: SettingsViewModel }) {
 					<ActionRow label={m.llmCurrentCost()} icon={<LinkIcon className="h-4 w-4" />} onClick={() => openUrl(config.llmCostUrl)} />
 				</SettingsGroup>
 			)}
+
+			<SettingsGroup>
+				<SettingsField label={m.llmPrompt()} description={m.infoLlmPrompt()}>
+					<Textarea
+						value={vm.preference.llmConfig?.prompt}
+						onChange={(e) => vm.preference.setLlmConfig({ ...vm.preference.llmConfig, prompt: e.target.value })}
+						onBlur={vm.validateLlmPrompt}
+						placeholder={m.llmPromptPlaceholder()}
+						className="min-h-[240px] max-h-[640px] w-full resize-y overflow-y-auto rounded-lg bg-muted/40 text-sm"
+					/>
+				</SettingsField>
+			</SettingsGroup>
 		</div>
 	)
 }

@@ -54,16 +54,16 @@ export interface Preference {
 	setModelOptions: ModifyState<ModelOptions>
 	theme: 'light' | 'dark'
 	setTheme: ModifyState<'light' | 'dark'>
-	storeRecordInDocuments: boolean
-	setStoreRecordInDocuments: ModifyState<boolean>
-	customRecordingPath: string | null
-	setCustomRecordingPath: ModifyState<string | null>
+	projectsPath: string | null
+	setProjectsPath: ModifyState<string | null>
 	setLanguageDirections: () => void
 	homeTab: HomeTab
 	setHomeTab: ModifyState<HomeTab>
 
 	llmConfig: LlmConfig
 	setLlmConfig: ModifyState<LlmConfig>
+	autoSummarizeOnFinish: boolean
+	setAutoSummarizeOnFinish: ModifyState<boolean>
 	ffmpegOptions: FfmpegOptions
 	setFfmpegOptions: ModifyState<FfmpegOptions>
 	resetOptions: () => void
@@ -96,9 +96,14 @@ export interface Preference {
 	analyticsEnabled: boolean
 	setAnalyticsEnabled: (value: boolean) => void
 
-	/** Auto-save every finished transcription into Documents/Vibe (powers the Recents sidebar). */
+	/** Auto-save every finished transcription into the projects folder (powers the Recents sidebar). */
 	saveTranscripts: boolean
 	setSaveTranscripts: ModifyState<boolean>
+	/** Offer to start recording when a supported meeting app begins using the microphone. */
+	meetingDetectionEnabled: boolean
+	setMeetingDetectionEnabled: ModifyState<boolean>
+	autoTranscribeAfterRecording: boolean
+	setAutoTranscribeAfterRecording: ModifyState<boolean>
 }
 
 // Create the context
@@ -153,7 +158,6 @@ const defaultOptions = {
 		normalize_loudness: false,
 		custom_command: null,
 	},
-	storeRecordInDocuments: true,
 	llmConfig: defaultOllamaConfig(),
 	ytDlpVersion: null,
 	shouldCheckYtDlpVersion: true,
@@ -184,9 +188,9 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [focusOnFinish, setFocusOnFinish] = usePersisted(CONFIG_KEYS.focusOnFinish, defaultOptions.focusOnFinish)
 	const [modelOptions, setModelOptions] = usePersisted<ModelOptions>(CONFIG_KEYS.modelOptions, defaultOptions.modelOptions)
 	const [ffmpegOptions, setFfmpegOptions] = usePersisted<FfmpegOptions>(CONFIG_KEYS.ffmpegOptions, defaultOptions.ffmpegOptions)
-	const [storeRecordInDocuments, setStoreRecordInDocuments] = usePersisted(CONFIG_KEYS.storeRecordInDocuments, defaultOptions.storeRecordInDocuments)
-	const [customRecordingPath, setCustomRecordingPath] = usePersisted<string | null>(CONFIG_KEYS.customRecordingPath, null)
+	const [projectsPath, setProjectsPath] = usePersisted<string | null>(CONFIG_KEYS.projectsPath, null)
 	const [llmConfig, setLlmConfig] = usePersisted<LlmConfig>(CONFIG_KEYS.llmConfig, defaultOptions.llmConfig)
+	const [autoSummarizeOnFinish, setAutoSummarizeOnFinish] = usePersisted<boolean>(CONFIG_KEYS.autoSummarizeOnFinish, config.defaultAutoSummarizeOnFinish)
 	const [ytDlpVersion, setYtDlpVersion] = usePersisted<string | null>(CONFIG_KEYS.ytDlpVersion, null)
 	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = usePersisted<boolean>(CONFIG_KEYS.shouldCheckYtDlpVersion, true)
 	const [ytDlpLastUpdateCheck, setYtDlpLastUpdateCheck] = usePersisted<number>(CONFIG_KEYS.ytDlpLastUpdateCheck, 0)
@@ -203,6 +207,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [gpuDevice, setGpuDevice] = usePersisted<number | null>(CONFIG_KEYS.gpuDevice, null)
 	const [unloadTimeoutMinutes, setUnloadTimeoutMinutes] = usePersisted<number>(CONFIG_KEYS.unloadTimeoutMinutes, 5)
 	const [saveTranscripts, setSaveTranscripts] = usePersisted<boolean>(CONFIG_KEYS.saveTranscripts, true)
+	const [meetingDetectionEnabled, setMeetingDetectionEnabled] = usePersisted<boolean>(CONFIG_KEYS.meetingDetectionEnabled, false)
+	const [autoTranscribeAfterRecording, setAutoTranscribeAfterRecording] = usePersisted<boolean>(CONFIG_KEYS.autoTranscribeAfterRecording, false)
 
 	const [analyticsEnabled, setAnalyticsEnabledLocal] = useState(true)
 
@@ -306,9 +312,11 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setFocusOnFinish(defaultOptions.focusOnFinish)
 		setModelOptions(defaultOptions.modelOptions)
 		setFfmpegOptions(defaultOptions.ffmpegOptions)
-		setStoreRecordInDocuments(defaultOptions.storeRecordInDocuments)
-		setCustomRecordingPath(null)
+		setProjectsPath(null)
 		setLlmConfig(defaultOptions.llmConfig)
+		setAutoSummarizeOnFinish(config.defaultAutoSummarizeOnFinish)
+		setMeetingDetectionEnabled(false)
+		setAutoTranscribeAfterRecording(false)
 		message(m.successAction())
 	}
 
@@ -323,13 +331,13 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		llmConfig,
 		resetOptions,
 		setLlmConfig,
+		autoSummarizeOnFinish,
+		setAutoSummarizeOnFinish,
 		setLanguageDirections: setLanguageDefaults,
 		modelOptions,
 		setModelOptions,
-		storeRecordInDocuments,
-		setStoreRecordInDocuments,
-		customRecordingPath,
-		setCustomRecordingPath,
+		projectsPath,
+		setProjectsPath,
 		textFormatTranscript,
 		setTextFormatTranscript,
 		textFormatSummary,
@@ -384,6 +392,10 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setAnalyticsEnabled,
 		saveTranscripts,
 		setSaveTranscripts,
+		meetingDetectionEnabled,
+		setMeetingDetectionEnabled,
+		autoTranscribeAfterRecording,
+		setAutoTranscribeAfterRecording,
 	}
 
 	return <PreferenceContext.Provider value={preference}>{children}</PreferenceContext.Provider>

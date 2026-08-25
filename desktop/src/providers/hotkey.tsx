@@ -158,8 +158,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 			await invoke('start_record', {
 				devices: [defaultInput],
-				storeInDocuments: false,
-				customPath: null,
 				recordingName: null,
 			})
 			indicatorSessionRef.current += 1
@@ -196,7 +194,14 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			// first instruction, so stop before spawning it.
 			if (!(await invoke<boolean>('is_avx2_enabled'))) {
 				trackAvx2NotSupported()
-				finishIndicator('error', { message: m.avx2NotSupported() })
+				const message = m.avx2NotSupported()
+				finishIndicator('error', { message })
+				await notify('Vibe', message)
+				// This gate sits before the transcription try/finally, so release the capture state here.
+				isStoppingRef.current = false
+				isHotkeyRecordingRef.current = false
+				hotkeyRecordingActive = false
+				setIsHotkeyRecording(false)
 				return
 			}
 
@@ -275,6 +280,27 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			unlisten.then((fn) => fn())
 		}
 	}, [createLlm, finishIndicator, showIndicator])
+
+	useEffect(() => {
+		const unlisten = listen<string | { message?: string }>('record_error', ({ payload }) => {
+			if (!isHotkeyRecordingRef.current) return
+			const message = typeof payload === 'string' ? payload : payload?.message || m.error()
+			finishIndicator('error', { message })
+			void notify('Vibe', message)
+			// Keep the module flag true for the rest of this event dispatch so SessionProvider knows
+			// this was dictation, then release every dictation state before the next task.
+			queueMicrotask(() => {
+				isStartingRef.current = false
+				isStoppingRef.current = false
+				isHotkeyRecordingRef.current = false
+				hotkeyRecordingActive = false
+				setIsHotkeyRecording(false)
+			})
+		})
+		return () => {
+			unlisten.then((dispose) => dispose())
+		}
+	}, [finishIndicator])
 
 	useEffect(
 		() => () => {
