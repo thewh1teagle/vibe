@@ -10,10 +10,11 @@ import { trackAvx2NotSupported, trackTranscribeCancelled, trackTranscribeFailed,
 import * as config from '~/lib/config'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
+import { autoProjectName } from '~/lib/project-name'
 import { fatalRunError, isUserError } from '~/lib/sona-errors'
 import type { Segment, Transcript } from '~/lib/transcript'
 import { notifyTranscriptsChanged, saveTranscript, updateTranscriptSegments, updateTranscriptSummary, type TranscriptRecord } from '~/lib/transcripts-store'
-import type { NamedPath } from '~/lib/types'
+import type { NamedPath, ProjectSource } from '~/lib/types'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
 
@@ -23,6 +24,8 @@ export interface Job {
 	id: string
 	name: string
 	path: string
+	/** Origin of this newly created project. */
+	source?: ProjectSource
 	status: JobStatus
 	/** 0..100, only meaningful while running */
 	progress: number
@@ -321,8 +324,9 @@ export function useTranscribeQueue(): TranscribeQueue {
 
 			const created: Job[] = accepted.map((file) => ({
 				id: nextJobId(),
-				name: file.name,
+				name: autoProjectName(file.name, file.source ?? 'file'),
 				path: file.path,
+				source: file.source ?? 'file',
 				status: 'queued',
 				progress: 0,
 				segments: [],

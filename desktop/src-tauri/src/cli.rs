@@ -5,6 +5,10 @@ use tauri::AppHandle;
 
 use crate::cmd::sona_cmd::{resolve_ffmpeg_path, resolve_sona_binary};
 
+/// Passed only by the autostart registration. It must not put the app in CLI mode: this is still
+/// the normal GUI application, just without an initially visible window.
+pub const AUTOSTART_ARG: &str = "--hidden";
+
 /// Attach to console if cli detected in Windows
 #[cfg(all(windows, not(debug_assertions)))]
 pub fn attach_console() {
@@ -26,7 +30,20 @@ pub fn attach_console() {
 }
 
 pub fn is_cli_detected() -> bool {
-    std::env::args().nth(1).is_some()
+    is_cli_args(std::env::args().skip(1))
+}
+
+pub fn is_background_launch() -> bool {
+    is_background_args(std::env::args().skip(1))
+}
+
+fn is_cli_args(args: impl IntoIterator<Item = String>) -> bool {
+    args.into_iter().any(|arg| arg != AUTOSTART_ARG)
+}
+
+fn is_background_args(args: impl IntoIterator<Item = String>) -> bool {
+    let args = args.into_iter().collect::<Vec<_>>();
+    args.len() == 1 && args[0] == AUTOSTART_ARG
 }
 
 /// The subcommand name from argv[1], and nothing else: anything that could be a path,
@@ -129,4 +146,32 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     crate::analytics::flush_events_bounded(app_handle, std::time::Duration::from_secs(5));
     app_handle.cleanup_before_exit();
     process::exit(status.code().unwrap_or(1));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{is_background_args, is_cli_args, AUTOSTART_ARG};
+
+    fn args(values: &[&str]) -> Vec<String> {
+        values.iter().map(|value| value.to_string()).collect()
+    }
+
+    #[test]
+    fn autostart_flag_is_a_hidden_gui_launch() {
+        assert!(is_background_args(args(&[AUTOSTART_ARG])));
+        assert!(!is_cli_args(args(&[AUTOSTART_ARG])));
+    }
+
+    #[test]
+    fn regular_arguments_still_select_cli_mode() {
+        assert!(!is_background_args(args(&["transcribe"])));
+        assert!(is_cli_args(args(&["transcribe"])));
+        assert!(is_cli_args(args(&[AUTOSTART_ARG, "transcribe"])));
+    }
+
+    #[test]
+    fn no_arguments_is_a_visible_gui_launch() {
+        assert!(!is_background_args(args(&[])));
+        assert!(!is_cli_args(args(&[])));
+    }
 }

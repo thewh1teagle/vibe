@@ -9,7 +9,7 @@ import { m } from '~/paraglide/messages.js'
 import * as config from '~/lib/config'
 import { pathToNamedPath } from '~/lib/fs'
 import { cleanupPartialDownloads, listInstalledModels, type InstalledModel } from '~/lib/model'
-import type { NamedPath } from '~/lib/types'
+import type { NamedPath, ProjectSource } from '~/lib/types'
 import { useConfirmExit } from '~/lib/use-confirm-exit'
 import { hotkeyRecordingActive } from '~/providers/hotkey'
 import { usePreferenceProvider, type Preference } from '~/providers/preference'
@@ -67,13 +67,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 	}, [queue.enqueue])
 
 	const enqueuePaths = useCallback(
-		async (paths: string[]) => {
+		async (paths: string[], source: ProjectSource) => {
 			const files: NamedPath[] = []
 			for (const item of paths) {
 				// A picked or dropped path may be a folder — detect and expand to its media files.
 				const isMediaFile = mediaExtensions.some((ext) => item.toLowerCase().endsWith(`.${ext.toLowerCase()}`))
 				if (isMediaFile) {
-					files.push(await pathToNamedPath(item))
+					files.push({ ...(await pathToNamedPath(item)), source })
 					continue
 				}
 				setCollectingFolder(true)
@@ -83,9 +83,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 						patterns: mediaExtensions,
 						recursive: preference.advancedTranscribeOptions.includeSubFolders,
 					})
-					for (const path of expanded) files.push(await pathToNamedPath(path))
+					for (const path of expanded) files.push({ ...(await pathToNamedPath(path)), source })
 				} catch {
-					files.push(await pathToNamedPath(item))
+					files.push({ ...(await pathToNamedPath(item)), source })
 				} finally {
 					setCollectingFolder(false)
 				}
@@ -99,16 +99,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		useCallback(
 			(paths: string[]) => {
 				setPanel('none')
-				void enqueuePaths(paths)
+				void enqueuePaths(paths, 'file')
 			},
 			[enqueuePaths],
 		),
 	)
 
-	/** Adapter for hooks that hand us a single produced file (recording / downloaded audio). */
-	const transcribeOne = useCallback(async (filePath: string) => {
-		await enqueuePaths([filePath])
-	}, [])
+	/** A downloaded file remains explicitly URL-sourced after it lands on disk. */
+	const transcribeOne = useCallback(
+		async (filePath: string) => {
+			await enqueuePaths([filePath], 'url')
+		},
+		[enqueuePaths],
+	)
 
 	const recording = useRecording(() => setPanel('record'))
 	const link = useAudioDownload(transcribeOne)
@@ -130,7 +133,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 			if (hotkeyRecordingActive) return
 			recording.setIsRecording(false)
 			setPanel('none')
-			enqueueRef.current([{ name: payload.name, path: payload.path }])
+			enqueueRef.current([{ name: payload.name, path: payload.path, source: 'record' }])
 		})
 		return () => {
 			unlisten.then((fn) => fn())
@@ -156,7 +159,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		}
 		if (!picked.length) return
 		setPanel('none')
-		await enqueuePaths(picked)
+		await enqueuePaths(picked, 'file')
 	}, [enqueuePaths])
 
 	const startNew = useCallback(() => {

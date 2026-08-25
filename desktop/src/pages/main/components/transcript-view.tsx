@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { defaultRangeExtractor, useVirtualizer, type Range as VirtualRange } from '@tanstack/react-virtual'
 import { ArrowDownToLine, Play } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
-import HTMLView from '~/components/html-view'
 import Markdown from 'react-markdown'
 import { Spinner } from '~/components/ui/spinner'
 import { formatTimestamp, type Segment } from '~/lib/transcript'
@@ -219,25 +219,41 @@ interface SegmentBlockProps {
 	onMove: (index: number, direction: 1 | -1, caret: CaretIntent) => void
 }
 
-function SegmentBlock({ segment, index, query, animate, editable, editing, active, options, onStartEdit, onCancel, onCommit, onMove }: SegmentBlockProps) {
+const SegmentBlock = memo(function SegmentBlock({
+	segment,
+	index,
+	query,
+	animate,
+	editable,
+	editing,
+	active,
+	options,
+	onStartEdit,
+	onCancel,
+	onCommit,
+	onMove,
+}: SegmentBlockProps) {
 	const textRef = useRef<HTMLSpanElement>(null)
 
 	const text = segment.text.trim()
 	const isEditing = editing !== null
 
-	function beginEditFromPointer(event: React.MouseEvent) {
-		if (!editable || isEditing) return
-		const node = textRef.current
-		if (!node) return
-		// A drag-selection carries into the editor; a plain click drops the caret where it landed.
-		const selected = selectionRangeIn(node)
-		const at = selected ?? offsetFromPoint(node, event.clientX, event.clientY)
-		onStartEdit(index, typeof at === 'number' ? { start: at, end: at } : (at ?? 'end'))
-	}
+	const beginEditFromPointer = useCallback(
+		(event: React.MouseEvent) => {
+			if (!editable || isEditing) return
+			const node = textRef.current
+			if (!node) return
+			// A drag-selection carries into the editor; a plain click drops the caret where it landed.
+			const selected = selectionRangeIn(node)
+			const at = selected ?? offsetFromPoint(node, event.clientX, event.clientY)
+			onStartEdit(index, typeof at === 'number' ? { start: at, end: at } : (at ?? 'end'))
+		},
+		[editable, index, isEditing, onStartEdit],
+	)
 
-	function seek() {
+	const seek = useCallback(() => {
 		window.dispatchEvent(new CustomEvent(PLAYER_SEEK_EVENT, { detail: { seconds: segment.start / CENTISECONDS_PER_SECOND } }))
-	}
+	}, [segment.start])
 
 	const timestamp = formatTimestamp(segment.start, false, '', false)
 
@@ -324,7 +340,7 @@ function SegmentBlock({ segment, index, query, animate, editable, editing, activ
 			</div>
 		</motion.div>
 	)
-}
+})
 
 export default function TranscriptView({
 	job,
@@ -340,17 +356,25 @@ export default function TranscriptView({
 	const preference = usePreferenceProvider()
 	const { queue, summaries } = useSession()
 	const scrollRef = useRef<HTMLDivElement>(null)
+	const listRef = useRef<HTMLDivElement>(null)
 	const running = job.status === 'running'
 	const editable = !running && (job.status === 'done' || job.hydrated === true)
 
 	const [editing, setEditing] = useState<EditTarget | null>(null)
 	const [activeIndex, setActiveIndex] = useState(-1)
+	const [playing, setPlaying] = useState(false)
 	const [following, setFollowing] = useState(true)
+	const [scrollMargin, setScrollMargin] = useState(0)
 	// The jump pill is a reaction to scrolling away, so it fades out again shortly after.
 	const [jumpVisible, setJumpVisible] = useState(false)
 	const jumpTimer = useRef(0)
+	const scrollFrame = useRef(0)
 	// Scrolls we trigger ourselves must not be mistaken for the user taking over.
 	const autoScrollRef = useRef(0)
+	const followingRef = useRef(following)
+	const playingRef = useRef(playing)
+	followingRef.current = following
+	playingRef.current = playing
 
 	// Filtering keeps the original index so an edit lands on the right segment.
 	const visible = useMemo(() => {
@@ -359,10 +383,47 @@ export default function TranscriptView({
 		return all.filter(({ segment }) => segment.text.toLowerCase().includes(query.toLowerCase()))
 	}, [job.segments, query])
 
+	const editingVisibleIndex = useMemo(() => (editing ? visible.findIndex((entry) => entry.index === editing.index) : -1), [editing, visible])
+	const extractRange = useCallback(
+		(range: VirtualRange) => {
+			const indexes = defaultRangeExtractor(range)
+			if (editingVisibleIndex >= 0 && !indexes.includes(editingVisibleIndex)) indexes.push(editingVisibleIndex)
+			return indexes.sort((a, b) => a - b)
+		},
+		[editingVisibleIndex],
+	)
+	const rowVirtualizer = useVirtualizer({
+		count: visible.length,
+		getScrollElement: () => scrollRef.current,
+		estimateSize: () => 48,
+		getItemKey: (position) => {
+			const entry = visible[position]
+			return entry ? `${entry.segment.start}-${entry.index}` : position
+		},
+		measureElement: (element) => element.getBoundingClientRect().height,
+		overscan: 8,
+		gap: 4,
+		rangeExtractor: extractRange,
+		scrollMargin,
+	})
+
+	// The list starts below a variable-height heading/error/empty state. Virtual row offsets are
+	// relative to the scroll element, so keep that margin current as those blocks change.
+	useLayoutEffect(() => {
+		const list = listRef.current
+		if (!list) return
+		const update = () => setScrollMargin((current) => (current === list.offsetTop ? current : list.offsetTop))
+		update()
+		const observer = new ResizeObserver(update)
+		if (list.parentElement) observer.observe(list.parentElement)
+		return () => observer.disconnect()
+	}, [job.id, job.status, query, visible.length])
+
 	// Switching file, searching or a new run must never leave an editor open over other text.
 	useEffect(() => {
 		setEditing(null)
 		setActiveIndex(-1)
+		setPlaying(false)
 		setFollowing(true)
 	}, [job.id])
 
@@ -379,6 +440,8 @@ export default function TranscriptView({
 		function onTime(event: Event) {
 			const detail = (event as CustomEvent<PlayerTimeDetail>).detail
 			if (!detail || !Number.isFinite(detail.seconds)) return
+			setPlaying(detail.playing)
+			if (!detail.playing) setJumpVisible(false)
 			const at = detail.seconds * CENTISECONDS_PER_SECOND
 			const segments = job.segments
 			let found = -1
@@ -397,20 +460,19 @@ export default function TranscriptView({
 	// Follow along, unless the reader has scrolled away or is editing a line.
 	useEffect(() => {
 		if (!following || activeIndex < 0 || editing) return
-		const node = scrollRef.current?.querySelector(`[data-segment-index="${activeIndex}"]`)
-		if (!node) return
+		const position = visible.findIndex((entry) => entry.index === activeIndex)
+		if (position < 0) return
 		autoScrollRef.current = Date.now()
-		node.scrollIntoView({ block: 'center', behavior: 'smooth' })
-	}, [activeIndex, following, editing])
+		rowVirtualizer.scrollToIndex(position, { align: 'center' })
+	}, [activeIndex, following, editing, rowVirtualizer, visible])
 
 	useEffect(() => {
 		if (!running) return
-		const node = scrollRef.current
-		if (node) {
+		if (visible.length > 0) {
 			autoScrollRef.current = Date.now()
-			node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' })
+			rowVirtualizer.scrollToIndex(visible.length - 1, { align: 'end' })
 		}
-	}, [job.segments.length, running])
+	}, [job.segments.length, rowVirtualizer, running, visible.length])
 
 	// Spacebar plays and pauses while reading — never while typing into the transcript.
 	useEffect(() => {
@@ -426,30 +488,51 @@ export default function TranscriptView({
 		return () => window.removeEventListener('keydown', onKeyDown)
 	}, [])
 
-	function onScroll() {
-		// Smooth auto-scrolls keep firing for a moment; only scrolls outside that window are the user's.
-		if (Date.now() - autoScrollRef.current < 700) return
-		if (following) setFollowing(false)
-		// Shown whether or not the audio is running — it is about finding the line again, not playback.
-		setJumpVisible(true)
-		window.clearTimeout(jumpTimer.current)
-		jumpTimer.current = window.setTimeout(() => setJumpVisible(false), 3000)
-	}
+	const onScroll = useCallback(() => {
+		if (scrollFrame.current) return
+		scrollFrame.current = window.requestAnimationFrame(() => {
+			scrollFrame.current = 0
+			// Programmatic scrolls keep firing briefly; only later events mean the reader took over.
+			if (Date.now() - autoScrollRef.current < 700) return
+			if (followingRef.current) {
+				followingRef.current = false
+				setFollowing(false)
+			}
+			if (!playingRef.current) return
+			setJumpVisible(true)
+			window.clearTimeout(jumpTimer.current)
+			jumpTimer.current = window.setTimeout(() => setJumpVisible(false), 3000)
+		})
+	}, [])
 
-	useEffect(() => () => window.clearTimeout(jumpTimer.current), [])
+	useEffect(
+		() => () => {
+			window.clearTimeout(jumpTimer.current)
+			window.cancelAnimationFrame(scrollFrame.current)
+		},
+		[],
+	)
 
-	function jumpToPlaying() {
+	const jumpToPlaying = useCallback(() => {
 		setFollowing(true)
+		followingRef.current = true
 		setJumpVisible(false)
 		window.clearTimeout(jumpTimer.current)
-		const node = scrollRef.current?.querySelector(`[data-segment-index="${activeIndex}"]`)
-		if (node) {
+		const position = visible.findIndex((entry) => entry.index === activeIndex)
+		if (position >= 0) {
 			autoScrollRef.current = Date.now()
-			node.scrollIntoView({ block: 'center', behavior: 'smooth' })
+			rowVirtualizer.scrollToIndex(position, { align: 'center' })
 		}
-	}
+	}, [activeIndex, rowVirtualizer, visible])
 
-	const startEdit = useCallback((index: number, caret: CaretIntent) => setEditing({ index, caret }), [])
+	const startEdit = useCallback(
+		(index: number, caret: CaretIntent) => {
+			setEditing({ index, caret })
+			const position = visible.findIndex((entry) => entry.index === index)
+			if (position >= 0) rowVirtualizer.scrollToIndex(position, { align: 'auto' })
+		},
+		[rowVirtualizer, visible],
+	)
 	const cancelEdit = useCallback(() => setEditing(null), [])
 
 	/** Move the editor to the neighbouring visible line, so a transcript can be fixed without the mouse. */
@@ -458,8 +541,9 @@ export default function TranscriptView({
 			const position = visible.findIndex((entry) => entry.index === index)
 			const next = visible[position + direction]
 			setEditing(next ? { index: next.index, caret } : null)
+			if (next) rowVirtualizer.scrollToIndex(position + direction, { align: 'auto' })
 		},
-		[visible],
+		[rowVirtualizer, visible],
 	)
 
 	const commitEdit = useCallback(
@@ -471,7 +555,7 @@ export default function TranscriptView({
 		[job.id, moveEdit, queue],
 	)
 
-	const showJump = jumpVisible && !following && activeIndex >= 0 && tab === 'transcript'
+	const showJump = playing && jumpVisible && !following && activeIndex >= 0 && tab === 'transcript'
 	const summarizing = Boolean(summaries.pending[job.id])
 
 	if (tab === 'summary') {
@@ -505,8 +589,7 @@ export default function TranscriptView({
 
 	return (
 		<div className="relative h-full min-h-0">
-			{/* overflow-x-hidden: the offscreen export copy below must not become a sideways scroll in RTL. */}
-			<div ref={scrollRef} onScroll={onScroll} className="h-full min-h-0 overflow-x-hidden overflow-y-auto">
+			<div ref={scrollRef} onScroll={onScroll} className="transcript-editor h-full min-h-0 overflow-x-hidden overflow-y-auto">
 				<div dir={preference.textAreaDirection} className="mx-auto w-full max-w-[86ch] px-8 py-10 xl:max-w-[96ch]">
 					<p className="mb-8 truncate text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{job.name}</p>
 
@@ -518,35 +601,37 @@ export default function TranscriptView({
 						</p>
 					)}
 
-					<div className="space-y-1">
-						{visible.map(({ segment, index }) => (
-							<SegmentBlock
-								key={`${segment.start}-${index}`}
-								segment={segment}
-								index={index}
-								query={query}
-								animate={running}
-								editable={editable}
-								editing={editing?.index === index ? editing : null}
-								active={activeIndex === index}
-								options={options}
-								onStartEdit={startEdit}
-								onCancel={cancelEdit}
-								onCommit={commitEdit}
-								onMove={moveEdit}
-							/>
-						))}
+					<div ref={listRef} className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+						{rowVirtualizer.getVirtualItems().map((virtualRow) => {
+							const { segment, index } = visible[virtualRow.index]
+							return (
+								<div
+									key={virtualRow.key}
+									ref={rowVirtualizer.measureElement}
+									data-index={virtualRow.index}
+									className="absolute top-0 left-0 w-full"
+									style={{ transform: `translateY(${virtualRow.start - rowVirtualizer.options.scrollMargin}px)` }}>
+									<SegmentBlock
+										segment={segment}
+										index={index}
+										query={query}
+										animate={running}
+										editable={editable}
+										editing={editing?.index === index ? editing : null}
+										active={activeIndex === index}
+										options={options}
+										onStartEdit={startEdit}
+										onCancel={cancelEdit}
+										onCommit={commitEdit}
+										onMove={moveEdit}
+									/>
+								</div>
+							)
+						})}
 					</div>
 
 					{running && <div className={cn('mt-8 h-4 w-24 animate-pulse rounded-full bg-muted')} />}
 				</div>
-
-				{/* Offscreen source for the html / pdf exports (print CSS pulls `.html` back on-page). */}
-				{job.segments.length > 0 && (
-					<div aria-hidden className="pointer-events-none fixed top-0 -left-[10000px] w-[1000px]">
-						<HTMLView preference={preference} segments={job.segments} file={{ name: job.name, path: job.path }} />
-					</div>
-				)}
 			</div>
 
 			{/* Scrolling away stops the follow; this brings it back instead of hunting for the line. */}

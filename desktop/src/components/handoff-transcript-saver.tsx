@@ -2,6 +2,7 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
+import { autoProjectName } from '~/lib/project-name'
 import type { Segment } from '~/lib/transcript'
 import { notifyTranscriptsChanged, saveTranscript } from '~/lib/transcripts-store'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -66,7 +67,7 @@ export default function HandoffTranscriptSaver() {
 			if (segments.length === 0) return
 
 			const sourcePath = payload.savedPath ?? payload.saved_path ?? ''
-			const name = payload.name?.trim() || m.phoneRecording()
+			const name = autoProjectName(payload.name?.trim() || m.phoneRecording(), 'record')
 			// Same rule as a local transcription: auto-save only when the user asked for it.
 			if (!preferenceRef.current.saveTranscripts) return
 

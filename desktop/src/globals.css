@@ -281,17 +281,17 @@ html.dictation-indicator-window #root {
 	}
 
 	.transcript-editor::-webkit-scrollbar {
-		width: 16px !important;
+		width: 12px !important;
 		height: 0 !important;
 		background: transparent !important;
 	}
 
 	.transcript-editor::-webkit-scrollbar-thumb {
 		background: rgb(17 17 16 / 0.28) !important;
-		border: 3px solid transparent !important;
+		border: 2px solid transparent !important;
 		background-clip: padding-box !important;
 		border-radius: 999px !important;
-		min-height: 96px !important;
+		min-height: 72px !important;
 	}
 
 	.transcript-editor::-webkit-scrollbar-thumb:hover {
@@ -306,7 +306,7 @@ html.dictation-indicator-window #root {
 
 	.dark .transcript-editor::-webkit-scrollbar-thumb {
 		background: rgb(244 244 241 / 0.24) !important;
-		border: 3px solid transparent !important;
+		border: 2px solid transparent !important;
 		background-clip: padding-box !important;
 	}
 

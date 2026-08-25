@@ -7,7 +7,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
 import { Button } from '~/components/ui/button'
+import { PlaybackRateButton } from '~/components/playback-rate-button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
+import { usePlaybackRate } from '~/lib/playback-rate'
 import { cn } from '~/lib/style'
 import type { NamedPath } from '~/lib/types'
 import type { Job } from '../hooks/use-transcribe-queue'
@@ -115,6 +117,7 @@ export default function PlayerBar({ job }: { job: Job }) {
 			if (audioRef.current === audio) audioRef.current = null
 		}
 	}, [broadcast, sourcePath])
+	const { playbackRate, cyclePlaybackRate } = usePlaybackRate(audioRef, sourcePath)
 
 	// `timeupdate` only fires ~4x/second which makes the fill step visibly; while playing, the
 	// position is sampled every animation frame instead so the bar glides.
@@ -311,6 +314,8 @@ export default function PlayerBar({ job }: { job: Job }) {
 
 				<span className="w-10 shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">{formatTime(duration)}</span>
 			</div>
+
+			<PlaybackRateButton playbackRate={playbackRate} onCycle={cyclePlaybackRate} />
 
 			<Tooltip>
 				<TooltipTrigger asChild>

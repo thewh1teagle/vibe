@@ -76,7 +76,7 @@ async fn main() -> Result<()> {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            None,
+            Some(vec![cli::AUTOSTART_ARG]),
         ));
 
     if analytics::is_aptabase_configured() {
