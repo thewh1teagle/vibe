@@ -14,7 +14,7 @@ describe('store capability', () => {
 
 	it('covers every store command the config layer uses', () => {
 		// `load` and `entries` are the read path; without both, settings never come back.
-		const required = ['load', 'entries', 'set', 'get', 'has', 'clear', 'reset', 'save', 'get-store']
+		const required = ['load', 'entries', 'set', 'delete', 'get', 'has', 'clear', 'reset', 'save', 'get-store']
 		const missing = required.filter((command) => !permissions.includes('store:default') && !permissions.includes(`store:allow-${command}`))
 		expect(missing).toEqual([])
 	})

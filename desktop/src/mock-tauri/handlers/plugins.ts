@@ -284,7 +284,7 @@ const dialogHandlers: CommandHandlerMap = {
 	'plugin:dialog|save': (args) => {
 		const options = (args.options ?? {}) as DialogOpenOptions
 		const ext = options.filters?.[0]?.extensions?.[0] ?? 'txt'
-		lastSavePath = `${DOCUMENTS_FOLDER}/transcript.${ext}`
+		lastSavePath = options.defaultPath ? toPosixPath(options.defaultPath) : `${DOCUMENTS_FOLDER}/transcript.${ext}`
 		return lastSavePath
 	},
 	'plugin:dialog|message': (args) => {

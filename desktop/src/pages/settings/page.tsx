@@ -11,6 +11,7 @@ import { GeneralSection } from './sections/general'
 import { ModelsSection } from './sections/models'
 import { PhoneSection } from './sections/phone'
 import { PrivacySection } from './sections/privacy'
+import { RecordingSection } from './sections/recording'
 import { SummarizeSection } from './sections/summarize'
 import { TranscriptionSection } from './sections/transcription'
 import { TuningSection } from './sections/tuning'
@@ -20,7 +21,7 @@ interface SettingsPageProps {
 	scrollTo?: string
 }
 
-type SectionId = 'general' | 'transcription' | 'models' | 'summarize' | 'tuning' | 'dictation' | 'phone' | 'api' | 'privacy' | 'advanced'
+type SectionId = 'general' | 'transcription' | 'models' | 'summarize' | 'tuning' | 'recording' | 'dictation' | 'phone' | 'api' | 'privacy' | 'advanced'
 
 interface SettingsSection {
 	id: SectionId
@@ -55,6 +56,7 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 		{
 			label: m.customize(),
 			sections: [
+				{ id: 'recording', label: m.recordingSettings(), icon: <Mic className="h-4 w-4" /> },
 				{ id: 'dictation', label: m.globalDictation(), icon: <Mic className="h-4 w-4" /> },
 				{ id: 'summarize', label: m.processWithLlm(), icon: <Sparkles className="h-4 w-4" /> },
 				{ id: 'phone', label: m.phone(), icon: <Smartphone className="h-4 w-4" /> },
@@ -124,6 +126,8 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 					{activeSection === 'summarize' && <SummarizeSection vm={vm} />}
 
 					{activeSection === 'tuning' && <TuningSection vm={vm} />}
+
+					{activeSection === 'recording' && <RecordingSection />}
 
 					{activeSection === 'dictation' && <DictationSection />}
 

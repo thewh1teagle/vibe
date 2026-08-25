@@ -13,7 +13,16 @@ import { validPath } from '~/lib/media'
 import { autoProjectName } from '~/lib/project-name'
 import { fatalRunError, isUserError } from '~/lib/sona-errors'
 import type { Segment, Transcript } from '~/lib/transcript'
-import { notifyTranscriptsChanged, saveTranscript, updateTranscriptSegments, updateTranscriptSummary, type TranscriptRecord } from '~/lib/transcripts-store'
+import {
+	notifyTranscriptsChanged,
+	renameTranscript,
+	saveTranscript,
+	updateTranscriptSegments,
+	updateTranscriptSummary,
+	type TranscriptRecord,
+	type SaveTranscriptResult,
+	type TranscriptEntry,
+} from '~/lib/transcripts-store'
 import type { NamedPath, ProjectSource } from '~/lib/types'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
@@ -51,14 +60,20 @@ export interface TranscribeQueue {
 	hasResults: boolean
 	selectJob: (id: string) => void
 	enqueue: (files: NamedPath[]) => void
+	/** Transcribe the media already attached to a hydrated project with no transcript. */
+	transcribeJob: (jobId: string) => void
 	/**
 	 * Replace the session with a transcript loaded from the store, shown as a finished job.
 	 * `audioPath` is the media copy kept in the project folder, when it still has one; it becomes the
 	 * job's path so the player keeps working after the original file moved away.
 	 */
-	hydrate: (record: TranscriptRecord, savedPath: string, audioPath?: string | null) => void
+	hydrate: (record: TranscriptRecord, savedPath: string, audioPath?: string | null, source?: ProjectSource) => string | null
 	/** Inline edit of one segment's text. Persists to the job's saved file when it has one. */
 	updateSegmentText: (jobId: string, segmentIndex: number, text: string) => void
+	/** Rename the visible project and its persisted record, when one exists. */
+	renameJob: (jobId: string, name: string) => Promise<boolean>
+	/** Update the visible title while the inline rename editor is open. */
+	previewJobName: (jobId: string, name: string) => void
 	/** Attach an AI summary to a job. Persists to the job's saved file when it has one. */
 	setJobSummary: (jobId: string, summary: string) => void
 	cancelCurrent: () => void
@@ -89,6 +104,27 @@ function errorParts(error: unknown) {
 	return { code: object?.code, message: object?.message || String(error) }
 }
 
+/** Re-read the live title after every rename so slow disk I/O can never restore a stale draft. */
+export async function reconcileProjectName(
+	initialName: string,
+	saved: SaveTranscriptResult,
+	latestName: () => string | undefined,
+	rename: (path: string, name: string) => Promise<TranscriptEntry | null> = renameTranscript,
+	onRenamed?: (saved: SaveTranscriptResult) => void,
+) {
+	let current = saved
+	let appliedName = initialName
+	for (;;) {
+		const desiredName = latestName()
+		if (!desiredName || desiredName === appliedName) return current
+		const renamed = await rename(current.recordPath, desiredName)
+		if (!renamed) return current
+		current = { recordPath: renamed.path, mediaPath: renamed.mediaPath ?? current.mediaPath }
+		appliedName = desiredName
+		onRenamed?.(current)
+	}
+}
+
 /**
  * One sequential transcription queue: the model is loaded once, then every queued file runs
  * in order. Segments of the currently running file stream in live through `new_segment`.
@@ -110,6 +146,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 	const [isAborting, setIsAborting] = useState(false)
 	const abortCurrentRef = useRef(false)
 	const abortAllRef = useRef(false)
+	const projectOperationsRef = useRef(new Map<string, Promise<unknown>>())
 
 	useEffect(() => {
 		preferenceRef.current = preference
@@ -139,6 +176,16 @@ export function useTranscribeQueue(): TranscribeQueue {
 		},
 		[select],
 	)
+
+	const serializeProjectOperation = useCallback(<T>(jobId: string, operation: () => Promise<T>): Promise<T> => {
+		const previous = projectOperationsRef.current.get(jobId) ?? Promise.resolve()
+		const current = previous.catch(() => undefined).then(operation)
+		projectOperationsRef.current.set(jobId, current)
+		void current.finally(() => {
+			if (projectOperationsRef.current.get(jobId) === current) projectOperationsRef.current.delete(jobId)
+		})
+		return current
+	}, [])
 
 	useEffect(() => {
 		const unlisteners: Promise<UnlistenFn>[] = []
@@ -180,16 +227,31 @@ export function useTranscribeQueue(): TranscribeQueue {
 			void saveTranscript({
 				name: job.name,
 				sourcePath: job.path,
+				projectsPath: current.projectsPath,
+				moveSourceMedia: job.source === 'record' || job.source === 'url',
 				segments,
 				language: current.modelOptions.lang,
 				modelPath: current.modelPath,
-			}).then((savedPath) => {
-				if (!savedPath) return
-				patch(job.id, { savedPath })
-				notifyTranscriptsChanged()
+			}).then((saved) => {
+				if (!saved) return
+				// Vibe-owned staging media may be gone now; switch playback to the durable project copy
+				// immediately, before any slower title reconciliation.
+				patch(job.id, { savedPath: saved.recordPath, path: saved.mediaPath })
+				void serializeProjectOperation(job.id, async () => {
+					const final = await reconcileProjectName(
+						job.name,
+						saved,
+						() => jobsRef.current.find((candidate) => candidate.id === job.id)?.name,
+						renameTranscript,
+						(step) => patch(job.id, { savedPath: step.recordPath, path: step.mediaPath }),
+					)
+
+					patch(job.id, { savedPath: final.recordPath, path: final.mediaPath })
+					notifyTranscriptsChanged()
+				})
 			})
 		},
-		[patch],
+		[patch, serializeProjectOperation],
 	)
 
 	const runLoop = useCallback(async () => {
@@ -252,7 +314,16 @@ export function useTranscribeQueue(): TranscribeQueue {
 					const seconds = Math.round((performance.now() - startedAt) / 1000)
 					patch(next.id, { status: 'done', progress: 100, segments: result.segments, seconds })
 					completedAny = true
-					persist(next, result.segments)
+					if (next.savedPath) {
+						// Renaming a project is asynchronous. Serialize the transcript write behind it and
+						// re-read the live path so completion can never target the folder's old name.
+						void serializeProjectOperation(next.id, async () => {
+							const savedPath = jobsRef.current.find((candidate) => candidate.id === next.id)?.savedPath
+							if (savedPath && (await updateTranscriptSegments(savedPath, result.segments))) notifyTranscriptsChanged()
+						})
+					} else {
+						persist(next, result.segments)
+					}
 					// An abort resolves as a success carrying the partial segments, so only these flags tell them apart.
 					if (abortCurrentRef.current || abortAllRef.current) {
 						trackTranscribeCancelled('main', next.path)
@@ -312,7 +383,26 @@ export function useTranscribeQueue(): TranscribeQueue {
 			// A file enqueued while the loop was winding down would otherwise stay queued forever.
 			if (!abortAllRef.current && jobsRef.current.some((job) => job.status === 'queued')) void runLoop()
 		}
-	}, [commit, failPending, patch, persist, select, setErrorModal])
+	}, [commit, failPending, patch, persist, select, serializeProjectOperation, setErrorModal])
+
+	const transcribeJob = useCallback(
+		(jobId: string) => {
+			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
+			if (
+				!job?.hydrated ||
+				!job.savedPath ||
+				!job.path ||
+				!['done', 'error', 'cancelled'].includes(job.status) ||
+				job.segments.length > 0
+			)
+				return
+			pinnedRef.current = true
+			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, status: 'queued', progress: 0, error: undefined } : candidate)))
+			select(jobId)
+			void runLoop()
+		},
+		[commit, runLoop, select],
+	)
 
 	const enqueue = useCallback(
 		(files: NamedPath[]) => {
@@ -340,13 +430,17 @@ export function useTranscribeQueue(): TranscribeQueue {
 
 	/** Load a saved transcript as the whole session: one finished job the done view can render. */
 	const hydrate = useCallback(
-		(record: TranscriptRecord, savedPath: string, audioPath?: string | null) => {
-			if (runningRef.current) return
+		(record: TranscriptRecord, savedPath: string, audioPath?: string | null, source?: ProjectSource) => {
+			// Opening an older Recent while a run is active remains disallowed. A recording finish is
+			// different: its durable project must enter the session even if another job is running.
+			if (runningRef.current && source !== 'record') return null
+			const id = nextJobId()
 			const job: Job = {
-				id: nextJobId(),
+				id,
 				name: record.name,
 				// The project folder's own copy of the media, else the original path it came from.
 				path: audioPath || record.sourcePath,
+				source,
 				status: 'done',
 				progress: 100,
 				segments: record.segments,
@@ -355,8 +449,9 @@ export function useTranscribeQueue(): TranscribeQueue {
 				summary: record.summary,
 			}
 			pinnedRef.current = true
-			commit([job])
+			commit(runningRef.current ? [...jobsRef.current, job] : [job])
 			select(job.id)
+			return id
 		},
 		[commit, select],
 	)
@@ -376,6 +471,34 @@ export function useTranscribeQueue(): TranscribeQueue {
 		},
 		[commit],
 	)
+
+	const renameJob = useCallback(
+		async (jobId: string, name: string) => {
+			const next = name.trim()
+			if (!next) return false
+			return serializeProjectOperation(jobId, async () => {
+				const job = jobsRef.current.find((candidate) => candidate.id === jobId)
+				if (!job) return false
+				if (!job.savedPath) {
+					patch(jobId, { name: next })
+					return true
+				}
+				const renamed = await renameTranscript(job.savedPath, next)
+				if (!renamed) return false
+				const latest = jobsRef.current.find((candidate) => candidate.id === jobId)
+				patch(jobId, {
+					...(latest?.name === job.name || latest?.name === next ? { name: next } : {}),
+					savedPath: renamed.path,
+					path: renamed.mediaPath ?? job.path,
+				})
+				notifyTranscriptsChanged()
+				return true
+			})
+		},
+		[patch, serializeProjectOperation],
+	)
+
+	const previewJobName = useCallback((jobId: string, name: string) => patch(jobId, { name }), [patch])
 
 	/** Same fire-and-forget write-back as the segment edits: the screen must not wait on the disk. */
 	const setJobSummary = useCallback(
@@ -423,8 +546,11 @@ export function useTranscribeQueue(): TranscribeQueue {
 		hasResults,
 		selectJob,
 		enqueue,
+		transcribeJob,
 		hydrate,
 		updateSegmentText,
+		renameJob,
+		previewJobName,
 		setJobSummary,
 		cancelCurrent,
 		cancelAll,

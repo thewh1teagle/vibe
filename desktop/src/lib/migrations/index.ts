@@ -1,5 +1,6 @@
 import { migrateLegacyLocale } from './migrate-legacy-locale'
 import { migratePrefsToConfig } from './migrate-prefs-to-config'
+import { removeRecordingPathSettings } from './remove-recording-path-settings'
 
 /**
  * Local storage migration versioning
@@ -15,6 +16,7 @@ import { migratePrefsToConfig } from './migrate-prefs-to-config'
 const migrations = [
 	{ version: 1, run: migrateLegacyLocale },
 	{ version: 2, run: migratePrefsToConfig },
+	{ version: 3, run: removeRecordingPathSettings },
 ]
 const MIGRATION_VERSION_KEY = 'vibe:migration-version'
 

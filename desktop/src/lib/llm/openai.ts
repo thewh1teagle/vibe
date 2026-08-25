@@ -1,5 +1,6 @@
 import { fetch } from '@tauri-apps/plugin-http'
-import { Llm, type LlmConfig } from './index'
+import type { Llm, LlmConfig } from './index'
+import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MAX_TOKENS, limitPromptToContext, outputTokensForContext } from './context'
 
 export function defaultConfig(language = 'English'): LlmConfig {
 	return {
@@ -7,7 +8,8 @@ export function defaultConfig(language = 'English'): LlmConfig {
 		model: 'gpt-4o-mini',
 		platform: 'openai',
 		prompt: `Output only the requested content. No introductions, explanations, or commentary.\n\nWrite a concise summary of this transcript in ${language} using markdown. Include:\n- A short overview paragraph\n- 3-5 key takeaways as bullet points\n- Action items as a checklist if there are any\n\n"""\n%s\n"""`,
-		maxTokens: 8192,
+		contextTokens: DEFAULT_CONTEXT_TOKENS,
+		maxTokens: DEFAULT_MAX_TOKENS,
 		claudeApiKey: '',
 		ollamaBaseUrl: '',
 		openaiBaseUrl: 'https://api.openai.com/v1',
@@ -24,10 +26,12 @@ export class OpenAICompatible implements Llm {
 
 	async ask(prompt: string): Promise<string> {
 		const baseUrl = (this.config.openaiBaseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '')
+		const contextTokens = this.config.contextTokens ?? DEFAULT_CONTEXT_TOKENS
+		const maxTokens = this.config.maxTokens ?? DEFAULT_MAX_TOKENS
 		const body = JSON.stringify({
 			model: this.config.model,
-			max_tokens: this.config.maxTokens,
-			messages: [{ role: 'user', content: prompt }],
+			max_tokens: outputTokensForContext(contextTokens, maxTokens),
+			messages: [{ role: 'user', content: limitPromptToContext(prompt, contextTokens, maxTokens) }],
 		})
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json',

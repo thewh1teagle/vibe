@@ -12,6 +12,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["protocol-asset", "devtools", "macos-private-api", "tray-icon"] }
+meeting-detect = { path = "../../crates/meeting-detect" }
 
 # Plugins
 tauri-plugin-window-state = "2"
@@ -98,7 +99,10 @@ libc-stdhandle = "=0.1.0"
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6.4"
 objc2-app-kit = { version = "0.3.2", features = ["NSApplication", "NSWindow", "NSOpenPanel", "NSSavePanel", "NSPanel"] }
+objc2-av-foundation = { version = "0.3.2", default-features = false, features = ["std", "AVCaptureDevice", "AVMediaFormat", "block2"] }
 objc2-foundation = { version = "0.3.2", features = ["NSArray", "NSString", "NSURL"] }
+tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel.git", rev = "c9ec2130422200f0863b23dfdad02b133a529b07" }
+block2 = "0.6.2"
 window-vibrancy = "0.6"
 
 [features]

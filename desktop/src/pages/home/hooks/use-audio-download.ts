@@ -136,7 +136,7 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 		setDownloadingAudio(true)
 		let downloaded = false
 		try {
-			const outPath = await ytDlp.downloadAudio(audioUrl, preference.storeRecordInDocuments, preference.customRecordingPath)
+			const outPath = await ytDlp.downloadAudio(audioUrl)
 			downloaded = true
 			if (cancelYtDlpRef.current) {
 				cancelYtDlpRef.current = false

@@ -14,6 +14,7 @@ mod ffmpeg;
 mod handoff;
 mod keepawake;
 mod logging;
+mod meeting_prompt;
 mod setup;
 mod sona;
 mod transcript;
@@ -63,6 +64,7 @@ async fn main() -> Result<()> {
         .plugin(
             tauri_plugin_window_state::Builder::default()
                 .with_state_flags(!StateFlags::VISIBLE)
+                .with_denylist(&["meeting-prompt"])
                 .build(),
         )
         .plugin(tauri_plugin_store::Builder::default().build())
@@ -78,6 +80,11 @@ async fn main() -> Result<()> {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec![cli::AUTOSTART_ARG]),
         ));
+
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder.plugin(tauri_nspanel::init());
+    }
 
     if analytics::is_aptabase_configured() {
         let options = tauri_plugin_aptabase::InitOptions {
@@ -127,7 +134,7 @@ async fn main() -> Result<()> {
             cmd::files::open_path,
             cmd::files::get_save_path,
             cmd::files::get_argv,
-            cmd::files::get_default_recording_path,
+            cmd::files::get_default_projects_path,
             cmd::audio::get_audio_devices,
             cmd::audio::start_record,
             cmd::app::get_models_folder,
@@ -143,12 +150,21 @@ async fn main() -> Result<()> {
             cmd::app::type_text,
             cmd::permissions::request_system_audio_permission,
             cmd::permissions::open_system_audio_settings,
+            cmd::permissions::get_system_audio_permission_status,
+            cmd::permissions::get_microphone_permission_status,
+            cmd::permissions::request_microphone_permission,
+            cmd::permissions::open_microphone_settings,
             dictation_indicator::get_dictation_indicator_enabled,
             dictation_indicator::set_dictation_indicator_enabled,
             dictation_indicator::show_dictation_indicator,
             dictation_indicator::get_dictation_indicator_state,
             dictation_indicator::dictation_indicator_ready,
-            dictation_indicator::hide_dictation_indicator
+            dictation_indicator::hide_dictation_indicator,
+            meeting_prompt::get_meeting_detection_enabled,
+            meeting_prompt::set_meeting_detection_enabled,
+            meeting_prompt::get_meeting_prompt_state,
+            meeting_prompt::dismiss_meeting_prompt,
+            meeting_prompt::meeting_prompt_ready
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");

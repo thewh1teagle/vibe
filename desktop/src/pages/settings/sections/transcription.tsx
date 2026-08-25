@@ -5,7 +5,7 @@ import { Switch } from '~/components/ui/switch'
 import { SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
 
 export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
-	const recordingPath = vm.preference.customRecordingPath ?? vm.defaultRecordingPath
+	const projectsPath = vm.preference.projectsPath ?? vm.defaultProjectsPath
 
 	return (
 		<div className="space-y-6">
@@ -25,20 +25,20 @@ export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
 				</SettingsRow>
 			</SettingsGroup>
 
-			<SettingsGroup title={m.recordingSavePath()} description={m.recordingSavePathInfo()}>
+			<SettingsGroup title={m.projectsFolder()} description={m.projectsFolderInfo()}>
 				<SettingsRow
 					label={
-						<span title={recordingPath} className="block truncate font-mono text-xs text-muted-foreground">
-							{recordingPath}
+						<span title={projectsPath} className="block truncate font-mono text-xs text-muted-foreground">
+							{projectsPath}
 						</span>
 					}>
-					{vm.preference.customRecordingPath && (
-						<Button variant="ghost" size="sm" onMouseDown={vm.resetRecordingPath}>
+					{vm.preference.projectsPath && (
+						<Button variant="ghost" size="sm" onMouseDown={vm.resetProjectsPath}>
 							{m.resetToDefault()}
 						</Button>
 					)}
-					<Button variant="outline" size="sm" onMouseDown={vm.changeRecordingPath}>
-						{m.changeRecordingPath()}
+					<Button variant="outline" size="sm" onMouseDown={vm.changeProjectsPath}>
+						{m.changeProjectsFolder()}
 					</Button>
 				</SettingsRow>
 			</SettingsGroup>

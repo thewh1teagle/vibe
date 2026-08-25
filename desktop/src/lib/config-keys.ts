@@ -34,12 +34,15 @@ export const CONFIG_KEYS = {
 	soundOnFinish: 'transcription.soundOnFinish',
 	focusOnFinish: 'transcription.focusOnFinish',
 	saveTranscripts: 'transcription.saveTranscripts',
+	projectsPath: 'transcription.projectsPath',
 
 	// Recording
-	storeRecordInDocuments: 'recording.storeInDocuments',
-	customRecordingPath: 'recording.customPath',
 	inputDeviceId: 'recording.inputDeviceId',
 	outputDeviceId: 'recording.outputDeviceId',
+	recordingShortcutEnabled: 'recording.shortcutEnabled',
+	recordingShortcut: 'recording.shortcut',
+	meetingDetectionEnabled: 'recording.meetingDetectionEnabled',
+	autoTranscribeAfterRecording: 'recording.autoTranscribeAfterRecording',
 
 	// Reading the transcript
 	textAreaDirection: 'transcript.textDirection',
@@ -62,6 +65,7 @@ export const CONFIG_KEYS = {
 
 	// AI summaries
 	llmConfig: 'summarize.llm',
+	autoSummarizeOnFinish: 'summarize.autoOnFinish',
 
 	// Local API. Written by the app while the server runs so agents can find the per-run port;
 	// removed on stop and on exit. Not a user setting.
@@ -104,8 +108,6 @@ export const LEGACY_LOCAL_STORAGE_KEYS: Record<string, ConfigKey> = {
 	prefs_sound_on_finish: CONFIG_KEYS.soundOnFinish,
 	prefs_focus_on_finish: CONFIG_KEYS.focusOnFinish,
 	prefs_save_transcripts: CONFIG_KEYS.saveTranscripts,
-	prefs_store_record_in_documents: CONFIG_KEYS.storeRecordInDocuments,
-	prefs_custom_recording_path: CONFIG_KEYS.customRecordingPath,
 	prefs_input_device_id: CONFIG_KEYS.inputDeviceId,
 	prefs_output_device_id: CONFIG_KEYS.outputDeviceId,
 	prefs_textarea_direction: CONFIG_KEYS.textAreaDirection,

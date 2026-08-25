@@ -47,15 +47,27 @@ export interface TranscriptEntry {
 	name: string
 	/** parsed from the filename stamp; falls back to the epoch when unparsable */
 	createdAt: Date
+	/** Updated stable media path when returned by renameTranscript. */
+	mediaPath?: string
 }
 
 export interface SaveTranscriptInput {
 	name: string
 	sourcePath: string
+	/** Custom root for project folders; null/undefined uses Documents/Vibe. */
+	projectsPath?: string | null
+	/** Vibe-created media is removed only after its project copy and metadata are durable. */
+	moveSourceMedia?: boolean
 	segments: Segment[]
 	language?: string
 	modelPath?: string | null
 	createdAt?: Date
+}
+
+export interface SaveTranscriptResult {
+	recordPath: string
+	/** Stable playback path: the project media copy when one was made, otherwise the source. */
+	mediaPath: string
 }
 
 function pad(value: number, length = 2) {
@@ -121,8 +133,8 @@ function isProjectRecordPath(path: string) {
 }
 
 /** Absolute path of the store folder, created on demand. */
-export async function transcriptsFolder(): Promise<string> {
-	const folder = await pathApi.join(await pathApi.documentDir(), TRANSCRIPTS_FOLDER)
+export async function transcriptsFolder(projectsPath?: string | null): Promise<string> {
+	const folder = projectsPath || (await pathApi.join(await pathApi.documentDir(), TRANSCRIPTS_FOLDER))
 	if (!(await fs.exists(folder))) await fs.mkdir(folder, { recursive: true })
 	return folder
 }
@@ -137,37 +149,102 @@ function serialize(record: TranscriptRecord) {
 	return JSON.stringify(record, null, '\t')
 }
 
+let temporaryFileCounter = 0
+
+/** Publish a complete JSON record without exposing a partially written target. */
+async function writeRecordAtomic(target: string, record: TranscriptRecord) {
+	temporaryFileCounter += 1
+	const temporary = `${target}.tmp-${Date.now()}-${temporaryFileCounter}`
+	const backup = `${target}.bak-${Date.now()}-${temporaryFileCounter}`
+	await fs.writeTextFile(temporary, serialize(record))
+	try {
+		try {
+			await fs.rename(temporary, target)
+			return
+		} catch (replaceError) {
+			if (!(await fs.exists(target))) throw replaceError
+		}
+
+		// Some platforms do not replace an existing file with rename. Keep a rollback copy while
+		// swapping it, so a failed second rename never destroys the last durable record.
+		await fs.rename(target, backup)
+		try {
+			await fs.rename(temporary, target)
+		} catch (error) {
+			try {
+				await fs.rename(backup, target)
+			} catch (rollbackError) {
+				console.error('failed to restore transcript metadata after write failure:', target, rollbackError)
+			}
+			throw error
+		}
+		try {
+			await fs.remove(backup)
+		} catch (error) {
+			console.warn('failed to remove transcript metadata backup:', backup, error)
+		}
+	} finally {
+		try {
+			if (await fs.exists(temporary)) await fs.remove(temporary)
+		} catch {
+			/* best-effort temporary cleanup */
+		}
+	}
+}
+
+async function removeFolderBestEffort(folder: string) {
+	try {
+		await fs.remove(folder, { recursive: true })
+	} catch (error) {
+		console.warn('failed to clean incomplete transcript project:', folder, error)
+	}
+}
+
+/** mkdir itself is the reservation: concurrent saves cannot both claim the same candidate. */
+async function reserveProjectFolder(root: string, name: string, createdAt: Date) {
+	const stem = toFileStem(name)
+	const suffix = stamp(createdAt)
+	for (let attempt = 1; ; attempt += 1) {
+		const folderName = attempt === 1 ? `${stem}-${suffix}` : `${stem}-${attempt}-${suffix}`
+		const candidate = await pathApi.join(root, folderName)
+		try {
+			await fs.mkdir(candidate)
+			return candidate
+		} catch (error) {
+			if (await fs.exists(candidate)) continue
+			throw error
+		}
+	}
+}
+
 /**
- * Copy the transcribed media next to its record so the project folder stays self-contained.
- * Best-effort: a missing extension, an unreadable source or a full disk only costs the copy.
- * @returns the relative filename of the copy, or undefined when there is none.
+ * Store the transcribed media next to its record so the project folder stays self-contained.
+ * Every source is copied first. Vibe-created staging media is removed only after final metadata is
+ * durable; imported media always remains user-owned.
  */
-async function copySourceMedia(projectFolder: string, sourcePath: string): Promise<string | undefined> {
+async function copySourceMedia(projectFolder: string, sourcePath: string): Promise<{ audioFile: string; path: string } | undefined> {
 	const extension = extensionOf(sourcePath)
 	if (!sourcePath || !extension) return undefined
 	const audioFile = `audio.${extension}`
-	try {
-		await fs.copyFile(sourcePath, await pathApi.join(projectFolder, audioFile))
-		return audioFile
-	} catch (error) {
-		console.warn('failed to copy source media into the transcript folder:', sourcePath, error)
-		return undefined
-	}
+	const target = await pathApi.join(projectFolder, audioFile)
+	await fs.copyFile(sourcePath, target)
+	return { audioFile, path: target }
 }
 
 /**
  * Write one transcript into the store as a project folder holding the record and a copy of its
  * media.
- * @returns the path of the written `transcript.vibe.json`, or null when saving failed (never throws).
+ * @returns durable record/playback paths, or null when saving failed (never throws).
  */
-export async function saveTranscript(input: SaveTranscriptInput): Promise<string | null> {
+
+export async function saveTranscript(input: SaveTranscriptInput): Promise<SaveTranscriptResult | null> {
+	let projectFolder: string | null = null
 	try {
 		const createdAt = input.createdAt ?? new Date()
-		const folder = await transcriptsFolder()
-		const projectFolder = await pathApi.join(folder, `${toFileStem(input.name)}-${stamp(createdAt)}`)
-		await fs.mkdir(projectFolder, { recursive: true })
+		const folder = await transcriptsFolder(input.projectsPath)
+		projectFolder = await reserveProjectFolder(folder, input.name, createdAt)
 		const target = await pathApi.join(projectFolder, TRANSCRIPT_FILENAME)
-		const record: TranscriptRecord = {
+		const baseRecord: TranscriptRecord = {
 			version: TRANSCRIPT_VERSION,
 			name: input.name,
 			sourcePath: input.sourcePath,
@@ -176,19 +253,35 @@ export async function saveTranscript(input: SaveTranscriptInput): Promise<string
 			modelPath: input.modelPath ?? null,
 			segments: input.segments,
 		}
-		await fs.writeTextFile(target, serialize(record))
-		// The transcript itself is already safe on disk; the media copy may fail without losing it.
-		const audioFile = await copySourceMedia(projectFolder, input.sourcePath)
-		if (audioFile) {
+
+		let media: { audioFile: string; path: string } | undefined
+		try {
+			media = await copySourceMedia(projectFolder, input.sourcePath)
+		} catch (error) {
+			if (input.moveSourceMedia) throw error
+			console.warn('failed to copy imported media; saving its external source path:', input.sourcePath, error)
+		}
+		if (input.moveSourceMedia && !media) throw new Error(`Vibe-created media has no usable extension: ${input.sourcePath}`)
+
+		const record: TranscriptRecord = {
+			...baseRecord,
+			...(media ? { audioFile: media.audioFile } : {}),
+			...(input.moveSourceMedia && media ? { sourcePath: media.path } : {}),
+		}
+		await writeRecordAtomic(target, record)
+
+		if (input.moveSourceMedia) {
 			try {
-				await fs.writeTextFile(target, serialize({ ...record, audioFile }))
+				await fs.remove(input.sourcePath)
 			} catch (error) {
-				console.warn('failed to record the media copy in the transcript:', target, error)
+				// The final project is complete; leaving a staged duplicate is safer than hiding it.
+				console.warn('failed to remove staged media after publishing its project:', input.sourcePath, error)
 			}
 		}
-		return target
+		return { recordPath: target, mediaPath: media?.path ?? input.sourcePath }
 	} catch (error) {
 		console.warn('failed to save transcript:', error)
+		if (projectFolder) await removeFolderBestEffort(projectFolder)
 		return null
 	}
 }
@@ -197,9 +290,9 @@ export async function saveTranscript(input: SaveTranscriptInput): Promise<string
  * Every saved transcript, newest first: project folders plus legacy flat files. Reads folder and
  * file *names* only — never the records themselves.
  */
-export async function listTranscripts(): Promise<TranscriptEntry[]> {
+export async function listTranscripts(projectsPath?: string | null): Promise<TranscriptEntry[]> {
 	try {
-		const folder = await pathApi.join(await pathApi.documentDir(), TRANSCRIPTS_FOLDER)
+		const folder = projectsPath || (await pathApi.join(await pathApi.documentDir(), TRANSCRIPTS_FOLDER))
 		if (!(await fs.exists(folder))) return []
 		const entries = await fs.readDir(folder)
 		const found: TranscriptEntry[] = []
@@ -243,6 +336,7 @@ export async function readTranscript(path: string): Promise<TranscriptRecord | n
 			segments: parsed.segments.filter(
 				(segment): segment is Segment => typeof segment === 'object' && segment !== null && typeof (segment as Segment).text === 'string',
 			),
+			summary: typeof parsed.summary === 'string' ? parsed.summary : undefined,
 		}
 	} catch (error) {
 		console.warn('failed to read transcript:', path, error)
@@ -275,7 +369,7 @@ export async function updateTranscriptSegments(path: string, segments: Segment[]
 	try {
 		const record = await readTranscript(path)
 		if (!record) return false
-		await fs.writeTextFile(path, serialize({ ...record, segments }))
+		await writeRecordAtomic(path, { ...record, segments })
 		return true
 	} catch (error) {
 		console.warn('failed to update transcript segments:', path, error)
@@ -288,7 +382,7 @@ export async function updateTranscriptSummary(path: string, summary: string): Pr
 	try {
 		const record = await readTranscript(path)
 		if (!record) return false
-		await fs.writeTextFile(path, serialize({ ...record, summary }))
+		await writeRecordAtomic(path, { ...record, summary })
 		return true
 	} catch (error) {
 		console.warn('failed to update transcript summary:', path, error)
@@ -344,27 +438,70 @@ export async function renameTranscript(path: string, newName: string): Promise<T
 		if (isProjectRecordPath(path)) {
 			const projectFolder = await pathApi.dirname(path)
 			const oldFolderName = basename(projectFolder)
-			const folderName = `${stem}${keptStampOf(oldFolderName)}`
-			const createdAt = parseStamp(folderName).createdAt
-			let target = path
-			if (folderName !== oldFolderName) {
-				const renamed = await pathApi.join(parentOf(projectFolder) || (await transcriptsFolder()), folderName)
-				await fs.rename(projectFolder, renamed)
-				target = await pathApi.join(renamed, TRANSCRIPT_FILENAME)
+			const keptStamp = keptStampOf(oldFolderName)
+			const root = parentOf(projectFolder) || (await transcriptsFolder())
+			let renamedFolder = projectFolder
+			let folderName = oldFolderName
+
+			if (`${stem}${keptStamp}` !== oldFolderName) {
+				for (let attempt = 1; ; attempt += 1) {
+					folderName = `${stem}${attempt === 1 ? '' : `-${attempt}`}${keptStamp}`
+					const candidate = await pathApi.join(root, folderName)
+					if (await fs.exists(candidate)) continue
+					try {
+						await fs.rename(projectFolder, candidate)
+						renamedFolder = candidate
+						break
+					} catch (error) {
+						if (await fs.exists(candidate)) continue
+						throw error
+					}
+				}
 			}
-			await fs.writeTextFile(target, serialize({ ...record, name: stem }))
-			return { path: target, name: stem, createdAt }
+
+			const target = await pathApi.join(renamedFolder, TRANSCRIPT_FILENAME)
+			let sourcePath = record.sourcePath
+			if (record.audioFile) {
+				const oldAudioPath = await pathApi.join(projectFolder, record.audioFile)
+				if (record.sourcePath === oldAudioPath) sourcePath = await pathApi.join(renamedFolder, record.audioFile)
+			}
+			try {
+				await writeRecordAtomic(target, { ...record, name: stem, sourcePath })
+			} catch (error) {
+				if (renamedFolder !== projectFolder) {
+					try {
+						await fs.rename(renamedFolder, projectFolder)
+					} catch (rollbackError) {
+						console.error('failed to roll back transcript project rename:', renamedFolder, rollbackError)
+					}
+				}
+				throw error
+			}
+			return {
+				path: target,
+				name: stem,
+				createdAt: parseStamp(folderName).createdAt,
+				mediaPath: record.audioFile ? await pathApi.join(renamedFolder, record.audioFile) : record.sourcePath,
+			}
 		}
 
 		const filename = basename(path)
 		const oldStem = filename.slice(0, -TRANSCRIPT_EXTENSION.length)
 		const keptStamp = keptStampOf(oldStem)
 		const folder = parentOf(path) || (await transcriptsFolder())
-		const target = await pathApi.join(folder, `${stem}${keptStamp}${TRANSCRIPT_EXTENSION}`)
-		if (target === path) return { path, name: stem, createdAt: parseStamp(oldStem).createdAt }
-		await fs.writeTextFile(target, serialize({ ...record, name: stem }))
+		let target = path
+		if (`${stem}${keptStamp}${TRANSCRIPT_EXTENSION}` !== filename) {
+			for (let attempt = 1; ; attempt += 1) {
+				const candidate = await pathApi.join(folder, `${stem}${attempt === 1 ? '' : `-${attempt}`}${keptStamp}${TRANSCRIPT_EXTENSION}`)
+				if (await fs.exists(candidate)) continue
+				target = candidate
+				break
+			}
+		}
+		await writeRecordAtomic(target, { ...record, name: stem })
+		if (target === path) return { path, name: stem, createdAt: parseStamp(oldStem).createdAt, mediaPath: record.sourcePath }
 		await fs.remove(path)
-		return { path: target, name: stem, createdAt: parseStamp(`${stem}${keptStamp}`).createdAt }
+		return { path: target, name: stem, createdAt: parseStamp(target.slice(0, -TRANSCRIPT_EXTENSION.length)).createdAt, mediaPath: record.sourcePath }
 	} catch (error) {
 		console.warn('failed to rename transcript:', path, error)
 		return null

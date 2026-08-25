@@ -3,7 +3,6 @@ use eyre::{bail, Context, ContextCompat, Result};
 use serde_json::Value;
 use std::{
     io::{BufRead, BufReader},
-    path::PathBuf,
     sync::atomic::{AtomicBool, Ordering},
 };
 use tauri::{AppHandle, Emitter, Listener, Manager};
@@ -54,25 +53,47 @@ pub async fn get_latest_ytdlp_version() -> Result<String> {
 }
 
 #[tauri::command]
-pub fn get_temp_path(app_handle: AppHandle, ext: String, in_documents: Option<bool>, custom_path: Option<String>) -> String {
-    let mut base_path = if in_documents.unwrap_or_default() {
-        let dir = if let Some(ref cp) = custom_path {
-            PathBuf::from(cp)
+pub fn get_temp_path(ext: String) -> String {
+    let mut base_path = get_vibe_temp_folder();
+    let extension = ext.trim_start_matches('.');
+    let extension =
+        if !extension.is_empty() && extension.len() <= 10 && extension.chars().all(|character| character.is_ascii_alphanumeric())
+        {
+            extension.to_ascii_lowercase()
         } else {
-            app_handle
-                .path()
-                .document_dir()
-                .unwrap_or(get_vibe_temp_folder())
-                .join(crate::config::DOCUMENTS_SUBFOLDER)
+            "m4a".to_string()
         };
-        std::fs::create_dir_all(&dir).ok();
-        dir
-    } else {
-        get_vibe_temp_folder()
-    };
 
-    base_path.push(format!("{}.{}", crate::ffmpeg::get_local_time(), ext));
+    base_path.push(format!(
+        "{}-{}.{}",
+        crate::ffmpeg::get_local_time(),
+        crate::ffmpeg::random_string(10),
+        extension
+    ));
     base_path.to_string_lossy().to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn download_paths_are_always_staged_in_vibe_temp() {
+        let path = PathBuf::from(get_temp_path("m4a".to_string()));
+
+        assert_eq!(path.parent(), Some(get_vibe_temp_folder().as_path()));
+        assert_eq!(path.extension().and_then(|ext| ext.to_str()), Some("m4a"));
+    }
+
+    #[test]
+    fn concurrent_downloads_receive_distinct_safe_paths() {
+        let first = get_temp_path("../wav".to_string());
+        let second = get_temp_path("../wav".to_string());
+
+        assert_ne!(first, second);
+        assert_eq!(PathBuf::from(first).extension().and_then(|ext| ext.to_str()), Some("m4a"));
+    }
 }
 
 #[tauri::command]

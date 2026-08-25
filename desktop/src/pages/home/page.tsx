@@ -71,26 +71,15 @@ export default function Home() {
 								<AudioDeviceInput device={vm.outputDevice} setDevice={vm.setOutputDevice} devices={vm.devices} type="output" />
 							</div>
 
-							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-								<div className="space-y-2">
-									<Label>{m.recordingName()}</Label>
-									<Input
-										type="text"
-										value={vm.recordingName}
-										onChange={(event) => vm.setRecordingName(event.target.value)}
-										placeholder={m.recordingNamePlaceholder()}
-										disabled={vm.isRecording}
-									/>
-								</div>
-								<div className="space-y-2">
-									<Label>{m.saveRecordInDocumentsFolder()}</Label>
-									<div className="flex h-11 items-center justify-between rounded-xl border border-border/40 bg-muted/40 px-4">
-										<span className="text-sm text-muted-foreground">
-											{vm.preference.storeRecordInDocuments ? m.enabled() : m.disabled()}
-										</span>
-										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
-									</div>
-								</div>
+							<div className="space-y-2">
+								<Label>{m.recordingName()}</Label>
+								<Input
+									type="text"
+									value={vm.recordingName}
+									onChange={(event) => vm.setRecordingName(event.target.value)}
+									placeholder={m.recordingNamePlaceholder()}
+									disabled={vm.isRecording}
+								/>
 							</div>
 
 							{!vm.isRecording ? (
@@ -108,7 +97,7 @@ export default function Home() {
 									}}
 									className="mt-1 w-full bg-success text-success-foreground hover:bg-success/90">
 									<Spinner className="mr-2" />
-									{m.stopAndTranscribe()}
+									{m.stopRecording()}
 								</Button>
 							)}
 
@@ -232,10 +221,6 @@ export default function Home() {
 								</div>
 							) : (
 								<>
-									<div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/40 bg-muted/40 px-4 py-3">
-										<span className="text-sm font-medium">{m.saveRecordInDocumentsFolder()}</span>
-										<Switch checked={vm.preference.storeRecordInDocuments} onCheckedChange={vm.preference.setStoreRecordInDocuments} />
-									</div>
 									<Button onMouseDown={vm.downloadAudio} className="w-full" disabled={!vm.preference.modelPath}>
 										{m.downloadFile()}
 									</Button>

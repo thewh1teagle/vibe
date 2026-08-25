@@ -1,11 +1,13 @@
 import { fetch } from '@tauri-apps/plugin-http'
-import { Llm, LlmConfig } from './index'
+import type { Llm, LlmConfig } from './index'
+import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MAX_TOKENS, limitPromptToContext, outputTokensForContext } from './context'
 
 export function deafultConfig(language = 'English'): LlmConfig {
 	return {
 		claudeApiKey: '',
 		model: 'claude-sonnet-4-5',
-		maxTokens: 8192,
+		contextTokens: DEFAULT_CONTEXT_TOKENS,
+		maxTokens: DEFAULT_MAX_TOKENS,
 		enabled: false,
 		ollamaBaseUrl: '',
 		platform: 'claude',
@@ -21,10 +23,12 @@ export class Claude implements Llm {
 	}
 
 	async ask(prompt: string): Promise<string> {
+		const contextTokens = this.config.contextTokens ?? DEFAULT_CONTEXT_TOKENS
+		const maxTokens = this.config.maxTokens ?? DEFAULT_MAX_TOKENS
 		const body = JSON.stringify({
 			model: this.config.model,
-			max_tokens: this.config.maxTokens,
-			messages: [{ role: 'user', content: prompt }],
+			max_tokens: outputTokensForContext(contextTokens, maxTokens),
+			messages: [{ role: 'user', content: limitPromptToContext(prompt, contextTokens, maxTokens) }],
 		})
 		const headers = {
 			Origin: '',

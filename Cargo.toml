@@ -1,5 +1,5 @@
 [workspace]
-members = ["desktop/src-tauri"]
+members = ["desktop/src-tauri", "crates/meeting-detect"]
 resolver = "2"
 
 [workspace.dependencies]

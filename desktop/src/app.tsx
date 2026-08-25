@@ -16,10 +16,12 @@ import ErrorModalWithContext from './components/error-modal-with-context'
 import HandoffTranscriptSaver from './components/handoff-transcript-saver'
 import { FilesProvider } from './providers/files-provider'
 import { HotkeyProvider } from './providers/hotkey'
+import { RecordingShortcutProvider } from './providers/recording-shortcut'
 import { ToastProvider } from './providers/toast'
 import { Toaster } from '~/components/ui/sonner'
 import { TooltipProvider } from '~/components/ui/tooltip'
 import { DirectionProvider } from '~/components/ui/direction'
+import { setMeetingDetectionEnabled } from '~/lib/meeting-prompt'
 
 export default function App() {
 	return (
@@ -30,13 +32,17 @@ export default function App() {
 }
 
 function AppContent() {
-	const { displayLanguage, closeToTray } = usePreferenceProvider()
+	const { displayLanguage, closeToTray, meetingDetectionEnabled } = usePreferenceProvider()
 	const dir = getTextDirection(displayLanguage)
 	useTray(closeToTray, displayLanguage)
 
 	useEffect(() => {
 		document.body.dir = dir
 	}, [dir])
+
+	useEffect(() => {
+		setMeetingDetectionEnabled(meetingDetectionEnabled).catch((error) => console.error('Failed to sync meeting detection:', error))
+	}, [meetingDetectionEnabled])
 
 	return (
 		<DirectionProvider dir={dir}>
@@ -46,18 +52,20 @@ function AppContent() {
 						<TooltipProvider>
 							<ToastProvider>
 								<HotkeyProvider>
-									<ErrorModalWithContext />
-									<UpdateProgress />
-									{/* Phone transcriptions arrive while the user is elsewhere, so this must outlive any page. */}
-									<HandoffTranscriptSaver />
-									<FilesProvider>
-										<Routes>
-											<Route path="/" element={<MainPage />} />
-											<Route path="/setup" element={<SetupPage />} />
-											<Route path="/batch" element={<Navigate to="/" replace />} />
-										</Routes>
-									</FilesProvider>
-									<Toaster position="bottom-right" />
+									<RecordingShortcutProvider>
+										<ErrorModalWithContext />
+										<UpdateProgress />
+										{/* Phone transcriptions arrive while the user is elsewhere, so this must outlive any page. */}
+										<HandoffTranscriptSaver />
+										<FilesProvider>
+											<Routes>
+												<Route path="/" element={<MainPage />} />
+												<Route path="/setup" element={<SetupPage />} />
+												<Route path="/batch" element={<Navigate to="/" replace />} />
+											</Routes>
+										</FilesProvider>
+										<Toaster position="bottom-right" />
+									</RecordingShortcutProvider>
 								</HotkeyProvider>
 							</ToastProvider>
 						</TooltipProvider>

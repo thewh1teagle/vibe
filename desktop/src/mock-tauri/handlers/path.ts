@@ -1,5 +1,5 @@
 import type { CommandHandlerMap } from '../types'
-import { APP_LOCAL_DATA, DOCUMENTS_FOLDER } from '../state'
+import { APP_LOCAL_DATA, DOCUMENTS_FOLDER, DOWNLOADS_FOLDER } from '../state'
 
 // @tauri-apps/api/path commands. Virtual paths are POSIX-style, so plain string math suffices.
 
@@ -16,6 +16,7 @@ function normalize(path: string): string {
 // BaseDirectory enum values from @tauri-apps/api/path (only the ones the app can hit).
 const baseDirectories: Record<number, string> = {
 	6: DOCUMENTS_FOLDER, // Document
+	7: DOWNLOADS_FOLDER, // Download
 	12: `${APP_LOCAL_DATA}/tmp`, // Temp
 	13: `${APP_LOCAL_DATA}/config`, // AppConfig
 	14: `${APP_LOCAL_DATA}/data`, // AppData

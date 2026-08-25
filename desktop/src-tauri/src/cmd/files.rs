@@ -108,7 +108,7 @@ pub fn get_argv() -> Vec<String> {
 }
 
 #[tauri::command]
-pub fn get_default_recording_path(app_handle: AppHandle) -> Result<String> {
+pub fn get_default_projects_path(app_handle: AppHandle) -> Result<String> {
     let path = app_handle
         .path()
         .document_dir()

@@ -9,9 +9,13 @@ import { m } from '~/paraglide/messages.js'
 import * as config from '~/lib/config'
 import { pathToNamedPath } from '~/lib/fs'
 import { cleanupPartialDownloads, listInstalledModels, type InstalledModel } from '~/lib/model'
+import { autoProjectName } from '~/lib/project-name'
+import { notifyTranscriptsChanged, saveTranscript, TRANSCRIPT_VERSION, type TranscriptRecord } from '~/lib/transcripts-store'
 import type { NamedPath, ProjectSource } from '~/lib/types'
 import { useConfirmExit } from '~/lib/use-confirm-exit'
 import { hotkeyRecordingActive } from '~/providers/hotkey'
+import { useRecordingShortcut } from '~/providers/recording-shortcut'
+import { ErrorModalContext } from '~/providers/error-modal'
 import { usePreferenceProvider, type Preference } from '~/providers/preference'
 import { useAudioDownload } from '~/pages/home/hooks/use-audio-download'
 import { useRecording } from '~/pages/home/hooks/use-recording'
@@ -55,6 +59,8 @@ const mediaExtensions = [...config.audioExtensions, ...config.videoExtensions]
 export function SessionProvider({ children }: { children: ReactNode }) {
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
+	const recordingShortcut = useRecordingShortcut()
+	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const queue = useTranscribeQueue()
 	const summaries = useSummaries(queue)
 	const [panel, setPanel] = useState<IdlePanel>('none')
@@ -65,6 +71,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		enqueueRef.current = queue.enqueue
 	}, [queue.enqueue])
+	const recordingCompletionRef = useRef({
+		hydrate: queue.hydrate,
+		transcribeJob: queue.transcribeJob,
+		preference,
+	})
+	useEffect(() => {
+		recordingCompletionRef.current = { hydrate: queue.hydrate, transcribeJob: queue.transcribeJob, preference }
+	}, [preference, queue.hydrate, queue.transcribeJob])
 
 	const enqueuePaths = useCallback(
 		async (paths: string[], source: ProjectSource) => {
@@ -113,8 +127,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		[enqueuePaths],
 	)
 
-	const recording = useRecording(() => setPanel('record'))
+	const manualRecording = useRecording(() => setPanel('record'))
+	const recording = useMemo(
+		() => ({ ...manualRecording, isRecording: manualRecording.isRecording || recordingShortcut.isShortcutRecording }),
+		[manualRecording, recordingShortcut.isShortcutRecording],
+	)
 	const link = useAudioDownload(transcribeOne)
+
+	useEffect(() => {
+		recordingShortcut.setNormalRecordingActive(recording.isRecording)
+		return () => recordingShortcut.setNormalRecordingActive(false)
+	}, [recording.isRecording, recordingShortcut.setNormalRecordingActive])
+
+	useEffect(() => {
+		if (recordingShortcut.isShortcutRecording) setPanel('record')
+	}, [recordingShortcut.isShortcutRecording])
 
 	useEffect(() => {
 		if (!recording.isRecording) {
@@ -127,18 +154,66 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		return () => window.clearInterval(timer)
 	}, [recording.isRecording])
 
-	// Recording finished in the backend -> the produced file goes straight into the queue.
+	// A recording becomes a durable project first. Transcription is an optional second step which
+	// updates that same project, so a failed/disabled transcription never costs the user the audio.
 	useEffect(() => {
-		const unlisten: Promise<UnlistenFn> = listen<{ path: string; name: string }>('record_finish', ({ payload }) => {
+		const unlisten: Promise<UnlistenFn> = listen<{ path: string; name: string; warning?: string }>('record_finish', async ({ payload }) => {
 			if (hotkeyRecordingActive) return
 			recording.setIsRecording(false)
 			setPanel('none')
-			enqueueRef.current([{ name: payload.name, path: payload.path, source: 'record' }])
+			if (payload.warning) toast.warning(m.recordingRecoveredWarning(), { description: payload.warning, position: 'bottom-center' })
+
+			const { preference: current, hydrate, transcribeJob } = recordingCompletionRef.current
+			const name = autoProjectName(payload.name, 'record')
+			const createdAt = new Date()
+			const saved = await saveTranscript({
+				name,
+				sourcePath: payload.path,
+				projectsPath: current.projectsPath,
+				moveSourceMedia: true,
+				segments: [],
+				language: current.modelOptions.lang,
+				modelPath: current.modelPath,
+				createdAt,
+			})
+			if (!saved) {
+				const message = `Failed to save recording project; the recording remains at ${payload.path}`
+				console.error(message)
+				toast.error(m.error(), { description: message, position: 'bottom-center' })
+				return
+			}
+
+			const record: TranscriptRecord = {
+				version: TRANSCRIPT_VERSION,
+				name,
+				sourcePath: saved.mediaPath,
+				createdAt: createdAt.toISOString(),
+				language: current.modelOptions.lang,
+				modelPath: current.modelPath,
+				segments: [],
+			}
+			const jobId = hydrate(record, saved.recordPath, saved.mediaPath, 'record')
+			notifyTranscriptsChanged()
+			if (current.autoTranscribeAfterRecording && jobId) transcribeJob(jobId)
 		})
 		return () => {
 			unlisten.then((fn) => fn())
 		}
 	}, [recording.setIsRecording])
+
+	useEffect(() => {
+		const unlisten: Promise<UnlistenFn> = listen<string | { message?: string }>('record_error', ({ payload }) => {
+			if (hotkeyRecordingActive) return
+			const message = typeof payload === 'string' ? payload : payload?.message || m.error()
+			recording.setIsRecording(false)
+			setPanel('none')
+			toast.error(m.error(), { description: message, position: 'bottom-center' })
+			setErrorModal?.({ log: message, open: true })
+		})
+		return () => {
+			unlisten.then((fn) => fn())
+		}
+	}, [recording.setIsRecording, setErrorModal])
 
 	const browse = useCallback(async () => {
 		/**

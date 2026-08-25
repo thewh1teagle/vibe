@@ -1,0 +1,15 @@
+<svg viewBox="0 0 176 138" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<path fill="url(#meet-camera)" d="M102.015 81.88c-6.829-4.718-6.921-14.778-.179-19.62L157 22.643c7.94-5.701 19-.038 19 9.737v77.755c0 9.675-10.861 15.359-18.821 9.859z"/>
+	<path fill="url(#meet-body)" d="M0 44C0 19.7 19.7 0 44 0h64c11.046 0 20 8.954 20 20v98c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20z"/>
+	<mask id="meet-mask" width="129" height="138" x="0" y="0" maskUnits="userSpaceOnUse">
+		<path fill="#fff" d="M0 44C0 19.7 19.7 0 44 0h64c11.046 0 20 8.954 20 20v98c0 11.046-8.954 20-20 20H20c-11.046 0-20-8.954-20-20z"/>
+	</mask>
+	<g filter="url(#meet-blur)" mask="url(#meet-mask)"><path fill="url(#meet-highlight)" d="M65.906 72.198 175.906 9v124z"/></g>
+	<circle cx="30" cy="108" r="14" fill="#fff"/>
+	<defs>
+		<linearGradient id="meet-camera" x1="120.8" x2="219.2" y1="77.44" y2="77.44" gradientUnits="userSpaceOnUse"><stop stop-color="#F6A100"/><stop offset="1" stop-color="#FFBE00"/></linearGradient>
+		<linearGradient id="meet-highlight" x1="128.22" x2="70.5" y1="64.32" y2="64.19" gradientUnits="userSpaceOnUse"><stop offset=".15" stop-color="#FFB5E8"/><stop offset="1" stop-color="#FFDBF5" stop-opacity="0"/></linearGradient>
+		<radialGradient id="meet-body" cx="0" cy="0" r="1" gradientTransform="matrix(-159.725 0 0 -135.852 144.325 42)" gradientUnits="userSpaceOnUse"><stop offset=".15" stop-color="#FFE921"/><stop offset="1" stop-color="#FEC700"/></radialGradient>
+		<filter id="meet-blur" width="166" height="180" x="37.91" y="-19" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/></filter>
+	</defs>
+</svg>

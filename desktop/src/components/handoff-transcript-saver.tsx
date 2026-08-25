@@ -79,11 +79,13 @@ export default function HandoffTranscriptSaver() {
 			void saveTranscript({
 				name,
 				sourcePath,
+				projectsPath: preferenceRef.current.projectsPath,
+				moveSourceMedia: true,
 				segments,
 				language: payload.language ?? undefined,
 				modelPath: payload.modelPath ?? payload.model_path ?? null,
-			}).then((savedTranscriptPath) => {
-				if (!savedTranscriptPath) {
+			}).then((savedTranscript) => {
+				if (!savedTranscript) {
 					// Let it be retried if the same recording is announced again.
 					savedRef.current.delete(key)
 					return

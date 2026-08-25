@@ -1,0 +1,15 @@
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<path d="M11 10h6.109A2.891 2.891 0 0 1 20 12.891V18a3 3 0 0 1-6 0v-5.109A2.891 2.891 0 0 0 11.109 10H11Z" fill="url(#teams-a)"/>
+	<path d="M4 11.891A2.891 2.891 0 0 1 6.891 9h4.218A2.891 2.891 0 0 1 14 11.891V18a3 3 0 0 0 3 3H8.956A4.956 4.956 0 0 1 4 16.043v-4.152Z" fill="url(#teams-b)"/>
+	<path d="M16.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" fill="url(#teams-c)"/>
+	<path d="M9 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="url(#teams-d)"/>
+	<rect x="2" y="10" width="9" height="9" rx="2" fill="url(#teams-e)"/>
+	<path fill="#fff" d="M8.406 12.917H7.066V17H5.934v-4.083h-1.34V12h3.812v.917Z"/>
+	<defs>
+		<radialGradient id="teams-a" cx="0" cy="0" r="1" gradientTransform="translate(19.899 11.087) scale(6.739 16.635)" gradientUnits="userSpaceOnUse"><stop stop-color="#A98AFF"/><stop offset=".14" stop-color="#8C75FF"/><stop offset=".565" stop-color="#5F50E2"/><stop offset=".9" stop-color="#3C2CB8"/></radialGradient>
+		<radialGradient id="teams-b" cx="0" cy="0" r="1" gradientTransform="rotate(68.154 -4.032 7.183) scale(16.376 16.562)" gradientUnits="userSpaceOnUse"><stop stop-color="#85C2FF"/><stop offset=".69" stop-color="#7588FF"/><stop offset="1" stop-color="#6459FE"/></radialGradient>
+		<radialGradient id="teams-c" cx="0" cy="0" r="1" gradientTransform="matrix(0 -5 6.311 0 16.5 5.786)" gradientUnits="userSpaceOnUse"><stop offset=".268" stop-color="#6868F7"/><stop offset="1" stop-color="#3923B1"/></radialGradient>
+		<radialGradient id="teams-d" cx="0" cy="0" r="1" gradientTransform="matrix(0 -6 7.573 0 9 4.143)" gradientUnits="userSpaceOnUse"><stop offset=".268" stop-color="#8282FF"/><stop offset="1" stop-color="#3923B1"/></radialGradient>
+		<radialGradient id="teams-e" cx="0" cy="0" r="1" gradientTransform="rotate(45 -11.071 7.414) scale(12.728)" gradientUnits="userSpaceOnUse"><stop offset=".047" stop-color="#688EFF"/><stop offset=".947" stop-color="#230F94"/></radialGradient>
+	</defs>
+</svg>

@@ -21,6 +21,8 @@ const YTDLP_TICK_MS = 100
 
 // Module-level mock state (survives across invokes for the lifetime of the page).
 let dictationIndicatorEnabled = false
+let meetingDetectionEnabled = false
+let meetingPromptState: { source: 'meet' | 'zoom' | 'teams' } | null = null
 
 function sleep(ms: number) {
 	return new Promise<void>((resolve) => setTimeout(resolve, ms))
@@ -65,7 +67,7 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 
 	start_record: (args) => {
 		console.info('[mock] start_record', args)
-		const path = `${DOCUMENTS_FOLDER}/recording.wav`
+		const path = `${APP_LOCAL_DATA}/recording.wav`
 		// Stand in for the capture callbacks: a level event every 100ms, like the throttled Rust side.
 		let tick = 0
 		const levelTimer = window.setInterval(() => {
@@ -130,7 +132,7 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 		return join(dirname(src), `${stem(basename(src))}${suffix}`)
 	},
 
-	get_default_recording_path: () => `${DOCUMENTS_FOLDER}/recordings`,
+	get_default_projects_path: () => `${DOCUMENTS_FOLDER}/Vibe`,
 
 	get_temp_path: (args) => `${APP_LOCAL_DATA}/tmp.${String(args?.ext ?? 'tmp')}`,
 
@@ -190,7 +192,13 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 	open_system_audio_settings: () => {
 		console.info('[mock] open_system_audio_settings')
 	},
-	request_system_audio_permission: () => true,
+	get_system_audio_permission_status: () => 'granted',
+	request_system_audio_permission: () => 'granted',
+	get_microphone_permission_status: () => 'granted',
+	request_microphone_permission: () => 'granted',
+	open_microphone_settings: () => {
+		console.info('[mock] open_microphone_settings')
+	},
 
 	track_analytics_event: () => undefined,
 
@@ -206,4 +214,17 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 	},
 	hide_dictation_indicator: () => undefined,
 	dictation_indicator_ready: () => undefined,
+
+	// --- Meeting prompt ----------------------------------------------------------
+
+	get_meeting_detection_enabled: () => meetingDetectionEnabled,
+	set_meeting_detection_enabled: (args) => {
+		meetingDetectionEnabled = Boolean(args?.enabled)
+		if (!meetingDetectionEnabled) meetingPromptState = null
+	},
+	get_meeting_prompt_state: () => meetingPromptState,
+	dismiss_meeting_prompt: () => {
+		meetingPromptState = null
+	},
+	meeting_prompt_ready: () => undefined,
 }

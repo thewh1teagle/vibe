@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core'
+import { dirname, downloadDir, join } from '@tauri-apps/api/path'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as fs from '@tauri-apps/plugin-fs'
@@ -8,6 +8,7 @@ import { m } from '~/paraglide/messages.js'
 import { formatExtensions, type TextFormat } from '~/components/format-select'
 import { openPath } from '~/lib/app'
 import { toDocx } from '~/lib/docx'
+import { projectExportFilename } from '~/lib/project-name'
 import { serializeTranscriptExport, type TranscriptExportContent, type TranscriptExportOptions } from '~/lib/transcript-export'
 import type { Segment } from '~/lib/transcript'
 import type { NamedPath } from '~/lib/types'
@@ -57,13 +58,13 @@ export function useTranscriptExport({ enabled = true, segments, summary, file, f
 	}, [preview])
 
 	const save = useCallback(async () => {
-		if (!file || (segments.length === 0 && !summary)) return
+		if (!file || (segments.length === 0 && !summary)) return false
 		if (format === 'pdf') {
 			// The complete print tree exists only while the system print sheet is open.
 			const html = serializeTranscriptExport('html', segments, summary, serializerOptions)
 			const parsed = new DOMParser().parseFromString(html, 'text/html')
 			const printable = parsed.body.firstElementChild
-			if (!printable) return
+			if (!printable) return false
 			const mounted = document.importNode(printable, true)
 			const styles = [...parsed.head.querySelectorAll('style')].map((style) => document.importNode(style, true))
 			for (const style of styles) document.head.appendChild(style)
@@ -74,17 +75,24 @@ export function useTranscriptExport({ enabled = true, segments, summary, file, f
 				mounted.remove()
 				for (const style of styles) style.remove()
 			}
-			return
+			return true
 		}
 
 		const extension = formatExtensions[format].slice(1)
-		const suggested = await invoke<NamedPath>('get_save_path', { srcPath: file.path, targetExt: extension })
+		const suggestedName = projectExportFilename(file.name, extension)
+		let defaultDirectory = await dirname(file.path)
+		try {
+			defaultDirectory = await downloadDir()
+		} catch {
+			// Some platforms may not expose a Downloads directory; use the transcript's folder.
+		}
+		const defaultPath = await join(defaultDirectory, suggestedName)
 		const target = await dialog.save({
 			filters: [{ name: '', extensions: [extension] }],
 			canCreateDirectories: true,
-			defaultPath: suggested.path,
+			defaultPath,
 		})
-		if (!target) return
+		if (!target) return false
 
 		if (format === 'docx') {
 			const document = await toDocx(file.name, segments, preference.textAreaDirection, speakerLabel, {
@@ -103,10 +111,11 @@ export function useTranscriptExport({ enabled = true, segments, summary, file, f
 		}
 
 		toast.success(m.saveSuccess(), {
-			description: suggested.name,
+			description: suggestedName,
 			position: 'bottom-center',
-			action: { label: m.findHere(), onClick: () => openPath({ name: '', path: target }) },
+			action: { label: m.showInFolder(), onClick: () => openPath({ name: '', path: target }) },
 		})
+		return true
 	}, [
 		content,
 		file,
