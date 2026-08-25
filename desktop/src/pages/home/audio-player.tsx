@@ -2,6 +2,8 @@ import formatDuration from 'format-duration'
 import { useEffect, useRef, useState } from 'react'
 import { Music2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Button } from '~/components/ui/button'
+import { PlaybackRateButton } from '~/components/playback-rate-button'
+import { usePlaybackRate } from '~/lib/playback-rate'
 import { m } from '~/paraglide/messages.js'
 
 interface AudioInputProps {
@@ -18,6 +20,9 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 	const rafRef = useRef<number | null>(null)
 	const isSeekingRef = useRef(false)
 	const resumeAfterSeekRef = useRef(false)
+	const audioRef = useRef(audio)
+	audioRef.current = audio
+	const { playbackRate, cyclePlaybackRate } = usePlaybackRate(audioRef, audio)
 
 	function updateProgressState(position: number, total: number) {
 		const safeTotal = total || 1
@@ -185,6 +190,7 @@ export default function AudioPlayer({ audio, label, onLabelClick }: AudioInputPr
 				</div>
 
 				<div className="mt-3 flex items-center justify-center gap-2.5">
+					<PlaybackRateButton playbackRate={playbackRate} onCycle={cyclePlaybackRate} />
 					<Button
 						size="iconSm"
 						variant="ghost"

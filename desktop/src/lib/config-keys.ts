@@ -50,6 +50,9 @@ export const CONFIG_KEYS = {
 	textFormatSummary: 'transcript.summaryExportFormat',
 	transcriptTab: 'transcript.tab',
 
+	// Playback
+	playbackRate: 'player.playbackRate',
+
 	// Global dictation
 	hotkeyEnabled: 'dictation.enabled',
 	hotkeyShortcut: 'dictation.shortcut',

@@ -9,6 +9,7 @@ use eyre::eyre;
 use once_cell::sync::Lazy;
 use std::fs;
 use tauri::{App, Manager};
+use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_store::StoreExt;
 use tokio::sync::Mutex;
@@ -44,6 +45,16 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     crate::cleaner::clean_old_files().log_error();
     crate::cleaner::clean_updater_files().log_error();
     tracing::debug!("Vibe App Running");
+
+    // Re-applying an existing registration upgrades installs created before the hidden launch
+    // argument was added. `enable` overwrites the platform entry while preserving its enabled
+    // state; failures are non-fatal because they must not prevent a manual launch.
+    if app.autolaunch().is_enabled().unwrap_or(false) {
+        app.autolaunch()
+            .enable()
+            .map_err(|error| eyre!("failed to refresh autostart registration: {error}"))
+            .log_error();
+    }
 
     // Settings live in app_config.json so a person or an agent can edit it directly; the store
     // plugin never re-reads the file, so a watcher has to push external edits into it.
@@ -116,6 +127,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         });
     } else {
         tracing::debug!("Non CLI mode");
+        let background_launch = cli::is_background_launch();
         // Create main window
         let builder = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
             .inner_size(800.0, 700.0)
@@ -123,9 +135,9 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .center()
             .title("Vibe")
             .resizable(true)
-            .focused(true)
+            .focused(!background_launch)
             .shadow(true)
-            .visible(true);
+            .visible(!background_launch);
         // The web content extends under the titlebar so the sidebar toggle can sit
         // beside the traffic lights (ChatGPT-desktop style); the topbar is a drag region.
         #[cfg(target_os = "macos")]
