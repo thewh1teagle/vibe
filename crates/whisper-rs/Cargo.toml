@@ -23,3 +23,9 @@ default = ["ffi"]
 # Historical name: enables the native GGML engine. Without it the crate
 # builds as pure Rust with a stub Context.
 ffi = ["dep:ggml-rs-sys", "dep:vad-rs"]
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+] }

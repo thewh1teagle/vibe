@@ -2456,6 +2456,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "vad-rs",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

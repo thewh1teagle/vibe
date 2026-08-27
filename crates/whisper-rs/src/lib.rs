@@ -247,6 +247,26 @@ impl Default for FullParams {
 
 /// A loaded whisper model plus its inference state — the equivalent of
 /// `whisper_context` + `whisper_state`.
+/// Engine construction options — the `whisper_context_params` subset.
+#[cfg(feature = "ffi")]
+#[derive(Debug, Clone, Copy)]
+pub struct WhisperOptions {
+    pub n_threads: i32,
+    pub use_gpu: bool,
+    pub gpu_device: i32,
+}
+
+#[cfg(feature = "ffi")]
+impl Default for WhisperOptions {
+    fn default() -> Self {
+        Self {
+            n_threads: 4,
+            use_gpu: true,
+            gpu_device: 0,
+        }
+    }
+}
+
 #[cfg(feature = "ffi")]
 pub struct Whisper {
     model: model::Model,
@@ -257,12 +277,12 @@ pub struct Whisper {
 #[cfg(feature = "ffi")]
 impl Whisper {
     pub fn new(path: impl AsRef<Path>) -> Result<Self> {
-        Self::with_threads(path, 4)
+        Self::with_options(path, WhisperOptions::default())
     }
 
-    pub fn with_threads(path: impl AsRef<Path>, n_threads: i32) -> Result<Self> {
-        let model = model::Model::load(path.as_ref())?;
-        let state = state::State::new(&model, n_threads)?;
+    pub fn with_options(path: impl AsRef<Path>, options: WhisperOptions) -> Result<Self> {
+        let model = model::Model::load(path.as_ref(), options.use_gpu, options.gpu_device)?;
+        let state = state::State::new(&model, options.n_threads, options.use_gpu, options.gpu_device)?;
         let runtime = encode::Runtime::new(&state.backends)?;
         Ok(Self { model, state, runtime })
     }

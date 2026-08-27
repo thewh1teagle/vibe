@@ -30,12 +30,16 @@ impl Context {
         let size = model_file::validate(path)?;
         model_file::check_available_memory(path, size)?;
 
-        // The engine is CPU-only for now; the GPU knobs are accepted for
-        // compatibility and ignored.
-        let _ = options;
+        let mut engine_options = crate::WhisperOptions {
+            use_gpu: !options.no_gpu && vulkan_available(),
+            ..Default::default()
+        };
+        if options.gpu_device >= 0 {
+            engine_options.gpu_device = options.gpu_device;
+        }
 
         Ok(Self {
-            whisper: Whisper::new(path)?,
+            whisper: Whisper::with_options(path, engine_options)?,
         })
     }
 
@@ -238,6 +242,27 @@ fn should_log(level: ffi::ggml_log_level) -> bool {
         LAST_LOGGED.store(logged, Ordering::Relaxed);
     }
     logged
+}
+
+/// GPU gating carried over from the previous implementation: Vulkan is only
+/// attempted when the runtime library is present (Windows), and always
+/// considered available elsewhere (macOS uses Metal).
+#[cfg(windows)]
+fn vulkan_available() -> bool {
+    use windows_sys::Win32::Foundation::FreeLibrary;
+    use windows_sys::Win32::System::LibraryLoader::LoadLibraryA;
+
+    let handle = unsafe { LoadLibraryA(c"vulkan-1.dll".as_ptr().cast()) };
+    if handle.is_null() {
+        return false;
+    }
+    unsafe { FreeLibrary(handle) };
+    true
+}
+
+#[cfg(not(windows))]
+fn vulkan_available() -> bool {
+    true
 }
 
 extern "C" fn ggml_abort_callback(message: *const c_char) {

@@ -168,10 +168,32 @@ struct Spec {
     ne: Vec<i64>,
 }
 
-/// Port of `make_buft_list` for the CPU-only path: every "extra" CPU buffer
-/// type (e.g. the aarch64 repack layouts), then the default CPU buffer type.
-unsafe fn cpu_buft_list() -> Vec<(sys::ggml_backend_dev_t, sys::ggml_backend_buffer_type_t)> {
+/// Port of `make_buft_list`: the selected GPU device's buffer type first
+/// (when GPU use is enabled), then every "extra" CPU buffer type (e.g. the
+/// aarch64 repack layouts), then the default CPU buffer type.
+unsafe fn make_buft_list(use_gpu: bool, gpu_device: i32) -> Vec<(sys::ggml_backend_dev_t, sys::ggml_backend_buffer_type_t)> {
     let mut list = Vec::new();
+    if use_gpu {
+        let mut cnt = 0;
+        for i in 0..sys::ggml_backend_dev_count() {
+            let dev = sys::ggml_backend_dev_get(i);
+            let dev_type = sys::ggml_backend_dev_type(dev);
+            if dev_type == sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_GPU
+                || dev_type == sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_IGPU
+            {
+                if cnt == gpu_device {
+                    let buft = sys::ggml_backend_dev_buffer_type(dev);
+                    if !buft.is_null() {
+                        list.push((dev, buft));
+                    }
+                }
+                cnt += 1;
+                if cnt > gpu_device {
+                    break;
+                }
+            }
+        }
+    }
     let cpu_dev = sys::ggml_backend_dev_by_type(sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_CPU);
     let cpu_reg = sys::ggml_backend_dev_backend_reg(cpu_dev);
     let addr = sys::ggml_backend_reg_get_proc_address(cpu_reg, c"ggml_backend_dev_get_extra_bufts".as_ptr());
@@ -197,6 +219,14 @@ unsafe fn select_weight_buft(
     buft_list: &[(sys::ggml_backend_dev_t, sys::ggml_backend_buffer_type_t)],
 ) -> Option<sys::ggml_backend_buffer_type_t> {
     for &(dev, buft) in buft_list {
+        let dev_type = sys::ggml_backend_dev_type(dev);
+        if dev_type == sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_GPU
+            || dev_type == sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_IGPU
+        {
+            // GPU backends support every operator (unsupported ops fall back
+            // to the CPU through the scheduler at graph time).
+            return Some(buft);
+        }
         if buft == sys::ggml_backend_cpu_buffer_type() {
             // The default CPU backend supports every operator.
             return Some(buft);
@@ -243,7 +273,7 @@ unsafe fn select_weight_buft(
 }
 
 impl Model {
-    pub(crate) fn load(path: &Path) -> Result<Self, Error> {
+    pub(crate) fn load(path: &Path, use_gpu: bool, gpu_device: i32) -> Result<Self, Error> {
         let span = tracing::info_span!("model_load", path = %path.display());
         let _guard = span.enter();
         let start = std::time::Instant::now();
@@ -317,7 +347,10 @@ impl Model {
         // (repacked "extra" CPU layouts for supported mul_mat/get_rows
         // weights, plain CPU otherwise), one meta context per buffer type —
         // whisper.cpp's ctx_map.
-        let buft_list = unsafe { cpu_buft_list() };
+        let buft_list = unsafe {
+            sys::ggml_backend_load_all();
+            make_buft_list(use_gpu, gpu_device)
+        };
         let mut ctx_map: Vec<(sys::ggml_backend_buffer_type_t, *mut sys::ggml_context)> = Vec::new();
         let mut tensors: HashMap<String, Tensor> = HashMap::with_capacity(specs.len());
         unsafe {

@@ -223,14 +223,54 @@ impl Drop for State {
     }
 }
 
-/// Port of `whisper_backend_init` with `use_gpu = false`: every ACCEL device
-/// (BLAS on macOS), then the CPU backend.
-unsafe fn backend_init() -> Result<Vec<sys::ggml_backend_t>, Error> {
+/// Port of `whisper_backend_init_gpu`: the `gpu_device`-th GPU or IGPU
+/// device, or null when there is none (or GPU use is disabled).
+pub(crate) unsafe fn gpu_device_init(use_gpu: bool, gpu_device: i32) -> sys::ggml_backend_t {
+    if !use_gpu {
+        return std::ptr::null_mut();
+    }
+    sys::ggml_backend_load_all();
+    let mut cnt = 0;
+    for i in 0..sys::ggml_backend_dev_count() {
+        let dev = sys::ggml_backend_dev_get(i);
+        let dev_type = sys::ggml_backend_dev_type(dev);
+        if dev_type == sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_GPU
+            || dev_type == sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_IGPU
+        {
+            if cnt == gpu_device {
+                let backend = sys::ggml_backend_dev_init(dev, std::ptr::null());
+                if backend.is_null() {
+                    tracing::error!("failed to initialize GPU backend");
+                } else {
+                    tracing::info!(
+                        name = ?std::ffi::CStr::from_ptr(sys::ggml_backend_dev_name(dev)),
+                        "using GPU backend"
+                    );
+                }
+                return backend;
+            }
+            cnt += 1;
+            if cnt > gpu_device {
+                break;
+            }
+        }
+    }
+    tracing::info!("no GPU found");
+    std::ptr::null_mut()
+}
+
+/// Port of `whisper_backend_init`: GPU (when enabled and present), then every
+/// ACCEL device (BLAS on macOS), then the CPU backend.
+unsafe fn backend_init(use_gpu: bool, gpu_device: i32) -> Result<Vec<sys::ggml_backend_t>, Error> {
     // No-op on static builds; on GGML_BACKEND_DL builds this loads the
     // best-scoring CPU-variant module (and any other backend modules) so the
     // registry below has devices to enumerate.
     sys::ggml_backend_load_all();
     let mut backends = Vec::new();
+    let gpu = gpu_device_init(use_gpu, gpu_device);
+    if !gpu.is_null() {
+        backends.push(gpu);
+    }
     for i in 0..sys::ggml_backend_dev_count() {
         let dev = sys::ggml_backend_dev_get(i);
         if sys::ggml_backend_dev_type(dev) == sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_ACCEL {
@@ -258,11 +298,11 @@ unsafe fn backend_init() -> Result<Vec<sys::ggml_backend_t>, Error> {
 }
 
 impl State {
-    pub fn new(model: &Model, n_threads: i32) -> Result<Self, Error> {
+    pub fn new(model: &Model, n_threads: i32, use_gpu: bool, gpu_device: i32) -> Result<Self, Error> {
         let hp = &model.hparams;
         let _ = n_threads;
         unsafe {
-            let backends = backend_init()?;
+            let backends = backend_init(use_gpu, gpu_device)?;
             let backend = backends[0];
 
             let kv_self = KvCache::new(
