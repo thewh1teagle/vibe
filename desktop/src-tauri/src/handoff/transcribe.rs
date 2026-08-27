@@ -348,7 +348,10 @@ pub(super) fn model_settings(app_handle: &tauri::AppHandle) -> Option<ModelSetti
         .get(CONFIG_KEY_GPU_DEVICE)
         .and_then(|value| value.as_i64())
         .map(|value| value as i32);
-    let no_gpu = store.get(CONFIG_KEY_NO_GPU).and_then(|value| value.as_bool()).unwrap_or(false);
+    let no_gpu = store
+        .get(CONFIG_KEY_NO_GPU)
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false);
     let unload_timeout_minutes = store
         .get(CONFIG_KEY_UNLOAD_TIMEOUT_MINUTES)
         .and_then(|value| value.as_u64())
