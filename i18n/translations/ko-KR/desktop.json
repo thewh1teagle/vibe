@@ -245,6 +245,8 @@
 	"recordingShortcutEnabledInfo": "어디서나 녹음을 시작하거나 중지할 수 있습니다. 완료된 녹음은 프로젝트로 저장됩니다.",
 	"recordingShortcut": "단축키",
 	"recordingShortcutInfo": "한 번 누르면 녹음을 시작하고 다시 누르면 중지합니다.",
+	"meetPermission": "Google Meet 감지",
+	"meetPermissionInfo": "Meet 통화를 인식하려면 브라우저 창 제목을 읽어야 하며, macOS는 화면 기록 권한이 있을 때만 이를 허용합니다. Zoom과 Teams는 이 권한 없이도 작동합니다.",
 	"microphonePermission": "마이크",
 	"microphonePermissionInfo": "마이크 오디오를 녹음하는 데 필요합니다.",
 	"systemAudioPermission": "시스템 오디오",

@@ -245,6 +245,8 @@
 	"recordingShortcutEnabledInfo": "Démarrez ou arrêtez un enregistrement depuis n'importe où. Les enregistrements terminés sont enregistrés comme projets.",
 	"recordingShortcut": "Raccourci",
 	"recordingShortcutInfo": "Appuyez une fois pour démarrer l'enregistrement, puis de nouveau pour l'arrêter.",
+	"meetPermission": "Détection de Google Meet",
+	"meetPermissionInfo": "Reconnaître un appel Meet nécessite de lire le titre de la fenêtre de votre navigateur, ce que macOS n'autorise qu'avec la permission Enregistrement de l'écran. Zoom et Teams fonctionnent sans elle.",
 	"microphonePermission": "Microphone",
 	"microphonePermissionInfo": "Requis pour enregistrer le son du microphone.",
 	"systemAudioPermission": "Audio du système",

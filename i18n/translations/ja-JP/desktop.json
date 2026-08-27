@@ -245,6 +245,8 @@
 	"recordingShortcutEnabledInfo": "どこからでも録音を開始または停止できます。完了した録音はプロジェクトとして保存されます。",
 	"recordingShortcut": "ショートカット",
 	"recordingShortcutInfo": "1回押すと録音を開始し、もう一度押すと停止します。",
+	"meetPermission": "Google Meetの検出",
+	"meetPermissionInfo": "Meetの通話を認識するには、ブラウザのウィンドウタイトルを読み取る必要があり、macOSでは「画面収録」権限がある場合のみ許可されます。ZoomとTeamsはこの権限がなくても動作します。",
 	"microphonePermission": "マイク",
 	"microphonePermissionInfo": "マイクの音声を録音するために必要です。",
 	"systemAudioPermission": "システムオーディオ",

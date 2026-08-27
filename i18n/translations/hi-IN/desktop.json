@@ -245,6 +245,8 @@
 	"recordingShortcutEnabledInfo": "कहीं से भी रिकॉर्डिंग शुरू या बंद करें। पूरी हुई रिकॉर्डिंग प्रोजेक्ट के रूप में सहेजी जाती हैं।",
 	"recordingShortcut": "शॉर्टकट",
 	"recordingShortcutInfo": "रिकॉर्डिंग शुरू करने के लिए एक बार और बंद करने के लिए फिर से दबाएँ।",
+	"meetPermission": "Google Meet पहचान",
+	"meetPermissionInfo": "Meet कॉल को पहचानने के लिए आपके ब्राउज़र की विंडो का टाइटल पढ़ना ज़रूरी है, जिसकी अनुमति macOS केवल स्क्रीन रिकॉर्डिंग अनुमति के साथ देता है। Zoom और Teams बिना इसके भी काम करते हैं।",
 	"microphonePermission": "माइक्रोफ़ोन",
 	"microphonePermissionInfo": "माइक्रोफ़ोन ऑडियो रिकॉर्ड करने के लिए आवश्यक।",
 	"systemAudioPermission": "सिस्टम ऑडियो",

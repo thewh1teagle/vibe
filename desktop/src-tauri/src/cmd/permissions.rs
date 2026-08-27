@@ -144,6 +144,59 @@ pub fn open_system_audio_settings() {
     }
 }
 
+/// Screen Recording, on macOS, is what lets Vibe read a browser window's title — the only way a
+/// Google Meet call can be recognised. Zoom and Teams come from the process list and need nothing.
+#[tauri::command]
+pub fn get_screen_recording_permission_status() -> PermissionStatus {
+    #[cfg(target_os = "macos")]
+    {
+        if meeting_detect::screen_recording_granted() {
+            PermissionStatus::Granted
+        } else {
+            // The preflight cannot tell "never asked" from "refused", and macOS only shows its
+            // prompt once, so the UI offers the request first and falls back to System Settings.
+            PermissionStatus::NotDetermined
+        }
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        PermissionStatus::NotApplicable
+    }
+}
+
+#[tauri::command]
+pub async fn request_screen_recording_permission() -> PermissionStatus {
+    #[cfg(target_os = "macos")]
+    {
+        if tokio::task::spawn_blocking(meeting_detect::request_screen_recording)
+            .await
+            .unwrap_or(false)
+        {
+            PermissionStatus::Granted
+        } else {
+            PermissionStatus::Denied
+        }
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        PermissionStatus::NotApplicable
+    }
+}
+
+#[tauri::command]
+pub fn open_screen_recording_settings() {
+    #[cfg(target_os = "macos")]
+    {
+        // Same deep link the microphone and system-audio rows use, pointed at Screen Recording.
+        std::process::Command::new("open")
+            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
+            .spawn()
+            .ok();
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

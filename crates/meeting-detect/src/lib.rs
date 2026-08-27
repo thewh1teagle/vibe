@@ -76,6 +76,33 @@ pub(crate) struct MicUsage {
     pub(crate) processes: Vec<ProcessInfo>,
 }
 
+/// Whether the OS lets this app read other windows' titles — how a browser meeting is recognised.
+///
+/// Only macOS gates this, behind Screen Recording. Zoom and Teams are found through the process
+/// list instead, so they keep working either way; it is Google Meet that goes quiet without it.
+pub fn screen_recording_granted() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        window_title::screen_recording_granted()
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        true
+    }
+}
+
+/// Ask the OS for that permission, showing its prompt the first time.
+pub fn request_screen_recording() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        window_title::request_screen_recording()
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        true
+    }
+}
+
 /// Perform one synchronous poll.
 pub fn detect() -> MeetingState {
     poll(true).state
