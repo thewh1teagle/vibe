@@ -1,4 +1,4 @@
-import { Check, Clipboard, Download, Printer } from 'lucide-react'
+import { Check, Clipboard, Download } from 'lucide-react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useMemo, useRef, type ReactNode } from 'react'
 import Markdown from 'react-markdown'
@@ -281,7 +281,19 @@ export default function TranscriptExportDialog({
 									<SyntaxHighlighter
 										language="json"
 										style={theme === 'dark' ? oneDark : oneLight}
-										customStyle={{ margin: 0, padding: '0 1rem', fontSize: '12px', lineHeight: 1.7, textAlign: 'left' }}>
+										customStyle={{
+											margin: 0,
+											padding: '0 1rem',
+											fontSize: '12px',
+											lineHeight: 1.7,
+											textAlign: 'left',
+											// Each row is its own <pre>: left to itself it scrolls, so a long line grows a scrollbar inside
+											// every row instead of one on the preview. Wrapping keeps the scrolling on the preview alone.
+											overflow: 'visible',
+											whiteSpace: 'pre-wrap',
+											wordBreak: 'break-word',
+										}}
+										codeTagProps={{ style: { whiteSpace: 'pre-wrap', wordBreak: 'break-word' } }}>
 										{line || ' '}
 									</SyntaxHighlighter>
 								)}
@@ -305,8 +317,8 @@ export default function TranscriptExportDialog({
 						</Button>
 					)}
 					<Button type="button" onClick={() => void onSave()}>
-						{format === 'pdf' ? <Printer aria-hidden="true" /> : <Download aria-hidden="true" />}
-						{format === 'pdf' ? m.exportPrint() : m.exportSave()}
+						<Download aria-hidden="true" />
+						{m.exportSave()}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

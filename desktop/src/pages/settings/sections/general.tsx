@@ -69,7 +69,7 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 	return (
 		<div className="space-y-6">
 			<SettingsGroup>
-				<SettingsRow label={m.language()}>
+				<SettingsRow label={m.displayLanguage()}>
 					<DisplayLanguageInput value={vm.preference.displayLanguage} onSelect={vm.preference.setDisplayLanguage} className="w-52" />
 				</SettingsRow>
 				<SettingsRow label={m.closeToTray()} description={m.closeToTrayInfo()}>

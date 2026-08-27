@@ -9,6 +9,7 @@ import { formatExtensions, type TextFormat } from '~/components/format-select'
 import { openPath } from '~/lib/app'
 import { toDocx } from '~/lib/docx'
 import { projectExportFilename } from '~/lib/project-name'
+import { transcriptToPdf } from '~/lib/pdf/transcript-pdf'
 import { serializeTranscriptExport, type TranscriptExportContent, type TranscriptExportOptions } from '~/lib/transcript-export'
 import type { Segment } from '~/lib/transcript'
 import type { NamedPath } from '~/lib/types'
@@ -59,25 +60,6 @@ export function useTranscriptExport({ enabled = true, segments, summary, file, f
 
 	const save = useCallback(async () => {
 		if (!file || (segments.length === 0 && !summary)) return false
-		if (format === 'pdf') {
-			// The complete print tree exists only while the system print sheet is open.
-			const html = serializeTranscriptExport('html', segments, summary, serializerOptions)
-			const parsed = new DOMParser().parseFromString(html, 'text/html')
-			const printable = parsed.body.firstElementChild
-			if (!printable) return false
-			const mounted = document.importNode(printable, true)
-			const styles = [...parsed.head.querySelectorAll('style')].map((style) => document.importNode(style, true))
-			for (const style of styles) document.head.appendChild(style)
-			document.body.appendChild(mounted)
-			try {
-				window.print()
-			} finally {
-				mounted.remove()
-				for (const style of styles) style.remove()
-			}
-			return true
-		}
-
 		const extension = formatExtensions[format].slice(1)
 		const suggestedName = projectExportFilename(file.name, extension)
 		let defaultDirectory = await dirname(file.path)
@@ -94,7 +76,13 @@ export function useTranscriptExport({ enabled = true, segments, summary, file, f
 		})
 		if (!target) return false
 
-		if (format === 'docx') {
+		if (format === 'pdf') {
+			const bytes = await transcriptToPdf(segments, summary ?? '', serializerOptions, {
+				transcript: m.exportTranscript(),
+				summary: m.exportSummary(),
+			})
+			await fs.writeFile(target, bytes)
+		} else if (format === 'docx') {
 			const document = await toDocx(file.name, segments, preference.textAreaDirection, speakerLabel, {
 				content,
 				showTimestamps,

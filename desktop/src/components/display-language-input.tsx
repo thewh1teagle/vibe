@@ -52,7 +52,7 @@ export function DisplayLanguageInput({ value, onSelect, className }: { value: st
 			query={query}
 			onQueryChange={setQuery}
 			triggerLabel={triggerLabel}
-			ariaLabel={m.language()}
+			ariaLabel={m.displayLanguage()}
 		/>
 	)
 }
