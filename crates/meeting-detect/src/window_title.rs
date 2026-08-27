@@ -4,6 +4,9 @@ pub(crate) fn meet_process(browsers: &[ProcessInfo]) -> Option<ProcessInfo> {
     platform::meet_process(browsers)
 }
 
+#[cfg(target_os = "macos")]
+pub(crate) use platform::{request_screen_recording, screen_recording_granted};
+
 pub(crate) fn is_meet_title(title: &str) -> bool {
     let title = title.trim();
     title == "Google Meet" || title.starts_with("Meet – ") || title.starts_with("Meet - ")
@@ -185,8 +188,24 @@ mod platform {
         Some((pid, title))
     }
 
+    pub(crate) fn screen_recording_granted() -> bool {
+        ScreenCaptureAccess.preflight()
+    }
+
+    /// Shows the system prompt, and registers the app in System Settings so the user can grant it
+    /// later. macOS only ever asks once per app identity; after that this returns the standing answer.
+    pub(crate) fn request_screen_recording() -> bool {
+        ScreenCaptureAccess.request()
+    }
+
     pub(super) fn meet_process(browsers: &[ProcessInfo]) -> Option<ProcessInfo> {
-        if browsers.is_empty() || !ScreenCaptureAccess.preflight() {
+        if browsers.is_empty() {
+            return None;
+        }
+        if !ScreenCaptureAccess.preflight() {
+            // Without this permission the window list comes back with no titles at all, which is
+            // indistinguishable from "no meeting" — so say it out loud rather than return silence.
+            tracing::warn!("screen recording permission missing; Google Meet cannot be detected");
             return None;
         }
 

@@ -245,6 +245,8 @@
 	"recordingShortcutEnabledInfo": "Starten oder stoppen Sie eine Aufnahme von überall. Fertige Aufnahmen werden als Projekte gespeichert.",
 	"recordingShortcut": "Kurzbefehl",
 	"recordingShortcutInfo": "Einmal drücken, um die Aufnahme zu starten, und erneut, um sie zu stoppen.",
+	"meetPermission": "Google Meet-Erkennung",
+	"meetPermissionInfo": "Um einen Meet-Anruf zu erkennen, muss der Fenstertitel Ihres Browsers gelesen werden, was macOS nur mit der Berechtigung „Bildschirmaufnahme“ erlaubt. Zoom und Teams funktionieren auch ohne diese Berechtigung.",
 	"microphonePermission": "Mikrofon",
 	"microphonePermissionInfo": "Erforderlich, um Mikrofonton aufzunehmen.",
 	"systemAudioPermission": "Systemaudio",

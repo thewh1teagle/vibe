@@ -99,6 +99,53 @@ function PermissionRow({ kind, label, description }: { kind: PermissionKind; lab
 	)
 }
 
+/**
+ * Google Meet is recognised by reading the browser's window title, which macOS gates behind Screen
+ * Recording. Zoom and Teams come from the process list and work without it, so this never blocks
+ * the feature — it says which half is missing, and offers the one place that can fix it.
+ */
+function MeetPermissionRow({ enabled }: { enabled: boolean }) {
+	const [status, setStatus] = useState<PermissionStatus | null>(null)
+
+	const refresh = useCallback(async () => {
+		try {
+			setStatus(await invoke<PermissionStatus>('get_screen_recording_permission_status'))
+		} catch (error) {
+			console.error('Could not check screen recording permission:', error)
+			setStatus(null)
+		}
+	}, [])
+
+	useEffect(() => {
+		if (!enabled) return
+		void refresh()
+		// macOS reports the new answer only once the app is focused again after a grant.
+		window.addEventListener('focus', refresh)
+		return () => window.removeEventListener('focus', refresh)
+	}, [enabled, refresh])
+
+	// The prompt only ever appears once per app; asking on enable is the single chance to show it.
+	useEffect(() => {
+		if (!enabled || status !== 'not_determined') return
+		void invoke<PermissionStatus>('request_screen_recording_permission')
+			.then(setStatus)
+			.catch((error) => console.error('Could not request screen recording permission:', error))
+	}, [enabled, status])
+
+	if (!enabled || status === null || status === 'granted' || status === 'not_applicable') return null
+
+	return (
+		<SettingsRow label={m.meetPermission()} description={m.meetPermissionInfo()} clampDescription={false}>
+			<button
+				type="button"
+				onClick={() => void invoke('open_screen_recording_settings')}
+				className="cursor-pointer text-sm font-medium text-primary underline-offset-4 hover:underline">
+				{m.openSystemSettings()}
+			</button>
+		</SettingsRow>
+	)
+}
+
 export function RecordingSection() {
 	const shortcut = useRecordingShortcut()
 	const { meetingDetectionEnabled, setMeetingDetectionEnabled, autoTranscribeAfterRecording, setAutoTranscribeAfterRecording } = usePreferenceProvider()
@@ -110,6 +157,7 @@ export function RecordingSection() {
 				<SettingsRow label={<MeetingServiceIcons label={m.supportedMeetingServices()} />} clampDescription={false}>
 					<Switch checked={meetingDetectionEnabled} onCheckedChange={setMeetingDetectionEnabled} aria-label={m.meetingDetection()} />
 				</SettingsRow>
+				<MeetPermissionRow enabled={meetingDetectionEnabled} />
 			</SettingsGroup>
 
 			<SettingsGroup title={m.recordingControls()} description={m.recordingSettingsInfo()}>

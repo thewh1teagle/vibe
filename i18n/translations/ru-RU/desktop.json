@@ -245,6 +245,8 @@
 	"recordingShortcutEnabledInfo": "Запускайте или останавливайте запись из любого места. Готовые записи сохраняются как проекты.",
 	"recordingShortcut": "Сочетание клавиш",
 	"recordingShortcutInfo": "Нажмите один раз, чтобы начать запись, и ещё раз, чтобы остановить.",
+	"meetPermission": "Распознавание Google Meet",
+	"meetPermissionInfo": "Для распознавания звонка в Meet требуется чтение заголовка окна браузера, а macOS разрешает это только при наличии разрешения «Запись экрана». Zoom и Teams работают без него.",
 	"microphonePermission": "Микрофон",
 	"microphonePermissionInfo": "Требуется для записи звука с микрофона.",
 	"systemAudioPermission": "Системный звук",

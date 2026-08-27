@@ -245,6 +245,8 @@
 	"recordingShortcutEnabledInfo": "從任何位置開始或停止錄音。完成的錄音會儲存為專案。",
 	"recordingShortcut": "快捷鍵",
 	"recordingShortcutInfo": "按一下開始錄音，再按一下停止。",
+	"meetPermission": "Google Meet 偵測",
+	"meetPermissionInfo": "識別 Meet 通話需要讀取瀏覽器的視窗標題，而 macOS 只有在授予「螢幕錄製」權限時才允許此操作。Zoom 和 Teams 毋須此權限即可使用。",
 	"microphonePermission": "咪高峰",
 	"microphonePermissionInfo": "錄製咪高峰音訊時需要此權限。",
 	"systemAudioPermission": "系統音訊",
