@@ -200,6 +200,14 @@ pub(crate) fn full(
         prompt_init.push(model.vocab.token_not);
     }
 
+    // Reseed the samplers per call: whisper.cpp seeds decoders 1..n with
+    // mt19937(j) at the start of whisper_full and leaves decoder 0 as a
+    // default-seeded generator; reseeding 0 as well keeps requests
+    // reproducible without changing any decoder's within-call stream.
+    for (j, decoder) in state.decoders.iter_mut().enumerate() {
+        decoder.rng = Rng::new(if j == 0 { 5489 } else { j as u32 });
+    }
+
     let mut seek = seek_start;
     let mut prompt: Vec<i32> = Vec::with_capacity(model.hparams.n_text_ctx as usize);
 
@@ -258,7 +266,6 @@ pub(crate) fn full(
                 decoder.failed = false;
                 decoder.completed = false;
                 decoder.has_ts = false;
-                decoder.rng = Rng::new(j as u64);
             }
 
             // build the prompt for this iteration

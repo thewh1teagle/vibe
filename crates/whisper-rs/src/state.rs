@@ -29,44 +29,73 @@ pub(crate) struct Sequence {
     pub score: f64,
 }
 
-/// Deterministic RNG for temperature > 0 sampling. whisper.cpp uses
-/// `std::mt19937` + `std::discrete_distribution`, whose exact algorithm is
-/// implementation-defined; sampled decoding is not bit-reproducible against
-/// the C++ anyway, so a simple splitmix/xorshift is used here.
+/// MT19937 (the C++ `std::mt19937`, fully specified by the standard), so
+/// temperature > 0 sampling draws the same stream whisper.cpp's decoders do.
+/// Unlike whisper.cpp — where decoder 0's generator keeps advancing across
+/// calls and makes repeated transcriptions differ — every decoder is reseeded
+/// at the start of each `full` call, so output is reproducible per request.
 #[derive(Clone)]
-pub(crate) struct Rng(pub u64);
+pub(crate) struct Rng {
+    mt: Box<[u32; 624]>,
+    index: usize,
+}
 
 impl Rng {
-    pub fn new(seed: u64) -> Self {
-        Self(seed.wrapping_mul(0x9E3779B97F4A7C15).wrapping_add(1))
+    pub fn new(seed: u32) -> Self {
+        let mut mt = Box::new([0u32; 624]);
+        mt[0] = seed;
+        for i in 1..624 {
+            mt[i] = 1_812_433_253u32
+                .wrapping_mul(mt[i - 1] ^ (mt[i - 1] >> 30))
+                .wrapping_add(i as u32);
+        }
+        Self { mt, index: 624 }
     }
 
-    fn next_u64(&mut self) -> u64 {
-        let mut x = self.0;
-        x ^= x << 13;
-        x ^= x >> 7;
-        x ^= x << 17;
-        self.0 = x;
-        x
+    fn next_u32(&mut self) -> u32 {
+        if self.index >= 624 {
+            for i in 0..624 {
+                let y = (self.mt[i] & 0x8000_0000) | (self.mt[(i + 1) % 624] & 0x7fff_ffff);
+                let mut next = self.mt[(i + 397) % 624] ^ (y >> 1);
+                if y & 1 != 0 {
+                    next ^= 0x9908_b0df;
+                }
+                self.mt[i] = next;
+            }
+            self.index = 0;
+        }
+        let mut y = self.mt[self.index];
+        self.index += 1;
+        y ^= y >> 11;
+        y ^= (y << 7) & 0x9d2c_5680;
+        y ^= (y << 15) & 0xefc6_0000;
+        y ^ (y >> 18)
     }
 
+    /// Uniform in [0, 1) the way libc++'s `generate_canonical<double, 53>`
+    /// maps two 32-bit draws: `(x0 + x1 * 2^32) / 2^64`.
     pub fn next_f64(&mut self) -> f64 {
-        (self.next_u64() >> 11) as f64 / (1u64 << 53) as f64
+        let x0 = f64::from(self.next_u32());
+        let x1 = f64::from(self.next_u32());
+        (x0 + x1 * 4_294_967_296.0) / 18_446_744_073_709_551_616.0
     }
 
-    /// Weighted index sampling (the `discrete_distribution` stand-in).
+    /// `std::discrete_distribution` as Apple's libc++ implements it: draw a
+    /// canonical uniform, then upper_bound over the normalized cumulative
+    /// probabilities. whisper.cpp shipped with this exact behaviour, so the
+    /// port draws the same token for the same generator state.
     pub fn sample_weighted(&mut self, weights: &[f32]) -> usize {
         let total: f64 = weights.iter().map(|&w| f64::from(w.max(0.0))).sum();
         if total <= 0.0 {
             return 0;
         }
-        let mut target = self.next_f64() * total;
+        let u = self.next_f64();
+        let mut cumulative = 0.0f64;
         for (i, &w) in weights.iter().enumerate() {
-            let w = f64::from(w.max(0.0));
-            if target < w {
+            cumulative += f64::from(w.max(0.0)) / total;
+            if u < cumulative {
                 return i;
             }
-            target -= w;
         }
         weights.len() - 1
     }
@@ -87,7 +116,7 @@ pub(crate) struct DecoderState {
 }
 
 impl DecoderState {
-    fn new(seed: u64) -> Self {
+    fn new(seed: u32) -> Self {
         Self {
             sequence: Sequence::default(),
             probs: Vec::new(),
@@ -258,7 +287,7 @@ impl State {
                 i64::from(pad_256(hp.n_audio_ctx)),
             )?;
 
-            let decoders = (0..MAX_DECODERS as u64).map(DecoderState::new).collect();
+            let decoders = (0..MAX_DECODERS as u32).map(DecoderState::new).collect();
 
             Ok(Self {
                 backends,
