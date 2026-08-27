@@ -1,0 +1,197 @@
+# Sona project tasks. Replaces `cargo xtask`.
+#
+# The pinned ggml release tag, e.g. "v0.22.0".
+version=$(read $ROOT/.ggml-version)
+ggml_raw=https://raw.githubusercontent.com/ggml-org/ggml
+ggml_blob=https://github.com/ggml-org/ggml/blob
+ggml_git=https://github.com/ggml-org/ggml.git
+sona_repo=vibe-transcribe/sona
+
+# Print the Windows import library flavor: SONA_WINDOWS_LIB_FLAVOR, or the host toolchain's.
+task lib-flavor {
+	flavor=$ENV
+	if $OS == windows && env SONA_WINDOWS_LIB_FLAVOR {
+		flavor=$(env SONA_WINDOWS_LIB_FLAVOR)
+		if $flavor != gnu && $flavor != msvc { fail "unsupported SONA_WINDOWS_LIB_FLAVOR: $flavor" }
+	}
+	echo "$flavor"
+}
+
+# Print the platform id in library archive names, e.g. darwin-arm64 or windows-amd64-msvc.
+task platform-id {
+	os=$OS
+	arch=$ARCH
+	if $OS == macos { os=darwin }
+	if $OS != macos && $ARCH == arm64 { arch=aarch64 }
+	if $OS == windows && $ARCH == x86_64 { arch=amd64 }
+	if $OS == windows {
+		flavor=$(lib-flavor)
+		echo "$os-$arch-$flavor"
+	} else {
+		echo "$os-$arch"
+	}
+}
+
+# Fetch the pinned ggml headers into third_party/include.
+task fetch-headers {
+	out=$ROOT/third_party/include
+	mkdir $out
+	for name in ggml.h ggml-cpu.h ggml-alloc.h ggml-backend.h gguf.h {
+		download $ggml_raw/$version/include/$name $out/$name.raw --timeout 120
+		echo "// Fetched: $NOW" > $out/$name
+		echo "// Source: $ggml_blob/$version/include/$name" >> $out/$name
+		echo "// Version: $version" >> $out/$name
+		echo "" >> $out/$name
+		read $out/$name.raw >> $out/$name
+		remove $out/$name.raw
+		echo "wrote $name ($version)"
+	}
+}
+
+# Download the prebuilt ggml static libraries for this platform into third_party.
+task fetch-libs {
+	platform=$(platform-id)
+	echo "ggml: $version"
+	echo "platform: $platform"
+	mkdir $ROOT/target
+	download gh://$sona_repo/libraries-ggml-$version/ggml-libs-$platform.tar.gz $ROOT/target/ggml-libs-$platform.tar.gz --timeout 120
+	extract $ROOT/target/ggml-libs-$platform.tar.gz $ROOT/third_party
+	remove $ROOT/target/ggml-libs-$platform.tar.gz
+	echo "extracted to $ROOT/third_party"
+}
+
+# Build the ggml static libraries for this platform and package them into an archive.
+task build-libs {
+	platform=$(platform-id)
+	flavor=$(lib-flavor)
+	src=$ROOT/ggml-src
+	build=$ROOT/ggml-build
+	pkg=$ROOT/ggml-build/pkg
+	echo "ggml: $version"
+	echo "platform: $platform"
+
+	remove $src
+	mkdir $src
+	cd $src
+	git init
+	git remote add origin $ggml_git
+	git fetch --depth 1 origin $version
+	git checkout FETCH_HEAD
+	git submodule update --init --depth 1 --recursive
+	cd $ROOT
+
+	remove $build
+	flags="-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_BUILD_EXAMPLES=OFF -DGGML_BUILD_TESTS=OFF"
+	if $OS == macos {
+		flags="$flags -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=Apple -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0"
+	} else {
+		flags="$flags -DGGML_VULKAN=ON"
+		# Sona ships a single static binary, so there is no runtime CPU dispatch:
+		# pin a portable x86 baseline (Ivy Bridge, 2012+) instead of -march=native.
+		if $ARCH == x86_64 { flags="$flags -DGGML_NATIVE=OFF -DGGML_SSE42=ON -DGGML_AVX=ON -DGGML_F16C=ON" }
+	}
+	if $OS == windows && $flavor == gnu { cmake -S $src -B $build $flags -G "MinGW Makefiles" }
+	else                                { cmake -S $src -B $build $flags }
+	cmake --build $build --config Release --parallel
+
+	# Vulkan has no import library under MinGW; build a delay-load one.
+	if $OS == windows && $flavor == gnu {
+		mkdir $build/delay
+		cd $build/delay
+		dll=vulkan-1.dll
+		if which vulkan-1.dll { dll=$(which vulkan-1.dll) }
+		gendef $dll
+		dlltool --input-def vulkan-1.def --output-delaylib libvulkan-1-delay.a
+		cd $ROOT
+	}
+
+	remove $pkg
+	mkdir $pkg/lib $pkg/include
+	if $OS == windows && $flavor == msvc {
+		stage-lib $build $pkg ggml.lib ggml.lib
+		stage-lib $build $pkg ggml-base.lib ggml-base.lib
+		stage-lib $build $pkg ggml-cpu.lib ggml-cpu.lib
+		stage-lib $build $pkg ggml-vulkan.lib ggml-vulkan.lib
+	} else if $OS == windows {
+		stage-lib $build $pkg libggml.a ggml.a
+		stage-lib $build $pkg libggml-base.a ggml-base.a
+		stage-lib $build $pkg libggml-cpu.a ggml-cpu.a
+		stage-lib $build $pkg libggml-vulkan.a ggml-vulkan.a
+		stage-lib $build $pkg libvulkan-1-delay.a vulkan-1-delay.a
+	} else if $OS == macos {
+		stage-lib $build $pkg libggml.a libggml.a
+		stage-lib $build $pkg libggml-base.a libggml-base.a
+		stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
+		stage-lib $build $pkg libggml-metal.a libggml-metal.a
+		stage-lib $build $pkg libggml-blas.a libggml-blas.a
+	} else {
+		stage-lib $build $pkg libggml.a libggml.a
+		stage-lib $build $pkg libggml-base.a libggml-base.a
+		stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
+		stage-lib $build $pkg libggml-vulkan.a libggml-vulkan.a
+	}
+	for header in ggml.h ggml-cpu.h ggml-alloc.h ggml-backend.h gguf.h {
+		copy $src/include/$header $pkg/include/$header
+	}
+
+	# lib/ and include/ are the archive's top-level entries, as xtask wrote them.
+	archive $pkg/lib $pkg/include $ROOT/ggml-libs-$platform.tar.gz
+	echo "packaged $ROOT/ggml-libs-$platform.tar.gz"
+}
+
+# Build the ggml libraries and upload the archive to its GitHub release.
+task upload-libs {
+	platform=$(platform-id)
+	build-libs
+	tag=libraries-ggml-$version
+	archive=$ROOT/ggml-libs-$platform.tar.gz
+	try gh release create $tag --generate-notes
+	gh release upload $tag $archive --clobber
+	echo "uploaded $archive to release $tag"
+}
+
+# Package a built sona binary with ffmpeg: package-release <binary> <goos> <goarch> <out>.
+task package-release binary goos goarch out {
+	if !exists $1 { fail "binary not found: $1" }
+	stage=$ROOT/target/sona-package
+	remove $stage
+	mkdir $stage
+
+	name=sona
+	if $2 == windows { name=sona.exe }
+	copy $1 $stage/$name
+	chmod 755 $stage/$name
+
+	url=""
+	if $2 == darwin && $3 == amd64 { url=https://www.osxexperts.net/ffmpeg80intel.zip }
+	else if $2 == darwin && $3 == arm64 { url=https://www.osxexperts.net/ffmpeg80arm.zip }
+	else if $2 == windows && $3 == amd64 { url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip }
+	else { fail "unsupported target for ffmpeg URL: $2/$3" }
+
+	download $url $stage/ffmpeg.zip --timeout 180
+	if $2 == windows {
+		extract $stage/ffmpeg.zip $stage --member ffmpeg.exe --strip 2
+		remove $stage/ffmpeg.zip
+		chmod 755 $stage/ffmpeg.exe
+	} else {
+		extract $stage/ffmpeg.zip $stage --member ffmpeg
+		remove $stage/ffmpeg.zip
+		chmod 755 $stage/ffmpeg
+	}
+
+	# The binary and ffmpeg sit at the archive root, as xtask wrote them.
+	archive $stage/ $4
+	remove $stage
+	echo "packaged $4"
+}
+
+# Copy one built library out of the cmake tree: stage-lib <build> <pkg> <name> <alt>.
+task stage-lib build pkg name alt {
+	found=""
+	for f in $(find $1 $3 $4) {
+		if $found == "" { found=$f }
+	}
+	if $found == "" { fail "$3 not found under $1" }
+	echo "  found $found (packaged as $3)"
+	copy $found $2/lib/$3
+}
