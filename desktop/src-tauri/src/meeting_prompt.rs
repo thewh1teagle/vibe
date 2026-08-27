@@ -37,7 +37,9 @@ const MARGIN: f64 = 20.0;
 const TOP_MARGIN: f64 = 48.0;
 #[cfg(not(target_os = "macos"))]
 const TOP_MARGIN: f64 = MARGIN;
-const POLL_INTERVAL: Duration = Duration::from_millis(750);
+/// Idle cadence only. The detector polls itself faster while the microphone signal is changing,
+/// so a meeting surfaces within roughly a second of the call opening the microphone.
+const POLL_INTERVAL: Duration = Duration::from_millis(500);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct MeetingPromptPayload {

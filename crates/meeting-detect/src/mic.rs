@@ -174,14 +174,28 @@ mod platform {
         }
     }
 
+    /// Resolve pids by matching image paths against the process list.
+    ///
+    /// Enumerating every process is by far the most expensive thing this module does, so it is
+    /// confined to the one case that needs the result: matching a browser window title to find
+    /// Meet. Zoom and Teams are identified by the consent-store key alone, and an idle machine
+    /// never pays for it at all.
     fn attach_pids(processes: &mut [ProcessInfo]) {
+        let mut wanted: Vec<&mut ProcessInfo> = processes
+            .iter_mut()
+            .filter(|owner| owner.executable.is_some() && crate::process::source(owner) == Some(crate::ProcessKind::Browser))
+            .collect();
+        if wanted.is_empty() {
+            return;
+        }
+
         let mut system = System::new();
         system.refresh_processes_specifics(
             ProcessesToUpdate::All,
             true,
             ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
         );
-        for owner in processes {
+        for owner in &mut wanted {
             let Some(expected) = owner.executable.as_deref() else {
                 continue;
             };
