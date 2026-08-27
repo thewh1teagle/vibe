@@ -103,14 +103,20 @@ fn cmake_flags() -> Vec<&'static str> {
             "-DCMAKE_OSX_DEPLOYMENT_TARGET=12.0",
         ]);
     } else if cfg!(any(target_os = "linux", target_os = "windows")) {
-        // x86 builds ship every CPU-variant backend as a loadable module and
-        // pick the best one at runtime by cpuid score, so old machines
-        // without AVX2 fall back instead of dying on an illegal instruction.
-        flags.extend([
-            "-DGGML_VULKAN=ON",
-            "-DGGML_BACKEND_DL=ON",
-            "-DGGML_CPU_ALL_VARIANTS=ON",
-        ]);
+        flags.push("-DGGML_VULKAN=ON");
+        if cfg!(target_arch = "x86_64") {
+            // Sona ships a single static binary, so there is no runtime CPU
+            // dispatch: pin a portable x86 baseline (Ivy Bridge, 2012+)
+            // instead of -march=native so machines without AVX2/FMA/AVX512
+            // still run, and the shipped kernels no longer depend on which
+            // CPU the CI runner happened to have.
+            flags.extend([
+                "-DGGML_NATIVE=OFF",
+                "-DGGML_SSE42=ON",
+                "-DGGML_AVX=ON",
+                "-DGGML_F16C=ON",
+            ]);
+        }
     }
     if cfg!(target_os = "windows") && paths::windows_lib_flavor() == "gnu" {
         flags.extend(["-G", "MinGW Makefiles"]);
