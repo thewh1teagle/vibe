@@ -418,6 +418,20 @@ export async function deleteTranscript(path: string): Promise<boolean> {
 	}
 }
 
+/**
+ * Remove every saved transcript in the projects folder. The folder itself stays — only what Vibe
+ * put there goes, so anything else the user keeps alongside it survives.
+ * @returns how many were deleted and how many resisted.
+ */
+export async function deleteAllTranscripts(projectsPath?: string | null): Promise<{ deleted: number; failed: number }> {
+	const entries = await listTranscripts(projectsPath)
+	let deleted = 0
+	for (const entry of entries) {
+		if (await deleteTranscript(entry.path)) deleted++
+	}
+	return { deleted, failed: entries.length - deleted }
+}
+
 /** The stamp suffix of a folder/file stem, or a fresh one when the old name carries none. */
 function keptStampOf(stem: string) {
 	const match = stem.match(stampPattern)

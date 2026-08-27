@@ -1,8 +1,61 @@
+import * as dialog from '@tauri-apps/plugin-dialog'
+import { Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
 import LanguageInput from '~/components/language-input'
 import { Button } from '~/components/ui/button'
 import { Switch } from '~/components/ui/switch'
-import { SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
+import { deleteAllTranscripts, listTranscripts, notifyTranscriptsChanged, TRANSCRIPTS_CHANGED_EVENT } from '~/lib/transcripts-store'
+import { ActionRow, SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
+
+/** Bulk cleanup for the projects folder: one row, one confirmation, everything Vibe saved goes. */
+function SavedProjectsGroup({ projectsPath }: { projectsPath: string | null }) {
+	const [count, setCount] = useState<number | null>(null)
+	const [deleting, setDeleting] = useState(false)
+
+	const refresh = useCallback(() => {
+		void listTranscripts(projectsPath).then((entries) => setCount(entries.length))
+	}, [projectsPath])
+
+	useEffect(() => {
+		refresh()
+		// Saves and single-row deletes happen in the main window; both announce themselves.
+		window.addEventListener(TRANSCRIPTS_CHANGED_EVENT, refresh)
+		return () => window.removeEventListener(TRANSCRIPTS_CHANGED_EVENT, refresh)
+	}, [refresh])
+
+	async function deleteAll() {
+		if (!count) return
+		const confirmed = await dialog.ask(m.deleteAllProjectsBody({ count: String(count) }), { title: m.deleteAllProjects(), kind: 'warning' })
+		if (!confirmed) return
+		setDeleting(true)
+		try {
+			const { deleted, failed } = await deleteAllTranscripts(projectsPath)
+			// The sidebar in the main window is listening — it drops the rows as soon as this fires.
+			notifyTranscriptsChanged()
+			refresh()
+			toast.success(m.deleteAllProjectsDone({ count: String(deleted) }))
+			if (failed) toast.error(m.deleteAllProjectsFailed({ count: String(failed) }))
+		} finally {
+			setDeleting(false)
+		}
+	}
+
+	return (
+		<SettingsGroup title={m.savedProjects()} description={m.savedProjectsInfo()}>
+			<ActionRow
+				label={m.deleteAllProjects()}
+				description={count ? m.deleteAllProjectsInfo({ count: String(count) }) : m.noProjectsYet()}
+				icon={<Trash2 className="h-4 w-4" />}
+				onClick={() => void deleteAll()}
+				disabled={deleting || !count}
+				destructive
+				activateOnClick
+			/>
+		</SettingsGroup>
+	)
+}
 
 export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
 	const projectsPath = vm.preference.projectsPath ?? vm.defaultProjectsPath
@@ -42,6 +95,8 @@ export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
 					</Button>
 				</SettingsRow>
 			</SettingsGroup>
+
+			<SavedProjectsGroup projectsPath={vm.preference.projectsPath} />
 		</div>
 	)
 }

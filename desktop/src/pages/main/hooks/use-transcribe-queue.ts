@@ -29,6 +29,12 @@ import { type Preference, usePreferenceProvider } from '~/providers/preference'
 
 export type JobStatus = 'queued' | 'running' | 'done' | 'error' | 'cancelled'
 
+/** One transcription input. `projectName` re-runs an existing project under the title it already has. */
+export interface EnqueueItem extends NamedPath {
+	/** Title of the project this input came from; used verbatim, without a source prefix. */
+	projectName?: string
+}
+
 export interface Job {
 	id: string
 	name: string
@@ -59,7 +65,7 @@ export interface TranscribeQueue {
 	isAborting: boolean
 	hasResults: boolean
 	selectJob: (id: string) => void
-	enqueue: (files: NamedPath[]) => void
+	enqueue: (files: EnqueueItem[]) => void
 	/** Transcribe the media already attached to a hydrated project with no transcript. */
 	transcribeJob: (jobId: string) => void
 	/**
@@ -405,7 +411,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 	)
 
 	const enqueue = useCallback(
-		(files: NamedPath[]) => {
+		(files: EnqueueItem[]) => {
 			const accepted = files.filter((file) => validPath(file.path.toLowerCase()))
 			if (accepted.length === 0) {
 				if (files.length > 0) toast.error(m.supportsFormats(), { position: 'bottom-center' })
@@ -414,7 +420,9 @@ export function useTranscribeQueue(): TranscribeQueue {
 
 			const created: Job[] = accepted.map((file) => ({
 				id: nextJobId(),
-				name: autoProjectName(file.name, file.source ?? 'file'),
+				// A re-transcribed project keeps its own title: prefixing it again would grow
+				// "File-multi" into "File-File-multi" on every run.
+				name: file.projectName ?? autoProjectName(file.name, file.source ?? 'file'),
 				path: file.path,
 				source: file.source ?? 'file',
 				status: 'queued',

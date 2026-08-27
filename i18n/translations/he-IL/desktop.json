@@ -142,6 +142,7 @@
 	"installNow": "התקן עכשיו",
 	"invalidLlmPrompt": "הפרומפט לא חוקי.\nהוא חייב לכלול את הדפוס הבא %s שיוחלף בתעתיק.",
 	"language": "שפה",
+	"displayLanguage": "שפת תצוגה",
 	"later": "מְאוּחָר יוֹתֵר",
 	"leftover": "נשארו",
 	"light": "בהיר",

@@ -13,11 +13,11 @@ export interface TranscriptExportOptions {
 	theme?: 'dark' | 'light'
 }
 
-function includesTranscript(content: TranscriptExportContent) {
+export function includesTranscript(content: TranscriptExportContent) {
 	return content !== 'summary'
 }
 
-function includesSummary(content: TranscriptExportContent) {
+export function includesSummary(content: TranscriptExportContent) {
 	return content !== 'transcript'
 }
 
@@ -29,7 +29,7 @@ function speaker(segment: Segment, options: TranscriptExportOptions) {
 	return options.showSpeakers && segment.speaker != null ? `${options.speakerLabel} ${segment.speaker + 1}` : ''
 }
 
-function segmentMetadata(segment: Segment, options: TranscriptExportOptions) {
+export function segmentMetadata(segment: Segment, options: TranscriptExportOptions) {
 	const time = options.showTimestamps ? timestamp(segment.start, segment.stop) : ''
 	const directionalTime = time && options.direction === 'rtl' ? `\u2066${time}\u2069` : time
 	return [directionalTime, speaker(segment, options)].filter(Boolean).join(' · ')
