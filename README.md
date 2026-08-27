@@ -1,6 +1,6 @@
 # Sona 🎧
 
-Sona is a local transcription runner built on top of whisper.cpp.
+Sona is a local transcription runner built on top of ggml.cpp.
 
 It runs as a standalone process and exposes an OpenAI-compatible HTTP API, so other apps (desktop apps, Python scripts, etc.) can spawn it and talk to it easily.
 
