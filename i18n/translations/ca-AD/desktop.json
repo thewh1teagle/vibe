@@ -246,7 +246,7 @@
 	"recordingShortcut": "Drecera",
 	"recordingShortcutInfo": "Prem una vegada per iniciar l'enregistrament i una altra per aturar-lo.",
 	"meetPermission": "Detecció de Google Meet",
-	"meetPermissionInfo": "Reconèixer una trucada de Meet implica llegir el títol de la finestra del navegador, cosa que macOS només permet amb el permís de Gravació de pantalla. Zoom i Teams funcionen sense aquest permís.",
+	"meetPermissionInfo": "Necessita el permís de Gravació de pantalla. Zoom i Teams funcionen sense ell.",
 	"microphonePermission": "Micròfon",
 	"microphonePermissionInfo": "Necessari per enregistrar l'àudio del micròfon.",
 	"systemAudioPermission": "Àudio del sistema",

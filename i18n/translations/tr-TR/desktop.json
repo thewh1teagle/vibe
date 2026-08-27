@@ -246,7 +246,7 @@
 	"recordingShortcut": "Kısayol",
 	"recordingShortcutInfo": "Kaydı başlatmak için bir kez, durdurmak için tekrar basın.",
 	"meetPermission": "Google Meet algılama",
-	"meetPermissionInfo": "Bir Meet görüşmesini tanımak, tarayıcınızın pencere başlığını okumayı gerektirir; macOS buna yalnızca Ekran Kaydı izniyle izin verir. Zoom ve Teams bu izin olmadan da çalışır.",
+	"meetPermissionInfo": "Ekran Kaydı izni gerekir. Zoom ve Teams bu izin olmadan çalışır.",
 	"microphonePermission": "Mikrofon",
 	"microphonePermissionInfo": "Mikrofon sesini kaydetmek için gereklidir.",
 	"systemAudioPermission": "Sistem sesi",

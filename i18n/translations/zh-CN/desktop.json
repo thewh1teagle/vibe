@@ -246,7 +246,7 @@
 	"recordingShortcut": "快捷键",
 	"recordingShortcutInfo": "按一次开始录音，再按一次停止。",
 	"meetPermission": "Google Meet 检测",
-	"meetPermissionInfo": "识别 Meet 通话需要读取浏览器的窗口标题，而 macOS 仅在授予「屏幕录制」权限时才允许此操作。Zoom 和 Teams 无需此权限即可使用。",
+	"meetPermissionInfo": "需要「屏幕录制」权限。Zoom 和 Teams 无需此权限即可使用。",
 	"microphonePermission": "麦克风",
 	"microphonePermissionInfo": "录制麦克风音频时需要此权限。",
 	"systemAudioPermission": "系统音频",

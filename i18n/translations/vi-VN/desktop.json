@@ -246,7 +246,7 @@
 	"recordingShortcut": "Phím tắt",
 	"recordingShortcutInfo": "Nhấn một lần để bắt đầu ghi âm và nhấn lại để dừng.",
 	"meetPermission": "Phát hiện Google Meet",
-	"meetPermissionInfo": "Nhận diện cuộc gọi Meet yêu cầu đọc tiêu đề cửa sổ trình duyệt của bạn, điều mà macOS chỉ cho phép khi có quyền Ghi màn hình. Zoom và Teams hoạt động mà không cần quyền này.",
+	"meetPermissionInfo": "Cần quyền Ghi màn hình. Zoom và Teams hoạt động mà không cần quyền này.",
 	"microphonePermission": "Micrô",
 	"microphonePermissionInfo": "Cần thiết để ghi âm thanh từ micrô.",
 	"systemAudioPermission": "Âm thanh hệ thống",
