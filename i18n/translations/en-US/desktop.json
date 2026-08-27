@@ -108,6 +108,8 @@
 	"format": "Format",
 	"formats": "Formats",
 	"general": "General",
+	"transcribeOnCpu": "Transcribe on the CPU",
+	"transcribeOnCpuInfo": "Runs transcription without the GPU. Slower, but it avoids driver crashes and frees the GPU for other work.",
 	"gpuDevice": "GPU Device number",
 	"gpuDevicePlaceholder": "Auto (leave empty)",
 	"globalDictation": "Global Dictation",

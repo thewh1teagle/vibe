@@ -1,4 +1,4 @@
-import { Check, Clipboard, Download } from 'lucide-react'
+import { Clipboard, Download, Moon, PilcrowLeft, PilcrowRight, Sun } from 'lucide-react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useMemo, useRef, type ReactNode } from 'react'
 import Markdown from 'react-markdown'
@@ -10,6 +10,7 @@ import type { TextFormat } from '~/components/format-select'
 import { Button } from '~/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog'
 import { Switch } from '~/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { cn } from '~/lib/style'
 import type { TranscriptExportContent } from '~/lib/transcript-export'
 
@@ -30,7 +31,11 @@ export interface TranscriptExportDialogProps {
 	preview: string
 	renderedPreview?: string
 	direction: 'rtl' | 'ltr'
+	/** Direction of this export only — a one-off override, never saved. */
+	onDirectionChange: (direction: 'rtl' | 'ltr') => void
+	/** Appearance of the exported file, kept apart from the app's own theme. */
 	theme: 'dark' | 'light'
+	onThemeChange: (theme: 'dark' | 'light') => void
 	onCopy: () => void | Promise<void>
 	onSave: () => void | Promise<void>
 }
@@ -99,6 +104,91 @@ function VirtualPreviewRows({
 	)
 }
 
+/** Label on the left, its control on the right — one row of the options card. */
+function OptionRow({ label, children }: { label: string; children: ReactNode }) {
+	return (
+		<div className="flex min-h-[52px] items-center justify-between gap-4 px-4 py-2.5">
+			<span className="text-sm text-foreground">{label}</span>
+			{children}
+		</div>
+	)
+}
+
+/**
+ * Two choices that need no words: a sun and a moon, an arrow each way. The label survives as the
+ * tooltip and the accessible name, so nothing is lost by dropping the visible text.
+ */
+function IconToggle<T extends string>({
+	value,
+	onChange,
+	options,
+	ariaLabel,
+}: {
+	value: T
+	onChange: (value: T) => void
+	options: Array<{ value: T; label: string; icon: ReactNode }>
+	ariaLabel: string
+}) {
+	return (
+		<div className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-muted/50 p-1" role="radiogroup" aria-label={ariaLabel}>
+			{options.map((option) => (
+				<Tooltip key={option.value}>
+					<TooltipTrigger asChild>
+						<button
+							type="button"
+							role="radio"
+							aria-checked={value === option.value}
+							aria-label={option.label}
+							onClick={() => onChange(option.value)}
+							className={cn(
+								'flex h-7 w-9 cursor-pointer items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80',
+								value === option.value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+							)}>
+							{option.icon}
+						</button>
+					</TooltipTrigger>
+					<TooltipContent side="top">{option.label}</TooltipContent>
+				</Tooltip>
+			))}
+		</div>
+	)
+}
+
+/** A row of mutually exclusive choices — the pill control used for content and for theme. */
+function Segmented<T extends string>({
+	value,
+	onChange,
+	options,
+	ariaLabel,
+	className,
+}: {
+	value: T
+	onChange: (value: T) => void
+	options: Array<{ value: T; label: string; disabled: boolean }>
+	ariaLabel: string
+	className?: string
+}) {
+	return (
+		<div className={cn('grid grid-cols-2 rounded-full bg-muted/50 p-1', className)} role="radiogroup" aria-label={ariaLabel}>
+			{options.map((option) => (
+				<button
+					key={option.value}
+					type="button"
+					role="radio"
+					aria-checked={value === option.value}
+					disabled={option.disabled}
+					onClick={() => onChange(option.value)}
+					className={cn(
+						'cursor-pointer rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80 disabled:cursor-not-allowed disabled:opacity-40',
+						value === option.value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+					)}>
+					{option.label}
+				</button>
+			))}
+		</div>
+	)
+}
+
 function htmlPreviewRows(html: string) {
 	const parsed = new DOMParser().parseFromString(html, 'text/html')
 	const main = parsed.querySelector('main')
@@ -144,11 +234,14 @@ export default function TranscriptExportDialog({
 	preview,
 	renderedPreview,
 	direction,
+	onDirectionChange,
 	theme,
+	onThemeChange,
 	onCopy,
 	onSave,
 }: TranscriptExportDialogProps) {
 	const timestampsRequired = format === 'srt' || format === 'vtt'
+	const selectedFormat = formats.find((option) => option.value === format)
 	const contentOptions: Array<{ value: TranscriptExportContent; label: string; disabled: boolean }> = [
 		{ value: 'transcript', label: m.exportTranscript(), disabled: false },
 		{ value: 'summary', label: m.exportSummary(), disabled: !hasSummary },
@@ -163,12 +256,13 @@ export default function TranscriptExportDialog({
 				</DialogHeader>
 
 				<div className="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)] lg:overflow-hidden">
-					<div className="space-y-5 p-5 sm:p-6 lg:overflow-y-auto">
-						<section className="space-y-3" aria-labelledby="export-format-heading">
+					<div className="space-y-4 p-5 sm:p-6 lg:overflow-y-auto">
+						<section className="space-y-2" aria-labelledby="export-format-heading">
 							<div id="export-format-heading">
 								<SectionLabel>{m.format()}</SectionLabel>
 							</div>
-							<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3" role="radiogroup" aria-labelledby="export-format-heading">
+							{/* One line per format: the description belongs to whichever is selected, below. */}
+							<div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-labelledby="export-format-heading">
 								{formats.map((option) => {
 									const selected = format === option.value
 									return (
@@ -179,76 +273,76 @@ export default function TranscriptExportDialog({
 											aria-checked={selected}
 											onClick={() => onFormatChange(option.value)}
 											className={cn(
-												'group relative min-h-[4.5rem] rounded-xl border p-3 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80',
+												'flex items-center gap-2 rounded-lg border px-2 py-1.5 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80',
 												selected
-													? 'border-primary/70 bg-primary/7 shadow-xs'
-													: 'border-border/60 bg-background/40 hover:border-border hover:bg-muted/45',
+													? 'border-primary/60 bg-primary/10 text-foreground'
+													: 'border-transparent bg-muted/35 text-muted-foreground hover:bg-muted/60 hover:text-foreground',
 											)}>
-											<span className="flex items-start gap-2.5">
-												<span
-													className={cn(
-														'flex h-8 min-w-10 shrink-0 items-center justify-center rounded-lg border px-1.5 font-mono text-[10px] font-bold tracking-tight',
-														selected
-															? 'border-primary/25 bg-primary/12 text-primary'
-															: 'border-border/60 bg-muted/50 text-muted-foreground',
-													)}>
-													{option.extension}
-												</span>
-												<span className="min-w-0">
-													<span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-														{option.label()}
-														{selected && <Check className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}
-													</span>
-													<span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{option.description()}</span>
-												</span>
+											<span
+												className={cn(
+													'flex h-6 min-w-9 shrink-0 items-center justify-center rounded-md font-mono text-[9px] font-semibold tracking-tight',
+													selected ? 'bg-primary/20 text-primary' : 'bg-background/60 text-muted-foreground',
+												)}>
+												{option.extension}
 											</span>
+											<span className="truncate text-[13px] font-medium">{option.label()}</span>
 										</button>
 									)
 								})}
 							</div>
+							<p className="min-h-[1.25rem] px-0.5 text-xs text-muted-foreground">{selectedFormat?.description()}</p>
 						</section>
 
-						<section className="space-y-3" aria-labelledby="export-content-heading">
-							<div id="export-content-heading">
-								<SectionLabel>{m.exportContent()}</SectionLabel>
-							</div>
-							<div className="grid grid-cols-2 rounded-xl bg-muted/55 p-1" role="radiogroup" aria-labelledby="export-content-heading">
-								{contentOptions.map((option) => (
-									<button
-										key={option.value}
-										type="button"
-										role="radio"
-										aria-checked={content === option.value}
-										disabled={option.disabled}
-										onClick={() => onContentChange(option.value)}
-										className={cn(
-											'rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80 disabled:cursor-not-allowed disabled:opacity-40',
-											content === option.value
-												? 'bg-background text-foreground shadow-xs'
-												: 'text-muted-foreground hover:text-foreground',
-										)}>
-										{option.label}
-									</button>
-								))}
-							</div>
-						</section>
-
-						<section className="space-y-3" aria-label={m.exportOptions()}>
+						{/* Every option is a row in one card: the same rhythm the Settings page uses. */}
+						<section className="space-y-2" aria-label={m.exportOptions()}>
 							<SectionLabel>{m.exportOptions()}</SectionLabel>
-							<div className="divide-y divide-border/60 rounded-xl border border-border/60 bg-background/30 px-3">
-								<label className="flex cursor-pointer items-center justify-between gap-4 py-3 text-sm">
-									<span>{m.showTimestamps()}</span>
+							<div className="divide-y divide-border/60 overflow-hidden rounded-xl border border-border/60 bg-background/30">
+								<OptionRow label={m.exportContent()}>
+									<Segmented
+										className="w-52"
+										ariaLabel={m.exportContent()}
+										value={content}
+										onChange={onContentChange}
+										options={contentOptions}
+									/>
+								</OptionRow>
+
+								<OptionRow label={m.theme()}>
+									<IconToggle
+										ariaLabel={m.theme()}
+										value={theme}
+										onChange={onThemeChange}
+										options={[
+											{ value: 'light' as const, label: m.light(), icon: <Sun className="h-3.5 w-3.5" /> },
+											{ value: 'dark' as const, label: m.dark(), icon: <Moon className="h-3.5 w-3.5" /> },
+										]}
+									/>
+								</OptionRow>
+
+								<OptionRow label={m.textDirection()}>
+									<IconToggle
+										ariaLabel={m.textDirection()}
+										value={direction}
+										onChange={onDirectionChange}
+										options={[
+											{ value: 'ltr' as const, label: 'LTR', icon: <PilcrowRight className="h-3.5 w-3.5" /> },
+											{ value: 'rtl' as const, label: 'RTL', icon: <PilcrowLeft className="h-3.5 w-3.5" /> },
+										]}
+									/>
+								</OptionRow>
+
+								<OptionRow label={m.showTimestamps()}>
 									<Switch
 										aria-label={m.showTimestamps()}
 										checked={timestampsRequired || showTimestamps}
 										disabled={timestampsRequired}
 										onCheckedChange={onShowTimestampsChange}
 									/>
-								</label>
-								<label className="flex cursor-pointer items-center justify-between gap-4 py-3 text-sm">
-									<span>{m.showSpeakers()}</span>
+								</OptionRow>
+
+								<OptionRow label={m.showSpeakers()}>
 									<Switch aria-label={m.showSpeakers()} checked={showSpeakers} onCheckedChange={onShowSpeakersChange} />
-								</label>
+								</OptionRow>
 							</div>
 						</section>
 					</div>

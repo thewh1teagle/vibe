@@ -290,6 +290,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 				const loadResult = await invoke<string>('load_model', {
 					modelPath: current.modelPath,
 					gpuDevice: current.gpuDevice,
+					noGpu: current.noGpu,
 					unloadTimeoutMinutes: current.unloadTimeoutMinutes,
 				})
 				if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })

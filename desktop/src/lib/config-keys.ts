@@ -21,6 +21,7 @@ export const CONFIG_KEYS = {
 	modelPath: 'model.path',
 	modelDisplayNames: 'model.displayNames',
 	gpuDevice: 'model.gpuDevice',
+	noGpu: 'model.noGpu',
 	unloadTimeoutMinutes: 'model.unloadTimeoutMinutes',
 	modelPromptDismissed: 'model.downloadPromptDismissed',
 
@@ -49,6 +50,7 @@ export const CONFIG_KEYS = {
 	textSize: 'transcript.textSize',
 	showTimestamps: 'transcript.showTimestamps',
 	showSpeakers: 'transcript.showSpeakers',
+	exportOptions: 'transcript.exportOptions',
 	textFormatTranscript: 'transcript.exportFormat',
 	textFormatSummary: 'transcript.summaryExportFormat',
 	transcriptTab: 'transcript.tab',
@@ -97,6 +99,7 @@ export const LEGACY_LOCAL_STORAGE_KEYS: Record<string, ConfigKey> = {
 	prefs_model_path: CONFIG_KEYS.modelPath,
 	prefs_model_display_names: CONFIG_KEYS.modelDisplayNames,
 	prefs_gpu_device: CONFIG_KEYS.gpuDevice,
+	prefs_no_gpu: CONFIG_KEYS.noGpu,
 	prefs_unload_timeout_minutes: CONFIG_KEYS.unloadTimeoutMinutes,
 	'vibe:model-download-prompt-dismissed': CONFIG_KEYS.modelPromptDismissed,
 	prefs_modal_args: CONFIG_KEYS.modelOptions,

@@ -6,6 +6,7 @@ import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import { ReactComponent as WrenchIcon } from '~/icons/wrench.svg'
 import NumberField from '~/components/number-field'
 import { Input } from '~/components/ui/input'
+import { Switch } from '~/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { ActionRow, IconAction, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 import { getFriendlyModelName } from '~/lib/model'
@@ -82,7 +83,15 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 					)}
 				</SettingsRow>
 
-				{!vm.isMacOS && (
+				<SettingsRow label={m.transcribeOnCpu()} description={m.transcribeOnCpuInfo()} clampDescription={false}>
+					<Switch
+						checked={vm.preference.noGpu}
+						onCheckedChange={vm.preference.setNoGpu}
+						aria-label={m.transcribeOnCpu()}
+					/>
+				</SettingsRow>
+
+				{!vm.isMacOS && !vm.preference.noGpu && (
 					<SettingsRow label={m.gpuDevice()}>
 						{vm.gpuDevices.length > 0 ? (
 							<Select
