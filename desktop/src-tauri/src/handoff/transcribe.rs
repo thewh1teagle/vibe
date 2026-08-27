@@ -15,6 +15,7 @@ use crate::sona::SonaEvent;
 /// Keys in `app_config.json` holding the user's model settings (`lib/config-keys.ts`).
 const CONFIG_KEY_MODEL_PATH: &str = "model.path";
 const CONFIG_KEY_GPU_DEVICE: &str = "model.gpuDevice";
+const CONFIG_KEY_NO_GPU: &str = "model.noGpu";
 const CONFIG_KEY_UNLOAD_TIMEOUT_MINUTES: &str = "model.unloadTimeoutMinutes";
 
 /// Display name for a phone transcription in Recents.
@@ -136,6 +137,7 @@ impl HandoffHandler {
             settings.path.clone(),
             settings.gpu_device,
             settings.unload_timeout_minutes,
+            Some(settings.no_gpu),
         )
         .await
         // Surface why it failed — a missing model file and an unavailable GPU need
@@ -318,6 +320,7 @@ pub(super) struct ModelSettings {
     pub(super) path: String,
     gpu_device: Option<i32>,
     unload_timeout_minutes: u32,
+    no_gpu: bool,
 }
 
 /// Read the user's model selection out of `app_config.json`.
@@ -345,6 +348,7 @@ pub(super) fn model_settings(app_handle: &tauri::AppHandle) -> Option<ModelSetti
         .get(CONFIG_KEY_GPU_DEVICE)
         .and_then(|value| value.as_i64())
         .map(|value| value as i32);
+    let no_gpu = store.get(CONFIG_KEY_NO_GPU).and_then(|value| value.as_bool()).unwrap_or(false);
     let unload_timeout_minutes = store
         .get(CONFIG_KEY_UNLOAD_TIMEOUT_MINUTES)
         .and_then(|value| value.as_u64())
@@ -355,6 +359,7 @@ pub(super) fn model_settings(app_handle: &tauri::AppHandle) -> Option<ModelSetti
         path,
         gpu_device,
         unload_timeout_minutes,
+        no_gpu,
     })
 }
 

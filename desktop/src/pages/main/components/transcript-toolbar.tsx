@@ -11,7 +11,6 @@ import { Switch } from '~/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { cn } from '~/lib/style'
 import type { TextFormat } from '~/components/format-select'
-import type { TranscriptExportContent } from '~/lib/transcript-export'
 import type { Job } from '../hooks/use-transcribe-queue'
 import type { TranscriptTab, TranscriptTextSize, TranscriptViewOptions } from '../hooks/use-transcript-view'
 import { useTranscriptExport } from '../hooks/use-transcript-export'
@@ -220,21 +219,28 @@ export default function TranscriptToolbar({
 	const { queue, startNew } = useSession()
 	const preference = usePreferenceProvider()
 	const [exportOpen, setExportOpen] = useState(false)
-	const [exportContent, setExportContent] = useState<TranscriptExportContent>('transcript')
-	const [exportTimestamps, setExportTimestamps] = useState(options.showTimestamps)
-	const [exportSpeakers, setExportSpeakers] = useState(options.showSpeakers)
+	const exportOptions = preference.exportOptions
+	// Each control changes one field of the stored object.
+	const updateExport = (patch: Partial<typeof exportOptions>) => preference.setExportOptions({ ...exportOptions, ...patch })
+	// A one-off override: the dialog opens on the transcript's own direction every time.
+	const [exportDirection, setExportDirection] = useState(preference.textAreaDirection)
 	const [searching, setSearching] = useState(false)
 	const searchRef = useRef<HTMLInputElement>(null)
 	const exporter = useTranscriptExport({
 		enabled: exportOpen,
+		direction: exportDirection,
 		segments: job?.segments ?? [],
 		summary: job?.summary,
 		file: job ? { name: job.name, path: job.path } : null,
-		format: preference.textFormatTranscript,
-		content: exportContent,
-		showTimestamps: exportTimestamps,
-		showSpeakers: exportSpeakers,
+		format: exportOptions.format,
+		content: exportOptions.content,
+		showTimestamps: exportOptions.showTimestamps,
+		showSpeakers: exportOptions.showSpeakers,
 	})
+
+	useEffect(() => {
+		if (exportOpen) setExportDirection(preference.textAreaDirection)
+	}, [exportOpen, preference.textAreaDirection])
 
 	useEffect(() => {
 		if (!searching) return
@@ -245,9 +251,9 @@ export default function TranscriptToolbar({
 	}, [searching])
 
 	function openExport() {
-		setExportContent(tab === 'summary' && job?.summary ? 'summary' : 'transcript')
-		setExportTimestamps(options.showTimestamps)
-		setExportSpeakers(options.showSpeakers)
+		// The dialog reopens on the choices it was left with; only a saved choice that this
+		// transcript cannot honour — a summary it does not have — is corrected.
+		if (!job?.summary && exportOptions.content !== 'transcript') updateExport({ content: 'transcript' })
 		setExportOpen(true)
 	}
 
@@ -347,19 +353,21 @@ export default function TranscriptToolbar({
 			<TranscriptExportDialog
 				open={exportOpen}
 				onOpenChange={setExportOpen}
-				format={preference.textFormatTranscript}
-				onFormatChange={(format: TextFormat) => preference.setTextFormatTranscript(format)}
-				content={exportContent}
-				onContentChange={setExportContent}
+				format={exportOptions.format}
+				onFormatChange={(format: TextFormat) => updateExport({ format })}
+				content={exportOptions.content}
+				onContentChange={(content) => updateExport({ content })}
 				hasSummary={Boolean(job?.summary)}
-				showTimestamps={exportTimestamps}
-				onShowTimestampsChange={setExportTimestamps}
-				showSpeakers={exportSpeakers}
-				onShowSpeakersChange={setExportSpeakers}
+				showTimestamps={exportOptions.showTimestamps}
+				onShowTimestampsChange={(showTimestamps) => updateExport({ showTimestamps })}
+				showSpeakers={exportOptions.showSpeakers}
+				onShowSpeakersChange={(showSpeakers) => updateExport({ showSpeakers })}
 				preview={exporter.preview}
 				renderedPreview={exporter.renderedPreview}
-				direction={preference.textAreaDirection}
-				theme={preference.theme}
+				direction={exportDirection}
+				onDirectionChange={setExportDirection}
+				theme={exportOptions.theme}
+				onThemeChange={(theme) => updateExport({ theme })}
 				onCopy={exporter.copy}
 				onSave={saveExport}
 			/>

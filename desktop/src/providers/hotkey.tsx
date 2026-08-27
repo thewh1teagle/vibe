@@ -219,6 +219,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				await invoke('load_model', {
 					modelPath,
 					gpuDevice: preferenceRef.current.gpuDevice,
+					noGpu: preferenceRef.current.noGpu,
 					unloadTimeoutMinutes: preferenceRef.current.unloadTimeoutMinutes,
 				})
 				const requiresVad = preferenceRef.current.modelMetadata?.capabilities.requires_vad ?? false

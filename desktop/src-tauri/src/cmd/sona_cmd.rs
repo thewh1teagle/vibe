@@ -76,7 +76,10 @@ pub async fn load_model(
     model_path: String,
     gpu_device: Option<i32>,
     unload_timeout_minutes: u32,
+    no_gpu: Option<bool>,
 ) -> Result<String> {
+    // Absent means "use the GPU": the setting is opt-in, and older callers do not send it.
+    let no_gpu = no_gpu.unwrap_or(false);
     let sona_state: State<'_, Mutex<SonaState>> = app_handle.state();
     let mut state_guard = sona_state.lock().await;
 
@@ -123,11 +126,13 @@ pub async fn load_model(
     // Load model via HTTP
     let load_result = {
         let sona = state_guard.process.as_mut().unwrap();
-        sona.load_model(&model_path, gpu_device, false).await
+        sona.load_model(&model_path, gpu_device, no_gpu).await
     };
 
+    // Asking for the CPU is a choice rather than a failure, so there is nothing to fall back to.
     let gpu_fallback = match load_result {
         Ok(()) => false,
+        Err(e) if no_gpu => return Err(e),
         Err(e) => {
             tracing::warn!("model load failed with GPU enabled, falling back to CPU: {:#}", e);
 

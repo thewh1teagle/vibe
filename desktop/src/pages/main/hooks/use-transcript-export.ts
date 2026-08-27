@@ -17,6 +17,8 @@ import { usePreferenceProvider } from '~/providers/preference'
 
 interface UseTranscriptExportOptions {
 	enabled?: boolean
+	/** Overrides the app's text direction for this export only. */
+	direction?: 'rtl' | 'ltr'
 	segments: Segment[]
 	summary?: string
 	file: NamedPath | null
@@ -26,7 +28,17 @@ interface UseTranscriptExportOptions {
 	showSpeakers: boolean
 }
 
-export function useTranscriptExport({ enabled = true, segments, summary, file, format, content, showTimestamps, showSpeakers }: UseTranscriptExportOptions) {
+export function useTranscriptExport({
+	enabled = true,
+	direction,
+	segments,
+	summary,
+	file,
+	format,
+	content,
+	showTimestamps,
+	showSpeakers,
+}: UseTranscriptExportOptions) {
 	const preference = usePreferenceProvider()
 	const speakerLabel = m.speakerPrefix()
 	const serializerOptions = useMemo<TranscriptExportOptions>(
@@ -36,10 +48,10 @@ export function useTranscriptExport({ enabled = true, segments, summary, file, f
 			showSpeakers,
 			speakerLabel,
 			title: file?.name ?? '',
-			direction: preference.textAreaDirection,
-			theme: preference.theme,
+			direction: direction ?? preference.textAreaDirection,
+			theme: preference.exportOptions.theme,
 		}),
-		[content, file?.name, preference.textAreaDirection, preference.theme, showSpeakers, showTimestamps, speakerLabel],
+		[content, direction, file?.name, preference.exportOptions.theme, preference.textAreaDirection, showSpeakers, showTimestamps, speakerLabel],
 	)
 	const preview = useMemo(
 		() => (enabled ? serializeTranscriptExport(format, segments, summary, serializerOptions) : ''),
@@ -83,14 +95,13 @@ export function useTranscriptExport({ enabled = true, segments, summary, file, f
 			})
 			await fs.writeFile(target, bytes)
 		} else if (format === 'docx') {
-			const document = await toDocx(file.name, segments, preference.textAreaDirection, speakerLabel, {
+			const document = await toDocx(file.name, segments, serializerOptions.direction, speakerLabel, {
 				content,
 				showTimestamps,
 				showSpeakers,
 				summary,
 				transcriptLabel: m.exportTranscript(),
 				summaryLabel: m.exportSummary(),
-				theme: preference.theme,
 			})
 			await fs.writeFile(target, new Uint8Array(await document.arrayBuffer()))
 		} else {

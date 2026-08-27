@@ -1,4 +1,4 @@
-import { ReactNode, SetStateAction, createContext, useContext, useEffect, useRef, useState } from 'react'
+import { ReactNode, SetStateAction, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
@@ -17,6 +17,25 @@ import type { ModelMetadata } from '~/lib/model'
 
 type Direction = 'ltr' | 'rtl'
 export type HomeTab = 'record' | 'file' | 'link'
+
+/** What the export dialog remembers between openings. Direction is deliberately not here: it is a
+ * one-off override that starts from the transcript's own direction each time. */
+export interface ExportOptions {
+	format: TextFormat
+	content: 'transcript' | 'summary' | 'both'
+	/** Appearance of the exported file, kept apart from the app's own theme — a file gets printed. */
+	theme: 'light' | 'dark'
+	showTimestamps: boolean
+	showSpeakers: boolean
+}
+
+export const DEFAULT_EXPORT_OPTIONS: ExportOptions = {
+	format: 'pdf',
+	content: 'transcript',
+	theme: 'light',
+	showTimestamps: false,
+	showSpeakers: true,
+}
 
 export interface AdvancedTranscribeOptions {
 	includeSubFolders: boolean
@@ -85,8 +104,15 @@ export interface Preference {
 	stableTimestampsEnabled: boolean
 	setStableTimestampsEnabled: ModifyState<boolean>
 
+	/** Everything the export dialog remembers, kept together under one config key. */
+	exportOptions: ExportOptions
+	setExportOptions: ModifyState<ExportOptions>
+
 	gpuDevice: number | null
 	setGpuDevice: ModifyState<number | null>
+	/** Transcribe on the CPU even where a GPU is available. */
+	noGpu: boolean
+	setNoGpu: ModifyState<boolean>
 	unloadTimeoutMinutes: number
 	setUnloadTimeoutMinutes: ModifyState<number>
 
@@ -204,7 +230,22 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [recentLanguages, setRecentLanguages] = usePersisted<{ code: string; ts: number }[]>(CONFIG_KEYS.recentLanguages, [])
 	const [diarizeEnabled, setDiarizeEnabled] = usePersisted<boolean>(CONFIG_KEYS.diarizeEnabled, false)
 	const [stableTimestampsEnabled, setStableTimestampsEnabled] = usePersisted<boolean>(CONFIG_KEYS.stableTimestampsEnabled, false)
+	const [storedExportOptions, setStoredExportOptions] = usePersisted<Partial<ExportOptions>>(CONFIG_KEYS.exportOptions, DEFAULT_EXPORT_OPTIONS)
+	// One key holding several settings can be half-written by an older build or a hand-edited
+	// config, and a missing field would reach the exporter as `undefined`. Defaults fill the gaps,
+	// on the way in and on the way back out.
+	const exportOptions = useMemo<ExportOptions>(() => ({ ...DEFAULT_EXPORT_OPTIONS, ...storedExportOptions }), [storedExportOptions])
+	const setExportOptions: ModifyState<ExportOptions> = useCallback(
+		(value) => {
+			setStoredExportOptions((previous) => {
+				const current = { ...DEFAULT_EXPORT_OPTIONS, ...previous }
+				return typeof value === 'function' ? (value as (state: ExportOptions) => ExportOptions)(current) : value
+			})
+		},
+		[setStoredExportOptions],
+	)
 	const [gpuDevice, setGpuDevice] = usePersisted<number | null>(CONFIG_KEYS.gpuDevice, null)
+	const [noGpu, setNoGpu] = usePersisted<boolean>(CONFIG_KEYS.noGpu, false)
 	const [unloadTimeoutMinutes, setUnloadTimeoutMinutes] = usePersisted<number>(CONFIG_KEYS.unloadTimeoutMinutes, 5)
 	const [saveTranscripts, setSaveTranscripts] = usePersisted<boolean>(CONFIG_KEYS.saveTranscripts, true)
 	const [meetingDetectionEnabled, setMeetingDetectionEnabled] = usePersisted<boolean>(CONFIG_KEYS.meetingDetectionEnabled, false)
@@ -384,7 +425,11 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setDiarizeEnabled,
 		stableTimestampsEnabled,
 		setStableTimestampsEnabled,
+		exportOptions,
+		setExportOptions,
 		gpuDevice,
+		noGpu,
+		setNoGpu,
 		setGpuDevice,
 		unloadTimeoutMinutes,
 		setUnloadTimeoutMinutes,
