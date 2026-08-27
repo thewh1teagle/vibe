@@ -15,11 +15,10 @@ impl CpuRuntime {
     }
 
     fn with_threads(threads: usize) -> Result<Self> {
-        let backend = unsafe { sys::ggml_backend_cpu_init() };
+        let backend = unsafe { init_cpu_backend(threads.min(i32::MAX as usize) as i32) };
         if backend.is_null() {
-            Err(Error::Ggml("ggml_backend_cpu_init"))
+            Err(Error::Ggml("cpu backend init"))
         } else {
-            unsafe { sys::ggml_backend_cpu_set_n_threads(backend, threads.min(i32::MAX as usize) as i32) };
             Ok(Self {
                 backend,
                 owned: true,
@@ -156,6 +155,49 @@ impl Drop for Graph {
             sys::ggml_free(self.ctx)
         }
     }
+}
+
+/// Loads dynamically-built backends once per process. A no-op on static
+/// builds (macOS); on GGML_BACKEND_DL builds (x86 Linux/Windows) this picks
+/// the best CPU-variant module for the running machine by cpuid score.
+fn load_backends_once() {
+    static LOAD: std::sync::Once = std::sync::Once::new();
+    LOAD.call_once(|| unsafe { sys::ggml_backend_load_all() });
+}
+
+/// Sets the thread count through the backend registry. The direct
+/// `ggml_backend_cpu_set_n_threads` symbol does not exist in
+/// GGML_BACKEND_DL builds, where the CPU backend is a loadable module.
+unsafe fn set_backend_n_threads(backend: sys::ggml_backend_t, n_threads: i32) {
+    let dev = sys::ggml_backend_get_device(backend);
+    if dev.is_null() {
+        return;
+    }
+    let reg = sys::ggml_backend_dev_backend_reg(dev);
+    if reg.is_null() {
+        return;
+    }
+    let addr = sys::ggml_backend_reg_get_proc_address(reg, c"ggml_backend_set_n_threads".as_ptr());
+    if !addr.is_null() {
+        let set_n_threads: sys::ggml_backend_set_n_threads_t = std::mem::transmute(addr);
+        if let Some(set_n_threads) = set_n_threads {
+            set_n_threads(backend, n_threads);
+        }
+    }
+}
+
+/// Registry-based CPU backend init (`ggml_backend_cpu_init` does not link
+/// against GGML_BACKEND_DL builds).
+unsafe fn init_cpu_backend(n_threads: i32) -> sys::ggml_backend_t {
+    load_backends_once();
+    let backend = sys::ggml_backend_init_by_type(
+        sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_CPU,
+        std::ptr::null(),
+    );
+    if !backend.is_null() {
+        set_backend_n_threads(backend, n_threads);
+    }
+    backend
 }
 
 #[cfg(test)]

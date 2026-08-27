@@ -1,20 +1,23 @@
-use std::ffi::{CStr, CString, c_void};
+//! The historical whisper-rs API surface (`Context`, `set_verbose`), now
+//! implemented on the pure-Rust engine instead of whisper.cpp FFI. Option
+//! mapping and callback semantics are kept from the previous implementation
+//! so sona is unaffected.
+
+use std::ffi::{c_char, c_void, CStr};
 use std::io::Write;
-use std::path::{Path, PathBuf};
-use std::ptr;
+use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Once;
 
-use crate::callbacks::{CallbackState, install_stream_callbacks};
-use crate::model_file;
-use crate::{
-    ContextOptions, Error, Result, Segment, StreamCallbacks, TranscribeOptions, TranscribeResult,
-};
-use crate::{ffi, platform};
+use ggml_rs_sys as ffi;
 
-#[derive(Debug)]
+use crate::{
+    model_file, ContextOptions, Error, FullCallbacks, FullParams, FullSegment, Result, SamplingStrategy, Segment,
+    StreamCallbacks, TranscribeOptions, TranscribeResult, Whisper,
+};
+
 pub struct Context {
-    ctx: *mut ffi::whisper_context,
+    whisper: Whisper,
 }
 
 impl Context {
@@ -22,33 +25,21 @@ impl Context {
         let path = model_path.as_ref();
         install_abort_handler();
 
-        // whisper.cpp turns a malformed header into a GGML_ASSERT, so the file
-        // is checked here while a failure can still be reported.
+        // A malformed header should be reported cleanly rather than surfacing
+        // as an engine load failure, so the file is checked first.
         let size = model_file::validate(path)?;
         model_file::check_available_memory(path, size)?;
 
-        let mut params = unsafe { ffi::whisper_context_default_params() };
-        params.use_gpu = !options.no_gpu && platform::vulkan_available();
-        if options.gpu_device >= 0 {
-            params.gpu_device = options.gpu_device;
-        }
+        // The engine is CPU-only for now; the GPU knobs are accepted for
+        // compatibility and ignored.
+        let _ = options;
 
-        // Loading from the path keeps a single copy of the weights in memory;
-        // the buffer entry point would hold the whole file alongside them.
-        let path_cstring = CString::new(path.as_os_str().to_string_lossy().as_ref())?;
-        let ctx = unsafe { ffi::whisper_init_from_file_with_params(path_cstring.as_ptr(), params) };
-        if ctx.is_null() {
-            return Err(Error::LoadModel(PathBuf::from(path)));
-        }
-
-        Ok(Self { ctx })
+        Ok(Self {
+            whisper: Whisper::new(path)?,
+        })
     }
 
-    pub fn transcribe(
-        &mut self,
-        samples: &[f32],
-        options: TranscribeOptions,
-    ) -> Result<TranscribeResult> {
+    pub fn transcribe(&mut self, samples: &[f32], options: TranscribeOptions) -> Result<TranscribeResult> {
         self.transcribe_stream(samples, options, StreamCallbacks::default())
     }
 
@@ -56,104 +47,127 @@ impl Context {
         &mut self,
         samples: &[f32],
         options: TranscribeOptions,
-        callbacks: StreamCallbacks<'_>,
+        mut callbacks: StreamCallbacks<'_>,
     ) -> Result<TranscribeResult> {
         if samples.is_empty() {
             return Err(Error::NoSamples);
         }
-        if options.stable_timestamps {
-            return crate::stable::transcribe_stable_timestamps(
-                self.ctx, samples, options, callbacks,
-            );
-        }
-
         set_verbose(options.verbose);
 
-        let language = option_cstring(options.language.as_deref())?;
-        let prompt = option_cstring(options.prompt.as_deref())?;
-        let mut params = full_params(&options);
-        params.language = language.as_ref().map_or(ptr::null(), |s| s.as_ptr());
-        params.initial_prompt = prompt.as_ref().map_or(ptr::null(), |s| s.as_ptr());
-
-        let mut callback_state = CallbackState::new(callbacks);
-        install_stream_callbacks(&mut params, &mut callback_state);
-
-        let ret = unsafe {
-            ffi::whisper_full(
-                self.ctx,
-                params,
-                samples.as_ptr(),
-                samples
-                    .len()
-                    .try_into()
-                    .map_err(|_| Error::Message("sample count exceeds i32".to_string()))?,
-            )
-        };
-        if ret != 0 {
-            if callback_state.aborted {
-                return Err(Error::Aborted);
-            }
-            return Err(Error::TranscriptionFailed(ret));
+        if options.stable_timestamps {
+            return transcribe_stable_timestamps(&mut self.whisper, samples, options, callbacks);
         }
 
-        collect_segments(self.ctx)
+        let params = full_params(&options);
+
+        let mut engine_callbacks = FullCallbacks::default();
+        if let Some(on_progress) = callbacks.on_progress.as_mut() {
+            engine_callbacks.on_progress = Some(Box::new(&mut **on_progress));
+        }
+        if let Some(on_segment) = callbacks.on_segment.as_mut() {
+            engine_callbacks.on_new_segment = Some(Box::new(|segment: &FullSegment| on_segment(convert(segment))));
+        }
+        if let Some(should_abort) = callbacks.should_abort.as_mut() {
+            engine_callbacks.should_abort = Some(Box::new(&mut **should_abort));
+        }
+
+        let segments = self.whisper.full_stream(&params, samples, &mut engine_callbacks)?;
+        drop(engine_callbacks);
+
+        Ok(TranscribeResult {
+            segments: segments.iter().map(convert).collect(),
+        })
     }
 }
 
-impl Drop for Context {
-    fn drop(&mut self) {
-        if !self.ctx.is_null() {
-            unsafe { ffi::whisper_free(self.ctx) };
-            self.ctx = ptr::null_mut();
-        }
+fn convert(segment: &FullSegment) -> Segment {
+    Segment {
+        start: segment.t0,
+        end: segment.t1,
+        text: segment.text.clone(),
+        no_speech_prob: segment.no_speech_prob,
     }
 }
 
-unsafe impl Send for Context {}
+/// The stable-timestamps path: VAD the audio, transcribe each speech segment
+/// on its own 30-second-free window and shift the timestamps back. Ported
+/// from the previous `stable.rs`.
+fn transcribe_stable_timestamps(
+    whisper: &mut Whisper,
+    samples: &[f32],
+    options: TranscribeOptions,
+    mut callbacks: StreamCallbacks<'_>,
+) -> Result<TranscribeResult> {
+    let vad_model_path = options.vad_model_path.as_deref().ok_or(Error::MissingVadModel)?;
+    let mut vad = vad_rs::Vad::new(vad_model_path, vad_rs::Options::stable_timestamps())
+        .map_err(|error| Error::Message(error.to_string()))?;
+    let vad_segments = vad.segments(samples).map_err(|error| Error::Message(error.to_string()))?;
+    if vad_segments.is_empty() {
+        if let Some(on_progress) = callbacks.on_progress.as_mut() {
+            on_progress(100);
+        }
+        return Ok(TranscribeResult::default());
+    }
 
-/// Whether whisper.cpp's informational logging is forwarded to stderr.
-/// Warnings and errors are always forwarded, whatever this is set to.
-static VERBOSE: AtomicBool = AtomicBool::new(false);
-
-pub fn set_verbose(verbose: bool) {
-    VERBOSE.store(verbose, Ordering::Relaxed);
-    install_abort_handler();
-    unsafe { ffi::whisper_log_set(Some(whisper_log_callback), ptr::null_mut()) };
-}
-
-/// Registers the ggml abort hook so a `GGML_ASSERT` message reaches stderr
-/// before the process dies. ggml calls `abort()` right after the hook returns,
-/// so this only records the message.
-pub(crate) fn install_abort_handler() {
-    static INSTALLED: Once = Once::new();
-
-    INSTALLED.call_once(|| {
-        unsafe { ffi::ggml_set_abort_callback(Some(ggml_abort_callback)) };
-    });
-}
-
-pub(crate) fn option_cstring(value: Option<&str>) -> Result<Option<CString>> {
-    value.map(CString::new).transpose().map_err(Error::from)
-}
-
-pub(crate) fn full_params(options: &TranscribeOptions) -> ffi::whisper_full_params {
-    let strategy = if !options.sampling_greedy && options.beam_size > 0 {
-        ffi::whisper_sampling_strategy_WHISPER_SAMPLING_BEAM_SEARCH
-    } else {
-        ffi::whisper_sampling_strategy_WHISPER_SAMPLING_GREEDY
+    let params = full_params(&options);
+    let n_vad_segments = vad_segments.len();
+    let mut result = TranscribeResult {
+        segments: Vec::with_capacity(n_vad_segments),
     };
 
-    let mut params = unsafe { ffi::whisper_full_default_params(strategy) };
+    for (index, vad_segment) in vad_segments.into_iter().enumerate() {
+        if let Some(should_abort) = callbacks.should_abort.as_mut() {
+            if should_abort() {
+                return Err(Error::Aborted);
+            }
+        }
+
+        let t0cs = vad_segment.start_centiseconds();
+        let window = &samples[vad_segment.start_sample..vad_segment.end_sample];
+
+        let decoded = {
+            let mut engine_callbacks = FullCallbacks::default();
+            if let Some(should_abort) = callbacks.should_abort.as_mut() {
+                engine_callbacks.should_abort = Some(Box::new(&mut **should_abort));
+            }
+            whisper.full_stream(&params, window, &mut engine_callbacks)?
+        };
+
+        for segment in &decoded {
+            let mut segment = convert(segment);
+            segment.start += t0cs;
+            segment.end += t0cs;
+            if let Some(on_segment) = callbacks.on_segment.as_mut() {
+                on_segment(segment.clone());
+            }
+            result.segments.push(segment);
+        }
+
+        if let Some(on_progress) = callbacks.on_progress.as_mut() {
+            on_progress(((index + 1) * 100 / n_vad_segments) as i32);
+        }
+    }
+
+    Ok(result)
+}
+
+/// Maps the historical `TranscribeOptions` onto the engine's `FullParams`,
+/// mirroring the previous `full_params` over `whisper_full_default_params`.
+fn full_params(options: &TranscribeOptions) -> FullParams {
+    let mut params = FullParams {
+        strategy: if !options.sampling_greedy && options.beam_size > 0 {
+            SamplingStrategy::BeamSearch
+        } else {
+            SamplingStrategy::Greedy
+        },
+        ..FullParams::default()
+    };
     params.print_special = options.verbose;
-    params.print_progress = options.verbose;
-    params.print_realtime = options.verbose;
-    params.print_timestamps = options.verbose;
     params.detect_language = options.detect_language;
     params.translate = options.translate;
     params.token_timestamps = options.word_timestamps;
-    // whisper.cpp only wraps segments when max_len is set, so split_on_word is inert
-    // on its own. Callers that want word-sized segments ask for them with
-    // max_segment_len; this just makes the wrap land on word boundaries.
+    // Segments are only wrapped when max_len is set, so split_on_word is
+    // inert on its own; it just makes the wrap land on word boundaries.
     params.split_on_word = options.word_timestamps;
 
     if options.threads > 0 {
@@ -169,52 +183,39 @@ pub(crate) fn full_params(options: &TranscribeOptions) -> ffi::whisper_full_para
         params.temperature = options.temperature;
     }
     if options.best_of > 0 {
-        params.greedy.best_of = options.best_of;
+        params.greedy_best_of = options.best_of;
     }
     if options.beam_size > 0 {
-        params.beam_search.beam_size = options.beam_size;
+        params.beam_size = options.beam_size;
     }
+
+    params.language = options.language.clone();
+    params.initial_prompt = options.prompt.clone();
     params
 }
 
-pub(crate) fn collect_segments(ctx: *mut ffi::whisper_context) -> Result<TranscribeResult> {
-    let n_segments = unsafe { ffi::whisper_full_n_segments(ctx) };
-    if n_segments < 0 {
-        return Err(Error::Message(
-            "negative segment count from whisper.cpp".to_string(),
-        ));
-    }
+/// Whether GGML's informational logging is forwarded to stderr.
+/// Warnings and errors are always forwarded, whatever this is set to.
+static VERBOSE: AtomicBool = AtomicBool::new(false);
 
-    let mut segments = Vec::with_capacity(n_segments as usize);
-    for index in 0..n_segments {
-        segments.push(segment_at(ctx, index));
-    }
-    Ok(TranscribeResult { segments })
+pub fn set_verbose(verbose: bool) {
+    VERBOSE.store(verbose, Ordering::Relaxed);
+    install_abort_handler();
+    unsafe { ffi::ggml_log_set(Some(ggml_log_callback), std::ptr::null_mut()) };
 }
 
-fn segment_at(ctx: *mut ffi::whisper_context, index: i32) -> Segment {
-    let text_ptr = unsafe { ffi::whisper_full_get_segment_text(ctx, index) };
-    let text = if text_ptr.is_null() {
-        String::new()
-    } else {
-        unsafe { CStr::from_ptr(text_ptr) }
-            .to_string_lossy()
-            .into_owned()
-    };
+/// Registers the ggml abort hook so a `GGML_ASSERT` message reaches stderr
+/// before the process dies. ggml calls `abort()` right after the hook
+/// returns, so this only records the message.
+pub(crate) fn install_abort_handler() {
+    static INSTALLED: Once = Once::new();
 
-    Segment {
-        start: unsafe { ffi::whisper_full_get_segment_t0(ctx, index) },
-        end: unsafe { ffi::whisper_full_get_segment_t1(ctx, index) },
-        text,
-        no_speech_prob: unsafe { ffi::whisper_full_get_segment_no_speech_prob(ctx, index) },
-    }
+    INSTALLED.call_once(|| {
+        unsafe { ffi::ggml_set_abort_callback(Some(ggml_abort_callback)) };
+    });
 }
 
-extern "C" fn whisper_log_callback(
-    level: ffi::ggml_log_level,
-    text: *const libc::c_char,
-    _user_data: *mut c_void,
-) {
+extern "C" fn ggml_log_callback(level: ffi::ggml_log_level, text: *const c_char, _user_data: *mut c_void) {
     if text.is_null() || !should_log(level) {
         return;
     }
@@ -239,7 +240,7 @@ fn should_log(level: ffi::ggml_log_level) -> bool {
     logged
 }
 
-extern "C" fn ggml_abort_callback(message: *const libc::c_char) {
+extern "C" fn ggml_abort_callback(message: *const c_char) {
     let message = if message.is_null() {
         "(no message)".to_string()
     } else {

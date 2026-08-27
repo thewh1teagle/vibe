@@ -51,4 +51,18 @@ pub enum Error {
     LoadVadModel(std::path::PathBuf),
     #[error("failed to run VAD segmentation")]
     VadSegmentationFailed,
+
+    // Engine-side errors from the pure-Rust whisper port.
+    #[error("failed to open model file {0}")]
+    OpenModel(std::path::PathBuf),
+    #[error("invalid or unsupported model file")]
+    ModelFormat,
+    #[error("ggml operation failed: {0}")]
+    Ggml(&'static str),
+    #[error("unknown language {0:?}")]
+    UnknownLanguage(String),
+    #[error("failed to auto-detect language")]
+    LanguageDetection,
+    #[error("audio is too short to transcribe")]
+    AudioTooShort,
 }

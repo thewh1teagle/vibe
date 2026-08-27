@@ -1,6 +1,6 @@
 use std::ffi::CStr;
 
-use crate::ffi;
+use ggml_rs_sys as ffi;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GPUDevice {
@@ -17,6 +17,7 @@ pub enum GPUDeviceType {
 }
 
 pub fn list_gpu_devices() -> Vec<GPUDevice> {
+    unsafe { ffi::ggml_backend_load_all() };
     let count = unsafe { ffi::ggml_backend_dev_count() };
     let mut devices = Vec::new();
 
@@ -45,7 +46,7 @@ pub fn list_gpu_devices() -> Vec<GPUDevice> {
     devices
 }
 
-fn cstr(ptr: *const libc::c_char) -> String {
+fn cstr(ptr: *const std::ffi::c_char) -> String {
     if ptr.is_null() {
         return String::new();
     }

@@ -6,13 +6,11 @@ models/
 samples/
 sona
 !sona/
-whisper.cpp/
-whisper-src/
-whisper-build/
+ggml-src/
+ggml-build/
 *.tar.gz
-whisper.cpp/
-whisper-src/
-whisper-build/
+ggml-src/
+ggml-build/
 *.tar.gz
 *.exe
 *.zip

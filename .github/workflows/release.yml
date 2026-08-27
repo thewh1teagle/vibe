@@ -75,7 +75,7 @@ jobs:
           "Vulkan_INCLUDE_DIR=$($sdk.FullName)\Include" | Out-File -FilePath $env:GITHUB_ENV -Append
           "Vulkan_LIBRARY=$($sdk.FullName)\Lib\vulkan-1.lib" | Out-File -FilePath $env:GITHUB_ENV -Append
           "$($sdk.FullName)\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-      - name: Download prebuilt whisper.cpp libs
+      - name: Download prebuilt GGML libs
         run: cargo xtask fetch-libs
       - name: Build sona
         shell: bash

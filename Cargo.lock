@@ -382,12 +382,12 @@ dependencies = [
 name = "diarize-rs"
 version = "0.1.0"
 dependencies = [
+ "ggml-rs-sys",
  "hound",
  "ndarray",
  "realfft",
  "serde",
  "thiserror",
- "whisper-cpp-sys",
 ]
 
 [[package]]
@@ -595,6 +595,13 @@ dependencies = [
  "cfg-if",
  "libc",
  "r-efi",
+]
+
+[[package]]
+name = "ggml-rs-sys"
+version = "0.1.0"
+dependencies = [
+ "bindgen",
 ]
 
 [[package]]
@@ -1089,12 +1096,12 @@ dependencies = [
 name = "nemotron-rs"
 version = "0.1.0"
 dependencies = [
+ "ggml-rs-sys",
  "hound",
  "rayon",
  "rustfft",
  "thiserror",
  "vad-rs",
- "whisper-cpp-sys",
 ]
 
 [[package]]
@@ -1236,12 +1243,12 @@ dependencies = [
 name = "parakeet-rs"
 version = "0.1.0"
 dependencies = [
+ "ggml-rs-sys",
  "hound",
  "rayon",
  "rustfft",
  "thiserror",
  "vad-rs",
- "whisper-cpp-sys",
 ]
 
 [[package]]
@@ -2293,8 +2300,9 @@ dependencies = [
 name = "vad-rs"
 version = "0.1.0"
 dependencies = [
+ "ggml-rs-sys",
+ "hound",
  "thiserror",
- "whisper-cpp-sys",
 ]
 
 [[package]]
@@ -2437,26 +2445,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "whisper-cpp-sys"
-version = "0.1.0"
-dependencies = [
- "bindgen",
- "windows-sys 0.61.2",
-]
-
-[[package]]
 name = "whisper-rs"
 version = "0.1.0"
 dependencies = [
+ "ggml-rs-sys",
  "hound",
- "libc",
  "sysinfo",
  "tempfile",
  "thiserror",
  "tracing",
+ "tracing-subscriber",
  "vad-rs",
- "whisper-cpp-sys",
- "windows-sys 0.61.2",
 ]
 
 [[package]]

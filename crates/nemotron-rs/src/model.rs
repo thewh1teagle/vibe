@@ -429,6 +429,7 @@ impl DeviceWeights {
         if std::env::var_os("NEMOTRON_CPU").is_some() {
             return Ok(None);
         }
+        sys::ggml_backend_load_all();
         let backend = sys::ggml_backend_init_by_type(sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_GPU, ptr::null());
         if backend.is_null() {
             return Ok(None);

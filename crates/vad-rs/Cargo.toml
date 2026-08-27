@@ -4,8 +4,11 @@ version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Reusable whisper.cpp VAD segmentation for Sona"
+description = "Silero VAD segmentation on ggml for Sona"
 
 [dependencies]
 thiserror = "2"
-whisper-cpp-sys = { path = "../whisper-cpp-sys" }
+ggml-rs-sys = { path = "../ggml-rs-sys" }
+
+[dev-dependencies]
+hound = "3.5"

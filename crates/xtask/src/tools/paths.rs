@@ -11,14 +11,15 @@ pub fn repo_root() -> Result<PathBuf> {
         .context("failed to resolve workspace root")
 }
 
-pub fn whisper_commit() -> Result<String> {
-    let path = repo_root()?.join(".whispercpp-commit");
-    let commit = std::fs::read_to_string(&path)
+/// The pinned GGML release tag (e.g. "v0.22.0"), from `.ggml-version`.
+pub fn ggml_version() -> Result<String> {
+    let path = repo_root()?.join(".ggml-version");
+    let version = std::fs::read_to_string(&path)
         .with_context(|| format!("failed to read {}", path.display()))?
         .trim()
         .to_string();
-    anyhow::ensure!(!commit.is_empty(), "{} is empty", path.display());
-    Ok(commit)
+    anyhow::ensure!(!version.is_empty(), "{} is empty", path.display());
+    Ok(version)
 }
 
 pub fn platform_id() -> String {

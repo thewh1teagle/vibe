@@ -7,43 +7,43 @@ use crate::cli::BuildLibsArgs;
 use crate::tasks::package_libs;
 use crate::tools::{paths, process};
 
-const WHISPER_REPO: &str = "https://github.com/ggml-org/whisper.cpp.git";
+const GGML_REPO: &str = "https://github.com/ggml-org/ggml.git";
 
 pub fn run(args: BuildLibsArgs) -> Result<()> {
     let root = paths::repo_root()?;
-    let commit = paths::whisper_commit()?;
+    let version = paths::ggml_version()?;
     let platform = paths::platform_id();
-    let src_dir = root.join("whisper-src");
-    let build_dir = root.join("whisper-build");
-    let archive = root.join(format!("whisper-libs-{platform}.tar.gz"));
+    let src_dir = root.join("ggml-src");
+    let build_dir = root.join("ggml-build");
+    let archive = root.join(format!("ggml-libs-{platform}.tar.gz"));
 
-    println!("commit: {commit}");
+    println!("ggml: {version}");
     println!("platform: {platform}");
 
-    clone(&commit, &src_dir)?;
+    clone(&version, &src_dir)?;
     build(&src_dir, &build_dir)?;
     build_vulkan_delay_lib(&build_dir)?;
     package_libs::package(&build_dir, &src_dir, &archive)?;
 
     if args.upload {
-        upload(&archive, &format!("libraries-{}", &commit[..7]))?;
+        upload(&archive, &format!("libraries-ggml-{version}"))?;
     }
 
     Ok(())
 }
 
-fn clone(commit: &str, src_dir: &Path) -> Result<()> {
+fn clone(version: &str, src_dir: &Path) -> Result<()> {
     remove_dir_if_exists(src_dir)?;
     std::fs::create_dir_all(src_dir)?;
     process::run(Command::new("git").arg("init").current_dir(src_dir))?;
     process::run(
         Command::new("git")
-            .args(["remote", "add", "origin", WHISPER_REPO])
+            .args(["remote", "add", "origin", GGML_REPO])
             .current_dir(src_dir),
     )?;
     process::run(
         Command::new("git")
-            .args(["fetch", "--depth", "1", "origin", commit])
+            .args(["fetch", "--depth", "1", "origin", version])
             .current_dir(src_dir),
     )?;
     process::run(
@@ -91,18 +91,26 @@ fn cmake_flags() -> Vec<&'static str> {
     let mut flags = vec![
         "-DCMAKE_BUILD_TYPE=Release",
         "-DBUILD_SHARED_LIBS=OFF",
-        "-DWHISPER_BUILD_EXAMPLES=OFF",
-        "-DWHISPER_BUILD_TESTS=OFF",
-        "-DWHISPER_BUILD_SERVER=OFF",
+        "-DGGML_BUILD_EXAMPLES=OFF",
+        "-DGGML_BUILD_TESTS=OFF",
     ];
     if cfg!(target_os = "macos") {
         flags.extend([
             "-DGGML_METAL=ON",
             "-DGGML_METAL_EMBED_LIBRARY=ON",
+            "-DGGML_BLAS=ON",
+            "-DGGML_BLAS_VENDOR=Apple",
             "-DCMAKE_OSX_DEPLOYMENT_TARGET=12.0",
         ]);
     } else if cfg!(any(target_os = "linux", target_os = "windows")) {
-        flags.push("-DGGML_VULKAN=ON");
+        // x86 builds ship every CPU-variant backend as a loadable module and
+        // pick the best one at runtime by cpuid score, so old machines
+        // without AVX2 fall back instead of dying on an illegal instruction.
+        flags.extend([
+            "-DGGML_VULKAN=ON",
+            "-DGGML_BACKEND_DL=ON",
+            "-DGGML_CPU_ALL_VARIANTS=ON",
+        ]);
     }
     if cfg!(target_os = "windows") && paths::windows_lib_flavor() == "gnu" {
         flags.extend(["-G", "MinGW Makefiles"]);

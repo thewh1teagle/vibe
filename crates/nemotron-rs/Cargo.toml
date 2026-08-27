@@ -11,5 +11,5 @@ hound = "3.5"
 rayon = "1.11"
 rustfft = "6.4"
 thiserror = "2"
-whisper-cpp-sys = { path = "../whisper-cpp-sys" }
+ggml-rs-sys = { path = "../ggml-rs-sys" }
 vad-rs = { path = "../vad-rs" }

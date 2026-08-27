@@ -6,7 +6,7 @@ members = [
     "crates/sona",
     "crates/vad-rs",
     "crates/xtask",
-    "crates/whisper-cpp-sys",
+    "crates/ggml-rs-sys",
     "crates/whisper-rs",
 ]
 resolver = "2"

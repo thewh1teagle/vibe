@@ -1,7 +1,14 @@
-use std::ffi::CString;
+//! Silero VAD segmentation on ggml.
+//!
+//! Previously this crate called whisper.cpp's `whisper_vad_*` API; it now
+//! runs the same model with the same graph directly on ggml (see
+//! [`silero`]), and ports whisper.cpp's probability-to-segment state machine
+//! below, so the output is unchanged.
+
 use std::path::{Path, PathBuf};
 
-use whisper_cpp_sys as ffi;
+mod model;
+mod silero;
 
 pub const SAMPLE_RATE: usize = 16_000;
 
@@ -9,8 +16,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("invalid VAD model path")]
-    InvalidPath(#[from] std::ffi::NulError),
     #[error("failed to load VAD model from {0}")]
     LoadModel(PathBuf),
     #[error("failed to run VAD segmentation")]
@@ -31,12 +36,12 @@ pub struct Options {
 
 impl Default for Options {
     fn default() -> Self {
-        let defaults = unsafe { ffi::whisper_vad_default_params() };
+        // whisper.cpp's whisper_vad_default_params().
         Self {
-            threshold: defaults.threshold,
-            min_speech_ms: defaults.min_speech_duration_ms,
-            min_silence_ms: defaults.min_silence_duration_ms,
-            speech_pad_ms: defaults.speech_pad_ms,
+            threshold: 0.5,
+            min_speech_ms: 250,
+            min_silence_ms: 100,
+            speech_pad_ms: 30,
             max_chunk_ms: 30_000,
             overlap_ms: 500,
         }
@@ -46,14 +51,11 @@ impl Default for Options {
 impl Options {
     /// Preserves whisper.cpp's historical stable-timestamp VAD parameters.
     pub fn stable_timestamps() -> Self {
-        let defaults = unsafe { ffi::whisper_vad_default_params() };
         Self {
-            threshold: defaults.threshold,
-            min_speech_ms: defaults.min_speech_duration_ms,
-            min_silence_ms: defaults.min_silence_duration_ms,
-            speech_pad_ms: defaults.speech_pad_ms,
             max_chunk_ms: u32::MAX,
-            overlap_ms: (defaults.samples_overlap * 1000.0).round() as u32,
+            // whisper_vad_default_params().samples_overlap (0.1 s).
+            overlap_ms: 100,
+            ..Self::default()
         }
     }
 }
@@ -71,22 +73,17 @@ impl SpeechSegment {
 }
 
 pub struct Vad {
-    ctx: *mut ffi::whisper_vad_context,
+    silero: silero::Silero,
     options: Options,
 }
 
 impl Vad {
     pub fn new(path: impl AsRef<Path>, options: Options) -> Result<Self> {
         let path = path.as_ref();
-        let path_string = path.to_string_lossy();
-        let c_path = CString::new(path_string.as_bytes())?;
-        let mut params = unsafe { ffi::whisper_vad_default_context_params() };
-        params.use_gpu = false;
-        let ctx = unsafe { ffi::whisper_vad_init_from_file_with_params(c_path.as_ptr(), params) };
-        if ctx.is_null() {
-            return Err(Error::LoadModel(path.to_path_buf()));
-        }
-        Ok(Self { ctx, options })
+        let load_error = || Error::LoadModel(path.to_path_buf());
+        let model = model::Model::load(path).ok_or_else(load_error)?;
+        let silero = silero::Silero::new(model).ok_or_else(load_error)?;
+        Ok(Self { silero, options })
     }
 
     pub fn options(&self) -> Options {
@@ -97,26 +94,14 @@ impl Vad {
         if samples.is_empty() {
             return Ok(Vec::new());
         }
-        let sample_count = i32::try_from(samples.len()).map_err(|_| Error::TooManySamples)?;
-        let mut params = unsafe { ffi::whisper_vad_default_params() };
-        params.threshold = self.options.threshold;
-        params.min_speech_duration_ms = self.options.min_speech_ms;
-        params.min_silence_duration_ms = self.options.min_silence_ms;
-        params.speech_pad_ms = self.options.speech_pad_ms;
-        params.max_speech_duration_s = self.options.max_chunk_ms as f32 / 1000.0;
-        params.samples_overlap = self.options.overlap_ms as f32 / 1000.0;
-        let raw = unsafe { ffi::whisper_vad_segments_from_samples(self.ctx, params, samples.as_ptr(), sample_count) };
-        if raw.is_null() {
-            return Err(Error::Segmentation);
-        }
-        let raw = RawSegments(raw);
-        let count = unsafe { ffi::whisper_vad_segments_n_segments(raw.0) };
-        let mut speech = Vec::with_capacity(count.max(0) as usize);
-        for index in 0..count {
-            let start_s = unsafe { ffi::whisper_vad_segments_get_segment_t0(raw.0, index) };
-            let end_s = unsafe { ffi::whisper_vad_segments_get_segment_t1(raw.0, index) };
-            let start = centiseconds_to_sample(start_s, samples.len());
-            let end = centiseconds_to_sample(end_s, samples.len());
+        // The whisper.cpp API this replaces took an i32 sample count.
+        i32::try_from(samples.len()).map_err(|_| Error::TooManySamples)?;
+        let probs = self.silero.probs(samples).ok_or(Error::Segmentation)?;
+        let n_window = self.silero.n_window();
+        let mut speech = Vec::new();
+        for (start_cs, end_cs) in segments_from_probs(&probs, n_window, self.options) {
+            let start = centiseconds_to_sample(start_cs as f32, samples.len());
+            let end = centiseconds_to_sample(end_cs as f32, samples.len());
             if end > start {
                 speech.push(SpeechSegment {
                     start_sample: start,
@@ -128,22 +113,161 @@ impl Vad {
     }
 }
 
-impl Drop for Vad {
-    fn drop(&mut self) {
-        if !self.ctx.is_null() {
-            unsafe { ffi::whisper_vad_free(self.ctx) };
-        }
-    }
+/// whisper.cpp's `samples_to_cs`.
+fn samples_to_cs(samples: i64) -> i64 {
+    (samples as f64 / SAMPLE_RATE as f64 * 100.0 + 0.5) as i64
 }
 
-unsafe impl Send for Vad {}
+/// Port of `whisper_vad_segments_from_probs` (whisper.cpp:5211): the Silero
+/// hysteresis state machine over per-window probabilities, followed by the
+/// gap-merge, minimum-duration and padding post-processing. Returns segments
+/// in centiseconds, as the whisper.cpp API did.
+fn segments_from_probs(probs: &[f32], n_window: usize, options: Options) -> Vec<(i64, i64)> {
+    let sample_rate = SAMPLE_RATE as i64;
+    let n_window = n_window as i64;
+    let min_silence_samples = sample_rate * i64::from(options.min_silence_ms) / 1000;
+    let audio_length_samples = probs.len() as i64 * n_window;
+    let min_speech_samples = sample_rate * i64::from(options.min_speech_ms) / 1000;
+    let speech_pad_samples = sample_rate * i64::from(options.speech_pad_ms) / 1000;
 
-struct RawSegments(*mut ffi::whisper_vad_segments);
+    let max_speech_duration_s = options.max_chunk_ms as f32 / 1000.0;
+    let max_speech_samples = if max_speech_duration_s > 100_000.0 {
+        i64::from(i32::MAX / 2)
+    } else {
+        // The C++ truncates the float duration to an integer second count.
+        let samples = sample_rate * max_speech_duration_s as i64 - n_window - 2 * speech_pad_samples;
+        if (0..=i64::from(i32::MAX)).contains(&samples) {
+            samples
+        } else {
+            i64::from(i32::MAX / 2)
+        }
+    };
+    // Silence this long marks a potential split point for max-duration cuts;
+    // the 98 ms constant comes from the original silero-vad implementation.
+    let min_silence_samples_at_max_speech = sample_rate * 98 / 1000;
 
-impl Drop for RawSegments {
-    fn drop(&mut self) {
-        unsafe { ffi::whisper_vad_free_segments(self.0) };
+    let neg_threshold = (options.threshold - 0.15).max(0.01);
+
+    let mut speeches: Vec<(i64, i64)> = Vec::new();
+    let mut is_speech_segment = false;
+    let mut temp_end = 0i64;
+    let mut prev_end = 0i64;
+    let mut next_start = 0i64;
+    let mut curr_speech_start = 0i64;
+    let mut has_curr_speech = false;
+
+    for (index, &curr_prob) in probs.iter().enumerate() {
+        let curr_sample = n_window * index as i64;
+
+        // Reset temp_end when we get back to speech.
+        if curr_prob >= options.threshold && temp_end != 0 {
+            temp_end = 0;
+            if next_start < prev_end {
+                next_start = curr_sample;
+            }
+        }
+
+        // Start a new speech segment when probability exceeds the threshold
+        // and we are not already in speech.
+        if curr_prob >= options.threshold && !is_speech_segment {
+            is_speech_segment = true;
+            curr_speech_start = curr_sample;
+            has_curr_speech = true;
+            continue;
+        }
+
+        // Handle maximum speech duration.
+        if is_speech_segment && (curr_sample - curr_speech_start) > max_speech_samples {
+            if prev_end != 0 {
+                speeches.push((curr_speech_start, prev_end));
+                has_curr_speech = true;
+                if next_start < prev_end {
+                    // Previously reached silence and it is still not speech.
+                    is_speech_segment = false;
+                    has_curr_speech = false;
+                } else {
+                    curr_speech_start = next_start;
+                }
+                prev_end = 0;
+                next_start = 0;
+                temp_end = 0;
+            } else {
+                speeches.push((curr_speech_start, curr_sample));
+                prev_end = 0;
+                next_start = 0;
+                temp_end = 0;
+                is_speech_segment = false;
+                has_curr_speech = false;
+                continue;
+            }
+        }
+
+        // Handle silence after speech.
+        if curr_prob < neg_threshold && is_speech_segment {
+            if temp_end == 0 {
+                temp_end = curr_sample;
+            }
+            // Track potential segment ends for max-duration handling.
+            if (curr_sample - temp_end) > min_silence_samples_at_max_speech {
+                prev_end = temp_end;
+            }
+            if (curr_sample - temp_end) >= min_silence_samples {
+                // End the segment if it is long enough.
+                if (temp_end - curr_speech_start) > min_speech_samples {
+                    speeches.push((curr_speech_start, temp_end));
+                }
+                prev_end = 0;
+                next_start = 0;
+                temp_end = 0;
+                is_speech_segment = false;
+                has_curr_speech = false;
+            }
+        }
     }
+
+    // Close a speech segment still open at the end of the audio.
+    if has_curr_speech && (audio_length_samples - curr_speech_start) > min_speech_samples {
+        speeches.push((curr_speech_start, audio_length_samples));
+    }
+
+    // Merge adjacent segments separated by less than 200 ms.
+    let max_merge_gap_samples = sample_rate * 200 / 1000;
+    let mut index = 0;
+    while index + 1 < speeches.len() {
+        if speeches[index + 1].0 - speeches[index].1 < max_merge_gap_samples {
+            speeches[index].1 = speeches[index + 1].1;
+            speeches.remove(index + 1);
+        } else {
+            index += 1;
+        }
+    }
+
+    speeches.retain(|(start, end)| end - start >= min_speech_samples);
+
+    // Pad segment boundaries outward, splitting short gaps down the middle.
+    let count = speeches.len();
+    for index in 0..count {
+        if index == 0 {
+            speeches[index].0 = (speeches[index].0 - speech_pad_samples).max(0);
+        }
+        if index < count - 1 {
+            let silence_duration = speeches[index + 1].0 - speeches[index].1;
+            if silence_duration < 2 * speech_pad_samples {
+                speeches[index].1 += silence_duration / 2;
+                speeches[index + 1].0 = (speeches[index + 1].0 - silence_duration / 2).max(0);
+            } else {
+                speeches[index].1 = (speeches[index].1 + speech_pad_samples).min(audio_length_samples);
+                speeches[index + 1].0 = (speeches[index + 1].0 - speech_pad_samples).max(0);
+            }
+        } else {
+            speeches[index].1 = (speeches[index].1 + speech_pad_samples).min(audio_length_samples);
+        }
+    }
+
+    speeches
+        .into_iter()
+        .map(|(start, end)| (samples_to_cs(start), samples_to_cs(end)))
+        .collect()
 }
 
 fn centiseconds_to_sample(centiseconds: f32, sample_count: usize) -> usize {

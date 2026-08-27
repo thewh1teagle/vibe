@@ -6,13 +6,13 @@ const GITHUB_REPO: &str = "vibe-transcribe/sona";
 
 pub fn run() -> Result<()> {
     let root = paths::repo_root()?;
-    let commit = paths::whisper_commit()?;
+    let version = paths::ggml_version()?;
     let platform = paths::platform_id();
-    let tag = format!("libraries-{}", &commit[..7]);
-    let filename = format!("whisper-libs-{platform}.tar.gz");
+    let tag = format!("libraries-ggml-{version}");
+    let filename = format!("ggml-libs-{platform}.tar.gz");
     let url = format!("https://github.com/{GITHUB_REPO}/releases/download/{tag}/{filename}");
 
-    println!("commit: {commit}");
+    println!("ggml: {version}");
     println!("platform: {platform}");
     let data = download::bytes(&url, 120)?;
     let out_dir = root.join("third_party");

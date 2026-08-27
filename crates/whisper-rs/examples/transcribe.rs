@@ -1,50 +1,62 @@
-use std::path::Path;
+//! Transcribe a WAV file with the pure-Rust whisper port.
+//!
+//! Usage: cargo run -p whisper-rs --release --example transcribe -- <model.bin> <audio.wav> [language]
+//! Set RUST_LOG=info (or debug) for timings and progress.
 
-use whisper_rs::{Context, ContextOptions, TranscribeOptions};
+fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+        )
+        .with_writer(std::io::stderr)
+        .init();
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args().skip(1);
-    let model_path = args
-        .next()
-        .ok_or("usage: cargo run -p whisper-rs --features ffi,hound --example transcribe -- <model.bin> <audio.wav>")?;
-    let audio_path = args
-        .next()
-        .ok_or("usage: cargo run -p whisper-rs --features ffi,hound --example transcribe -- <model.bin> <audio.wav>")?;
+    let model_path = args.next().expect("usage: transcribe <model.bin> <audio.wav> [language]");
+    let wav_path = args.next().expect("usage: transcribe <model.bin> <audio.wav> [language]");
+    let language = args.next();
 
-    let vad_model_path = args.next();
+    let samples = read_wav_mono(&wav_path);
+    let mut whisper = whisper_rs::Whisper::new(&model_path).expect("load model");
 
-    let samples = read_wav(&audio_path)?;
-    let mut ctx = Context::new(model_path, ContextOptions::default())?;
-    let result = ctx.transcribe(
-        &samples,
-        TranscribeOptions {
-            stable_timestamps: vad_model_path.is_some(),
-            vad_model_path,
-            ..TranscribeOptions::default()
-        },
-    )?;
-    println!("{}", result.text());
-    Ok(())
+    let params = whisper_rs::FullParams {
+        language,
+        token_timestamps: true,
+        ..Default::default()
+    };
+    let segments = whisper.full(&params, &samples).expect("transcribe");
+
+    for segment in &segments {
+        println!(
+            "[{} --> {}] {}",
+            format_timestamp(segment.t0),
+            format_timestamp(segment.t1),
+            segment.text
+        );
+    }
 }
 
-fn read_wav(path: impl AsRef<Path>) -> Result<Vec<f32>, Box<dyn std::error::Error>> {
-    let mut reader = hound::WavReader::open(path)?;
+fn format_timestamp(t: i64) -> String {
+    let msec = t * 10;
+    let hr = msec / 3_600_000;
+    let min = msec % 3_600_000 / 60_000;
+    let sec = msec % 60_000 / 1000;
+    let msec = msec % 1000;
+    format!("{hr:02}:{min:02}:{sec:02}.{msec:03}")
+}
+
+fn read_wav_mono(path: &str) -> Vec<f32> {
+    let mut reader = hound::WavReader::open(path).expect("open wav");
     let spec = reader.spec();
-
-    if spec.channels != 1 || spec.sample_rate != 16_000 {
-        return Err(format!(
-            "expected 16kHz mono WAV, got {}Hz {} channels",
-            spec.sample_rate, spec.channels
-        )
-        .into());
-    }
-
-    let samples = match spec.sample_format {
-        hound::SampleFormat::Float => reader.samples::<f32>().collect::<Result<Vec<_>, _>>()?,
-        hound::SampleFormat::Int => reader
-            .samples::<i16>()
-            .map(|sample| sample.map(|sample| sample as f32 / 32768.0))
-            .collect::<Result<Vec<_>, _>>()?,
-    };
-    Ok(samples)
+    assert_eq!(spec.sample_rate, 16_000, "{path}: expected 16 kHz");
+    let channels = spec.channels as usize;
+    let interleaved: Vec<f32> = reader
+        .samples::<i16>()
+        .map(|sample| sample.expect("wav sample") as f32 / 32768.0)
+        .collect();
+    interleaved
+        .chunks_exact(channels)
+        .map(|frame| frame.iter().sum::<f32>() / channels as f32)
+        .collect()
 }

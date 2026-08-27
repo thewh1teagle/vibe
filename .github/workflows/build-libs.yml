@@ -1,4 +1,4 @@
-name: Build whisper.cpp libs
+name: Build GGML libs
 
 on:
   workflow_dispatch:

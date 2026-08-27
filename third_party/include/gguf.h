@@ -1,7 +1,3 @@
-// Fetched: 2026-07-11 15:30:00 UTC
-// Source: https://github.com/ggml-org/whisper.cpp/blob/7695a5331230c585f5ce92291c4256973985ae5a/ggml/include/gguf.h
-// Commit: 7695a5331230c585f5ce92291c4256973985ae5a
-
 // This file contains functionality related to "GGUF" files, the binary file format used by ggml.
 // GGUF files have the following structure:
 //
@@ -129,12 +125,13 @@ extern "C" {
     // get ith C string from array with given key_id
     GGML_API const char * gguf_get_arr_str (const struct gguf_context * ctx, int64_t key_id, size_t i);
 
-    GGML_API int64_t        gguf_get_n_tensors    (const struct gguf_context * ctx);
-    GGML_API int64_t        gguf_find_tensor      (const struct gguf_context * ctx, const char * name); // returns -1 if the tensor is not found
-    GGML_API size_t         gguf_get_tensor_offset(const struct gguf_context * ctx, int64_t tensor_id);
-    GGML_API const char *   gguf_get_tensor_name  (const struct gguf_context * ctx, int64_t tensor_id);
-    GGML_API enum ggml_type gguf_get_tensor_type  (const struct gguf_context * ctx, int64_t tensor_id);
-    GGML_API size_t         gguf_get_tensor_size  (const struct gguf_context * ctx, int64_t tensor_id);
+    GGML_API int64_t         gguf_get_n_tensors    (const struct gguf_context * ctx);
+    GGML_API int64_t         gguf_find_tensor      (const struct gguf_context * ctx, const char * name); // returns -1 if the tensor is not found
+    GGML_API size_t          gguf_get_tensor_offset(const struct gguf_context * ctx, int64_t tensor_id);
+    GGML_API const char *    gguf_get_tensor_name  (const struct gguf_context * ctx, int64_t tensor_id);
+    GGML_API const int64_t * gguf_get_tensor_ne    (const struct gguf_context * ctx, int64_t tensor_id); // returns ne, an array of GGML_MAX_DIMS elements; ne[dim] is 1 for dim >= n_dims
+    GGML_API enum ggml_type  gguf_get_tensor_type  (const struct gguf_context * ctx, int64_t tensor_id);
+    GGML_API size_t          gguf_get_tensor_size  (const struct gguf_context * ctx, int64_t tensor_id);
 
     // removes key if it exists, returns id that the key had prior to removal (-1 if it didn't exist)
     GGML_API int64_t gguf_remove_key(struct gguf_context * ctx, const char * key);

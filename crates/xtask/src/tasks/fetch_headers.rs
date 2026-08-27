@@ -2,19 +2,18 @@ use anyhow::{Context, Result};
 
 use crate::tools::{download, paths};
 
-const WHISPER_REPO: &str = "ggml-org/whisper.cpp";
+const GGML_REPO: &str = "ggml-org/ggml";
 const HEADERS: &[&str] = &[
-    "include/whisper.h",
-    "ggml/include/ggml.h",
-    "ggml/include/ggml-cpu.h",
-    "ggml/include/ggml-alloc.h",
-    "ggml/include/ggml-backend.h",
-    "ggml/include/gguf.h",
+    "include/ggml.h",
+    "include/ggml-cpu.h",
+    "include/ggml-alloc.h",
+    "include/ggml-backend.h",
+    "include/gguf.h",
 ];
 
 pub fn run() -> Result<()> {
     let root = paths::repo_root()?;
-    let commit = paths::whisper_commit()?;
+    let version = paths::ggml_version()?;
     let out_dir = root.join("third_party/include");
     std::fs::create_dir_all(&out_dir)?;
     let now = current_utc_stamp()?;
@@ -24,13 +23,13 @@ pub fn run() -> Result<()> {
             .file_name()
             .context("header path has no filename")?
             .to_string_lossy();
-        let source = format!("https://github.com/{WHISPER_REPO}/blob/{commit}/{path}");
-        let raw_url = format!("https://raw.githubusercontent.com/{WHISPER_REPO}/{commit}/{path}");
+        let source = format!("https://github.com/{GGML_REPO}/blob/{version}/{path}");
+        let raw_url = format!("https://raw.githubusercontent.com/{GGML_REPO}/{version}/{path}");
         let body = String::from_utf8(download::bytes(&raw_url, 120)?)?;
         let stamped =
-            format!("// Fetched: {now}\n// Source: {source}\n// Commit: {commit}\n\n{body}");
+            format!("// Fetched: {now}\n// Source: {source}\n// Version: {version}\n\n{body}");
         std::fs::write(out_dir.join(name.as_ref()), stamped)?;
-        println!("wrote {name} (commit {commit})");
+        println!("wrote {name} ({version})");
     }
 
     Ok(())

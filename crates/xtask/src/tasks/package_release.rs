@@ -30,6 +30,7 @@ fn package(binary_path: &Path, out_path: &Path, os: TargetOs, arch: TargetArch) 
     set_executable(&target_binary)?;
 
     copy_ffmpeg(&stage_dir, os, arch)?;
+    copy_backend_modules(&stage_dir, os)?;
 
     if let Some(parent) = out_path
         .parent()
@@ -50,6 +51,29 @@ fn package(binary_path: &Path, out_path: &Path, os: TargetOs, arch: TargetArch) 
         out_path.display(),
         out_path.metadata()?.len() / 1024
     );
+    Ok(())
+}
+
+/// Ships the GGML_BACKEND_DL backend modules (CPU variants + Vulkan) next to
+/// the binary, where `ggml_backend_load_all` looks for them at startup.
+/// macOS builds are fully static and have none.
+fn copy_backend_modules(stage_dir: &Path, os: TargetOs) -> Result<()> {
+    if matches!(os, TargetOs::Darwin) {
+        return Ok(());
+    }
+    let modules_dir = crate::tools::paths::repo_root()?.join("third_party/modules");
+    if !modules_dir.exists() {
+        anyhow::bail!(
+            "backend modules not found at {}; run `cargo xtask fetch-libs` (or build-libs) first",
+            modules_dir.display()
+        );
+    }
+    for entry in std::fs::read_dir(&modules_dir)? {
+        let path = entry?.path();
+        if let Some(name) = path.file_name() {
+            std::fs::copy(&path, stage_dir.join(name))?;
+        }
+    }
     Ok(())
 }
 

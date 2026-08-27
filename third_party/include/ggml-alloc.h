@@ -1,7 +1,3 @@
-// Fetched: 2026-07-11 15:30:00 UTC
-// Source: https://github.com/ggml-org/whisper.cpp/blob/7695a5331230c585f5ce92291c4256973985ae5a/ggml/include/ggml-alloc.h
-// Commit: 7695a5331230c585f5ce92291c4256973985ae5a
-
 #pragma once
 
 #include "ggml.h"

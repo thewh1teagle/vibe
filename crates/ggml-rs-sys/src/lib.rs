@@ -1,4 +1,4 @@
-//! Unsafe, generated bindings for the pinned whisper.cpp and GGML runtime.
+//! Unsafe, generated bindings for the pinned GGML runtime.
 //!
 //! Safe crates should wrap this API rather than exposing its pointers directly.
 

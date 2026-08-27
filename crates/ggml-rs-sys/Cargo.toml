@@ -1,0 +1,12 @@
+[package]
+name = "ggml-rs-sys"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Raw FFI bindings to Sona's pinned GGML runtime"
+links = "ggml"
+build = "build.rs"
+
+[build-dependencies]
+bindgen = "0.72"

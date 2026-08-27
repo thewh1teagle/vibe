@@ -12,7 +12,7 @@
 
 use crate::sf_weights::ConformerBlockView;
 
-pub(crate) use whisper_cpp_sys as sys;
+pub(crate) use ggml_rs_sys as sys;
 
 pub(crate) type Tensor = *mut sys::ggml_tensor;
 pub(crate) type Context = *mut sys::ggml_context;

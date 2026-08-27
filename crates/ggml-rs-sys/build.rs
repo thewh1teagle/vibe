@@ -11,7 +11,7 @@ fn main() {
     for path in [&wrapper, &include_dir, &lib_dir] {
         println!("cargo:rerun-if-changed={}", path.display());
     }
-    if !include_dir.join("whisper.h").exists() || !include_dir.join("ggml.h").exists() {
+    if !include_dir.join("ggml.h").exists() {
         panic!("missing native headers; run `cargo xtask fetch-headers`");
     }
     if !lib_dir.exists() {
@@ -21,9 +21,9 @@ fn main() {
     let mut bindings = bindgen::Builder::default()
         .header(wrapper.to_string_lossy())
         .clang_arg(format!("-I{}", include_dir.display()))
-        .allowlist_function("(whisper|ggml|gguf)_.*")
-        .allowlist_type("(whisper|ggml|gguf)_.*")
-        .allowlist_var("(WHISPER|GGML)_.*")
+        .allowlist_function("(ggml|gguf)_.*")
+        .allowlist_type("(ggml|gguf)_.*")
+        .allowlist_var("(GGML|GGUF)_.*")
         .generate_comments(false)
         .derive_default(true);
     if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos") {
@@ -36,13 +36,22 @@ fn main() {
     }
     bindings
         .generate()
-        .expect("failed to generate whisper.cpp/GGML bindings")
+        .expect("failed to generate GGML bindings")
         .write_to_file(PathBuf::from(env::var("OUT_DIR").unwrap()).join("bindings.rs"))
         .expect("failed to write bindings");
 
     println!("cargo:include={}", include_dir.display());
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
-    for lib in ["whisper", "ggml", "ggml-base", "ggml-cpu"] {
+    // macOS links every backend statically. Linux/Windows are
+    // GGML_BACKEND_DL builds: the CPU variants and Vulkan are loadable
+    // modules shipped next to the executable and loaded at runtime with
+    // `ggml_backend_load_all`, so only the registry and base link here.
+    let static_libs: &[&str] = if cfg!(target_os = "macos") {
+        &["ggml", "ggml-base", "ggml-cpu"]
+    } else {
+        &["ggml", "ggml-base"]
+    };
+    for lib in static_libs {
         println!("cargo:rustc-link-lib=static={lib}");
     }
     link_platform();
@@ -60,23 +69,16 @@ fn link_platform() {
             println!("cargo:rustc-link-lib=c++");
         }
         Ok("linux") => {
-            println!("cargo:rustc-link-lib=static=ggml-vulkan");
-            for lib in ["vulkan", "stdc++", "m", "pthread", "gomp"] {
+            for lib in ["stdc++", "m", "pthread"] {
                 println!("cargo:rustc-link-lib={lib}");
             }
         }
         Ok("windows") => {
-            println!("cargo:rustc-link-lib=static=ggml-vulkan");
             if env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("gnu") {
-                for lib in ["vulkan-1-delay", "stdc++", "gomp", "winpthread"] {
+                for lib in ["stdc++", "winpthread"] {
                     println!("cargo:rustc-link-lib=static={lib}");
                 }
                 println!("cargo:rustc-link-lib=m");
-            } else {
-                if let Ok(sdk) = env::var("VULKAN_SDK") {
-                    println!("cargo:rustc-link-search=native={}/Lib", sdk);
-                }
-                println!("cargo:rustc-link-lib=vulkan-1");
             }
         }
         other => panic!("unsupported target OS: {other:?}"),

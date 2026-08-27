@@ -1,7 +1,3 @@
-// Fetched: 2026-07-11 15:30:00 UTC
-// Source: https://github.com/ggml-org/whisper.cpp/blob/7695a5331230c585f5ce92291c4256973985ae5a/ggml/include/ggml-cpu.h
-// Commit: 7695a5331230c585f5ce92291c4256973985ae5a
-
 #pragma once
 
 #include "ggml.h"
@@ -104,6 +100,7 @@ extern "C" {
     GGML_BACKEND_API int ggml_cpu_has_sve        (void);
     GGML_BACKEND_API int ggml_cpu_get_sve_cnt    (void);  // sve vector length in bytes
     GGML_BACKEND_API int ggml_cpu_has_sme        (void);
+    GGML_BACKEND_API int ggml_cpu_has_sme2       (void);
     // other
     GGML_BACKEND_API int ggml_cpu_has_riscv_v    (void);
     GGML_BACKEND_API int ggml_cpu_get_rvv_vlen   (void);  // risc-v vector length in bytes

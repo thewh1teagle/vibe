@@ -12,7 +12,7 @@ path = "src/lib.rs"
 
 [dependencies]
 # The ggml/GGUF backend. Replaces ONNX Runtime.
-whisper-cpp-sys = { path = "../whisper-cpp-sys" }
+ggml-rs-sys = { path = "../ggml-rs-sys" }
 # Host-side DSP and state machine (`src/host/`), vendored from parakeet-rs.
 # Same versions the upstream crate used, so the arithmetic is unchanged.
 ndarray = "0.17"
