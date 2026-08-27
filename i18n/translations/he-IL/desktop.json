@@ -246,7 +246,7 @@
 	"recordingShortcut": "קיצור דרך",
 	"recordingShortcutInfo": "לחצו פעם אחת כדי להתחיל להקליט ופעם נוספת כדי לעצור.",
 	"meetPermission": "זיהוי Google Meet",
-	"meetPermissionInfo": "זיהוי שיחת Meet דורש קריאה של כותרת חלון הדפדפן, ומערכת macOS מאפשרת זאת רק בהרשאת הקלטת מסך. Zoom ו-Teams פועלים גם בלעדיה.",
+	"meetPermissionInfo": "דורש הרשאת הקלטת מסך. Zoom ו-Teams עובדים גם בלעדיה.",
 	"microphonePermission": "מיקרופון",
 	"microphonePermissionInfo": "נדרשת הרשאה להקלטת שמע מהמיקרופון.",
 	"systemAudioPermission": "שמע המערכת",

@@ -246,7 +246,7 @@
 	"recordingShortcut": "Kortkommando",
 	"recordingShortcutInfo": "Tryck en gång för att starta inspelningen och en gång till för att stoppa.",
 	"meetPermission": "Google Meet-identifiering",
-	"meetPermissionInfo": "Att identifiera ett Meet-samtal kräver att fönstertiteln i din webbläsare läses, vilket macOS bara tillåter med behörigheten Skärminspelning. Zoom och Teams fungerar utan den.",
+	"meetPermissionInfo": "Kräver behörighet för Skärminspelning. Zoom och Teams fungerar utan.",
 	"microphonePermission": "Mikrofon",
 	"microphonePermissionInfo": "Krävs för att spela in ljud från mikrofonen.",
 	"systemAudioPermission": "Systemljud",

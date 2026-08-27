@@ -246,7 +246,7 @@
 	"recordingShortcut": "Shortcut",
 	"recordingShortcutInfo": "Press once to start recording and again to stop.",
 	"meetPermission": "Google Meet detection",
-	"meetPermissionInfo": "Recognising a Meet call means reading your browser's window title, which macOS allows only with Screen Recording permission. Zoom and Teams work without it.",
+	"meetPermissionInfo": "Needs Screen Recording permission. Zoom and Teams work without it.",
 	"microphonePermission": "Microphone",
 	"microphonePermissionInfo": "Required to record microphone audio.",
 	"systemAudioPermission": "System audio",

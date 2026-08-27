@@ -246,7 +246,7 @@
 	"recordingShortcut": "Skrót",
 	"recordingShortcutInfo": "Naciśnij raz, aby rozpocząć nagrywanie, i ponownie, aby je zatrzymać.",
 	"meetPermission": "Wykrywanie Google Meet",
-	"meetPermissionInfo": "Rozpoznanie rozmowy w Meet wymaga odczytu tytułu okna przeglądarki, na co macOS zezwala tylko z uprawnieniem Nagrywanie ekranu. Zoom i Teams działają bez niego.",
+	"meetPermissionInfo": "Wymaga uprawnienia Nagrywanie ekranu. Zoom i Teams działają bez niego.",
 	"microphonePermission": "Mikrofon",
 	"microphonePermissionInfo": "Wymagane do nagrywania dźwięku z mikrofonu.",
 	"systemAudioPermission": "Dźwięk systemowy",

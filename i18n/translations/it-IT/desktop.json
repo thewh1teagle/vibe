@@ -246,7 +246,7 @@
 	"recordingShortcut": "Scorciatoia",
 	"recordingShortcutInfo": "Premi una volta per avviare la registrazione e di nuovo per interromperla.",
 	"meetPermission": "Rilevamento di Google Meet",
-	"meetPermissionInfo": "Riconoscere una chiamata Meet richiede la lettura del titolo della finestra del browser, cosa che macOS consente solo con l'autorizzazione Registrazione schermo. Zoom e Teams funzionano anche senza.",
+	"meetPermissionInfo": "Richiede l'autorizzazione Registrazione schermo. Zoom e Teams funzionano senza.",
 	"microphonePermission": "Microfono",
 	"microphonePermissionInfo": "Necessario per registrare l'audio del microfono.",
 	"systemAudioPermission": "Audio di sistema",

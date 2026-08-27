@@ -246,7 +246,7 @@
 	"recordingShortcut": "Atajo",
 	"recordingShortcutInfo": "Pulsa una vez para iniciar la grabación y otra vez para detenerla.",
 	"meetPermission": "Detección de Google Meet",
-	"meetPermissionInfo": "Reconocer una llamada de Meet requiere leer el título de la ventana de tu navegador, algo que macOS solo permite con el permiso de Grabación de pantalla. Zoom y Teams funcionan sin él.",
+	"meetPermissionInfo": "Necesita el permiso de Grabación de pantalla. Zoom y Teams funcionan sin él.",
 	"microphonePermission": "Micrófono",
 	"microphonePermissionInfo": "Necesario para grabar audio del micrófono.",
 	"systemAudioPermission": "Audio del sistema",

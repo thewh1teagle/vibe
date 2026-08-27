@@ -139,7 +139,7 @@ function MeetPermissionRow({ enabled }: { enabled: boolean }) {
 			<button
 				type="button"
 				onClick={() => void invoke('open_screen_recording_settings')}
-				className="cursor-pointer text-sm font-medium text-primary underline-offset-4 hover:underline">
+				className="cursor-pointer text-xs font-medium text-primary underline-offset-4 hover:underline">
 				{m.openSystemSettings()}
 			</button>
 		</SettingsRow>

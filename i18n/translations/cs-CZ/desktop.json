@@ -246,7 +246,7 @@
 	"recordingShortcut": "Klávesová zkratka",
 	"recordingShortcutInfo": "Jedním stisknutím spusťte nahrávání a dalším je zastavte.",
 	"meetPermission": "Rozpoznávání Google Meet",
-	"meetPermissionInfo": "Rozpoznání hovoru v Meet vyžaduje čtení názvu okna prohlížeče, což macOS umožňuje pouze s oprávněním Nahrávání obrazovky. Zoom a Teams fungují i bez něj.",
+	"meetPermissionInfo": "Vyžaduje oprávnění Nahrávání obrazovky. Zoom a Teams fungují i bez něj.",
 	"microphonePermission": "Mikrofon",
 	"microphonePermissionInfo": "Vyžadováno pro nahrávání zvuku z mikrofonu.",
 	"systemAudioPermission": "Systémový zvuk",

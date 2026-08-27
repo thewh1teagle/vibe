@@ -246,7 +246,7 @@
 	"recordingShortcut": "Hurtigtast",
 	"recordingShortcutInfo": "Trykk én gang for å starte opptaket og én gang til for å stoppe.",
 	"meetPermission": "Google Meet-gjenkjenning",
-	"meetPermissionInfo": "Å gjenkjenne en Meet-samtale krever lesing av vindustittelen i nettleseren din, noe macOS bare tillater med tillatelsen Skjermopptak. Zoom og Teams fungerer uten den.",
+	"meetPermissionInfo": "Krever tillatelse til skjermopptak. Zoom og Teams fungerer uten.",
 	"microphonePermission": "Mikrofon",
 	"microphonePermissionInfo": "Kreves for å ta opp lyd fra mikrofonen.",
 	"systemAudioPermission": "Systemlyd",
