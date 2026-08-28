@@ -20,6 +20,12 @@ import QuietRow from './quiet-row'
 /** Segment timestamps are centiseconds (see `formatTimestamp` / `asJson` in lib/transcript). */
 const CENTISECONDS_PER_SECOND = 100
 
+/** Keys that scroll the transcript, so pressing one means the reader is steering. */
+const SCROLL_KEYS = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End']
+
+/** How close to the tail counts as being back at the bottom, in pixels. */
+const BOTTOM_STICK_PX = 96
+
 /** Where an edit should put the caret when the editor opens. */
 type CaretIntent = { start: number; end: number } | 'start' | 'end'
 
@@ -373,9 +379,6 @@ export default function TranscriptView({
 	// The jump pill is a reaction to scrolling away, so it fades out again shortly after.
 	const [jumpVisible, setJumpVisible] = useState(false)
 	const jumpTimer = useRef(0)
-	const scrollFrame = useRef(0)
-	// Scrolls we trigger ourselves must not be mistaken for the user taking over.
-	const autoScrollRef = useRef(0)
 	const followingRef = useRef(following)
 	const playingRef = useRef(playing)
 	followingRef.current = following
@@ -467,17 +470,14 @@ export default function TranscriptView({
 		if (!following || activeIndex < 0 || editing) return
 		const position = visible.findIndex((entry) => entry.index === activeIndex)
 		if (position < 0) return
-		autoScrollRef.current = Date.now()
 		rowVirtualizer.scrollToIndex(position, { align: 'center' })
 	}, [activeIndex, following, editing, rowVirtualizer, visible])
 
+	// Ride the tail of a running transcription — but only while the reader is still following.
 	useEffect(() => {
-		if (!running) return
-		if (visible.length > 0) {
-			autoScrollRef.current = Date.now()
-			rowVirtualizer.scrollToIndex(visible.length - 1, { align: 'end' })
-		}
-	}, [job.segments.length, rowVirtualizer, running, visible.length])
+		if (!running || !following || editing || visible.length === 0) return
+		rowVirtualizer.scrollToIndex(visible.length - 1, { align: 'end' })
+	}, [job.segments.length, editing, following, rowVirtualizer, running, visible.length])
 
 	// Spacebar plays and pauses while reading — never while typing into the transcript.
 	useEffect(() => {
@@ -493,30 +493,62 @@ export default function TranscriptView({
 		return () => window.removeEventListener('keydown', onKeyDown)
 	}, [])
 
-	const onScroll = useCallback(() => {
-		if (scrollFrame.current) return
-		scrollFrame.current = window.requestAnimationFrame(() => {
-			scrollFrame.current = 0
-			// Programmatic scrolls keep firing briefly; only later events mean the reader took over.
-			if (Date.now() - autoScrollRef.current < 700) return
-			if (followingRef.current) {
-				followingRef.current = false
-				setFollowing(false)
-			}
-			if (!playingRef.current) return
-			setJumpVisible(true)
-			window.clearTimeout(jumpTimer.current)
-			jumpTimer.current = window.setTimeout(() => setJumpVisible(false), 3000)
-		})
+	/**
+	 * Hand the scroll position to the reader. Driven by input events rather than by `scroll`: while a
+	 * transcription streams in, our own scrolls fire faster than any "was that us?" window could tell
+	 * them apart, and a reader looking back would keep being dragged to the tail.
+	 */
+	const releaseFollow = useCallback(() => {
+		if (followingRef.current) {
+			followingRef.current = false
+			setFollowing(false)
+		}
+		if (!playingRef.current) return
+		setJumpVisible(true)
+		window.clearTimeout(jumpTimer.current)
+		jumpTimer.current = window.setTimeout(() => setJumpVisible(false), 3000)
 	}, [])
 
-	useEffect(
-		() => () => {
-			window.clearTimeout(jumpTimer.current)
-			window.cancelAnimationFrame(scrollFrame.current)
-		},
-		[],
-	)
+	useEffect(() => {
+		const element = scrollRef.current
+		if (!element) return
+		const onPointerDown = (event: PointerEvent) => {
+			// Only the scrollbar targets the scroll container; a click on a line targets the line.
+			if (event.target === element) releaseFollow()
+		}
+		// Keys land on the document until something inside the list has focus, so listen there.
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (!SCROLL_KEYS.includes(event.key)) return
+			const target = event.target as HTMLElement | null
+			if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
+			if (target && target !== document.body && !element.contains(target)) return
+			releaseFollow()
+		}
+		element.addEventListener('wheel', releaseFollow, { passive: true })
+		element.addEventListener('touchmove', releaseFollow, { passive: true })
+		element.addEventListener('pointerdown', onPointerDown)
+		window.addEventListener('keydown', onKeyDown)
+		return () => {
+			element.removeEventListener('wheel', releaseFollow)
+			element.removeEventListener('touchmove', releaseFollow)
+			element.removeEventListener('pointerdown', onPointerDown)
+			window.removeEventListener('keydown', onKeyDown)
+		}
+		// The summary tab renders no scroll container, so re-attach when the transcript comes back.
+	}, [releaseFollow, tab])
+
+	// Coming back to the tail re-arms the follow, the way a log view sticks to the bottom again.
+	// Measured here rather than in a later frame: by then the streamed rows have already grown the
+	// list out from under the reader, and a landing at the bottom would no longer look like one.
+	const onScroll = useCallback(() => {
+		const element = scrollRef.current
+		if (!running || followingRef.current || !element) return
+		if (element.scrollHeight - element.scrollTop - element.clientHeight > BOTTOM_STICK_PX) return
+		followingRef.current = true
+		setFollowing(true)
+	}, [running])
+
+	useEffect(() => () => window.clearTimeout(jumpTimer.current), [])
 
 	const jumpToPlaying = useCallback(() => {
 		setFollowing(true)
@@ -524,10 +556,7 @@ export default function TranscriptView({
 		setJumpVisible(false)
 		window.clearTimeout(jumpTimer.current)
 		const position = visible.findIndex((entry) => entry.index === activeIndex)
-		if (position >= 0) {
-			autoScrollRef.current = Date.now()
-			rowVirtualizer.scrollToIndex(position, { align: 'center' })
-		}
+		if (position >= 0) rowVirtualizer.scrollToIndex(position, { align: 'center' })
 	}, [activeIndex, rowVirtualizer, visible])
 
 	const startEdit = useCallback(
