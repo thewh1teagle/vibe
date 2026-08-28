@@ -10,6 +10,10 @@ for checking a production build without a bundler in the loop:
 
     pnpm -C handoff/pwa build && uv run handoff/pwa/serve.py     # http://localhost:8088
 
+With --tunnel it also runs `cloudflared` against the same port, so a real phone can
+load the PWA over HTTPS -- the microphone needs a secure origin. `chore phone-tunnel`
+builds and then calls this.
+
 Sets the MIME types browsers require for `.wasm` and `.webmanifest`, disables
 caching (so a rebuilt wasm is always picked up) and sends permissive CORS plus
 the cross-origin isolation headers that SharedArrayBuffer-using wasm may need.
@@ -18,10 +22,13 @@ the cross-origin isolation headers that SharedArrayBuffer-using wasm may need.
 from __future__ import annotations
 
 import argparse
+import atexit
 import functools
 import http.server
+import shutil
 import socket
 import socketserver
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent / "dist"
@@ -76,10 +83,39 @@ def lan_ip() -> str:
         s.close()
 
 
+def start_tunnel(port: int) -> subprocess.Popen:
+    """Run cloudflared against the local server and leave it printing to this terminal.
+
+    Its output is inherited rather than captured so the https://…trycloudflare.com URL
+    appears as soon as cloudflared has it; the tunnel dies with this process.
+    """
+    if not shutil.which("cloudflared"):
+        raise SystemExit("cloudflared is not on PATH — brew install cloudflared")
+
+    print("Opening a tunnel — copy the https:// URL cloudflared prints below.")
+    proc = subprocess.Popen(["cloudflared", "tunnel", "--url", f"http://localhost:{port}"])
+
+    def stop() -> None:
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+
+    atexit.register(stop)
+    return proc
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--port", type=int, default=8088)
     ap.add_argument("--host", default="0.0.0.0")
+    ap.add_argument(
+        "--tunnel",
+        action="store_true",
+        help="also run `cloudflared` against this port and print its https:// URL",
+    )
     args = ap.parse_args()
 
     if not ROOT.is_dir():
@@ -90,6 +126,8 @@ def main() -> None:
         print(f"Serving {ROOT} on:")
         print(f"  http://localhost:{args.port}")
         print(f"  http://{lan_ip()}:{args.port}   (phones: needs HTTPS for the microphone)")
+        if args.tunnel:
+            start_tunnel(args.port)
         print("Ctrl-C to stop.")
         try:
             httpd.serve_forever()
