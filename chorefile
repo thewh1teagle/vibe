@@ -1,0 +1,163 @@
+# Vibe development tasks. Run `chore list` to see them.
+#
+# Replaces the justfile. The Python scripts under scripts/ are still the
+# programs they always were — these tasks call them, they do not reimplement
+# them. The one exception is `setup`, which is pure download-and-place and so
+# is written here directly.
+
+sona=$(read .sona-version)
+bin=desktop/src-tauri/binaries
+
+# Fetch the sona and ffmpeg sidecars for this machine.
+task setup target=$TRIPLE {
+    # $1 is the target: this machine by default, or an explicit triple when
+    # CI cross-compiles. The asset names are sona's own; the triple is also
+    # what the sidecar must be called, because Tauri looks for
+    # `sona-<triple>` beside the binary.
+    if $1 == aarch64-apple-darwin {
+        asset=sona-darwin-arm64-with-ffmpeg.tar.gz
+    } else if $1 == x86_64-apple-darwin {
+        asset=sona-darwin-amd64-with-ffmpeg.tar.gz
+    } else if $1 == x86_64-pc-windows-msvc {
+        asset=sona-windows-amd64-with-ffmpeg.zip
+    } else if $1 == x86_64-unknown-linux-gnu {
+        asset=sona-linux-amd64
+    } else if $1 == aarch64-unknown-linux-gnu {
+        asset=sona-linux-arm64
+    } else {
+        fail "sona publishes no build for $1"
+    }
+
+    # $exe is the *host's* suffix, and $1 may name another platform, so the
+    # suffix has to come from the target rather than from this machine.
+    exe=""
+    if $1 contains windows { exe=.exe }
+
+    mkdir $bin
+    if exists $bin/sona-$1$exe {
+        echo "sidecars for $1 are already in place"
+        return
+    }
+
+    if $OS == linux {
+        # Linux ships the bare binary, with no ffmpeg alongside it.
+        download gh://vibe-transcribe/sona/$sona/$asset $bin/sona-$1
+        chmod 755 $bin/sona-$1
+        echo "installed sona-$1"
+        return
+    }
+
+    # macOS and Windows ship an archive holding sona and ffmpeg. --flatten
+    # drops whatever directories the archive puts them under, so they land in
+    # $bin at a name we know; the moves only rename.
+    mkdir target/sidecars
+    download gh://vibe-transcribe/sona/$sona/$asset target/sidecars/$asset
+    extract target/sidecars/$asset $bin --member sona$exe --flatten
+    extract target/sidecars/$asset $bin --member ffmpeg$exe --flatten
+    move $bin/sona$exe $bin/sona-$1$exe
+    move $bin/ffmpeg$exe $bin/ffmpeg-$1$exe
+    remove target/sidecars/$asset
+    if $OS != windows {
+        chmod 755 $bin/sona-$1
+        chmod 755 $bin/ffmpeg-$1
+    }
+    echo "installed sona-$1 and ffmpeg-$1"
+}
+
+# Install the frontend dependencies.
+task install {
+    cd desktop
+    pnpm install
+}
+
+# Run the app in dev mode.
+task dev {
+    setup
+    cd desktop
+    pnpm exec tauri dev
+}
+
+# Run only the desktop frontend in a browser, with Tauri mocked.
+task dev-web {
+    cd desktop
+    pnpm dev
+}
+
+# Build the app for production.
+task build {
+    setup
+    cd desktop
+    pnpm exec tauri build
+}
+
+# Run the website locally.
+task website {
+    cd website
+    pnpm install
+    pnpm dev
+}
+
+# Run the frontend tests.
+task test {
+    cd desktop
+    pnpm test
+}
+
+# Lint the frontend and Rust, with the flags CI uses.
+task lint {
+    cd desktop
+    pnpm lint
+    cd $ROOT
+    # These match .github/workflows/lint_rust.yml exactly. The justfile's
+    # versions had drifted -- no --all, no --all-targets, no -D warnings --
+    # so a clean `just lint` said nothing about whether CI would pass.
+    cargo fmt --manifest-path Cargo.toml --all -- --check
+    cargo clippy --manifest-path Cargo.toml --all-targets -- -D warnings
+}
+
+# Format everything in place.
+task format {
+    pnpm format
+    cargo fmt
+}
+
+# Regenerate the i18n files.
+task i18n {
+    cd desktop
+    pnpm i18n:generate
+}
+
+# Check translation coverage against en-US.
+task check-i18n {
+    uv run scripts/check_i18n.py
+}
+
+# Type-check the desktop app and the website.
+task check-types {
+    pnpm check-types
+}
+
+# Build the browser wasm client into handoff/pwa/public/wasm.
+task phone-wasm {
+    ./handoff/wasm/build.sh
+}
+
+# Run the phone PWA on http://localhost:8088.
+task phone {
+    phone-wasm
+    cd handoff/pwa
+    pnpm install
+    pnpm dev
+}
+
+# Send an audio file to a running Vibe: phone-probe <pairing-url> <file>.
+task phone-probe url file {
+    cd handoff/probe
+    cargo run --quiet -- --url $1 --file ../../$2
+}
+
+# Ask a running Vibe what it supports: phone-caps <pairing-url>.
+task phone-caps url {
+    cd handoff/probe
+    cargo run --quiet -- --url $1 --capabilities
+}
