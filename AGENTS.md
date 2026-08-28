@@ -2,7 +2,7 @@
 
 ## Tooling
 
-- Tasks: `just` — see `just --list`
+- Tasks: `chore` — see `chore list`
 - JS: `pnpm` only; Python: `uv` standalone scripts (`uv run`)
 
 ## Validation

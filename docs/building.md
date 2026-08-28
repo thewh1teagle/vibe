@@ -4,15 +4,13 @@
 
 [pnpm](https://pnpm.io/) | [uv](https://docs.astral.sh/uv/) | [Cargo](https://www.rust-lang.org/tools/install)
 
-Optionally install [just](https://github.com/casey/just) to use the shortcuts in the root `justfile` (run `just` to list them):
+Install [chore](https://getchore.github.io/chore/) to use the tasks in the root `chorefile` (run `chore list` to see them):
 
 ```console
+# macOS / Linux
+curl -fsSL https://getchore.github.io/chore/install.sh | sh
 # Windows
-winget install Casey.Just
-# macOS
-brew install just
-# Linux
-sudo apt install just   # or: cargo install just
+irm https://getchore.github.io/chore/install.ps1 | iex
 ```
 
 **Linux**:
@@ -30,36 +28,23 @@ Make sure to install XCode from the AppStore and open it once so it will downloa
 
 ## Build
 
-Run the pre-build script (downloads the Sona runner binary and sets up platform deps):
-
 ```console
-uv run scripts/pre_build.py
+chore dev      # fetch the sidecars, then run the app
+chore build    # fetch the sidecars, then build for production
 ```
 
-Install frontend dependencies from `desktop` folder:
+Both start with `chore setup`, which downloads the sidecars pinned by
+`.sona-version` into `desktop/src-tauri/binaries/`. The same steps by hand:
 
 ```console
+chore setup            # or: uv run scripts/pre_build.py
 cd desktop
 pnpm install
+pnpm exec tauri dev    # or: pnpm exec tauri build
 ```
 
-Start dev mode:
-
-```console
-pnpm exec tauri dev
-```
-
-Or build for production:
-
-```console
-pnpm exec tauri build
-```
-
-You can also do it all in one step:
-
-```console
-uv run scripts/pre_build.py --dev   # or --build
-```
+`pre_build.py` also takes `--target <triple>` for cross-compiles and
+`--dev` / `--build` to chain into Tauri.
 
 ## Build sona locally (dev)
 
@@ -101,6 +86,12 @@ cp desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}') targe
 ## Test
 
 ```console
+chore test     # frontend tests (vitest)
+```
+
+Rust tests:
+
+```console
 export RUST_LOG=trace
 cargo test -- --nocapture
 ```
@@ -108,8 +99,10 @@ cargo test -- --nocapture
 # Lint
 
 ```console
-cargo fmt
-cargo clippy
+chore lint         # eslint, then cargo fmt and clippy with CI's flags
+chore format       # prettier and cargo fmt, in place
+chore check-types  # tsc over desktop and website
+chore check-i18n   # translation coverage against en-US
 ```
 
 # Create new release
