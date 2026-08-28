@@ -1,0 +1,112 @@
+# The phone handoff pieces: the wasm client, the PWA that loads it, and the
+# probe that stands in for a phone.
+#
+# Not named `chorefile` on purpose: chore finds a run by walking up for a file
+# of that name, and one here would hijack `chore` for anyone standing in this
+# directory. Included from the root chorefile instead, so paths below are
+# relative to the repo root and every task sees the same $ROOT.
+
+# Build the browser wasm client into handoff/pwa/public/wasm.
+task phone-wasm {
+    # Vite serves public/ verbatim, so the module lands at /wasm/handoff_wasm.js
+    # with its .wasm beside it, which is what wasm-bindgen's `--target web` glue
+    # expects by default.
+    #
+    # Needs `rustup target add wasm32-unknown-unknown` and a wasm-bindgen-cli
+    # matching the pinned wasm-bindgen dependency in handoff/wasm/Cargo.toml.
+    cd handoff/wasm
+    out=../pwa/public/wasm
+    cargo build --target wasm32-unknown-unknown --release
+    mkdir $out
+    wasm-bindgen ./target/wasm32-unknown-unknown/release/handoff_wasm.wasm --out-dir $out --weak-refs --target web
+
+    wasm=$out/handoff_wasm_bg.wasm
+    if !which wasm-opt {
+        echo "WARNING: wasm-opt not found on PATH; shipping the unoptimized module"
+        echo "         (roughly 2x larger). Install binaryen to shrink it:"
+        echo "           brew install binaryen   # or your platform's package manager"
+        echo "wrote bindings to $out"
+        return
+    }
+
+    # Shrink the module -- it ships to phones, often on cellular. No --enable-*
+    # flags on purpose: wasm-bindgen emits a target-features section and
+    # binaryen honours it, so the module keeps exactly the features it needs.
+    # Naming features explicitly disables the unnamed ones, which shipped a
+    # module with a corrupt function table once; `-all` is worse still, because
+    # it turns on compact-imports and emits an encoding engines reject outright
+    # with "unknown import kind 0x7f".
+    wasm-opt -Os -o $wasm.opt $wasm
+    move $wasm.opt $wasm
+    echo "wasm-opt: shrank $wasm"
+
+    # Sanity-check that the optimised module actually compiles. A wasm-opt flag
+    # mix has already shipped a module that only failed at load time in the
+    # browser, which is an expensive way to find out. Skipped when node is not
+    # around; the block reads the path from the environment because a script
+    # block is raw text and interpolates nothing. Note that `--dry` skips script
+    # blocks rather than running them, so a preview of this task always reports
+    # the check as failed -- a real run is the only one that means anything.
+    if which node {
+        env WASM_PATH $wasm
+        if !script node --input-type=module - {
+            import fs from 'node:fs'
+            try {
+                new WebAssembly.Module(fs.readFileSync(process.env.WASM_PATH))
+            } catch (err) {
+                console.error(`does not compile: ${err.message}`)
+                process.exit(1)
+            }
+        } {
+            fail "the optimised module does not compile; refusing to ship it"
+        }
+        echo "wasm-opt: module compiles"
+    }
+    echo "wrote bindings to $out"
+}
+
+# Build the phone PWA into handoff/pwa/dist, served from the given base path.
+task pwa base=/ {
+    # $1 is the base the PWA will be served under: `/` behind a tunnel or the
+    # local server, `/vibe/phone/` on the website. Vite bakes it into the asset
+    # URLs, so it has to be right at build time.
+    phone-wasm
+    cd handoff/pwa
+    pnpm install
+    env PWA_BASE $1
+    pnpm build
+}
+
+# Run the phone PWA on http://localhost:8088.
+task phone {
+    phone-wasm
+    cd handoff/pwa
+    pnpm install
+    pnpm dev
+}
+
+# Serve the phone PWA over an HTTPS tunnel so a real phone can load it.
+task phone-tunnel {
+    # A phone needs a secure origin before it will hand over the microphone.
+    # `serve.py --tunnel` runs cloudflared alongside the server and prints the
+    # https://<host>.trycloudflare.com URL it hands out. Start Vibe with that
+    # URL so the QR code points at it:
+    #     VIBE_PWA_ORIGIN=https://<host> chore dev
+    if !which cloudflared {
+        fail "cloudflared is not on PATH -- brew install cloudflared"
+    }
+    pwa /
+    uv run handoff/pwa/serve.py --tunnel
+}
+
+# Send an audio file to a running Vibe: phone-probe <pairing-url> <file>.
+task phone-probe url file {
+    cd handoff/probe
+    cargo run --quiet -- --url $1 --file ../../$2
+}
+
+# Ask a running Vibe what it supports: phone-caps <pairing-url>.
+task phone-caps url {
+    cd handoff/probe
+    cargo run --quiet -- --url $1 --capabilities
+}

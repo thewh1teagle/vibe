@@ -1,12 +1,21 @@
-require 1.5.0
+require 1.6.0
 
 # Vibe development tasks. Run `chore list` to see them.
 #
+# The desktop loop and the sidecar fetch live here; tasks that belong to one
+# area live with it, as `<area>/tasks.chorefile`, and are included below. They
+# are deliberately not named `chorefile`: chore resolves a run by walking up
+# for a file of that name, so `handoff/chorefile` would mean `chore list` in
+# handoff/ quietly showed a partial task list with $ROOT pointing there. Every
+# task therefore runs against the repo root whichever directory you are in,
+# which is also why an included task can write `cd handoff/wasm`.
+#
 # The Python scripts under scripts/ are still the programs they always were --
-# these tasks call them, they do not reimplement them. The exceptions are
-# `setup` and `linux-deps`, which are pure download-and-place and pure
-# apt-get, and so are written here directly. CI calls the same tasks, so a
-# green local run means the same commands ran.
+# these tasks call them, they do not reimplement them. CI calls the same tasks,
+# so a green local run means the same commands ran.
+
+include handoff/tasks.chorefile
+include website/tasks.chorefile
 
 sona=$(read .sona-version)
 bin=desktop/src-tauri/binaries
@@ -133,13 +142,6 @@ task upgrade {
     echo "vibe upgraded and relaunched"
 }
 
-# Run the website locally.
-task website {
-    cd website
-    pnpm install
-    pnpm dev
-}
-
 # Run the frontend tests.
 task test {
     cd desktop
@@ -180,46 +182,10 @@ task check-types {
     pnpm check-types
 }
 
-# Build the browser wasm client into handoff/pwa/public/wasm.
-task phone-wasm {
-    ./handoff/wasm/build.sh
-}
-
-# Run the phone PWA on http://localhost:8088.
-task phone {
-    phone-wasm
-    cd handoff/pwa
-    pnpm install
-    pnpm dev
-}
-
-# Send an audio file to a running Vibe: phone-probe <pairing-url> <file>.
-task phone-probe url file {
-    cd handoff/probe
-    cargo run --quiet -- --url $1 --file ../../$2
-}
-
-# Ask a running Vibe what it supports: phone-caps <pairing-url>.
-task phone-caps url {
-    cd handoff/probe
-    cargo run --quiet -- --url $1 --capabilities
-}
-
-# Serve the phone PWA over an HTTPS tunnel so a real phone can load it.
-task phone-tunnel {
-    # `serve.py --tunnel` runs cloudflared alongside the server and prints the
-    # https://<host>.trycloudflare.com URL it hands out. Start Vibe with that
-    # URL so the QR code points at it:
-    #     VIBE_PWA_ORIGIN=https://<host> chore dev
-    if !which cloudflared {
-        fail "cloudflared is not on PATH -- brew install cloudflared"
-    }
-    phone-wasm
-    cd handoff/pwa
-    pnpm install
-    # The tunnel serves the PWA at the root, not under a subpath.
-    env PWA_BASE /
-    pnpm build
-    cd $ROOT
-    uv run handoff/pwa/serve.py --tunnel
+# Run every check CI runs, in one go.
+task ci {
+    lint
+    check-types
+    check-i18n
+    test
 }

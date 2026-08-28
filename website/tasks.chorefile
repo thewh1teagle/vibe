@@ -1,0 +1,27 @@
+# The landing page under website/, which also publishes docs/ and the phone PWA.
+#
+# Not named `chorefile` on purpose: chore finds a run by walking up for a file
+# of that name, and one here would hijack `chore` for anyone standing in this
+# directory. Included from the root chorefile instead, so paths below are
+# relative to the repo root and every task sees the same $ROOT.
+
+# Run the website locally.
+task website {
+    cd website
+    pnpm install
+    pnpm dev
+}
+
+# Build the website into website/dist, the way the deploy workflow does.
+task website-build {
+    cd website
+    pnpm install
+    # Rewrites the download links to point at the current release. Needs
+    # GH_TOKEN in CI; unauthenticated it falls back to the public API.
+    uv run ../scripts/website_links.py
+    # The docs are served from the site, so they are copied in rather than
+    # linked. Removed first so a deleted page does not survive in dist.
+    remove public/docs
+    copy ../docs public/docs
+    pnpm build
+}

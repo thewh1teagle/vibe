@@ -4,7 +4,7 @@
 
 [pnpm](https://pnpm.io/) | [uv](https://docs.astral.sh/uv/) | [Cargo](https://www.rust-lang.org/tools/install)
 
-Install [chore](https://getchore.github.io/chore/) to use the tasks in the root `chorefile` (run `chore list` to see them):
+Install [chore](https://getchore.github.io/chore/) to use the tasks in the root `chorefile` (run `chore list` to see them; it includes each area's `tasks.chorefile`):
 
 ```console
 # macOS / Linux
@@ -104,6 +104,7 @@ cargo test -- --nocapture
 # Lint
 
 ```console
+chore ci           # everything below, in one go
 chore lint         # eslint, then cargo fmt and clippy with CI's flags
 chore format       # prettier and cargo fmt, in place
 chore check-types  # tsc over desktop and website

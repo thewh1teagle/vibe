@@ -10,6 +10,7 @@ on:
             - "scripts/website_links.py"
             - "handoff/pwa/**"
             - "handoff/wasm/**"
+            - "chorefile"
             - ".github/workflows/website.yml"
     release:
         types: [published]
@@ -70,13 +71,13 @@ jobs:
                 curl -sSfL https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-linux.tar.gz | tar xz
                 echo "$PWD/binaryen-version_132/bin" >> "$GITHUB_PATH"
 
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.6.0
+
             - name: Build
-              run: |
-                ./handoff/wasm/build.sh
-                pnpm --dir handoff/pwa install
-                pnpm --dir handoff/pwa build
-              env:
-                PWA_BASE: /vibe/phone/
+              run: chore pwa /vibe/phone/
 
             - name: Upload phone PWA
               uses: actions/upload-artifact@v4
@@ -107,13 +108,13 @@ jobs:
             - name: setup uv
               uses: astral-sh/setup-uv@v5
 
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.6.0
+
             - name: Build
-              run: |
-                pnpm install
-                uv run ../scripts/website_links.py
-                cp -rf ../docs public/
-                pnpm build
-              working-directory: website
+              run: chore website-build
               env:
                 GH_TOKEN: ${{ github.token }}
 
