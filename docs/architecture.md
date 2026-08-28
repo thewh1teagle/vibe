@@ -21,7 +21,7 @@ Vibe is a desktop transcription app built with **Tauri** (Rust + TypeScript fron
 - Bundled as one `sona` binary sidecar with the desktop app
 - Diarization is in-process in Sona via `diarize-rs`; Vibe does not bundle or spawn a separate `sona-diarize` binary
 - **Build**: Separate CI/CD in sona repository
-- **Distribution**: Pre-built Sona binaries downloaded during Vibe build (see `scripts/pre_build.py`)
+- **Distribution**: Pre-built Sona binaries downloaded during Vibe build (see the `setup` task in the root `chorefile`)
 
 ### FFmpeg Helper
 
@@ -30,7 +30,7 @@ Vibe is a desktop transcription app built with **Tauri** (Rust + TypeScript fron
 
 ### Build Flow
 
-1. Vibe CI runs `scripts/pre_build.py`
+1. Vibe CI runs `chore setup <target-triple>`
 2. Script downloads pre-built Sona binaries from Sona releases
 3. Binaries placed in `desktop/src-tauri/binaries/`
 4. Tauri bundles `sona` and, where configured, `ffmpeg` into the final app

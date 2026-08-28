@@ -15,12 +15,13 @@ irm https://getchore.github.io/chore/install.ps1 | iex
 
 **Linux**:
 
-Based on [tauri/prerequisites/#setting-up-linux](https://v2.tauri.app/start/prerequisites/#linux)
-
 ```console
-sudo apt-get update
-sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake libssl-dev libasound2-dev
+chore linux-deps
 ```
+
+That is the apt list from [tauri/prerequisites/#setting-up-linux](https://v2.tauri.app/start/prerequisites/#linux)
+plus what Vibe adds — alsa, xdo and the appindicator bindings. The release
+workflow runs the same task, so the packages CI has are the packages you get.
 
 **macOS**:
 
@@ -37,14 +38,18 @@ Both start with `chore setup`, which downloads the sidecars pinned by
 `.sona-version` into `desktop/src-tauri/binaries/`. The same steps by hand:
 
 ```console
-chore setup            # or: uv run scripts/pre_build.py
+chore setup
 cd desktop
 pnpm install
 pnpm exec tauri dev    # or: pnpm exec tauri build
 ```
 
-`pre_build.py` also takes `--target <triple>` for cross-compiles and
-`--dev` / `--build` to chain into Tauri.
+`chore setup` takes a target triple for cross-compiles — `chore setup
+x86_64-pc-windows-msvc` — which is how the release workflow uses it. Without one
+it fetches for this machine.
+
+On macOS, `chore upgrade` builds the app, replaces `/Applications/vibe.app` and
+relaunches it.
 
 ## Build sona locally (dev)
 

@@ -55,11 +55,13 @@ jobs:
                   cache: pnpm
                   cache-dependency-path: desktop/pnpm-lock.yaml
 
-            - name: setup uv
-              uses: astral-sh/setup-uv@v5
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.5.0
 
-            - name: Run pre_build.py
-              run: uv run scripts/pre_build.py
+            - name: Fetch the sidecars
+              run: chore setup
 
             - name: install node deps
               run: pnpm install

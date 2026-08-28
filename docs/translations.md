@@ -13,6 +13,6 @@ To add a language:
 2. Copy the English files from `i18n/translations/en-US/` into a new locale directory.
 3. Translate the values and keep the keys unchanged.
 4. Add the locale to `i18n/locales.json` and the relevant Inlang settings file(s).
-5. Run `uv run scripts/check_i18n.py` from the repository root to check translation coverage. The same check is also available as `pnpm check:i18n`.
+5. Run `chore check-i18n` from the repository root to check translation coverage.
 
 You can translate the desktop app, the website, or both. Missing translations fall back to English.

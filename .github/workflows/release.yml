@@ -56,6 +56,11 @@ jobs:
             - name: setup uv
               uses: astral-sh/setup-uv@v5
 
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.5.0
+
             - name: Rust cache
               uses: swatinem/rust-cache@v2
 
@@ -69,8 +74,12 @@ jobs:
               run: pnpm install
               working-directory: ./desktop
 
-            - name: Run pre_build.py on ${{ matrix.platform }}
-              run: uv run scripts/pre_build.py --target ${{ matrix.target_triple }}
+            - name: Install Linux build dependencies
+              if: runner.os == 'Linux'
+              run: chore linux-deps
+
+            - name: Fetch the sidecars for ${{ matrix.target_triple }}
+              run: chore setup ${{ matrix.target_triple }}
 
             - name: Setup macOS signing env
               if: matrix.platform == 'macos-latest' && inputs.sign-macos

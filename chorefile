@@ -1,9 +1,12 @@
+require 1.5.0
+
 # Vibe development tasks. Run `chore list` to see them.
 #
-# Replaces the justfile. The Python scripts under scripts/ are still the
-# programs they always were — these tasks call them, they do not reimplement
-# them. The one exception is `setup`, which is pure download-and-place and so
-# is written here directly.
+# The Python scripts under scripts/ are still the programs they always were --
+# these tasks call them, they do not reimplement them. The exceptions are
+# `setup` and `linux-deps`, which are pure download-and-place and pure
+# apt-get, and so are written here directly. CI calls the same tasks, so a
+# green local run means the same commands ran.
 
 sona=$(read .sona-version)
 bin=desktop/src-tauri/binaries
@@ -34,13 +37,23 @@ task setup target=$TRIPLE {
     if $1 contains windows { exe=.exe }
 
     mkdir $bin
-    if exists $bin/sona-$1$exe {
+    # Linux ships sona alone; every other target gets ffmpeg beside it, so both
+    # have to be there before this is a no-op. Checking only sona would leave a
+    # half-populated $bin in place and the Tauri build would fail much later.
+    if $1 contains linux {
+        if exists $bin/sona-$1 {
+            echo "sidecars for $1 are already in place"
+            return
+        }
+    } else if exists $bin/sona-$1$exe && exists $bin/ffmpeg-$1$exe {
         echo "sidecars for $1 are already in place"
         return
     }
 
-    if $OS == linux {
-        # Linux ships the bare binary, with no ffmpeg alongside it.
+    if $1 contains linux {
+        # Linux ships the bare binary, with no ffmpeg alongside it. This is
+        # keyed on the target, not the host, so a cross-compile picks the same
+        # branch CI's Linux runners do.
         download gh://vibe-transcribe/sona/$sona/$asset $bin/sona-$1
         chmod 755 $bin/sona-$1
         echo "installed sona-$1"
@@ -57,11 +70,27 @@ task setup target=$TRIPLE {
     move $bin/sona$exe $bin/sona-$1$exe
     move $bin/ffmpeg$exe $bin/ffmpeg-$1$exe
     remove target/sidecars/$asset
-    if $OS != windows {
+    # Empty $exe means a non-Windows target, so these are the paths just moved
+    # into place. Testing the target rather than $OS keeps a cross-compile from
+    # chmod-ing a name that was never written.
+    if $exe == "" {
         chmod 755 $bin/sona-$1
         chmod 755 $bin/ffmpeg-$1
     }
     echo "installed sona-$1 and ffmpeg-$1"
+}
+
+# Install the Linux build dependencies with apt.
+task linux-deps {
+    # The Tauri prerequisites plus what Vibe adds on top: alsa for audio, xdo
+    # for the global shortcut, and the appindicator bindings for the tray icon.
+    # `setup` deliberately does not call this -- it needs sudo, and every
+    # `chore dev` should not ask for a password.
+    if $OS != linux {
+        fail "linux-deps is for Linux; there is nothing to install on $OS"
+    }
+    sudo apt-get update
+    sudo apt-get install -y pkg-config build-essential libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake libssl-dev libasound2-dev libxdo-dev libayatana-appindicator3-dev
 }
 
 # Install the frontend dependencies.
@@ -88,6 +117,20 @@ task build {
     setup
     cd desktop
     pnpm exec tauri build
+}
+
+# Rebuild vibe.app, replace the installed one and relaunch it (macOS).
+task upgrade {
+    # The updater artifacts are skipped: signing them needs the CI private key.
+    setup
+    cd desktop
+    pnpm exec tauri build --bundles app --config '{"bundle":{"createUpdaterArtifacts":false}}'
+    cd $ROOT
+    try osascript -e 'quit app "vibe"'
+    remove /Applications/vibe.app
+    copy target/release/bundle/macos/vibe.app /Applications/vibe.app
+    open /Applications/vibe.app
+    echo "vibe upgraded and relaunched"
 }
 
 # Run the website locally.
@@ -160,4 +203,23 @@ task phone-probe url file {
 task phone-caps url {
     cd handoff/probe
     cargo run --quiet -- --url $1 --capabilities
+}
+
+# Serve the phone PWA over an HTTPS tunnel so a real phone can load it.
+task phone-tunnel {
+    # `serve.py --tunnel` runs cloudflared alongside the server and prints the
+    # https://<host>.trycloudflare.com URL it hands out. Start Vibe with that
+    # URL so the QR code points at it:
+    #     VIBE_PWA_ORIGIN=https://<host> chore dev
+    if !which cloudflared {
+        fail "cloudflared is not on PATH -- brew install cloudflared"
+    }
+    phone-wasm
+    cd handoff/pwa
+    pnpm install
+    # The tunnel serves the PWA at the root, not under a subpath.
+    env PWA_BASE /
+    pnpm build
+    cd $ROOT
+    uv run handoff/pwa/serve.py --tunnel
 }
