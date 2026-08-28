@@ -59,7 +59,7 @@ jobs:
             - name: setup chore
               uses: getchore/setup-chore@v1
               with:
-                  version: v1.5.0
+                  version: v1.6.0
 
             - name: Rust cache
               uses: swatinem/rust-cache@v2
