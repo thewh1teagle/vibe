@@ -18,6 +18,10 @@ use std::process::Stdio;
 #[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
+fn decode_output_line(bytes: &[u8]) -> String {
+    String::from_utf8_lossy(bytes).into_owned()
+}
+
 fn get_binary_name() -> &'static str {
     if cfg!(windows) {
         if cfg!(target_arch = "aarch64") {
@@ -77,6 +81,13 @@ pub fn get_temp_path(ext: String) -> String {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+
+    #[test]
+    fn lossy_line_preserves_valid_text_around_invalid_bytes() {
+        let line = decode_output_line(b"title: \xFF\n");
+
+        assert_eq!(line, "title: �\n");
+    }
 
     #[test]
     fn download_paths_are_always_staged_in_vibe_temp() {
@@ -148,13 +159,13 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
     if let Some(stdout) = child.stdout.take() {
         let reader = BufReader::new(stdout);
 
-        for line in reader.lines() {
+        for line in reader.split(b'\n') {
             if cancel_flag.load(Ordering::Relaxed) {
                 let _ = child.kill();
                 break;
             }
 
-            let mut line = line?;
+            let mut line = decode_output_line(&line?);
             line = line.replace("\r", "").trim().to_string();
 
             if line.starts_with("{\"progress") {
@@ -179,8 +190,9 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
         let mut stderr_output: String = "".to_string();
         if let Some(stderr) = child.stderr.take() {
             stderr_output = BufReader::new(stderr)
-                .lines()
+                .split(b'\n')
                 .map_while(Result::ok)
+                .map(|line| decode_output_line(&line))
                 .collect::<Vec<_>>()
                 .join("\n");
             eprintln!("Error: {}", stderr_output);
