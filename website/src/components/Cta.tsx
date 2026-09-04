@@ -107,7 +107,7 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 						</a>
 					</Button>
 				) : currentPlatform === 'linux' ? (
-					<Button size="lg" className="hidden md:flex" onClick={() => setLinuxModalOpen(true)}>
+					<Button size="lg" className="cta-hero hidden md:flex" onClick={() => setLinuxModalOpen(true)}>
 						<Linux className="size-[18px]" />
 						{m['download-for']()}
 						{asset?.platform}
