@@ -99,7 +99,7 @@ task setup target=$TRIPLE {
     # into place. Testing the target rather than $OS keeps a cross-compile from
     # chmod-ing a name that was never written.
     if $exe == "" {
-        chmod 755 $bin/sona-$1
+        chmod 755 $bin/vibe-server-$1$exe
         chmod 755 $bin/ffmpeg-$1
     }
     echo "installed vibe-server-$1 and ffmpeg-$1"
