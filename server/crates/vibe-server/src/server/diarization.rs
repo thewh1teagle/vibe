@@ -11,9 +11,7 @@ pub struct Segment {
 
 #[cfg(feature = "diarize")]
 pub fn diarize(model_path: &str, samples: &[f32]) -> Vec<Segment> {
-    match diarize_rs::Diarizer::new(model_path)
-        .and_then(|mut diarizer| diarizer.diarize(samples, 16_000, 1))
-    {
+    match diarize_rs::Diarizer::new(model_path).and_then(|mut diarizer| diarizer.diarize(samples, 16_000, 1)) {
         Ok(segments) => segments,
         Err(err) => {
             tracing::warn!("diarization failed, skipping speakers: {err}");

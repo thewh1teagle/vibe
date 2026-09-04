@@ -181,32 +181,33 @@ async fn transcribe_command(args: TranscribeArgs, config: AppConfig) -> anyhow::
         },
     )
     .inspect_err(|err| tracing::error!(model = args.model, "failed to load model: {err:#}"))?;
-    let result = ctx.transcribe(
-        &samples,
-        TranscribeOptions {
-            language: args.language,
-            detect_language: args.detect_language,
-            translate: args.translate,
-            threads: args.threads,
-            prompt: args.prompt,
-            verbose: config.verbose(),
-            temperature: args.temperature,
-            max_text_ctx: args.max_text_ctx,
-            word_timestamps: args.word_timestamps,
-            // One word per segment is what --word-timestamps is asking for, unless
-            // the caller picked a length themselves.
-            max_segment_len: if args.word_timestamps && args.max_segment_len == 0 {
-                1
-            } else {
-                args.max_segment_len
+    let result = ctx
+        .transcribe(
+            &samples,
+            TranscribeOptions {
+                language: args.language,
+                detect_language: args.detect_language,
+                translate: args.translate,
+                threads: args.threads,
+                prompt: args.prompt,
+                verbose: config.verbose(),
+                temperature: args.temperature,
+                max_text_ctx: args.max_text_ctx,
+                word_timestamps: args.word_timestamps,
+                // One word per segment is what --word-timestamps is asking for, unless
+                // the caller picked a length themselves.
+                max_segment_len: if args.word_timestamps && args.max_segment_len == 0 {
+                    1
+                } else {
+                    args.max_segment_len
+                },
+                best_of: args.best_of,
+                beam_size: args.beam_size,
+                vad_model_path: args.vad_model,
+                ..TranscribeOptions::default()
             },
-            best_of: args.best_of,
-            beam_size: args.beam_size,
-            vad_model_path: args.vad_model,
-            ..TranscribeOptions::default()
-        },
-    )
-    .inspect_err(|err| tracing::error!("transcription failed: {err:#}"))?;
+        )
+        .inspect_err(|err| tracing::error!("transcription failed: {err:#}"))?;
 
     if args.word_timestamps {
         // whisper.cpp emits one segment per word here, plus a leading empty one for

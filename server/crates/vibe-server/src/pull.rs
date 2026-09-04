@@ -97,4 +97,3 @@ fn print_progress(written: u64, total: Option<u64>, start: Instant) {
         print!("\rdownloading {mb:.1} MB {speed:.2} MB/s");
     }
 }
-

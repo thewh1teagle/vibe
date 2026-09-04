@@ -17,24 +17,15 @@ impl<'a> FormValues<'a> {
     }
 
     pub fn i32(&self, name: &str) -> i32 {
-        self.values
-            .get(name)
-            .and_then(|value| value.parse().ok())
-            .unwrap_or(0)
+        self.values.get(name).and_then(|value| value.parse().ok()).unwrap_or(0)
     }
 
     pub fn f32(&self, name: &str) -> f32 {
-        self.values
-            .get(name)
-            .and_then(|value| value.parse().ok())
-            .unwrap_or(0.0)
+        self.values.get(name).and_then(|value| value.parse().ok()).unwrap_or(0.0)
     }
 
     pub fn string(&self, name: &str) -> Option<String> {
-        self.values
-            .get(name)
-            .filter(|value| !value.is_empty())
-            .cloned()
+        self.values.get(name).filter(|value| !value.is_empty()).cloned()
     }
 
     pub fn str_or<'b>(&'b self, name: &str, default: &'b str) -> &'b str {
