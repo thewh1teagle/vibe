@@ -19,7 +19,7 @@ openblas/
 .env
 .env.*
 !.env.example
-!samples/*
+!server/fixtures/*
 vulkan_sdk/
 vulkan_runtime/
 schemas/
@@ -30,7 +30,7 @@ venv/
 *.onnx
 *.pfx
 *trace*.log
-samples/**/*.txt
+server/fixtures/**/*.txt
 pnpm-workspace.yaml
 desktop/src-tauri/binaries/vibe-server-*
 github-issues/
