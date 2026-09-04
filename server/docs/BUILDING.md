@@ -7,8 +7,8 @@ The C library (ggml) and the Sona binary are built separately:
 1. **`libs/`** holds everything that determines the libraries: `libs/ggml-version` (the ggml release tag), `libs/patches/` (fixes ggml has not taken yet), and `libs/libs.chore` (the build recipe). Every task reads the tag from there.
 2. **`chore build-libs`** clones ggml at that tag, applies the patches, builds the static libraries for the current platform, and packages them; **`chore upload-libs`** does that and uploads the archive to the GitHub release tagged `libraries-ggml-{tag}-r{revision}`, with the revision from `libs/revision` (`chore libs-tag` prints the whole name). Bump the revision in the same commit as any change under `libs/`, and reset it to 1 when the ggml tag moves, so a changed bundle never replaces the one older sona tags still link against. The release notes record the git tree hash of `libs/` (`chore libs-id`); `upload-libs` fails when the tag already exists for another tree, which is what a forgotten bump looks like, and refuses uncommitted changes under `libs/`.
 3. **`chore fetch-libs`** downloads the prebuilt static libraries for the current platform from the release named by the current `libs/` into `third_party/lib/`.
-4. **`chore fetch-headers`** fetches the C headers into `third_party/include/` (these are checked into git).
-5. The binary links against `third_party/include/` and `third_party/lib/`.
+4. **`chore fetch-headers`** fetches the C headers into `libs/include/`, checked into git: they come from the same ggml tag as the libraries, so a header change changes the `libs/` tree like any other input.
+5. The binary links against `libs/include/` and `third_party/lib/`.
 
 This separation means contributors never need to build ggml locally; they just fetch the libraries.
 

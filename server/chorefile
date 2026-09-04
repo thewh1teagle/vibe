@@ -12,7 +12,7 @@ include libs/libs.chore
 
 # Fetch the pinned ggml headers into third_party/include.
 task fetch-headers {
-	out=$ROOT/third_party/include
+	out=$ROOT/libs/include
 	mkdir $out
 	for name in ggml.h ggml-cpu.h ggml-alloc.h ggml-backend.h gguf.h {
 		download $ggml_raw/$version/include/$name $out/$name.raw --timeout 120

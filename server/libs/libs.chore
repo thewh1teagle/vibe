@@ -58,6 +58,7 @@ task fetch-libs {
 	echo "release: $tag"
 	mkdir $ROOT/target
 	download gh://$repo/$tag/ggml-libs-$platform.tar.gz $ROOT/target/ggml-libs-$platform.tar.gz --timeout 120
+	# The archive also carries include/; the headers the build uses are the checked-in libs/include.
 	extract $ROOT/target/ggml-libs-$platform.tar.gz $ROOT/third_party
 	remove $ROOT/target/ggml-libs-$platform.tar.gz
 	echo "extracted to $ROOT/third_party"
