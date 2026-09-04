@@ -15,7 +15,7 @@ const COMMIT: &str = match option_env!("SONA_COMMIT") {
 };
 
 #[derive(Debug, Parser)]
-#[command(name = "sona", version = VERSION, about = "Speech-to-text powered by whisper.cpp")]
+#[command(name = "vibe-server", version = VERSION, about = "Speech-to-text powered by whisper.cpp")]
 struct Cli {
     #[arg(short, long, global = true)]
     verbose: bool,

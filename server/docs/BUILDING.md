@@ -24,13 +24,13 @@ Tasks live in the `chorefile` at the repository root. `chore list` shows them al
 ```bash
 chore fetch-headers
 chore fetch-libs
-cargo build -p sona --release
+cargo build -p vibe-server --release
 ```
 
 On Windows, the Sona binary uses Rust's default MSVC target. The Vulkan loader is opened at runtime, so building and running Sona needs no Vulkan SDK; only `chore build-libs` does, for the headers and `glslc`:
 
 ```bash
-cargo build -p sona --release
+cargo build -p vibe-server --release
 ```
 
 The library workflow also builds a `windows-amd64-gnu` ggml bundle for compatibility (`SONA_WINDOWS_LIB_FLAVOR=gnu`), but release binaries use `windows-amd64-msvc`.
@@ -63,7 +63,7 @@ AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU wit
 It also injects the CLI version at build time via environment variables:
 
 ```bash
-SONA_VERSION=<tag> SONA_COMMIT=<sha> cargo build -p sona --release
+SONA_VERSION=<tag> SONA_COMMIT=<sha> cargo build -p vibe-server --release
 ```
 
 You can run releases in two ways:

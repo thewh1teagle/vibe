@@ -1,15 +1,19 @@
-name: Test Release Binaries
+name: Test Server Release
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag to test (for example: v0.1.0)"
+        description: "Server release tag to test (for example: server-v0.7.0)"
         required: true
         type: string
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    working-directory: server
 
 jobs:
   test:
@@ -18,22 +22,22 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-24.04
-            archive: sona-linux-amd64
-            binary: sona
+            archive: vibe-server-linux-amd64
+            binary: vibe-server
             raw: true
           - runner: ubuntu-24.04-arm
-            archive: sona-linux-arm64
-            binary: sona
+            archive: vibe-server-linux-arm64
+            binary: vibe-server
             raw: true
           - runner: macos-14
-            archive: sona-darwin-arm64-with-ffmpeg.tar.gz
-            binary: sona
+            archive: vibe-server-darwin-arm64-with-ffmpeg.tar.gz
+            binary: vibe-server
           - runner: macos-15-intel
-            archive: sona-darwin-amd64-with-ffmpeg.tar.gz
-            binary: sona
+            archive: vibe-server-darwin-amd64-with-ffmpeg.tar.gz
+            binary: vibe-server
           - runner: windows-latest
-            archive: sona-windows-amd64-with-ffmpeg.zip
-            binary: sona.exe
+            archive: vibe-server-windows-amd64-with-ffmpeg.zip
+            binary: vibe-server.exe
     runs-on: ${{ matrix.runner }}
     env:
       TAG: ${{ github.event.inputs.tag }}

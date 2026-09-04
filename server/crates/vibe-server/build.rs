@@ -4,7 +4,7 @@ fn main() {
 
     if is_windows_msvc {
         println!("cargo:rustc-link-lib=delayimp");
-        println!("cargo:rustc-link-arg-bin=sona=/DELAYLOAD:vulkan-1.dll");
+        println!("cargo:rustc-link-arg-bin=vibe-server=/DELAYLOAD:vulkan-1.dll");
     }
 
     // ggml's registry references ggml_backend_cpu_reg, which ggml-rs-sys defines in Rust
@@ -14,9 +14,9 @@ fn main() {
     // args, hence here rather than in ggml-rs-sys.
     if std::env::var("CARGO_CFG_TARGET_ARCH").as_deref() == Ok("x86_64") && (os == "linux" || os == "windows") {
         if is_windows_msvc {
-            println!("cargo:rustc-link-arg-bin=sona=/INCLUDE:ggml_backend_cpu_reg");
+            println!("cargo:rustc-link-arg-bin=vibe-server=/INCLUDE:ggml_backend_cpu_reg");
         } else {
-            println!("cargo:rustc-link-arg-bin=sona=-Wl,--undefined=ggml_backend_cpu_reg");
+            println!("cargo:rustc-link-arg-bin=vibe-server=-Wl,--undefined=ggml_backend_cpu_reg");
         }
     }
 }

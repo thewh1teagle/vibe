@@ -1730,39 +1730,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sona"
-version = "0.6.3"
-dependencies = [
- "anyhow",
- "axum",
- "bytes",
- "clap",
- "diarize-rs",
- "futures-util",
- "hound",
- "humantime",
- "libc",
- "nemotron-rs",
- "parakeet-rs",
- "reqwest",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "utoipa",
- "utoipa-axum",
- "utoipa-swagger-ui",
- "vad-rs",
- "whisper-rs",
- "windows-sys 0.61.2",
-]
-
-[[package]]
 name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2234,6 +2201,39 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vibe-server"
+version = "0.6.3"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bytes",
+ "clap",
+ "diarize-rs",
+ "futures-util",
+ "hound",
+ "humantime",
+ "libc",
+ "nemotron-rs",
+ "parakeet-rs",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "utoipa",
+ "utoipa-axum",
+ "utoipa-swagger-ui",
+ "vad-rs",
+ "whisper-rs",
+ "windows-sys 0.61.2",
+]
 
 [[package]]
 name = "walkdir"

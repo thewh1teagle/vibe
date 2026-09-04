@@ -3,7 +3,7 @@ members = [
     "crates/diarize-rs",
     "crates/nemotron-rs",
     "crates/parakeet-rs",
-    "crates/sona",
+    "crates/vibe-server",
     "crates/vad-rs",
     "crates/ggml-rs-sys",
     "crates/whisper-rs",
@@ -13,4 +13,4 @@ resolver = "2"
 [workspace.package]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/vibe-transcribe/sona"
+repository = "https://github.com/thewh1teagle/vibe"

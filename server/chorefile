@@ -29,12 +29,12 @@ task fetch-headers {
 # Package a built sona binary with ffmpeg: package-release <binary> <goos> <goarch> <out>.
 task package-release binary goos goarch out {
 	if !exists $1 { fail "binary not found: $1" }
-	stage=$ROOT/target/sona-package
+	stage=$ROOT/target/server-package
 	remove $stage
 	mkdir $stage
 
-	name=sona
-	if $2 == windows { name=sona.exe }
+	name=vibe-server
+	if $2 == windows { name=vibe-server.exe }
 	copy $1 $stage/$name
 	chmod 755 $stage/$name
 

@@ -1,5 +1,7 @@
 [workspace]
 members = ["desktop/src-tauri", "crates/meeting-detect"]
+# server/ is its own workspace: the engine optimises for speed, the app for size.
+exclude = ["server"]
 resolver = "2"
 
 [workspace.dependencies]
