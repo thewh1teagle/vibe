@@ -8,7 +8,7 @@ describe('isGpuOutOfMemory', () => {
 
 	it('reads the abort message when the allocation killed the process', () => {
 		const report =
-			'vibe-server process died during transcription (exited with code -1073740791)\n\nsona stderr: memory allocation of 1610612736 bytes failed'
+			'vibe-server process died during transcription (exited with code -1073740791)\n\nvibe-server stderr: memory allocation of 1610612736 bytes failed'
 		expect(isGpuOutOfMemory(serverErrorCodes.INTERNAL_ERROR, report)).toBe(true)
 	})
 
