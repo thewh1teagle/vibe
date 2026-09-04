@@ -82,6 +82,9 @@ task build-libs {
 	git fetch --depth 1 origin $version
 	git checkout FETCH_HEAD
 	git submodule update --init --depth 1 --recursive
+	# Fixes ggml has not taken yet; each file says what it is for. Drop a patch once
+	# the pinned tag carries the change, or git apply fails the build here.
+	git apply --verbose $ROOT/patches/ggml/0001-vulkan-fall-back-to-vkGetDeviceQueue.patch
 	cd $ROOT
 
 	remove $build

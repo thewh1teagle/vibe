@@ -1,0 +1,30 @@
+vulkan: fall back to vkGetDeviceQueue when vkGetDeviceQueue2 returns null
+
+ggml's Vulkan backend fetches every queue through vkGetDeviceQueue2 (since the
+per-instance queue handle refactor, llama.cpp #23570). Some older drivers return
+VK_NULL_HANDLE from it even for queues they created: AMD 20.x on Windows
+(Vulkan 1.2.133, driver 0x800089, Radeon iGPU on a Ryzen 4500U) is one. The
+first vkQueueSubmit then fails with "Invalid queue" and the process aborts,
+which is how vibe users on those machines lost transcription when sona moved
+from whisper.cpp's ggml 0.16 to ggml 0.22.
+
+The queue was created without flags on that path, so vkGetDeviceQueue names
+the same queue. Not upstream as of ggml v0.22.0 / master 2026-08-30.
+
+diff --git a/src/ggml-vulkan/ggml-vulkan.cpp b/src/ggml-vulkan/ggml-vulkan.cpp
+index c1d86aa..5c91aca 100644
+--- a/src/ggml-vulkan/ggml-vulkan.cpp
++++ b/src/ggml-vulkan/ggml-vulkan.cpp
+@@ -3304,6 +3304,12 @@ static std::unique_ptr<vk_queue> ggml_vk_create_queue(vk_device& device, uint32_
+     }
+ 
+     h->queue = device->device.getQueue2(queue_info2);
++    if (!h->queue) {
++        // Some older drivers (e.g. AMD 20.x on Windows, Vulkan 1.2.133) return a null
++        // handle from vkGetDeviceQueue2 even for queues they created; the queue was
++        // requested without flags, so vkGetDeviceQueue names the same one.
++        h->queue = device->device.getQueue(queue_family_index, queue_index);
++    }
+     h->device = device;
+     q->handle = h;
+ 
