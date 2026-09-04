@@ -102,7 +102,7 @@ task setup target=$TRIPLE {
         chmod 755 $bin/sona-$1
         chmod 755 $bin/ffmpeg-$1
     }
-    echo "installed sona-$1 and ffmpeg-$1"
+    echo "installed vibe-server-$1 and ffmpeg-$1"
 }
 
 # Install the Linux build dependencies with apt.
