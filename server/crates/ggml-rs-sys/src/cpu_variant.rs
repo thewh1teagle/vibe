@@ -15,7 +15,16 @@ extern "C" {
 }
 
 /// The macro also checks that the OS saves the AVX register state, which a bare cpuid does not.
+///
+/// `VIBE_SERVER_CPU_VARIANT=baseline` (or `avx2`) overrides the detection. A machine can
+/// advertise AVX2 it cannot execute: a Hackintosh whose bootloader spoofs CPUID reports the
+/// flag, picks the Haswell build, and dies with SIGILL while loading the model (#1499).
 fn haswell() -> bool {
+    match std::env::var("VIBE_SERVER_CPU_VARIANT").ok().as_deref() {
+        Some("baseline") | Some("x64") => return false,
+        Some("avx2") | Some("hsw") => return true,
+        _ => {}
+    }
     is_x86_feature_detected!("avx2") && is_x86_feature_detected!("fma") && is_x86_feature_detected!("bmi2")
 }
 

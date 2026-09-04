@@ -49,7 +49,7 @@ pub(super) fn describe_exit(status: ExitStatus) -> String {
 /// missing an instruction set the build assumes. Naming it here is what turns these
 /// reports from a bare "vibe-server process died" into something identifiable.
 fn illegal_instruction_hint(status: ExitStatus) -> Option<&'static str> {
-    const MESSAGE: &str = "This looks like a CPU without AVX support: server picks an AVX2 or an AVX build of its CPU backend at startup, but nothing older, so it stops on the first instruction it cannot run. Vibe cannot transcribe on this machine.";
+    const MESSAGE: &str = "This looks like a CPU without AVX support, or one that advertises AVX2 it cannot run (a Hackintosh with spoofed CPUID does this): the server picks an AVX2 or an AVX build of its CPU backend at startup from what the CPU reports, so it stops on the first instruction it cannot run. Set VIBE_SERVER_CPU_VARIANT=baseline to force the AVX build.";
 
     #[cfg(unix)]
     {
