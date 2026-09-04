@@ -17,27 +17,43 @@ require 1.6.0
 include handoff/handoff.chore
 include website/website.chore
 
-sona=$(read .sona-version)
+# The server release the app ships, a server-v* tag of this repository.
+server=$(read .server-version)
 bin=desktop/src-tauri/binaries
 
-# Fetch the sona and ffmpeg sidecars for this machine.
+# Build server/ from the tree and put it where `setup` would have put the
+# release, for iterating on the engine; run `setup` first so ffmpeg is there.
+task server-build target=$TRIPLE {
+    exe=""
+    if $1 contains windows { exe=.exe }
+    cd server
+    chore fetch-libs
+    cargo build -p vibe-server --release
+    cd $ROOT
+    mkdir $bin
+    copy server/target/release/vibe-server$exe $bin/vibe-server-$1$exe
+    chmod 755 $bin/vibe-server-$1$exe
+    echo "built vibe-server-$1 from server/"
+}
+
+# Fetch the vibe-server and ffmpeg sidecars for this machine.
 task setup target=$TRIPLE {
     # $1 is the target: this machine by default, or an explicit triple when
-    # CI cross-compiles. The asset names are sona's own; the triple is also
-    # what the sidecar must be called, because Tauri looks for
-    # `sona-<triple>` beside the binary.
+    # CI cross-compiles. The asset names are the server release's own; the
+    # triple is also what the sidecar must be called, because Tauri looks for
+    # `vibe-server-<triple>` beside the binary.
     if $1 == aarch64-apple-darwin {
-        asset=sona-darwin-arm64-with-ffmpeg.tar.gz
+        asset=vibe-server-darwin-arm64-with-ffmpeg.tar.gz
     } else if $1 == x86_64-apple-darwin {
-        asset=sona-darwin-amd64-with-ffmpeg.tar.gz
+        asset=vibe-server-darwin-amd64-with-ffmpeg.tar.gz
     } else if $1 == x86_64-pc-windows-msvc {
-        asset=sona-windows-amd64-with-ffmpeg.zip
+        asset=vibe-server-windows-amd64-with-ffmpeg.zip
     } else if $1 == x86_64-unknown-linux-gnu {
-        asset=sona-linux-amd64
+        asset=vibe-server-linux-amd64
     } else if $1 == aarch64-unknown-linux-gnu {
-        asset=sona-linux-arm64
+        asset=vibe-server-linux-arm64
     } else {
-        fail "sona publishes no build for $1"
+        fail "the server publishes no build for $1"
     }
 
     # $exe is the *host's* suffix, and $1 may name another platform, so the
@@ -46,15 +62,15 @@ task setup target=$TRIPLE {
     if $1 contains windows { exe=.exe }
 
     mkdir $bin
-    # Linux ships sona alone; every other target gets ffmpeg beside it, so both
-    # have to be there before this is a no-op. Checking only sona would leave a
-    # half-populated $bin in place and the Tauri build would fail much later.
+    # Linux ships the server alone; every other target gets ffmpeg beside it, so
+    # both have to be there before this is a no-op. Checking only the server would
+    # leave a half-populated $bin in place and the Tauri build would fail much later.
     if $1 contains linux {
-        if exists $bin/sona-$1 {
+        if exists $bin/vibe-server-$1 {
             echo "sidecars for $1 are already in place"
             return
         }
-    } else if exists $bin/sona-$1$exe && exists $bin/ffmpeg-$1$exe {
+    } else if exists $bin/vibe-server-$1$exe && exists $bin/ffmpeg-$1$exe {
         echo "sidecars for $1 are already in place"
         return
     }
@@ -63,20 +79,20 @@ task setup target=$TRIPLE {
         # Linux ships the bare binary, with no ffmpeg alongside it. This is
         # keyed on the target, not the host, so a cross-compile picks the same
         # branch CI's Linux runners do.
-        download gh://vibe-transcribe/sona/$sona/$asset $bin/sona-$1
-        chmod 755 $bin/sona-$1
-        echo "installed sona-$1"
+        download gh://thewh1teagle/vibe/server-$server/$asset $bin/vibe-server-$1
+        chmod 755 $bin/vibe-server-$1
+        echo "installed vibe-server-$1"
         return
     }
 
-    # macOS and Windows ship an archive holding sona and ffmpeg. --flatten
+    # macOS and Windows ship an archive holding the server and ffmpeg. --flatten
     # drops whatever directories the archive puts them under, so they land in
     # $bin at a name we know; the moves only rename.
     mkdir target/sidecars
-    download gh://vibe-transcribe/sona/$sona/$asset target/sidecars/$asset
-    extract target/sidecars/$asset $bin --member sona$exe --flatten
+    download gh://thewh1teagle/vibe/server-$server/$asset target/sidecars/$asset
+    extract target/sidecars/$asset $bin --member vibe-server$exe --flatten
     extract target/sidecars/$asset $bin --member ffmpeg$exe --flatten
-    move $bin/sona$exe $bin/sona-$1$exe
+    move $bin/vibe-server$exe $bin/vibe-server-$1$exe
     move $bin/ffmpeg$exe $bin/ffmpeg-$1$exe
     remove target/sidecars/$asset
     # Empty $exe means a non-Windows target, so these are the paths just moved
