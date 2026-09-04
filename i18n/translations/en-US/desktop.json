@@ -501,7 +501,7 @@
 	"dropFilesHere": "Drop audio, video or a folder here",
 	"orClickToBrowse": "or click to browse your files",
 	"dropToAddToQueue": "Drop to add to the queue",
-	"pasteMediaLink": "Paste a video or audio link",
+	"pasteMediaLink": "Paste video or audio links, one per line",
 	"worksWith": "Works with",
 	"moreSources": "+1000 more",
 	"fromFile": "File",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "The selected model does not use prompts. This prompt is kept for when you switch back to a Whisper model.",
 	"assignSpeaker": "Assign speaker",
 	"newSpeaker": "New speaker",
-	"speakerOfThisLine": "This line"
+	"speakerOfThisLine": "This line",
+	"linkOfTotal": "{current} of {total}",
+	"linksSkipped": "{count} of {total} links could not be downloaded"
 }

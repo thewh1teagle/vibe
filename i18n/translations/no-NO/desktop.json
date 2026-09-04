@@ -501,7 +501,7 @@
 	"dropFilesHere": "Slipp lyd, video eller en mappe her",
 	"orClickToBrowse": "eller klikk for å bla gjennom filene dine",
 	"dropToAddToQueue": "Slipp for å legge til i køen",
-	"pasteMediaLink": "Lim inn en video- eller lydlenke",
+	"pasteMediaLink": "Lim inn video- eller lydlenker, én per linje",
 	"worksWith": "Fungerer med",
 	"moreSources": "+1000 flere",
 	"fromFile": "Fil",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "Den valgte modellen bruker ikke prompt. Denne beholdes til du bytter tilbake til en Whisper-modell.",
 	"assignSpeaker": "Tilordne taler",
 	"newSpeaker": "Ny taler",
-	"speakerOfThisLine": "Denne linjen"
+	"speakerOfThisLine": "Denne linjen",
+	"linkOfTotal": "{current} av {total}",
+	"linksSkipped": "{count} av {total} lenker kunne ikke lastes ned"
 }

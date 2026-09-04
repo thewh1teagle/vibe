@@ -153,6 +153,8 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 	set_tray: async () => null,
 
 	download_audio: async (args) => {
+		// A link with "fail" in it stands in for a site yt-dlp cannot fetch.
+		if (String(args?.url ?? '').includes('fail')) throw new Error(`[mock] yt-dlp could not download ${String(args?.url)}`)
 		const outPath = String(args?.outPath ?? `${APP_LOCAL_DATA}/tmp.m4a`)
 		let cancelled = false
 		const unsub = onMockEvent('ytdlp-cancel', () => {

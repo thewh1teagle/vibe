@@ -501,7 +501,7 @@
 	"dropFilesHere": "ऑडियो, वीडियो या फ़ोल्डर यहाँ छोड़ें",
 	"orClickToBrowse": "या फ़ाइलें चुनने के लिए क्लिक करें",
 	"dropToAddToQueue": "कतार में जोड़ने के लिए यहाँ छोड़ें",
-	"pasteMediaLink": "वीडियो या ऑडियो लिंक पेस्ट करें",
+	"pasteMediaLink": "वीडियो या ऑडियो लिंक चिपकाएँ, प्रति पंक्ति एक",
 	"worksWith": "इनके साथ काम करता है",
 	"moreSources": "+1000 और",
 	"fromFile": "फ़ाइल",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "चुना गया मॉडल प्रॉम्प्ट का उपयोग नहीं करता। यह प्रॉम्प्ट Whisper मॉडल पर लौटने के लिए सुरक्षित रखा गया है।",
 	"assignSpeaker": "वक्ता निर्धारित करें",
 	"newSpeaker": "नया वक्ता",
-	"speakerOfThisLine": "यह पंक्ति"
+	"speakerOfThisLine": "यह पंक्ति",
+	"linkOfTotal": "{total} में से {current}",
+	"linksSkipped": "{total} में से {count} लिंक डाउनलोड नहीं हो सके"
 }

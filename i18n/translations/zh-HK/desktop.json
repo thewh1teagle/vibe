@@ -501,7 +501,7 @@
 	"dropFilesHere": "將音頻、影片或資料夾拖到此處",
 	"orClickToBrowse": "或按一下瀏覽你的檔案",
 	"dropToAddToQueue": "拖放即可加入佇列",
-	"pasteMediaLink": "貼上影片或音頻連結",
+	"pasteMediaLink": "貼上影片或音訊連結，每行一個",
 	"worksWith": "支援",
 	"moreSources": "以及 1000 多個網站",
 	"fromFile": "檔案",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "所選模型不使用提示詞。此提示詞會保留，以便切換回 Whisper 模型時使用。",
 	"assignSpeaker": "指定說話者",
 	"newSpeaker": "新說話者",
-	"speakerOfThisLine": "此行"
+	"speakerOfThisLine": "此行",
+	"linkOfTotal": "第 {current} 個，共 {total} 個",
+	"linksSkipped": "{total} 個連結中有 {count} 個無法下載"
 }

@@ -56,3 +56,8 @@ export async function downloadAudio(url: string) {
 	await invoke<string>('download_audio', { url, outPath })
 	return outPath
 }
+
+/** Every link in the box, one per line or several separated by spaces, without repeats. */
+export function parseMediaLinks(input: string): string[] {
+	return [...new Set(input.split(/\s+/).filter(Boolean))]
+}

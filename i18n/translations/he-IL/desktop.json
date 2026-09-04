@@ -501,7 +501,7 @@
 	"dropFilesHere": "גררו לכאן אודיו, וידאו או תיקייה",
 	"orClickToBrowse": "או לחצו כדי לבחור קבצים",
 	"dropToAddToQueue": "שחררו כדי להוסיף לתור",
-	"pasteMediaLink": "הדביקו קישור לווידאו או לאודיו",
+	"pasteMediaLink": "הדביקו קישורי וידאו או אודיו, אחד בכל שורה",
 	"worksWith": "עובד עם",
 	"moreSources": "+1000 נוספים",
 	"fromFile": "קובץ",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "המודל שנבחר אינו משתמש בהנחיות. ההנחיה נשמרת למקרה שתחזרו למודל Whisper.",
 	"assignSpeaker": "שיוך דובר",
 	"newSpeaker": "דובר חדש",
-	"speakerOfThisLine": "שורה זו"
+	"speakerOfThisLine": "שורה זו",
+	"linkOfTotal": "{current} מתוך {total}",
+	"linksSkipped": "{count} מתוך {total} קישורים לא ניתנים להורדה"
 }

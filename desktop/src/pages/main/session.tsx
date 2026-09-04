@@ -119,10 +119,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		),
 	)
 
-	/** A downloaded file remains explicitly URL-sourced after it lands on disk. */
-	const transcribeOne = useCallback(
-		async (filePath: string) => {
-			await enqueuePaths([filePath], 'url')
+	/** Downloaded files remain explicitly URL-sourced after they land on disk. */
+	const transcribeDownloads = useCallback(
+		async (paths: string[]) => {
+			await enqueuePaths(paths, 'url')
 		},
 		[enqueuePaths],
 	)
@@ -132,7 +132,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 		() => ({ ...manualRecording, isRecording: manualRecording.isRecording || recordingShortcut.isShortcutRecording }),
 		[manualRecording, recordingShortcut.isShortcutRecording],
 	)
-	const link = useAudioDownload(transcribeOne)
+	const link = useAudioDownload(transcribeDownloads)
 
 	useEffect(() => {
 		recordingShortcut.setNormalRecordingActive(recording.isRecording)

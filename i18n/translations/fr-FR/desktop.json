@@ -501,7 +501,7 @@
 	"dropFilesHere": "Déposez ici un fichier audio, une vidéo ou un dossier",
 	"orClickToBrowse": "ou cliquez pour parcourir vos fichiers",
 	"dropToAddToQueue": "Déposez pour ajouter à la file",
-	"pasteMediaLink": "Collez un lien vidéo ou audio",
+	"pasteMediaLink": "Collez des liens vidéo ou audio, un par ligne",
 	"worksWith": "Compatible avec",
 	"moreSources": "+1000 autres",
 	"fromFile": "Fichier",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "Le modèle sélectionné n'utilise pas de prompt. Celui-ci est conservé pour un retour à un modèle Whisper.",
 	"assignSpeaker": "Attribuer un locuteur",
 	"newSpeaker": "Nouveau locuteur",
-	"speakerOfThisLine": "Cette ligne"
+	"speakerOfThisLine": "Cette ligne",
+	"linkOfTotal": "{current} sur {total}",
+	"linksSkipped": "{count} liens sur {total} n'ont pas pu être téléchargés"
 }

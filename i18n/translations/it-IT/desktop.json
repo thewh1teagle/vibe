@@ -501,7 +501,7 @@
 	"dropFilesHere": "Trascina qui audio, video o una cartella",
 	"orClickToBrowse": "oppure fai clic per scegliere i file",
 	"dropToAddToQueue": "Rilascia per aggiungere alla coda",
-	"pasteMediaLink": "Incolla un link video o audio",
+	"pasteMediaLink": "Incolla link video o audio, uno per riga",
 	"worksWith": "Funziona con",
 	"moreSources": "+1000 altri",
 	"fromFile": "File",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "Il modello selezionato non usa prompt. Questo prompt viene conservato per quando tornerai a un modello Whisper.",
 	"assignSpeaker": "Assegna parlante",
 	"newSpeaker": "Nuovo parlante",
-	"speakerOfThisLine": "Questa riga"
+	"speakerOfThisLine": "Questa riga",
+	"linkOfTotal": "{current} di {total}",
+	"linksSkipped": "Impossibile scaricare {count} link su {total}"
 }

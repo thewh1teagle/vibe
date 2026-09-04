@@ -16,7 +16,14 @@ const FALLBACK_YTDLP_VERSION = '2026.08.19'
 /** yt-dlp ships almost daily; asking GitHub more often than weekly only produces noise. */
 const UPDATE_CHECK_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000
 
-export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
+/** Where a multi-link download is: which link is being fetched, out of how many. */
+export interface DownloadBatch {
+	index: number
+	total: number
+	url: string
+}
+
+export function useAudioDownload(transcribe: (paths: string[]) => Promise<void>) {
 	const preference = usePreferenceProvider()
 	const { setFiles } = useFilesContext()
 	const progressToast = useToastProvider()
@@ -24,6 +31,7 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 	const [audioUrl, setAudioUrl] = useState('')
 	const [downloadingAudio, setDownloadingAudio] = useState(false)
 	const [ytdlpProgress, setYtDlpProgress] = useState<number | null>(null)
+	const [batch, setBatch] = useState<DownloadBatch | null>(null)
 	const cancelYtDlpRef = useRef(false)
 	const switchingToLinkRef = useRef(false)
 
@@ -130,32 +138,65 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 		}
 	}
 
+	/**
+	 * Fetch every link in the box, then hand all that landed to the queue at once. A link that
+	 * fails is skipped, not fatal: the others still download and the skipped ones are listed at
+	 * the end. The box is emptied as soon as the run starts so the next links can be pasted.
+	 */
 	async function downloadAudio() {
-		if (!audioUrl) return
-		setYtDlpProgress(0)
+		const urls = ytDlp.parseMediaLinks(audioUrl)
+		if (!urls.length) return
+		setAudioUrl('')
+		cancelYtDlpRef.current = false
 		setDownloadingAudio(true)
-		let downloaded = false
+		const downloaded: string[] = []
+		const failed: { url: string; error: unknown }[] = []
 		try {
-			const outPath = await ytDlp.downloadAudio(audioUrl)
-			downloaded = true
-			if (cancelYtDlpRef.current) {
-				cancelYtDlpRef.current = false
-				return
+			for (const [index, url] of urls.entries()) {
+				if (cancelYtDlpRef.current) break
+				setBatch({ index, total: urls.length, url })
+				setYtDlpProgress(0)
+				try {
+					const outPath = await ytDlp.downloadAudio(url)
+					// A cancelled download resolves with a file that was never finished.
+					if (cancelYtDlpRef.current) break
+					downloaded.push(outPath)
+				} catch (error) {
+					console.error(`download failed for ${url}`, error)
+					failed.push({ url, error })
+				}
 			}
-			preference.setHomeTab('file')
-			setFiles([{ name: 'audio.m4a', path: outPath }])
-			await transcribe(outPath)
-		} catch (error) {
-			console.error(error)
-			setErrorModal?.({ log: String(error), open: true })
-			// A site that stopped working is usually an extractor yt-dlp has already fixed, so this
-			// is the moment the update is worth interrupting for — throttle and "later" don't apply.
-			// A transcription that fails afterwards says nothing about yt-dlp, hence the guard.
-			if (!downloaded) void offerYtDlpUpdate(true)
 		} finally {
+			cancelYtDlpRef.current = false
 			setDownloadingAudio(false)
 			setYtDlpProgress(null)
+			setBatch(null)
 		}
+
+		if (downloaded.length) {
+			preference.setHomeTab('file')
+			setFiles(downloaded.map((path) => ({ name: 'audio.m4a', path })))
+			try {
+				await transcribe(downloaded)
+			} catch (error) {
+				console.error(error)
+				setErrorModal?.({ log: String(error), open: true })
+			}
+		}
+
+		if (!failed.length) return
+		if (!downloaded.length) {
+			setErrorModal?.({ log: failed.map(({ url, error }) => `${url}\n${String(error)}`).join('\n\n'), open: true })
+			// A site that stopped working is usually an extractor yt-dlp has already fixed, so this
+			// is the moment the update is worth interrupting for — throttle and "later" don't apply.
+			void offerYtDlpUpdate(true)
+			return
+		}
+		notify.warning(m.linksSkipped({ count: String(failed.length), total: String(urls.length) }), {
+			description: failed.map(({ url }) => url).join('\n'),
+			position: 'bottom-center',
+			duration: 10000,
+		})
 	}
 
 	return {
@@ -163,6 +204,7 @@ export function useAudioDownload(transcribe: (path: string) => Promise<void>) {
 		cancelYtDlpDownload,
 		ytdlpProgress,
 		setYtDlpProgress,
+		batch,
 		switchToLinkTab,
 		audioUrl,
 		setAudioUrl,

@@ -85,7 +85,9 @@ export function viewModel() {
 		downloadAudio,
 		downloadingAudio,
 		setDownloadingAudio,
-	} = useAudioDownload(transcribe)
+	} = useAudioDownload(async (paths) => {
+		for (const path of paths) await transcribe(path)
+	})
 
 	const { updateApp, availableUpdate } = useContext(UpdaterContext)
 
