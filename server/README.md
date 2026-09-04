@@ -74,7 +74,7 @@ Using port 0 lets the OS assign a free port automatically.
 When ready, vibe-server prints a single machine-readable line to stdout:
 
 ```json
-{"status":"ready","port":52341}
+{ "status": "ready", "port": 52341 }
 ```
 
 This is intended for parent processes to detect readiness and discover the bound port.
@@ -86,11 +86,13 @@ This is intended for parent processes to detect readiness and discover the bound
 vibe-server exposes an OpenAI-compatible transcription API.
 
 This means:
+
 - You can use existing OpenAI SDKs
 - You don’t need custom client code
 - Switching between local (vibe-server) and remote (OpenAI) is trivial
 
 See the full API reference here:
+
 - API docs: /docs
 - OpenAPI spec: /openapi.json
 
@@ -101,13 +103,14 @@ See the full API reference here:
 - One transcription runs at a time per process  
   concurrent requests return 429
 - Non-WAV audio is automatically converted using ffmpeg
-  - system ffmpeg or a bundled binary next to vibe-server
+    - system ffmpeg or a bundled binary next to vibe-server
 
 ---
 
 ## When to Use vibe-server 🎯
 
 vibe-server is a good fit if you want:
+
 - Local or offline transcription
 - Low-latency transcription in desktop apps
 - Full control over models and hardware

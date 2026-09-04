@@ -63,91 +63,92 @@ export default function SummaryView({ job, options }: { job: Job; options: Trans
 		<div className="relative flex h-full min-h-0 flex-col">
 			<div ref={scrollRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
 				<div dir={preference.textAreaDirection} className={cn('mx-auto w-full max-w-[86ch] px-8 py-10 xl:max-w-[96ch]', canAsk && 'pb-28')}>
-				<p className="mb-8 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.summaryTab()}</p>
+					<p className="mb-8 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.summaryTab()}</p>
 
-				{summarizing && progress && progress.done < progress.total && (
-					<div className="mb-6 space-y-2">
+					{summarizing && progress && progress.done < progress.total && (
+						<div className="mb-6 space-y-2">
+							<p className="flex items-center gap-2 text-sm text-muted-foreground">
+								<Spinner className="h-3.5 w-3.5" />
+								{m.summarizeLoading()} · {m.summaryPart({ done: String(progress.done + 1), total: String(progress.total) })}
+							</p>
+							<div className="h-1 w-48 overflow-hidden rounded-full bg-muted-foreground/15">
+								<div
+									className="h-full rounded-full bg-primary/70 transition-[width] duration-300"
+									style={{ width: `${(progress.done / progress.total) * 100}%` }}
+								/>
+							</div>
+						</div>
+					)}
+
+					{summarizing && draft ? (
+						<Streaming text={draft} size={options.textSize} />
+					) : job.summary ? (
+						// The models answer in markdown; render it rather than showing the syntax.
+						<div className={cn('prose prose-neutral max-w-none dark:prose-invert', textSizeClass[options.textSize])}>
+							<Markdown>{job.summary}</Markdown>
+						</div>
+					) : summarizing ? (
 						<p className="flex items-center gap-2 text-sm text-muted-foreground">
 							<Spinner className="h-3.5 w-3.5" />
-							{m.summarizeLoading()} · {m.summaryPart({ done: String(progress.done + 1), total: String(progress.total) })}
+							{m.summarizeLoading()}
 						</p>
-						<div className="h-1 w-48 overflow-hidden rounded-full bg-muted-foreground/15">
-							<div
-								className="h-full rounded-full bg-primary/70 transition-[width] duration-300"
-								style={{ width: `${(progress.done / progress.total) * 100}%` }}
-							/>
-						</div>
-					</div>
-				)}
+					) : error ? (
+						<p className="text-sm text-destructive">{error}</p>
+					) : null}
 
-				{summarizing && draft ? (
-					<Streaming text={draft} size={options.textSize} />
-				) : job.summary ? (
-					// The models answer in markdown; render it rather than showing the syntax.
-					<div className={cn('prose prose-neutral max-w-none dark:prose-invert', textSizeClass[options.textSize])}>
-						<Markdown>{job.summary}</Markdown>
-					</div>
-				) : summarizing ? (
-					<p className="flex items-center gap-2 text-sm text-muted-foreground">
-						<Spinner className="h-3.5 w-3.5" />
-						{m.summarizeLoading()}
-					</p>
-				) : error ? (
-					<p className="text-sm text-destructive">{error}</p>
-				) : null}
+					{job.summary && summarizing && !draft && (
+						<p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+							<Spinner className="h-3.5 w-3.5" />
+							{m.summarizeLoading()}
+						</p>
+					)}
 
-				{job.summary && summarizing && !draft && (
-					<p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
-						<Spinner className="h-3.5 w-3.5" />
-						{m.summarizeLoading()}
-					</p>
-				)}
+					{(thread.length > 0 || asking) && (
+						<section className="mt-12 border-t border-border/60 pt-8">
+							<p className="mb-5 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.askTranscript()}</p>
 
-				{(thread.length > 0 || asking) && (
-					<section className="mt-12 border-t border-border/60 pt-8">
-						<p className="mb-5 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.askTranscript()}</p>
-
-						<div className="space-y-6">
-							{thread.map((entry, index) => (
-								<div key={index} className="group">
-									<div className="flex items-start gap-3">
-										<p className="flex-1 rounded-2xl bg-muted/60 px-4 py-2.5 text-sm text-foreground">{entry.question}</p>
-										<button
-											type="button"
-											onClick={() => summaries.removeThreadEntry(job, index)}
-											aria-label={m.removeQuestion()}
-											className="mt-2 cursor-pointer rounded-full p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground">
-											<X className="h-3.5 w-3.5" />
-										</button>
+							<div className="space-y-6">
+								{thread.map((entry, index) => (
+									<div key={index} className="group">
+										<div className="flex items-start gap-3">
+											<p className="flex-1 rounded-2xl bg-muted/60 px-4 py-2.5 text-sm text-foreground">{entry.question}</p>
+											<button
+												type="button"
+												onClick={() => summaries.removeThreadEntry(job, index)}
+												aria-label={m.removeQuestion()}
+												className="mt-2 cursor-pointer rounded-full p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground">
+												<X className="h-3.5 w-3.5" />
+											</button>
+										</div>
+										<div className={cn('prose prose-neutral mt-3 max-w-none ps-1 dark:prose-invert', textSizeClass[options.textSize])}>
+											<Markdown>{entry.answer}</Markdown>
+										</div>
 									</div>
-									<div className={cn('prose prose-neutral mt-3 max-w-none ps-1 dark:prose-invert', textSizeClass[options.textSize])}>
-										<Markdown>{entry.answer}</Markdown>
+								))}
+								{asking && (
+									<div>
+										{sent && <p className="mb-3 rounded-2xl bg-muted/60 px-4 py-2.5 text-sm text-foreground">{sent}</p>}
+										{answerDraft ? (
+											<Streaming text={answerDraft} size={options.textSize} />
+										) : (
+											<p className="flex items-center gap-2 text-sm text-muted-foreground">
+												<Spinner className="h-3.5 w-3.5" />
+												<Sparkles className="h-3.5 w-3.5" />
+											</p>
+										)}
 									</div>
-								</div>
-							))}
-							{asking && (
-								<div>
-									{sent && <p className="mb-3 rounded-2xl bg-muted/60 px-4 py-2.5 text-sm text-foreground">{sent}</p>}
-									{answerDraft ? (
-										<Streaming text={answerDraft} size={options.textSize} />
-									) : (
-										<p className="flex items-center gap-2 text-sm text-muted-foreground">
-											<Spinner className="h-3.5 w-3.5" />
-											<Sparkles className="h-3.5 w-3.5" />
-										</p>
-									)}
-								</div>
-							)}
-						</div>
-
-					</section>
-				)}
+								)}
+							</div>
+						</section>
+					)}
 				</div>
 			</div>
 
 			{canAsk && (
 				// Floats over the end of the page like a chat box, so the question is always one keystroke away.
-				<div dir={preference.textAreaDirection} className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-5">
+				<div
+					dir={preference.textAreaDirection}
+					className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-5">
 					<form
 						onSubmit={(event) => {
 							event.preventDefault()
@@ -168,7 +169,12 @@ export default function SummaryView({ job, options }: { job: Job; options: Trans
 							placeholder={m.askPlaceholder()}
 							className="max-h-32 min-h-[28px] flex-1 resize-none bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground/70"
 						/>
-						<Button type="submit" size="iconSm" className="h-7 w-7 shrink-0 rounded-full" disabled={!question.trim() || asking} aria-label={m.askSend()}>
+						<Button
+							type="submit"
+							size="iconSm"
+							className="h-7 w-7 shrink-0 rounded-full"
+							disabled={!question.trim() || asking}
+							aria-label={m.askSend()}>
 							{asking ? <Spinner className="h-3.5 w-3.5" /> : <ArrowUp className="h-3.5 w-3.5" />}
 						</Button>
 					</form>

@@ -9,8 +9,7 @@ use crate::lang;
 use crate::mel::{log_mel_spectrogram, CHUNK_SIZE};
 use crate::model::Model;
 use crate::sampling::{
-    compute_logprobs, compute_probs, process_logits, sample_token, sample_token_topk, sequence_score,
-    sequence_tokens_equal,
+    compute_logprobs, compute_probs, process_logits, sample_token, sample_token_topk, sequence_score, sequence_tokens_equal,
 };
 use crate::state::{Rng, Sequence, State, MAX_DECODERS};
 use crate::timestamps::{compute_token_level_timestamps, signal_energy, wrap_segment, TimestampState};
@@ -455,10 +454,7 @@ pub(crate) fn full(
                         // timestamp token - update sliding window
                         if token.id > model.vocab.token_beg {
                             let seek_delta_new = 2 * (token.id - model.vocab.token_beg);
-                            if decoder.has_ts
-                                && decoder.seek_delta > seek_delta_new
-                                && decoder.sequence.result_len < i
-                            {
+                            if decoder.has_ts && decoder.seek_delta > seek_delta_new && decoder.sequence.result_len < i {
                                 tracing::debug!(decoder = j, "failed due to seek_delta regression");
                                 decoder.failed = true;
                                 continue;
@@ -492,9 +488,7 @@ pub(crate) fn full(
                     }
 
                     // repetition-loop mitigation
-                    if i == n_max - 1
-                        && (decoder.sequence.result_len == 0 || decoder.seek_delta < 100 * CHUNK_SIZE as i32 / 2)
-                    {
+                    if i == n_max - 1 && (decoder.sequence.result_len == 0 || decoder.seek_delta < 100 * CHUNK_SIZE as i32 / 2) {
                         tracing::debug!(decoder = j, "failed due to repetition loop");
                         decoder.failed = true;
                         continue;
@@ -523,12 +517,9 @@ pub(crate) fn full(
                             continue;
                         }
                         decoder.i_batch = state.batch.len();
-                        state.batch.push(
-                            decoder.sequence.tokens.last().unwrap().id,
-                            n_past as i32,
-                            j as i32,
-                            true,
-                        );
+                        state
+                            .batch
+                            .push(decoder.sequence.tokens.last().unwrap().id, n_past as i32, j as i32, true);
                     }
                     debug_assert!(state.batch.len() > 0);
                     let batch = std::mem::take(&mut state.batch);
@@ -609,14 +600,12 @@ pub(crate) fn full(
                 && best_decoder.sequence.avg_logprobs < f64::from(params.logprob_thold);
 
             // update rolling context
-            let past1_from_prompt: Vec<i32> = if !params.carry_initial_prompt
-                && !prompt.is_empty()
-                && prompt[0] == model.vocab.token_prev
-            {
-                prompt[1..prompt.len() - prompt_init.len()].to_vec()
-            } else {
-                Vec::new()
-            };
+            let past1_from_prompt: Vec<i32> =
+                if !params.carry_initial_prompt && !prompt.is_empty() && prompt[0] == model.vocab.token_prev {
+                    prompt[1..prompt.len() - prompt_init.len()].to_vec()
+                } else {
+                    Vec::new()
+                };
             state.prompt_past1 = past1_from_prompt;
             if !is_no_speech {
                 for token in &tokens_cur[..result_len] {

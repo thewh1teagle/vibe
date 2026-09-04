@@ -257,7 +257,6 @@ pub(crate) fn decode(model: &Model, state: &mut State, rt: &mut Runtime, batch: 
             inp_l = sys::ggml_add(ctx0, cur, inp_ff);
         }
 
-
         cur = layer_norm(ctx0, inp_l, model.d_ln_w, model.d_ln_b, hp.eps);
         let logits = sys::ggml_mul_mat(ctx0, model.d_te, cur);
         sys::ggml_build_forward_expand(g.graph, logits);

@@ -11,11 +11,11 @@ mod segment;
 mod tokenizer;
 
 pub use decoder::Token;
+pub use ggml_rs_sys as sys;
 pub use mel::{MelConfig, MelFeatures, MelFrontend};
 pub use model::{LongFormTranscription, Transcription};
 pub use model::{Model, ModelInfo};
 pub use tokenizer::Tokenizer;
-pub use ggml_rs_sys as sys;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {

@@ -1,9 +1,6 @@
 use std::path::Path;
 
-use crate::{
-    ContextOptions, Error, GPUDeviceType::*, Result, StreamCallbacks, TranscribeOptions,
-    TranscribeResult,
-};
+use crate::{ContextOptions, Error, GPUDeviceType::*, Result, StreamCallbacks, TranscribeOptions, TranscribeResult};
 
 #[derive(Debug)]
 pub struct Context;
@@ -13,11 +10,7 @@ impl Context {
         Err(Error::FfiDisabled)
     }
 
-    pub fn transcribe(
-        &mut self,
-        _samples: &[f32],
-        _options: TranscribeOptions,
-    ) -> Result<TranscribeResult> {
+    pub fn transcribe(&mut self, _samples: &[f32], _options: TranscribeOptions) -> Result<TranscribeResult> {
         Err(Error::FfiDisabled)
     }
 

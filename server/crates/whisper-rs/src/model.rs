@@ -553,60 +553,270 @@ fn tensor_specs(hparams: &Hparams, wtype: sys::ggml_type, vtype: sys::ggml_type)
         });
     };
 
-    push("encoder.positional_embedding".into(), F32, sys::ggml_op_GGML_OP_ADD, &[ns, i64::from(hparams.n_audio_ctx)]);
-    push("encoder.conv1.weight".into(), vtype, sys::ggml_op_GGML_OP_IM2COL, &[3, i64::from(hparams.n_mels), ns]);
+    push(
+        "encoder.positional_embedding".into(),
+        F32,
+        sys::ggml_op_GGML_OP_ADD,
+        &[ns, i64::from(hparams.n_audio_ctx)],
+    );
+    push(
+        "encoder.conv1.weight".into(),
+        vtype,
+        sys::ggml_op_GGML_OP_IM2COL,
+        &[3, i64::from(hparams.n_mels), ns],
+    );
     push("encoder.conv1.bias".into(), F32, sys::ggml_op_GGML_OP_ADD, &[1, ns]);
-    push("encoder.conv2.weight".into(), vtype, sys::ggml_op_GGML_OP_IM2COL, &[3, ns, ns]);
+    push(
+        "encoder.conv2.weight".into(),
+        vtype,
+        sys::ggml_op_GGML_OP_IM2COL,
+        &[3, ns, ns],
+    );
     push("encoder.conv2.bias".into(), F32, sys::ggml_op_GGML_OP_ADD, &[1, ns]);
     push("encoder.ln_post.weight".into(), F32, sys::ggml_op_GGML_OP_MUL, &[ns]);
     push("encoder.ln_post.bias".into(), F32, sys::ggml_op_GGML_OP_ADD, &[ns]);
     for i in 0..hparams.n_audio_layer {
-        push(format!("encoder.blocks.{i}.mlp_ln.weight"), F32, sys::ggml_op_GGML_OP_MUL, &[ns]);
-        push(format!("encoder.blocks.{i}.mlp_ln.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ns]);
-        push(format!("encoder.blocks.{i}.mlp.0.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ns, 4 * ns]);
-        push(format!("encoder.blocks.{i}.mlp.0.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[4 * ns]);
-        push(format!("encoder.blocks.{i}.mlp.2.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[4 * ns, ns]);
+        push(
+            format!("encoder.blocks.{i}.mlp_ln.weight"),
+            F32,
+            sys::ggml_op_GGML_OP_MUL,
+            &[ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.mlp_ln.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.mlp.0.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ns, 4 * ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.mlp.0.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[4 * ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.mlp.2.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[4 * ns, ns],
+        );
         push(format!("encoder.blocks.{i}.mlp.2.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ns]);
-        push(format!("encoder.blocks.{i}.attn_ln.weight"), F32, sys::ggml_op_GGML_OP_MUL, &[ns]);
-        push(format!("encoder.blocks.{i}.attn_ln.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ns]);
-        push(format!("encoder.blocks.{i}.attn.query.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ns, ns]);
-        push(format!("encoder.blocks.{i}.attn.query.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ns]);
-        push(format!("encoder.blocks.{i}.attn.key.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ns, ns]);
-        push(format!("encoder.blocks.{i}.attn.value.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ns, ns]);
-        push(format!("encoder.blocks.{i}.attn.value.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ns]);
-        push(format!("encoder.blocks.{i}.attn.out.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ns, ns]);
-        push(format!("encoder.blocks.{i}.attn.out.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ns]);
+        push(
+            format!("encoder.blocks.{i}.attn_ln.weight"),
+            F32,
+            sys::ggml_op_GGML_OP_MUL,
+            &[ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn_ln.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn.query.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ns, ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn.query.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn.key.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ns, ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn.value.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ns, ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn.value.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn.out.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ns, ns],
+        );
+        push(
+            format!("encoder.blocks.{i}.attn.out.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ns],
+        );
     }
 
-    push("decoder.positional_embedding".into(), F32, sys::ggml_op_GGML_OP_GET_ROWS, &[ts, i64::from(hparams.n_text_ctx)]);
-    push("decoder.token_embedding.weight".into(), wtype, sys::ggml_op_GGML_OP_GET_ROWS, &[ts, i64::from(hparams.n_vocab)]);
+    push(
+        "decoder.positional_embedding".into(),
+        F32,
+        sys::ggml_op_GGML_OP_GET_ROWS,
+        &[ts, i64::from(hparams.n_text_ctx)],
+    );
+    push(
+        "decoder.token_embedding.weight".into(),
+        wtype,
+        sys::ggml_op_GGML_OP_GET_ROWS,
+        &[ts, i64::from(hparams.n_vocab)],
+    );
     push("decoder.ln.weight".into(), F32, sys::ggml_op_GGML_OP_MUL, &[ts]);
     push("decoder.ln.bias".into(), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
     for i in 0..hparams.n_text_layer {
-        push(format!("decoder.blocks.{i}.mlp_ln.weight"), F32, sys::ggml_op_GGML_OP_MUL, &[ts]);
-        push(format!("decoder.blocks.{i}.mlp_ln.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.mlp.0.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, 4 * ts]);
-        push(format!("decoder.blocks.{i}.mlp.0.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[4 * ts]);
-        push(format!("decoder.blocks.{i}.mlp.2.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[4 * ts, ts]);
+        push(
+            format!("decoder.blocks.{i}.mlp_ln.weight"),
+            F32,
+            sys::ggml_op_GGML_OP_MUL,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.mlp_ln.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.mlp.0.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, 4 * ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.mlp.0.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[4 * ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.mlp.2.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[4 * ts, ts],
+        );
         push(format!("decoder.blocks.{i}.mlp.2.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.attn_ln.weight"), F32, sys::ggml_op_GGML_OP_MUL, &[ts]);
-        push(format!("decoder.blocks.{i}.attn_ln.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.attn.query.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.attn.query.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.attn.key.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.attn.value.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.attn.value.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.attn.out.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.attn.out.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.cross_attn_ln.weight"), F32, sys::ggml_op_GGML_OP_MUL, &[ts]);
-        push(format!("decoder.blocks.{i}.cross_attn_ln.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.cross_attn.query.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.cross_attn.query.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.cross_attn.key.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.cross_attn.value.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.cross_attn.value.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
-        push(format!("decoder.blocks.{i}.cross_attn.out.weight"), wtype, sys::ggml_op_GGML_OP_MUL_MAT, &[ts, ts]);
-        push(format!("decoder.blocks.{i}.cross_attn.out.bias"), F32, sys::ggml_op_GGML_OP_ADD, &[ts]);
+        push(
+            format!("decoder.blocks.{i}.attn_ln.weight"),
+            F32,
+            sys::ggml_op_GGML_OP_MUL,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn_ln.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn.query.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn.query.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn.key.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn.value.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn.value.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn.out.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.attn.out.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn_ln.weight"),
+            F32,
+            sys::ggml_op_GGML_OP_MUL,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn_ln.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn.query.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn.query.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn.key.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn.value.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn.value.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn.out.weight"),
+            wtype,
+            sys::ggml_op_GGML_OP_MUL_MAT,
+            &[ts, ts],
+        );
+        push(
+            format!("decoder.blocks.{i}.cross_attn.out.bias"),
+            F32,
+            sys::ggml_op_GGML_OP_ADD,
+            &[ts],
+        );
     }
     specs
 }

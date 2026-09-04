@@ -38,7 +38,9 @@ export function fakeAiChunks(url: string, request: string | null): Uint8Array[] 
 		? 'OK'
 		: /dictated speech/i.test(prompt)
 			? 'So, I think we should move the meeting to Thursday. Does that work for everyone?'
-			: /Question:/.test(prompt) ? `**Thursday.** The transcript says: "move the meeting to Thursday, does that work for everyone".` : ANSWER
+			: /Question:/.test(prompt)
+				? `**Thursday.** The transcript says: "move the meeting to Thursday, does that work for everyone".`
+				: ANSWER
 	const words = text.split(/(?<=\s)/)
 
 	if (url.endsWith('/api/generate')) {
@@ -47,7 +49,10 @@ export function fakeAiChunks(url: string, request: string | null): Uint8Array[] 
 	}
 	if (url.endsWith('/chat/completions')) {
 		if (!stream) return [encoder.encode(JSON.stringify({ choices: [{ message: { content: text } }] }))]
-		return [...words.map((word) => encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: word } }] })}\n\n`)), encoder.encode('data: [DONE]\n\n')]
+		return [
+			...words.map((word) => encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: word } }] })}\n\n`)),
+			encoder.encode('data: [DONE]\n\n'),
+		]
 	}
 	if (!stream) return [encoder.encode(JSON.stringify({ content: [{ text }] }))]
 	return [

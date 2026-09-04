@@ -22,15 +22,9 @@ pub enum Error {
         reason: String,
     },
     #[error("model file {path} holds a '{kind}' model, not a whisper transcription model")]
-    NotATranscriptionModel {
-        path: std::path::PathBuf,
-        kind: String,
-    },
+    NotATranscriptionModel { path: std::path::PathBuf, kind: String },
     #[error("model file {path} uses unsupported quantization (ftype {ftype})")]
-    UnsupportedFtype {
-        path: std::path::PathBuf,
-        ftype: i32,
-    },
+    UnsupportedFtype { path: std::path::PathBuf, ftype: i32 },
     #[error("not enough memory to load {path}: needs {required} bytes, {available} bytes available")]
     InsufficientMemory {
         path: std::path::PathBuf,

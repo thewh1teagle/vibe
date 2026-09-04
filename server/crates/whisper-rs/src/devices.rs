@@ -29,9 +29,7 @@ pub fn list_gpu_devices() -> Vec<GPUDevice> {
 
         let device_type = match unsafe { ffi::ggml_backend_dev_type(dev) } {
             ffi::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_GPU => GPUDeviceType::Gpu,
-            ffi::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_IGPU => {
-                GPUDeviceType::IntegratedGpu
-            }
+            ffi::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_IGPU => GPUDeviceType::IntegratedGpu,
             _ => continue,
         };
 
@@ -50,7 +48,5 @@ fn cstr(ptr: *const std::ffi::c_char) -> String {
     if ptr.is_null() {
         return String::new();
     }
-    unsafe { CStr::from_ptr(ptr) }
-        .to_string_lossy()
-        .into_owned()
+    unsafe { CStr::from_ptr(ptr) }.to_string_lossy().into_owned()
 }
