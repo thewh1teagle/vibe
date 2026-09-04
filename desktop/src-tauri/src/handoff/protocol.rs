@@ -48,7 +48,7 @@ pub struct HandoffHeader {
     /// Whisper language code, or `None` for auto-detect.
     #[serde(default)]
     pub lang: Option<String>,
-    /// Translate the transcript to English. Passed straight through to Sona; only
+    /// Translate the transcript to English. Passed straight through to Server; only
     /// meaningful when the loaded model reported `translation: true`, but that is
     /// the phone's call to make, not enforced here.
     #[serde(default)]

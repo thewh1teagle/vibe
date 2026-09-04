@@ -1,5 +1,5 @@
 //! Phone handoff: a phone records audio, sends it over iroh, this desktop
-//! transcribes it with Sona and streams the transcript back.
+//! transcribes it with Server and streams the transcript back.
 //!
 //! The endpoint is *not* spawned at startup — the user opts in from the UI,
 //! which calls the `handoff_start` command.

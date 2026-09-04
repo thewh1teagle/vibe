@@ -292,7 +292,7 @@ export function useHandoffSession() {
 						setStatus('Desktop received it.')
 						break
 					case 'status':
-						// Loading a large model into Sona takes tens of seconds and reports
+						// Loading a large model into Server takes tens of seconds and reports
 						// no percentage, so show an indeterminate bar rather than a 0% one
 						// that reads as a stall. Unknown phases are ignored on purpose.
 						if (event.phase === 'loading_model') {

@@ -3,7 +3,7 @@ use crate::{
     config::STORE_FILENAME,
     diagnostics::get_issue_url,
     error::LogError,
-    sona::SonaProcess,
+    server::ServerProcess,
 };
 use eyre::eyre;
 use once_cell::sync::Lazy;
@@ -16,8 +16,8 @@ use tokio::sync::Mutex;
 
 pub static STATIC_APP: Lazy<std::sync::Mutex<Option<tauri::AppHandle>>> = Lazy::new(|| std::sync::Mutex::new(None));
 
-pub struct SonaState {
-    pub process: Option<SonaProcess>,
+pub struct ServerState {
+    pub process: Option<ServerProcess>,
 }
 
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
@@ -29,8 +29,8 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     fs::create_dir_all(&app_config_dir)
         .unwrap_or_else(|_| panic!("cant create app config directory at {}", app_config_dir.display()));
 
-    // Manage sona state
-    app.manage(Mutex::new(SonaState { process: None }));
+    // Manage server state
+    app.manage(Mutex::new(ServerState { process: None }));
     app.manage(crate::dictation_indicator::DictationIndicatorRuntime::default());
 
     let store = app.store(STORE_FILENAME)?;

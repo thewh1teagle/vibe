@@ -15,8 +15,8 @@ mod handoff;
 mod keepawake;
 mod logging;
 mod meeting_prompt;
+mod server;
 mod setup;
-mod sona;
 mod transcript;
 mod tray;
 use tauri::Emitter;
@@ -119,12 +119,12 @@ async fn main() -> Result<()> {
             cmd::download::download_model,
             cmd::download::check_model_files,
             cmd::download::cleanup_partial_downloads,
-            cmd::sona_cmd::load_model,
-            cmd::sona_cmd::get_gpu_devices,
-            cmd::sona_cmd::get_model_metadata,
-            cmd::sona_cmd::get_api_base_url,
-            cmd::sona_cmd::start_api_server,
-            cmd::sona_cmd::stop_api_server,
+            cmd::server_cmd::load_model,
+            cmd::server_cmd::get_gpu_devices,
+            cmd::server_cmd::get_model_metadata,
+            cmd::server_cmd::get_api_base_url,
+            cmd::server_cmd::start_api_server,
+            cmd::server_cmd::stop_api_server,
             cmd::app::track_analytics_event,
             cmd::app::get_commit_hash,
             cmd::app::is_avx2_enabled,
@@ -192,7 +192,7 @@ async fn main() -> Result<()> {
             }
             // A base URL left in the config file would point an agent at a dead port.
             cmd::config::set_api_base_url(app, None).log_error();
-            let mutex = app.state::<tokio::sync::Mutex<setup::SonaState>>();
+            let mutex = app.state::<tokio::sync::Mutex<setup::ServerState>>();
             if let Ok(mut guard) = mutex.try_lock() {
                 if let Some(ref mut process) = guard.process {
                     process.kill();

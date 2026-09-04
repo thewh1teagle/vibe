@@ -4,11 +4,11 @@ import { composeSkill, withFrontmatter, type SkillContext } from './skill'
 
 const context: SkillContext = {
 	baseUrl: 'http://127.0.0.1:51234',
-	sonaSkill: '# Sona Local Transcription API\n\nBase URL: http://127.0.0.1:51234\n',
+	serverSkill: '# Server Local Transcription API\n\nBase URL: http://127.0.0.1:51234\n',
 	transcriptsFolder: '/Users/me/Documents/Vibe',
 	configPath: '/Users/me/Library/Application Support/vibe/app_config.json',
 	dictationShortcut: 'Alt+Space',
-	sonaBinary: '/Applications/vibe.app/Contents/MacOS/sona',
+	serverBinary: '/Applications/vibe.app/Contents/MacOS/server',
 	vibeBinary: '/Applications/vibe.app/Contents/MacOS/vibe',
 }
 
@@ -16,7 +16,7 @@ describe('composeSkill', () => {
 	// A refactor that drops a section is invisible until an agent is missing half its instructions.
 	it('keeps every part an agent needs', () => {
 		const skill = composeSkill(context)
-		expect(skill).toContain('# Sona Local Transcription API')
+		expect(skill).toContain('# Server Local Transcription API')
 		expect(skill).toContain(context.baseUrl)
 		expect(skill).toContain(context.transcriptsFolder!)
 		expect(skill).toContain(context.configPath!)
@@ -30,15 +30,15 @@ describe('composeSkill', () => {
 		const skill = composeSkill(context)
 		expect(skill).toContain(CONFIG_KEYS.apiBaseUrl)
 		expect(skill).toContain('/health')
-		expect(skill).toContain(context.sonaBinary!)
+		expect(skill).toContain(context.serverBinary!)
 		expect(skill).toContain(context.vibeBinary!)
 	})
 
 	it('still names both transcript layouts when the folder cannot be resolved', () => {
-		const skill = composeSkill({ ...context, transcriptsFolder: null, configPath: null, sonaBinary: null, vibeBinary: null })
+		const skill = composeSkill({ ...context, transcriptsFolder: null, configPath: null, serverBinary: null, vibeBinary: null })
 		expect(skill).toContain('$HOME/Documents/Vibe')
 		expect(skill).toContain('Settings → API & Agents → Config file')
-		expect(skill).toContain('bundles the `sona` engine')
+		expect(skill).toContain('bundles the `server` engine')
 	})
 })
 

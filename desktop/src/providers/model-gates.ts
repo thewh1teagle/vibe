@@ -21,14 +21,7 @@ export function useModelGates() {
 	const progressToast = useToastProvider()
 
 	const ensureModel = useCallback(
-		async (options: {
-			filename: string
-			url: string
-			title: string
-			question: string
-			downloading: string
-			integrity?: ModelIntegrity
-		}) => {
+		async (options: { filename: string; url: string; title: string; question: string; downloading: string; integrity?: ModelIntegrity }) => {
 			const modelsFolder = await invoke<string>('get_models_folder')
 			const modelPath = await join(modelsFolder, options.filename)
 			// A file that fails its integrity check does not count as installed — download it again.

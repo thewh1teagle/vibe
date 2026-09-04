@@ -1,5 +1,5 @@
 //! The transcribe op: receive the phone's audio, load the user's model, run it
-//! through Sona and stream the transcript back — plus the one analytics event
+//! through Server and stream the transcript back — plus the one analytics event
 //! every attempt reports.
 //!
 //! Split out of [`super::transfer`], which owns the connection itself: the
@@ -9,8 +9,8 @@ use futures_util::StreamExt;
 use tauri::Manager;
 
 use super::protocol::{self, HandoffEvent, HandoffHeader};
-use super::transfer::{receive_audio, sona_transfer_error, write_event, HandoffHandler, TransferError};
-use crate::sona::SonaEvent;
+use super::transfer::{receive_audio, server_transfer_error, write_event, HandoffHandler, TransferError};
+use crate::server::ServerEvent;
 
 /// Keys in `app_config.json` holding the user's model settings (`lib/config-keys.ts`).
 const CONFIG_KEY_MODEL_PATH: &str = "model.path";
@@ -107,7 +107,7 @@ impl HandoffHandler {
         Ok(())
     }
 
-    /// Mirrors `cmd::transcribe::transcribe`, but forwards each Sona event to the
+    /// Mirrors `cmd::transcribe::transcribe`, but forwards each Server event to the
     /// phone instead of the webview.
     async fn transcribe(
         &self,
@@ -119,7 +119,7 @@ impl HandoffHandler {
     ) -> Result<(), TransferError> {
         // The desktop UI calls `load_model` before every transcription; the phone
         // has no way to do that, so the handoff path does it here. Without this,
-        // capabilities would promise a model that Sona was never told to load.
+        // capabilities would promise a model that Server was never told to load.
         let Some(settings) = model_settings(&self.app_handle) else {
             return Err(TransferError::new("no_model", "No model is selected in Vibe on the desktop"));
         };
@@ -132,7 +132,7 @@ impl HandoffHandler {
         tracing::debug!("handoff loading model {}", settings.path);
         // File name only, and only if it looks like a distributed model.
         stats.model_name = Some(safe_model_name(&settings.path));
-        crate::cmd::sona_cmd::load_model(
+        crate::cmd::server_cmd::load_model(
             self.app_handle.clone(),
             settings.path.clone(),
             settings.gpu_device,
@@ -147,9 +147,9 @@ impl HandoffHandler {
         write_event(send, &HandoffEvent::status(protocol::PHASE_TRANSCRIBING)).await?;
         self.emit_activity("transcribing", None);
 
-        let sona_state = self.app_handle.state::<tokio::sync::Mutex<crate::setup::SonaState>>();
+        let server_state = self.app_handle.state::<tokio::sync::Mutex<crate::setup::ServerState>>();
         let (client, base_url) = {
-            let state = sona_state.lock().await;
+            let state = server_state.lock().await;
             let process = state
                 .process
                 .as_ref()
@@ -179,9 +179,9 @@ impl HandoffHandler {
         };
 
         let start = std::time::Instant::now();
-        let stream = match crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options).await {
+        let stream = match crate::server::ServerProcess::transcribe_stream(&client, &base_url, &options).await {
             Ok(stream) => stream,
-            Err(error) => return Err(sona_transfer_error(&sona_state, error).await),
+            Err(error) => return Err(server_transfer_error(&server_state, error).await),
         };
         tokio::pin!(stream);
 
@@ -192,16 +192,16 @@ impl HandoffHandler {
 
         while let Some(event_result) = stream.next().await {
             match event_result {
-                Ok(SonaEvent::Progress { progress }) => {
+                Ok(ServerEvent::Progress { progress }) => {
                     write_event(send, &HandoffEvent::Progress { progress }).await?;
                 }
-                Ok(SonaEvent::Segment {
+                Ok(ServerEvent::Segment {
                     start,
                     end,
                     text,
                     speaker,
                 }) => {
-                    // Sona reports seconds as f64; the wire format wants centiseconds.
+                    // Server reports seconds as f64; the wire format wants centiseconds.
                     let segment = crate::transcript::Segment {
                         start: (start * 100.0) as i64,
                         stop: (end * 100.0) as i64,
@@ -220,15 +220,15 @@ impl HandoffHandler {
                     )
                     .await?;
                 }
-                Ok(SonaEvent::Result { text }) => {
+                Ok(ServerEvent::Result { text }) => {
                     full_text = Some(text);
                 }
-                Ok(SonaEvent::Error { code, message }) => {
+                Ok(ServerEvent::Error { code, message }) => {
                     return Err(TransferError::new(code.as_deref().unwrap_or("internal_error"), message));
                 }
                 Err(error) => {
-                    tracing::error!("handoff sona stream error: {:?}", error);
-                    return Err(sona_transfer_error(&sona_state, error).await);
+                    tracing::error!("handoff server stream error: {:?}", error);
+                    return Err(server_transfer_error(&server_state, error).await);
                 }
             }
         }
@@ -238,9 +238,9 @@ impl HandoffHandler {
             None => {
                 // Same as the desktop path: a stream that stops early is usually
                 // the sidecar dying, so report how it died when it did.
-                let message = crate::sona::death_report(&sona_state, crate::cmd::transcribe::SONA_DIED)
+                let message = crate::server::death_report(&server_state, crate::cmd::transcribe::SERVER_DIED)
                     .await
-                    .unwrap_or_else(|| "Sona transcription stream ended before completion".to_string());
+                    .unwrap_or_else(|| "vibe-server transcription stream ended before completion".to_string());
                 return Err(TransferError::new("internal_error", message));
             }
         };
@@ -325,8 +325,8 @@ pub(super) struct ModelSettings {
 
 /// Read the user's model selection out of `app_config.json`.
 ///
-/// `SonaState` does not remember which model was last handed to `load_model` and
-/// Sona exposes no "what is loaded" endpoint, so the persisted selection is the
+/// `ServerState` does not remember which model was last handed to `load_model` and
+/// Server exposes no "what is loaded" endpoint, so the persisted selection is the
 /// source of truth — the same one the desktop UI passes to `load_model` before
 /// every transcription. Reading all three keys here keeps the handoff path
 /// honouring the user's GPU and unload-timeout choices too.

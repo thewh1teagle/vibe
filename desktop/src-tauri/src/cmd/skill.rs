@@ -16,8 +16,8 @@ fn runtime_folder(target: &str) -> Result<&'static str> {
 /// Executables an agent can drive, resolved for this install.
 #[derive(serde::Serialize)]
 pub struct AgentPaths {
-    /// The bundled sona binary — transcribes from the command line, no server and no GUI needed.
-    pub sona: Option<String>,
+    /// The bundled server binary — transcribes from the command line, no server and no GUI needed.
+    pub server: Option<String>,
     /// The Vibe app itself, for suggesting the user open it. It takes no useful CLI flags.
     pub vibe: Option<String>,
 }
@@ -27,7 +27,7 @@ pub struct AgentPaths {
 #[tauri::command]
 pub fn get_agent_paths(app_handle: tauri::AppHandle) -> AgentPaths {
     AgentPaths {
-        sona: crate::cmd::sona_cmd::resolve_sona_binary(&app_handle)
+        server: crate::cmd::server_cmd::resolve_server_binary(&app_handle)
             .ok()
             .map(|path| path.display().to_string()),
         vibe: std::env::current_exe().ok().map(|path| path.display().to_string()),

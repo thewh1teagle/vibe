@@ -255,7 +255,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 			}
 		}
 
-		/** A truncated or corrupt file is not a model, so say so instead of letting sona fail on it. */
+		/** A truncated or corrupt file is not a model, so say so instead of letting server fail on it. */
 		function reportCorruptModels(corrupt: InstalledModel[]) {
 			for (const model of corrupt) {
 				console.error(`corrupt model file ${model.path}: ${model.reason}`)

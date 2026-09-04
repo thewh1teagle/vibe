@@ -71,23 +71,23 @@ impl From<eyre::Error> for TransferError {
     }
 }
 
-/// Sona failures reach us as send or decode errors even when the real cause is
+/// Server failures reach us as send or decode errors even when the real cause is
 /// the sidecar dying, so ask the child before reporting the surface error.
-pub(super) async fn sona_transfer_error(
-    sona_state: &tokio::sync::Mutex<crate::setup::SonaState>,
+pub(super) async fn server_transfer_error(
+    server_state: &tokio::sync::Mutex<crate::setup::ServerState>,
     error: eyre::Error,
 ) -> TransferError {
-    if let Some(api_error) = error.downcast_ref::<crate::sona::SonaApiError>() {
+    if let Some(api_error) = error.downcast_ref::<crate::server::ServerApiError>() {
         return TransferError::new(&api_error.code, api_error.message.clone());
     }
-    match crate::sona::death_report(sona_state, crate::cmd::transcribe::SONA_DIED).await {
+    match crate::server::death_report(server_state, crate::cmd::transcribe::SERVER_DIED).await {
         Some(message) => TransferError::new("internal_error", message),
         None => {
-            let stderr = crate::sona::recent_stderr(sona_state).await;
+            let stderr = crate::server::recent_stderr(server_state).await;
             if stderr.is_empty() {
                 TransferError::from(error)
             } else {
-                TransferError::new("internal_error", format!("{error:#}\n\nsona stderr: {stderr}"))
+                TransferError::new("internal_error", format!("{error:#}\n\nvibe-server stderr: {stderr}"))
             }
         }
     }
@@ -161,13 +161,13 @@ impl HandoffHandler {
     }
 
     async fn read_capabilities(&self) -> Result<HandoffEvent> {
-        let sona_state = self.app_handle.state::<tokio::sync::Mutex<crate::setup::SonaState>>();
+        let server_state = self.app_handle.state::<tokio::sync::Mutex<crate::setup::ServerState>>();
         let endpoint = {
-            let state = sona_state.lock().await;
+            let state = server_state.lock().await;
             state.process.as_ref().map(|process| (process.client(), process.base_url()))
         }; // lock released here, before any I/O
         let Some((client, base_url)) = endpoint else {
-            tracing::debug!("handoff capabilities: sona is not running");
+            tracing::debug!("handoff capabilities: server is not running");
             return Ok(HandoffEvent::no_capabilities());
         };
 
@@ -182,7 +182,7 @@ impl HandoffHandler {
             return Ok(HandoffEvent::no_capabilities());
         }
 
-        let metadata = crate::sona::SonaProcess::model_metadata_with(&client, &base_url, &model_path).await?;
+        let metadata = crate::server::ServerProcess::model_metadata_with(&client, &base_url, &model_path).await?;
         let model_name = std::path::Path::new(&model_path)
             .file_name()
             .map(|name| name.to_string_lossy().to_string());

@@ -1,6 +1,6 @@
 use crate::error::LogError;
-use crate::setup::SonaState;
-use crate::sona::SonaEvent;
+use crate::server::ServerEvent;
+use crate::setup::ServerState;
 use crate::transcript::{Segment, Transcript};
 use eyre::Result;
 use futures_util::StreamExt;
@@ -51,28 +51,28 @@ pub struct TranscribeOptions {
     pub vad_model: Option<String>,
 }
 
-pub(crate) const SONA_DIED: &str = "sona process died during transcription";
+pub(crate) const SERVER_DIED: &str = "vibe-server process died during transcription";
 
 /// Turn a transcription failure into something diagnosable: a send failure or a
 /// mid-stream decode error is usually the sidecar dying, and only the child
 /// itself knows the exit code, the signal, and what it printed on the way out.
-async fn transcribe_error(sona_state: &State<'_, Mutex<SonaState>>, error: eyre::Error) -> CommandError {
-    if let Some(api_error) = error.downcast_ref::<crate::sona::SonaApiError>() {
+async fn transcribe_error(server_state: &State<'_, Mutex<ServerState>>, error: eyre::Error) -> CommandError {
+    if let Some(api_error) = error.downcast_ref::<crate::server::ServerApiError>() {
         return CommandError {
             code: api_error.code.clone(),
             message: api_error.message.clone(),
         };
     }
-    match crate::sona::death_report(sona_state, SONA_DIED).await {
+    match crate::server::death_report(server_state, SERVER_DIED).await {
         Some(message) => CommandError {
             code: "internal_error".to_string(),
             message,
         },
         None => {
             let mut command_error = CommandError::from(error);
-            let stderr = crate::sona::recent_stderr(sona_state).await;
+            let stderr = crate::server::recent_stderr(server_state).await;
             if !stderr.is_empty() {
-                command_error.message.push_str(&format!("\n\nsona stderr: {stderr}"));
+                command_error.message.push_str(&format!("\n\nvibe-server stderr: {stderr}"));
             }
             command_error
         }
@@ -83,7 +83,7 @@ async fn transcribe_error(sona_state: &State<'_, Mutex<SonaState>>, error: eyre:
 pub async fn transcribe(
     app_handle: tauri::AppHandle,
     options: TranscribeOptions,
-    sona_state: State<'_, Mutex<SonaState>>,
+    server_state: State<'_, Mutex<ServerState>>,
 ) -> Result<Transcript, CommandError> {
     // Validate file exists before attempting transcription
     let audio_path = PathBuf::from(&options.path);
@@ -101,7 +101,7 @@ pub async fn transcribe(
     }
 
     let (client, base_url) = {
-        let state = sona_state.lock().await;
+        let state = server_state.lock().await;
         let process = state.process.as_ref().ok_or_else(|| CommandError {
             code: "no_model".to_string(),
             message: "Please load model first".to_string(),
@@ -120,9 +120,9 @@ pub async fn transcribe(
 
     let start = std::time::Instant::now();
 
-    let stream = match crate::sona::SonaProcess::transcribe_stream(&client, &base_url, &options).await {
+    let stream = match crate::server::ServerProcess::transcribe_stream(&client, &base_url, &options).await {
         Ok(stream) => stream,
-        Err(e) => return Err(transcribe_error(&sona_state, e).await),
+        Err(e) => return Err(transcribe_error(&server_state, e).await),
     };
 
     tokio::pin!(stream);
@@ -138,10 +138,10 @@ pub async fn transcribe(
 
         match event_result {
             Ok(event) => match event {
-                SonaEvent::Progress { progress } => {
+                ServerEvent::Progress { progress } => {
                     let _ = set_progress_bar(&app_handle, Some(progress.into()));
                 }
-                SonaEvent::Segment {
+                ServerEvent::Segment {
                     start,
                     end,
                     text,
@@ -156,12 +156,12 @@ pub async fn transcribe(
                     app_handle.emit_to("main", "new_segment", segment.clone()).log_error();
                     segments.push(segment);
                 }
-                SonaEvent::Result { .. } => {
+                ServerEvent::Result { .. } => {
                     tracing::debug!("transcription complete");
                     completed = true;
                 }
-                SonaEvent::Error { code, message } => {
-                    tracing::error!("sona transcription error: {}", message);
+                ServerEvent::Error { code, message } => {
+                    tracing::error!("vibe-server transcription error: {}", message);
                     let _ = set_progress_bar(&app_handle, None);
                     return Err(CommandError {
                         code: code.unwrap_or_else(|| "internal_error".to_string()),
@@ -172,7 +172,7 @@ pub async fn transcribe(
             Err(e) => {
                 tracing::error!("stream error: {:?}", e);
                 let _ = set_progress_bar(&app_handle, None);
-                return Err(transcribe_error(&sona_state, e).await);
+                return Err(transcribe_error(&server_state, e).await);
             }
         }
     }
@@ -182,9 +182,9 @@ pub async fn transcribe(
     if !abort_atomic.load(Ordering::Relaxed) && !completed {
         // A stream that just stops is almost always the sidecar dying under it;
         // say how it died rather than reporting a truncated stream.
-        let message = crate::sona::death_report(&sona_state, SONA_DIED)
+        let message = crate::server::death_report(&server_state, SERVER_DIED)
             .await
-            .unwrap_or_else(|| "Sona transcription stream ended before completion".to_string());
+            .unwrap_or_else(|| "vibe-server transcription stream ended before completion".to_string());
         return Err(CommandError {
             code: "internal_error".to_string(),
             message,

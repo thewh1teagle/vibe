@@ -11,7 +11,7 @@ import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { autoProjectName } from '~/lib/project-name'
 import { gpuOutOfMemoryBefore, rememberGpuOutOfMemory } from '~/lib/gpu-memory'
-import { fatalRunError, isGpuOutOfMemory, isUserError, sonaErrorCodes } from '~/lib/sona-errors'
+import { fatalRunError, isGpuOutOfMemory, isUserError, serverErrorCodes } from '~/lib/server-errors'
 import type { Segment, SpeakerNames, Transcript } from '~/lib/transcript'
 import {
 	notifyTranscriptsChanged,
@@ -370,7 +370,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 						if (!onCpu && isGpuOutOfMemory(code, message) && (await reloadOnCpu(current))) {
 							onCpu = true
 							rememberGpuOutOfMemory(current.modelPath)
-							trackGpuOutOfMemory('main', { signal: code === sonaErrorCodes.GPU_OUT_OF_MEMORY ? 'error_code' : 'process_death' })
+							trackGpuOutOfMemory('main', { signal: code === serverErrorCodes.GPU_OUT_OF_MEMORY ? 'error_code' : 'process_death' })
 							toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
 							// Back to the queue for one more try; on the CPU an overflow is the plain error.
 							patch(next.id, { status: 'queued', progress: 0 })

@@ -1,7 +1,7 @@
 import { installRuntime } from './runtime'
 import { pluginHandlers } from './handlers/plugins'
 import { pathHandlers } from './handlers/path'
-import { sonaHandlers } from './handlers/sona'
+import { serverHandlers } from './handlers/server'
 import { mediaMiscHandlers } from './handlers/media-misc'
 
 // Commands with no dedicated handler group.
@@ -13,5 +13,5 @@ const extraHandlers = {
 // Entry point for browser mock mode. Must run before any app module is imported
 // (some modules call Tauri APIs at import time).
 export function installMockTauri() {
-	installRuntime({ ...pluginHandlers, ...pathHandlers, ...sonaHandlers, ...mediaMiscHandlers, ...extraHandlers })
+	installRuntime({ ...pluginHandlers, ...pathHandlers, ...serverHandlers, ...mediaMiscHandlers, ...extraHandlers })
 }

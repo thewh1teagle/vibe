@@ -1,4 +1,4 @@
-use super::{ReadySignal, SonaProcess, StderrTail};
+use super::{ReadySignal, ServerProcess, StderrTail};
 use eyre::{bail, Context, ContextCompat, Result};
 use std::io::BufRead;
 use std::path::Path;
@@ -17,7 +17,7 @@ const STDERR_POLL_INTERVAL: Duration = Duration::from_millis(20);
 /// How long a death report waits for a child whose output already broke to become reapable.
 const EXIT_GRACE: Duration = Duration::from_secs(2);
 /// Nothing on a connection can go idle longer than this before we throw it away.
-/// Shorter than any idle close on the sona side, so a request is never handed a
+/// Shorter than any idle close on the server side, so a request is never handed a
 /// socket the server has already dropped.
 const POOL_IDLE_TIMEOUT: Duration = Duration::from_secs(15);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -47,9 +47,9 @@ pub(super) fn describe_exit(status: ExitStatus) -> String {
 
 /// An illegal instruction from a binary that runs everywhere else means the CPU is
 /// missing an instruction set the build assumes. Naming it here is what turns these
-/// reports from a bare "sona process died" into something identifiable.
+/// reports from a bare "vibe-server process died" into something identifiable.
 fn illegal_instruction_hint(status: ExitStatus) -> Option<&'static str> {
-    const MESSAGE: &str = "This looks like a CPU without AVX support: sona picks an AVX2 or an AVX build of its CPU backend at startup, but nothing older, so it stops on the first instruction it cannot run. Vibe cannot transcribe on this machine.";
+    const MESSAGE: &str = "This looks like a CPU without AVX support: server picks an AVX2 or an AVX build of its CPU backend at startup, but nothing older, so it stops on the first instruction it cannot run. Vibe cannot transcribe on this machine.";
 
     #[cfg(unix)]
     {
@@ -106,7 +106,7 @@ fn stderr_finished(stderr: &Arc<Mutex<StderrTail>>) -> bool {
     stderr.lock().map(|tail| tail.is_finished()).unwrap_or(true)
 }
 
-/// Blocking counterpart of [`SonaProcess::stderr_after_exit`], for the spawn path
+/// Blocking counterpart of [`ServerProcess::stderr_after_exit`], for the spawn path
 /// (which is not async).
 fn wait_for_stderr_blocking(stderr: &Arc<Mutex<StderrTail>>) -> String {
     let deadline = Instant::now() + STDERR_DRAIN_TIMEOUT;
@@ -126,12 +126,12 @@ fn build_client() -> Result<reqwest::Client> {
         // as long as the audio takes, and a whole-request deadline would cut off
         // exactly the long jobs that matter most.
         .build()
-        .context("failed to build sona http client")
+        .context("failed to build server http client")
 }
 
-impl SonaProcess {
+impl ServerProcess {
     pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, unload_timeout_minutes: u32) -> Result<Self> {
-        tracing::debug!("spawning sona at {}", binary_path.display());
+        tracing::debug!("spawning server at {}", binary_path.display());
         let unload_timeout = if unload_timeout_minutes == 0 {
             "0".to_string()
         } else {
@@ -145,7 +145,7 @@ impl SonaProcess {
             // ggml_print_backtrace forks gdb/lldb on abort, which can hang the
             // dying child and produces nothing useful in a shipped build.
             .env("GGML_NO_BACKTRACE", "1");
-        // Whatever sona logs at warn/error is our only window into a crash, so ask
+        // Whatever server logs at warn/error is our only window into a crash, so ask
         // for it — without clobbering a level the user set deliberately.
         if std::env::var_os("RUST_LOG").is_none() {
             cmd.env("RUST_LOG", "warn");
@@ -161,9 +161,9 @@ impl SonaProcess {
             cmd.creation_flags(0x08000000);
         }
 
-        let mut child = cmd.spawn().context("failed to spawn sona binary")?;
+        let mut child = cmd.spawn().context("failed to spawn server binary")?;
         let stderr = child.stderr.take();
-        let stdout = child.stdout.take().context("failed to get sona stdout")?;
+        let stdout = child.stdout.take().context("failed to get server stdout")?;
 
         // Start the collector before the handshake. Reading the pipe inline here
         // instead would leave the collector with nothing to read for the rest of
@@ -178,7 +178,7 @@ impl SonaProcess {
                     match reader.read_line(&mut line) {
                         Ok(0) => break,
                         Ok(_) => {
-                            tracing::debug!("sona stderr: {}", line.trim());
+                            tracing::debug!("vibe-server stderr: {}", line.trim());
                             if let Ok(mut buf) = buf_clone.lock() {
                                 buf.push(&line);
                             }
@@ -214,7 +214,7 @@ impl SonaProcess {
             }
             let mut line = String::new();
             while reader.read_line(&mut line).unwrap_or(0) > 0 {
-                tracing::trace!("sona stdout: {}", line.trim());
+                tracing::trace!("vibe-server stdout: {}", line.trim());
                 line.clear();
             }
         });
@@ -223,12 +223,12 @@ impl SonaProcess {
             Ok(Ok(line)) => line,
             Ok(Err(error)) => {
                 let detail = kill_and_describe(&mut child, &stderr_buf);
-                bail!("failed to read sona ready signal: {error}{detail}");
+                bail!("failed to read server ready signal: {error}{detail}");
             }
             Err(_) => {
                 let detail = kill_and_describe(&mut child, &stderr_buf);
                 bail!(
-                    "timed out after {}s waiting for sona to report it was ready{detail}",
+                    "timed out after {}s waiting for server to report it was ready{detail}",
                     READY_TIMEOUT.as_secs()
                 );
             }
@@ -236,17 +236,17 @@ impl SonaProcess {
         // An empty first line means stdout hit EOF: the child is already gone.
         if line.trim().is_empty() {
             let detail = kill_and_describe(&mut child, &stderr_buf);
-            bail!("sona exited before reporting it was ready{detail}");
+            bail!("vibe-server exited before reporting it was ready{detail}");
         }
 
         let signal: ReadySignal = match serde_json::from_str(line.trim()) {
             Ok(signal) => signal,
             Err(error) => {
                 let detail = kill_and_describe(&mut child, &stderr_buf);
-                bail!("failed to parse sona ready signal: {error}{detail}");
+                bail!("failed to parse server ready signal: {error}{detail}");
             }
         };
-        tracing::debug!("sona ready on port {}", signal.port);
+        tracing::debug!("vibe-server ready on port {}", signal.port);
 
         Ok(Self {
             port: signal.port,
@@ -323,7 +323,7 @@ impl SonaProcess {
             message.push_str(&format!("\n\n{hint}"));
         }
         if !stderr.is_empty() {
-            message.push_str(&format!("\n\nsona stderr: {stderr}"));
+            message.push_str(&format!("\n\nvibe-server stderr: {stderr}"));
         }
         Some(message)
     }
@@ -341,7 +341,7 @@ impl SonaProcess {
         let mut last_error = None;
         for attempt in 0..3 {
             if attempt > 0 {
-                if let Some(report) = self.death_report("sona process died during model loading").await {
+                if let Some(report) = self.death_report("vibe-server process died during model loading").await {
                     bail!("{report}");
                 }
                 tracing::debug!("retrying load_model (attempt {})", attempt + 1);
@@ -349,28 +349,28 @@ impl SonaProcess {
             }
             match self.client.post(&url).json(&body).send().await {
                 Ok(response) if response.status().is_success() => {
-                    tracing::debug!("sona model loaded: {path}");
+                    tracing::debug!("vibe-server model loaded: {path}");
                     return Ok(());
                 }
-                Ok(response) => bail!("sona load_model failed: {}", response.text().await.unwrap_or_default()),
+                Ok(response) => bail!("vibe-server load_model failed: {}", response.text().await.unwrap_or_default()),
                 Err(error) => last_error = Some(error),
             }
         }
 
-        if let Some(report) = self.death_report("sona process died during model loading").await {
+        if let Some(report) = self.death_report("vibe-server process died during model loading").await {
             bail!("{report}");
         }
-        let error = Err(last_error.unwrap()).context("failed to send load_model request to sona after 3 attempts");
+        let error = Err(last_error.unwrap()).context("failed to send load_model request to server after 3 attempts");
         let stderr = self.recent_stderr();
         if stderr.is_empty() {
             error
         } else {
-            error.context(format!("sona stderr: {stderr}"))
+            error.context(format!("vibe-server stderr: {stderr}"))
         }
     }
 
     pub fn kill(&mut self) {
-        tracing::debug!("killing sona process");
+        tracing::debug!("killing server process");
         if self.exit_status().is_some() {
             return;
         }
@@ -395,16 +395,16 @@ fn kill_and_describe(child: &mut Child, stderr_buf: &Arc<Mutex<StderrTail>>) -> 
     };
     let mut detail = String::new();
     if let Some(status) = status {
-        detail.push_str(&format!(" (sona {})", describe_exit(status)));
+        detail.push_str(&format!(" (server {})", describe_exit(status)));
     }
     let stderr = wait_for_stderr_blocking(stderr_buf);
     if !stderr.is_empty() {
-        detail.push_str(&format!("\n\nsona stderr: {stderr}"));
+        detail.push_str(&format!("\n\nvibe-server stderr: {stderr}"));
     }
     detail
 }
 
-impl Drop for SonaProcess {
+impl Drop for ServerProcess {
     fn drop(&mut self) {
         self.kill();
     }

@@ -484,7 +484,7 @@
 }
 
 /* Indeterminate bar: a short segment sweeping its track, for work whose
-   duration the desktop cannot report (loading a model into Sona). Ported from
+   duration the desktop cannot report (loading a model into Server). Ported from
    the desktop app's download bar so the two read the same. */
 @keyframes handoff-sweep {
 	0% {

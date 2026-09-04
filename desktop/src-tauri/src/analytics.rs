@@ -22,10 +22,10 @@ pub mod events {
     /// Clean shutdown. Its absence after `app_started` means the app crashed.
     pub const APP_EXITED: &str = "app_exited";
     pub const CLI_STARTED: &str = "cli_started";
-    /// Sona finished under the CLI: carries the exit code and wall-clock duration.
+    /// Server finished under the CLI: carries the exit code and wall-clock duration.
     pub const CLI_FINISHED: &str = "cli_finished";
     pub const CLI_SPAWN_FAILED: &str = "cli_spawn_failed";
-    pub const SONA_SPAWN_FAILED: &str = "sona_spawn_failed";
+    pub const SERVER_SPAWN_FAILED: &str = "sona_spawn_failed";
 
     // Phone handoff. Props are technical facts only: never a transcript, filename,
     // saved path, endpoint id, pairing token, model path, or chosen language.
@@ -175,7 +175,7 @@ mod tests {
 
     #[test]
     fn shorter_than_limit_is_untouched() {
-        let message = "failed to spawn sona";
+        let message = "failed to spawn server";
         assert_eq!(truncate_keep_tail(message, MAX_PROP_CHARS), message);
         // Exactly at the limit is still untouched.
         let exact: String = "a".repeat(MAX_PROP_CHARS);

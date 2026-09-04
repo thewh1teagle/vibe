@@ -192,13 +192,7 @@ export default function MeetingPromptWindow() {
 					</div>
 				</div>
 				<div className="flex gap-1.5" aria-label={m.recordingControls()}>
-					<SourceChoice
-						checked={sources.microphone}
-						icon={Mic}
-						label={m.microphone()}
-						disabled={busy}
-						onClick={() => toggleSource('microphone')}
-					/>
+					<SourceChoice checked={sources.microphone} icon={Mic} label={m.microphone()} disabled={busy} onClick={() => toggleSource('microphone')} />
 					<SourceChoice
 						checked={sources.systemAudio}
 						icon={Volume2}
@@ -208,21 +202,10 @@ export default function MeetingPromptWindow() {
 					/>
 				</div>
 				<div className="mt-auto flex justify-end gap-1.5 border-t border-border/55 pt-2">
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						className="h-7 rounded-md px-2 text-xs"
-						disabled={busy}
-						onClick={() => void dismiss()}>
+					<Button type="button" variant="ghost" size="sm" className="h-7 rounded-md px-2 text-xs" disabled={busy} onClick={() => void dismiss()}>
 						{m.meetingPromptDismiss()}
 					</Button>
-					<Button
-						type="button"
-						size="sm"
-						className="h-8 rounded-md px-3 text-xs"
-						disabled={busy}
-						onClick={() => void startRecording()}>
+					<Button type="button" size="sm" className="h-8 rounded-md px-3 text-xs" disabled={busy} onClick={() => void startRecording()}>
 						{m.meetingPromptStart()}
 					</Button>
 				</div>
