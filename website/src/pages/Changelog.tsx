@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { marked } from 'marked'
 import { cn } from '~/lib/style'
 import { findRelease, releases, sections, type Release, type Section } from '~/lib/changelog'
 import { m } from '~/paraglide/messages.js'
@@ -30,7 +29,10 @@ function formatDate(date: string) {
 function Entry({ release, single }: { release: Release; single: boolean }) {
 	const id = `v${release.version}`
 	return (
-		<article id={id} className="grid scroll-mt-24 gap-4 border-t border-border py-12 first:border-t-0 lg:grid-cols-[10rem_1fr] lg:gap-12" dir="ltr">
+		<article
+			id={id}
+			className="grid scroll-mt-24 gap-4 border-t border-border py-12 [contain-intrinsic-size:auto_28rem] [content-visibility:auto] first:border-t-0 lg:grid-cols-[10rem_1fr] lg:gap-12"
+			dir="ltr">
 			{/* The version and date stay put while the entry's notes scroll past. */}
 			<div className="lg:sticky lg:top-24 lg:self-start">
 				<Link to={`/changelog/${release.version}`} className="text-[15px] font-medium text-foreground transition-colors hover:text-primary">
@@ -40,7 +42,9 @@ function Entry({ release, single }: { release: Release; single: boolean }) {
 					{formatDate(release.date)}
 				</time>
 				{single && (
-					<Link to="/changelog" className="mt-4 block text-[13px] text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground">
+					<Link
+						to="/changelog"
+						className="mt-4 block text-[13px] text-muted-foreground underline decoration-border underline-offset-4 hover:text-foreground">
 						{m.changelogAll()}
 					</Link>
 				)}
@@ -52,10 +56,12 @@ function Entry({ release, single }: { release: Release; single: boolean }) {
 					if (items.length === 0) return null
 					return (
 						<section key={section} className="mt-7">
-							<span className={cn('inline-block rounded-full px-2.5 py-0.5 text-[12px] font-medium tracking-wide', badge[section])}>{label[section]()}</span>
+							<span className={cn('inline-block rounded-full px-2.5 py-0.5 text-[12px] font-medium tracking-wide', badge[section])}>
+								{label[section]()}
+							</span>
 							<ul className="mt-3 list-disc space-y-2 ps-5 text-[15px] leading-7 text-muted-foreground">
 								{items.map((item, i) => (
-									<li key={i} className={inline} dangerouslySetInnerHTML={{ __html: marked.parseInline(item.text) as string }} />
+									<li key={i} className={inline} dangerouslySetInnerHTML={{ __html: item.html }} />
 								))}
 							</ul>
 						</section>

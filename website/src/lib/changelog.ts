@@ -4,6 +4,8 @@
  * the version, the date, and a headline; the body is `## New`, `## Improved`,
  * `## Fixed` sections of bullets, rendered with a badge each.
  */
+import { marked } from 'marked'
+
 const files = import.meta.glob('../../changelog/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 
 export const sections = ['New', 'Improved', 'Fixed'] as const
@@ -13,7 +15,8 @@ export interface Release {
 	version: string
 	date: string
 	title: string
-	items: { section: Section; text: string }[]
+	/** Bullets with their Markdown already rendered, once, at load. */
+	items: { section: Section; html: string }[]
 }
 
 function parse(raw: string): Release {
@@ -22,7 +25,11 @@ function parse(raw: string): Release {
 	const meta: Record<string, string> = {}
 	for (const line of match[1].split('\n')) {
 		const i = line.indexOf(':')
-		if (i > 0) meta[line.slice(0, i).trim()] = line.slice(i + 1).trim().replace(/^"(.*)"$/, '$1')
+		if (i > 0)
+			meta[line.slice(0, i).trim()] = line
+				.slice(i + 1)
+				.trim()
+				.replace(/^"(.*)"$/, '$1')
 	}
 	const items: Release['items'] = []
 	let section: Section = 'New'
@@ -33,7 +40,7 @@ function parse(raw: string): Release {
 			continue
 		}
 		const bullet = line.match(/^[-*]\s+(.+)$/)
-		if (bullet) items.push({ section, text: bullet[1] })
+		if (bullet) items.push({ section, html: marked.parseInline(bullet[1]) as string })
 	}
 	return { version: meta.version, date: meta.date, title: meta.title, items }
 }
