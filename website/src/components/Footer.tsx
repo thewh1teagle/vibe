@@ -49,6 +49,9 @@ export default function Footer({ onOpenKofi, onOpenPrivacyPolicy }: FooterProps)
 						<Link className={linkClass} to="/docs">
 							{m.documentation()}
 						</Link>
+						<Link className={linkClass} to="/changelog">
+							{m.changelog()}
+						</Link>
 					</div>
 					<div className="flex flex-col items-start gap-3">
 						<button className={linkClass} onClick={onOpenKofi}>

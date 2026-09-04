@@ -67,5 +67,11 @@
 	"feature-privacy-title": "Ultimate privacy",
 	"feature-privacy-description": "Enjoy fully offline transcription, ensuring no data ever leaves your device.",
 	"feature-customize-title": "Total Freedom",
-	"feature-customize-description": "Customize models effortlessly in settings for a tailored experience."
+	"feature-customize-description": "Customize models effortlessly in settings for a tailored experience.",
+	"changelog": "Changelog",
+	"changelogNew": "New",
+	"changelogImproved": "Improved",
+	"changelogFixed": "Fixed",
+	"changelogAll": "All releases",
+	"changelogUnknownVersion": "There is no release {version}."
 }
