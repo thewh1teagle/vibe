@@ -128,8 +128,9 @@ task build-libs {
 	} else if $OS == windows {
 		stage-lib $build $pkg libggml.a ggml.a
 		stage-lib $build $pkg libggml-base.a ggml-base.a
-		stage-cpu-variant $build $pkg hsw libggml-cpu.a libggml-cpu-hsw.a
-		stage-cpu-variant $build_x64 $pkg x64 libggml-cpu.a libggml-cpu-x64.a
+		# MinGW's cmake writes ggml-cpu.a, without the lib prefix the linker looks for.
+		stage-cpu-variant $build $pkg hsw ggml-cpu.a libggml-cpu-hsw.a
+		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.a libggml-cpu-x64.a
 		stage-lib $build $pkg libggml-vulkan.a ggml-vulkan.a
 		stage-lib $build $pkg libvulkan-1-delay.a vulkan-1-delay.a
 	} else if $OS == macos {
