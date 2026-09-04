@@ -585,5 +585,10 @@
 	"skillSectionDescription": "將相同的指示安裝為技能，毋須貼上即可在每個代理程式工作階段中使用。",
 	"installSkillClaudeCode": "為 Claude Code 安裝技能",
 	"installSkillCodex": "為 Codex 安裝技能",
-	"agentSkillInstalled": "技能已安裝至 {path}"
+	"agentSkillInstalled": "技能已安裝至 {path}",
+	"renameSpeaker": "重新命名說話者",
+	"promptIgnoredByModel": "所選模型不使用提示詞。此提示詞會保留，以便切換回 Whisper 模型時使用。",
+	"assignSpeaker": "指定說話者",
+	"newSpeaker": "新說話者",
+	"speakerOfThisLine": "此行"
 }

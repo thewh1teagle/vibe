@@ -8,6 +8,7 @@ import { AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { withoutUnsupportedOptions } from '~/lib/model'
 import { isUserError } from '~/lib/sona-errors'
 import * as transcript from '~/lib/transcript'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -226,7 +227,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				const modelsFolder = requiresVad ? await invoke<string>('get_models_folder') : null
 				const options = {
 					path,
-					...preferenceRef.current.modelOptions,
+					...withoutUnsupportedOptions(preferenceRef.current.modelOptions, preferenceRef.current.modelMetadata?.capabilities),
 					...(requiresVad ? { vad_model: `${modelsFolder}/${config.vadModelFilename}` } : {}),
 				}
 				const startedAt = performance.now()

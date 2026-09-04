@@ -585,5 +585,10 @@
 	"skillSectionDescription": "התקנת אותן ההוראות כמיומנות, כך שהן יהיו זמינות בכל הפעלה של הסוכן בלי להדביק אותן.",
 	"installSkillClaudeCode": "התקנת המיומנות עבור Claude Code",
 	"installSkillCodex": "התקנת המיומנות עבור Codex",
-	"agentSkillInstalled": "המיומנות הותקנה ב-{path}"
+	"agentSkillInstalled": "המיומנות הותקנה ב-{path}",
+	"renameSpeaker": "שינוי שם הדובר",
+	"promptIgnoredByModel": "המודל שנבחר אינו משתמש בהנחיות. ההנחיה נשמרת למקרה שתחזרו למודל Whisper.",
+	"assignSpeaker": "שיוך דובר",
+	"newSpeaker": "דובר חדש",
+	"speakerOfThisLine": "שורה זו"
 }

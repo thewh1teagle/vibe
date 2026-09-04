@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Installera samma instruktioner som en färdighet så att de finns i varje agentsession utan att du behöver klistra in dem.",
 	"installSkillClaudeCode": "Installera färdighet för Claude Code",
 	"installSkillCodex": "Installera färdighet för Codex",
-	"agentSkillInstalled": "Färdigheten installerades i {path}"
+	"agentSkillInstalled": "Färdigheten installerades i {path}",
+	"renameSpeaker": "Byt namn på talare",
+	"promptIgnoredByModel": "Den valda modellen använder inte prompter. Denna sparas tills du byter tillbaka till en Whisper-modell.",
+	"assignSpeaker": "Tilldela talare",
+	"newSpeaker": "Ny talare",
+	"speakerOfThisLine": "Den här raden"
 }

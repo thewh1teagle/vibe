@@ -16,6 +16,15 @@ export interface Segment {
 	speaker?: number
 }
 
+/** Display names chosen for diarized speakers, keyed by the segment's zero-based speaker index. */
+export type SpeakerNames = Record<number, string>
+
+/** What a speaker is called on screen and in exports: the chosen name, else "Speaker N". */
+export function speakerName(speaker: number, label: string, names?: SpeakerNames): string {
+	const chosen = names?.[speaker]?.trim()
+	return chosen || `${label} ${speaker + 1}`
+}
+
 export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, decimalMarker: string, includeMilliseconds: boolean = true): string {
 	if (seconds < 0) {
 		throw new Error('Non-negative timestamp expected')
@@ -43,34 +52,34 @@ export function formatTimestamp(seconds: number, alwaysIncludeHours: boolean, de
 	return result
 }
 
-function speakerPrefix(segment: Segment, label: string): string {
-	return segment.speaker != null ? `[${label} ${segment.speaker + 1}] ` : ''
+function speakerPrefix(segment: Segment, label: string, names?: SpeakerNames): string {
+	return segment.speaker != null ? `[${speakerName(segment.speaker, label, names)}] ` : ''
 }
 
-export function asSrt(segments: Segment[], speakerLabel: string = 'Speaker') {
+export function asSrt(segments: Segment[], speakerLabel: string = 'Speaker', speakerNames?: SpeakerNames) {
 	return segments.reduce((transcript, segment, i) => {
 		return (
 			transcript +
 			`${i > 0 ? '\n' : ''}${i + 1}\n` +
 			`${formatTimestamp(segment.start, true, ',')} --> ${formatTimestamp(segment.stop, true, ',')}\n` +
-			`${speakerPrefix(segment, speakerLabel)}${segment.text.trim().replace('-->', '->')}\n`
+			`${speakerPrefix(segment, speakerLabel, speakerNames)}${segment.text.trim().replace('-->', '->')}\n`
 		)
 	}, '')
 }
 
-export function asVtt(segments: Segment[], speakerLabel: string = 'Speaker') {
+export function asVtt(segments: Segment[], speakerLabel: string = 'Speaker', speakerNames?: SpeakerNames) {
 	return segments.reduce((transcript, segment) => {
 		return (
 			transcript +
 			`${formatTimestamp(segment.start, false, '.')} --> ${formatTimestamp(segment.stop, false, '.')}\n` +
-			`${speakerPrefix(segment, speakerLabel)}${segment.text.trim().replace('-->', '->')}\n`
+			`${speakerPrefix(segment, speakerLabel, speakerNames)}${segment.text.trim().replace('-->', '->')}\n`
 		)
 	}, '')
 }
 
-export function asText(segments: Segment[], speakerLabel: string = 'Speaker') {
+export function asText(segments: Segment[], speakerLabel: string = 'Speaker', speakerNames?: SpeakerNames) {
 	return segments.reduce((transcript, segment) => {
-		return transcript + `${speakerPrefix(segment, speakerLabel)}${segment.text.trim()}\n`
+		return transcript + `${speakerPrefix(segment, speakerLabel, speakerNames)}${segment.text.trim()}\n`
 	}, '')
 }
 

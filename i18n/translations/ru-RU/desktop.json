@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Установите те же инструкции как навык, чтобы они были доступны в каждом сеансе агента без вставки вручную.",
 	"installSkillClaudeCode": "Установить навык для Claude Code",
 	"installSkillCodex": "Установить навык для Codex",
-	"agentSkillInstalled": "Навык установлен в {path}"
+	"agentSkillInstalled": "Навык установлен в {path}",
+	"renameSpeaker": "Переименовать говорящего",
+	"promptIgnoredByModel": "Выбранная модель не использует подсказки. Эта подсказка сохранится на случай возврата к модели Whisper.",
+	"assignSpeaker": "Назначить говорящего",
+	"newSpeaker": "Новый говорящий",
+	"speakerOfThisLine": "Эта строка"
 }

@@ -12,12 +12,13 @@ import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { autoProjectName } from '~/lib/project-name'
 import { fatalRunError, isUserError } from '~/lib/sona-errors'
-import type { Segment, Transcript } from '~/lib/transcript'
+import type { Segment, SpeakerNames, Transcript } from '~/lib/transcript'
 import {
 	notifyTranscriptsChanged,
 	renameTranscript,
 	saveTranscript,
 	updateTranscriptSegments,
+	updateTranscriptSpeakerNames,
 	updateTranscriptSummary,
 	type TranscriptRecord,
 	type SaveTranscriptResult,
@@ -25,6 +26,7 @@ import {
 } from '~/lib/transcripts-store'
 import type { NamedPath, ProjectSource } from '~/lib/types'
 import { ErrorModalContext } from '~/providers/error-modal'
+import { withoutUnsupportedOptions } from '~/lib/model'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
 
 export type JobStatus = 'queued' | 'running' | 'done' | 'error' | 'cancelled'
@@ -54,6 +56,8 @@ export interface Job {
 	hydrated?: boolean
 	/** Last AI summary of this transcript, when one was made. */
 	summary?: string
+	/** Names the user gave the diarized speakers, by zero-based speaker index. */
+	speakerNames?: SpeakerNames
 }
 
 export interface TranscribeQueue {
@@ -82,6 +86,10 @@ export interface TranscribeQueue {
 	previewJobName: (jobId: string, name: string) => void
 	/** Attach an AI summary to a job. Persists to the job's saved file when it has one. */
 	setJobSummary: (jobId: string, summary: string) => void
+	/** Name one diarized speaker; an empty name restores "Speaker N". Persists like the segment edits. */
+	setSpeakerName: (jobId: string, speaker: number, name: string) => void
+	/** Attribute one line to a speaker: a line diarization missed, or one it got wrong. */
+	setSegmentSpeaker: (jobId: string, segmentIndex: number, speaker: number) => void
 	cancelCurrent: () => void
 	cancelAll: () => void
 	reset: () => void
@@ -316,7 +324,11 @@ export function useTranscribeQueue(): TranscribeQueue {
 				trackTranscribeStarted('main', next.path)
 				try {
 					const result = await invoke<Transcript>('transcribe', {
-						options: { path: next.path, ...preferenceRef.current.modelOptions, ...shared },
+						options: {
+							path: next.path,
+							...withoutUnsupportedOptions(preferenceRef.current.modelOptions, preferenceRef.current.modelMetadata?.capabilities),
+							...shared,
+						},
 					})
 					const seconds = Math.round((performance.now() - startedAt) / 1000)
 					patch(next.id, { status: 'done', progress: 100, segments: result.segments, seconds })
@@ -395,14 +407,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 	const transcribeJob = useCallback(
 		(jobId: string) => {
 			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
-			if (
-				!job?.hydrated ||
-				!job.savedPath ||
-				!job.path ||
-				!['done', 'error', 'cancelled'].includes(job.status) ||
-				job.segments.length > 0
-			)
-				return
+			if (!job?.hydrated || !job.savedPath || !job.path || !['done', 'error', 'cancelled'].includes(job.status) || job.segments.length > 0) return
 			pinnedRef.current = true
 			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, status: 'queued', progress: 0, error: undefined } : candidate)))
 			select(jobId)
@@ -456,6 +461,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 				savedPath,
 				hydrated: true,
 				summary: record.summary,
+				speakerNames: record.speakerNames,
 			}
 			pinnedRef.current = true
 			commit(runningRef.current ? [...jobsRef.current, job] : [job])
@@ -475,6 +481,18 @@ export function useTranscribeQueue(): TranscribeQueue {
 			const segment = job?.segments[segmentIndex]
 			if (!job || !segment || segment.text === text) return
 			const segments = job.segments.map((item, index) => (index === segmentIndex ? { ...item, text } : item))
+			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, segments } : candidate)))
+			if (job.savedPath) void updateTranscriptSegments(job.savedPath, segments)
+		},
+		[commit],
+	)
+
+	const setSegmentSpeaker = useCallback(
+		(jobId: string, segmentIndex: number, speaker: number) => {
+			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
+			const segment = job?.segments[segmentIndex]
+			if (!job || !segment || segment.speaker === speaker) return
+			const segments = job.segments.map((item, index) => (index === segmentIndex ? { ...item, speaker } : item))
 			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, segments } : candidate)))
 			if (job.savedPath) void updateTranscriptSegments(job.savedPath, segments)
 		},
@@ -520,6 +538,21 @@ export function useTranscribeQueue(): TranscribeQueue {
 		[commit],
 	)
 
+	const setSpeakerName = useCallback(
+		(jobId: string, speaker: number, name: string) => {
+			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
+			if (!job) return
+			const next = name.trim()
+			const speakerNames: SpeakerNames = { ...job.speakerNames }
+			if (next) speakerNames[speaker] = next
+			else delete speakerNames[speaker]
+			if ((job.speakerNames?.[speaker] ?? '') === next) return
+			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, speakerNames } : candidate)))
+			if (job.savedPath) void updateTranscriptSpeakerNames(job.savedPath, speakerNames)
+		},
+		[commit],
+	)
+
 	const cancelCurrent = useCallback(() => {
 		if (!activeIdRef.current) return
 		abortCurrentRef.current = true
@@ -561,6 +594,8 @@ export function useTranscribeQueue(): TranscribeQueue {
 		renameJob,
 		previewJobName,
 		setJobSummary,
+		setSpeakerName,
+		setSegmentSpeaker,
 		cancelCurrent,
 		cancelAll,
 		reset,

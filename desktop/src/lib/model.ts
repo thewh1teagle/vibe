@@ -169,3 +169,22 @@ export interface ModelMetadata {
 	format: string
 	capabilities: ModelCapabilities
 }
+
+/** The subset of transcribe options that only some engines honour. */
+interface EngineSpecificOptions {
+	init_prompt?: string
+	translate?: boolean
+}
+
+/**
+ * Drop the Whisper-only options a model cannot use instead of letting sona reject the run.
+ * A prompt written for Turbo stays saved in settings, so switching to Parakeet or Nemotron
+ * and back needs no retyping. Unknown capabilities (no metadata yet) leave the options alone.
+ */
+export function withoutUnsupportedOptions<T extends EngineSpecificOptions>(options: T, capabilities: ModelCapabilities | null | undefined): T {
+	if (!capabilities) return options
+	const next = { ...options }
+	if (!capabilities.text_prompts) delete next.init_prompt
+	if (!capabilities.translation) delete next.translate
+	return next
+}

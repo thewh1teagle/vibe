@@ -73,6 +73,9 @@ export function TuningSection({ vm }: { vm: SettingsViewModel }) {
 						className={textareaClass}
 					/>
 				</SettingsField>
+				{vm.preference.modelMetadata?.capabilities.text_prompts === false && promptLength > 0 && (
+					<SettingsNote>{m.promptIgnoredByModel()}</SettingsNote>
+				)}
 			</SettingsGroup>
 
 			<SettingsGroup title={m.decoding()}>

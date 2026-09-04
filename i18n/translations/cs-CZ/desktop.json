@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Nainstalujte stejné pokyny jako dovednost, aby byly dostupné v každé relaci agenta bez nutnosti je vkládat.",
 	"installSkillClaudeCode": "Nainstalovat dovednost pro Claude Code",
 	"installSkillCodex": "Nainstalovat dovednost pro Codex",
-	"agentSkillInstalled": "Dovednost byla nainstalována do {path}"
+	"agentSkillInstalled": "Dovednost byla nainstalována do {path}",
+	"renameSpeaker": "Přejmenovat mluvčího",
+	"promptIgnoredByModel": "Vybraný model nepoužívá výzvy. Tato výzva zůstane uložena pro návrat k modelu Whisper.",
+	"assignSpeaker": "Přiřadit mluvčího",
+	"newSpeaker": "Nový mluvčí",
+	"speakerOfThisLine": "Tento řádek"
 }

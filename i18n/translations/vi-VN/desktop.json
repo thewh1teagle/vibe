@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Cài đặt cùng các hướng dẫn dưới dạng kỹ năng để mọi phiên làm việc của tác nhân đều có thể dùng mà không cần dán lại.",
 	"installSkillClaudeCode": "Cài đặt kỹ năng cho Claude Code",
 	"installSkillCodex": "Cài đặt kỹ năng cho Codex",
-	"agentSkillInstalled": "Đã cài đặt kỹ năng vào {path}"
+	"agentSkillInstalled": "Đã cài đặt kỹ năng vào {path}",
+	"renameSpeaker": "Đổi tên người nói",
+	"promptIgnoredByModel": "Mô hình đã chọn không dùng lời nhắc. Lời nhắc này được giữ lại cho khi bạn quay về mô hình Whisper.",
+	"assignSpeaker": "Gán người nói",
+	"newSpeaker": "Người nói mới",
+	"speakerOfThisLine": "Dòng này"
 }

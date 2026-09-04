@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Install the same instructions as a skill, so every agent session has them without pasting.",
 	"installSkillClaudeCode": "Install skill for Claude Code",
 	"installSkillCodex": "Install skill for Codex",
-	"agentSkillInstalled": "Skill installed to {path}"
+	"agentSkillInstalled": "Skill installed to {path}",
+	"renameSpeaker": "Rename speaker",
+	"promptIgnoredByModel": "The selected model does not use prompts. This prompt is kept for when you switch back to a Whisper model.",
+	"assignSpeaker": "Assign speaker",
+	"newSpeaker": "New speaker",
+	"speakerOfThisLine": "This line"
 }

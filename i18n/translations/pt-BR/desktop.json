@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Instale as mesmas instruções como uma habilidade para que estejam disponíveis em todas as sessões do agente sem precisar colá-las.",
 	"installSkillClaudeCode": "Instalar habilidade para o Claude Code",
 	"installSkillCodex": "Instalar habilidade para o Codex",
-	"agentSkillInstalled": "Habilidade instalada em {path}"
+	"agentSkillInstalled": "Habilidade instalada em {path}",
+	"renameSpeaker": "Renomear falante",
+	"promptIgnoredByModel": "O modelo selecionado não usa prompts. Este prompt fica guardado para quando você voltar a um modelo Whisper.",
+	"assignSpeaker": "Atribuir falante",
+	"newSpeaker": "Novo falante",
+	"speakerOfThisLine": "Esta linha"
 }

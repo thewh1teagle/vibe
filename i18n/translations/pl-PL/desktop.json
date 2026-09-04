@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Zainstaluj te same instrukcje jako umiejętność, aby były dostępne w każdej sesji agenta bez potrzeby ich wklejania.",
 	"installSkillClaudeCode": "Zainstaluj umiejętność dla Claude Code",
 	"installSkillCodex": "Zainstaluj umiejętność dla Codex",
-	"agentSkillInstalled": "Umiejętność została zainstalowana w {path}"
+	"agentSkillInstalled": "Umiejętność została zainstalowana w {path}",
+	"renameSpeaker": "Zmień nazwę mówcy",
+	"promptIgnoredByModel": "Wybrany model nie używa podpowiedzi. Ta podpowiedź zostanie zachowana na wypadek powrotu do modelu Whisper.",
+	"assignSpeaker": "Przypisz mówcę",
+	"newSpeaker": "Nowy mówca",
+	"speakerOfThisLine": "Ta linia"
 }

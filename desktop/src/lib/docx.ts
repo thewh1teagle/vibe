@@ -1,11 +1,12 @@
 import { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx'
 import { formatDuration } from '~/components/html-view'
-import { Segment } from './transcript'
+import { speakerName, type Segment, type SpeakerNames } from './transcript'
 
 export interface DocxExportOptions {
 	content?: 'transcript' | 'summary' | 'both'
 	showTimestamps?: boolean
 	showSpeakers?: boolean
+	speakerNames?: SpeakerNames
 	summary?: string
 	transcriptLabel?: string
 	summaryLabel?: string
@@ -67,7 +68,7 @@ export async function toDocx(title: string, segments: Segment[], direction: 'rtl
 			// Always the left-to-right form: the right-to-left embedding the view uses would turn
 			// "00:00 --> 00:07" into "00:07 <-- 00:00" once Word resolves the line.
 			showTimestamps ? formatDuration(segment.start, segment.stop, 'ltr') : '',
-			showSpeakers && segment.speaker != null ? `${speakerLabel} ${segment.speaker + 1}` : '',
+			showSpeakers && segment.speaker != null ? speakerName(segment.speaker, speakerLabel, options.speakerNames) : '',
 		]
 			.filter(Boolean)
 			.join('   ')

@@ -61,7 +61,7 @@ export function useSummaries(queue: TranscribeQueue): Summaries {
 				return next
 			})
 			try {
-				const question = template.replace('%s', asText(job.segments, m.speakerPrefix()))
+				const question = template.replace('%s', asText(job.segments, m.speakerPrefix(), job.speakerNames))
 				const answer = llm.ask(question).then((value) => {
 					const text = value?.trim()
 					if (!text) throw new Error(m.summaryFailed())

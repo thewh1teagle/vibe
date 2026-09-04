@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Installa le stesse istruzioni come skill, così saranno disponibili in ogni sessione dell'agente senza doverle incollare.",
 	"installSkillClaudeCode": "Installa la skill per Claude Code",
 	"installSkillCodex": "Installa la skill per Codex",
-	"agentSkillInstalled": "Skill installata in {path}"
+	"agentSkillInstalled": "Skill installata in {path}",
+	"renameSpeaker": "Rinomina parlante",
+	"promptIgnoredByModel": "Il modello selezionato non usa prompt. Questo prompt viene conservato per quando tornerai a un modello Whisper.",
+	"assignSpeaker": "Assegna parlante",
+	"newSpeaker": "Nuovo parlante",
+	"speakerOfThisLine": "Questa riga"
 }

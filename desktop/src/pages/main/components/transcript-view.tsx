@@ -7,7 +7,7 @@ import { getLocale, getTextDirection } from '~/paraglide/runtime.js'
 import Markdown from 'react-markdown'
 import { Spinner } from '~/components/ui/spinner'
 import { Button } from '~/components/ui/button'
-import { formatTimestamp, type Segment } from '~/lib/transcript'
+import { formatTimestamp, type Segment, type SpeakerNames } from '~/lib/transcript'
 import { cn } from '~/lib/style'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useSession } from '../session'
@@ -16,6 +16,7 @@ import { textSizeClass, type TranscriptTab, type TranscriptViewOptions } from '.
 import { PLAYER_SEEK_EVENT, PLAYER_TOGGLE_EVENT, PLAYER_TIME_EVENT, type PlayerTimeDetail } from './player-bar'
 import { ProjectNameEditor } from './project-name-editor'
 import QuietRow from './quiet-row'
+import { SpeakerLabel } from './speaker-label'
 
 /** Segment timestamps are centiseconds (see `formatTimestamp` / `asJson` in lib/transcript). */
 const CENTISECONDS_PER_SECOND = 100
@@ -223,10 +224,15 @@ interface SegmentBlockProps {
 	editing: EditTarget | null
 	active: boolean
 	options: TranscriptViewOptions
+	speakerNames?: SpeakerNames
+	/** Every speaker index the transcript knows, so a line can be moved to one of them. */
+	speakers: number[]
 	onStartEdit: (index: number, caret: CaretIntent) => void
 	onCancel: () => void
 	onCommit: (index: number, text: string, then?: 'next' | 'previous') => void
 	onMove: (index: number, direction: 1 | -1, caret: CaretIntent) => void
+	onRenameSpeaker: (speaker: number, name: string) => void
+	onAssignSpeaker: (index: number, speaker: number) => void
 }
 
 const SegmentBlock = memo(function SegmentBlock({
@@ -238,10 +244,14 @@ const SegmentBlock = memo(function SegmentBlock({
 	editing,
 	active,
 	options,
+	speakerNames,
+	speakers,
 	onStartEdit,
 	onCancel,
 	onCommit,
 	onMove,
+	onRenameSpeaker,
+	onAssignSpeaker,
 }: SegmentBlockProps) {
 	const textRef = useRef<HTMLSpanElement>(null)
 
@@ -311,10 +321,15 @@ const SegmentBlock = memo(function SegmentBlock({
 			</button>
 
 			<div className="relative min-w-0 flex-1">
-				{options.showSpeakers && segment.speaker != null && (
-					<span className="me-2 align-baseline text-[11px] font-semibold text-muted-foreground">
-						{m.speakerPrefix()} {segment.speaker + 1}
-					</span>
+				{options.showSpeakers && (
+					<SpeakerLabel
+						speaker={segment.speaker}
+						speakers={speakers}
+						speakerNames={speakerNames}
+						editable={editable}
+						onRename={onRenameSpeaker}
+						onAssign={(speaker) => onAssignSpeaker(index, speaker)}
+					/>
 				)}
 
 				{editing ? (
@@ -589,13 +604,17 @@ export default function TranscriptView({
 		[job.id, moveEdit, queue],
 	)
 
+	const renameSpeaker = useCallback((speaker: number, name: string) => queue.setSpeakerName(job.id, speaker, name), [job.id, queue])
+	const assignSpeaker = useCallback((index: number, speaker: number) => queue.setSegmentSpeaker(job.id, index, speaker), [job.id, queue])
+	const speakers = useMemo(
+		() => [...new Set(job.segments.flatMap((segment) => (segment.speaker != null ? [segment.speaker] : [])))].sort((a, b) => a - b),
+		[job.segments],
+	)
+
 	const showJump = playing && jumpVisible && !following && activeIndex >= 0 && tab === 'transcript'
 	const summarizing = Boolean(summaries.pending[job.id])
 	const canTranscribeSaved =
-		job.hydrated === true &&
-		['done', 'error', 'cancelled'].includes(job.status) &&
-		job.segments.length === 0 &&
-		Boolean(job.savedPath && job.path)
+		job.hydrated === true && ['done', 'error', 'cancelled'].includes(job.status) && job.segments.length === 0 && Boolean(job.savedPath && job.path)
 
 	if (tab === 'summary') {
 		return (
@@ -652,11 +671,7 @@ export default function TranscriptView({
 								<div className="mt-5">
 									<QuietRow />
 								</div>
-								<Button
-									type="button"
-									className="mt-3 min-w-32"
-									disabled={!preference.modelPath}
-									onClick={() => queue.transcribeJob(job.id)}>
+								<Button type="button" className="mt-3 min-w-32" disabled={!preference.modelPath} onClick={() => queue.transcribeJob(job.id)}>
 									<AudioLines className="h-4 w-4" />
 									{m.transcribe()}
 								</Button>
@@ -687,10 +702,14 @@ export default function TranscriptView({
 										editing={editing?.index === index ? editing : null}
 										active={activeIndex === index}
 										options={options}
+										speakerNames={job.speakerNames}
+										speakers={speakers}
 										onStartEdit={startEdit}
 										onCancel={cancelEdit}
 										onCommit={commitEdit}
 										onMove={moveEdit}
+										onRenameSpeaker={renameSpeaker}
+										onAssignSpeaker={assignSpeaker}
 									/>
 								</div>
 							)

@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Aynı talimatları bir beceri olarak yükleyin; böylece yapıştırmadan her aracı oturumunda kullanılabilirler.",
 	"installSkillClaudeCode": "Claude Code için beceriyi yükle",
 	"installSkillCodex": "Codex için beceriyi yükle",
-	"agentSkillInstalled": "Beceri {path} konumuna yüklendi"
+	"agentSkillInstalled": "Beceri {path} konumuna yüklendi",
+	"renameSpeaker": "Konuşmacıyı yeniden adlandır",
+	"promptIgnoredByModel": "Seçili model istem kullanmaz. Bu istem, bir Whisper modeline geri döndüğünüzde kullanılmak üzere saklanır.",
+	"assignSpeaker": "Konuşmacı ata",
+	"newSpeaker": "Yeni konuşmacı",
+	"speakerOfThisLine": "Bu satır"
 }

@@ -585,5 +585,10 @@
 	"skillSectionDescription": "같은 지침을 스킬로 설치하면 붙여넣지 않아도 모든 에이전트 세션에서 사용할 수 있습니다.",
 	"installSkillClaudeCode": "Claude Code용 스킬 설치",
 	"installSkillCodex": "Codex용 스킬 설치",
-	"agentSkillInstalled": "스킬이 {path}에 설치되었습니다"
+	"agentSkillInstalled": "스킬이 {path}에 설치되었습니다",
+	"renameSpeaker": "화자 이름 변경",
+	"promptIgnoredByModel": "선택한 모델은 프롬프트를 사용하지 않습니다. 이 프롬프트는 Whisper 모델로 돌아갈 때를 위해 보관됩니다.",
+	"assignSpeaker": "화자 지정",
+	"newSpeaker": "새 화자",
+	"speakerOfThisLine": "이 줄"
 }

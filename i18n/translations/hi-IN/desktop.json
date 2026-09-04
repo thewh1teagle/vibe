@@ -585,5 +585,10 @@
 	"skillSectionDescription": "इन्हीं निर्देशों को स्किल के रूप में इंस्टॉल करें, ताकि हर एजेंट सेशन में इन्हें पेस्ट किए बिना इस्तेमाल किया जा सके।",
 	"installSkillClaudeCode": "Claude Code के लिए स्किल इंस्टॉल करें",
 	"installSkillCodex": "Codex के लिए स्किल इंस्टॉल करें",
-	"agentSkillInstalled": "स्किल {path} में इंस्टॉल की गई"
+	"agentSkillInstalled": "स्किल {path} में इंस्टॉल की गई",
+	"renameSpeaker": "वक्ता का नाम बदलें",
+	"promptIgnoredByModel": "चुना गया मॉडल प्रॉम्प्ट का उपयोग नहीं करता। यह प्रॉम्प्ट Whisper मॉडल पर लौटने के लिए सुरक्षित रखा गया है।",
+	"assignSpeaker": "वक्ता निर्धारित करें",
+	"newSpeaker": "नया वक्ता",
+	"speakerOfThisLine": "यह पंक्ति"
 }

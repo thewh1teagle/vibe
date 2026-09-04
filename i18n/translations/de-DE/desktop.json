@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Installieren Sie dieselben Anweisungen als Skill, damit sie in jeder Agentensitzung ohne Einfügen verfügbar sind.",
 	"installSkillClaudeCode": "Skill für Claude Code installieren",
 	"installSkillCodex": "Skill für Codex installieren",
-	"agentSkillInstalled": "Skill wurde unter {path} installiert"
+	"agentSkillInstalled": "Skill wurde unter {path} installiert",
+	"renameSpeaker": "Sprecher umbenennen",
+	"promptIgnoredByModel": "Das gewählte Modell verwendet keine Prompts. Dieser Prompt bleibt für den Wechsel zurück zu einem Whisper-Modell erhalten.",
+	"assignSpeaker": "Sprecher zuweisen",
+	"newSpeaker": "Neuer Sprecher",
+	"speakerOfThisLine": "Diese Zeile"
 }
