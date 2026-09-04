@@ -1,4 +1,4 @@
-use super::{decode_event_reader, SonaEvent};
+use super::{decode_event_reader, ServerEvent};
 use bytes::Bytes;
 use futures_util::{stream, StreamExt};
 use tokio_util::io::StreamReader;
@@ -22,9 +22,9 @@ async fn decodes_events_across_arbitrary_chunk_boundaries() {
             .await;
 
         assert_eq!(events.len(), 3, "chunk size {chunk_size}");
-        assert!(matches!(events[0], Ok(SonaEvent::Progress { progress: 25 })));
-        assert!(matches!(events[1], Ok(SonaEvent::Segment { ref text, .. }) if text == "hello"));
-        assert!(matches!(events[2], Ok(SonaEvent::Result { ref text }) if text == "hello"));
+        assert!(matches!(events[0], Ok(ServerEvent::Progress { progress: 25 })));
+        assert!(matches!(events[1], Ok(ServerEvent::Segment { ref text, .. }) if text == "hello"));
+        assert!(matches!(events[2], Ok(ServerEvent::Result { ref text }) if text == "hello"));
     }
 }
 
@@ -44,7 +44,7 @@ async fn accepts_result_lines_larger_than_the_default_codec_limit() {
     let chunks = stream::iter([Ok::<_, std::io::Error>(Bytes::from(line))]);
     let events = decode_event_reader(StreamReader::new(chunks)).collect::<Vec<_>>().await;
 
-    assert!(matches!(events.as_slice(), [Ok(SonaEvent::Result { text: result })] if result == &text));
+    assert!(matches!(events.as_slice(), [Ok(ServerEvent::Result { text: result })] if result == &text));
 }
 
 #[test]

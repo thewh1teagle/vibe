@@ -217,7 +217,7 @@ export function viewModel() {
 		try {
 			return await invoke<ModelMetadata>('get_model_metadata', { modelPath })
 		} catch (error) {
-			// Unknown GGUF formats may still be loadable by Sona (for example Whisper GGUF).
+			// Unknown GGUF formats may still be loadable by Server (for example Whisper GGUF).
 			console.error('failed to read GGUF metadata:', error)
 			return null
 		}

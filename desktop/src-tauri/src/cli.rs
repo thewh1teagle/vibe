@@ -3,7 +3,7 @@ use std::io::{BufRead, BufReader};
 use std::process;
 use tauri::AppHandle;
 
-use crate::cmd::sona_cmd::{resolve_ffmpeg_path, resolve_sona_binary};
+use crate::cmd::server_cmd::{resolve_ffmpeg_path, resolve_server_binary};
 
 /// Passed only by the autostart registration. It must not put the app in CLI mode: this is still
 /// the normal GUI application, just without an initially visible window.
@@ -63,7 +63,7 @@ fn subcommand_name() -> String {
         .unwrap_or_else(|| "other".to_string())
 }
 
-/// Forward all CLI args to the bundled sona binary.
+/// Forward all CLI args to the bundled server binary.
 /// Uses the same resolve functions as the GUI to test identical behavior.
 pub async fn run(app_handle: &AppHandle) -> Result<()> {
     #[cfg(target_os = "macos")]
@@ -77,13 +77,13 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         Some(serde_json::json!({ "subcommand": subcommand })),
     );
 
-    let sona_binary = resolve_sona_binary(app_handle)?;
+    let server_binary = resolve_server_binary(app_handle)?;
     let ffmpeg_path = resolve_ffmpeg_path(app_handle);
 
-    // Forward all args after the executable name to sona
+    // Forward all args after the executable name to server
     let args: Vec<String> = std::env::args().skip(1).collect();
 
-    let mut cmd = std::process::Command::new(&sona_binary);
+    let mut cmd = std::process::Command::new(&server_binary);
     cmd.args(&args)
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped());
@@ -100,11 +100,11 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
                 crate::analytics::events::CLI_SPAWN_FAILED,
                 Some(serde_json::json!({
                     "subcommand": subcommand,
-                    "error_message": format!("failed to spawn sona: {}", e),
+                    "error_message": format!("failed to spawn server: {}", e),
                 })),
             );
             crate::analytics::flush_events_bounded(app_handle, std::time::Duration::from_secs(2));
-            return Err(eyre::eyre!("failed to spawn sona: {}", e));
+            return Err(eyre::eyre!("failed to spawn server: {}", e));
         }
     };
 
@@ -127,7 +127,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         }
     });
 
-    let status = child.wait().map_err(|e| eyre::eyre!("failed to wait for sona: {}", e))?;
+    let status = child.wait().map_err(|e| eyre::eyre!("failed to wait for server: {}", e))?;
     let _ = stdout_thread.join();
     let _ = stderr_thread.join();
 
@@ -136,7 +136,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         crate::analytics::events::CLI_FINISHED,
         Some(serde_json::json!({
             "subcommand": subcommand,
-            // `None` on unix means sona was killed by a signal.
+            // `None` on unix means server was killed by a signal.
             "exit_code": status.code(),
             "duration_ms": started_at.elapsed().as_millis() as u64,
         })),

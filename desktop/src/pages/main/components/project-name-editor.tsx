@@ -120,9 +120,7 @@ export function ProjectNameEditor({
 			onClick={(event) => {
 				finishingRef.current = false
 				originalNameRef.current = name
-				requestedCaretRef.current = titleRef.current
-					? caretOffsetFromPoint(titleRef.current, event.clientX, event.clientY)
-					: null
+				requestedCaretRef.current = titleRef.current ? caretOffsetFromPoint(titleRef.current, event.clientX, event.clientY) : null
 				setDraft(name)
 				setEditing(true)
 			}}

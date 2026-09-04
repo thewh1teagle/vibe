@@ -22,7 +22,7 @@ const GGUF_MAGIC: &[u8; 4] = b"GGUF";
 /// truncated stream or an HTML error page saved under a model name, never a model.
 const MIN_MODEL_SIZE: u64 = 256 * 1024;
 
-/// A locked destination (antivirus, or a sona process still holding the previous model open)
+/// A locked destination (antivirus, or a server process still holding the previous model open)
 /// usually clears within a second, so retry the swap before giving up.
 const PUBLISH_ATTEMPTS: u32 = 5;
 const PUBLISH_RETRY_DELAY: Duration = Duration::from_millis(200);
@@ -114,7 +114,7 @@ fn sha256_file(path: &Path) -> Result<String> {
 }
 
 /// Minimum size plus GGML/GGUF magic. This is what stands between a truncated download (or an HTML
-/// error page) and a file the app hands to sona as if it were a model.
+/// error page) and a file the app hands to server as if it were a model.
 pub fn validate_model_file(path: &Path) -> Result<()> {
     let size = std::fs::metadata(path)
         .context(format!("Failed to read the size of {}", path.display()))?
@@ -197,7 +197,7 @@ fn try_publish(partial: &Path, destination: &Path) -> Result<()> {
 }
 
 /// Swap the finished `.part` in, retrying while the destination is locked. On Windows antivirus or
-/// a running sona can hold the old model open for a moment; the caller keeps the `.part` when this
+/// a running server can hold the old model open for a moment; the caller keeps the `.part` when this
 /// still fails, so the next attempt publishes it instead of downloading the file again.
 fn publish_download(partial: &Path, destination: &Path) -> Result<()> {
     let mut attempt = 1;

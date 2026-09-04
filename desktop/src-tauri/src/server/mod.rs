@@ -45,7 +45,7 @@ pub struct ModelMetadata {
     pub capabilities: ModelCapabilities,
 }
 
-pub struct SonaProcess {
+pub struct ServerProcess {
     port: u16,
     unload_timeout_minutes: u32,
     child: Child,
@@ -105,14 +105,14 @@ impl StderrTail {
 /// transcribe paths hold only a client and a url — the child lives in shared
 /// state — so a mid-stream death reaches them as a decode error unless they come
 /// back and ask.
-pub async fn death_report(state: &tokio::sync::Mutex<crate::setup::SonaState>, context: &str) -> Option<String> {
+pub async fn death_report(state: &tokio::sync::Mutex<crate::setup::ServerState>, context: &str) -> Option<String> {
     let mut state = state.lock().await;
     state.process.as_mut()?.death_report(context).await
 }
 
 /// What the sidecar printed lately, for an error that is not a death but that its
 /// stderr may still explain (a GPU driver complaining before the request fails, say).
-pub async fn recent_stderr(state: &tokio::sync::Mutex<crate::setup::SonaState>) -> String {
+pub async fn recent_stderr(state: &tokio::sync::Mutex<crate::setup::ServerState>) -> String {
     let state = state.lock().await;
     state
         .process
@@ -132,7 +132,7 @@ struct ReadySignal {
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
 #[allow(dead_code)]
-pub enum SonaEvent {
+pub enum ServerEvent {
     Progress {
         progress: i32,
     },
@@ -152,29 +152,29 @@ pub enum SonaEvent {
 }
 
 #[derive(Debug, Deserialize)]
-struct SonaErrorResponse {
-    error: SonaErrorBody,
+struct ServerErrorResponse {
+    error: ServerErrorBody,
 }
 
 #[derive(Debug, Deserialize)]
-struct SonaErrorBody {
+struct ServerErrorBody {
     code: Option<String>,
     message: String,
 }
 
 #[derive(Debug)]
-pub struct SonaApiError {
+pub struct ServerApiError {
     pub code: String,
     pub message: String,
 }
 
-impl std::fmt::Display for SonaApiError {
+impl std::fmt::Display for ServerApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[{}] {}", self.code, self.message)
     }
 }
 
-impl std::error::Error for SonaApiError {}
+impl std::error::Error for ServerApiError {}
 
 /// True for failures that happened before the server could act on the request —
 /// a dead pooled socket or a refused connect. Anything that got a response, or
@@ -183,27 +183,27 @@ fn is_connection_failure(error: &reqwest::Error) -> bool {
     error.is_connect() || (error.is_request() && !error.is_body())
 }
 
-fn decode_event_reader<R>(reader: R) -> impl futures_util::Stream<Item = Result<SonaEvent>>
+fn decode_event_reader<R>(reader: R) -> impl futures_util::Stream<Item = Result<ServerEvent>>
 where
     R: AsyncRead,
 {
     FramedRead::new(reader, LinesCodec::new_with_max_length(MAX_EVENT_LINE_LENGTH)).filter_map(|line_result| async move {
         match line_result {
             Ok(line) if line.trim().is_empty() => None,
-            Ok(line) => Some(serde_json::from_str::<SonaEvent>(&line).context("failed to parse sona event")),
-            Err(error) => Some(Err(eyre::eyre!("failed to read sona event line: {error}"))),
+            Ok(line) => Some(serde_json::from_str::<ServerEvent>(&line).context("failed to parse server event")),
+            Err(error) => Some(Err(eyre::eyre!("failed to read server event line: {error}"))),
         }
     })
 }
 
-impl SonaProcess {
+impl ServerProcess {
     pub async fn model_metadata(&self, path: &str) -> Result<ModelMetadata> {
         Self::model_metadata_with(&self.client, &self.base_url(), path).await
     }
 
-    /// Same request as [`SonaProcess::model_metadata`], but taking a cloned client
-    /// and base url like [`SonaProcess::transcribe_stream`] does, so callers can
-    /// release the `SonaState` mutex before the round trip.
+    /// Same request as [`ServerProcess::model_metadata`], but taking a cloned client
+    /// and base url like [`ServerProcess::transcribe_stream`] does, so callers can
+    /// release the `ServerState` mutex before the round trip.
     pub async fn model_metadata_with(client: &reqwest::Client, base_url: &str, path: &str) -> Result<ModelMetadata> {
         let response = client
             .post(format!("{}/v1/models/metadata", base_url))
@@ -212,7 +212,10 @@ impl SonaProcess {
             .await
             .context("failed to request model metadata")?;
         if !response.status().is_success() {
-            bail!("sona model metadata failed: {}", response.text().await.unwrap_or_default());
+            bail!(
+                "vibe-server model metadata failed: {}",
+                response.text().await.unwrap_or_default()
+            );
         }
         response.json().await.context("failed to parse model metadata")
     }
@@ -259,7 +262,7 @@ impl SonaProcess {
             }
         }
         // 0 is the UI's "unset"; 1 is a real request for one segment per word, so it has
-        // to reach sona rather than being filtered out with it.
+        // to reach server rather than being filtered out with it.
         if let Some(value) = options.max_sentence_len.filter(|value| *value > 0) {
             form = form.text("max_segment_len", value.to_string());
         }
@@ -293,7 +296,7 @@ impl SonaProcess {
         client: &reqwest::Client,
         base_url: &str,
         options: &crate::cmd::TranscribeOptions,
-    ) -> Result<impl futures_util::Stream<Item = Result<SonaEvent>>> {
+    ) -> Result<impl futures_util::Stream<Item = Result<ServerEvent>>> {
         let url = format!("{}/v1/audio/transcriptions", base_url);
 
         // A pooled connection the server has already closed fails before the
@@ -310,21 +313,21 @@ impl SonaProcess {
                 Err(error) if attempt == 0 && is_connection_failure(&error) => {
                     tracing::warn!("retrying transcribe request after connection failure: {error}");
                 }
-                Err(error) => bail!("failed to send transcribe request to sona: {error}"),
+                Err(error) => bail!("failed to send transcribe request to server: {error}"),
             }
         }
         let Some(response) = response else {
-            bail!("failed to send transcribe request to sona");
+            bail!("failed to send transcribe request to server");
         };
         if !response.status().is_success() {
             let body = response.text().await.unwrap_or_default();
-            if let Ok(parsed) = serde_json::from_str::<SonaErrorResponse>(&body) {
-                return Err(eyre::Report::new(SonaApiError {
+            if let Ok(parsed) = serde_json::from_str::<ServerErrorResponse>(&body) {
+                return Err(eyre::Report::new(ServerApiError {
                     code: parsed.error.code.unwrap_or_else(|| "internal_error".to_string()),
                     message: parsed.error.message,
                 }));
             }
-            bail!("sona transcribe failed: {}", body);
+            bail!("vibe-server transcribe failed: {}", body);
         }
 
         let byte_stream = response.bytes_stream().map(|result| result.map_err(std::io::Error::other));

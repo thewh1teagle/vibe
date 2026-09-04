@@ -1,4 +1,4 @@
-// Mock handlers for the transcription / model commands (Sona backend).
+// Mock handlers for the transcription / model commands (Server backend).
 // Simulates model loading, streaming transcription and downloads with real timers
 // so the UI exercises the same progress/abort code paths as the desktop runtime.
 import { emitMockEvent, onMockEvent } from '../event-bus'
@@ -12,12 +12,12 @@ interface Segment {
 	speaker?: number
 }
 
-interface SonaError {
+interface ServerError {
 	code: string
 	message: string
 }
 
-function sonaError(code: string, message: string): SonaError {
+function serverError(code: string, message: string): ServerError {
 	return { code, message }
 }
 
@@ -110,7 +110,7 @@ function runTranscribe(
 ): Promise<{ processing_time: { secs: number; nanos: number }; segments: Segment[]; word_segments: undefined }> {
 	return new Promise((resolve, reject) => {
 		if (!fileExists(options.path)) {
-			reject(sonaError('invalid_request', `File not found: ${String(options.path ?? '')}`))
+			reject(serverError('invalid_request', `File not found: ${String(options.path ?? '')}`))
 			return
 		}
 
@@ -140,7 +140,7 @@ function runTranscribe(
 			if (settled) return
 			settled = true
 			cleanup()
-			reject(sonaError('aborted', 'transcription aborted'))
+			reject(serverError('aborted', 'transcription aborted'))
 		}
 
 		function tick() {
@@ -168,7 +168,7 @@ function runTranscribe(
 	})
 }
 
-export const sonaHandlers: CommandHandlerMap = {
+export const serverHandlers: CommandHandlerMap = {
 	get_models_folder: () => MODELS_FOLDER,
 
 	// ({ modelPath }) - every mock model reports the same whisper capabilities.

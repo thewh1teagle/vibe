@@ -13,11 +13,11 @@ pub fn list_gpu_devices(binary_path: &Path) -> Result<Vec<GpuDevice>> {
         cmd.creation_flags(0x08000000);
     }
 
-    let output = cmd.output().context("failed to run sona devices")?;
+    let output = cmd.output().context("failed to run server devices")?;
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        bail!("sona devices failed: {}", stderr.trim());
+        bail!("vibe-server devices failed: {}", stderr.trim());
     }
 
-    serde_json::from_slice(&output.stdout).context("failed to parse sona devices output")
+    serde_json::from_slice(&output.stdout).context("failed to parse server devices output")
 }

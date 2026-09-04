@@ -7,14 +7,14 @@ import { transcriptsFolder } from './transcripts-store'
 
 /** Executables an agent can drive, as resolved by `cmd::skill::get_agent_paths`. */
 interface AgentPaths {
-	sona: string | null
+	server: string | null
 	vibe: string | null
 }
 
 /**
  * The Vibe agent skill.
  *
- * Sona's `/skill` endpoint documents the transcription API and nothing else. An agent working on
+ * Server's `/skill` endpoint documents the transcription API and nothing else. An agent working on
  * someone's behalf also needs to know where the saved transcripts are, where the settings file is,
  * and what to do when it is invoked with no instructions — so those sections live here and are
  * appended to whatever the runner serves.
@@ -32,15 +32,15 @@ export interface SkillContext {
 	/** Base URL of the running local API, baked in at write time. */
 	baseUrl: string
 	/** Body served by the runner's `/skill`, already trimmed. */
-	sonaSkill: string
+	serverSkill: string
 	/** Absolute transcripts folder, or null when it cannot be resolved. */
 	transcriptsFolder: string | null
 	/** Absolute path of `app_config.json`, or null when it cannot be resolved. */
 	configPath: string | null
 	/** Default dictation shortcut on this platform, used as the settings example. */
 	dictationShortcut: string
-	/** Absolute path of the bundled `sona` binary, or null when it cannot be resolved. */
-	sonaBinary: string | null
+	/** Absolute path of the bundled `server` binary, or null when it cannot be resolved. */
+	serverBinary: string | null
 	/** Absolute path of the Vibe executable, or null when it cannot be resolved. */
 	vibeBinary: string | null
 }
@@ -74,9 +74,9 @@ function commandLineSection(context: SkillContext) {
 	return [
 		'# Transcribing without the API',
 		'',
-		context.sonaBinary
-			? ['Vibe bundles the `sona` engine as a standalone binary:', '', `  ${context.sonaBinary}`].join('\n')
-			: 'Vibe bundles the `sona` engine as a standalone binary next to the Vibe executable.',
+		context.serverBinary
+			? ['Vibe bundles the `server` engine as a standalone binary:', '', `  ${context.serverBinary}`].join('\n')
+			: 'Vibe bundles the `server` engine as a standalone binary next to the Vibe executable.',
 		'',
 		'It transcribes straight from the command line — no server, no port, and no GUI running. Run it',
 		'with `--help` for the current usage; the subcommands are `transcribe`, `serve`, `pull` and',
@@ -206,7 +206,7 @@ function settingsSection(context: SkillContext) {
 /** The whole skill as one markdown document. Pure: everything it needs is in `context`. */
 export function composeSkill(context: SkillContext) {
 	return [
-		context.sonaSkill.trimEnd(),
+		context.serverSkill.trimEnd(),
 		baseUrlSection(context),
 		commandLineSection(context),
 		transcriptsSection(context),
@@ -230,14 +230,14 @@ export function withFrontmatter(body: string) {
 /** Gather everything the document needs. Throws only when the local API is unreachable. */
 async function skillContext(baseUrl: string): Promise<SkillContext> {
 	const response = await tauriFetch(`${baseUrl}/skill`)
-	const paths = await invoke<AgentPaths>('get_agent_paths').catch(() => ({ sona: null, vibe: null }))
+	const paths = await invoke<AgentPaths>('get_agent_paths').catch(() => ({ server: null, vibe: null }))
 	return {
 		baseUrl,
-		sonaSkill: await response.text(),
+		serverSkill: await response.text(),
 		transcriptsFolder: await transcriptsFolder(readConfig<string | null>(CONFIG_KEYS.projectsPath, null)).catch(() => null),
 		configPath: await invoke<string>('get_config_path').catch(() => null),
 		dictationShortcut: config.getDefaultHotkeyShortcut(),
-		sonaBinary: paths.sona,
+		serverBinary: paths.server,
 		vibeBinary: paths.vibe,
 	}
 }

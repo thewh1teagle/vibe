@@ -177,7 +177,7 @@ interface EngineSpecificOptions {
 }
 
 /**
- * Drop the Whisper-only options a model cannot use instead of letting sona reject the run.
+ * Drop the Whisper-only options a model cannot use instead of letting server reject the run.
  * A prompt written for Turbo stays saved in settings, so switching to Parakeet or Nemotron
  * and back needs no retyping. Unknown capabilities (no metadata yet) leave the options alone.
  */

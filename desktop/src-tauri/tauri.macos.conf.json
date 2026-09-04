@@ -1,6 +1,6 @@
 {
 	"bundle": {
-		"externalBin": ["binaries/sona", "binaries/ffmpeg"],
+		"externalBin": ["binaries/vibe-server", "binaries/ffmpeg"],
 		"macOS": {
 			"entitlements": "entitlements.plist",
 			"hardenedRuntime": true,

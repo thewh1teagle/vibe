@@ -84,11 +84,7 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 				</SettingsRow>
 
 				<SettingsRow label={m.transcribeOnCpu()} description={m.transcribeOnCpuInfo()} clampDescription={false}>
-					<Switch
-						checked={vm.preference.noGpu}
-						onCheckedChange={vm.preference.setNoGpu}
-						aria-label={m.transcribeOnCpu()}
-					/>
+					<Switch checked={vm.preference.noGpu} onCheckedChange={vm.preference.setNoGpu} aria-label={m.transcribeOnCpu()} />
 				</SettingsRow>
 
 				{!vm.isMacOS && !vm.preference.noGpu && (

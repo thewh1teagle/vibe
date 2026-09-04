@@ -118,7 +118,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		setProgress(0)
 		console.info(`Installing update ${update?.version}, ${update?.date}, ${update?.body}`)
 		await update?.download(onDownloadEvent)
-		// Windows cannot replace the bundled sona.exe while it is running. Stop it
+		// Windows cannot replace the bundled server.exe while it is running. Stop it
 		// only after the update has downloaded so transcription remains available
 		// while the (potentially long) download is in progress.
 		await invoke('stop_api_server')
