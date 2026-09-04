@@ -2,11 +2,11 @@ import { listen } from '@tauri-apps/api/event'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FolderOpen, Link2, Mic, Square, Upload } from 'lucide-react'
 import { siFacebook, siInstagram, siTiktok, siX, siYoutube } from 'simple-icons'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import AudioDeviceInput from '~/components/audio-device-input'
 import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/textarea'
 import { Spinner } from '~/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { cn } from '~/lib/style'
@@ -159,6 +159,18 @@ const linkSources: { title: string; path: string }[] = [
 
 function LinkPanel() {
 	const { link, preference } = useSession()
+	const linkBoxRef = useRef<HTMLTextAreaElement>(null)
+
+	// The box grows with the links pasted into it (up to its max height), and shrinks back when
+	// it is emptied. The WebView on macOS has no `field-sizing`, so this does it by hand.
+	useLayoutEffect(() => {
+		const box = linkBoxRef.current
+		if (!box) return
+		box.style.height = 'auto'
+		box.style.height = `${box.scrollHeight}px`
+		// No scrollbar until the box is actually full, or an empty box shows a stub of one.
+		box.style.overflowY = box.scrollHeight > box.clientHeight ? 'auto' : 'hidden'
+	}, [link.audioUrl])
 
 	if (link.downloadingAudio) {
 		const percent = link.ytdlpProgress ?? 0
@@ -186,9 +198,14 @@ function LinkPanel() {
 						)}
 					</div>
 
-					{link.audioUrl && (
+					{link.batch && (
 						<p dir="ltr" className="truncate text-center text-[12px] text-muted-foreground/80">
-							{link.audioUrl}
+							{link.batch.total > 1 && (
+								<span className="me-2 font-medium text-muted-foreground">
+									{m.linkOfTotal({ current: String(link.batch.index + 1), total: String(link.batch.total) })}
+								</span>
+							)}
+							{link.batch.url}
 						</p>
 					)}
 				</div>
@@ -206,15 +223,22 @@ function LinkPanel() {
 
 	return (
 		<div className="flex w-full flex-col items-center gap-5 py-2.5">
-			<div className="flex w-full items-center gap-3">
-				<Input
-					type="text"
+			<div className="flex w-full items-start gap-3">
+				{/* One line tall until more links are pasted; Enter sends, Shift+Enter adds a line. */}
+				<Textarea
+					ref={linkBoxRef}
+					rows={1}
 					value={link.audioUrl}
 					onChange={(event) => link.setAudioUrl(event.target.value)}
-					onKeyDown={(event) => (event.key === 'Enter' ? link.downloadAudio() : null)}
+					onKeyDown={(event) => {
+						if (event.key === 'Enter' && !event.shiftKey) {
+							event.preventDefault()
+							void link.downloadAudio()
+						}
+					}}
 					// Short enough to stay fully readable when the window is narrow.
 					placeholder={m.pasteMediaLink()}
-					className="h-10 min-w-0 flex-1 rounded-xl px-3.5 text-sm"
+					className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-xl px-3.5 py-2.5 text-sm leading-5"
 				/>
 				<Button
 					onClick={() => link.downloadAudio()}

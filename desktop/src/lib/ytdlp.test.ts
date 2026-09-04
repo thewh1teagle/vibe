@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isNewerVersion } from './ytdlp'
+import { isNewerVersion, parseMediaLinks } from './ytdlp'
 
 describe('isNewerVersion', () => {
 	it('compares calendar versions by number, not as strings', () => {
@@ -28,5 +28,16 @@ describe('isNewerVersion', () => {
 	it('never prompts on a candidate it cannot parse', () => {
 		expect(isNewerVersion('nightly', '2026.08.19')).toBe(false)
 		expect(isNewerVersion('', '2026.08.19')).toBe(false)
+	})
+})
+
+describe('parseMediaLinks', () => {
+	it('takes one link per line, or several on a line, without repeats', () => {
+		expect(parseMediaLinks('https://a.example/1\nhttps://a.example/2\r\n\n  https://a.example/1 https://a.example/3  ')).toEqual([
+			'https://a.example/1',
+			'https://a.example/2',
+			'https://a.example/3',
+		])
+		expect(parseMediaLinks('   ')).toEqual([])
 	})
 })

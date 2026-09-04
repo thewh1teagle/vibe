@@ -501,7 +501,7 @@
 	"dropFilesHere": "Audio, Video oder einen Ordner hier ablegen",
 	"orClickToBrowse": "oder klicken, um Ihre Dateien zu durchsuchen",
 	"dropToAddToQueue": "Ablegen, um zur Warteschlange hinzuzufügen",
-	"pasteMediaLink": "Einen Video- oder Audio-Link einfügen",
+	"pasteMediaLink": "Video- oder Audio-Links einfügen, einen pro Zeile",
 	"worksWith": "Funktioniert mit",
 	"moreSources": "+1000 weitere",
 	"fromFile": "Datei",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "Das gewählte Modell verwendet keine Prompts. Dieser Prompt bleibt für den Wechsel zurück zu einem Whisper-Modell erhalten.",
 	"assignSpeaker": "Sprecher zuweisen",
 	"newSpeaker": "Neuer Sprecher",
-	"speakerOfThisLine": "Diese Zeile"
+	"speakerOfThisLine": "Diese Zeile",
+	"linkOfTotal": "{current} von {total}",
+	"linksSkipped": "{count} von {total} Links konnten nicht heruntergeladen werden"
 }

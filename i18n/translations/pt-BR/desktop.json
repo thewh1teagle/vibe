@@ -501,7 +501,7 @@
 	"dropFilesHere": "Solte aqui áudio, vídeo ou uma pasta",
 	"orClickToBrowse": "ou clique para escolher seus arquivos",
 	"dropToAddToQueue": "Solte para adicionar à fila",
-	"pasteMediaLink": "Cole um link de vídeo ou áudio",
+	"pasteMediaLink": "Cole links de vídeo ou áudio, um por linha",
 	"worksWith": "Funciona com",
 	"moreSources": "+1000 outros",
 	"fromFile": "Arquivo",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "O modelo selecionado não usa prompts. Este prompt fica guardado para quando você voltar a um modelo Whisper.",
 	"assignSpeaker": "Atribuir falante",
 	"newSpeaker": "Novo falante",
-	"speakerOfThisLine": "Esta linha"
+	"speakerOfThisLine": "Esta linha",
+	"linkOfTotal": "{current} de {total}",
+	"linksSkipped": "{count} de {total} links não puderam ser baixados"
 }

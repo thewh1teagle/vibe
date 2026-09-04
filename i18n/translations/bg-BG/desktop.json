@@ -501,7 +501,7 @@
 	"dropFilesHere": "Пуснете аудио, видео или папка тук",
 	"orClickToBrowse": "или щракнете, за да прегледате файловете си",
 	"dropToAddToQueue": "Пуснете, за да добавите към опашката",
-	"pasteMediaLink": "Поставете видео или аудио връзка",
+	"pasteMediaLink": "Поставете видео или аудио връзки, по една на ред",
 	"worksWith": "Работи с",
 	"moreSources": "+1000 други",
 	"fromFile": "Файл",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "Избраният модел не използва подсказки. Тази подсказка се пази за връщане към Whisper модел.",
 	"assignSpeaker": "Задаване на говорещ",
 	"newSpeaker": "Нов говорещ",
-	"speakerOfThisLine": "Този ред"
+	"speakerOfThisLine": "Този ред",
+	"linkOfTotal": "{current} от {total}",
+	"linksSkipped": "{count} от {total} връзки не можаха да бъдат изтеглени"
 }

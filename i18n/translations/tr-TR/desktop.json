@@ -501,7 +501,7 @@
 	"dropFilesHere": "Ses, video veya klasörü buraya bırakın",
 	"orClickToBrowse": "ya da dosyalarınıza göz atmak için tıklayın",
 	"dropToAddToQueue": "Kuyruğa eklemek için bırakın",
-	"pasteMediaLink": "Video veya ses bağlantısı yapıştırın",
+	"pasteMediaLink": "Video veya ses bağlantılarını her satıra bir tane yapıştırın",
 	"worksWith": "Şunlarla çalışır",
 	"moreSources": "+1000 daha",
 	"fromFile": "Dosya",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "Seçili model istem kullanmaz. Bu istem, bir Whisper modeline geri döndüğünüzde kullanılmak üzere saklanır.",
 	"assignSpeaker": "Konuşmacı ata",
 	"newSpeaker": "Yeni konuşmacı",
-	"speakerOfThisLine": "Bu satır"
+	"speakerOfThisLine": "Bu satır",
+	"linkOfTotal": "{current} / {total}",
+	"linksSkipped": "{total} bağlantıdan {count} tanesi indirilemedi"
 }

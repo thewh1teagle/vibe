@@ -501,7 +501,7 @@
 	"dropFilesHere": "Deixa aquí àudio, vídeo o una carpeta",
 	"orClickToBrowse": "o fes clic per triar els teus fitxers",
 	"dropToAddToQueue": "Deixa-ho anar per afegir-ho a la cua",
-	"pasteMediaLink": "Enganxa un enllaç de vídeo o àudio",
+	"pasteMediaLink": "Enganxa enllaços de vídeo o àudio, un per línia",
 	"worksWith": "Funciona amb",
 	"moreSources": "+1000 més",
 	"fromFile": "Fitxer",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "El model seleccionat no fa servir indicacions. Aquesta es conserva per quan tornis a un model Whisper.",
 	"assignSpeaker": "Assigna un parlant",
 	"newSpeaker": "Parlant nou",
-	"speakerOfThisLine": "Aquesta línia"
+	"speakerOfThisLine": "Aquesta línia",
+	"linkOfTotal": "{current} de {total}",
+	"linksSkipped": "No s'han pogut baixar {count} de {total} enllaços"
 }

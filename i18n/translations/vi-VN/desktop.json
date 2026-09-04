@@ -501,7 +501,7 @@
 	"dropFilesHere": "Kéo thả âm thanh, video hoặc thư mục vào đây",
 	"orClickToBrowse": "hoặc bấm để chọn tệp",
 	"dropToAddToQueue": "Thả để thêm vào hàng đợi",
-	"pasteMediaLink": "Dán liên kết video hoặc âm thanh",
+	"pasteMediaLink": "Dán liên kết video hoặc âm thanh, mỗi dòng một liên kết",
 	"worksWith": "Hoạt động với",
 	"moreSources": "+1000 nguồn khác",
 	"fromFile": "Tệp",
@@ -590,5 +590,7 @@
 	"promptIgnoredByModel": "Mô hình đã chọn không dùng lời nhắc. Lời nhắc này được giữ lại cho khi bạn quay về mô hình Whisper.",
 	"assignSpeaker": "Gán người nói",
 	"newSpeaker": "Người nói mới",
-	"speakerOfThisLine": "Dòng này"
+	"speakerOfThisLine": "Dòng này",
+	"linkOfTotal": "{current} / {total}",
+	"linksSkipped": "Không tải được {count} trong {total} liên kết"
 }
