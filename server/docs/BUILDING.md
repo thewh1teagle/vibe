@@ -47,7 +47,7 @@ AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU wit
 
 1. Update the tag in `libs/ggml-version`
 2. Run `chore fetch-headers` and commit the updated headers
-3. Set `libs/revision` to 1, commit, then trigger the `Build Server Libs` workflow (or run `chore upload-libs` locally). The same applies to any change under `libs/`, with the revision bumped instead: the bundle for the new tag must exist before a sona release can fetch it
+3. Set `libs/revision` to 1, commit, then trigger the `Build Server Libs` workflow (or run `chore upload-libs` locally). The same applies to any change under `libs/`, with the revision bumped instead: the bundle for the new tag must exist before a server release can fetch it
 
 ## Packaging a release archive
 
