@@ -9,7 +9,7 @@ import { AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { gpuOutOfMemoryBefore } from '~/lib/gpu-memory'
 import { usePersisted } from '~/lib/config-store'
-import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { createClient, fillPrompt } from '~/lib/ai'
 import { withoutUnsupportedOptions } from '~/lib/model'
 import { isUserError } from '~/lib/server-errors'
 import * as transcript from '~/lib/transcript'
@@ -119,14 +119,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		hotkeyNormalizeOutputRef.current = hotkeyNormalizeOutput
 	}, [hotkeyNormalizeOutput])
 
-	const createLlm = useCallback((): Llm | null => {
-		const config = preferenceRef.current.llmConfig
-		if (!config?.enabled) return null
-		if (config.platform === 'ollama') return new Ollama(config)
-		if (config.platform === 'openai') return new OpenAICompatible(config)
-		return new Claude(config)
-	}, [])
-
 	const handleHotkeyDown = useCallback(async () => {
 		if (isHotkeyRecordingRef.current || isStartingRef.current || isStoppingRef.current) return
 		isStartingRef.current = true
@@ -209,14 +201,15 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				})
 				let resultText = transcript.asText(res.segments, m.speakerPrefix())
 
-				// Optional LLM summarization
-				const llm = createLlm()
-				if (llm && preferenceRef.current.llmConfig?.enabled) {
+				// The dictation clean-up task has its own prompt; the summary prompt never touches
+				// dictated text. When the model fails or answers nothing, the raw words still land.
+				const { connection, tasks } = preferenceRef.current.ai
+				if (tasks.dictation.enabled && resultText.trim()) {
 					try {
-						const question = preferenceRef.current.llmConfig.prompt.replace('%s', resultText)
-						resultText = await llm.ask(question)
+						const cleaned = await createClient(connection).ask(fillPrompt(tasks.dictation.prompt, { text: resultText }))
+						if (cleaned.trim()) resultText = cleaned
 					} catch (e) {
-						console.error('Hotkey LLM error:', e)
+						console.error('dictation clean-up failed, using the raw text:', e)
 					}
 				}
 
@@ -251,7 +244,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		return () => {
 			unlisten.then((fn) => fn())
 		}
-	}, [createLlm, finishIndicator, showIndicator])
+	}, [finishIndicator, showIndicator])
 
 	useEffect(() => {
 		const unlisten = listen<string | { message?: string }>('record_error', ({ payload }) => {

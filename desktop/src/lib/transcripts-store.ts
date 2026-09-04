@@ -40,6 +40,22 @@ export interface TranscriptRecord {
 	speakerNames?: SpeakerNames
 	/** Last AI summary of this transcript, when one was made. */
 	summary?: string
+	/** Questions asked about this transcript and the model's answers, oldest first. */
+	thread?: AiThreadEntry[]
+}
+
+export interface AiThreadEntry {
+	question: string
+	answer: string
+}
+
+function parseThread(value: unknown): AiThreadEntry[] | undefined {
+	if (!Array.isArray(value)) return undefined
+	const entries = value.filter(
+		(entry): entry is AiThreadEntry =>
+			typeof entry === 'object' && entry !== null && typeof entry.question === 'string' && typeof entry.answer === 'string',
+	)
+	return entries.length > 0 ? entries : undefined
 }
 
 export interface TranscriptEntry {
@@ -351,6 +367,7 @@ export async function readTranscript(path: string): Promise<TranscriptRecord | n
 			),
 			speakerNames: parseSpeakerNames(parsed.speakerNames),
 			summary: typeof parsed.summary === 'string' ? parsed.summary : undefined,
+			thread: parseThread(parsed.thread),
 		}
 	} catch (error) {
 		console.warn('failed to read transcript:', path, error)
@@ -400,6 +417,19 @@ export async function updateTranscriptSpeakerNames(path: string, speakerNames: S
 		return true
 	} catch (error) {
 		console.warn('failed to update transcript speaker names:', path, error)
+		return false
+	}
+}
+
+/** Store the question-and-answer thread alongside an already saved transcript. */
+export async function updateTranscriptThread(path: string, thread: AiThreadEntry[]): Promise<boolean> {
+	try {
+		const record = await readTranscript(path)
+		if (!record) return false
+		await writeRecordAtomic(path, { ...record, thread: thread.length > 0 ? thread : undefined })
+		return true
+	} catch (error) {
+		console.warn('failed to update transcript thread:', path, error)
 		return false
 	}
 }

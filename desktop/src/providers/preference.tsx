@@ -11,7 +11,8 @@ import { ModifyState } from '~/lib/types'
 import { supportedLanguages } from '~/lib/i18n'
 import { getLocale, getTextDirection, setLocale } from '~/paraglide/runtime.js'
 import { m } from '~/paraglide/messages.js'
-import { defaultOllamaConfig, LlmConfig } from '~/lib/llm'
+import { DEFAULT_AI, migrateLegacy, type AiSettings } from '~/lib/ai'
+import { readConfig } from '~/lib/config-store'
 import { message } from '@tauri-apps/plugin-dialog'
 import { invoke } from '@tauri-apps/api/core'
 import type { ModelMetadata } from '~/lib/model'
@@ -80,10 +81,8 @@ export interface Preference {
 	homeTab: HomeTab
 	setHomeTab: ModifyState<HomeTab>
 
-	llmConfig: LlmConfig
-	setLlmConfig: ModifyState<LlmConfig>
-	autoSummarizeOnFinish: boolean
-	setAutoSummarizeOnFinish: ModifyState<boolean>
+	ai: AiSettings
+	setAi: ModifyState<AiSettings>
 	ffmpegOptions: FfmpegOptions
 	setFfmpegOptions: ModifyState<FfmpegOptions>
 	resetOptions: () => void
@@ -187,7 +186,6 @@ const defaultOptions = {
 		normalize_loudness: false,
 		custom_command: null,
 	},
-	llmConfig: defaultOllamaConfig(),
 	ytDlpVersion: null,
 	shouldCheckYtDlpVersion: true,
 }
@@ -219,8 +217,22 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [ffmpegOptions, setFfmpegOptions] = usePersisted<FfmpegOptions>(CONFIG_KEYS.ffmpegOptions, defaultOptions.ffmpegOptions)
 	const [projectsPath, setProjectsPath] = usePersisted<string | null>(CONFIG_KEYS.projectsPath, null)
 	const [autoExport, setAutoExport] = usePersisted<AutoExportSettings>(CONFIG_KEYS.autoExport, DEFAULT_AUTO_EXPORT)
-	const [llmConfig, setLlmConfig] = usePersisted<LlmConfig>(CONFIG_KEYS.llmConfig, defaultOptions.llmConfig)
-	const [autoSummarizeOnFinish, setAutoSummarizeOnFinish] = usePersisted<boolean>(CONFIG_KEYS.autoSummarizeOnFinish, config.defaultAutoSummarizeOnFinish)
+	// The pre-3.2 `summarize.llm` object is read once when `ai` is missing, so nobody loses a key or a prompt.
+	const [ai, setAi] = usePersisted<AiSettings>(
+		CONFIG_KEYS.ai,
+		useMemo(
+			() =>
+				migrateLegacy(
+					readConfig(CONFIG_KEYS.legacyLlmConfig, null),
+					readConfig(CONFIG_KEYS.legacyAutoSummarizeOnFinish, config.defaultAutoSummarizeOnFinish),
+				),
+			[],
+		),
+	)
+	useEffect(() => {
+		// Once, at boot: writes the migrated shape so the file carries it from now on.
+		if (readConfig(CONFIG_KEYS.ai, null) === null && readConfig(CONFIG_KEYS.legacyLlmConfig, null) !== null) setAi(ai)
+	}, [ai, setAi])
 	const [ytDlpVersion, setYtDlpVersion] = usePersisted<string | null>(CONFIG_KEYS.ytDlpVersion, null)
 	const [shouldCheckYtDlpVersion, setShouldCheckYtDlpVersion] = usePersisted<boolean>(CONFIG_KEYS.shouldCheckYtDlpVersion, true)
 	const [ytDlpLastUpdateCheck, setYtDlpLastUpdateCheck] = usePersisted<number>(CONFIG_KEYS.ytDlpLastUpdateCheck, 0)
@@ -358,8 +370,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setModelOptions(defaultOptions.modelOptions)
 		setFfmpegOptions(defaultOptions.ffmpegOptions)
 		setProjectsPath(null)
-		setLlmConfig(defaultOptions.llmConfig)
-		setAutoSummarizeOnFinish(config.defaultAutoSummarizeOnFinish)
+		setAi(DEFAULT_AI)
 		setMeetingDetectionEnabled(false)
 		setAutoTranscribeAfterRecording(false)
 		message(m.successAction())
@@ -373,11 +384,9 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 
 	const preference: Preference = {
 		enableSubtitlesPreset,
-		llmConfig,
+		ai,
+		setAi,
 		resetOptions,
-		setLlmConfig,
-		autoSummarizeOnFinish,
-		setAutoSummarizeOnFinish,
 		setLanguageDirections: setLanguageDefaults,
 		modelOptions,
 		setModelOptions,

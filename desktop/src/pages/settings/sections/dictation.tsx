@@ -3,7 +3,8 @@ import { m } from '~/paraglide/messages.js'
 import ShortcutRecorder from '~/components/shortcut-recorder'
 import { Switch } from '~/components/ui/switch'
 import { getDefaultHotkeyShortcut, useHotkeyProvider, type HotkeyActivationMode, type HotkeyOutputMode } from '~/providers/hotkey'
-import { SettingsGroup, SettingsRow } from './shared'
+import { SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
+import { AiTaskLink } from './ai'
 import { getDictationIndicatorEnabled, setDictationIndicatorEnabled } from '~/lib/dictation-indicator'
 
 function SegmentedControl<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
@@ -24,7 +25,7 @@ function SegmentedControl<T extends string>({ value, options, onChange }: { valu
 	)
 }
 
-export function DictationSection() {
+export function DictationSection({ vm, onOpenCleanup }: { vm: SettingsViewModel; onOpenCleanup: () => void }) {
 	const hotkey = useHotkeyProvider()
 	const [indicatorEnabled, setIndicatorEnabled] = useState(true)
 	useEffect(() => {
@@ -84,6 +85,8 @@ export function DictationSection() {
 						<SettingsRow label={m.normalizeHotkeyOutput()} description={m.normalizeHotkeyOutputInfo()}>
 							<Switch checked={hotkey.hotkeyNormalizeOutput} onCheckedChange={hotkey.setHotkeyNormalizeOutput} />
 						</SettingsRow>
+
+						<AiTaskLink label={m.aiDictationTask()} enabled={vm.preference.ai.tasks.dictation.enabled} onClick={onOpenCleanup} />
 					</>
 				)}
 			</SettingsGroup>

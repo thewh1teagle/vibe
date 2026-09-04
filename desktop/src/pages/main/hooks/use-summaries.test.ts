@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it } from 'vitest'
-import { defaultAutoSummarizeOnFinish } from '~/lib/config'
+import { DEFAULT_AI } from '~/lib/ai'
 import type { Job } from './use-transcribe-queue'
 import { shouldAutoSummarize } from './use-summaries'
 
@@ -13,7 +13,7 @@ function completed(overrides: Partial<Pick<Job, 'status' | 'hydrated' | 'summary
 
 describe('automatic summaries', () => {
 	it('is opt-in by default', () => {
-		expect(defaultAutoSummarizeOnFinish).toBe(false)
+		expect(DEFAULT_AI.tasks.summary.autoOnFinish).toBe(false)
 	})
 
 	it('runs only when a session job transitions to done', () => {

@@ -67,9 +67,11 @@ export const CONFIG_KEYS = {
 	hotkeyActivationMode: 'dictation.activationMode',
 	hotkeyNormalizeOutput: 'dictation.normalizeOutput',
 
-	// AI summaries
-	llmConfig: 'summarize.llm',
-	autoSummarizeOnFinish: 'summarize.autoOnFinish',
+	// AI: one connection, one switch and prompt per task (summary, dictation clean-up).
+	ai: 'ai',
+	// Pre-3.2 shape, read once to migrate and then left alone.
+	legacyLlmConfig: 'summarize.llm',
+	legacyAutoSummarizeOnFinish: 'summarize.autoOnFinish',
 
 	// Local API. Written by the app while the server runs so agents can find the per-run port;
 	// removed on stop and on exit. Not a user setting.
@@ -127,7 +129,7 @@ export const LEGACY_LOCAL_STORAGE_KEYS: Record<string, ConfigKey> = {
 	prefs_hotkey_output_mode: CONFIG_KEYS.hotkeyOutputMode,
 	prefs_hotkey_activation_mode: CONFIG_KEYS.hotkeyActivationMode,
 	prefs_hotkey_normalize_output: CONFIG_KEYS.hotkeyNormalizeOutput,
-	prefs_llm_config: CONFIG_KEYS.llmConfig,
+	prefs_llm_config: CONFIG_KEYS.legacyLlmConfig,
 	prefs_ytdlp_version: CONFIG_KEYS.ytDlpVersion,
 	prefs_should_check_ytdlp_version: CONFIG_KEYS.shouldCheckYtDlpVersion,
 	prefs_home_tab: CONFIG_KEYS.homeTab,

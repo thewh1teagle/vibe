@@ -147,7 +147,7 @@ function SummaryMenu({ job, tab, setTab }: { job: Job | null; tab: TranscriptTab
 					<TooltipContent>{actionLabel}</TooltipContent>
 				</Tooltip>
 				<PopoverContent align="end" className="w-64 rounded-2xl p-4">
-					<p className="mb-2 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.processWithLlm()}</p>
+					<p className="mb-2 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.aiSection()}</p>
 
 					<div className="space-y-3">
 						{hasSummary && (
