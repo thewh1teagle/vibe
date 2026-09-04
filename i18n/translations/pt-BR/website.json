@@ -68,5 +68,9 @@
 	"feature-privacy-description": "Aproveite a transcrição totalmente offline: nenhum dado sai do seu dispositivo.",
 	"feature-customize-title": "Liberdade total",
 	"feature-customize-description": "Personalize os modelos nas configurações para uma experiência sob medida.",
-	"changelog": "Registro de alterações"
+	"changelog": "Registro de alterações",
+	"download-for-mac": "Baixar para macOS",
+	"which-mac": "Escolha a versão para o seu Mac. Não sabe? Menu Apple → Sobre este Mac mostra o chip.",
+	"apple-silicon-hint": "M1, M2, M3, M4 e mais recentes",
+	"intel-hint": "Macs com Intel, 2020 e anteriores"
 }

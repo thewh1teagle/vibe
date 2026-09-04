@@ -68,5 +68,9 @@
 	"feature-privacy-description": "תיהנו מתמלול לא מקוון לחלוטין, שום מידע לא יוצא מהמכשיר שלכם.",
 	"feature-customize-title": "חופש מלא",
 	"feature-customize-description": "התאימו את המודלים בהגדרות בקלות, לחוויה שמתאימה בדיוק לכם.",
-	"changelog": "יומן שינויים"
+	"changelog": "יומן שינויים",
+	"download-for-mac": "הורדה ל-macOS",
+	"which-mac": "בחרו את הגרסה למחשב ה-Mac שלכם. לא בטוחים? תפריט Apple → אודות ה-Mac הזה מציג את השבב.",
+	"apple-silicon-hint": "M1, M2, M3, M4 וחדשים יותר",
+	"intel-hint": "מחשבי Mac עם Intel, 2020 ומטה"
 }

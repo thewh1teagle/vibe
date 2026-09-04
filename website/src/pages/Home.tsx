@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { Copy, Download, Languages, Layers, Pause, Plus, Search, Settings, ShieldCheck, SlidersHorizontal } from 'lucide-react'
+import { requestDownload } from '~/lib/download-intent'
 import { m } from '../paraglide/messages.js'
 import Cta from '~/components/Cta'
 import WallOfLove from '~/components/WallOfLove'
@@ -210,7 +211,7 @@ export default function Home() {
 	const ctaRef = useRef<HTMLDivElement>(null)
 
 	const scrollToCta = useCallback(() => {
-		ctaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+		requestDownload()
 	}, [])
 
 	return (

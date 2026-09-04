@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import mobile from 'is-mobile'
 import { m } from '../paraglide/messages.js'
 import { Button } from '~/components/ui/button'
@@ -9,6 +9,7 @@ import Linux from '~/icons/Linux'
 import Mac from '~/icons/Mac'
 import Windows from '~/icons/Windows'
 import { isVersionOverride, release as latestRelease } from '~/lib/release'
+import { onDownloadRequest } from '~/lib/download-intent'
 import linuxInstallOptions from '~/lib/linux_install_options.json'
 import CopyButton from './CopyButton'
 import PostDownload from './PostDownload'
@@ -35,7 +36,7 @@ interface CtaProps {
 
 export default function Cta({ onOpenKofi }: CtaProps) {
 	const [currentPlatform, setCurrentPlatform] = useState<Platform>('macos')
-	const [ctaClicked, setCtaClicked] = useState(false)
+	const [macModalOpen, setMacModalOpen] = useState(false)
 	const [mobileModalOpen, setMobileModalOpen] = useState(false)
 	const [linuxModalOpen, setLinuxModalOpen] = useState(false)
 	const [postDownloadOpen, setPostDownloadOpen] = useState(false)
@@ -44,10 +45,15 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 
 	const asset = latestRelease.assets.find((releaseAsset) => releaseAsset.platform?.toLowerCase() === currentPlatform)
 
+	const ctaClickRef = useRef<() => void>(() => {})
+
 	useEffect(() => {
 		setCurrentPlatform(getOS())
 		setIsMobile(mobile() || window.screen.width < 480)
 	}, [])
+
+	// Another Download button on the page acts as if this one was clicked.
+	useEffect(() => onDownloadRequest(() => ctaClickRef.current()), [])
 
 	function ctaClick() {
 		if (isMobile) {
@@ -57,7 +63,7 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 		}
 
 		if (currentPlatform === 'macos') {
-			setCtaClicked(true)
+			setMacModalOpen(true)
 			return
 		}
 
@@ -72,9 +78,10 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 		}
 	}
 
+	ctaClickRef.current = ctaClick
+
 	function changePlatform(platform: Platform) {
 		setCurrentPlatform(platform)
-		setCtaClicked(false)
 		setCurrentURL(location.href)
 	}
 
@@ -114,23 +121,6 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 					</a>
 				</Button>
 			</div>
-
-			{currentPlatform === 'macos' && ctaClicked && (
-				<div className="mt-4 flex gap-2">
-					<Button variant="outline" size="sm" className="animate-pulse-glow" asChild>
-						<a href={macSiliconAsset?.url} onClick={() => setPostDownloadOpen(true)}>
-							<Mac className="size-4" />
-							{m['apple-silicon']()}
-						</a>
-					</Button>
-					<Button variant="outline" size="sm" className="animate-pulse-glow" asChild>
-						<a href={macIntelAsset?.url} onClick={() => setPostDownloadOpen(true)}>
-							<Chip />
-							{m.intel()}
-						</a>
-					</Button>
-				</div>
-			)}
 
 			<div className="mt-6 flex flex-col items-center gap-2.5">
 				<div className="flex items-center gap-1 rounded-full border border-border p-1">
@@ -186,6 +176,40 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 							{m.cancel()}
 						</Button>
 					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog open={macModalOpen} onOpenChange={setMacModalOpen}>
+				<DialogContent className="w-[88vw] max-w-[88vw] p-6 sm:!max-w-xl md:p-8">
+					<h3 className="pe-8 text-[24px] font-semibold tracking-[-0.03em] md:text-[28px]">{m['download-for-mac']()}</h3>
+					<p className="mt-1 text-[14px] text-muted-foreground">{m['which-mac']()}</p>
+					<div className="mt-6 grid gap-3 sm:grid-cols-2">
+						{[
+							{ asset: macSiliconAsset, label: m['apple-silicon'](), hint: m['apple-silicon-hint'](), icon: <Mac className="size-5" /> },
+							{ asset: macIntelAsset, label: m.intel(), hint: m['intel-hint'](), icon: <Chip /> },
+						].map((build) => (
+							<a
+								key={build.label}
+								href={build.asset?.url}
+								onClick={() => {
+									setMacModalOpen(false)
+									setPostDownloadOpen(true)
+								}}
+								className="group flex flex-col gap-3 rounded-2xl border border-border bg-muted/40 p-5 transition-colors hover:border-foreground/40 hover:bg-muted">
+								<span className="flex items-center gap-2 text-[16px] font-semibold text-foreground">
+									{build.icon}
+									{build.label}
+								</span>
+								<span className="text-[13px] text-muted-foreground">{build.hint}</span>
+								<span className="mt-auto text-[13px] font-medium text-foreground underline decoration-border underline-offset-4 group-hover:decoration-foreground">
+									{m.download()}
+								</span>
+							</a>
+						))}
+					</div>
+					<div className="mt-8 flex items-center justify-center">
+						<SupportButton onOpenKofi={onOpenKofi} />
+					</div>
 				</DialogContent>
 			</Dialog>
 

@@ -68,5 +68,9 @@
 	"feature-privacy-description": "Nyt helt offline transkripsjon – ingen data forlater enheten din.",
 	"feature-customize-title": "Full frihet",
 	"feature-customize-description": "Tilpass modellene enkelt i innstillingene for en opplevelse som passer deg.",
-	"changelog": "Endringslogg"
+	"changelog": "Endringslogg",
+	"download-for-mac": "Last ned for macOS",
+	"which-mac": "Velg versjonen for din Mac. Usikker? Apple-menyen → Om denne Macen viser brikken.",
+	"apple-silicon-hint": "M1, M2, M3, M4 og nyere",
+	"intel-hint": "Intel-Macer, 2020 og eldre"
 }
