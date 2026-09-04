@@ -30,11 +30,13 @@ pub fn get_commit_hash() -> String {
 
 #[tauri::command]
 pub fn is_avx2_enabled() -> bool {
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), not(target_os = "macos")))]
+    // A real check on every x86 machine, Intel Macs included: a hardcoded `true` there once
+    // sent a bug report down the wrong path (#1499).
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     {
         is_x86_feature_detected!("avx2")
     }
-    #[cfg(not(all(any(target_arch = "x86", target_arch = "x86_64"), not(target_os = "macos"))))]
+    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     {
         true
     }
