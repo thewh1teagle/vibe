@@ -10,9 +10,9 @@ pub fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
     let resource_dir = app_handle.path().resource_dir().context("get resource dir")?;
 
     #[cfg(target_os = "windows")]
-    let binary_name = "sona.exe";
+    let binary_name = "vibe-server.exe";
     #[cfg(not(target_os = "windows"))]
-    let binary_name = "sona";
+    let binary_name = "vibe-server";
 
     // Check resource dir (Tauri externalBin places them here)
     let sidecar_path = resource_dir.join(binary_name);
@@ -51,7 +51,7 @@ pub fn resolve_sona_binary(app_handle: &tauri::AppHandle) -> Result<PathBuf> {
         return Ok(path);
     }
 
-    bail!("sona binary not found")
+    bail!("vibe-server binary not found")
 }
 
 pub fn resolve_ffmpeg_path(app_handle: &tauri::AppHandle) -> Option<PathBuf> {

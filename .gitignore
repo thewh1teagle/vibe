@@ -32,13 +32,14 @@ venv/
 *trace*.log
 samples/**/*.txt
 pnpm-workspace.yaml
-desktop/src-tauri/binaries/sona-*
+desktop/src-tauri/binaries/vibe-server-*
 github-issues/
 dedup_report.json
 ISSUES-REPORT.md
 desktop/src-tauri/binaries/
 !desktop/src-tauri/binaries/.gitkeep
 *.csv
+# The engine lives in server/ now; an old nested sona checkout may still sit here.
 /sona/
 whisper.cpp/
 aptabase-python/
