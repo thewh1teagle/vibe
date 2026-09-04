@@ -6,5 +6,5 @@
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-#[cfg(all(target_arch = "x86_64", any(target_os = "linux", target_os = "windows")))]
+#[cfg(target_arch = "x86_64")]
 mod cpu_variant;

@@ -1,6 +1,6 @@
 //! Picks the CPU backend build for this machine.
 //!
-//! On x86_64 the native libraries hold the CPU backend twice, built for Haswell (AVX2,
+//! On x86_64 (Linux, Windows and Intel macOS) the native libraries hold the CPU backend twice, built for Haswell (AVX2,
 //! FMA, BMI2) and for the AVX baseline, with every symbol suffixed `_hsw` or `_x64` by
 //! `chore build-libs` (`stage-cpu-variant` in libs/libs.chore). ggml's backend registry resolves `ggml_backend_cpu_reg` at link
 //! time; this is the definition it finds, and it forwards to the build the CPU can run.
