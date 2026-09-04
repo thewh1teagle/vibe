@@ -25,8 +25,21 @@ function statusLabel(job: Job) {
 	switch (job.status) {
 		case 'running':
 			return `${Math.round(job.progress)}%`
-		case 'done':
-			return job.seconds != null ? m.transcribeTook({ total: String(job.seconds) }) : m.transcribed()
+		case 'done': {
+			const took = job.seconds != null ? m.transcribeTook({ total: String(job.seconds) }) : m.transcribed()
+			const exported = job.exported
+			if (!exported) return took
+			switch (exported.status) {
+				case 'exported':
+					return `${m.autoExportRowExported({ formats: exported.formats.map((format) => `.${format === 'normal' ? 'txt' : format}`).join(' ') })}${exported.detail ? ` · ${exported.detail}` : ''}`
+				case 'skipped':
+					return m.autoExportRowSkipped({ detail: exported.detail ?? '' })
+				case 'fallback':
+					return m.autoExportRowFallback({ detail: exported.detail ?? '' })
+				default:
+					return m.autoExportRowFailed({ detail: exported.detail ?? '' })
+			}
+		}
 		case 'error':
 			return job.error ?? m.error()
 		case 'cancelled':
@@ -43,7 +56,7 @@ export default function FileQueue() {
 		<div className="flex h-full min-h-0 flex-col">
 			<div className="flex items-center justify-between px-4 pt-4 pb-3">
 				<p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
-					{m.files()} · {queue.jobs.length}
+					{m.files()} · {queue.batch ? m.batchProgress({ done: String(queue.batch.done), total: String(queue.batch.total) }) : queue.jobs.length}
 				</p>
 				{queue.running && (
 					<button

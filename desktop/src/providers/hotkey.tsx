@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
 import { invoke } from '@tauri-apps/api/core'
+import { notify } from '~/lib/notify'
 import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
@@ -47,23 +48,6 @@ const HotkeyContext = createContext<HotkeyContextType | null>(null)
 
 export function useHotkeyProvider() {
 	return useContext(HotkeyContext) as HotkeyContextType
-}
-
-async function ensureNotificationPermission(): Promise<boolean> {
-	const granted = await invoke<boolean>('plugin:notification|is_permission_granted')
-	if (granted) return true
-	const result: string = await invoke('plugin:notification|request_permission')
-	return result === 'granted'
-}
-
-async function notify(title: string, body: string) {
-	try {
-		const granted = await ensureNotificationPermission()
-		if (!granted) return
-		await invoke('plugin:notification|notify', { options: { title, body } })
-	} catch (e) {
-		console.error('Notification error:', e)
-	}
 }
 
 function getErrorMessage(error: unknown): string {

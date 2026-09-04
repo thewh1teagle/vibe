@@ -36,6 +36,8 @@ export const CONFIG_KEYS = {
 	focusOnFinish: 'transcription.focusOnFinish',
 	saveTranscripts: 'transcription.saveTranscripts',
 	projectsPath: 'transcription.projectsPath',
+	/** Export every finished transcript automatically: formats, destination, replace rule. */
+	autoExport: 'transcription.autoExport',
 
 	// Recording
 	inputDeviceId: 'recording.inputDeviceId',

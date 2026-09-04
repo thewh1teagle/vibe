@@ -9,6 +9,9 @@ import { trackGpuOutOfMemory, trackTranscribeCancelled, trackTranscribeFailed, t
 import * as config from '~/lib/config'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
+import { exportTranscript, sharedFolder, summarizeResults, tauriExportIo, type AutoExportResult } from '~/lib/auto-export'
+import { openPath } from '~/lib/app'
+import { notify } from '~/lib/notify'
 import { autoProjectName } from '~/lib/project-name'
 import { gpuOutOfMemoryBefore, rememberGpuOutOfMemory } from '~/lib/gpu-memory'
 import { fatalRunError, isGpuOutOfMemory, isUserError, serverErrorCodes } from '~/lib/server-errors'
@@ -58,6 +61,30 @@ export interface Job {
 	summary?: string
 	/** Names the user gave the diarized speakers, by zero-based speaker index. */
 	speakerNames?: SpeakerNames
+	/** What auto-export did with this transcript, when it ran. */
+	exported?: AutoExportResult
+}
+
+/** A run of two or more files: what batch users watch instead of the transcripts. */
+export interface BatchProgress {
+	total: number
+	done: number
+	startedAt: number
+	/** Seconds per finished file so far, for the time estimate; null until one finished. */
+	secondsPerFile: number | null
+}
+
+export interface BatchSummary {
+	total: number
+	seconds: number
+	exported: number
+	skipped: number
+	fallback: number
+	failed: number
+	/** The one folder everything went to, when there is one. */
+	folder: string | null
+	/** Jobs whose export did not go as planned, for "Show details". */
+	exceptions: { name: string; detail: string }[]
 }
 
 export interface TranscribeQueue {
@@ -93,6 +120,15 @@ export interface TranscribeQueue {
 	cancelCurrent: () => void
 	cancelAll: () => void
 	reset: () => void
+	/** Progress across a run of several files, null for a single file or when idle. */
+	batch: BatchProgress | null
+	/** The finished card's content, until dismissed. */
+	batchSummary: BatchSummary | null
+	dismissBatchSummary: () => void
+	/** Finished jobs auto-export has not written yet: the count behind "Export all". */
+	unexportedCount: number
+	/** Export every finished job that has nothing written yet, with the current settings. */
+	exportFinished: () => Promise<void>
 }
 
 let jobCounter = 0
@@ -246,6 +282,39 @@ export function useTranscribeQueue(): TranscribeQueue {
 		[commit],
 	)
 
+	const [batch, setBatch] = useState<BatchProgress | null>(null)
+	const [batchSummary, setBatchSummary] = useState<BatchSummary | null>(null)
+	const runResultsRef = useRef<Map<string, AutoExportResult>>(new Map())
+
+	/**
+	 * Write a finished transcript in the auto-export formats. Never throws and never touches
+	 * the job's status: the transcription succeeded whatever happens to the files.
+	 */
+	const autoExportJob = useCallback(
+		async (job: Job, segments: Segment[]): Promise<AutoExportResult | null> => {
+			const current = preferenceRef.current
+			if (!current.autoExport.enabled || segments.length === 0) return null
+			const result = await exportTranscript(
+				{ name: job.name, path: job.path, segments, summary: job.summary, speakerNames: job.speakerNames },
+				current.autoExport,
+				{
+					direction: current.textAreaDirection,
+					theme: current.exportOptions.theme,
+					showTimestamps: current.exportOptions.showTimestamps,
+					showSpeakers: current.exportOptions.showSpeakers,
+					speakerLabel: m.speakerPrefix(),
+					labels: { transcript: m.exportTranscript(), summary: m.exportSummary() },
+				},
+				tauriExportIo(current.projectsPath),
+				{ skipped: (names) => m.autoExportSkipped({ names }), fallback: m.autoExportFallback() },
+			)
+			patch(job.id, { exported: result })
+			runResultsRef.current.set(job.id, result)
+			return result
+		},
+		[patch],
+	)
+
 	/**
 	 * Auto-save a finished job into the transcripts store. Fire-and-forget on purpose: persistence
 	 * must never delay or break the queue, so failures only surface in the console.
@@ -292,6 +361,16 @@ export function useTranscribeQueue(): TranscribeQueue {
 		setIsAborting(false)
 		startKeepAwake(KEEP_AWAKE.queue)
 		let completedAny = false
+		const runStartedAt = Date.now()
+		const runTotal = jobsRef.current.filter((job) => job.status === 'queued').length
+		const runIds = new Set(jobsRef.current.filter((job) => job.status === 'queued').map((job) => job.id))
+		let runDone = 0
+		let runSeconds = 0
+		runResultsRef.current = new Map()
+		if (runTotal > 1) {
+			setBatchSummary(null)
+			setBatch({ total: runTotal, done: 0, startedAt: runStartedAt, secondsPerFile: null })
+		}
 
 		try {
 			const current = preferenceRef.current
@@ -345,6 +424,9 @@ export function useTranscribeQueue(): TranscribeQueue {
 					const seconds = Math.round((performance.now() - startedAt) / 1000)
 					patch(next.id, { status: 'done', progress: 100, segments: result.segments, seconds })
 					completedAny = true
+					runDone += 1
+					runSeconds += seconds
+					if (runTotal > 1) setBatch({ total: runTotal, done: runDone, startedAt: runStartedAt, secondsPerFile: runSeconds / runDone })
 					if (next.savedPath) {
 						// Renaming a project is asynchronous. Serialize the transcript write behind it and
 						// re-read the live path so completion can never target the folder's old name.
@@ -355,6 +437,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 					} else {
 						persist(next, result.segments)
 					}
+					if (!abortCurrentRef.current && !abortAllRef.current) void autoExportJob(next, result.segments)
 					// An abort resolves as a success carrying the partial segments, so only these flags tell them apart.
 					if (abortCurrentRef.current || abortAllRef.current) {
 						trackTranscribeCancelled('main', next.path)
@@ -411,6 +494,27 @@ export function useTranscribeQueue(): TranscribeQueue {
 			setRunning(false)
 			setIsAborting(false)
 
+			setBatch(null)
+			if (completedAny && runTotal > 1) {
+				// Export results may still be landing; wait for the ones this run started.
+				await new Promise((resolve) => setTimeout(resolve, 50))
+				const results = [...runIds].map((id) => runResultsRef.current.get(id)).filter((r): r is AutoExportResult => Boolean(r))
+				const counts = summarizeResults(results)
+				const summary: BatchSummary = {
+					total: runTotal,
+					seconds: Math.round((Date.now() - runStartedAt) / 1000),
+					...counts,
+					folder: sharedFolder(results),
+					exceptions: jobsRef.current
+						.filter((job) => runIds.has(job.id) && job.exported && job.exported.status !== 'exported')
+						.map((job) => ({ name: job.name, detail: job.exported?.detail ?? job.exported?.status ?? '' })),
+				}
+				setBatchSummary(summary)
+				const exportedLine = preferenceRef.current.autoExport.enabled
+					? m.batchFinishedExported({ count: String(counts.exported + counts.fallback) })
+					: m.batchFinishedFiles({ count: String(runDone) })
+				void notify(m.batchFinishedTitle(), exportedLine)
+			}
 			if (completedAny) {
 				const finished = preferenceRef.current
 				if (finished.soundOnFinish) new Audio(successSound).play()
@@ -423,7 +527,28 @@ export function useTranscribeQueue(): TranscribeQueue {
 			// A file enqueued while the loop was winding down would otherwise stay queued forever.
 			if (!abortAllRef.current && jobsRef.current.some((job) => job.status === 'queued')) void runLoop()
 		}
-	}, [commit, failPending, patch, persist, select, serializeProjectOperation, setErrorModal])
+	}, [autoExportJob, commit, failPending, patch, persist, select, serializeProjectOperation, setErrorModal])
+
+	const unexportedCount = jobs.filter((job) => job.status === 'done' && job.segments.length > 0 && !job.exported).length
+
+	/** "Export all": catch up every finished job with nothing written, with the current settings. */
+	const exportFinished = useCallback(async () => {
+		const pending = jobsRef.current.filter((job) => job.status === 'done' && job.segments.length > 0 && !job.exported)
+		const results: AutoExportResult[] = []
+		for (const job of pending) {
+			const result = await autoExportJob(job, job.segments)
+			if (result) results.push(result)
+		}
+		if (results.length === 0) return
+		const counts = summarizeResults(results)
+		const folder = sharedFolder(results)
+		toast.success(m.batchFinishedExported({ count: String(counts.exported + counts.fallback) }), {
+			position: 'bottom-center',
+			...(folder ? { action: { label: m.openFolder(), onClick: () => void openPath({ name: '', path: folder }) } } : {}),
+		})
+	}, [autoExportJob])
+
+	const dismissBatchSummary = useCallback(() => setBatchSummary(null), [])
 
 	const transcribeJob = useCallback(
 		(jobId: string) => {
@@ -620,5 +745,10 @@ export function useTranscribeQueue(): TranscribeQueue {
 		cancelCurrent,
 		cancelAll,
 		reset,
+		batch,
+		batchSummary,
+		dismissBatchSummary,
+		unexportedCount,
+		exportFinished,
 	}
 }

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { getTextDirection } from '~/paraglide/runtime.js'
 import { useTray } from '~/lib/tray'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import UpdateProgress from '~/components/updater-progress'
 import '~/globals.css'
 import SetupPage from '~/pages/setup/page'
@@ -61,7 +61,6 @@ function AppContent() {
 											<Routes>
 												<Route path="/" element={<MainPage />} />
 												<Route path="/setup" element={<SetupPage />} />
-												<Route path="/batch" element={<Navigate to="/" replace />} />
 											</Routes>
 										</FilesProvider>
 										<Toaster position="bottom-right" />
