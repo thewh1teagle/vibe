@@ -1,0 +1,80 @@
+name: Build Server Libs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: server
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        # linux x86_64: ubuntu-22.04 so shipped libs require GLIBC>=2.35/GLIBCXX>=3.4.30, covering Debian/Mint/Ubuntu 22.04 users
+        # linux arm64: stays on ubuntu-24.04-arm because LunarG does not publish ARM64 apt packages (glslc/libshaderc-dev unavailable on 22.04 arm)
+        include:
+          - runner: macos-14
+          - runner: macos-15-intel
+          - runner: ubuntu-22.04
+          - runner: ubuntu-24.04-arm
+          - runner: windows-latest
+            windows_lib_flavor: msvc
+          - runner: windows-latest
+            windows_lib_flavor: gnu
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Vulkan deps (Linux x86_64)
+        if: runner.os == 'Linux' && runner.arch == 'X64'
+        run: |
+          # glslc/libshaderc-dev are not in Ubuntu 22.04 standard repos; install via LunarG Vulkan SDK
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+          sudo apt-get update -qq && sudo apt-get install -y -qq vulkan-sdk glslang-tools
+      - name: Install Vulkan deps (Linux ARM64)
+        if: runner.os == 'Linux' && runner.arch == 'ARM64'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libvulkan-dev glslang-tools glslc libshaderc-dev
+      - name: Install Vulkan deps (Windows MSVC)
+        if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'msvc'
+        shell: pwsh
+        run: choco install vulkan-sdk -y
+      # llvm-nm and llvm-objcopy, for the two CPU backend builds (stage-cpu-variant).
+      - name: Install LLVM tools (Windows MSVC)
+        if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'msvc'
+        shell: pwsh
+        run: |
+          choco install llvm -y
+          "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Configure Vulkan SDK (Windows MSVC)
+        if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'msvc'
+        shell: pwsh
+        run: |
+          $sdk = Get-ChildItem "C:\VulkanSDK" -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if (-not $sdk) { throw "Vulkan SDK was not installed under C:\VulkanSDK" }
+          "VULKAN_SDK=$($sdk.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "Vulkan_INCLUDE_DIR=$($sdk.FullName)\Include" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "Vulkan_LIBRARY=$($sdk.FullName)\Lib\vulkan-1.lib" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "$($sdk.FullName)\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Install Vulkan deps (Windows GNU)
+        if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'gnu'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: mingw-w64-x86_64-vulkan-devel mingw-w64-x86_64-shaderc mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc
+      - name: Add MinGW to PATH
+        if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'gnu'
+        shell: pwsh
+        run: echo "$env:RUNNER_TEMP\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Setup chore
+        uses: getchore/setup-chore@v1
+      - name: Build and upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SONA_WINDOWS_LIB_FLAVOR: ${{ matrix.windows_lib_flavor }}
+        run: chore upload-libs

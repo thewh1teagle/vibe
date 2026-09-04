@@ -1,0 +1,99 @@
+name: Test Server Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Server release tag to test (for example: server-v0.7.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: server
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            archive: vibe-server-linux-amd64
+            binary: vibe-server
+            raw: true
+          - runner: ubuntu-24.04-arm
+            archive: vibe-server-linux-arm64
+            binary: vibe-server
+            raw: true
+          - runner: macos-14
+            archive: vibe-server-darwin-arm64-with-ffmpeg.tar.gz
+            binary: vibe-server
+          - runner: macos-15-intel
+            archive: vibe-server-darwin-amd64-with-ffmpeg.tar.gz
+            binary: vibe-server
+          - runner: windows-latest
+            archive: vibe-server-windows-amd64-with-ffmpeg.zip
+            binary: vibe-server.exe
+    runs-on: ${{ matrix.runner }}
+    env:
+      TAG: ${{ github.event.inputs.tag }}
+      ARCHIVE: ${{ matrix.archive }}
+      BINARY: ${{ matrix.binary }}
+      MODEL_URL: https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin
+      SAMPLE_URL: https://github.com/ggml-org/whisper.cpp/raw/master/samples/jfk.wav
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSYS2 wget (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: wget
+
+      - name: Install system ffmpeg (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Download release bundle and test assets (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p models samples
+          wget -O "${ARCHIVE}" "https://github.com/${{ github.repository }}/releases/download/${TAG}/${ARCHIVE}"
+          if [ "${{ matrix.raw }}" = "true" ]; then
+            mv "${ARCHIVE}" "${BINARY}"
+          else
+            tar -xzf "${ARCHIVE}"
+          fi
+          wget -O models/ggml-tiny.bin "${MODEL_URL}"
+          wget -O samples/jfk.wav "${SAMPLE_URL}"
+          chmod +x "${BINARY}"
+          chmod +x ffmpeg || true
+
+      - name: Run binary (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          "./${BINARY}" transcribe models/ggml-tiny.bin samples/jfk.wav
+
+      - name: Download release bundle and test assets (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path models | Out-Null
+          New-Item -ItemType Directory -Force -Path samples | Out-Null
+          C:\msys64\usr\bin\wget.exe --progress=bar:force:noscroll "https://github.com/${{ github.repository }}/releases/download/$env:TAG/$env:ARCHIVE" -O "$env:ARCHIVE"
+          Expand-Archive -Path "$env:ARCHIVE" -DestinationPath "." -Force
+          C:\msys64\usr\bin\wget.exe --progress=bar:force:noscroll "$env:MODEL_URL" -O "models/ggml-tiny.bin"
+          C:\msys64\usr\bin\wget.exe --progress=bar:force:noscroll "$env:SAMPLE_URL" -O "samples/jfk.wav"
+
+      - name: Run binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          .\${{ matrix.binary }} transcribe models\ggml-tiny.bin samples\jfk.wav

@@ -1,0 +1,15 @@
+[package]
+name = "nemotron-rs"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Native GGML inference for NVIDIA Nemotron streaming ASR"
+
+[dependencies]
+hound = "3.5"
+rayon = "1.11"
+rustfft = "6.4"
+thiserror = "2"
+ggml-rs-sys = { path = "../ggml-rs-sys" }
+vad-rs = { path = "../vad-rs" }

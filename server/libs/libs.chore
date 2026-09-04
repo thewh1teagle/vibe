@@ -1,0 +1,229 @@
+# The prebuilt ggml libraries: what they are built from and how they are fetched.
+# Included from the root chorefile, so $ROOT is the repo root and $version the
+# pinned ggml tag from libs/ggml-version.
+#
+# A bundle is published under libraries-ggml-<version>-r<revision>. The revision is
+# libs/revision, bumped by hand in the same commit as any change under libs/ (the
+# ggml tag, the patches, this recipe) and reset to 1 when the ggml tag moves, so a
+# changed bundle never replaces the one an older sona tag still links against.
+# The git tree hash of libs/ is recorded in the release notes and checked by
+# upload-libs: a release that already exists for another tree means the bump was
+# forgotten. Uncommitted edits are not in the hash, so upload-libs refuses them.
+
+repo=thewh1teagle/vibe
+ggml_git=https://github.com/ggml-org/ggml.git
+revision=$(read $ROOT/libs/revision)
+
+# Print the short tree hash of libs/ at HEAD.
+task libs-id {
+	echo "$(git -C $ROOT rev-parse --short=12 HEAD:libs)"
+}
+
+# Print the GitHub release tag the current libs/ inputs are published under.
+task libs-tag {
+	echo "libraries-ggml-$version-r$revision"
+}
+
+# Print the Windows import library flavor: SONA_WINDOWS_LIB_FLAVOR, or the host toolchain's.
+task lib-flavor {
+	flavor=$ENV
+	if $OS == windows && env SONA_WINDOWS_LIB_FLAVOR {
+		flavor=$(env SONA_WINDOWS_LIB_FLAVOR)
+		if $flavor != gnu && $flavor != msvc { fail "unsupported SONA_WINDOWS_LIB_FLAVOR: $flavor" }
+	}
+	echo "$flavor"
+}
+
+# Print the platform id in library archive names, e.g. darwin-arm64 or windows-amd64-msvc.
+task platform-id {
+	os=$OS
+	arch=$ARCH
+	if $OS == macos { os=darwin }
+	if $OS != macos && $ARCH == arm64 { arch=aarch64 }
+	if $OS == windows && $ARCH == x86_64 { arch=amd64 }
+	if $OS == windows {
+		flavor=$(lib-flavor)
+		echo "$os-$arch-$flavor"
+	} else {
+		echo "$os-$arch"
+	}
+}
+
+# Download the prebuilt ggml static libraries for this platform into third_party.
+task fetch-libs {
+	platform=$(platform-id)
+	tag=$(libs-tag)
+	echo "ggml: $version"
+	echo "platform: $platform"
+	echo "release: $tag"
+	mkdir $ROOT/target
+	download gh://$repo/$tag/ggml-libs-$platform.tar.gz $ROOT/target/ggml-libs-$platform.tar.gz --timeout 120
+	extract $ROOT/target/ggml-libs-$platform.tar.gz $ROOT/third_party
+	remove $ROOT/target/ggml-libs-$platform.tar.gz
+	echo "extracted to $ROOT/third_party"
+}
+
+# Build the ggml static libraries for this platform and package them into an archive.
+task build-libs {
+	platform=$(platform-id)
+	flavor=$(lib-flavor)
+	src=$ROOT/ggml-src
+	build=$ROOT/ggml-build
+	pkg=$ROOT/ggml-build/pkg
+	echo "ggml: $version"
+	echo "platform: $platform"
+
+	remove $src
+	mkdir $src
+	cd $src
+	git init
+	git remote add origin $ggml_git
+	git fetch --depth 1 origin $version
+	git checkout FETCH_HEAD
+	git submodule update --init --depth 1 --recursive
+	# Fixes ggml has not taken yet; each file says what it is for. Drop a patch once
+	# the pinned tag carries the change, or git apply fails the build here.
+	for patch in $(find $ROOT/libs/patches *.patch) {
+		git apply --verbose $patch
+	}
+	cd $ROOT
+
+	remove $build
+	flags="-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_BUILD_EXAMPLES=OFF -DGGML_BUILD_TESTS=OFF"
+	if $OS == macos {
+		flags="$flags -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=Apple -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0"
+	} else {
+		# The loader is opened at runtime (libs/patches/0003), so nothing links against it.
+		flags="$flags -DGGML_VULKAN=ON -DGGML_VULKAN_DYNAMIC_LOADER=ON"
+		# Not -march=native: the runner's CPU must not decide what users can run.
+		# With GGML_NATIVE off, ggml turns on SSE4.2 through AVX2, FMA and BMI2 (Haswell, 2013).
+		if $ARCH == x86_64 { flags="$flags -DGGML_NATIVE=OFF" }
+	}
+	if $OS == windows && $flavor == gnu { cmake -S $src -B $build $flags -G "MinGW Makefiles" }
+	else                                { cmake -S $src -B $build $flags }
+	cmake --build $build --config Release --parallel
+
+	# AVX2 is compiled into every CPU kernel, so one build cannot also serve a CPU
+	# without it. Build the CPU backend a second time at the AVX baseline (2011+);
+	# stage-cpu-variant suffixes each build's symbols and sona picks one at startup.
+	build_x64=$ROOT/ggml-build-x64
+	if $ARCH == x86_64 {
+		remove $build_x64
+		x64flags="$flags -DGGML_VULKAN=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_BMI2=OFF"
+		if $OS == windows && $flavor == gnu { cmake -S $src -B $build_x64 $x64flags -G "MinGW Makefiles" }
+		else                                { cmake -S $src -B $build_x64 $x64flags }
+		cmake --build $build_x64 --config Release --parallel --target ggml-cpu
+	}
+
+	remove $pkg
+	mkdir $pkg/lib $pkg/include
+	if $OS == windows && $flavor == msvc {
+		stage-lib $build $pkg ggml.lib ggml.lib
+		stage-lib $build $pkg ggml-base.lib ggml-base.lib
+		stage-cpu-variant $build $pkg hsw ggml-cpu.lib ggml-cpu-hsw.lib
+		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.lib ggml-cpu-x64.lib
+		stage-lib $build $pkg ggml-vulkan.lib ggml-vulkan.lib
+	} else if $OS == windows {
+		stage-lib $build $pkg libggml.a ggml.a
+		stage-lib $build $pkg libggml-base.a ggml-base.a
+		# MinGW's cmake writes ggml-cpu.a, without the lib prefix the linker looks for.
+		stage-cpu-variant $build $pkg hsw ggml-cpu.a libggml-cpu-hsw.a
+		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.a libggml-cpu-x64.a
+		stage-lib $build $pkg libggml-vulkan.a ggml-vulkan.a
+	} else if $OS == macos {
+		stage-lib $build $pkg libggml.a libggml.a
+		stage-lib $build $pkg libggml-base.a libggml-base.a
+		stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
+		stage-lib $build $pkg libggml-metal.a libggml-metal.a
+		stage-lib $build $pkg libggml-blas.a libggml-blas.a
+	} else if $ARCH == x86_64 {
+		stage-lib $build $pkg libggml.a libggml.a
+		stage-lib $build $pkg libggml-base.a libggml-base.a
+		stage-cpu-variant $build $pkg hsw libggml-cpu.a libggml-cpu-hsw.a
+		stage-cpu-variant $build_x64 $pkg x64 libggml-cpu.a libggml-cpu-x64.a
+		stage-lib $build $pkg libggml-vulkan.a libggml-vulkan.a
+	} else {
+		stage-lib $build $pkg libggml.a libggml.a
+		stage-lib $build $pkg libggml-base.a libggml-base.a
+		stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
+		stage-lib $build $pkg libggml-vulkan.a libggml-vulkan.a
+	}
+	for header in ggml.h ggml-cpu.h ggml-alloc.h ggml-backend.h gguf.h {
+		copy $src/include/$header $pkg/include/$header
+	}
+
+	# lib/ and include/ are the archive's top-level entries; fetch-libs relies on that layout.
+	archive $pkg/lib $pkg/include $ROOT/ggml-libs-$platform.tar.gz
+	echo "packaged $ROOT/ggml-libs-$platform.tar.gz"
+}
+
+# Build the ggml libraries and upload the archive to its GitHub release.
+task upload-libs {
+	platform=$(platform-id)
+	# The tag names the committed inputs, so an archive built from edited ones would
+	# be filed under a name that does not describe it.
+	if "$(git -C $ROOT status --porcelain -- libs)" != "" { fail "libs/ has uncommitted changes; commit them so the release tag matches what was built" }
+	tag=$(libs-tag)
+	id=$(libs-id)
+	# The same tag for another tree means libs/ changed without a revision bump.
+	existing=$(gh api "repos/$repo/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .body")
+	if "$existing" != "" && !($existing contains "tree $id") { fail "release $tag exists for another libs/ tree; bump libs/revision" }
+	build-libs
+	archive=$ROOT/ggml-libs-$platform.tar.gz
+	try gh release create $tag --prerelease --title "ggml $version libraries r$revision" --notes "ggml $version, libs/ tree $id, revision $revision, built from vibe $(git -C $ROOT rev-parse --short=12 HEAD). Patches: $(find $ROOT/libs/patches *.patch)"
+	gh release upload $tag $archive --clobber
+	echo "uploaded $archive to release $tag"
+}
+
+# Copy one built library out of the cmake tree: stage-lib <build> <pkg> <name> <alt>.
+task stage-lib build pkg name alt {
+	found=""
+	for f in $(find $1 $3 $4) {
+		if $found == "" { found=$f }
+	}
+	if $found == "" { fail "$3 not found under $1" }
+	echo "  found $found (packaged as $3)"
+	copy $found $2/lib/$3
+}
+
+# Package one CPU backend build with every symbol it defines suffixed, so two builds
+# can be linked into one binary: stage-cpu-variant <build> <pkg> <suffix> <name> <out>.
+# The symbol list comes from the archive itself, so nothing is maintained by hand; a
+# symbol that escaped the rename would fail the link as a duplicate.
+task stage-cpu-variant build pkg suffix name out {
+	nm_tool=nm
+	objcopy_tool=objcopy
+	if $OS == macos || $(lib-flavor) == msvc {
+		nm_tool=llvm-nm
+		objcopy_tool=llvm-objcopy
+	}
+
+	found=""
+	for f in $(find $1 $4) {
+		if $found == "" { found=$f }
+	}
+	if $found == "" { fail "$4 not found under $1" }
+
+	lib=$2/lib/$5
+	copy $found $lib
+	map=$lib.map
+	try remove $map
+	tag=_$3
+	# Local symbols too: GCC signs a constructor's or destructor's COMDAT group with a
+	# local C5/D5 symbol, and two builds whose groups carry the same signature get
+	# folded into one by the linker, leaving the other's renamed references dangling.
+	# nm walks the members, so it prints each one's name with a trailing colon, and
+	# lists a symbol every member defines (COMDATs) once per member; objcopy wants
+	# each symbol once. Keep the names seen so far, space-fenced so no name is a
+	# prefix of another.
+	seen=" "
+	for sym in $($nm_tool --defined-only --format=just-symbols $lib) {
+		if !($sym contains ":") && !($seen contains " $sym ") {
+			echo "$sym $sym$tag" >> $map
+			seen="$seen$sym "
+		}
+	}
+	$objcopy_tool --redefine-syms=$map $lib
+	remove $map
+	echo "  staged $5 from $found (symbols suffixed $tag)"
+}

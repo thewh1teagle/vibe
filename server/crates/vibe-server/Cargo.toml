@@ -1,0 +1,62 @@
+[package]
+name = "vibe-server"
+version = "0.6.3"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Rust CLI and server for local transcription on the GGML runtime"
+
+[[bin]]
+name = "vibe-server"
+path = "src/main.rs"
+
+[dependencies]
+whisper-rs = { path = "../whisper-rs", features = ["ffi"] }
+nemotron-rs = { path = "../nemotron-rs" }
+parakeet-rs = { path = "../parakeet-rs" }
+vad-rs = { path = "../vad-rs" }
+diarize-rs = { path = "../diarize-rs", optional = true }
+
+anyhow = "1"
+axum = { version = "0.8", features = ["multipart"] }
+bytes = "1"
+clap = { version = "4", features = ["derive", "env"] }
+futures-util = "0.3"
+hound = "3.5"
+humantime = "2"
+libc = "0.2"
+reqwest = { version = "0.12", features = ["stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+thiserror = "2"
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "macros",
+    "signal",
+    "process",
+    "fs",
+    "io-util",
+    "sync",
+] }
+tokio-stream = "0.1"
+tower-http = { version = "0.6", features = ["trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+utoipa = "5"
+utoipa-axum = "0.2"
+utoipa-swagger-ui = { version = "9", features = ["axum"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["test-util"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Threading",
+] }
+
+[features]
+default = ["diarize"]
+diarize = ["dep:diarize-rs"]
