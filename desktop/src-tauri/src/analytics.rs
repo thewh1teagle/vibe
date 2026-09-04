@@ -25,6 +25,7 @@ pub mod events {
     /// Server finished under the CLI: carries the exit code and wall-clock duration.
     pub const CLI_FINISHED: &str = "cli_finished";
     pub const CLI_SPAWN_FAILED: &str = "cli_spawn_failed";
+    /// The string predates the rename; keeping it keeps the dashboards continuous.
     pub const SERVER_SPAWN_FAILED: &str = "sona_spawn_failed";
 
     // Phone handoff. Props are technical facts only: never a transcript, filename,

@@ -26,7 +26,7 @@ Vibe is a desktop transcription app built with **Tauri** (Rust + TypeScript fron
 ### FFmpeg Helper
 
 - macOS and Windows builds also bundle `ffmpeg` from the server release archives
-- Vibe passes its path to the server with `SONA_FFMPEG_PATH`
+- Vibe passes its path to the server with `VIBE_SERVER_FFMPEG_PATH`
 
 ### Build Flow
 

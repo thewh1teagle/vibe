@@ -1,4 +1,4 @@
-//! Native Parakeet ASR inference built on Sona's shared GGML runtime.
+//! Native Parakeet ASR inference built on vibe-server's shared GGML runtime.
 
 mod decoder;
 mod encoder;

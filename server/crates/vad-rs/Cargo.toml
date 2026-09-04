@@ -4,7 +4,7 @@ version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
-description = "Silero VAD segmentation on ggml for Sona"
+description = "Silero VAD segmentation on ggml for vibe-server"
 
 [dependencies]
 thiserror = "2"

@@ -110,7 +110,7 @@ impl ServerState {
         format::VerboseJson,
         format::VerboseSegment
     )),
-    tags((name = "sona", description = "Sona transcription server"))
+    tags((name = "vibe-server", description = "vibe-server transcription server"))
 )]
 struct ApiDoc;
 

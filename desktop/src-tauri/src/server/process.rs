@@ -141,7 +141,7 @@ impl ServerProcess {
         cmd.args(["serve", "--port", "0"])
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .env("SONA_UNLOAD_TIMEOUT", unload_timeout)
+            .env("VIBE_SERVER_UNLOAD_TIMEOUT", unload_timeout)
             // ggml_print_backtrace forks gdb/lldb on abort, which can hang the
             // dying child and produces nothing useful in a shipped build.
             .env("GGML_NO_BACKTRACE", "1");
@@ -152,8 +152,8 @@ impl ServerProcess {
         }
 
         if let Some(ffmpeg) = ffmpeg_path {
-            tracing::debug!("setting SONA_FFMPEG_PATH={}", ffmpeg.display());
-            cmd.env("SONA_FFMPEG_PATH", ffmpeg);
+            tracing::debug!("setting VIBE_SERVER_FFMPEG_PATH={}", ffmpeg.display());
+            cmd.env("VIBE_SERVER_FFMPEG_PATH", ffmpeg);
         }
         #[cfg(target_os = "windows")]
         {

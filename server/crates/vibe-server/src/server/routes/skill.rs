@@ -1,9 +1,9 @@
 use axum::http::{header, HeaderMap};
 use axum::response::IntoResponse;
 
-const TEMPLATE: &str = r#"# Sona Local Transcription API
+const TEMPLATE: &str = r#"# vibe-server Local Transcription API
 
-You are using Sona, a local whisper.cpp transcription HTTP API.
+You are using vibe-server, a local transcription HTTP API on ggml.
 
 Base URL: {{base_url}}
 OpenAPI schema: {{base_url}}/openapi.json

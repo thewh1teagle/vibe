@@ -72,9 +72,9 @@ jobs:
       - name: Build vibe-server
         shell: bash
         env:
-          SONA_COMMIT: ${{ github.sha }}
+          VIBE_SERVER_COMMIT: ${{ github.sha }}
         run: |
-          export SONA_VERSION="${VERSION#server-}"
+          export VIBE_SERVER_VERSION="${VERSION#server-}"
           cargo build -p vibe-server --release ${{ matrix.cargo_flags }}
           src="target/release/vibe-server"
           if [[ "${{ runner.os }}" == "Windows" ]]; then

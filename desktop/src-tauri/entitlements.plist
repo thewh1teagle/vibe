@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
     Hardened runtime entitlements. Applied to the main `vibe` binary AND to the
-    `sona` / `ffmpeg` sidecars, which Tauri re-signs with the same entitlements
+    `vibe-server` / `ffmpeg` sidecars, which Tauri re-signs with the same entitlements
     (see tauri.macos.conf.json: hardenedRuntime = true).
 
     Keep this list minimal: every entitlement here is a hole in the hardened
@@ -12,10 +12,10 @@
     bundle with `otool -L` / `codesign -dvvv`):
 
       com.apple.security.cs.disable-library-validation
-          Not needed. `sona` and `ffmpeg` link only Apple system frameworks and
+          Not needed. `vibe-server` and `ffmpeg` link only Apple system frameworks and
           /usr/lib; the bundle ships no third-party dylibs, and nothing is
           dlopen'd at runtime on macOS. (The libonnxruntime_providers_*.dylib
-          strings inside `sona` are CUDA/TensorRT/OpenVINO/QNN/CANN execution
+          strings inside `vibe-server` are CUDA/TensorRT/OpenVINO/QNN/CANN execution
           providers - non-Apple platforms, never loaded here.) Adding this would
           let any unsigned or foreign-team dylib be injected into the sidecars
           for no benefit.
@@ -43,9 +43,9 @@
 
     <!--
         Permits MAP_JIT mappings (write-then-execute pages requested explicitly
-        via mmap MAP_JIT). Added for the `sona` sidecar's GPU path.
+        via mmap MAP_JIT). Added for the `vibe-server` sidecar's GPU path.
 
-        Why: `sona` links Metal/MetalKit and embeds the ggml Metal kernels as
+        Why: `vibe-server` links Metal/MetalKit and embeds the ggml Metal kernels as
         *source* rather than a precompiled .metallib - the binary contains
         `ggml_metal_library_init_from_source`, `newLibraryWithSource:options:error:`
         and ~125 raw `kernel void` shader bodies. Shaders are therefore compiled

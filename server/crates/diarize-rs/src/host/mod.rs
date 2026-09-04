@@ -27,7 +27,7 @@
 //!
 //! Derived from <https://github.com/altunenes/parakeet-rs>, which is licensed
 //! `MIT OR Apache-2.0`. Taken under the MIT option, whose notice the MIT-licensed
-//! Sona repository must carry forward:
+//! vibe-server must carry forward:
 //!
 //! > MIT License
 //! >

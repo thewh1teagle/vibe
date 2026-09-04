@@ -1,7 +1,7 @@
 //! The historical whisper-rs API surface (`Context`, `set_verbose`), now
 //! implemented on the pure-Rust engine instead of whisper.cpp FFI. Option
 //! mapping and callback semantics are kept from the previous implementation
-//! so sona is unaffected.
+//! so vibe-server is unaffected.
 
 use std::ffi::{c_char, c_void, CStr};
 use std::io::Write;

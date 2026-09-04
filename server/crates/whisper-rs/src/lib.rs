@@ -6,7 +6,7 @@
 //! the pinned GGML release linked through `ggml-rs-sys`.
 //!
 //! Two API levels: [`Context`] keeps the historical whisper-rs surface that
-//! sona consumes, and [`Whisper`]/[`FullParams`] expose the engine directly.
+//! vibe-server consumes, and [`Whisper`]/[`FullParams`] expose the engine directly.
 
 mod error;
 #[cfg_attr(not(feature = "ffi"), allow(dead_code))]
