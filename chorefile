@@ -86,13 +86,25 @@ task build-libs {
 		flags="$flags -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=Apple -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0"
 	} else {
 		flags="$flags -DGGML_VULKAN=ON"
-		# Sona ships a single static binary, so there is no runtime CPU dispatch:
-		# pin a portable x86 baseline (Ivy Bridge, 2012+) instead of -march=native.
-		if $ARCH == x86_64 { flags="$flags -DGGML_NATIVE=OFF -DGGML_SSE42=ON -DGGML_AVX=ON -DGGML_F16C=ON" }
+		# Not -march=native: the runner's CPU must not decide what users can run.
+		# With GGML_NATIVE off, ggml turns on SSE4.2 through AVX2, FMA and BMI2 (Haswell, 2013).
+		if $ARCH == x86_64 { flags="$flags -DGGML_NATIVE=OFF" }
 	}
 	if $OS == windows && $flavor == gnu { cmake -S $src -B $build $flags -G "MinGW Makefiles" }
 	else                                { cmake -S $src -B $build $flags }
 	cmake --build $build --config Release --parallel
+
+	# AVX2 is compiled into every CPU kernel, so one build cannot also serve a CPU
+	# without it. Build the CPU backend a second time at the AVX baseline (2011+);
+	# stage-cpu-variant suffixes each build's symbols and sona picks one at startup.
+	build_x64=$ROOT/ggml-build-x64
+	if $ARCH == x86_64 {
+		remove $build_x64
+		x64flags="$flags -DGGML_VULKAN=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_BMI2=OFF"
+		if $OS == windows && $flavor == gnu { cmake -S $src -B $build_x64 $x64flags -G "MinGW Makefiles" }
+		else                                { cmake -S $src -B $build_x64 $x64flags }
+		cmake --build $build_x64 --config Release --parallel --target ggml-cpu
+	}
 
 	# Vulkan has no import library under MinGW; build a delay-load one.
 	if $OS == windows && $flavor == gnu {
@@ -110,12 +122,14 @@ task build-libs {
 	if $OS == windows && $flavor == msvc {
 		stage-lib $build $pkg ggml.lib ggml.lib
 		stage-lib $build $pkg ggml-base.lib ggml-base.lib
-		stage-lib $build $pkg ggml-cpu.lib ggml-cpu.lib
+		stage-cpu-variant $build $pkg hsw ggml-cpu.lib ggml-cpu-hsw.lib
+		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.lib ggml-cpu-x64.lib
 		stage-lib $build $pkg ggml-vulkan.lib ggml-vulkan.lib
 	} else if $OS == windows {
 		stage-lib $build $pkg libggml.a ggml.a
 		stage-lib $build $pkg libggml-base.a ggml-base.a
-		stage-lib $build $pkg libggml-cpu.a ggml-cpu.a
+		stage-cpu-variant $build $pkg hsw libggml-cpu.a libggml-cpu-hsw.a
+		stage-cpu-variant $build_x64 $pkg x64 libggml-cpu.a libggml-cpu-x64.a
 		stage-lib $build $pkg libggml-vulkan.a ggml-vulkan.a
 		stage-lib $build $pkg libvulkan-1-delay.a vulkan-1-delay.a
 	} else if $OS == macos {
@@ -124,6 +138,12 @@ task build-libs {
 		stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
 		stage-lib $build $pkg libggml-metal.a libggml-metal.a
 		stage-lib $build $pkg libggml-blas.a libggml-blas.a
+	} else if $ARCH == x86_64 {
+		stage-lib $build $pkg libggml.a libggml.a
+		stage-lib $build $pkg libggml-base.a libggml-base.a
+		stage-cpu-variant $build $pkg hsw libggml-cpu.a libggml-cpu-hsw.a
+		stage-cpu-variant $build_x64 $pkg x64 libggml-cpu.a libggml-cpu-x64.a
+		stage-lib $build $pkg libggml-vulkan.a libggml-vulkan.a
 	} else {
 		stage-lib $build $pkg libggml.a libggml.a
 		stage-lib $build $pkg libggml-base.a libggml-base.a
@@ -183,6 +203,38 @@ task package-release binary goos goarch out {
 	archive $stage/ $4
 	remove $stage
 	echo "packaged $4"
+}
+
+# Package one CPU backend build with every symbol it defines suffixed, so two builds
+# can be linked into one binary: stage-cpu-variant <build> <pkg> <suffix> <name> <out>.
+# The symbol list comes from the archive itself, so nothing is maintained by hand; a
+# symbol that escaped the rename would fail the link as a duplicate.
+task stage-cpu-variant build pkg suffix name out {
+	nm_tool=nm
+	objcopy_tool=objcopy
+	if $OS == macos || $(lib-flavor) == msvc {
+		nm_tool=llvm-nm
+		objcopy_tool=llvm-objcopy
+	}
+
+	found=""
+	for f in $(find $1 $4) {
+		if $found == "" { found=$f }
+	}
+	if $found == "" { fail "$4 not found under $1" }
+
+	lib=$2/lib/$5
+	copy $found $lib
+	map=$lib.map
+	write $map ""
+	tag=_$3
+	# nm prints each member's name with a trailing colon between its symbols; skip those.
+	for sym in $($nm_tool --defined-only --extern-only --format=just-symbols $lib) {
+		if !($sym contains ":") { echo "$sym $sym$tag" >> $map }
+	}
+	$objcopy_tool --redefine-syms=$map $lib
+	remove $map
+	echo "  staged $5 from $found (symbols suffixed $tag)"
 }
 
 # Copy one built library out of the cmake tree: stage-lib <build> <pkg> <name> <alt>.

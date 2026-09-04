@@ -42,10 +42,23 @@ fn main() {
 
     println!("cargo:include={}", include_dir.display());
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
-    for lib in ["ggml", "ggml-base", "ggml-cpu"] {
+    for lib in ["ggml", "ggml-base"] {
         println!("cargo:rustc-link-lib=static={lib}");
     }
+    // x86_64 carries two CPU backends, AVX2 and baseline, chosen at startup (see cpu_variant.rs).
+    if x86_variants() {
+        for lib in ["ggml-cpu-hsw", "ggml-cpu-x64"] {
+            println!("cargo:rustc-link-lib=static={lib}");
+        }
+    } else {
+        println!("cargo:rustc-link-lib=static=ggml-cpu");
+    }
     link_platform();
+}
+
+fn x86_variants() -> bool {
+    env::var("CARGO_CFG_TARGET_ARCH").as_deref() == Ok("x86_64")
+        && matches!(env::var("CARGO_CFG_TARGET_OS").as_deref(), Ok("linux") | Ok("windows"))
 }
 
 fn link_platform() {

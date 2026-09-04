@@ -5,3 +5,6 @@
 #![allow(non_camel_case_types, non_snake_case, non_upper_case_globals, dead_code, improper_ctypes)]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+#[cfg(all(target_arch = "x86_64", any(target_os = "linux", target_os = "windows")))]
+mod cpu_variant;
