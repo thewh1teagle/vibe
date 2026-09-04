@@ -16,7 +16,7 @@ revision=$(read $ROOT/libs/revision)
 
 # Print the short tree hash of libs/ at HEAD.
 task libs-id {
-	echo "$(git -C $ROOT rev-parse --short=12 HEAD:libs)"
+	echo "$(git -C $ROOT rev-parse --short=12 HEAD:./libs)"
 }
 
 # Print the GitHub release tag the current libs/ inputs are published under.
