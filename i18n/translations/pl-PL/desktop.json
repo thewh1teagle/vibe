@@ -315,7 +315,6 @@
 	"threads": "Wątki",
 	"transcribe": "Transkrybuj",
 	"gpuFallbackToCpu": "Nie udało się załadować modelu na GPU. Przełączam na CPU.",
-	"avx2NotSupported": "Twój CPU nie jest obsługiwany przez tę wersję Vibe. Użyj nowszego komputera.",
 	"noModelLoadedBatchStopped": "Model nie został załadowany. Zatrzymuję przetwarzanie wsadowe.",
 	"transcribeEngineStoppedBatchStopped": "Silnik transkrypcji został zatrzymany. Zatrzymuję przetwarzanie wsadowe.",
 	"noModelSelected": "Wybierz model w ustawieniach, aby zacząć",

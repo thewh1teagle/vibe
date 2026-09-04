@@ -3,7 +3,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
-import { trackAvx2NotSupported, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
+import { trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import { AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
@@ -190,21 +190,6 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			if (!isHotkeyRecordingRef.current) return
 
 			const { path } = event.payload
-
-			// Same gate the other transcription paths use: without AVX2 sona dies on its
-			// first instruction, so stop before spawning it.
-			if (!(await invoke<boolean>('is_avx2_enabled'))) {
-				trackAvx2NotSupported()
-				const message = m.avx2NotSupported()
-				finishIndicator('error', { message })
-				await notify('Vibe', message)
-				// This gate sits before the transcription try/finally, so release the capture state here.
-				isStoppingRef.current = false
-				isHotkeyRecordingRef.current = false
-				hotkeyRecordingActive = false
-				setIsHotkeyRecording(false)
-				return
-			}
 
 			showIndicator('transcribing')
 

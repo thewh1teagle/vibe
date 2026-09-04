@@ -315,7 +315,6 @@
 	"threads": "Luồng",
 	"transcribe": "Phiên âm",
 	"gpuFallbackToCpu": "GPU không tải được mô hình. Đang chuyển sang CPU.",
-	"avx2NotSupported": "CPU của bạn không được phiên bản Vibe này hỗ trợ. Vui lòng dùng máy tính đời mới hơn.",
 	"noModelLoadedBatchStopped": "Chưa tải mô hình. Đang dừng xử lý hàng loạt.",
 	"transcribeEngineStoppedBatchStopped": "Công cụ phiên âm đã dừng. Đang dừng xử lý hàng loạt.",
 	"noModelSelected": "Chọn một mô hình trong Cài đặt để bắt đầu",

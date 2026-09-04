@@ -315,7 +315,6 @@
 	"threads": "Threads",
 	"transcribe": "Transkribieren",
 	"gpuFallbackToCpu": "GPU konnte Modell nicht laden. Weiche auf CPU aus.",
-	"avx2NotSupported": "Ihre CPU wird von dieser Version von Vibe nicht unterstützt. Bitte verwenden Sie einen moderneren PC.",
 	"noModelLoadedBatchStopped": "Modell nicht geladen. Stapelverarbeitung wird gestoppt.",
 	"transcribeEngineStoppedBatchStopped": "Die Transkriptions-Engine wurde gestoppt. Stapelverarbeitung wird gestoppt.",
 	"noModelSelected": "Wählen Sie ein Modell in den Einstellungen, um zu beginnen",

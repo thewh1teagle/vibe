@@ -6,8 +6,6 @@ import { m } from '~/paraglide/messages.js'
 import { ErrorModalContext } from './error-modal'
 import { ModifyState } from '~/lib/types'
 import { invoke } from '@tauri-apps/api/core'
-import { openUrl as open } from '@tauri-apps/plugin-opener'
-import { latestReleaseURL } from '~/lib/config'
 // Define the context type
 
 /** Dev-only: pretend an update is waiting so the update affordances can be eyeballed. */
@@ -138,13 +136,6 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 			await dialog.message('This is a faked update (dev mode). No download will happen.', { title: m.updateVersion(), kind: 'info' })
 			return
 		}
-		const avx2Enabled = await invoke('is_avx2_enabled')
-
-		if (!avx2Enabled) {
-			await open(latestReleaseURL)
-			return
-		}
-
 		const shouldUpdate = await dialog.ask(m.askForUpdateBody({ version: String(update?.version ?? '') }), {
 			title: m.askForUpdateTitle(),
 			kind: 'info',

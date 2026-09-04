@@ -315,7 +315,6 @@
 	"threads": "Нишки",
 	"transcribe": "Транскрибирай",
 	"gpuFallbackToCpu": "GPU не успя да зареди модела. Преминаване към CPU.",
-	"avx2NotSupported": "Вашият процесор не се поддържа от тази версия на Vibe. Моля, използвайте по-модерен компютър.",
 	"noModelLoadedBatchStopped": "Моделът не е зареден. Спиране на пакета.",
 	"transcribeEngineStoppedBatchStopped": "Двигателят за транскрибиране спря. Спиране на пакета.",
 	"noModelSelected": "Изберете модел в Настройки, за да започнете",

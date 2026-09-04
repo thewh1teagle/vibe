@@ -13,7 +13,7 @@ import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as config from '~/lib/config'
-import { trackAvx2NotSupported, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
+import { trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import successSound from '~/assets/success.mp3'
 import * as fs from '@tauri-apps/plugin-fs'
 import { emit, listen } from '@tauri-apps/api/event'
@@ -150,13 +150,6 @@ export function viewModel() {
 
 	async function start() {
 		if (inProgress) {
-			return
-		}
-
-		const avx2 = await invoke<boolean>('is_avx2_enabled')
-		if (!avx2) {
-			trackAvx2NotSupported()
-			await dialog.message(m.avx2NotSupported(), { kind: 'error' })
 			return
 		}
 

@@ -315,7 +315,6 @@
 	"threads": "Vlákna CPU",
 	"transcribe": "Přepsat",
 	"gpuFallbackToCpu": "GPU selhalo při načítání modelu. Přepínám na CPU.",
-	"avx2NotSupported": "Vaše CPU není touto verzí aplikace Vibe podporováno. Použijte prosím modernější PC.",
 	"noModelLoadedBatchStopped": "Model nebyl načten. Hromadné zpracování se zastavuje.",
 	"transcribeEngineStoppedBatchStopped": "Jádro přepisu se zastavilo. Hromadné zpracování se zastavuje.",
 	"noModelSelected": "Pro začátek si v Nastavení vyberte model",

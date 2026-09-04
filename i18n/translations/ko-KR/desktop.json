@@ -315,7 +315,6 @@
 	"threads": "스레드",
 	"transcribe": "받아쓰기",
 	"gpuFallbackToCpu": "GPU로 모델을 불러오지 못했습니다. CPU로 전환합니다.",
-	"avx2NotSupported": "이 버전의 Vibe는 사용 중인 CPU를 지원하지 않습니다. 더 최신 PC를 사용해 주세요.",
 	"noModelLoadedBatchStopped": "모델이 로드되지 않았습니다. 일괄 처리를 중지합니다.",
 	"transcribeEngineStoppedBatchStopped": "받아쓰기 엔진이 중지되었습니다. 일괄 처리를 중지합니다.",
 	"noModelSelected": "설정에서 모델을 선택해 시작하세요",
