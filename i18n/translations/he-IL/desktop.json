@@ -501,7 +501,7 @@
 	"dropFilesHere": "גררו לכאן אודיו, וידאו או תיקייה",
 	"orClickToBrowse": "או לחצו כדי לבחור קבצים",
 	"dropToAddToQueue": "שחררו כדי להוסיף לתור",
-	"pasteMediaLink": "הדביקו קישורי וידאו או אודיו, אחד בכל שורה",
+	"pasteMediaLink": "הדביקו קישור לווידאו או אודיו",
 	"worksWith": "עובד עם",
 	"moreSources": "+1000 נוספים",
 	"fromFile": "קובץ",
@@ -592,5 +592,8 @@
 	"newSpeaker": "דובר חדש",
 	"speakerOfThisLine": "שורה זו",
 	"linkOfTotal": "{current} מתוך {total}",
-	"linksSkipped": "{count} מתוך {total} קישורים לא ניתנים להורדה"
+	"linksSkipped": "{count} מתוך {total} קישורים לא ניתנים להורדה",
+	"pasteAnotherLink": "הדביקו קישור נוסף",
+	"addLink": "הוספה לרשימה",
+	"removeLink": "הסרה"
 }

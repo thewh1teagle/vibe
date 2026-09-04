@@ -501,7 +501,7 @@
 	"dropFilesHere": "將音頻、影片或資料夾拖到此處",
 	"orClickToBrowse": "或按一下瀏覽你的檔案",
 	"dropToAddToQueue": "拖放即可加入佇列",
-	"pasteMediaLink": "貼上影片或音訊連結，每行一個",
+	"pasteMediaLink": "貼上影片或音訊連結",
 	"worksWith": "支援",
 	"moreSources": "以及 1000 多個網站",
 	"fromFile": "檔案",
@@ -592,5 +592,8 @@
 	"newSpeaker": "新說話者",
 	"speakerOfThisLine": "此行",
 	"linkOfTotal": "第 {current} 個，共 {total} 個",
-	"linksSkipped": "{total} 個連結中有 {count} 個無法下載"
+	"linksSkipped": "{total} 個連結中有 {count} 個無法下載",
+	"pasteAnotherLink": "再貼上一個連結",
+	"addLink": "加入清單",
+	"removeLink": "移除"
 }

@@ -501,7 +501,7 @@
 	"dropFilesHere": "Перетащите сюда аудио, видео или папку",
 	"orClickToBrowse": "или нажмите, чтобы выбрать файлы",
 	"dropToAddToQueue": "Отпустите, чтобы добавить в очередь",
-	"pasteMediaLink": "Вставьте ссылки на видео или аудио, по одной в строке",
+	"pasteMediaLink": "Вставьте ссылку на видео или аудио",
 	"worksWith": "Работает с",
 	"moreSources": "+1000 других",
 	"fromFile": "Файл",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Новый говорящий",
 	"speakerOfThisLine": "Эта строка",
 	"linkOfTotal": "{current} из {total}",
-	"linksSkipped": "Не удалось скачать {count} из {total} ссылок"
+	"linksSkipped": "Не удалось скачать {count} из {total} ссылок",
+	"pasteAnotherLink": "Вставьте ещё одну ссылку",
+	"addLink": "Добавить в список",
+	"removeLink": "Убрать"
 }

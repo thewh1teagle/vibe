@@ -501,7 +501,7 @@
 	"dropFilesHere": "音声・動画・フォルダをここにドロップ",
 	"orClickToBrowse": "またはクリックしてファイルを選択",
 	"dropToAddToQueue": "ドロップしてキューに追加",
-	"pasteMediaLink": "動画または音声のリンクを1行に1つ貼り付け",
+	"pasteMediaLink": "動画または音声のリンクを貼り付け",
 	"worksWith": "対応サービス",
 	"moreSources": "他1000件以上",
 	"fromFile": "ファイル",
@@ -592,5 +592,8 @@
 	"newSpeaker": "新しい話者",
 	"speakerOfThisLine": "この行",
 	"linkOfTotal": "{total} 件中 {current} 件目",
-	"linksSkipped": "{total} 件中 {count} 件のリンクをダウンロードできませんでした"
+	"linksSkipped": "{total} 件中 {count} 件のリンクをダウンロードできませんでした",
+	"pasteAnotherLink": "別のリンクを貼り付け",
+	"addLink": "リストに追加",
+	"removeLink": "削除"
 }

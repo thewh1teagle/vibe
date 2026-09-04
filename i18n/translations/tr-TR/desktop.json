@@ -501,7 +501,7 @@
 	"dropFilesHere": "Ses, video veya klasörü buraya bırakın",
 	"orClickToBrowse": "ya da dosyalarınıza göz atmak için tıklayın",
 	"dropToAddToQueue": "Kuyruğa eklemek için bırakın",
-	"pasteMediaLink": "Video veya ses bağlantılarını her satıra bir tane yapıştırın",
+	"pasteMediaLink": "Bir video veya ses bağlantısı yapıştırın",
 	"worksWith": "Şunlarla çalışır",
 	"moreSources": "+1000 daha",
 	"fromFile": "Dosya",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Yeni konuşmacı",
 	"speakerOfThisLine": "Bu satır",
 	"linkOfTotal": "{current} / {total}",
-	"linksSkipped": "{total} bağlantıdan {count} tanesi indirilemedi"
+	"linksSkipped": "{total} bağlantıdan {count} tanesi indirilemedi",
+	"pasteAnotherLink": "Başka bir bağlantı yapıştırın",
+	"addLink": "Listeye ekle",
+	"removeLink": "Kaldır"
 }

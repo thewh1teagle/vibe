@@ -501,7 +501,7 @@
 	"dropFilesHere": "Drop audio, video or a folder here",
 	"orClickToBrowse": "or click to browse your files",
 	"dropToAddToQueue": "Drop to add to the queue",
-	"pasteMediaLink": "Paste video or audio links, one per line",
+	"pasteMediaLink": "Paste a video or audio link",
 	"worksWith": "Works with",
 	"moreSources": "+1000 more",
 	"fromFile": "File",
@@ -592,5 +592,8 @@
 	"newSpeaker": "New speaker",
 	"speakerOfThisLine": "This line",
 	"linkOfTotal": "{current} of {total}",
-	"linksSkipped": "{count} of {total} links could not be downloaded"
+	"linksSkipped": "{count} of {total} links could not be downloaded",
+	"pasteAnotherLink": "Paste another link",
+	"addLink": "Add to the list",
+	"removeLink": "Remove"
 }

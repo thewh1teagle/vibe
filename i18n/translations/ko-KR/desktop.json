@@ -501,7 +501,7 @@
 	"dropFilesHere": "오디오, 비디오 또는 폴더를 여기에 놓으세요",
 	"orClickToBrowse": "또는 클릭해서 파일을 선택하세요",
 	"dropToAddToQueue": "놓으면 대기열에 추가됩니다",
-	"pasteMediaLink": "동영상 또는 오디오 링크를 한 줄에 하나씩 붙여넣기",
+	"pasteMediaLink": "동영상 또는 오디오 링크 붙여넣기",
 	"worksWith": "지원 사이트",
 	"moreSources": "+1000개 더",
 	"fromFile": "파일",
@@ -592,5 +592,8 @@
 	"newSpeaker": "새 화자",
 	"speakerOfThisLine": "이 줄",
 	"linkOfTotal": "{total}개 중 {current}",
-	"linksSkipped": "링크 {total}개 중 {count}개를 다운로드하지 못했습니다"
+	"linksSkipped": "링크 {total}개 중 {count}개를 다운로드하지 못했습니다",
+	"pasteAnotherLink": "다른 링크 붙여넣기",
+	"addLink": "목록에 추가",
+	"removeLink": "제거"
 }

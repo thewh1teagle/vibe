@@ -501,7 +501,7 @@
 	"dropFilesHere": "ऑडियो, वीडियो या फ़ोल्डर यहाँ छोड़ें",
 	"orClickToBrowse": "या फ़ाइलें चुनने के लिए क्लिक करें",
 	"dropToAddToQueue": "कतार में जोड़ने के लिए यहाँ छोड़ें",
-	"pasteMediaLink": "वीडियो या ऑडियो लिंक चिपकाएँ, प्रति पंक्ति एक",
+	"pasteMediaLink": "वीडियो या ऑडियो लिंक चिपकाएँ",
 	"worksWith": "इनके साथ काम करता है",
 	"moreSources": "+1000 और",
 	"fromFile": "फ़ाइल",
@@ -592,5 +592,8 @@
 	"newSpeaker": "नया वक्ता",
 	"speakerOfThisLine": "यह पंक्ति",
 	"linkOfTotal": "{total} में से {current}",
-	"linksSkipped": "{total} में से {count} लिंक डाउनलोड नहीं हो सके"
+	"linksSkipped": "{total} में से {count} लिंक डाउनलोड नहीं हो सके",
+	"pasteAnotherLink": "एक और लिंक चिपकाएँ",
+	"addLink": "सूची में जोड़ें",
+	"removeLink": "हटाएँ"
 }

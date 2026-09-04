@@ -501,7 +501,7 @@
 	"dropFilesHere": "Пуснете аудио, видео или папка тук",
 	"orClickToBrowse": "или щракнете, за да прегледате файловете си",
 	"dropToAddToQueue": "Пуснете, за да добавите към опашката",
-	"pasteMediaLink": "Поставете видео или аудио връзки, по една на ред",
+	"pasteMediaLink": "Поставете видео или аудио връзка",
 	"worksWith": "Работи с",
 	"moreSources": "+1000 други",
 	"fromFile": "Файл",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Нов говорещ",
 	"speakerOfThisLine": "Този ред",
 	"linkOfTotal": "{current} от {total}",
-	"linksSkipped": "{count} от {total} връзки не можаха да бъдат изтеглени"
+	"linksSkipped": "{count} от {total} връзки не можаха да бъдат изтеглени",
+	"pasteAnotherLink": "Поставете още една връзка",
+	"addLink": "Добавяне към списъка",
+	"removeLink": "Премахване"
 }

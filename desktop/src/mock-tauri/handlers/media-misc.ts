@@ -2,6 +2,8 @@ import { emitMockEvent, onMockEvent } from '../event-bus'
 import { APP_LOCAL_DATA, DOCUMENTS_FOLDER, HOME_FOLDER, virtualFs } from '../state'
 import type { CommandHandlerMap } from '../types'
 
+let tempPathCounter = 0
+
 interface MockAudioDevice {
 	isDefault: boolean
 	isInput: boolean
@@ -134,7 +136,8 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 
 	get_default_projects_path: () => `${DOCUMENTS_FOLDER}/Vibe`,
 
-	get_temp_path: (args) => `${APP_LOCAL_DATA}/tmp.${String(args?.ext ?? 'tmp')}`,
+	// Unique like the real one: several downloads in a row must not land on the same file.
+	get_temp_path: (args) => `${APP_LOCAL_DATA}/tmp-${(tempPathCounter += 1)}.${String(args?.ext ?? 'tmp')}`,
 
 	get_agent_paths: () => ({ sona: `${APP_LOCAL_DATA}/sona`, vibe: `${APP_LOCAL_DATA}/vibe` }),
 

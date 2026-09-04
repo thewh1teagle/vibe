@@ -501,7 +501,7 @@
 	"dropFilesHere": "Släpp ljud, video eller en mapp här",
 	"orClickToBrowse": "eller klicka för att välja filer",
 	"dropToAddToQueue": "Släpp för att lägga till i kön",
-	"pasteMediaLink": "Klistra in video- eller ljudlänkar, en per rad",
+	"pasteMediaLink": "Klistra in en video- eller ljudlänk",
 	"worksWith": "Fungerar med",
 	"moreSources": "+1000 fler",
 	"fromFile": "Fil",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Ny talare",
 	"speakerOfThisLine": "Den här raden",
 	"linkOfTotal": "{current} av {total}",
-	"linksSkipped": "{count} av {total} länkar kunde inte laddas ner"
+	"linksSkipped": "{count} av {total} länkar kunde inte laddas ner",
+	"pasteAnotherLink": "Klistra in en länk till",
+	"addLink": "Lägg till i listan",
+	"removeLink": "Ta bort"
 }

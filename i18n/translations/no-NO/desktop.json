@@ -501,7 +501,7 @@
 	"dropFilesHere": "Slipp lyd, video eller en mappe her",
 	"orClickToBrowse": "eller klikk for å bla gjennom filene dine",
 	"dropToAddToQueue": "Slipp for å legge til i køen",
-	"pasteMediaLink": "Lim inn video- eller lydlenker, én per linje",
+	"pasteMediaLink": "Lim inn en video- eller lydlenke",
 	"worksWith": "Fungerer med",
 	"moreSources": "+1000 flere",
 	"fromFile": "Fil",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Ny taler",
 	"speakerOfThisLine": "Denne linjen",
 	"linkOfTotal": "{current} av {total}",
-	"linksSkipped": "{count} av {total} lenker kunne ikke lastes ned"
+	"linksSkipped": "{count} av {total} lenker kunne ikke lastes ned",
+	"pasteAnotherLink": "Lim inn en lenke til",
+	"addLink": "Legg til i listen",
+	"removeLink": "Fjern"
 }
