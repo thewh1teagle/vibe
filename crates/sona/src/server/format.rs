@@ -95,6 +95,12 @@ pub fn build_verbose_json(
     }
 }
 
+/// How far (seconds) a transcript segment may sit from the nearest speaker turn and
+/// still be attributed to it. Diarization drops short, quiet utterances ("you know,")
+/// that the recognizer kept, and a line with no speaker cannot be exported, renamed
+/// or filtered like the others.
+const NEAREST_TURN_TOLERANCE_SECS: f64 = 1.5;
+
 pub fn match_speaker(
     start: f64,
     end: f64,
@@ -102,12 +108,56 @@ pub fn match_speaker(
 ) -> Option<usize> {
     let mut best_id = None;
     let mut best_overlap = 0.0;
+    let mut nearest = None;
+    let mut nearest_gap = f64::INFINITY;
     for segment in diar_segments {
         let overlap = segment.end.min(end) - segment.start.max(start);
         if overlap > best_overlap {
             best_overlap = overlap;
             best_id = Some(segment.speaker_id);
         }
+        let gap = (segment.start - end).max(start - segment.end);
+        if gap < nearest_gap {
+            nearest_gap = gap;
+            nearest = Some(segment.speaker_id);
+        }
     }
-    best_id
+    if best_id.is_some() {
+        return best_id;
+    }
+    (nearest_gap <= NEAREST_TURN_TOLERANCE_SECS).then_some(nearest).flatten()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn turn(start: f64, end: f64, speaker_id: usize) -> diarization::Segment {
+        diarization::Segment {
+            start,
+            end,
+            speaker_id,
+        }
+    }
+
+    #[test]
+    fn overlap_wins_over_proximity() {
+        let turns = [turn(0.0, 10.0, 0), turn(10.0, 20.0, 1)];
+        assert_eq!(match_speaker(9.0, 12.5, &turns), Some(1));
+        assert_eq!(match_speaker(2.0, 4.0, &turns), Some(0));
+    }
+
+    #[test]
+    fn a_line_in_a_gap_takes_the_nearest_turn() {
+        let turns = [turn(0.0, 10.0, 0), turn(12.0, 20.0, 1)];
+        assert_eq!(match_speaker(10.2, 10.8, &turns), Some(0));
+        assert_eq!(match_speaker(11.4, 11.9, &turns), Some(1));
+    }
+
+    #[test]
+    fn a_line_far_from_any_turn_stays_unassigned() {
+        let turns = [turn(0.0, 10.0, 0)];
+        assert_eq!(match_speaker(12.0, 13.0, &turns), None);
+        assert_eq!(match_speaker(1.0, 2.0, &[]), None);
+    }
 }
