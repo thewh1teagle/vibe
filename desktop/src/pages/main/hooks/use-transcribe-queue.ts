@@ -5,12 +5,13 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
 import { m } from '~/paraglide/messages.js'
-import { trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
+import { trackGpuOutOfMemory, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { autoProjectName } from '~/lib/project-name'
-import { fatalRunError, isUserError } from '~/lib/sona-errors'
+import { gpuOutOfMemoryBefore, rememberGpuOutOfMemory } from '~/lib/gpu-memory'
+import { fatalRunError, isGpuOutOfMemory, isUserError, sonaErrorCodes } from '~/lib/sona-errors'
 import type { Segment, SpeakerNames, Transcript } from '~/lib/transcript'
 import {
 	notifyTranscriptsChanged,
@@ -109,6 +110,22 @@ async function buildSharedOptions(preference: Preference) {
 		...(preference.diarizeEnabled ? { diarize_model: `${modelsFolder}/${config.diarizeModelFilename}` } : {}),
 		...(preference.stableTimestampsEnabled || requiresVad ? { vad_model: `${modelsFolder}/${config.vadModelFilename}` } : {}),
 		...(preference.stableTimestampsEnabled ? { stable_timestamps: true } : {}),
+	}
+}
+
+/** Reload the current model on the CPU. False when even that failed, so the original error stands. */
+async function reloadOnCpu(preference: Preference): Promise<boolean> {
+	try {
+		await invoke('load_model', {
+			modelPath: preference.modelPath,
+			gpuDevice: preference.gpuDevice,
+			noGpu: true,
+			unloadTimeoutMinutes: preference.unloadTimeoutMinutes,
+		})
+		return true
+	} catch (error) {
+		console.error('reloading on the CPU after the GPU ran out of memory failed', error)
+		return false
 	}
 }
 
@@ -284,12 +301,16 @@ export function useTranscribeQueue(): TranscribeQueue {
 				return
 			}
 
+			// Once the GPU runs out of memory the rest of the run stays on the CPU, and so does
+			// this model on every later launch: a loaded model that fits can still overflow once
+			// the working buffers of a long file or diarization arrive.
+			let onCpu = current.noGpu || gpuOutOfMemoryBefore(current.modelPath)
 			let shared: Record<string, unknown>
 			try {
 				const loadResult = await invoke<string>('load_model', {
 					modelPath: current.modelPath,
 					gpuDevice: current.gpuDevice,
-					noGpu: current.noGpu,
+					noGpu: onCpu,
 					unloadTimeoutMinutes: current.unloadTimeoutMinutes,
 				})
 				if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
@@ -346,6 +367,15 @@ export function useTranscribeQueue(): TranscribeQueue {
 						trackTranscribeCancelled('main', next.path)
 					} else {
 						const { code, message } = errorParts(error)
+						if (!onCpu && isGpuOutOfMemory(code, message) && (await reloadOnCpu(current))) {
+							onCpu = true
+							rememberGpuOutOfMemory(current.modelPath)
+							trackGpuOutOfMemory('main', { signal: code === sonaErrorCodes.GPU_OUT_OF_MEMORY ? 'error_code' : 'process_death' })
+							toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
+							// Back to the queue for one more try; on the CPU an overflow is the plain error.
+							patch(next.id, { status: 'queued', progress: 0 })
+							continue
+						}
 						patch(next.id, { status: 'error', progress: 0, error: message })
 						const userError = Boolean(code && isUserError(code))
 						trackTranscribeFailed('main', next.path, { errorMessage: message, userError })

@@ -20,6 +20,8 @@ export const CONFIG_KEYS = {
 	modelDisplayNames: 'model.displayNames',
 	gpuDevice: 'model.gpuDevice',
 	noGpu: 'model.noGpu',
+	/** Models that ran out of GPU memory here, loaded on the CPU from then on. */
+	gpuOutOfMemoryModels: 'model.gpuOutOfMemoryModels',
 	unloadTimeoutMinutes: 'model.unloadTimeoutMinutes',
 	modelPromptDismissed: 'model.downloadPromptDismissed',
 

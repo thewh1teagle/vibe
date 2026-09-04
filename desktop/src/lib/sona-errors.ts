@@ -3,6 +3,10 @@ export const sonaErrorCodes = {
 	INVALID_AUDIO: 'invalid_audio',
 	BUSY: 'busy',
 	NO_MODEL: 'no_model',
+	/** The GPU could not allocate; reloading on the CPU is the one thing a client can do about it. */
+	GPU_OUT_OF_MEMORY: 'gpu_out_of_memory',
+	/** System memory ran out, so the CPU would fail the same way. */
+	OUT_OF_MEMORY: 'out_of_memory',
 	INTERNAL_ERROR: 'internal_error',
 } as const
 
@@ -23,6 +27,20 @@ export function isUserError(code: string): code is UserErrorCode {
 const SONA_DIED_PREFIX = 'sona process died'
 
 export type FatalRunError = 'no_model' | 'engine_died'
+
+/** What Rust prints before aborting when an allocation fails; the process dies without an error code. */
+const ALLOCATION_FAILED = /memory allocation of \d+ bytes failed/
+
+/**
+ * Whether the GPU ran out of memory. sona names it with a code when it can answer at all; when the
+ * allocation aborts the process instead, the only evidence is the stderr in the death report, and
+ * the caller decides whether the GPU was even in use. A plain `out_of_memory` is system RAM, which
+ * the CPU cannot fix, so it stays false.
+ */
+export function isGpuOutOfMemory(code: string | undefined, message: string): boolean {
+	if (code === sonaErrorCodes.GPU_OUT_OF_MEMORY) return true
+	return message.includes(SONA_DIED_PREFIX) && ALLOCATION_FAILED.test(message)
+}
 
 /**
  * Why this error dooms every file still queued behind the one that hit it, or `null` when it only

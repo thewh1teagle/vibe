@@ -8,6 +8,7 @@ export const analyticsEvents = {
 	TRANSCRIBE_SUCCEEDED: 'transcribe_succeeded',
 	TRANSCRIBE_FAILED: 'transcribe_failed',
 	TRANSCRIBE_CANCELLED: 'transcribe_cancelled',
+	GPU_OUT_OF_MEMORY: 'gpu_out_of_memory',
 } as const
 
 /** Which of the four transcription entry points an event came from. */
@@ -77,6 +78,14 @@ export function trackTranscribeFailed(source: TranscribeSource, path: string, op
 }
 
 /** The user stopped this run. The backend returns the partial result as a success, so only the UI knows. */
+/**
+ * The GPU ran out of memory mid-run and the model was reloaded on the CPU. `signal` says how it
+ * showed: an error code from sona, or the process aborting on the allocation.
+ */
+export function trackGpuOutOfMemory(source: TranscribeSource, options: { signal: 'error_code' | 'process_death' }) {
+	void trackAnalyticsEvent(analyticsEvents.GPU_OUT_OF_MEMORY, { source, signal: options.signal })
+}
+
 export function trackTranscribeCancelled(source: TranscribeSource, path: string) {
 	return trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_CANCELLED, {
 		source,
