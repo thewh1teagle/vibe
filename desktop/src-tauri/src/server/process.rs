@@ -1,4 +1,5 @@
 use super::{ReadySignal, ServerProcess, StderrTail};
+use crate::cmd::config::CpuVariant;
 use eyre::{bail, Context, ContextCompat, Result};
 use std::io::BufRead;
 use std::path::Path;
@@ -49,24 +50,26 @@ pub(super) fn describe_exit(status: ExitStatus) -> String {
 /// missing an instruction set the build assumes. Naming it here is what turns these
 /// reports from a bare "vibe-server process died" into something identifiable.
 fn illegal_instruction_hint(status: ExitStatus) -> Option<&'static str> {
-    const MESSAGE: &str = "This looks like a CPU without AVX support, or one that advertises AVX2 it cannot run (a Hackintosh with spoofed CPUID does this): the server picks an AVX2 or an AVX build of its CPU backend at startup from what the CPU reports, so it stops on the first instruction it cannot run. Set VIBE_SERVER_CPU_VARIANT=baseline to force the AVX build.";
+    const MESSAGE: &str = "This looks like a CPU without AVX support, or one that advertises AVX2 it cannot run (a Hackintosh with spoofed CPUID does this): the server picks an AVX2 or an AVX build of its CPU backend at startup from what the CPU reports, so it stops on the first instruction it cannot run. Choose the baseline CPU build in Settings → Advanced.";
+    is_illegal_instruction(status).then_some(MESSAGE)
+}
 
+/// SIGILL on unix; STATUS_ILLEGAL_INSTRUCTION, surfaced as the exit code, on Windows.
+pub fn is_illegal_instruction(status: ExitStatus) -> bool {
     #[cfg(unix)]
     {
         use std::os::unix::process::ExitStatusExt;
-        if status.signal() == Some(4) {
-            return Some(MESSAGE);
-        }
+        return status.signal() == Some(4);
     }
     #[cfg(windows)]
     {
-        // STATUS_ILLEGAL_INSTRUCTION, which Windows surfaces as the exit code.
-        if status.code() == Some(0xC000_001D_u32 as i32) {
-            return Some(MESSAGE);
-        }
+        return status.code() == Some(0xC000_001D_u32 as i32);
     }
-    let _ = status;
-    None
+    #[allow(unreachable_code)]
+    {
+        let _ = status;
+        false
+    }
 }
 
 #[cfg(unix)]
@@ -130,8 +133,17 @@ fn build_client() -> Result<reqwest::Client> {
 }
 
 impl ServerProcess {
-    pub fn spawn(binary_path: &Path, ffmpeg_path: Option<&Path>, unload_timeout_minutes: u32) -> Result<Self> {
-        tracing::debug!("spawning server at {}", binary_path.display());
+    pub fn spawn(
+        binary_path: &Path,
+        ffmpeg_path: Option<&Path>,
+        unload_timeout_minutes: u32,
+        cpu_variant: CpuVariant,
+    ) -> Result<Self> {
+        tracing::debug!(
+            "spawning server at {} (cpu variant {})",
+            binary_path.display(),
+            cpu_variant.as_str()
+        );
         let unload_timeout = if unload_timeout_minutes == 0 {
             "0".to_string()
         } else {
@@ -154,6 +166,9 @@ impl ServerProcess {
         if let Some(ffmpeg) = ffmpeg_path {
             tracing::debug!("setting VIBE_SERVER_FFMPEG_PATH={}", ffmpeg.display());
             cmd.env("VIBE_SERVER_FFMPEG_PATH", ffmpeg);
+        }
+        if let Some(value) = cpu_variant.env_value() {
+            cmd.env("VIBE_SERVER_CPU_VARIANT", value);
         }
         #[cfg(target_os = "windows")]
         {
@@ -251,6 +266,7 @@ impl ServerProcess {
         Ok(Self {
             port: signal.port,
             unload_timeout_minutes,
+            cpu_variant,
             child,
             exit_status: None,
             client: build_client()?,
@@ -284,6 +300,15 @@ impl ServerProcess {
 
     pub fn unload_timeout_minutes(&self) -> u32 {
         self.unload_timeout_minutes
+    }
+
+    pub fn cpu_variant(&self) -> CpuVariant {
+        self.cpu_variant
+    }
+
+    /// The child is gone and died on an instruction this CPU cannot run.
+    pub fn died_with_illegal_instruction(&mut self) -> bool {
+        self.exit_status().is_some_and(is_illegal_instruction)
     }
 
     /// Bounded wait for the collector to reach EOF before snapshotting: the child
