@@ -501,7 +501,7 @@
 	"dropFilesHere": "Arrastra aquí audio, video o una carpeta",
 	"orClickToBrowse": "o haz clic para elegir tus archivos",
 	"dropToAddToQueue": "Suelta para añadir a la cola",
-	"pasteMediaLink": "Pega enlaces de video o audio, uno por línea",
+	"pasteMediaLink": "Pega un enlace de video o audio",
 	"worksWith": "Funciona con",
 	"moreSources": "+1000 más",
 	"fromFile": "Archivo",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Nuevo hablante",
 	"speakerOfThisLine": "Esta línea",
 	"linkOfTotal": "{current} de {total}",
-	"linksSkipped": "No se pudieron descargar {count} de {total} enlaces"
+	"linksSkipped": "No se pudieron descargar {count} de {total} enlaces",
+	"pasteAnotherLink": "Pega otro enlace",
+	"addLink": "Agregar a la lista",
+	"removeLink": "Quitar"
 }

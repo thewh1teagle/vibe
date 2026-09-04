@@ -501,7 +501,7 @@
 	"dropFilesHere": "Kéo thả âm thanh, video hoặc thư mục vào đây",
 	"orClickToBrowse": "hoặc bấm để chọn tệp",
 	"dropToAddToQueue": "Thả để thêm vào hàng đợi",
-	"pasteMediaLink": "Dán liên kết video hoặc âm thanh, mỗi dòng một liên kết",
+	"pasteMediaLink": "Dán liên kết video hoặc âm thanh",
 	"worksWith": "Hoạt động với",
 	"moreSources": "+1000 nguồn khác",
 	"fromFile": "Tệp",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Người nói mới",
 	"speakerOfThisLine": "Dòng này",
 	"linkOfTotal": "{current} / {total}",
-	"linksSkipped": "Không tải được {count} trong {total} liên kết"
+	"linksSkipped": "Không tải được {count} trong {total} liên kết",
+	"pasteAnotherLink": "Dán một liên kết khác",
+	"addLink": "Thêm vào danh sách",
+	"removeLink": "Xóa"
 }

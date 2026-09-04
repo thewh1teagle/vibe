@@ -32,6 +32,8 @@ export function useAudioDownload(transcribe: (paths: string[]) => Promise<void>)
 	const [downloadingAudio, setDownloadingAudio] = useState(false)
 	const [ytdlpProgress, setYtDlpProgress] = useState<number | null>(null)
 	const [batch, setBatch] = useState<DownloadBatch | null>(null)
+	/** Links waiting under the box, added by pasting several at once or with the add button. */
+	const [queuedLinks, setQueuedLinks] = useState<string[]>([])
 	const cancelYtDlpRef = useRef(false)
 	const switchingToLinkRef = useRef(false)
 
@@ -138,15 +140,31 @@ export function useAudioDownload(transcribe: (paths: string[]) => Promise<void>)
 		}
 	}
 
+	/** Move the box's text into the list, or the given text; repeats are dropped. */
+	function queueLinks(text = audioUrl) {
+		const links = ytDlp.parseMediaLinks(text)
+		if (!links.length) return
+		setQueuedLinks((current) => [...new Set([...current, ...links])])
+		setAudioUrl('')
+	}
+
+	function removeQueuedLink(url: string) {
+		setQueuedLinks((current) => current.filter((link) => link !== url))
+	}
+
+	/** Everything a click on Transcribe would fetch: the list, then whatever is still in the box. */
+	const pendingLinks = [...new Set([...queuedLinks, ...ytDlp.parseMediaLinks(audioUrl)])]
+
 	/**
-	 * Fetch every link in the box, then hand all that landed to the queue at once. A link that
-	 * fails is skipped, not fatal: the others still download and the skipped ones are listed at
-	 * the end. The box is emptied as soon as the run starts so the next links can be pasted.
+	 * Fetch every pending link, then hand all that landed to the queue at once. A link that fails
+	 * is skipped, not fatal: the others still download and the skipped ones are listed at the end.
+	 * The box and the list are emptied as soon as the run starts so the next links can go in.
 	 */
 	async function downloadAudio() {
-		const urls = ytDlp.parseMediaLinks(audioUrl)
+		const urls = pendingLinks
 		if (!urls.length) return
 		setAudioUrl('')
+		setQueuedLinks([])
 		cancelYtDlpRef.current = false
 		setDownloadingAudio(true)
 		const downloaded: string[] = []
@@ -208,6 +226,10 @@ export function useAudioDownload(transcribe: (paths: string[]) => Promise<void>)
 		switchToLinkTab,
 		audioUrl,
 		setAudioUrl,
+		queuedLinks,
+		queueLinks,
+		removeQueuedLink,
+		pendingLinks,
 		downloadAudio,
 		downloadingAudio,
 		setDownloadingAudio,

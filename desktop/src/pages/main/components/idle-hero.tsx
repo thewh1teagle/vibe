@@ -1,15 +1,16 @@
 import { listen } from '@tauri-apps/api/event'
 import { AnimatePresence, motion } from 'framer-motion'
-import { FolderOpen, Link2, Mic, Square, Upload } from 'lucide-react'
+import { FolderOpen, Link2, Mic, Plus, Square, Upload, X } from 'lucide-react'
 import { siFacebook, siInstagram, siTiktok, siX, siYoutube } from 'simple-icons'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import AudioDeviceInput from '~/components/audio-device-input'
 import { Button } from '~/components/ui/button'
-import { Textarea } from '~/components/ui/textarea'
+import { Input } from '~/components/ui/input'
 import { Spinner } from '~/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { cn } from '~/lib/style'
+import { parseMediaLinks } from '~/lib/ytdlp'
 import { useSession, type IdlePanel } from '../session'
 import QuietRow from './quiet-row'
 
@@ -159,18 +160,6 @@ const linkSources: { title: string; path: string }[] = [
 
 function LinkPanel() {
 	const { link, preference } = useSession()
-	const linkBoxRef = useRef<HTMLTextAreaElement>(null)
-
-	// The box grows with the links pasted into it (up to its max height), and shrinks back when
-	// it is emptied. The WebView on macOS has no `field-sizing`, so this does it by hand.
-	useLayoutEffect(() => {
-		const box = linkBoxRef.current
-		if (!box) return
-		box.style.height = 'auto'
-		box.style.height = `${box.scrollHeight}px`
-		// No scrollbar until the box is actually full, or an empty box shows a stub of one.
-		box.style.overflowY = box.scrollHeight > box.clientHeight ? 'auto' : 'hidden'
-	}, [link.audioUrl])
 
 	if (link.downloadingAudio) {
 		const percent = link.ytdlpProgress ?? 0
@@ -222,33 +211,90 @@ function LinkPanel() {
 	}
 
 	return (
-		<div className="flex w-full flex-col items-center gap-5 py-2.5">
-			<div className="flex w-full items-start gap-3">
-				{/* One line tall until more links are pasted; Enter sends, Shift+Enter adds a line. */}
-				<Textarea
-					ref={linkBoxRef}
-					rows={1}
-					value={link.audioUrl}
-					onChange={(event) => link.setAudioUrl(event.target.value)}
-					onKeyDown={(event) => {
-						if (event.key === 'Enter' && !event.shiftKey) {
+		<motion.div layout className="flex w-full flex-col items-center gap-5 py-2.5">
+			<motion.div layout="position" className="flex w-full items-center gap-3">
+				<div className="relative min-w-0 flex-1">
+					<Input
+						type="text"
+						value={link.audioUrl}
+						onChange={(event) => link.setAudioUrl(event.target.value)}
+						onKeyDown={(event) => (event.key === 'Enter' ? void link.downloadAudio() : null)}
+						// Several links pasted together go straight into the list; one stays in the box.
+						onPaste={(event) => {
+							const pasted = event.clipboardData.getData('text')
+							if (parseMediaLinks(pasted).length < 2) return
 							event.preventDefault()
-							void link.downloadAudio()
-						}
-					}}
-					// Short enough to stay fully readable when the window is narrow.
-					placeholder={m.pasteMediaLink()}
-					className="max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-xl px-3.5 py-2.5 text-sm leading-5"
-				/>
+							link.queueLinks(`${link.audioUrl} ${pasted}`)
+						}}
+						// Short enough to stay fully readable when the window is narrow.
+						placeholder={link.queuedLinks.length ? m.pasteAnotherLink() : m.pasteMediaLink()}
+						className={cn('h-10 min-w-0 rounded-xl px-3.5 text-sm', link.audioUrl && 'pe-10')}
+					/>
+					{/* The way to build a list by hand: park this link and type the next one. */}
+					{link.audioUrl && (
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<button
+									type="button"
+									aria-label={m.addLink()}
+									onClick={() => link.queueLinks()}
+									className="absolute end-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
+									<Plus className="h-4 w-4" />
+								</button>
+							</TooltipTrigger>
+							<TooltipContent>{m.addLink()}</TooltipContent>
+						</Tooltip>
+					)}
+				</div>
 				<Button
 					onClick={() => link.downloadAudio()}
-					disabled={!preference.modelPath || !link.audioUrl}
-					className="h-10 shrink-0 rounded-xl px-4 disabled:opacity-40">
+					disabled={!preference.modelPath || link.pendingLinks.length === 0}
+					// Wide enough for the count, so the box beside it never changes size.
+					className="h-10 w-32 shrink-0 rounded-xl px-4 disabled:opacity-40">
 					{m.transcribe()}
+					{link.pendingLinks.length > 1 && (
+						<span className="rounded-full bg-primary-foreground/20 px-1.5 text-[11px] font-semibold tabular-nums">{link.pendingLinks.length}</span>
+					)}
 				</Button>
-			</div>
+			</motion.div>
 
-			<div className="flex flex-col items-center gap-3">
+			{/* Links waiting their turn, each removable until the run starts. The list keeps the */}
+			{/* card's width and scrolls vertically once it holds more than a few, so nothing else */}
+			{/* moves; rows slide in and out, and the card's own re-centring is animated with them. */}
+			<AnimatePresence initial={false}>
+				{link.queuedLinks.length > 0 && (
+					<motion.ul key="queued-links" layout className="flex max-h-28 w-full flex-col gap-1 overflow-y-auto overscroll-contain">
+						<AnimatePresence initial={false}>
+							{link.queuedLinks.map((url) => (
+								<motion.li
+									key={url}
+									layout
+									initial={{ height: 0, opacity: 0 }}
+									animate={{ height: 'auto', opacity: 1 }}
+									exit={{ height: 0, opacity: 0 }}
+									transition={{ duration: 0.18, ease: 'easeOut' }}
+									className="group shrink-0 overflow-hidden rounded-lg text-[13px] text-muted-foreground transition-colors duration-150 hover:bg-muted/60">
+									<div className="flex items-center gap-2.5 px-2 py-1">
+										<Link2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70" />
+										<span dir="ltr" className="min-w-0 flex-1 truncate text-start text-foreground/90">
+											{url}
+										</span>
+										<button
+											type="button"
+											aria-label={m.removeLink()}
+											onClick={() => link.removeQueuedLink(url)}
+											className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md opacity-0 transition-opacity duration-150 group-hover:opacity-100 hover:bg-muted hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80">
+											<X className="h-3.5 w-3.5" />
+										</button>
+									</div>
+								</motion.li>
+							))}
+						</AnimatePresence>
+					</motion.ul>
+				)}
+			</AnimatePresence>
+
+			<motion.div layout="position" className="flex flex-col items-center gap-3">
 				<p className="text-[11px] font-medium tracking-[0.08em] text-muted-foreground/80 uppercase">{m.worksWith()}</p>
 				<div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-muted-foreground/70">
 					{linkSources.map((source) => (
@@ -267,8 +313,8 @@ function LinkPanel() {
 					))}
 					<span className="text-[12px] text-muted-foreground/70">{m.moreSources()}</span>
 				</div>
-			</div>
-		</div>
+			</motion.div>
+		</motion.div>
 	)
 }
 

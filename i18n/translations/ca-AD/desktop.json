@@ -501,7 +501,7 @@
 	"dropFilesHere": "Deixa aquí àudio, vídeo o una carpeta",
 	"orClickToBrowse": "o fes clic per triar els teus fitxers",
 	"dropToAddToQueue": "Deixa-ho anar per afegir-ho a la cua",
-	"pasteMediaLink": "Enganxa enllaços de vídeo o àudio, un per línia",
+	"pasteMediaLink": "Enganxa un enllaç de vídeo o àudio",
 	"worksWith": "Funciona amb",
 	"moreSources": "+1000 més",
 	"fromFile": "Fitxer",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Parlant nou",
 	"speakerOfThisLine": "Aquesta línia",
 	"linkOfTotal": "{current} de {total}",
-	"linksSkipped": "No s'han pogut baixar {count} de {total} enllaços"
+	"linksSkipped": "No s'han pogut baixar {count} de {total} enllaços",
+	"pasteAnotherLink": "Enganxa un altre enllaç",
+	"addLink": "Afegeix a la llista",
+	"removeLink": "Elimina"
 }

@@ -501,7 +501,7 @@
 	"dropFilesHere": "Přetáhněte sem zvuk, video nebo složku",
 	"orClickToBrowse": "nebo klikněte a vyberte soubory",
 	"dropToAddToQueue": "Přetažením přidáte do fronty",
-	"pasteMediaLink": "Vložte odkazy na video nebo zvuk, každý na samostatný řádek",
+	"pasteMediaLink": "Vložte odkaz na video nebo zvuk",
 	"worksWith": "Funguje s",
 	"moreSources": "+1000 dalších",
 	"fromFile": "Soubor",
@@ -592,5 +592,8 @@
 	"newSpeaker": "Nový mluvčí",
 	"speakerOfThisLine": "Tento řádek",
 	"linkOfTotal": "{current} z {total}",
-	"linksSkipped": "{count} z {total} odkazů se nepodařilo stáhnout"
+	"linksSkipped": "{count} z {total} odkazů se nepodařilo stáhnout",
+	"pasteAnotherLink": "Vložte další odkaz",
+	"addLink": "Přidat do seznamu",
+	"removeLink": "Odebrat"
 }
