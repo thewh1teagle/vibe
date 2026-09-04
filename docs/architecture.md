@@ -11,32 +11,32 @@ Vibe is a desktop transcription app built with **Tauri** (Rust + TypeScript fron
 - **Frontend**: TypeScript + React (UI)
 - **Backend**: Rust/Tauri (`desktop/src-tauri/`)
 - Handles UI, file management, settings, analytics
-- Spawns and communicates with the Sona runner via local HTTP
+- Spawns and communicates with the server via local HTTP
 
-### Sona Runner (`sona/` folder)
+### Server (`server/`)
 
-- **Language**: Rust + whisper.cpp bindings
-- **Location**: Separate repository at `github.com/vibe-transcribe/sona` (also cloned locally in `./sona`)
-- **Purpose**: Single local runner process for audio transcription, model loading, streaming, and diarization
-- Bundled as one `sona` binary sidecar with the desktop app
-- Diarization is in-process in Sona via `diarize-rs`; Vibe does not bundle or spawn a separate `sona-diarize` binary
-- **Build**: Separate CI/CD in sona repository
-- **Distribution**: Pre-built Sona binaries downloaded during Vibe build (see the `setup` task in the root `chorefile`)
+- **Language**: Rust on ggml (`whisper-rs`, `parakeet-rs`, `nemotron-rs`, `vad-rs`, `diarize-rs`)
+- **Location**: `server/` in this repository, its own Cargo workspace; crate and binary `vibe-server`
+- **Purpose**: single local process for audio transcription, model loading, streaming, and diarization, behind an OpenAI-compatible HTTP API
+- Bundled as the `vibe-server` sidecar with the desktop app
+- Diarization is in-process via `diarize-rs`; Vibe does not bundle or spawn a separate binary
+- **Build**: `server-libs.yml` publishes the prebuilt ggml libraries (`libraries-ggml-<version>-r<revision>`, inputs under `server/libs/`); `server-release.yml` publishes `server-v*` prereleases; `server-test.yml` runs a release across platforms
+- **Distribution**: the app downloads the release named by `.server-version` at build time (`setup` task in the root `chorefile`); `chore server-build` stages an in-tree build instead
 
 ### FFmpeg Helper
 
-- macOS and Windows builds also bundle `ffmpeg` from the Sona release archives
-- Vibe passes its path to Sona with `SONA_FFMPEG_PATH`
+- macOS and Windows builds also bundle `ffmpeg` from the server release archives
+- Vibe passes its path to the server with `SONA_FFMPEG_PATH`
 
 ### Build Flow
 
 1. Vibe CI runs `chore setup <target-triple>`
-2. Script downloads pre-built Sona binaries from Sona releases
+2. It downloads the prebuilt `vibe-server` from the `server-v*` release in `.server-version`
 3. Binaries placed in `desktop/src-tauri/binaries/`
-4. Tauri bundles `sona` and, where configured, `ffmpeg` into the final app
+4. Tauri bundles `vibe-server` and, where configured, `ffmpeg` into the final app
 
 ## Key Point for Agents
 
-Native runtime compatibility issues for transcription usually come from the Sona runner or its linked whisper/ggml libraries, not the Vibe UI code.
+Native runtime compatibility issues for transcription usually come from the server or its linked ggml libraries, not the Vibe UI code.
 
-To fix Sona runtime compatibility issues, update **Sona's** build configuration in the Sona repository, then bump `.sona-version` in Vibe.
+To fix one, change `server/` (a ggml fix goes in `server/libs/patches/` with a revision bump), tag a `server-v*` release, then bump `.server-version` here.

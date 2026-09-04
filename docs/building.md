@@ -34,8 +34,8 @@ chore dev      # fetch the sidecars, then run the app
 chore build    # fetch the sidecars, then build for production
 ```
 
-Both start with `chore setup`, which downloads the sidecars pinned by
-`.sona-version` into `desktop/src-tauri/binaries/`. The same steps by hand:
+Both start with `chore setup`, which downloads the sidecars from the server
+release pinned by `.server-version` into `desktop/src-tauri/binaries/`. The same steps by hand:
 
 ```console
 chore setup
@@ -51,42 +51,19 @@ it fetches for this machine.
 On macOS, `chore upgrade` builds the app, replaces `/Applications/vibe.app` and
 relaunches it.
 
-## Build sona locally (dev)
+## Build the server locally (dev)
 
-Download prebuilt whisper.cpp libs (one-time):
-
-```console
-uv run sona/scripts/download-libs.py
-```
-
-**Windows only** — install [MSYS2](https://www.msys2.org/), then install MinGW and Vulkan headers:
+The engine lives in `server/` and ships as the `vibe-server` sidecar. To run the
+app against a build of the tree instead of the pinned release:
 
 ```console
-pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-vulkan-devel
+chore setup            # ffmpeg and the released server, once
+chore server-build     # fetch the ggml libraries, build server/, stage it as the sidecar
 ```
 
-Open an MSYS2 MinGW64 shell with your full Windows PATH (so `rustc`, `cargo`, etc. are available):
-
-```console
-C:\msys64\msys2_shell.cmd -mingw64 -defterm -no-start -use-full-path
-```
-
-Then build sona and place it as sidecar (from `desktop/`):
-
-```console
-# macOS/Linux
-cargo build --manifest-path ../sona/Cargo.toml -p sona --release
-cp ../sona/target/release/sona ../desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}')
-# Windows
-cargo build --manifest-path ../sona/Cargo.toml -p sona --release
-cp ../sona/target/release/sona.exe ../desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}').exe
-```
-
-Then copy the binary into the dev target so `tauri dev` picks it up immediately:
-
-```console
-cp desktop/src-tauri/binaries/sona-$(rustc -vV | awk '/host:/ {print $2}') target/debug/sona
-```
+`server-build` puts `vibe-server-<triple>` where `setup` put the release, so
+`tauri dev` and `tauri build` pick it up unchanged. See `server/docs/BUILDING.md`
+for the engine on its own.
 
 ## Test
 

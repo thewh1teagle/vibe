@@ -1,14 +1,14 @@
-# Sona Architecture 🧩
+# vibe-server Architecture 🧩
 
-This document describes how Sona is structured internally and how the runtime behaves.
+This document describes how vibe-server is structured internally and how the runtime behaves.
 
-Sona is intentionally simple: one process, one model, one transcription at a time.
+vibe-server is intentionally simple: one process, one model, one transcription at a time.
 
 ---
 
 ## Overview
 
-Sona is a single-process Rust binary with two operating modes:
+vibe-server is a single-process Rust binary with two operating modes:
 
 - `sona transcribe <model.bin> <audio>`  
   One-shot local transcription, no server.
@@ -17,7 +17,7 @@ Sona is a single-process Rust binary with two operating modes:
   Long-running HTTP runner with an OpenAI-compatible API.
 
 The server follows a **runner model**, not a shared service model:
-- one owner process spawns Sona
+- one owner process spawns vibe-server
 - the owner manages lifecycle
 - communication happens over local HTTP
 
@@ -64,7 +64,7 @@ High-level layout of the codebase:
 1. `server::serve` binds a TCP port  
    - `--port 0` is supported for auto-assigned ports
 
-2. Once bound, Sona prints exactly one machine-readable line to stdout:
+2. Once bound, vibe-server prints exactly one machine-readable line to stdout:
 
 ```json
 {"status":"ready","port":52341}
@@ -77,7 +77,7 @@ High-level layout of the codebase:
    - unload model by dropping the whisper context
    - exit cleanly
 
-This design makes Sona easy to supervise from another process.
+This design makes vibe-server easy to supervise from another process.
 
 ---
 
@@ -175,7 +175,7 @@ Effective behavior:
 - concurrent transcription requests return `429`
 
 Scaling is explicit and process-level:
-- run multiple Sona instances if needed
+- run multiple vibe-server instances if needed
 
 ---
 
@@ -193,7 +193,7 @@ Scaling is explicit and process-level:
 
 ## Current Boundaries 🚧
 
-Sona intentionally does **not** include:
+vibe-server intentionally does **not** include:
 
 - authentication or multi-tenant logic
 - internal job queues or async job IDs
@@ -202,4 +202,4 @@ Sona intentionally does **not** include:
 
 Integrations are expected to happen over HTTP.
 
-This keeps Sona small, predictable, and easy to embed.
+This keeps vibe-server small, predictable, and easy to embed.
