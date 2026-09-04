@@ -195,7 +195,7 @@ export default function Cta({ onOpenKofi }: CtaProps) {
 									setMacModalOpen(false)
 									setPostDownloadOpen(true)
 								}}
-								className="group flex flex-col gap-3 rounded-2xl border border-border bg-muted/40 p-5 transition-colors hover:border-foreground/40 hover:bg-muted">
+								className="group animate-pulse-glow flex flex-col gap-3 rounded-2xl border border-border bg-muted/40 p-5 transition-colors hover:border-foreground/40 hover:bg-muted">
 								<span className="flex items-center gap-2 text-[16px] font-semibold text-foreground">
 									{build.icon}
 									{build.label}
