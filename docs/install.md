@@ -114,6 +114,6 @@ Xvfb :1 -screen 0 1024x768x24 &
 export DISPLAY=1
 
 wget https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/ggml-medium.bin
-wget https://github.com/thewh1teagle/vibe/raw/main/samples/single.wav
+wget https://github.com/thewh1teagle/vibe/raw/main/server/fixtures/single.wav
 vibe --model ggml-medium.bin --file single.wav
 ```
