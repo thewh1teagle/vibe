@@ -27,10 +27,9 @@ chore fetch-libs
 cargo build -p sona --release
 ```
 
-On Windows, the Sona binary uses Rust's default MSVC target. Install the Vulkan SDK before building locally:
+On Windows, the Sona binary uses Rust's default MSVC target. The Vulkan loader is opened at runtime, so building and running Sona needs no Vulkan SDK; only `chore build-libs` does, for the headers and `glslc`:
 
 ```bash
-choco install vulkan-sdk -y
 cargo build -p sona --release
 ```
 

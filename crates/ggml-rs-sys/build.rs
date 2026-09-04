@@ -72,24 +72,21 @@ fn link_platform() {
             }
             println!("cargo:rustc-link-lib=c++");
         }
+        // The Vulkan loader is opened at runtime (libs/patches/0003), so nothing links
+        // against it: a machine without one starts sona and runs on the CPU.
         Ok("linux") => {
             println!("cargo:rustc-link-lib=static=ggml-vulkan");
-            for lib in ["vulkan", "stdc++", "m", "pthread", "gomp"] {
+            for lib in ["stdc++", "m", "pthread", "gomp", "dl"] {
                 println!("cargo:rustc-link-lib={lib}");
             }
         }
         Ok("windows") => {
             println!("cargo:rustc-link-lib=static=ggml-vulkan");
             if env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("gnu") {
-                for lib in ["vulkan-1-delay", "stdc++", "gomp", "winpthread"] {
+                for lib in ["stdc++", "gomp", "winpthread"] {
                     println!("cargo:rustc-link-lib=static={lib}");
                 }
                 println!("cargo:rustc-link-lib=m");
-            } else {
-                if let Ok(sdk) = env::var("VULKAN_SDK") {
-                    println!("cargo:rustc-link-search=native={}/Lib", sdk);
-                }
-                println!("cargo:rustc-link-lib=vulkan-1");
             }
         }
         other => panic!("unsupported target OS: {other:?}"),

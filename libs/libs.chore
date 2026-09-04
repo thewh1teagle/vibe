@@ -93,7 +93,8 @@ task build-libs {
 	if $OS == macos {
 		flags="$flags -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=Apple -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0"
 	} else {
-		flags="$flags -DGGML_VULKAN=ON"
+		# The loader is opened at runtime (libs/patches/0003), so nothing links against it.
+		flags="$flags -DGGML_VULKAN=ON -DGGML_VULKAN_DYNAMIC_LOADER=ON"
 		# Not -march=native: the runner's CPU must not decide what users can run.
 		# With GGML_NATIVE off, ggml turns on SSE4.2 through AVX2, FMA and BMI2 (Haswell, 2013).
 		if $ARCH == x86_64 { flags="$flags -DGGML_NATIVE=OFF" }
@@ -114,17 +115,6 @@ task build-libs {
 		cmake --build $build_x64 --config Release --parallel --target ggml-cpu
 	}
 
-	# Vulkan has no import library under MinGW; build a delay-load one.
-	if $OS == windows && $flavor == gnu {
-		mkdir $build/delay
-		cd $build/delay
-		dll=vulkan-1.dll
-		if which vulkan-1.dll { dll=$(which vulkan-1.dll) }
-		gendef $dll
-		dlltool --input-def vulkan-1.def --output-delaylib libvulkan-1-delay.a
-		cd $ROOT
-	}
-
 	remove $pkg
 	mkdir $pkg/lib $pkg/include
 	if $OS == windows && $flavor == msvc {
@@ -140,7 +130,6 @@ task build-libs {
 		stage-cpu-variant $build $pkg hsw ggml-cpu.a libggml-cpu-hsw.a
 		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.a libggml-cpu-x64.a
 		stage-lib $build $pkg libggml-vulkan.a ggml-vulkan.a
-		stage-lib $build $pkg libvulkan-1-delay.a vulkan-1-delay.a
 	} else if $OS == macos {
 		stage-lib $build $pkg libggml.a libggml.a
 		stage-lib $build $pkg libggml-base.a libggml-base.a
