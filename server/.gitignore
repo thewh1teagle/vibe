@@ -1,7 +1,7 @@
 *.wav
 *.mp3
 .DS_Store
-third_party/lib/
+libs/lib/
 models/
 samples/
 sona
