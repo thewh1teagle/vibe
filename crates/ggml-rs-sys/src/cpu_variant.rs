@@ -2,7 +2,7 @@
 //!
 //! On x86_64 the native libraries hold the CPU backend twice, built for Haswell (AVX2,
 //! FMA, BMI2) and for the AVX baseline, with every symbol suffixed `_hsw` or `_x64` by
-//! `chore build-libs`. ggml's backend registry resolves `ggml_backend_cpu_reg` at link
+//! `chore build-libs` (`stage-cpu-variant` in libs/libs.chore). ggml's backend registry resolves `ggml_backend_cpu_reg` at link
 //! time; this is the definition it finds, and it forwards to the build the CPU can run.
 //! Nothing else in ggml or in Sona names a CPU backend symbol directly: the rest goes
 //! through the registry and `ggml_backend_reg_get_proc_address`.

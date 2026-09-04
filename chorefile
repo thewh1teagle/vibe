@@ -1,40 +1,14 @@
 # Sona project tasks. Run `chore list` to see them.
 #
 # The pinned ggml release tag, e.g. "v0.22.0".
-version=$(read $ROOT/.ggml-version)
+version=$(read $ROOT/libs/ggml-version)
 ggml_raw=https://raw.githubusercontent.com/ggml-org/ggml
 ggml_blob=https://github.com/ggml-org/ggml/blob
-ggml_git=https://github.com/ggml-org/ggml.git
-sona_repo=vibe-transcribe/sona
 
-# The task that lets one binary carry two CPU backends lives with the crate that
-# links them. Merged, not namespaced: build-libs calls it, it calls lib-flavor.
-include crates/ggml-rs-sys/tasks.chore
-
-# Print the Windows import library flavor: SONA_WINDOWS_LIB_FLAVOR, or the host toolchain's.
-task lib-flavor {
-	flavor=$ENV
-	if $OS == windows && env SONA_WINDOWS_LIB_FLAVOR {
-		flavor=$(env SONA_WINDOWS_LIB_FLAVOR)
-		if $flavor != gnu && $flavor != msvc { fail "unsupported SONA_WINDOWS_LIB_FLAVOR: $flavor" }
-	}
-	echo "$flavor"
-}
-
-# Print the platform id in library archive names, e.g. darwin-arm64 or windows-amd64-msvc.
-task platform-id {
-	os=$OS
-	arch=$ARCH
-	if $OS == macos { os=darwin }
-	if $OS != macos && $ARCH == arm64 { arch=aarch64 }
-	if $OS == windows && $ARCH == x86_64 { arch=amd64 }
-	if $OS == windows {
-		flavor=$(lib-flavor)
-		echo "$os-$arch-$flavor"
-	} else {
-		echo "$os-$arch"
-	}
-}
+# Everything that determines the prebuilt ggml libraries lives in libs/, and the
+# tasks that build, publish and fetch them with it: the git tree hash of that
+# directory names the release they are stored under.
+include libs/libs.chore
 
 # Fetch the pinned ggml headers into third_party/include.
 task fetch-headers {
@@ -50,132 +24,6 @@ task fetch-headers {
 		remove $out/$name.raw
 		echo "wrote $name ($version)"
 	}
-}
-
-# Download the prebuilt ggml static libraries for this platform into third_party.
-task fetch-libs {
-	platform=$(platform-id)
-	echo "ggml: $version"
-	echo "platform: $platform"
-	mkdir $ROOT/target
-	download gh://$sona_repo/libraries-ggml-$version/ggml-libs-$platform.tar.gz $ROOT/target/ggml-libs-$platform.tar.gz --timeout 120
-	extract $ROOT/target/ggml-libs-$platform.tar.gz $ROOT/third_party
-	remove $ROOT/target/ggml-libs-$platform.tar.gz
-	echo "extracted to $ROOT/third_party"
-}
-
-# Build the ggml static libraries for this platform and package them into an archive.
-task build-libs {
-	platform=$(platform-id)
-	flavor=$(lib-flavor)
-	src=$ROOT/ggml-src
-	build=$ROOT/ggml-build
-	pkg=$ROOT/ggml-build/pkg
-	echo "ggml: $version"
-	echo "platform: $platform"
-
-	remove $src
-	mkdir $src
-	cd $src
-	git init
-	git remote add origin $ggml_git
-	git fetch --depth 1 origin $version
-	git checkout FETCH_HEAD
-	git submodule update --init --depth 1 --recursive
-	# Fixes ggml has not taken yet; each file says what it is for. Drop a patch once
-	# the pinned tag carries the change, or git apply fails the build here.
-	git apply --verbose $ROOT/patches/ggml/0001-vulkan-fall-back-to-vkGetDeviceQueue.patch
-	cd $ROOT
-
-	remove $build
-	flags="-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DGGML_BUILD_EXAMPLES=OFF -DGGML_BUILD_TESTS=OFF"
-	if $OS == macos {
-		flags="$flags -DGGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=Apple -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0"
-	} else {
-		flags="$flags -DGGML_VULKAN=ON"
-		# Not -march=native: the runner's CPU must not decide what users can run.
-		# With GGML_NATIVE off, ggml turns on SSE4.2 through AVX2, FMA and BMI2 (Haswell, 2013).
-		if $ARCH == x86_64 { flags="$flags -DGGML_NATIVE=OFF" }
-	}
-	if $OS == windows && $flavor == gnu { cmake -S $src -B $build $flags -G "MinGW Makefiles" }
-	else                                { cmake -S $src -B $build $flags }
-	cmake --build $build --config Release --parallel
-
-	# AVX2 is compiled into every CPU kernel, so one build cannot also serve a CPU
-	# without it. Build the CPU backend a second time at the AVX baseline (2011+);
-	# stage-cpu-variant suffixes each build's symbols and sona picks one at startup.
-	build_x64=$ROOT/ggml-build-x64
-	if $ARCH == x86_64 {
-		remove $build_x64
-		x64flags="$flags -DGGML_VULKAN=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_BMI2=OFF"
-		if $OS == windows && $flavor == gnu { cmake -S $src -B $build_x64 $x64flags -G "MinGW Makefiles" }
-		else                                { cmake -S $src -B $build_x64 $x64flags }
-		cmake --build $build_x64 --config Release --parallel --target ggml-cpu
-	}
-
-	# Vulkan has no import library under MinGW; build a delay-load one.
-	if $OS == windows && $flavor == gnu {
-		mkdir $build/delay
-		cd $build/delay
-		dll=vulkan-1.dll
-		if which vulkan-1.dll { dll=$(which vulkan-1.dll) }
-		gendef $dll
-		dlltool --input-def vulkan-1.def --output-delaylib libvulkan-1-delay.a
-		cd $ROOT
-	}
-
-	remove $pkg
-	mkdir $pkg/lib $pkg/include
-	if $OS == windows && $flavor == msvc {
-		stage-lib $build $pkg ggml.lib ggml.lib
-		stage-lib $build $pkg ggml-base.lib ggml-base.lib
-		stage-cpu-variant $build $pkg hsw ggml-cpu.lib ggml-cpu-hsw.lib
-		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.lib ggml-cpu-x64.lib
-		stage-lib $build $pkg ggml-vulkan.lib ggml-vulkan.lib
-	} else if $OS == windows {
-		stage-lib $build $pkg libggml.a ggml.a
-		stage-lib $build $pkg libggml-base.a ggml-base.a
-		# MinGW's cmake writes ggml-cpu.a, without the lib prefix the linker looks for.
-		stage-cpu-variant $build $pkg hsw ggml-cpu.a libggml-cpu-hsw.a
-		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.a libggml-cpu-x64.a
-		stage-lib $build $pkg libggml-vulkan.a ggml-vulkan.a
-		stage-lib $build $pkg libvulkan-1-delay.a vulkan-1-delay.a
-	} else if $OS == macos {
-		stage-lib $build $pkg libggml.a libggml.a
-		stage-lib $build $pkg libggml-base.a libggml-base.a
-		stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
-		stage-lib $build $pkg libggml-metal.a libggml-metal.a
-		stage-lib $build $pkg libggml-blas.a libggml-blas.a
-	} else if $ARCH == x86_64 {
-		stage-lib $build $pkg libggml.a libggml.a
-		stage-lib $build $pkg libggml-base.a libggml-base.a
-		stage-cpu-variant $build $pkg hsw libggml-cpu.a libggml-cpu-hsw.a
-		stage-cpu-variant $build_x64 $pkg x64 libggml-cpu.a libggml-cpu-x64.a
-		stage-lib $build $pkg libggml-vulkan.a libggml-vulkan.a
-	} else {
-		stage-lib $build $pkg libggml.a libggml.a
-		stage-lib $build $pkg libggml-base.a libggml-base.a
-		stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
-		stage-lib $build $pkg libggml-vulkan.a libggml-vulkan.a
-	}
-	for header in ggml.h ggml-cpu.h ggml-alloc.h ggml-backend.h gguf.h {
-		copy $src/include/$header $pkg/include/$header
-	}
-
-	# lib/ and include/ are the archive's top-level entries; fetch-libs relies on that layout.
-	archive $pkg/lib $pkg/include $ROOT/ggml-libs-$platform.tar.gz
-	echo "packaged $ROOT/ggml-libs-$platform.tar.gz"
-}
-
-# Build the ggml libraries and upload the archive to its GitHub release.
-task upload-libs {
-	platform=$(platform-id)
-	build-libs
-	tag=libraries-ggml-$version
-	archive=$ROOT/ggml-libs-$platform.tar.gz
-	try gh release create $tag --generate-notes
-	gh release upload $tag $archive --clobber
-	echo "uploaded $archive to release $tag"
 }
 
 # Package a built sona binary with ffmpeg: package-release <binary> <goos> <goarch> <out>.
@@ -211,15 +59,4 @@ task package-release binary goos goarch out {
 	archive $stage/ $4
 	remove $stage
 	echo "packaged $4"
-}
-
-# Copy one built library out of the cmake tree: stage-lib <build> <pkg> <name> <alt>.
-task stage-lib build pkg name alt {
-	found=""
-	for f in $(find $1 $3 $4) {
-		if $found == "" { found=$f }
-	}
-	if $found == "" { fail "$3 not found under $1" }
-	echo "  found $found (packaged as $3)"
-	copy $found $2/lib/$3
 }

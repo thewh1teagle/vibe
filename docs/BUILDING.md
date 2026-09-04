@@ -4,9 +4,9 @@
 
 The C library (ggml) and the Sona binary are built separately:
 
-1. **`.ggml-version`** is the single source of truth for the ggml release tag. Every task reads it.
-2. **`chore build-libs`** clones ggml at that tag, builds the static libraries for the current platform, and packages them; **`chore upload-libs`** does that and uploads the archive to the GitHub release tagged `libraries-ggml-{tag}`.
-3. **`chore fetch-libs`** downloads the prebuilt static libraries for the current platform from that release into `third_party/lib/`.
+1. **`libs/`** holds everything that determines the libraries: `libs/ggml-version` (the ggml release tag), `libs/patches/` (fixes ggml has not taken yet), and `libs/libs.chore` (the build recipe). Every task reads the tag from there.
+2. **`chore build-libs`** clones ggml at that tag, applies the patches, builds the static libraries for the current platform, and packages them; **`chore upload-libs`** does that and uploads the archive to the GitHub release tagged `libraries-ggml-{tag}-{id}`, where `{id}` is the git tree hash of `libs/` (`chore libs-id`, or `chore libs-tag` for the whole name). Any change under `libs/` therefore publishes under a new tag instead of replacing the bundle older sona tags still link against, and `upload-libs` refuses to run with uncommitted changes there.
+3. **`chore fetch-libs`** downloads the prebuilt static libraries for the current platform from the release named by the current `libs/` into `third_party/lib/`.
 4. **`chore fetch-headers`** fetches the C headers into `third_party/include/` (these are checked into git).
 5. The binary links against `third_party/include/` and `third_party/lib/`.
 
@@ -38,17 +38,17 @@ The library workflow also builds a `windows-amd64-gnu` ggml bundle for compatibi
 
 ### Two CPU backends on x86_64
 
-AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU without it. On x86_64 the bundle carries the CPU backend twice, `ggml-cpu-hsw` (AVX2, FMA, BMI2) and `ggml-cpu-x64` (AVX baseline), with every symbol suffixed so both link into the one binary. `ggml-rs-sys` defines `ggml_backend_cpu_reg` in Rust and forwards to the build the CPU can run. The suffixing needs `nm` and `objcopy` (`llvm-nm` and `llvm-objcopy` for MSVC), which `chore build-libs` runs; `chore fetch-libs` users need nothing extra.
+AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU without it. On x86_64 the bundle carries the CPU backend twice, `ggml-cpu-hsw` (AVX2, FMA, BMI2) and `ggml-cpu-x64` (AVX baseline), with every symbol suffixed so both link into the one binary. `ggml-rs-sys` defines `ggml_backend_cpu_reg` in Rust and forwards to the build the CPU can run. The suffixing needs `nm` and `objcopy` (`llvm-nm` and `llvm-objcopy` for MSVC), which `chore build-libs` runs (`stage-cpu-variant` in `libs/libs.chore`); `chore fetch-libs` users need nothing extra.
 
 ### Patches
 
-`patches/ggml/` holds fixes ggml has not taken yet; `chore build-libs` applies them after the checkout. Each patch starts with a note saying what it is for and where upstream stands. When a bumped tag already carries a fix, `git apply` fails the build: delete the patch and the apply line in the chorefile.
+`libs/patches/` holds fixes ggml has not taken yet; `chore build-libs` applies every `*.patch` there after the checkout. Each patch starts with a note saying what it is for and where upstream stands. When a bumped tag already carries a fix, `git apply` fails the build: delete the patch.
 
 ## Bumping ggml
 
-1. Update the tag in `.ggml-version`
+1. Update the tag in `libs/ggml-version`
 2. Run `chore fetch-headers` and commit the updated headers
-3. Trigger the `Build GGML libs` workflow (or run `chore upload-libs` locally)
+3. Commit, then trigger the `Build GGML libs` workflow (or run `chore upload-libs` locally). The same applies to any change under `libs/`: the bundle for the new tree hash must exist before a sona release can fetch it
 
 ## Packaging a release archive
 
