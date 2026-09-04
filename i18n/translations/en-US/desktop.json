@@ -662,5 +662,11 @@
 	"askFailed": "Could not get an answer",
 	"removeQuestion": "Remove",
 	"summaryOff": "Summaries are off. Turn them on in Settings → AI.",
-	"openAiSettings": "Open AI settings"
+	"openAiSettings": "Open AI settings",
+	"processor": "Processor",
+	"cpuVariant": "CPU instruction set",
+	"cpuVariantInfo": "Automatic follows what the processor reports. Pick Baseline if transcription dies with an illegal instruction.",
+	"cpuVariantAuto": "Automatic",
+	"cpuVariantAvx2": "AVX2",
+	"cpuVariantBaseline": "Baseline (AVX)"
 }

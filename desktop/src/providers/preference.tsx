@@ -17,6 +17,9 @@ import { message } from '@tauri-apps/plugin-dialog'
 import { invoke } from '@tauri-apps/api/core'
 import type { ModelMetadata } from '~/lib/model'
 
+/** Which build of the engine's CPU backend to run; `auto` lets CPUID decide. */
+export type CpuVariant = 'auto' | 'avx2' | 'baseline'
+
 type Direction = 'ltr' | 'rtl'
 export type HomeTab = 'record' | 'file' | 'link'
 
@@ -116,6 +119,8 @@ export interface Preference {
 	noGpu: boolean
 	setNoGpu: ModifyState<boolean>
 	unloadTimeoutMinutes: number
+	cpuVariant: CpuVariant
+	setCpuVariant: ModifyState<CpuVariant>
 	setUnloadTimeoutMinutes: ModifyState<number>
 
 	recentLanguages: { code: string; ts: number }[]
@@ -263,6 +268,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [gpuDevice, setGpuDevice] = usePersisted<number | null>(CONFIG_KEYS.gpuDevice, null)
 	const [noGpu, setNoGpu] = usePersisted<boolean>(CONFIG_KEYS.noGpu, false)
 	const [unloadTimeoutMinutes, setUnloadTimeoutMinutes] = usePersisted<number>(CONFIG_KEYS.unloadTimeoutMinutes, 5)
+	const [cpuVariant, setCpuVariant] = usePersisted<CpuVariant>(CONFIG_KEYS.cpuVariant, 'auto')
 	const [saveTranscripts, setSaveTranscripts] = usePersisted<boolean>(CONFIG_KEYS.saveTranscripts, true)
 	const [meetingDetectionEnabled, setMeetingDetectionEnabled] = usePersisted<boolean>(CONFIG_KEYS.meetingDetectionEnabled, false)
 	const [autoTranscribeAfterRecording, setAutoTranscribeAfterRecording] = usePersisted<boolean>(CONFIG_KEYS.autoTranscribeAfterRecording, false)
@@ -447,6 +453,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setNoGpu,
 		setGpuDevice,
 		unloadTimeoutMinutes,
+		cpuVariant,
+		setCpuVariant,
 		setUnloadTimeoutMinutes,
 		analyticsEnabled,
 		setAnalyticsEnabled,

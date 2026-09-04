@@ -94,25 +94,26 @@ pub async fn load_model(
         state_guard.process = None;
     }
 
+    let cpu_variant = crate::cmd::config::cpu_variant(&app_handle);
     if state_guard
         .process
         .as_ref()
-        .is_some_and(|process| process.unload_timeout_minutes() != unload_timeout_minutes)
+        .is_some_and(|process| process.unload_timeout_minutes() != unload_timeout_minutes || process.cpu_variant() != cpu_variant)
     {
-        tracing::debug!(unload_timeout_minutes, "restarting server to apply unload timeout");
+        tracing::debug!(unload_timeout_minutes, ?cpu_variant, "restarting server to apply settings");
         // Dropping ServerProcess kills and waits for its child process via its Drop implementation.
         state_guard.process = None;
     }
 
-    let spawn_server = || -> Result<crate::server::ServerProcess> {
+    let spawn_server = |cpu_variant: crate::cmd::config::CpuVariant| -> Result<crate::server::ServerProcess> {
         let binary_path = resolve_server_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        crate::server::ServerProcess::spawn(&binary_path, ffmpeg_path.as_deref(), unload_timeout_minutes)
+        crate::server::ServerProcess::spawn(&binary_path, ffmpeg_path.as_deref(), unload_timeout_minutes, cpu_variant)
     };
 
     // Spawn server if not running
     if state_guard.process.is_none() {
-        match spawn_server() {
+        match spawn_server(cpu_variant) {
             Ok(process) => state_guard.process = Some(process),
             Err(e) => {
                 let error_msg = format!("{:#}", e);
@@ -127,10 +128,41 @@ pub async fn load_model(
     }
 
     // Load model via HTTP
-    let load_result = {
+    let mut load_result = {
         let server = state_guard.process.as_mut().unwrap();
         server.load_model(&model_path, gpu_device, no_gpu).await
     };
+
+    // A CPU that advertises AVX2 it cannot execute kills the engine on the first AVX2
+    // instruction, while the model loads. Once is enough to know: relaunch on the baseline
+    // build, and keep that choice so the next launch does not die again first (#1499).
+    if load_result.is_err()
+        && cpu_variant == crate::cmd::config::CpuVariant::Auto
+        && state_guard
+            .process
+            .as_mut()
+            .is_some_and(crate::server::ServerProcess::died_with_illegal_instruction)
+    {
+        tracing::warn!("server died with an illegal instruction while loading the model; retrying on the baseline CPU build");
+        crate::analytics::track_event_handle_with_props(
+            &app_handle,
+            crate::analytics::events::SERVER_CPU_BASELINE_FALLBACK,
+            None,
+        );
+        state_guard.process = None;
+        let process = spawn_server(crate::cmd::config::CpuVariant::Baseline)
+            .context("failed to respawn server on the baseline CPU build")?;
+        state_guard.process = Some(process);
+        load_result = state_guard
+            .process
+            .as_mut()
+            .unwrap()
+            .load_model(&model_path, gpu_device, no_gpu)
+            .await;
+        if load_result.is_ok() {
+            crate::cmd::config::set_cpu_variant(&app_handle, crate::cmd::config::CpuVariant::Baseline).log_error();
+        }
+    }
 
     // Asking for the CPU is a choice rather than a failure, so there is nothing to fall back to.
     let gpu_fallback = match load_result {
@@ -143,7 +175,7 @@ pub async fn load_model(
             if let Some(mut old) = state_guard.process.take() {
                 old.kill();
             }
-            let process = spawn_server().context("failed to respawn server")?;
+            let process = spawn_server(crate::cmd::config::cpu_variant(&app_handle)).context("failed to respawn server")?;
             state_guard.process = Some(process);
 
             let server = state_guard.process.as_mut().unwrap();
@@ -172,7 +204,13 @@ pub async fn get_model_metadata(app_handle: tauri::AppHandle, model_path: String
     if state.process.as_mut().is_none_or(|process| !process.is_alive()) {
         let binary_path = resolve_server_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        state.process = Some(crate::server::ServerProcess::spawn(&binary_path, ffmpeg_path.as_deref(), 5)?);
+        let cpu_variant = crate::cmd::config::cpu_variant(&app_handle);
+        state.process = Some(crate::server::ServerProcess::spawn(
+            &binary_path,
+            ffmpeg_path.as_deref(),
+            5,
+            cpu_variant,
+        )?);
     }
     state.process.as_ref().unwrap().model_metadata(&model_path).await
 }
@@ -190,19 +228,21 @@ pub async fn start_api_server(
     unload_timeout_minutes: u32,
 ) -> Result<String> {
     let mut state_guard = server_state.lock().await;
+    let cpu_variant = crate::cmd::config::cpu_variant(&app_handle);
     if state_guard
         .process
         .as_ref()
-        .is_some_and(|process| process.unload_timeout_minutes() != unload_timeout_minutes)
+        .is_some_and(|process| process.unload_timeout_minutes() != unload_timeout_minutes || process.cpu_variant() != cpu_variant)
     {
-        tracing::debug!(unload_timeout_minutes, "restarting server to apply unload timeout");
+        tracing::debug!(unload_timeout_minutes, ?cpu_variant, "restarting server to apply settings");
         // Dropping ServerProcess kills and waits for its child process via its Drop implementation.
         state_guard.process = None;
     }
     if state_guard.process.is_none() {
         let binary_path = resolve_server_binary(&app_handle)?;
         let ffmpeg_path = resolve_ffmpeg_path(&app_handle);
-        let process = crate::server::ServerProcess::spawn(&binary_path, ffmpeg_path.as_deref(), unload_timeout_minutes)?;
+        let process =
+            crate::server::ServerProcess::spawn(&binary_path, ffmpeg_path.as_deref(), unload_timeout_minutes, cpu_variant)?;
         state_guard.process = Some(process);
     }
     let process = state_guard.process.as_ref().context("API server process missing")?;

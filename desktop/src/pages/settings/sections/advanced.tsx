@@ -6,10 +6,17 @@ import NumberField from '~/components/number-field'
 import { ReactComponent as CopyIcon } from '~/icons/copy.svg'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as ResetIcon } from '~/icons/reset.svg'
-import { ActionRow, SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
+import type { CpuVariant } from '~/providers/preference'
+import { ActionRow, SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
 
 export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 	const { fakeUpdate, setFakeUpdate } = useContext(UpdaterContext)
+	const cpuVariants: Array<{ value: CpuVariant; label: string }> = [
+		{ value: 'auto', label: m.cpuVariantAuto() },
+		{ value: 'avx2', label: m.cpuVariantAvx2() },
+		{ value: 'baseline', label: m.cpuVariantBaseline() },
+	]
 
 	return (
 		<div className="space-y-6">
@@ -39,6 +46,23 @@ export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 						format={(minutes) => (minutes === 0 ? m.never() : undefined)}
 						onChange={vm.preference.setUnloadTimeoutMinutes}
 					/>
+				</SettingsRow>
+			</SettingsGroup>
+
+			<SettingsGroup title={m.processor()}>
+				<SettingsRow label={m.cpuVariant()} description={m.cpuVariantInfo()} clampDescription={false}>
+					<Select value={vm.preference.cpuVariant} onValueChange={(value: CpuVariant) => vm.preference.setCpuVariant(value)}>
+						<SelectTrigger className={`w-44 ${rowControlClass}`}>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{cpuVariants.map((choice) => (
+								<SelectItem key={choice.value} value={choice.value}>
+									{choice.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
 				</SettingsRow>
 			</SettingsGroup>
 

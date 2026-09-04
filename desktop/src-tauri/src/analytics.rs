@@ -27,6 +27,8 @@ pub mod events {
     pub const CLI_SPAWN_FAILED: &str = "cli_spawn_failed";
     /// The string predates the rename; keeping it keeps the dashboards continuous.
     pub const SERVER_SPAWN_FAILED: &str = "sona_spawn_failed";
+    /// The engine died with an illegal instruction on the AVX2 build and was relaunched on the baseline one.
+    pub const SERVER_CPU_BASELINE_FALLBACK: &str = "server_cpu_baseline_fallback";
 
     // Phone handoff. Props are technical facts only: never a transcript, filename,
     // saved path, endpoint id, pairing token, model path, or chosen language.

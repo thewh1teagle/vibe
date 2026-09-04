@@ -9,6 +9,66 @@ use tauri_plugin_store::StoreExt;
 /// Config key holding the base URL of the running local API. Must match `CONFIG_KEYS.apiBaseUrl`.
 pub const API_BASE_URL_KEY: &str = "api.baseUrl";
 
+/// Config key for the CPU backend build the engine should use. Must match `CONFIG_KEYS.cpuVariant`.
+pub const CPU_VARIANT_KEY: &str = "server.cpuVariant";
+
+/// Which build of the engine's CPU backend to run.
+///
+/// `Auto` lets the engine decide from CPUID. `Baseline` is for a machine that advertises
+/// AVX2 it cannot execute, which happens on a Hackintosh with spoofed CPUID (#1499): the
+/// engine then dies with an illegal instruction while loading the model.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CpuVariant {
+    Auto,
+    Avx2,
+    Baseline,
+}
+
+impl CpuVariant {
+    fn parse(value: &str) -> Self {
+        match value {
+            "avx2" => Self::Avx2,
+            "baseline" => Self::Baseline,
+            _ => Self::Auto,
+        }
+    }
+
+    /// The value the engine reads from `VIBE_SERVER_CPU_VARIANT`; `None` leaves detection alone.
+    pub fn env_value(self) -> Option<&'static str> {
+        match self {
+            Self::Auto => None,
+            Self::Avx2 => Some("avx2"),
+            Self::Baseline => Some("baseline"),
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Auto => "auto",
+            Self::Avx2 => "avx2",
+            Self::Baseline => "baseline",
+        }
+    }
+}
+
+/// The user's CPU build choice from `app_config.json`; `Auto` when unset or unreadable.
+pub fn cpu_variant(app_handle: &tauri::AppHandle) -> CpuVariant {
+    app_handle
+        .store(STORE_FILENAME)
+        .ok()
+        .and_then(|store| store.get(CPU_VARIANT_KEY))
+        .and_then(|value| value.as_str().map(CpuVariant::parse))
+        .unwrap_or(CpuVariant::Auto)
+}
+
+/// Persist the CPU build choice, so a fallback the app made on its own shows in Settings and holds.
+pub fn set_cpu_variant(app_handle: &tauri::AppHandle, variant: CpuVariant) -> Result<()> {
+    let store = app_handle.store(STORE_FILENAME).map_err(|e| eyre!("{:?}", e))?;
+    store.set(CPU_VARIANT_KEY, serde_json::Value::String(variant.as_str().to_string()));
+    store.save().map_err(|e| eyre!("{:?}", e))?;
+    Ok(())
+}
+
 /// Absolute path of `app_config.json`, so the UI (and agents told where to look) can find it.
 #[tauri::command]
 pub fn get_config_path(app_handle: tauri::AppHandle) -> Result<PathBuf> {

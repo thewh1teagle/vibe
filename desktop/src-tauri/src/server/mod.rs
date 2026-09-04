@@ -48,6 +48,7 @@ pub struct ModelMetadata {
 pub struct ServerProcess {
     port: u16,
     unload_timeout_minutes: u32,
+    cpu_variant: crate::cmd::config::CpuVariant,
     child: Child,
     /// Cached because `try_wait` hands the status over exactly once.
     exit_status: Option<std::process::ExitStatus>,
