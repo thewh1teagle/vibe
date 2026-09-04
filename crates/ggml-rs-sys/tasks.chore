@@ -25,12 +25,15 @@ task stage-cpu-variant build pkg suffix name out {
 	map=$lib.map
 	try remove $map
 	tag=_$3
+	# Local symbols too: GCC signs a constructor's or destructor's COMDAT group with a
+	# local C5/D5 symbol, and two builds whose groups carry the same signature get
+	# folded into one by the linker, leaving the other's renamed references dangling.
 	# nm walks the members, so it prints each one's name with a trailing colon, and
 	# lists a symbol every member defines (COMDATs) once per member; objcopy wants
 	# each symbol once. Keep the names seen so far, space-fenced so no name is a
 	# prefix of another.
 	seen=" "
-	for sym in $($nm_tool --defined-only --extern-only --format=just-symbols $lib) {
+	for sym in $($nm_tool --defined-only --format=just-symbols $lib) {
 		if !($sym contains ":") && !($seen contains " $sym ") {
 			echo "$sym $sym$tag" >> $map
 			seen="$seen$sym "
