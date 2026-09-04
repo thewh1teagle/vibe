@@ -182,8 +182,8 @@ Scaling is explicit and process-level:
 ## Build & Packaging 🛠️
 
 - Whisper commit pinned via `.whispercpp-commit`
-- Platform-specific static libs downloaded to `third_party/lib`
-- Headers fetched to `third_party/include`
+- Platform-specific static libs downloaded to `libs/lib` (ignored)
+- Headers fetched to `libs/include` (checked in)
 - Rust binary links against platform whisper / ggml libs
 - Release packaging bundles:
   - `sona`

@@ -10,7 +10,7 @@ ggml_blob=https://github.com/ggml-org/ggml/blob
 # directory names the release they are stored under.
 include libs/libs.chore
 
-# Fetch the pinned ggml headers into third_party/include.
+# Fetch the pinned ggml headers into libs/include.
 task fetch-headers {
 	out=$ROOT/libs/include
 	mkdir $out

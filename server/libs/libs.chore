@@ -49,7 +49,7 @@ task platform-id {
 	}
 }
 
-# Download the prebuilt ggml static libraries for this platform into third_party.
+# Download the prebuilt ggml static libraries for this platform into libs/lib.
 task fetch-libs {
 	platform=$(platform-id)
 	tag=$(libs-tag)
@@ -58,10 +58,15 @@ task fetch-libs {
 	echo "release: $tag"
 	mkdir $ROOT/target
 	download gh://$repo/$tag/ggml-libs-$platform.tar.gz $ROOT/target/ggml-libs-$platform.tar.gz --timeout 120
-	# The archive also carries include/; the headers the build uses are the checked-in libs/include.
-	extract $ROOT/target/ggml-libs-$platform.tar.gz $ROOT/third_party
+	# Only lib/ is taken: the archive also carries include/, and the headers the
+	# build uses are the checked-in libs/include from the same ggml tag.
+	remove $ROOT/target/ggml-libs
+	extract $ROOT/target/ggml-libs-$platform.tar.gz $ROOT/target/ggml-libs
+	remove $ROOT/libs/lib
+	move $ROOT/target/ggml-libs/lib $ROOT/libs/lib
+	remove $ROOT/target/ggml-libs
 	remove $ROOT/target/ggml-libs-$platform.tar.gz
-	echo "extracted to $ROOT/third_party"
+	echo "extracted to $ROOT/libs/lib"
 }
 
 # Build the ggml static libraries for this platform and package them into an archive.
