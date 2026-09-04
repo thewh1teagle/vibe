@@ -44,7 +44,7 @@ import httpx
 # SIGN_PATTERNS = [
 #     "vibe.exe",
 #     "vibe*setup*.exe",
-#     "sona*.exe",
+#     "vibe-server*.exe",
 # ]
 SIGN_PATTERNS = ["*"]
 

@@ -4,8 +4,8 @@
 libs/lib/
 models/
 samples/
-sona
-!sona/
+vibe-server
+!vibe-server/
 ggml-src/
 ggml-build/
 *.tar.gz
@@ -20,8 +20,6 @@ __pycache__/
 *.pyc
 target/
 *.onnx
-sona-diarize
-sona-diarize-*-*
 
 # Sortformer GGUF port: large artifacts stay out of git
 # Recorded ONNX reference dumps. Regenerate with baseline/regen.sh (needs the

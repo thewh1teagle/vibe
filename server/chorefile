@@ -1,4 +1,4 @@
-# Sona project tasks. Run `chore list` to see them.
+# vibe-server tasks. Run `chore list` to see them.
 #
 # The pinned ggml release tag, e.g. "v0.22.0".
 version=$(read $ROOT/libs/ggml-version)
@@ -26,7 +26,7 @@ task fetch-headers {
 	}
 }
 
-# Package a built sona binary with ffmpeg: package-release <binary> <goos> <goarch> <out>.
+# Package a built vibe-server binary with ffmpeg: package-release <binary> <goos> <goarch> <out>.
 task package-release binary goos goarch out {
 	if !exists $1 { fail "binary not found: $1" }
 	stage=$ROOT/target/server-package

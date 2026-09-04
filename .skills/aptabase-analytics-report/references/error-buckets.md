@@ -48,7 +48,7 @@ Name buckets based on the current dominant patterns in the export. Keep the name
 
 After identifying the dominant current failures, inspect the relevant code paths:
 
-- `desktop/src-tauri/src/sona.rs` for spawn, process lifecycle, load-model, and transcribe request issues
+- `desktop/src-tauri/src/server/` for spawn, process lifecycle, load-model, and transcribe request issues
 - `desktop/src-tauri/src/cmd/mod.rs` for input validation and surfaced command errors
 - any other current call sites that emit analytics props or errors
 

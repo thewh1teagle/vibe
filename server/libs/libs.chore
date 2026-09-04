@@ -5,7 +5,7 @@
 # A bundle is published under libraries-ggml-<version>-r<revision>. The revision is
 # libs/revision, bumped by hand in the same commit as any change under libs/ (the
 # ggml tag, the patches, this recipe) and reset to 1 when the ggml tag moves, so a
-# changed bundle never replaces the one an older sona tag still links against.
+# changed bundle never replaces the one an older server tag still links against.
 # The git tree hash of libs/ is recorded in the release notes and checked by
 # upload-libs: a release that already exists for another tree means the bump was
 # forgotten. Uncommitted edits are not in the hash, so upload-libs refuses them.
@@ -24,12 +24,12 @@ task libs-tag {
 	echo "libraries-ggml-$version-r$revision"
 }
 
-# Print the Windows import library flavor: SONA_WINDOWS_LIB_FLAVOR, or the host toolchain's.
+# Print the Windows import library flavor: VIBE_SERVER_WINDOWS_LIB_FLAVOR, or the host toolchain's.
 task lib-flavor {
 	flavor=$ENV
-	if $OS == windows && env SONA_WINDOWS_LIB_FLAVOR {
-		flavor=$(env SONA_WINDOWS_LIB_FLAVOR)
-		if $flavor != gnu && $flavor != msvc { fail "unsupported SONA_WINDOWS_LIB_FLAVOR: $flavor" }
+	if $OS == windows && env VIBE_SERVER_WINDOWS_LIB_FLAVOR {
+		flavor=$(env VIBE_SERVER_WINDOWS_LIB_FLAVOR)
+		if $flavor != gnu && $flavor != msvc { fail "unsupported VIBE_SERVER_WINDOWS_LIB_FLAVOR: $flavor" }
 	}
 	echo "$flavor"
 }
@@ -111,7 +111,7 @@ task build-libs {
 
 	# AVX2 is compiled into every CPU kernel, so one build cannot also serve a CPU
 	# without it. Build the CPU backend a second time at the AVX baseline (2011+);
-	# stage-cpu-variant suffixes each build's symbols and sona picks one at startup.
+	# stage-cpu-variant suffixes each build's symbols and vibe-server picks one at startup.
 	build_x64=$ROOT/ggml-build-x64
 	if $ARCH == x86_64 {
 		remove $build_x64

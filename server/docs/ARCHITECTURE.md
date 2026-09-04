@@ -10,10 +10,10 @@ vibe-server is intentionally simple: one process, one model, one transcription a
 
 vibe-server is a single-process Rust binary with two operating modes:
 
-- `sona transcribe <model.bin> <audio>`  
+- `vibe-server transcribe <model.bin> <audio>`  
   One-shot local transcription, no server.
 
-- `sona serve [model.bin] --port <n>`  
+- `vibe-server serve [model.bin] --port <n>`  
   Long-running HTTP runner with an OpenAI-compatible API.
 
 The server follows a **runner model**, not a shared service model:
@@ -29,13 +29,13 @@ This keeps ownership, shutdown, and scaling explicit and predictable.
 
 High-level layout of the codebase:
 
-- `crates/sona/src/cli.rs`  
+- `crates/vibe-server/src/cli.rs`  
   CLI entrypoints:
   - `transcribe`
   - `serve`
   - `pull`
 
-- `crates/sona/src/audio.rs`  
+- `crates/vibe-server/src/audio.rs`  
   Audio decoding and normalization:
   - Converts input to `16kHz` mono `float32`
   - Fallback to `ffmpeg` for all other formats
@@ -50,7 +50,7 @@ High-level layout of the codebase:
 - `crates/diarize-rs`  
   In-process Sortformer diarization.
 
-- `crates/sona/src/server`  
+- `crates/vibe-server/src/server`  
   HTTP layer:
   - routing
   - model lifecycle
@@ -186,7 +186,7 @@ Scaling is explicit and process-level:
 - Headers fetched to `libs/include` (checked in)
 - Rust binary links against platform whisper / ggml libs
 - Release packaging bundles:
-  - `sona`
+  - `vibe-server`
   - `ffmpeg` binary (when applicable)
 
 ---

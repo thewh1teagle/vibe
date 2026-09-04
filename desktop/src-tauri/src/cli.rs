@@ -89,7 +89,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
         .stderr(std::process::Stdio::piped());
 
     if let Some(ref ffmpeg) = ffmpeg_path {
-        cmd.env("SONA_FFMPEG_PATH", ffmpeg);
+        cmd.env("VIBE_SERVER_FFMPEG_PATH", ffmpeg);
     }
 
     let mut child = match cmd.spawn() {

@@ -127,7 +127,7 @@ Separate user-input mistakes from runtime, environment, and packaging failures. 
 
 Build buckets from the current data, then map the high-volume failures to code paths before proposing changes:
 
-- `desktop/src-tauri/src/sona.rs`: spawn, load-model, and transcribe HTTP failures
+- `desktop/src-tauri/src/server/`: spawn, load-model, and transcribe HTTP failures
 - `desktop/src-tauri/src/cmd/mod.rs`: input validation and surfaced transcription errors
 
 Read `references/error-buckets.md` for the general workflow on discovering the current event set and deriving buckets from the current repository state.

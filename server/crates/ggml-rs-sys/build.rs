@@ -73,7 +73,7 @@ fn link_platform() {
             println!("cargo:rustc-link-lib=c++");
         }
         // The Vulkan loader is opened at runtime (libs/patches/0003), so nothing links
-        // against it: a machine without one starts sona and runs on the CPU.
+        // against it: a machine without one starts vibe-server and runs on the CPU.
         Ok("linux") => {
             println!("cargo:rustc-link-lib=static=ggml-vulkan");
             for lib in ["stdc++", "m", "pthread", "gomp", "dl"] {

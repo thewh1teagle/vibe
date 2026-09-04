@@ -47,5 +47,5 @@ tauri-plugin-aptabase/
 **/project.inlang/cache/
 **/project.inlang/project_id
 
-# Scratch artifacts for the sona/whisper output comparison (includes a 47MB binary).
+# Scratch artifacts for the engine/whisper output comparison (includes a 47MB binary).
 plans/

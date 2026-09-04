@@ -111,13 +111,13 @@ fn find_ffmpeg() -> anyhow::Result<PathBuf> {
         return Ok(path);
     }
 
-    if let Ok(path) = std::env::var("SONA_FFMPEG_PATH") {
+    if let Ok(path) = std::env::var("VIBE_SERVER_FFMPEG_PATH") {
         let path = PathBuf::from(path);
         if path.exists() {
             return Ok(path);
         }
         eprintln!(
-            "warning: SONA_FFMPEG_PATH set to {:?} but not found, continuing search",
+            "warning: VIBE_SERVER_FFMPEG_PATH set to {:?} but not found, continuing search",
             path
         );
     }

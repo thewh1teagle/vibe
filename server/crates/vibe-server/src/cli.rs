@@ -5,11 +5,11 @@ use whisper_rs::{ContextOptions, TranscribeOptions};
 use crate::server::format;
 use crate::{audio, pull, server};
 
-const VERSION: &str = match option_env!("SONA_VERSION") {
+const VERSION: &str = match option_env!("VIBE_SERVER_VERSION") {
     Some(value) => value,
     None => "dev",
 };
-const COMMIT: &str = match option_env!("SONA_COMMIT") {
+const COMMIT: &str = match option_env!("VIBE_SERVER_COMMIT") {
     Some(value) => value,
     None => "dev",
 };
@@ -65,7 +65,7 @@ enum Command {
         port: u16,
         #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
         exit_with_parent: bool,
-        #[arg(long, env = "SONA_UNLOAD_TIMEOUT", default_value = "0")]
+        #[arg(long, env = "VIBE_SERVER_UNLOAD_TIMEOUT", default_value = "0")]
         unload_timeout: crate::server::unload_timeout::UnloadTimeout,
     },
     Pull {
