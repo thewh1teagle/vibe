@@ -14,8 +14,8 @@ require 1.6.0
 # these tasks call them, they do not reimplement them. CI calls the same tasks,
 # so a green local run means the same commands ran.
 
-include handoff/tasks.chorefile
-include website/tasks.chorefile
+include handoff/handoff.chorefile
+include website/website.chorefile
 
 sona=$(read .sona-version)
 bin=desktop/src-tauri/binaries
