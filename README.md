@@ -96,7 +96,7 @@ See the full API reference here:
 
 ---
 
-## Notes & Limitations ⚠️
+## Notes & Limitations
 
 - One transcription runs at a time per process  
   concurrent requests return 429

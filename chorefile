@@ -226,7 +226,7 @@ task stage-cpu-variant build pkg suffix name out {
 	lib=$2/lib/$5
 	copy $found $lib
 	map=$lib.map
-	write $map ""
+	try remove $map
 	tag=_$3
 	# nm prints each member's name with a trailing colon between its symbols; skip those.
 	for sym in $($nm_tool --defined-only --extern-only --format=just-symbols $lib) {
