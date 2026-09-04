@@ -5,7 +5,6 @@ members = [
     "crates/parakeet-rs",
     "crates/sona",
     "crates/vad-rs",
-    "crates/xtask",
     "crates/ggml-rs-sys",
     "crates/whisper-rs",
 ]

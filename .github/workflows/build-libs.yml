@@ -60,8 +60,10 @@ jobs:
         if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'gnu'
         shell: pwsh
         run: echo "$env:RUNNER_TEMP\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Setup chore
+        uses: getchore/setup-chore@v1
       - name: Build and upload
         env:
           GH_TOKEN: ${{ github.token }}
           SONA_WINDOWS_LIB_FLAVOR: ${{ matrix.windows_lib_flavor }}
-        run: cargo xtask build-libs --upload
+        run: chore upload-libs

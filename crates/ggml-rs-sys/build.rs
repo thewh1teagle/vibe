@@ -12,10 +12,10 @@ fn main() {
         println!("cargo:rerun-if-changed={}", path.display());
     }
     if !include_dir.join("ggml.h").exists() {
-        panic!("missing native headers; run `cargo xtask fetch-headers`");
+        panic!("missing native headers; run `chore fetch-headers`");
     }
     if !lib_dir.exists() {
-        panic!("missing native libraries; run `cargo xtask fetch-libs`");
+        panic!("missing native libraries; run `chore fetch-libs`");
     }
 
     let mut bindings = bindgen::Builder::default()

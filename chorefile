@@ -1,4 +1,4 @@
-# Sona project tasks. Replaces `cargo xtask`.
+# Sona project tasks. Run `chore list` to see them.
 #
 # The pinned ggml release tag, e.g. "v0.22.0".
 version=$(read $ROOT/.ggml-version)
@@ -134,7 +134,7 @@ task build-libs {
 		copy $src/include/$header $pkg/include/$header
 	}
 
-	# lib/ and include/ are the archive's top-level entries, as xtask wrote them.
+	# lib/ and include/ are the archive's top-level entries; fetch-libs relies on that layout.
 	archive $pkg/lib $pkg/include $ROOT/ggml-libs-$platform.tar.gz
 	echo "packaged $ROOT/ggml-libs-$platform.tar.gz"
 }
@@ -179,7 +179,7 @@ task package-release binary goos goarch out {
 		chmod 755 $stage/ffmpeg
 	}
 
-	# The binary and ffmpeg sit at the archive root, as xtask wrote them.
+	# The binary and ffmpeg sit at the archive root; Vibe's setup task extracts them by name.
 	archive $stage/ $4
 	remove $stage
 	echo "packaged $4"

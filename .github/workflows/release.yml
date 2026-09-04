@@ -75,8 +75,10 @@ jobs:
           "Vulkan_INCLUDE_DIR=$($sdk.FullName)\Include" | Out-File -FilePath $env:GITHUB_ENV -Append
           "Vulkan_LIBRARY=$($sdk.FullName)\Lib\vulkan-1.lib" | Out-File -FilePath $env:GITHUB_ENV -Append
           "$($sdk.FullName)\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - name: Setup chore
+        uses: getchore/setup-chore@v1
       - name: Download prebuilt GGML libs
-        run: cargo xtask fetch-libs
+        run: chore fetch-libs
       - name: Build sona
         shell: bash
         env:
@@ -93,11 +95,7 @@ jobs:
         if: matrix.archive != ''
         shell: bash
         run: |
-          cargo xtask package-release \
-            --binary "${{ matrix.binary }}" \
-            --goos "${{ matrix.package_os }}" \
-            --goarch "${{ matrix.package_arch }}" \
-            --out "${{ matrix.archive }}"
+          chore package-release "${{ matrix.binary }}" "${{ matrix.package_os }}" "${{ matrix.package_arch }}" "${{ matrix.archive }}"
       - name: Upload packaged archive to release
         if: matrix.archive != ''
         shell: pwsh

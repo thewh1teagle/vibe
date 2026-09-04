@@ -2,25 +2,28 @@
 
 ## Architecture
 
-The C library (whisper.cpp) and the Sona binary are built separately:
+The C library (ggml) and the Sona binary are built separately:
 
-1. **`.whispercpp-commit`** is the single source of truth for the whisper.cpp version. All scripts read from it.
-2. **`cargo xtask build-libs`** clones whisper.cpp at that commit, builds static libraries, and uploads them to a GitHub release tagged `libraries-{commit[:7]}`.
-3. **`cargo xtask fetch-libs`** downloads the prebuilt static libraries for the current platform from that release into `third_party/lib/`.
-4. **`cargo xtask fetch-headers`** fetches the C headers into `third_party/include/` (these are checked into git).
+1. **`.ggml-version`** is the single source of truth for the ggml release tag. Every task reads it.
+2. **`chore build-libs`** clones ggml at that tag, builds the static libraries for the current platform, and packages them; **`chore upload-libs`** does that and uploads the archive to the GitHub release tagged `libraries-ggml-{tag}`.
+3. **`chore fetch-libs`** downloads the prebuilt static libraries for the current platform from that release into `third_party/lib/`.
+4. **`chore fetch-headers`** fetches the C headers into `third_party/include/` (these are checked into git).
 5. The binary links against `third_party/include/` and `third_party/lib/`.
 
-This separation means contributors never need to build whisper.cpp locally -- they just run the download script.
+This separation means contributors never need to build ggml locally; they just fetch the libraries.
+
+Tasks live in the `chorefile` at the repository root. `chore list` shows them all.
 
 ## Prerequisites
 
 - [Rust](https://www.rust-lang.org/tools/install)
+- [chore](https://github.com/getchore/chore)
 
 ## Quick start
 
 ```bash
-cargo xtask fetch-headers
-cargo xtask fetch-libs
+chore fetch-headers
+chore fetch-libs
 cargo build -p sona --release
 ```
 
@@ -31,13 +34,17 @@ choco install vulkan-sdk -y
 cargo build -p sona --release
 ```
 
-The library workflow also builds a `windows-amd64-gnu` whisper.cpp bundle for compatibility, but release binaries use `windows-amd64-msvc`.
+The library workflow also builds a `windows-amd64-gnu` ggml bundle for compatibility (`SONA_WINDOWS_LIB_FLAVOR=gnu`), but release binaries use `windows-amd64-msvc`.
 
-## Bumping whisper.cpp
+## Bumping ggml
 
-1. Update the commit hash in `.whispercpp-commit`
-2. Run `cargo xtask fetch-headers` and commit the updated headers
-3. Trigger the `Build whisper.cpp libs` workflow (or run `cargo xtask build-libs --upload` locally)
+1. Update the tag in `.ggml-version`
+2. Run `chore fetch-headers` and commit the updated headers
+3. Trigger the `Build GGML libs` workflow (or run `chore upload-libs` locally)
+
+## Packaging a release archive
+
+`chore package-release <binary> <darwin|windows> <amd64|arm64> <out.tar.gz|out.zip>` bundles a built `sona` binary with ffmpeg the way the release workflow does.
 
 ## Releasing binaries
 
