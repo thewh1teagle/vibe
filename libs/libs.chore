@@ -177,7 +177,7 @@ task upload-libs {
 	tag=$(libs-tag)
 	id=$(libs-id)
 	# The same tag for another tree means libs/ changed without a revision bump.
-	existing=$(gh release list --repo $sona_repo --json tagName,body --jq ".[] | select(.tagName == \"$tag\") | .body")
+	existing=$(gh api "repos/$sona_repo/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .body")
 	if "$existing" != "" && !($existing contains "tree $id") { fail "release $tag exists for another libs/ tree; bump libs/revision" }
 	build-libs
 	archive=$ROOT/ggml-libs-$platform.tar.gz
