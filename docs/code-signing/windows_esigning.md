@@ -105,7 +105,7 @@ Jsign requires a Java runtime. Temurin (Eclipse Adoptium) is recommended.
 Tauri calls a custom sign command for every binary it produces
 (main exe, sidecars, NSIS plugins, installer, etc.).
 
-The project uses `scripts/sign_windows.py` as that command. It **whitelists**
+The project uses `scripts/sign.py sign` as that command. It **whitelists**
 only specific files and skips everything else, keeping usage under the eSigner
 monthly signing limit.
 
@@ -131,7 +131,7 @@ In `desktop/src-tauri/tauri.windows.conf.json`:
 	"windows": {
 		"signCommand": {
 			"cmd": "python",
-			"args": ["scripts/sign_windows.py", "%1"]
+			"args": ["scripts/sign.py", "sign", "%1"]
 		}
 	}
 }
@@ -153,7 +153,7 @@ SSL_COM_TOTP_SECRET=BASE32_SECRET
 ## 8. Manual signing
 
 ```
-uv run scripts/sign_windows.py path\to\file.exe
+uv run scripts/sign.py sign path\to\file.exe
 ```
 
 ## 9. Verification
@@ -207,7 +207,7 @@ with eSigner enabled.
 
 - Verify the Base32 secret is correct by comparing generated codes with
   your authenticator app
-- Jsign expects the TOTP secret in Base64 — the `sign_windows.py` script
+- Jsign expects the TOTP secret in Base64 — the `sign.py` script
   handles this conversion automatically
 - Ensure your system clock is synchronized (TOTP is time-based)
 
@@ -225,6 +225,6 @@ and the system PATH.
 ### Signing limit exceeded
 
 eSigner has a monthly signing limit depending on your tier.
-The whitelist in `sign_windows.py` keeps usage low by only signing
+The whitelist in `sign.py` keeps usage low by only signing
 the main executable and installer. If you hit the limit, consider
 upgrading your eSigner plan.
