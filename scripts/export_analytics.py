@@ -22,6 +22,9 @@ fetch two full days (yesterday + today) and filter afterward:
   start = (now - timedelta(hours=24)).strftime("%Y-%m-%d")
   end   = (now + timedelta(days=1)).strftime("%Y-%m-%d")   # end is exclusive
 
+Count users by the install_id column, not user_id: user_id rotates daily on the
+server, install_id is the app's persistent anonymous id (3.1.2+, empty before).
+
 Env vars (via .env):
   BASE_URL        – e.g. https://aptabase.example.com
   AUTH_SECRET     – same secret the server uses to verify JWTs
@@ -42,6 +45,7 @@ Usage:
 """
 
 import argparse
+import json
 import time
 from datetime import datetime
 from pathlib import Path
@@ -109,6 +113,16 @@ def resolve_app_key(
     raise SystemExit(f"App key {app_key!r} not found. Available: {available}")
 
 
+def extract_install_id(string_props: object) -> str | None:
+    if not isinstance(string_props, str) or not string_props.startswith("{"):
+        return None
+    try:
+        value = json.loads(string_props).get("install_id")
+    except (json.JSONDecodeError, AttributeError):
+        return None
+    return value if isinstance(value, str) and value else None
+
+
 def export_data(
     client: httpx.Client,
     base_url: str,
@@ -148,12 +162,19 @@ def export_data(
     else:
         df = pd.read_parquet(output)
 
+    # Aptabase derives user_id from a daily-rotating salt, so the same machine
+    # gets a new user_id every day. The app sends a persistent anonymous
+    # install_id prop instead; surface it as its own column so multi-day
+    # analyses can count real installs.
+    if "string_props" in df.columns:
+        df["install_id"] = df["string_props"].map(extract_install_id)
+
     if "timestamp" in df.columns:
         df = df.sort_values("timestamp", ascending=False).reset_index(drop=True)
-        if fmt == "csv":
-            df.to_csv(output, index=False)
-        else:
-            df.to_parquet(output, index=False)
+    if fmt == "csv":
+        df.to_csv(output, index=False)
+    else:
+        df.to_parquet(output, index=False)
 
     size_kb = output.stat().st_size / 1024
     print(f"Saved to {output} ({size_kb:.1f} KB)")
