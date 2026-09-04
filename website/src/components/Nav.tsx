@@ -44,9 +44,6 @@ export default function Nav({ locale, availableLocales, onLocaleChange }: NavPro
 					<Link to="/features" className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
 						{m.features()}
 					</Link>
-					<Link to="/changelog" className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-						{m.changelog()}
-					</Link>
 				</nav>
 
 				<ul className="ms-auto flex items-center gap-4">

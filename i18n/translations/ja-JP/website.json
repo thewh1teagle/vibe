@@ -67,5 +67,6 @@
 	"feature-privacy-title": "徹底したプライバシー",
 	"feature-privacy-description": "完全オフラインで文字起こしできるため、データがデバイスの外に出ることはありません。",
 	"feature-customize-title": "自由自在なカスタマイズ",
-	"feature-customize-description": "設定からモデルを簡単にカスタマイズして、自分好みの環境に整えられます。"
+	"feature-customize-description": "設定からモデルを簡単にカスタマイズして、自分好みの環境に整えられます。",
+	"changelog": "変更履歴"
 }
