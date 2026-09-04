@@ -185,10 +185,7 @@ fn split_words(bytes: &[u8]) -> Vec<Vec<u8>> {
     while i < bytes.len() {
         // Contractions first, in alternation order.
         if bytes[i] == b'\'' {
-            if let Some(m) = CONTRACTIONS
-                .iter()
-                .find(|c| bytes[i..].starts_with(c))
-            {
+            if let Some(m) = CONTRACTIONS.iter().find(|c| bytes[i..].starts_with(c)) {
                 words.push(m.to_vec());
                 i += m.len();
                 continue;

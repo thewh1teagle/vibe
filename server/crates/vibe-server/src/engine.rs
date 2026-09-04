@@ -14,6 +14,8 @@ pub struct EngineCapabilities {
     pub text_prompts: bool,
 }
 
+// One engine lives at a time, so the size gap between variants costs nothing.
+#[allow(clippy::large_enum_variant)]
 pub enum Engine {
     Whisper(whisper_rs::Context),
     Nemotron {

@@ -103,8 +103,6 @@ pub(crate) unsafe fn sched_compute(sched: sys::ggml_backend_sched_t, graph: *mut
     ok
 }
 
-
-
 pub(crate) struct GraphCtx {
     pub(crate) ctx: *mut sys::ggml_context,
     pub(crate) graph: *mut sys::ggml_cgraph,
@@ -278,13 +276,7 @@ pub(crate) fn encode(model: &Model, state: &mut State, rt: &mut Runtime, mel_off
                             ctx0,
                             sys::ggml_cast(
                                 ctx0,
-                                sys::ggml_reshape_3d(
-                                    ctx0,
-                                    kcur,
-                                    i64::from(n_state_head),
-                                    i64::from(n_head),
-                                    i64::from(n_ctx),
-                                ),
+                                sys::ggml_reshape_3d(ctx0, kcur, i64::from(n_state_head), i64::from(n_head), i64::from(n_ctx)),
                                 ITYPE,
                             ),
                             0,
@@ -298,13 +290,7 @@ pub(crate) fn encode(model: &Model, state: &mut State, rt: &mut Runtime, mel_off
                             ctx0,
                             sys::ggml_permute(
                                 ctx0,
-                                sys::ggml_reshape_3d(
-                                    ctx0,
-                                    vcur,
-                                    i64::from(n_state_head),
-                                    i64::from(n_head),
-                                    i64::from(n_ctx),
-                                ),
+                                sys::ggml_reshape_3d(ctx0, vcur, i64::from(n_state_head), i64::from(n_head), i64::from(n_ctx)),
                                 1,
                                 2,
                                 0,
@@ -380,10 +366,7 @@ pub(crate) fn encode(model: &Model, state: &mut State, rt: &mut Runtime, mel_off
                     );
                     (k, v)
                 } else {
-                    vcross = sys::ggml_transpose(
-                        ctx0,
-                        sys::ggml_reshape_2d(ctx0, vcross, i64::from(n_state), i64::from(n_ctx)),
-                    );
+                    vcross = sys::ggml_transpose(ctx0, sys::ggml_reshape_2d(ctx0, vcross, i64::from(n_state), i64::from(n_ctx)));
                     let k = sys::ggml_view_1d(
                         ctx0,
                         state.kv_cross.k,
@@ -421,4 +404,3 @@ pub(crate) fn encode(model: &Model, state: &mut State, rt: &mut Runtime, mel_off
     tracing::info!(elapsed_ms = start.elapsed().as_millis() as u64, "encoded window");
     Ok(())
 }
-

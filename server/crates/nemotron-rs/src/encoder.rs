@@ -137,12 +137,7 @@ pub(crate) struct EncoderBuild {
     pub prompt: Tensor,
 }
 
-pub(crate) unsafe fn build_encoder(
-    ctx: Context,
-    model: &Model,
-    mel: Tensor,
-    promote_pointwise: bool,
-) -> EncoderBuild {
+pub(crate) unsafe fn build_encoder(ctx: Context, model: &Model, mel: Tensor, promote_pointwise: bool) -> EncoderBuild {
     let mut x = build_pre_encode(ctx, model, mel);
     let time = (*x).ne[1];
     let dimension = model.info().encoder_dimension as i64;

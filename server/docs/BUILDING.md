@@ -56,6 +56,7 @@ AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU wit
 ## Releasing binaries
 
 `Release vibe-server` workflow builds and uploads Rust `vibe-server` binaries for:
+
 - Linux: `amd64`, `arm64`
 - macOS: Apple Silicon and Intel
 - Windows: `amd64`

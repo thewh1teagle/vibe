@@ -150,11 +150,7 @@ impl Silero {
             (*stft).nb[1],
             cutoff as usize * (*stft).nb[1],
         );
-        let sum_squares = sys::ggml_add(
-            ctx0,
-            sys::ggml_mul(ctx0, real, real),
-            sys::ggml_mul(ctx0, imag, imag),
-        );
+        let sum_squares = sys::ggml_add(ctx0, sys::ggml_mul(ctx0, real, real), sys::ggml_mul(ctx0, imag, imag));
         let mut cur = sys::ggml_sqrt(ctx0, sum_squares);
 
         // Four Conv1d+ReLU encoder layers with strides 1, 2, 2, 1.
@@ -186,11 +182,7 @@ impl Silero {
         let g_t = sys::ggml_tanh(ctx0, sys::ggml_view_1d(ctx0, out_gate, hidden, 2 * hidden_size));
         let o_t = sys::ggml_sigmoid(ctx0, sys::ggml_view_1d(ctx0, out_gate, hidden, 3 * hidden_size));
 
-        let c_out = sys::ggml_add(
-            ctx0,
-            sys::ggml_mul(ctx0, f_t, c_state),
-            sys::ggml_mul(ctx0, i_t, g_t),
-        );
+        let c_out = sys::ggml_add(ctx0, sys::ggml_mul(ctx0, f_t, c_state), sys::ggml_mul(ctx0, i_t, g_t));
         sys::ggml_build_forward_expand(gf, sys::ggml_cpy(ctx0, c_out, c_state));
         let out = sys::ggml_mul(ctx0, o_t, sys::ggml_tanh(ctx0, c_out));
         sys::ggml_build_forward_expand(gf, sys::ggml_cpy(ctx0, out, h_state));
@@ -275,10 +267,7 @@ unsafe fn set_backend_n_threads(backend: sys::ggml_backend_t, n_threads: i32) {
 /// against GGML_BACKEND_DL builds).
 unsafe fn init_cpu_backend(n_threads: i32) -> sys::ggml_backend_t {
     load_backends_once();
-    let backend = sys::ggml_backend_init_by_type(
-        sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_CPU,
-        std::ptr::null(),
-    );
+    let backend = sys::ggml_backend_init_by_type(sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_CPU, std::ptr::null());
     if !backend.is_null() {
         set_backend_n_threads(backend, n_threads);
     }

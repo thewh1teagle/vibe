@@ -307,6 +307,7 @@ pub(crate) unsafe fn conv_module(
 
 /// One NEST FastConformer block: macaron FF1 -> rel-pos MHSA -> conv module ->
 /// macaron FF2 -> per-block LayerNorm (`conformer.cpp:build_conformer_block`).
+#[allow(clippy::too_many_arguments)]
 pub(crate) unsafe fn conformer_block(
     ctx: Context,
     mut x: Tensor,

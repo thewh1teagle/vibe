@@ -200,10 +200,7 @@ unsafe fn set_backend_n_threads(backend: sys::ggml_backend_t, n_threads: i32) {
 /// against GGML_BACKEND_DL builds).
 unsafe fn init_cpu_backend(n_threads: i32) -> sys::ggml_backend_t {
     load_backends_once();
-    let backend = sys::ggml_backend_init_by_type(
-        sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_CPU,
-        std::ptr::null(),
-    );
+    let backend = sys::ggml_backend_init_by_type(sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_CPU, std::ptr::null());
     if !backend.is_null() {
         set_backend_n_threads(backend, n_threads);
     }

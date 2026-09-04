@@ -194,10 +194,7 @@ fn create_context(records: &[TensorRecord<'_>]) -> Option<*mut sys::ggml_context
     Some(ctx)
 }
 
-unsafe fn upload_tensors<'a>(
-    ctx: *mut sys::ggml_context,
-    records: &'a [TensorRecord<'_>],
-) -> Option<HashMap<&'a str, Tensor>> {
+unsafe fn upload_tensors<'a>(ctx: *mut sys::ggml_context, records: &'a [TensorRecord<'_>]) -> Option<HashMap<&'a str, Tensor>> {
     let mut tensors = HashMap::new();
     for record in records {
         let tensor = sys::ggml_new_tensor(ctx, record.kind, 4, record.ne.as_ptr());

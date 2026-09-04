@@ -233,7 +233,10 @@ mod tests {
         bytes.resize(1 << 20, 0);
         let file = write(&bytes);
         let error = validate(file.path());
-        assert!(matches!(error, Err(Error::NotATranscriptionModel { ref kind, .. }) if kind == "silero-16k"), "{error:?}");
+        assert!(
+            matches!(error, Err(Error::NotATranscriptionModel { ref kind, .. }) if kind == "silero-16k"),
+            "{error:?}"
+        );
     }
 
     #[test]

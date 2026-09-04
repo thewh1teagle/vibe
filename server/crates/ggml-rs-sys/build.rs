@@ -58,7 +58,10 @@ fn main() {
 
 fn x86_variants() -> bool {
     env::var("CARGO_CFG_TARGET_ARCH").as_deref() == Ok("x86_64")
-        && matches!(env::var("CARGO_CFG_TARGET_OS").as_deref(), Ok("linux") | Ok("windows") | Ok("macos"))
+        && matches!(
+            env::var("CARGO_CFG_TARGET_OS").as_deref(),
+            Ok("linux") | Ok("windows") | Ok("macos")
+        )
 }
 
 fn link_platform() {
