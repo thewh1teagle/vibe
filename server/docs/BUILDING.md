@@ -1,8 +1,8 @@
-# Building Sona
+# Building vibe-server
 
 ## Architecture
 
-The C library (ggml) and the Sona binary are built separately:
+The C library (ggml) and the vibe-server binary are built separately:
 
 1. **`libs/`** holds everything that determines the libraries: `libs/ggml-version` (the ggml release tag), `libs/patches/` (fixes ggml has not taken yet), and `libs/libs.chore` (the build recipe). Every task reads the tag from there.
 2. **`chore build-libs`** clones ggml at that tag, applies the patches, builds the static libraries for the current platform, and packages them; **`chore upload-libs`** does that and uploads the archive to the GitHub release tagged `libraries-ggml-{tag}-r{revision}`, with the revision from `libs/revision` (`chore libs-tag` prints the whole name). Bump the revision in the same commit as any change under `libs/`, and reset it to 1 when the ggml tag moves, so a changed bundle never replaces the one older sona tags still link against. The release notes record the git tree hash of `libs/` (`chore libs-id`); `upload-libs` fails when the tag already exists for another tree, which is what a forgotten bump looks like, and refuses uncommitted changes under `libs/`.
@@ -27,7 +27,7 @@ chore fetch-libs
 cargo build -p vibe-server --release
 ```
 
-On Windows, the Sona binary uses Rust's default MSVC target. The Vulkan loader is opened at runtime, so building and running Sona needs no Vulkan SDK; only `chore build-libs` does, for the headers and `glslc`:
+On Windows, the vibe-server binary uses Rust's default MSVC target. The Vulkan loader is opened at runtime, so building and running vibe-server needs no Vulkan SDK; only `chore build-libs` does, for the headers and `glslc`:
 
 ```bash
 cargo build -p vibe-server --release
@@ -55,7 +55,7 @@ AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU wit
 
 ## Releasing binaries
 
-`Release Sona` workflow builds and uploads Rust `sona` binaries for:
+`Release vibe-server` workflow builds and uploads Rust `sona` binaries for:
 - Linux: `amd64`, `arm64`
 - macOS: Apple Silicon and Intel
 - Windows: `amd64`
