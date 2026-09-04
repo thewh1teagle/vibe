@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import { ask, message, open } from '@tauri-apps/plugin-dialog'
+import { ask, open } from '@tauri-apps/plugin-dialog'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { platform } from '@tauri-apps/plugin-os'
 import { useEffect, useRef, useState } from 'react'
@@ -13,7 +13,7 @@ import { getIssueUrl, resetApp } from '~/lib/app'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useModelGates } from '~/providers/model-gates'
 import { useToastProvider } from '~/providers/toast'
-import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
+import { testConnection } from '~/lib/ai'
 import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import { load } from '@tauri-apps/plugin-store'
@@ -115,52 +115,34 @@ export function viewModel() {
 	const navigate = useNavigate()
 	const progressToast = useToastProvider()
 	const modelGates = useModelGates()
-	const [llm, setLlm] = useState<Llm | null>(null)
-	const [llmError, setLlmError] = useState<string | null>(null)
-	const [llmErrorCopied, setLlmErrorCopied] = useState(false)
-	const llmErrorCopyTimer = useRef<number | null>(null)
+	/** Result of the last AI connection test, shown inline next to the button. */
+	const [aiTest, setAiTest] = useState<{ status: 'testing' } | { status: 'ok'; ms: number } | { status: 'error'; error: string } | null>(null)
+	const [aiErrorCopied, setAiErrorCopied] = useState(false)
+	const aiErrorCopyTimer = useRef<number | null>(null)
 
 	function parseIntOr(value: string, fallback: number) {
 		const n = parseInt(value, 10)
 		return Number.isNaN(n) ? fallback : n
 	}
 
-	function onEnableLlm() {
-		preference.setLlmConfig({ ...preference.llmConfig, enabled: !preference.llmConfig?.enabled })
-	}
-
-	async function validateLlmPrompt() {
-		const valid = Boolean(preference.llmConfig?.prompt && preference.llmConfig.prompt.includes('%s'))
-		if (!valid) {
-			await message(m.invalidLlmPrompt(), { kind: 'error' })
-		}
-		return valid
-	}
-
-	async function checkLlm() {
-		setLlmError(null)
-		try {
-			const promise = llm!.ask('Hello, how are you?')
-			toast.promise(promise, {
-				error: m.checkError() as string,
-				success: m.checkSuccess() as string,
-				loading: m.checkLoading() as string,
-			})
-			await promise
-		} catch (e) {
-			console.error(e)
-			setLlmError(String(e))
+	async function testAi() {
+		setAiTest({ status: 'testing' })
+		const result = await testConnection(preference.ai.connection)
+		if (result.ok) setAiTest({ status: 'ok', ms: result.ms })
+		else {
+			console.error('AI connection test failed:', result.error)
+			setAiTest({ status: 'error', error: result.error })
 		}
 	}
 
-	function copyLlmError() {
-		if (!llmError) return
-		clipboard.writeText(llmError)
-		setLlmErrorCopied(true)
-		if (llmErrorCopyTimer.current) window.clearTimeout(llmErrorCopyTimer.current)
-		llmErrorCopyTimer.current = window.setTimeout(() => {
-			setLlmErrorCopied(false)
-			llmErrorCopyTimer.current = null
+	function copyAiError() {
+		if (aiTest?.status !== 'error') return
+		clipboard.writeText(aiTest.error)
+		setAiErrorCopied(true)
+		if (aiErrorCopyTimer.current) window.clearTimeout(aiErrorCopyTimer.current)
+		aiErrorCopyTimer.current = window.setTimeout(() => {
+			setAiErrorCopied(false)
+			aiErrorCopyTimer.current = null
 		}, 2000)
 	}
 
@@ -387,20 +369,12 @@ export function viewModel() {
 		}
 	}, [])
 
-	useEffect(() => {
-		const platform = preference.llmConfig?.platform
-		const llmInstance =
-			platform === 'ollama'
-				? new Ollama(preference.llmConfig)
-				: platform === 'openai'
-					? new OpenAICompatible(preference.llmConfig)
-					: new Claude(preference.llmConfig)
-		setLlm(llmInstance)
-	}, [preference.llmConfig])
+	// A changed connection makes the last test result stale.
+	useEffect(() => setAiTest(null), [preference.ai.connection])
 
 	useEffect(() => {
 		return () => {
-			if (llmErrorCopyTimer.current) window.clearTimeout(llmErrorCopyTimer.current)
+			if (aiErrorCopyTimer.current) window.clearTimeout(aiErrorCopyTimer.current)
 		}
 	}, [])
 
@@ -450,13 +424,10 @@ export function viewModel() {
 		defaultProjectsPath,
 		gpuDevices,
 		isMacOS,
-		llm,
-		llmError,
-		llmErrorCopied,
-		checkLlm,
-		copyLlmError,
-		onEnableLlm,
-		validateLlmPrompt,
+		aiTest,
+		aiErrorCopied,
+		testAi,
+		copyAiError,
 		toggleDiarization: modelGates.toggleDiarization,
 		handleStableTimestampsToggle: modelGates.toggleStableTimestamps,
 		parseIntOr,

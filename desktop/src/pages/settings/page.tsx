@@ -13,7 +13,8 @@ import { ModelsSection } from './sections/models'
 import { PhoneSection } from './sections/phone'
 import { PrivacySection } from './sections/privacy'
 import { RecordingSection } from './sections/recording'
-import { SummarizeSection } from './sections/summarize'
+import { AiSection, type AiTaskId } from './sections/ai'
+import { AiPromptSection } from './sections/ai-prompt'
 import { TranscriptionSection } from './sections/transcription'
 import { TuningSection } from './sections/tuning'
 
@@ -22,7 +23,9 @@ interface SettingsPageProps {
 	scrollTo?: string
 }
 
-type SectionId = 'general' | 'transcription' | 'models' | 'summarize' | 'tuning' | 'recording' | 'dictation' | 'phone' | 'api' | 'privacy' | 'advanced'
+type SectionId = 'general' | 'transcription' | 'models' | 'ai' | 'tuning' | 'recording' | 'dictation' | 'phone' | 'api' | 'privacy' | 'advanced'
+
+type Subpage = 'auto-export' | 'ai-summary' | 'ai-dictation'
 
 interface SettingsSection {
 	id: SectionId
@@ -59,7 +62,7 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 			sections: [
 				{ id: 'recording', label: m.recordingSettings(), icon: <Mic className="h-4 w-4" /> },
 				{ id: 'dictation', label: m.globalDictation(), icon: <Mic className="h-4 w-4" /> },
-				{ id: 'summarize', label: m.processWithLlm(), icon: <Sparkles className="h-4 w-4" /> },
+				{ id: 'ai', label: m.aiSection(), icon: <Sparkles className="h-4 w-4" /> },
 				{ id: 'phone', label: m.phone(), icon: <Smartphone className="h-4 w-4" /> },
 			],
 		},
@@ -73,15 +76,26 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 	]
 	const sections = groups.flatMap((group) => group.sections)
 
+	// Pages under a section, each with its own title and a way back; no dialog over the modal.
+	const subpages: Record<Subpage, { section: SectionId; title: string }> = {
+		'auto-export': { section: 'transcription', title: m.autoExport() },
+		'ai-summary': { section: 'ai', title: m.aiSummaryTask() },
+		'ai-dictation': { section: 'ai', title: m.aiDictationTask() },
+	}
+	const isSubpage = (value: string | undefined): value is Subpage => value !== undefined && value in subpages
 	const [activeSection, setActiveSection] = useState<SectionId>(
-		scrollTo === 'auto-export' ? 'transcription' : sections.some((s) => s.id === scrollTo) ? (scrollTo as SectionId) : 'general',
+		isSubpage(scrollTo) ? subpages[scrollTo].section : sections.some((s) => s.id === scrollTo) ? (scrollTo as SectionId) : 'general',
 	)
-	// A page under a section, with its own title and a way back; no dialog over the modal.
-	const [subpage, setSubpage] = useState<'auto-export' | null>(scrollTo === 'auto-export' ? 'auto-export' : null)
+	const [subpage, setSubpage] = useState<Subpage | null>(isSubpage(scrollTo) ? scrollTo : null)
 	function goTo(section: SectionId) {
 		setSubpage(null)
 		setActiveSection(section)
 	}
+	function openSubpage(page: Subpage) {
+		setActiveSection(subpages[page].section)
+		setSubpage(page)
+	}
+	const openPrompt = (task: AiTaskId) => openSubpage(task === 'summary' ? 'ai-summary' : 'ai-dictation')
 
 	return (
 		<div className="flex min-h-screen items-center justify-center p-6">
@@ -129,24 +143,24 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 								<ArrowLeft className="h-4 w-4" />
 							</Button>
 						)}
-						<h2 className="text-xl font-semibold">
-							{subpage === 'auto-export' ? m.autoExport() : sections.find((s) => s.id === activeSection)?.label}
-						</h2>
+						<h2 className="text-xl font-semibold">{subpage ? subpages[subpage].title : sections.find((s) => s.id === activeSection)?.label}</h2>
 					</div>
 					{subpage === 'auto-export' && <AutoExportSection vm={vm} />}
+					{subpage === 'ai-summary' && <AiPromptSection vm={vm} task="summary" />}
+					{subpage === 'ai-dictation' && <AiPromptSection vm={vm} task="dictation" />}
 					{!subpage && activeSection === 'general' && <GeneralSection vm={vm} />}
 
 					{!subpage && activeSection === 'transcription' && <TranscriptionSection vm={vm} onOpenAutoExport={() => setSubpage('auto-export')} />}
 
 					{!subpage && activeSection === 'models' && <ModelsSection vm={vm} />}
 
-					{!subpage && activeSection === 'summarize' && <SummarizeSection vm={vm} />}
+					{!subpage && activeSection === 'ai' && <AiSection vm={vm} onOpenPrompt={openPrompt} />}
 
 					{!subpage && activeSection === 'tuning' && <TuningSection vm={vm} />}
 
 					{!subpage && activeSection === 'recording' && <RecordingSection />}
 
-					{!subpage && activeSection === 'dictation' && <DictationSection />}
+					{!subpage && activeSection === 'dictation' && <DictationSection vm={vm} onOpenCleanup={() => openSubpage('ai-dictation')} />}
 
 					{!subpage && activeSection === 'phone' && <PhoneSection vm={vm} />}
 

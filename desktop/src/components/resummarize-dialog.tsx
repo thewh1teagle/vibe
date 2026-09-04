@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { getLocale } from '~/paraglide/runtime.js'
 import { m } from '~/paraglide/messages.js'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
 import { Textarea } from '~/components/ui/textarea'
 import { Sparkles } from 'lucide-react'
-import { promptTemplates, type PromptTemplate } from '~/lib/prompt-templates'
+import { PLACEHOLDERS, presets } from '~/lib/ai'
+import { presetLabel } from '~/pages/settings/sections/ai'
+import { usePreferenceProvider } from '~/providers/preference'
 
 interface ResummarizeDialogProps {
 	onSubmit: (prompt: string) => void
@@ -15,27 +16,21 @@ interface ResummarizeDialogProps {
 	onOpenChange?: (open: boolean) => void
 }
 
+/**
+ * A one-off prompt for this transcript: starts from the prompt in settings, with the presets
+ * a click away. Nothing here changes settings; that page is the place for the default.
+ */
 export default function ResummarizeDialog({ onSubmit, loading, open: openProp, onOpenChange }: ResummarizeDialogProps) {
-	const templateLabels = {
-		'prompt-template-meeting-notes': m.promptTemplateMeetingNotes,
-		'prompt-template-tldr': m.promptTemplateTldr,
-		'prompt-template-translate': m.promptTemplateTranslate,
-		'prompt-template-rewrite': m.promptTemplateRewrite,
-	} as const
-	const lang = new Intl.DisplayNames([getLocale()], { type: 'language' }).of(getLocale()) ?? 'English'
-	const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate>(promptTemplates[0])
-	const [prompt, setPrompt] = useState(() => promptTemplates[0].prompt(lang))
+	const { ai } = usePreferenceProvider()
+	const summaryPresets = presets.filter((preset) => preset.task === 'summary')
+	const [selected, setSelected] = useState<string>(ai.tasks.summary.preset)
+	const [prompt, setPrompt] = useState(ai.tasks.summary.prompt)
 	const [openState, setOpenState] = useState(false)
 	const controlled = openProp !== undefined
 	const open = controlled ? openProp : openState
 	const setOpen = (next: boolean) => (controlled ? onOpenChange?.(next) : setOpenState(next))
 
-	const isValid = prompt.includes('%s')
-
-	function selectTemplate(tpl: PromptTemplate) {
-		setSelectedTemplate(tpl)
-		setPrompt(tpl.prompt(lang))
-	}
+	const isValid = prompt.includes(PLACEHOLDERS.transcript) || prompt.includes('%s')
 
 	function handleSubmit() {
 		if (!isValid) return
@@ -58,24 +53,35 @@ export default function ResummarizeDialog({ onSubmit, loading, open: openProp, o
 				</DialogHeader>
 				<div className="space-y-4 pt-2">
 					<div className="flex flex-wrap gap-1.5">
-						{promptTemplates.map((tpl) => (
+						{summaryPresets.map((preset) => (
 							<button
-								key={tpl.labelKey}
+								key={preset.id}
 								type="button"
-								onClick={() => selectTemplate(tpl)}
-								className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-									selectedTemplate === tpl
+								onClick={() => {
+									setSelected(preset.id)
+									setPrompt(preset.prompt)
+								}}
+								className={`cursor-pointer rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+									selected === preset.id
 										? 'border-primary bg-primary/10 text-primary'
 										: 'border-border/65 bg-background/50 text-muted-foreground hover:bg-accent/40'
 								}`}>
-								{templateLabels[tpl.labelKey as keyof typeof templateLabels]?.() ?? tpl.labelKey}
+								{presetLabel(preset.id)}
 							</button>
 						))}
 					</div>
 
 					<div className="space-y-1.5">
-						<Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} className="min-h-[120px] text-sm" />
-						{!isValid && <p className="text-xs text-destructive">{m.promptMustContainPlaceholder()}</p>}
+						<Textarea
+							value={prompt}
+							onChange={(e) => {
+								setPrompt(e.target.value)
+								setSelected('custom')
+							}}
+							spellCheck={false}
+							className="max-h-[360px] min-h-[160px] font-mono text-[12px] leading-relaxed"
+						/>
+						{!isValid && <p className="text-xs text-destructive">{m.promptMustContainPlaceholder({ placeholder: PLACEHOLDERS.transcript })}</p>}
 					</div>
 
 					<Button onMouseDown={handleSubmit} disabled={!isValid || loading} className="w-full">

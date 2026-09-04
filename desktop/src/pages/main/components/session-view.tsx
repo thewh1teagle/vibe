@@ -20,11 +20,11 @@ export default function SessionView() {
 		setTab('transcript')
 	}, [queue.selectedId])
 
-	// A summary that arrived on its own opens itself once — that is what the settings switch promises.
+	// A summary that starts, by hand or on its own, opens its tab once so the text is seen arriving.
 	useEffect(() => {
-		if (!summaries.autoSummarized) return
-		if (summaries.autoSummarized === queue.selectedId) setTab('summary')
-		summaries.clearAutoSummarized()
+		if (!summaries.showSummary) return
+		if (summaries.showSummary === queue.selectedId) setTab('summary')
+		summaries.clearShowSummary()
 	}, [queue.selectedId, summaries])
 
 	return (

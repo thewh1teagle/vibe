@@ -7,6 +7,7 @@
 //   4. `fetch_cancel` / `fetch_cancel_body` -> { rid }
 // Requests blocked by browser CORS reject, which is expected in mock mode.
 import type { CommandHandlerMap } from '../types'
+import { fakeAiChunks, isFakeAiUrl } from './fake-ai'
 
 interface ClientConfig {
 	method?: string
@@ -23,6 +24,8 @@ interface PendingRequest {
 interface PendingBody {
 	chunks: Uint8Array[]
 	index: number
+	/** Pause before each chunk, so a streamed reply arrives word by word like a real one. */
+	delayMs?: number
 }
 
 const requests = new Map<number, PendingRequest>()
@@ -66,6 +69,12 @@ export const httpHandlers: CommandHandlerMap = {
 
 		const { config, controller } = pending
 		const method = (config.method ?? 'GET').toUpperCase()
+		if (isFakeAiUrl(config.url ?? '')) {
+			const request = config.data ? new TextDecoder().decode(new Uint8Array(config.data)) : null
+			const bodyRid = nextRid++
+			bodies.set(bodyRid, { chunks: fakeAiChunks(config.url ?? '', request), index: 0, delayMs: 40 })
+			return { status: 200, statusText: 'OK', url: config.url ?? '', headers: [['content-type', 'application/json']], rid: bodyRid }
+		}
 		const hasBody = method !== 'GET' && method !== 'HEAD' && config.data != null
 		const response = await fetch(config.url ?? '', {
 			method,
@@ -87,7 +96,7 @@ export const httpHandlers: CommandHandlerMap = {
 		}
 	},
 
-	'plugin:http|fetch_read_body': (args) => {
+	'plugin:http|fetch_read_body': async (args) => {
 		const rid = args.rid as number
 		const body = bodies.get(rid)
 		if (!body || body.index >= body.chunks.length) {
@@ -95,6 +104,7 @@ export const httpHandlers: CommandHandlerMap = {
 			// Lone terminator byte: tells the plugin stream to close.
 			return [1]
 		}
+		if (body.delayMs) await new Promise((resolve) => setTimeout(resolve, body.delayMs))
 		const chunk = body.chunks[body.index++]
 		const out = new Array<number>(chunk.byteLength + 1)
 		for (let i = 0; i < chunk.byteLength; i++) {

@@ -23,6 +23,8 @@ import {
 	updateTranscriptSegments,
 	updateTranscriptSpeakerNames,
 	updateTranscriptSummary,
+	updateTranscriptThread,
+	type AiThreadEntry,
 	type TranscriptRecord,
 	type SaveTranscriptResult,
 	type TranscriptEntry,
@@ -59,6 +61,8 @@ export interface Job {
 	hydrated?: boolean
 	/** Last AI summary of this transcript, when one was made. */
 	summary?: string
+	/** Questions asked about this transcript and their answers, oldest first. */
+	thread?: AiThreadEntry[]
 	/** Names the user gave the diarized speakers, by zero-based speaker index. */
 	speakerNames?: SpeakerNames
 	/** What auto-export did with this transcript, when it ran. */
@@ -113,6 +117,8 @@ export interface TranscribeQueue {
 	previewJobName: (jobId: string, name: string) => void
 	/** Attach an AI summary to a job. Persists to the job's saved file when it has one. */
 	setJobSummary: (jobId: string, summary: string) => void
+	/** Replace the question-and-answer thread of a job. Persists like the summary. */
+	setJobThread: (jobId: string, thread: AiThreadEntry[]) => void
 	/** Name one diarized speaker; an empty name restores "Speaker N". Persists like the segment edits. */
 	setSpeakerName: (jobId: string, speaker: number, name: string) => void
 	/** Attribute one line to a speaker: a line diarization missed, or one it got wrong. */
@@ -607,6 +613,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 				savedPath,
 				hydrated: true,
 				summary: record.summary,
+				thread: record.thread,
 				speakerNames: record.speakerNames,
 			}
 			pinnedRef.current = true
@@ -684,6 +691,16 @@ export function useTranscribeQueue(): TranscribeQueue {
 		[commit],
 	)
 
+	const setJobThread = useCallback(
+		(jobId: string, thread: AiThreadEntry[]) => {
+			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
+			if (!job) return
+			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, thread } : candidate)))
+			if (job.savedPath) void updateTranscriptThread(job.savedPath, thread)
+		},
+		[commit],
+	)
+
 	const setSpeakerName = useCallback(
 		(jobId: string, speaker: number, name: string) => {
 			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
@@ -740,6 +757,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 		renameJob,
 		previewJobName,
 		setJobSummary,
+		setJobThread,
 		setSpeakerName,
 		setSegmentSpeaker,
 		cancelCurrent,

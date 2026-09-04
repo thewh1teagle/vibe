@@ -4,8 +4,6 @@ import { ArrowDownToLine, AudioLines, Play } from 'lucide-react'
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { getLocale, getTextDirection } from '~/paraglide/runtime.js'
-import Markdown from 'react-markdown'
-import { Spinner } from '~/components/ui/spinner'
 import { Button } from '~/components/ui/button'
 import { formatTimestamp, type Segment, type SpeakerNames } from '~/lib/transcript'
 import { cn } from '~/lib/style'
@@ -17,6 +15,7 @@ import { PLAYER_SEEK_EVENT, PLAYER_TOGGLE_EVENT, PLAYER_TIME_EVENT, type PlayerT
 import { ProjectNameEditor } from './project-name-editor'
 import QuietRow from './quiet-row'
 import { SpeakerLabel } from './speaker-label'
+import SummaryView from './summary-view'
 
 /** Segment timestamps are centiseconds (see `formatTimestamp` / `asJson` in lib/transcript). */
 const CENTISECONDS_PER_SECOND = 100
@@ -380,7 +379,7 @@ export default function TranscriptView({
 }) {
 	const preference = usePreferenceProvider()
 	const interfaceDirection = getTextDirection(getLocale())
-	const { queue, summaries } = useSession()
+	const { queue } = useSession()
 	const scrollRef = useRef<HTMLDivElement>(null)
 	const listRef = useRef<HTMLDivElement>(null)
 	const running = job.status === 'running'
@@ -612,38 +611,10 @@ export default function TranscriptView({
 	)
 
 	const showJump = playing && jumpVisible && !following && activeIndex >= 0 && tab === 'transcript'
-	const summarizing = Boolean(summaries.pending[job.id])
 	const canTranscribeSaved =
 		job.hydrated === true && ['done', 'error', 'cancelled'].includes(job.status) && job.segments.length === 0 && Boolean(job.savedPath && job.path)
 
-	if (tab === 'summary') {
-		return (
-			<div className="h-full min-h-0 overflow-x-hidden overflow-y-auto">
-				<div dir={preference.textAreaDirection} className="mx-auto w-full max-w-[86ch] px-8 py-10 xl:max-w-[96ch]">
-					<p className="mb-8 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.summaryTab()}</p>
-
-					{job.summary ? (
-						// The models answer in markdown; render it rather than showing the syntax.
-						<div className={cn('prose prose-neutral max-w-none dark:prose-invert', textSizeClass[options.textSize])}>
-							<Markdown>{job.summary}</Markdown>
-						</div>
-					) : (
-						<p className="flex items-center gap-2 text-sm text-muted-foreground">
-							<Spinner className="h-3.5 w-3.5" />
-							{m.summarizeLoading()}
-						</p>
-					)}
-
-					{job.summary && summarizing && (
-						<p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
-							<Spinner className="h-3.5 w-3.5" />
-							{m.summarizeLoading()}
-						</p>
-					)}
-				</div>
-			</div>
-		)
-	}
+	if (tab === 'summary') return <SummaryView job={job} options={options} />
 
 	return (
 		<div className="relative h-full min-h-0">
