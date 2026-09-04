@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 fn main() {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let root = manifest_dir.parent().and_then(Path::parent).unwrap();
-    let include_dir = root.join("third_party/include");
+    let include_dir = root.join("libs/include");
     let lib_dir = root.join("third_party/lib");
     let wrapper = manifest_dir.join("wrapper.h");
 
