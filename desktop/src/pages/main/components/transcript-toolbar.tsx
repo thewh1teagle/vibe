@@ -236,6 +236,7 @@ export default function TranscriptToolbar({
 		content: exportOptions.content,
 		showTimestamps: exportOptions.showTimestamps,
 		showSpeakers: exportOptions.showSpeakers,
+		speakerNames: job?.speakerNames,
 	})
 
 	useEffect(() => {

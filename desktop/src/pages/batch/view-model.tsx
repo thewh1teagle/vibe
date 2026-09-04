@@ -8,6 +8,7 @@ import { fatalRunError, isUserError } from '~/lib/sona-errors'
 import { NamedPath } from '~/lib/types'
 import { pathToNamedPath } from '~/lib/fs'
 import { validPath } from '~/lib/media'
+import { withoutUnsupportedOptions } from '~/lib/model'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import * as webview from '@tauri-apps/api/webviewWindow'
 import * as dialog from '@tauri-apps/plugin-dialog'
@@ -197,7 +198,7 @@ export function viewModel() {
 				setProgress(null)
 				const options = {
 					path: file.path,
-					...preference.modelOptions,
+					...withoutUnsupportedOptions(preference.modelOptions, preference.modelMetadata?.capabilities),
 					...(diarize_model ? { diarize_model } : {}),
 					...(vad_model ? { vad_model } : {}),
 					...(preference.stableTimestampsEnabled ? { stable_timestamps: true } : {}),

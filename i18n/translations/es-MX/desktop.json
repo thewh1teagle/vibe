@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Instala las mismas instrucciones como una habilidad para que estén disponibles en cada sesión del agente sin tener que pegarlas.",
 	"installSkillClaudeCode": "Instalar habilidad para Claude Code",
 	"installSkillCodex": "Instalar habilidad para Codex",
-	"agentSkillInstalled": "Habilidad instalada en {path}"
+	"agentSkillInstalled": "Habilidad instalada en {path}",
+	"renameSpeaker": "Renombrar hablante",
+	"promptIgnoredByModel": "El modelo seleccionado no usa indicaciones. Esta se conserva para cuando vuelvas a un modelo Whisper.",
+	"assignSpeaker": "Asignar hablante",
+	"newSpeaker": "Nuevo hablante",
+	"speakerOfThisLine": "Esta línea"
 }

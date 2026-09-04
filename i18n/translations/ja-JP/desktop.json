@@ -585,5 +585,10 @@
 	"skillSectionDescription": "同じ指示をスキルとしてインストールすると、貼り付けなくてもすべてのエージェントセッションで利用できます。",
 	"installSkillClaudeCode": "Claude Code 用のスキルをインストール",
 	"installSkillCodex": "Codex 用のスキルをインストール",
-	"agentSkillInstalled": "スキルを {path} にインストールしました"
+	"agentSkillInstalled": "スキルを {path} にインストールしました",
+	"renameSpeaker": "話者名を変更",
+	"promptIgnoredByModel": "選択中のモデルはプロンプトを使用しません。このプロンプトは Whisper モデルに戻したときのために保持されます。",
+	"assignSpeaker": "話者を割り当て",
+	"newSpeaker": "新しい話者",
+	"speakerOfThisLine": "この行"
 }

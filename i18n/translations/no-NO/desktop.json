@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Installer de samme instruksjonene som en ferdighet, slik at de er tilgjengelige i hver agentøkt uten at du må lime dem inn.",
 	"installSkillClaudeCode": "Installer ferdighet for Claude Code",
 	"installSkillCodex": "Installer ferdighet for Codex",
-	"agentSkillInstalled": "Ferdigheten er installert i {path}"
+	"agentSkillInstalled": "Ferdigheten er installert i {path}",
+	"renameSpeaker": "Gi taleren nytt navn",
+	"promptIgnoredByModel": "Den valgte modellen bruker ikke prompt. Denne beholdes til du bytter tilbake til en Whisper-modell.",
+	"assignSpeaker": "Tilordne taler",
+	"newSpeaker": "Ny taler",
+	"speakerOfThisLine": "Denne linjen"
 }

@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Instal·la les mateixes instruccions com a habilitat perquè cada sessió de l'agent les tingui sense haver-les d'enganxar.",
 	"installSkillClaudeCode": "Instal·la l'habilitat per al Claude Code",
 	"installSkillCodex": "Instal·la l'habilitat per al Codex",
-	"agentSkillInstalled": "Habilitat instal·lada a {path}"
+	"agentSkillInstalled": "Habilitat instal·lada a {path}",
+	"renameSpeaker": "Canvia el nom del parlant",
+	"promptIgnoredByModel": "El model seleccionat no fa servir indicacions. Aquesta es conserva per quan tornis a un model Whisper.",
+	"assignSpeaker": "Assigna un parlant",
+	"newSpeaker": "Parlant nou",
+	"speakerOfThisLine": "Aquesta línia"
 }

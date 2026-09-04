@@ -1,6 +1,6 @@
 import * as pathApi from '@tauri-apps/api/path'
 import * as fs from '@tauri-apps/plugin-fs'
-import type { Segment } from './transcript'
+import type { Segment, SpeakerNames } from './transcript'
 
 /**
  * Transcript persistence.
@@ -36,6 +36,8 @@ export interface TranscriptRecord {
 	/** Filename of the media copy inside the project folder, relative to it (e.g. `audio.mp3`). */
 	audioFile?: string
 	segments: Segment[]
+	/** Names the user gave the diarized speakers, by zero-based speaker index. */
+	speakerNames?: SpeakerNames
 	/** Last AI summary of this transcript, when one was made. */
 	summary?: string
 }
@@ -143,6 +145,17 @@ function isRecord(value: unknown): value is TranscriptRecord {
 	if (typeof value !== 'object' || value === null) return false
 	const candidate = value as Partial<TranscriptRecord>
 	return typeof candidate.name === 'string' && Array.isArray(candidate.segments)
+}
+
+/** Only numeric speaker indexes with non-empty names survive; anything else in the file is ignored. */
+function parseSpeakerNames(value: unknown): SpeakerNames | undefined {
+	if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined
+	const names: SpeakerNames = {}
+	for (const [key, name] of Object.entries(value as Record<string, unknown>)) {
+		const speaker = Number(key)
+		if (Number.isInteger(speaker) && speaker >= 0 && typeof name === 'string' && name.trim()) names[speaker] = name.trim()
+	}
+	return Object.keys(names).length ? names : undefined
 }
 
 function serialize(record: TranscriptRecord) {
@@ -336,6 +349,7 @@ export async function readTranscript(path: string): Promise<TranscriptRecord | n
 			segments: parsed.segments.filter(
 				(segment): segment is Segment => typeof segment === 'object' && segment !== null && typeof (segment as Segment).text === 'string',
 			),
+			speakerNames: parseSpeakerNames(parsed.speakerNames),
 			summary: typeof parsed.summary === 'string' ? parsed.summary : undefined,
 		}
 	} catch (error) {
@@ -373,6 +387,19 @@ export async function updateTranscriptSegments(path: string, segments: Segment[]
 		return true
 	} catch (error) {
 		console.warn('failed to update transcript segments:', path, error)
+		return false
+	}
+}
+
+/** Store the speaker names alongside an already saved transcript. @returns whether it was written. */
+export async function updateTranscriptSpeakerNames(path: string, speakerNames: SpeakerNames): Promise<boolean> {
+	try {
+		const record = await readTranscript(path)
+		if (!record) return false
+		await writeRecordAtomic(path, { ...record, speakerNames })
+		return true
+	} catch (error) {
+		console.warn('failed to update transcript speaker names:', path, error)
 		return false
 	}
 }

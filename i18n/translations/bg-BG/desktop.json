@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Инсталирайте същите инструкции като умение, за да са достъпни във всяка сесия на агента без поставяне.",
 	"installSkillClaudeCode": "Инсталиране на умението за Claude Code",
 	"installSkillCodex": "Инсталиране на умението за Codex",
-	"agentSkillInstalled": "Умението е инсталирано в {path}"
+	"agentSkillInstalled": "Умението е инсталирано в {path}",
+	"renameSpeaker": "Преименуване на говорещия",
+	"promptIgnoredByModel": "Избраният модел не използва подсказки. Тази подсказка се пази за връщане към Whisper модел.",
+	"assignSpeaker": "Задаване на говорещ",
+	"newSpeaker": "Нов говорещ",
+	"speakerOfThisLine": "Този ред"
 }

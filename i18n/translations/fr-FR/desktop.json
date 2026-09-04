@@ -585,5 +585,10 @@
 	"skillSectionDescription": "Installez les mêmes instructions en tant que compétence afin qu'elles soient disponibles dans chaque session de l'agent sans avoir à les coller.",
 	"installSkillClaudeCode": "Installer la compétence pour Claude Code",
 	"installSkillCodex": "Installer la compétence pour Codex",
-	"agentSkillInstalled": "Compétence installée dans {path}"
+	"agentSkillInstalled": "Compétence installée dans {path}",
+	"renameSpeaker": "Renommer le locuteur",
+	"promptIgnoredByModel": "Le modèle sélectionné n'utilise pas de prompt. Celui-ci est conservé pour un retour à un modèle Whisper.",
+	"assignSpeaker": "Attribuer un locuteur",
+	"newSpeaker": "Nouveau locuteur",
+	"speakerOfThisLine": "Cette ligne"
 }

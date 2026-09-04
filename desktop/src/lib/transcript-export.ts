@@ -1,5 +1,5 @@
 import type { TextFormat } from '~/components/format-select'
-import { formatTimestamp, type Segment } from '~/lib/transcript'
+import { formatTimestamp, speakerName, type Segment, type SpeakerNames } from '~/lib/transcript'
 
 export type TranscriptExportContent = 'transcript' | 'summary' | 'both'
 
@@ -8,6 +8,8 @@ export interface TranscriptExportOptions {
 	showTimestamps: boolean
 	showSpeakers: boolean
 	speakerLabel: string
+	/** Names the user gave the speakers; unnamed ones fall back to "<speakerLabel> N". */
+	speakerNames?: SpeakerNames
 	title: string
 	direction: 'rtl' | 'ltr'
 	theme?: 'dark' | 'light'
@@ -26,7 +28,13 @@ function timestamp(start: number, stop: number, decimalMarker = '.', alwaysInclu
 }
 
 function speaker(segment: Segment, options: TranscriptExportOptions) {
-	return options.showSpeakers && segment.speaker != null ? `${options.speakerLabel} ${segment.speaker + 1}` : ''
+	return options.showSpeakers && segment.speaker != null ? speakerName(segment.speaker, options.speakerLabel, options.speakerNames) : ''
+}
+
+/** The name a user chose for a speaker, when they chose one — machine formats carry it beside the index. */
+function chosenSpeakerName(segment: Segment, options: TranscriptExportOptions) {
+	const name = segment.speaker != null ? options.speakerNames?.[segment.speaker]?.trim() : undefined
+	return name || undefined
 }
 
 export function segmentMetadata(segment: Segment, options: TranscriptExportOptions) {
@@ -138,12 +146,16 @@ function serializeJson(segments: Segment[], summary: string, options: Transcript
 	if (options.title.trim()) output.title = options.title.trim()
 	if (includesTranscript(options.content)) {
 		output.transcript = segments.map((segment) => {
-			const row: { start?: number; stop?: number; speaker?: number; text: string } = { text: segment.text.trim() }
+			const row: { start?: number; stop?: number; speaker?: number; speakerName?: string; text: string } = { text: segment.text.trim() }
 			if (options.showTimestamps) {
 				row.start = segment.start / 100
 				row.stop = segment.stop / 100
 			}
-			if (options.showSpeakers && segment.speaker != null) row.speaker = segment.speaker + 1
+			if (options.showSpeakers && segment.speaker != null) {
+				row.speaker = segment.speaker + 1
+				const name = chosenSpeakerName(segment, options)
+				if (name) row.speakerName = name
+			}
 			return row
 		})
 	}
@@ -163,7 +175,7 @@ function serializeCsv(segments: Segment[], summary: string, options: TranscriptE
 			rows.push([
 				'transcript',
 				...(options.showTimestamps ? [formatTimestamp(segment.start, true, '.'), formatTimestamp(segment.stop, true, '.')] : []),
-				...(options.showSpeakers ? [segment.speaker != null ? segment.speaker + 1 : ''] : []),
+				...(options.showSpeakers ? [segment.speaker != null ? (chosenSpeakerName(segment, options) ?? segment.speaker + 1) : ''] : []),
 				segment.text.trim(),
 			])
 		}

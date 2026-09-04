@@ -11,7 +11,7 @@ import { toDocx } from '~/lib/docx'
 import { projectExportFilename } from '~/lib/project-name'
 import { transcriptToPdf } from '~/lib/pdf/transcript-pdf'
 import { serializeTranscriptExport, type TranscriptExportContent, type TranscriptExportOptions } from '~/lib/transcript-export'
-import type { Segment } from '~/lib/transcript'
+import type { Segment, SpeakerNames } from '~/lib/transcript'
 import type { NamedPath } from '~/lib/types'
 import { usePreferenceProvider } from '~/providers/preference'
 
@@ -26,6 +26,7 @@ interface UseTranscriptExportOptions {
 	content: TranscriptExportContent
 	showTimestamps: boolean
 	showSpeakers: boolean
+	speakerNames?: SpeakerNames
 }
 
 export function useTranscriptExport({
@@ -38,6 +39,7 @@ export function useTranscriptExport({
 	content,
 	showTimestamps,
 	showSpeakers,
+	speakerNames,
 }: UseTranscriptExportOptions) {
 	const preference = usePreferenceProvider()
 	const speakerLabel = m.speakerPrefix()
@@ -47,11 +49,22 @@ export function useTranscriptExport({
 			showTimestamps,
 			showSpeakers,
 			speakerLabel,
+			speakerNames,
 			title: file?.name ?? '',
 			direction: direction ?? preference.textAreaDirection,
 			theme: preference.exportOptions.theme,
 		}),
-		[content, direction, file?.name, preference.exportOptions.theme, preference.textAreaDirection, showSpeakers, showTimestamps, speakerLabel],
+		[
+			content,
+			direction,
+			file?.name,
+			preference.exportOptions.theme,
+			preference.textAreaDirection,
+			showSpeakers,
+			showTimestamps,
+			speakerLabel,
+			speakerNames,
+		],
 	)
 	const preview = useMemo(
 		() => (enabled ? serializeTranscriptExport(format, segments, summary, serializerOptions) : ''),
@@ -99,6 +112,7 @@ export function useTranscriptExport({
 				content,
 				showTimestamps,
 				showSpeakers,
+				speakerNames,
 				summary,
 				transcriptLabel: m.exportTranscript(),
 				summaryLabel: m.exportSummary(),
@@ -127,6 +141,7 @@ export function useTranscriptExport({
 		showSpeakers,
 		showTimestamps,
 		speakerLabel,
+		speakerNames,
 		summary,
 	])
 

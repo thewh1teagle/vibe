@@ -29,6 +29,27 @@ describe('serializeTranscriptExport', () => {
 		expect(serialize('normal', { showSpeakers: false })).not.toContain('Speaker')
 	})
 
+	it('uses the names given to speakers everywhere a speaker is shown', () => {
+		const named = { speakerNames: { 0: 'Jim', 1: '  ' } }
+		expect(serialize('normal', named)).toBe(
+			'00:01.250 --> 00:03.500 · Jim\nHello <world> & "friends"\n\n00:03.600 --> 00:07.250 · Speaker 2\nSecond --> line',
+		)
+		expect(serialize('vtt', named)).toContain('[Jim] Hello')
+		expect(serialize('md', named)).toContain('· Jim**')
+		expect(serialize('html', named)).toContain('· Jim</div>')
+		expect(JSON.parse(serialize('json', named))).toHaveProperty('transcript.0', {
+			start: 1.25,
+			stop: 3.5,
+			speaker: 1,
+			speakerName: 'Jim',
+			text: 'Hello <world> & "friends"',
+		})
+		expect(JSON.parse(serialize('json', named))).not.toHaveProperty('transcript.1.speakerName')
+		expect(serialize('csv', named)).toContain('"transcript","00:00:01.250","00:00:03.500","Jim","Hello')
+		expect(serialize('csv', named)).toContain('"00:00:07.250","2","Second')
+		expect(serialize('normal', { ...named, showSpeakers: false })).not.toContain('Jim')
+	})
+
 	it('makes transcript, summary, and both explicit', () => {
 		expect(serialize('normal', { content: 'summary' })).toBe('A short summary.')
 		const both = serialize('normal', { content: 'both' })
