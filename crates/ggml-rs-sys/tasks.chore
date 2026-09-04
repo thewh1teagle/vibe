@@ -1,0 +1,42 @@
+# Symbol suffixing for the two CPU backend builds that ggml-rs-sys links on x86_64;
+# see src/cpu_variant.rs for the selector. Included from the root chorefile, so $ROOT
+# is the repo root and lib-flavor is the root task.
+
+# Package one CPU backend build with every symbol it defines suffixed, so two builds
+# can be linked into one binary: stage-cpu-variant <build> <pkg> <suffix> <name> <out>.
+# The symbol list comes from the archive itself, so nothing is maintained by hand; a
+# symbol that escaped the rename would fail the link as a duplicate.
+task stage-cpu-variant build pkg suffix name out {
+	nm_tool=nm
+	objcopy_tool=objcopy
+	if $OS == macos || $(lib-flavor) == msvc {
+		nm_tool=llvm-nm
+		objcopy_tool=llvm-objcopy
+	}
+
+	found=""
+	for f in $(find $1 $4) {
+		if $found == "" { found=$f }
+	}
+	if $found == "" { fail "$4 not found under $1" }
+
+	lib=$2/lib/$5
+	copy $found $lib
+	map=$lib.map
+	try remove $map
+	tag=_$3
+	# nm walks the members, so it prints each one's name with a trailing colon, and
+	# lists a symbol every member defines (COMDATs) once per member; objcopy wants
+	# each symbol once. Keep the names seen so far, space-fenced so no name is a
+	# prefix of another.
+	seen=" "
+	for sym in $($nm_tool --defined-only --extern-only --format=just-symbols $lib) {
+		if !($sym contains ":") && !($seen contains " $sym ") {
+			echo "$sym $sym$tag" >> $map
+			seen="$seen$sym "
+		}
+	}
+	$objcopy_tool --redefine-syms=$map $lib
+	remove $map
+	echo "  staged $5 from $found (symbols suffixed $tag)"
+}

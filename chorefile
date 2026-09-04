@@ -7,6 +7,10 @@ ggml_blob=https://github.com/ggml-org/ggml/blob
 ggml_git=https://github.com/ggml-org/ggml.git
 sona_repo=vibe-transcribe/sona
 
+# The task that lets one binary carry two CPU backends lives with the crate that
+# links them. Merged, not namespaced: build-libs calls it, it calls lib-flavor.
+include crates/ggml-rs-sys/tasks.chore
+
 # Print the Windows import library flavor: SONA_WINDOWS_LIB_FLAVOR, or the host toolchain's.
 task lib-flavor {
 	flavor=$ENV
@@ -204,45 +208,6 @@ task package-release binary goos goarch out {
 	archive $stage/ $4
 	remove $stage
 	echo "packaged $4"
-}
-
-# Package one CPU backend build with every symbol it defines suffixed, so two builds
-# can be linked into one binary: stage-cpu-variant <build> <pkg> <suffix> <name> <out>.
-# The symbol list comes from the archive itself, so nothing is maintained by hand; a
-# symbol that escaped the rename would fail the link as a duplicate.
-task stage-cpu-variant build pkg suffix name out {
-	nm_tool=nm
-	objcopy_tool=objcopy
-	if $OS == macos || $(lib-flavor) == msvc {
-		nm_tool=llvm-nm
-		objcopy_tool=llvm-objcopy
-	}
-
-	found=""
-	for f in $(find $1 $4) {
-		if $found == "" { found=$f }
-	}
-	if $found == "" { fail "$4 not found under $1" }
-
-	lib=$2/lib/$5
-	copy $found $lib
-	map=$lib.map
-	try remove $map
-	tag=_$3
-	# nm walks the members, so it prints each one's name with a trailing colon, and
-	# lists a symbol every member defines (COMDATs) once per member; objcopy wants
-	# each symbol once. Keep the names seen so far, space-fenced so no name is a
-	# prefix of another.
-	seen=" "
-	for sym in $($nm_tool --defined-only --extern-only --format=just-symbols $lib) {
-		if !($sym contains ":") && !($seen contains " $sym ") {
-			echo "$sym $sym$tag" >> $map
-			seen="$seen$sym "
-		}
-	}
-	$objcopy_tool --redefine-syms=$map $lib
-	remove $map
-	echo "  staged $5 from $found (symbols suffixed $tag)"
 }
 
 # Copy one built library out of the cmake tree: stage-lib <build> <pkg> <name> <alt>.
