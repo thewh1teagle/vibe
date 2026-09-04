@@ -78,6 +78,11 @@ jobs:
               if: runner.os == 'Linux'
               run: chore linux-deps
 
+            - name: Require release notes for this version
+              shell: bash
+              run: |
+                  version=$(python3 -c 'import json; print(json.load(open("desktop/src-tauri/tauri.conf.json"))["version"])')
+                  test -f "website/changelog/$version.md" || { echo "::error::website/changelog/$version.md is missing; write the release notes before releasing"; exit 1; }
             - name: Fetch the sidecars for ${{ matrix.target_triple }}
               run: chore setup ${{ matrix.target_triple }}
 
@@ -108,7 +113,7 @@ jobs:
               with:
                   tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
                   releaseName: "v__VERSION__"
-                  releaseBody: "What's new? 🎉📣"
+                  releaseBody: "Release notes: https://thewh1teagle.github.io/vibe/changelog/__VERSION__\n\nSigned and notarized on macOS and Windows."
                   prerelease: true
                   args: ${{ matrix.args }} ${{ matrix.platform == 'windows-latest' && inputs.sign-windows && '--config src-tauri/tauri.windows.signing.conf.json' || '' }}
                   projectPath: "./desktop"
