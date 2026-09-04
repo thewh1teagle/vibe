@@ -43,8 +43,7 @@ impl Engine {
             }
             // A GGUF file is never a whisper model, so report why the GGUF
             // engines rejected it instead of handing it to whisper.cpp.
-            let model = nemotron_rs::Model::load(path)
-                .context("GGUF file could not be loaded as Parakeet or Nemotron")?;
+            let model = nemotron_rs::Model::load(path).context("GGUF file could not be loaded as Parakeet or Nemotron")?;
             return Ok(Self::Nemotron {
                 model: Box::new(model),
                 vad: None,

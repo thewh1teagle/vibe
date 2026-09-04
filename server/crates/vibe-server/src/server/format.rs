@@ -71,10 +71,7 @@ pub struct VerboseSegment {
     pub no_speech_prob: f32,
 }
 
-pub fn build_verbose_json(
-    result: &TranscribeResult,
-    diar_segments: &[diarization::Segment],
-) -> VerboseJson {
+pub fn build_verbose_json(result: &TranscribeResult, diar_segments: &[diarization::Segment]) -> VerboseJson {
     VerboseJson {
         text: result.text(),
         segments: result
@@ -84,11 +81,7 @@ pub fn build_verbose_json(
                 start: cs_to_seconds(segment.start),
                 end: cs_to_seconds(segment.end),
                 text: segment.text.clone(),
-                speaker: match_speaker(
-                    cs_to_seconds(segment.start),
-                    cs_to_seconds(segment.end),
-                    diar_segments,
-                ),
+                speaker: match_speaker(cs_to_seconds(segment.start), cs_to_seconds(segment.end), diar_segments),
                 no_speech_prob: segment.no_speech_prob,
             })
             .collect(),
@@ -101,11 +94,7 @@ pub fn build_verbose_json(
 /// or filtered like the others.
 const NEAREST_TURN_TOLERANCE_SECS: f64 = 1.5;
 
-pub fn match_speaker(
-    start: f64,
-    end: f64,
-    diar_segments: &[diarization::Segment],
-) -> Option<usize> {
+pub fn match_speaker(start: f64, end: f64, diar_segments: &[diarization::Segment]) -> Option<usize> {
     let mut best_id = None;
     let mut best_overlap = 0.0;
     let mut nearest = None;
@@ -133,11 +122,7 @@ mod tests {
     use super::*;
 
     fn turn(start: f64, end: f64, speaker_id: usize) -> diarization::Segment {
-        diarization::Segment {
-            start,
-            end,
-            speaker_id,
-        }
+        diarization::Segment { start, end, speaker_id }
     }
 
     #[test]
