@@ -58,23 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install Vulkan deps (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq libvulkan-dev
-      - name: Install Vulkan deps (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: choco install vulkan-sdk -y
-      - name: Configure Vulkan SDK (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $sdk = Get-ChildItem "C:\VulkanSDK" -Directory | Sort-Object Name -Descending | Select-Object -First 1
-          if (-not $sdk) { throw "Vulkan SDK was not installed under C:\VulkanSDK" }
-          "VULKAN_SDK=$($sdk.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "Vulkan_INCLUDE_DIR=$($sdk.FullName)\Include" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "Vulkan_LIBRARY=$($sdk.FullName)\Lib\vulkan-1.lib" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "$($sdk.FullName)\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      # No Vulkan SDK: the loader is opened at runtime (libs/patches/0003), so the binary links nothing from it.
       - name: Setup chore
         uses: getchore/setup-chore@v1
       - name: Download prebuilt GGML libs
