@@ -3,7 +3,7 @@ require 1.6.0
 # Vibe development tasks. Run `chore list` to see them.
 #
 # The desktop loop and the sidecar fetch live here; tasks that belong to one
-# area live with it, as `<area>/tasks.chorefile`, and are included below. They
+# area live with it, as `<area>/<area>.chore`, and are included below. They
 # are deliberately not named `chorefile`: chore resolves a run by walking up
 # for a file of that name, so `handoff/chorefile` would mean `chore list` in
 # handoff/ quietly showed a partial task list with $ROOT pointing there. Every
@@ -14,8 +14,8 @@ require 1.6.0
 # these tasks call them, they do not reimplement them. CI calls the same tasks,
 # so a green local run means the same commands ran.
 
-include handoff/handoff.chorefile
-include website/website.chorefile
+include handoff/handoff.chore
+include website/website.chore
 
 sona=$(read .sona-version)
 bin=desktop/src-tauri/binaries
