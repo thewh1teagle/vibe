@@ -68,5 +68,9 @@
 	"feature-privacy-description": "Насладете се на изцяло офлайн транскрибиране, при което никакви данни не напускат устройството ви.",
 	"feature-customize-title": "Пълна свобода",
 	"feature-customize-description": "Персонализирайте моделите без усилие в настройките за изживяване по ваша мярка.",
-	"changelog": "Списък с промени"
+	"changelog": "Списък с промени",
+	"download-for-mac": "Изтегляне за macOS",
+	"which-mac": "Изберете версията за вашия Mac. Не сте сигурни? Меню Apple → „За този Mac“ показва чипа.",
+	"apple-silicon-hint": "M1, M2, M3, M4 и по-нови",
+	"intel-hint": "Mac с Intel, 2020 г. и по-стари"
 }

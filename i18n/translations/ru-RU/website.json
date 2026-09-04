@@ -68,5 +68,9 @@
 	"feature-privacy-description": "Расшифровка работает полностью офлайн — данные не покидают ваше устройство.",
 	"feature-customize-title": "Полная свобода",
 	"feature-customize-description": "Настраивайте модели в параметрах под свои задачи.",
-	"changelog": "Список изменений"
+	"changelog": "Список изменений",
+	"download-for-mac": "Скачать для macOS",
+	"which-mac": "Выберите сборку для вашего Mac. Не уверены? Меню Apple → Об этом Mac покажет чип.",
+	"apple-silicon-hint": "M1, M2, M3, M4 и новее",
+	"intel-hint": "Mac на Intel, 2020 года и старше"
 }

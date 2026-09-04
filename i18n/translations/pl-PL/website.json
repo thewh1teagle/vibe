@@ -68,5 +68,9 @@
 	"feature-privacy-description": "Korzystaj z transkrypcji w pełni offline — żadne dane nie opuszczają Twojego urządzenia.",
 	"feature-customize-title": "Pełna swoboda",
 	"feature-customize-description": "Dostosuj modele w ustawieniach, aby dopasować program do siebie.",
-	"changelog": "Lista zmian"
+	"changelog": "Lista zmian",
+	"download-for-mac": "Pobierz dla macOS",
+	"which-mac": "Wybierz wersję dla swojego Maca. Nie wiesz? Menu Apple → Ten Mac pokazuje układ.",
+	"apple-silicon-hint": "M1, M2, M3, M4 i nowsze",
+	"intel-hint": "Maki z Intelem, 2020 i starsze"
 }

@@ -4,6 +4,7 @@ import { Button } from '~/components/ui/button'
 import Logo from '~/icons/Logo'
 import type { Locale } from '../paraglide/runtime.js'
 import LanguageSelector from './LanguageSelector'
+import { requestDownloadWhenReady } from '~/lib/download-intent'
 import { Moon, Sun } from 'lucide-react'
 
 interface NavProps {
@@ -18,18 +19,8 @@ export default function Nav({ locale, availableLocales, onLocaleChange }: NavPro
 
 	function onDownloadClick(event: React.MouseEvent<HTMLAnchorElement>) {
 		event.preventDefault()
-		const scrollToDownload = () => {
-			const target = document.getElementById('download')
-			if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-			else window.scrollTo({ top: 0, behavior: 'smooth' })
-		}
-
-		if (location.pathname === '/') {
-			scrollToDownload()
-			return
-		}
-		navigate('/')
-		requestAnimationFrame(scrollToDownload)
+		if (location.pathname !== '/') navigate('/')
+		requestDownloadWhenReady()
 	}
 
 	return (

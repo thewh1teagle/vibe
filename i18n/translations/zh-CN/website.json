@@ -68,5 +68,9 @@
 	"feature-privacy-description": "完全离线转录，数据绝不会离开您的设备。",
 	"feature-customize-title": "完全自由",
 	"feature-customize-description": "在设置中轻松自定义模型，打造专属体验。",
-	"changelog": "更新日志"
+	"changelog": "更新日志",
+	"download-for-mac": "下载 macOS 版",
+	"which-mac": "选择适合你 Mac 的版本。不确定？苹果菜单 → 关于本机 会显示芯片。",
+	"apple-silicon-hint": "M1、M2、M3、M4 及更新",
+	"intel-hint": "Intel 芯片 Mac，2020 年及更早"
 }

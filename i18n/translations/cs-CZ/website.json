@@ -68,5 +68,9 @@
 	"feature-privacy-description": "Užijte si plně offline přepis – žádná data nikdy neopustí vaše zařízení.",
 	"feature-customize-title": "Naprostá volnost",
 	"feature-customize-description": "Snadno si v nastavení přizpůsobte modely podle svých potřeb.",
-	"changelog": "Seznam změn"
+	"changelog": "Seznam změn",
+	"download-for-mac": "Stáhnout pro macOS",
+	"which-mac": "Vyberte sestavení pro svůj Mac. Nevíte? Nabídka Apple → O tomto Macu ukáže čip.",
+	"apple-silicon-hint": "M1, M2, M3, M4 a novější",
+	"intel-hint": "Macy s Intelem, 2020 a starší"
 }

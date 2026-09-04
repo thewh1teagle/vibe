@@ -68,5 +68,9 @@
 	"feature-privacy-description": "完全離線轉錄，資料絕不會離開您的裝置。",
 	"feature-customize-title": "完全自由",
 	"feature-customize-description": "在設定中輕鬆自訂模型，打造專屬體驗。",
-	"changelog": "更新日誌"
+	"changelog": "更新日誌",
+	"download-for-mac": "下載 macOS 版",
+	"which-mac": "選擇適合你 Mac 的版本。不確定？Apple 選單 → 關於此 Mac 會顯示晶片。",
+	"apple-silicon-hint": "M1、M2、M3、M4 及更新",
+	"intel-hint": "Intel 晶片 Mac，2020 年及更早"
 }

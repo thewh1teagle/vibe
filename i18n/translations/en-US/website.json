@@ -73,5 +73,9 @@
 	"changelogImproved": "Improved",
 	"changelogFixed": "Fixed",
 	"changelogAll": "All releases",
-	"changelogUnknownVersion": "There is no release {version}."
+	"changelogUnknownVersion": "There is no release {version}.",
+	"download-for-mac": "Download for macOS",
+	"which-mac": "Pick the build for your Mac. Not sure? Apple menu → About This Mac shows the chip.",
+	"apple-silicon-hint": "M1, M2, M3, M4 and newer",
+	"intel-hint": "Intel Macs, 2020 and earlier"
 }
