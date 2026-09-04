@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download, NotebookPen, Pencil, PilcrowLeft, PilcrowRight, Plus, Search, Settings2, Sparkles, X } from 'lucide-react'
+import { ChevronDown, Download, NotebookPen, Pencil, PilcrowLeft, PilcrowRight, Plus, Search, Settings2, Sparkles, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -15,6 +15,7 @@ import type { Job } from '../hooks/use-transcribe-queue'
 import type { TranscriptTab, TranscriptTextSize, TranscriptViewOptions } from '../hooks/use-transcript-view'
 import { useTranscriptExport } from '../hooks/use-transcript-export'
 import TranscriptExportDialog from './transcript-export-dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import { useSession } from '../session'
 
 const TEXT_SIZES: { value: TranscriptTextSize; label: () => string }[] = [
@@ -219,6 +220,7 @@ export default function TranscriptToolbar({
 	const { queue, startNew } = useSession()
 	const preference = usePreferenceProvider()
 	const [exportOpen, setExportOpen] = useState(false)
+	const autoExport = preference.autoExport
 	const exportOptions = preference.exportOptions
 	// Each control changes one field of the stored object.
 	const updateExport = (patch: Partial<typeof exportOptions>) => preference.setExportOptions({ ...exportOptions, ...patch })
@@ -308,15 +310,47 @@ export default function TranscriptToolbar({
 							exit={{ opacity: 0, y: -4 }}
 							transition={{ duration: 0.15, ease: 'easeOut' }}
 							className="flex w-full items-center gap-1">
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={openExport}
-								disabled={!hasExportContent}
-								className="rounded-full px-3 text-[13px] font-medium">
-								<Download className="h-3.5 w-3.5" />
-								{m.exportDialogTitle()}
-							</Button>
+							{queue.jobs.length > 1 ? (
+								/* A batch: the same word, with everything that writes files behind it. */
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button variant="ghost" size="sm" className="rounded-full px-3 text-[13px] font-medium">
+											<Download className="h-3.5 w-3.5" />
+											{m.exportDialogTitle()}
+											<ChevronDown className="h-3 w-3 opacity-70" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start" className="w-60">
+										<DropdownMenuItem onClick={openExport} disabled={!hasExportContent}>
+											{m.exportThisTranscript()}
+										</DropdownMenuItem>
+										<DropdownMenuItem onClick={() => void queue.exportFinished()} disabled={queue.unexportedCount === 0}>
+											{m.exportAllFinished({ count: String(queue.unexportedCount) })}
+										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem
+											onClick={() => window.dispatchEvent(new CustomEvent('vibe:open-settings', { detail: { scrollTo: 'auto-export' } }))}
+											className="flex items-center justify-between gap-3">
+											<span className="shrink-0 whitespace-nowrap">{m.autoExport()}</span>
+											<span className="truncate text-[11px] text-muted-foreground">
+												{autoExport.enabled
+													? `${m.autoExportOn()} · ${autoExport.formats.map((format) => (format === 'normal' ? 'TXT' : format.toUpperCase())).join(', ')}`
+													: m.autoExportOff()}
+											</span>
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							) : (
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={openExport}
+									disabled={!hasExportContent}
+									className="rounded-full px-3 text-[13px] font-medium">
+									<Download className="h-3.5 w-3.5" />
+									{m.exportDialogTitle()}
+								</Button>
+							)}
 
 							<Button
 								variant="ghost"

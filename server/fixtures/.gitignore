@@ -1,0 +1,10 @@
+# Only media lives here; auto-export writes transcripts beside recordings and must not land in git.
+*.vtt
+*.srt
+*.txt
+*.md
+*.json
+*.csv
+*.html
+*.docx
+*.pdf

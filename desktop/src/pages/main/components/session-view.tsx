@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useSession } from '../session'
 import { useTranscriptViewOptions, type TranscriptTab } from '../hooks/use-transcript-view'
+import BatchBanner from './batch-banner'
 import FileQueue from './file-queue'
 import TranscriptToolbar from './transcript-toolbar'
 import TranscriptView from './transcript-view'
@@ -39,6 +40,7 @@ export default function SessionView() {
 			)}
 
 			<div className="flex min-h-0 min-w-0 flex-1 flex-col">
+				<BatchBanner />
 				<TranscriptToolbar job={selected} query={query} setQuery={setQuery} options={options} tab={tab} setTab={setTab} />
 				<div className="min-h-0 flex-1">{selected && <TranscriptView job={selected} query={query} options={options} tab={tab} />}</div>
 			</div>

@@ -2,6 +2,7 @@ import { ReactNode, SetStateAction, createContext, useCallback, useContext, useE
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { load } from '@tauri-apps/plugin-store'
 import * as config from '~/lib/config'
+import { DEFAULT_AUTO_EXPORT, type AutoExportSettings } from '~/lib/auto-export'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { usePersisted } from '~/lib/config-store'
@@ -107,6 +108,8 @@ export interface Preference {
 	/** Everything the export dialog remembers, kept together under one config key. */
 	exportOptions: ExportOptions
 	setExportOptions: ModifyState<ExportOptions>
+	autoExport: AutoExportSettings
+	setAutoExport: ModifyState<AutoExportSettings>
 
 	gpuDevice: number | null
 	setGpuDevice: ModifyState<number | null>
@@ -215,6 +218,7 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 	const [modelOptions, setModelOptions] = usePersisted<ModelOptions>(CONFIG_KEYS.modelOptions, defaultOptions.modelOptions)
 	const [ffmpegOptions, setFfmpegOptions] = usePersisted<FfmpegOptions>(CONFIG_KEYS.ffmpegOptions, defaultOptions.ffmpegOptions)
 	const [projectsPath, setProjectsPath] = usePersisted<string | null>(CONFIG_KEYS.projectsPath, null)
+	const [autoExport, setAutoExport] = usePersisted<AutoExportSettings>(CONFIG_KEYS.autoExport, DEFAULT_AUTO_EXPORT)
 	const [llmConfig, setLlmConfig] = usePersisted<LlmConfig>(CONFIG_KEYS.llmConfig, defaultOptions.llmConfig)
 	const [autoSummarizeOnFinish, setAutoSummarizeOnFinish] = usePersisted<boolean>(CONFIG_KEYS.autoSummarizeOnFinish, config.defaultAutoSummarizeOnFinish)
 	const [ytDlpVersion, setYtDlpVersion] = usePersisted<string | null>(CONFIG_KEYS.ytDlpVersion, null)
@@ -417,6 +421,8 @@ export function PreferenceProvider({ children }: { children: ReactNode }) {
 		setYtDlpLastUpdateCheck,
 		ytDlpDeclinedVersion,
 		setYtDlpDeclinedVersion,
+		autoExport,
+		setAutoExport,
 		advancedTranscribeOptions,
 		setAdvancedTranscribeOptions,
 		recentLanguages,

@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
+import { describeAutoExport } from './auto-export'
 import LanguageInput from '~/components/language-input'
 import { Button } from '~/components/ui/button'
 import { Switch } from '~/components/ui/switch'
@@ -57,8 +58,9 @@ function SavedProjectsGroup({ projectsPath }: { projectsPath: string | null }) {
 	)
 }
 
-export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
+export function TranscriptionSection({ vm, onOpenAutoExport }: { vm: SettingsViewModel; onOpenAutoExport: () => void }) {
 	const projectsPath = vm.preference.projectsPath ?? vm.defaultProjectsPath
+	const autoExport = vm.preference.autoExport
 
 	return (
 		<div className="space-y-6">
@@ -70,6 +72,14 @@ export function TranscriptionSection({ vm }: { vm: SettingsViewModel }) {
 			</SettingsGroup>
 
 			<SettingsGroup>
+				<SettingsRow label={m.autoExport()} description={autoExport.enabled ? describeAutoExport(autoExport) : m.autoExportInfo()}>
+					<div className="flex items-center gap-3">
+						<Button variant="outline" size="sm" className="rounded-lg" onClick={onOpenAutoExport}>
+							{m.autoExportChange()}
+						</Button>
+						<Switch checked={autoExport.enabled} onCheckedChange={(enabled) => vm.preference.setAutoExport({ ...autoExport, enabled })} />
+					</div>
+				</SettingsRow>
 				<SettingsRow label={m.playSoundOnFinish()}>
 					<Switch checked={vm.preference.soundOnFinish} onCheckedChange={vm.preference.setSoundOnFinish} />
 				</SettingsRow>
