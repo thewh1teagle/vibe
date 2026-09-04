@@ -45,7 +45,7 @@
 - 👀 Realtime preview
 - 🤖 Supports Whisper, Nemotron 3.5, and Parakeet TDT v3 models
 - ✨ Summarize transcripts: Get quick, multilingual summaries using the Claude API
-- 🧠 Ollama support: Do local AI analysis and batch summaries with Ollama
+- 🧠 Ollama support: Do local AI analysis and batch summaries with Ollama or [llmman](https://github.com/llmmanorg/llmman)
 - 🌐 Translate to English from any language
 - 🖨️ Print transcript directly to any printer
 - 🔄 Automatic updates

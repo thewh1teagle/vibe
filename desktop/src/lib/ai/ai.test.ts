@@ -78,6 +78,13 @@ describe('createClient', () => {
 		expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({ stream: true, model: DEFAULT_AI.connection.model })
 	})
 
+	it('talks to llmman like Ollama, on its own port', async () => {
+		fetchMock.mockResolvedValue(streamResponse(['{"response":"ok"}', '{"done":true}']))
+		const text = await createClient({ ...DEFAULT_AI.connection, platform: 'llmman' }).stream('p', () => {})
+		expect(text).toBe('ok')
+		expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:17434/api/generate')
+	})
+
 	it('streams OpenAI SSE and stops at [DONE]', async () => {
 		fetchMock.mockResolvedValue(
 			streamResponse(['data: {"choices":[{"delta":{"content":"a"}}]}', '', 'data: {"choices":[{"delta":{"content":"b"}}]}', 'data: [DONE]']),

@@ -41,6 +41,10 @@ _Make sure to run the 'Run check` to see that it works_
 
 That's it! Summarization will now be active in Ollama.
 
+### Using llmman instead
+
+[llmman](https://github.com/llmmanorg/llmman) serves the same Ollama API on port `17434`, so it works the same way: install it, pull a model (`llmman pull gemma4`), run `llmman serve`, then pick `llmman` as the platform in Vibe's AI settings. The default URL `http://localhost:17434` matches its default bind.
+
 ## Stable Timestamps (Subtitles / Movies)
 
 Vibe includes a stable timestamp mode for tighter subtitle timing on long-form content.
