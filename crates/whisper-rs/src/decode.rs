@@ -263,7 +263,10 @@ pub(crate) fn decode(model: &Model, state: &mut State, rt: &mut Runtime, batch: 
         sys::ggml_build_forward_expand(g.graph, logits);
 
         if !sys::ggml_backend_sched_alloc_graph(rt.sched_decode, g.graph) {
-            return Err(Error::Ggml("decoder graph alloc"));
+            return Err(Error::OutOfMemory {
+                what: "decoder graph",
+                gpu: crate::state::sched_has_gpu(rt.sched_decode),
+            });
         }
 
         // inputs

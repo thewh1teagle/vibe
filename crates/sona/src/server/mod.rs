@@ -261,6 +261,17 @@ pub(super) struct ErrorBody {
     message: String,
 }
 
+/// The code a failed engine call reports. Running out of memory is the one failure a
+/// client can act on, by reloading on the CPU when it was the GPU's, so it is named;
+/// everything else is `internal_error` with the message for a human.
+pub(super) fn engine_error_code(err: &anyhow::Error) -> &'static str {
+    match err.downcast_ref::<whisper_rs::Error>() {
+        Some(whisper_rs::Error::OutOfMemory { gpu: true, .. }) => "gpu_out_of_memory",
+        Some(whisper_rs::Error::OutOfMemory { gpu: false, .. }) => "out_of_memory",
+        _ => "internal_error",
+    }
+}
+
 pub(super) fn error(status: axum::http::StatusCode, code: &'static str, message: &str) -> axum::response::Response {
     (
         status,

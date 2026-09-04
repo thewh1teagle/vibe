@@ -120,6 +120,7 @@ pub(super) fn stream_transcription(
                     &tx,
                     serde_json::json!({
                         "type": "error",
+                        "code": crate::server::engine_error_code(&err),
                         "message": err.to_string(),
                     }),
                 );

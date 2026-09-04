@@ -127,7 +127,7 @@ pub(in crate::server) async fn load_model(State(state): State<AppState>, Json(re
             .into_response(),
         Err(err) => error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "internal_error",
+            crate::server::engine_error_code(&err),
             &format!("failed to load model: {err}"),
         ),
     }

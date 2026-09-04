@@ -59,6 +59,10 @@ pub enum Error {
     ModelFormat,
     #[error("ggml operation failed: {0}")]
     Ggml(&'static str),
+    /// A buffer or graph did not fit. `gpu` says which memory ran out, so a caller
+    /// can retry on the CPU when it was the device's.
+    #[error("out of {} memory allocating {what}", if *gpu { "GPU" } else { "CPU" })]
+    OutOfMemory { what: &'static str, gpu: bool },
     #[error("unknown language {0:?}")]
     UnknownLanguage(String),
     #[error("failed to auto-detect language")]

@@ -388,7 +388,10 @@ impl Model {
             for &(buft, ctx) in &ctx_map {
                 let buffer = sys::ggml_backend_alloc_ctx_tensors_from_buft(ctx, buft);
                 if buffer.is_null() {
-                    return Err(Error::Ggml("model weight buffer"));
+                    return Err(Error::OutOfMemory {
+                        what: "model weights",
+                        gpu: crate::state::device_is_gpu(sys::ggml_backend_buft_get_device(buft)),
+                    });
                 }
                 ctxs.push(ctx);
                 buffers.push(buffer);

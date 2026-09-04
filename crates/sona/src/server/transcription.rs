@@ -83,7 +83,7 @@ pub(super) async fn transcribe(
         tracing::error!(samples = samples.len(), "transcription failed: {err:#}");
         error(
             StatusCode::INTERNAL_SERVER_ERROR,
-            "internal_error",
+            super::engine_error_code(&err),
             &format!("transcription failed: {err}"),
         )
     })?;

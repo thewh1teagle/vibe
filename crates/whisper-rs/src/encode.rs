@@ -176,7 +176,10 @@ pub(crate) fn encode(model: &Model, state: &mut State, rt: &mut Runtime, mel_off
             embd_conv = cur;
 
             if !sys::ggml_backend_sched_alloc_graph(rt.sched_conv, g_conv.graph) {
-                return Err(Error::Ggml("conv graph alloc"));
+                return Err(Error::OutOfMemory {
+                    what: "conv graph",
+                    gpu: crate::state::sched_has_gpu(rt.sched_conv),
+                });
             }
 
             // Fill the mel input window.
@@ -338,7 +341,10 @@ pub(crate) fn encode(model: &Model, state: &mut State, rt: &mut Runtime, mel_off
             embd_enc = cur;
 
             if !sys::ggml_backend_sched_alloc_graph(rt.sched_encode, g_enc.graph) {
-                return Err(Error::Ggml("encoder graph alloc"));
+                return Err(Error::OutOfMemory {
+                    what: "encoder graph",
+                    gpu: crate::state::sched_has_gpu(rt.sched_encode),
+                });
             }
             if !sched_compute(rt.sched_encode, g_enc.graph, n_threads) {
                 return Err(Error::Ggml("encoder graph compute"));
@@ -399,7 +405,10 @@ pub(crate) fn encode(model: &Model, state: &mut State, rt: &mut Runtime, mel_off
             }
 
             if !sys::ggml_backend_sched_alloc_graph(rt.sched_cross, g_cross.graph) {
-                return Err(Error::Ggml("cross graph alloc"));
+                return Err(Error::OutOfMemory {
+                    what: "cross graph",
+                    gpu: crate::state::sched_has_gpu(rt.sched_cross),
+                });
             }
             if !sched_compute(rt.sched_cross, g_cross.graph, n_threads) {
                 return Err(Error::Ggml("cross graph compute"));

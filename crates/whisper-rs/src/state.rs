@@ -223,6 +223,26 @@ impl Drop for State {
     }
 }
 
+/// Whether a backend runs on a GPU (discrete or integrated), for reporting
+/// which memory an allocation failed in.
+pub(crate) unsafe fn backend_is_gpu(backend: sys::ggml_backend_t) -> bool {
+    device_is_gpu(sys::ggml_backend_get_device(backend))
+}
+
+pub(crate) unsafe fn device_is_gpu(dev: sys::ggml_backend_dev_t) -> bool {
+    !dev.is_null()
+        && matches!(
+            sys::ggml_backend_dev_type(dev),
+            sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_GPU | sys::ggml_backend_dev_type_GGML_BACKEND_DEVICE_TYPE_IGPU
+        )
+}
+
+/// Whether any backend behind a scheduler is a GPU: a graph that failed to
+/// allocate there ran out of device memory.
+pub(crate) unsafe fn sched_has_gpu(sched: sys::ggml_backend_sched_t) -> bool {
+    (0..sys::ggml_backend_sched_get_n_backends(sched)).any(|i| backend_is_gpu(sys::ggml_backend_sched_get_backend(sched, i)))
+}
+
 /// Port of `whisper_backend_init_gpu`: the `gpu_device`-th GPU or IGPU
 /// device, or null when there is none (or GPU use is disabled).
 pub(crate) unsafe fn gpu_device_init(use_gpu: bool, gpu_device: i32) -> sys::ggml_backend_t {

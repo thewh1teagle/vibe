@@ -66,7 +66,10 @@ impl KvCache {
             let buffer = sys::ggml_backend_alloc_ctx_tensors(ctx, backend);
             if buffer.is_null() {
                 sys::ggml_free(ctx);
-                return Err(Error::Ggml("kv cache buffer"));
+                return Err(Error::OutOfMemory {
+                    what: "kv cache",
+                    gpu: crate::state::backend_is_gpu(backend),
+                });
             }
             sys::ggml_backend_buffer_clear(buffer, 0);
             Ok(Self {
