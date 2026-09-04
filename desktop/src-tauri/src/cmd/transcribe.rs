@@ -68,7 +68,14 @@ async fn transcribe_error(sona_state: &State<'_, Mutex<SonaState>>, error: eyre:
             code: "internal_error".to_string(),
             message,
         },
-        None => CommandError::from(error),
+        None => {
+            let mut command_error = CommandError::from(error);
+            let stderr = crate::sona::recent_stderr(sona_state).await;
+            if !stderr.is_empty() {
+                command_error.message.push_str(&format!("\n\nsona stderr: {stderr}"));
+            }
+            command_error
+        }
     }
 }
 

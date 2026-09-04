@@ -82,7 +82,14 @@ pub(super) async fn sona_transfer_error(
     }
     match crate::sona::death_report(sona_state, crate::cmd::transcribe::SONA_DIED).await {
         Some(message) => TransferError::new("internal_error", message),
-        None => TransferError::from(error),
+        None => {
+            let stderr = crate::sona::recent_stderr(sona_state).await;
+            if stderr.is_empty() {
+                TransferError::from(error)
+            } else {
+                TransferError::new("internal_error", format!("{error:#}\n\nsona stderr: {stderr}"))
+            }
+        }
     }
 }
 

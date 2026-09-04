@@ -110,6 +110,17 @@ pub async fn death_report(state: &tokio::sync::Mutex<crate::setup::SonaState>, c
     state.process.as_mut()?.death_report(context).await
 }
 
+/// What the sidecar printed lately, for an error that is not a death but that its
+/// stderr may still explain (a GPU driver complaining before the request fails, say).
+pub async fn recent_stderr(state: &tokio::sync::Mutex<crate::setup::SonaState>) -> String {
+    let state = state.lock().await;
+    state
+        .process
+        .as_ref()
+        .map(|process| process.recent_stderr())
+        .unwrap_or_default()
+}
+
 #[derive(Debug, Deserialize)]
 struct ReadySignal {
     #[allow(dead_code)]
