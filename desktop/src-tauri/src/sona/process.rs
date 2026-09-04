@@ -14,6 +14,8 @@ const READY_TIMEOUT: Duration = Duration::from_secs(60);
 /// pipe, so death paths wait this long for the collector to reach EOF.
 const STDERR_DRAIN_TIMEOUT: Duration = Duration::from_millis(500);
 const STDERR_POLL_INTERVAL: Duration = Duration::from_millis(20);
+/// How long a death report waits for a child whose output already broke to become reapable.
+const EXIT_GRACE: Duration = Duration::from_secs(2);
 /// Nothing on a connection can go idle longer than this before we throw it away.
 /// Shorter than any idle close on the sona side, so a request is never handed a
 /// socket the server has already dropped.
@@ -294,14 +296,27 @@ impl SonaProcess {
         stderr_snapshot(&self.stderr_buf)
     }
 
-    fn recent_stderr(&self) -> String {
+    pub fn recent_stderr(&self) -> String {
         stderr_snapshot(&self.stderr_buf)
     }
 
     /// `Some(message)` when the child is gone, describing how it died and what it
     /// last printed. `None` while it is still running.
+    ///
+    /// A broken response stream reaches the caller a few milliseconds before the
+    /// child is reapable, so a short wait here is what turns "error decoding
+    /// response body" into the exit code and the stderr that explain it.
     pub async fn death_report(&mut self, context: &str) -> Option<String> {
-        let status = self.exit_status()?;
+        let deadline = Instant::now() + EXIT_GRACE;
+        let status = loop {
+            if let Some(status) = self.exit_status() {
+                break status;
+            }
+            if Instant::now() >= deadline {
+                return None;
+            }
+            tokio::time::sleep(STDERR_POLL_INTERVAL).await;
+        };
         let stderr = self.stderr_after_exit().await;
         let mut message = format!("{context} ({})", describe_exit(status));
         if let Some(hint) = illegal_instruction_hint(status) {
