@@ -315,7 +315,6 @@
 	"threads": "Trådar",
 	"transcribe": "Transkribera",
 	"gpuFallbackToCpu": "Modellen kunde inte läsas in på GPU. Växlar till CPU.",
-	"avx2NotSupported": "Din CPU stöds inte av den här versionen av Vibe. Använd en modernare dator.",
 	"noModelLoadedBatchStopped": "Ingen modell inläst. Stoppar batchen.",
 	"transcribeEngineStoppedBatchStopped": "Transkriberingsmotorn stoppade. Stoppar batchen.",
 	"noModelSelected": "Välj en modell i inställningarna för att komma igång",

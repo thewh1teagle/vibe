@@ -315,7 +315,6 @@
 	"threads": "執行緒數",
 	"transcribe": "開始轉錄",
 	"gpuFallbackToCpu": "GPU 載入模型失敗，已改用 CPU。",
-	"avx2NotSupported": "此版本的 Vibe 不支援你的 CPU，請改用較新的電腦。",
 	"noModelLoadedBatchStopped": "模型未載入，已停止批次處理。",
 	"transcribeEngineStoppedBatchStopped": "轉錄引擎已停止，已停止批次處理。",
 	"noModelSelected": "請在設定中選擇一個模型以開始使用",

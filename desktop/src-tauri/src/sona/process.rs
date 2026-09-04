@@ -47,7 +47,7 @@ pub(super) fn describe_exit(status: ExitStatus) -> String {
 /// missing an instruction set the build assumes. Naming it here is what turns these
 /// reports from a bare "sona process died" into something identifiable.
 fn illegal_instruction_hint(status: ExitStatus) -> Option<&'static str> {
-    const MESSAGE: &str = "This looks like a CPU without AVX2 support: sona is built to require it, so it stops on the first instruction it cannot run. Vibe cannot transcribe on this machine.";
+    const MESSAGE: &str = "This looks like a CPU without AVX support: sona picks an AVX2 or an AVX build of its CPU backend at startup, but nothing older, so it stops on the first instruction it cannot run. Vibe cannot transcribe on this machine.";
 
     #[cfg(unix)]
     {

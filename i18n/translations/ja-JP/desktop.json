@@ -315,7 +315,6 @@
 	"threads": "スレッド数",
 	"transcribe": "文字起こし",
 	"gpuFallbackToCpu": "GPUでモデルを読み込めませんでした。CPUに切り替えます。",
-	"avx2NotSupported": "このバージョンのVibeはお使いのCPUに対応していません。より新しいPCをご利用ください。",
 	"noModelLoadedBatchStopped": "モデルが読み込まれていません。一括処理を停止します。",
 	"transcribeEngineStoppedBatchStopped": "文字起こしエンジンが停止しました。一括処理を停止します。",
 	"noModelSelected": "設定でモデルを選択してください",

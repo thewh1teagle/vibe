@@ -315,7 +315,6 @@
 	"threads": "Fils d'exécution",
 	"transcribe": "Transcrire",
 	"gpuFallbackToCpu": "Le GPU n'a pas pu charger le modèle. Retour au CPU.",
-	"avx2NotSupported": "Votre processeur n'est pas pris en charge par cette version de Vibe. Utilisez un ordinateur plus récent.",
 	"noModelLoadedBatchStopped": "Modèle non chargé. Arrêt du lot.",
 	"transcribeEngineStoppedBatchStopped": "Le moteur de transcription s'est arrêté. Arrêt du lot.",
 	"noModelSelected": "Sélectionnez un modèle dans les réglages pour commencer",

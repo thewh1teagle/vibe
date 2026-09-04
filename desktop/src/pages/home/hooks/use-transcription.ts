@@ -1,12 +1,11 @@
 import { event } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/core'
 import * as webview from '@tauri-apps/api/webviewWindow'
-import * as dialog from '@tauri-apps/plugin-dialog'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
-import { trackAvx2NotSupported, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
+import { trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { isUserError } from '~/lib/sona-errors'
@@ -40,13 +39,6 @@ export function useTranscription({ onResetSummary, onSummarize }: UseTranscripti
 	}
 
 	async function transcribe(path: string) {
-		const avx2 = await invoke<boolean>('is_avx2_enabled')
-		if (!avx2) {
-			trackAvx2NotSupported()
-			await dialog.message(m.avx2NotSupported(), { kind: 'error' })
-			return
-		}
-
 		startKeepAwake(KEEP_AWAKE.transcribe)
 		setSegments(null)
 		onResetSummary()

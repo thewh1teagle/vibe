@@ -315,7 +315,6 @@
 	"threads": "טרדים",
 	"transcribe": "תמלל",
 	"gpuFallbackToCpu": "טעינת המודל ב-GPU נכשלה. חוזרים למעבד.",
-	"avx2NotSupported": "המעבד שלכם אינו נתמך בגרסה זו של Vibe. אנא השתמשו במחשב חדיש יותר.",
 	"noModelLoadedBatchStopped": "המודל לא נטען. עוצרים את התור.",
 	"transcribeEngineStoppedBatchStopped": "מנוע התמלול נעצר. עוצרים את התור.",
 	"noModelSelected": "בחרו מודל בהגדרות כדי להתחיל",

@@ -315,7 +315,6 @@
 	"threads": "Fils (Threads)",
 	"transcribe": "Transcriure",
 	"gpuFallbackToCpu": "La GPU no ha pogut carregar el model. Es passa a la CPU.",
-	"avx2NotSupported": "La teva CPU no és compatible amb aquesta versió de Vibe. Fes servir un ordinador més modern.",
 	"noModelLoadedBatchStopped": "El model no està carregat. S'atura el lot.",
 	"transcribeEngineStoppedBatchStopped": "El motor de transcripció s'ha aturat. S'atura el lot.",
 	"noModelSelected": "Selecciona un model a la configuració per començar",

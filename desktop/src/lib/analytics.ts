@@ -1,8 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { load } from '@tauri-apps/plugin-store'
 import { storeFilename } from '~/lib/config'
-import { CONFIG_KEYS } from '~/lib/config-keys'
-import { readConfig, writeConfig } from '~/lib/config-store'
 import { getMediaDurationSeconds } from '~/lib/media'
 
 export const analyticsEvents = {
@@ -10,7 +8,6 @@ export const analyticsEvents = {
 	TRANSCRIBE_SUCCEEDED: 'transcribe_succeeded',
 	TRANSCRIBE_FAILED: 'transcribe_failed',
 	TRANSCRIBE_CANCELLED: 'transcribe_cancelled',
-	AVX2_NOT_SUPPORTED: 'avx2_not_supported',
 } as const
 
 /** Which of the four transcription entry points an event came from. */
@@ -85,14 +82,4 @@ export function trackTranscribeCancelled(source: TranscribeSource, path: string)
 		source,
 		file_ext: fileExt(path),
 	})
-}
-
-/**
- * Once per install, not once per attempt: the CPU cannot grow AVX2 support between transcriptions,
- * so repeating the event only inflated it (2,531 events from 949 installs) and hid the machine count.
- */
-export function trackAvx2NotSupported() {
-	if (readConfig<boolean>(CONFIG_KEYS.avx2NotSupportedReported, false)) return
-	writeConfig(CONFIG_KEYS.avx2NotSupportedReported, true)
-	void trackAnalyticsEvent(analyticsEvents.AVX2_NOT_SUPPORTED)
 }

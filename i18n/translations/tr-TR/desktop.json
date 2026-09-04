@@ -315,7 +315,6 @@
 	"threads": "Konular",
 	"transcribe": "Transkribe et",
 	"gpuFallbackToCpu": "GPU modeli yükleyemedi. CPU'ya geçiliyor.",
-	"avx2NotSupported": "Vibe'ın bu sürümü CPU'nuzu desteklemiyor. Lütfen daha yeni bir bilgisayar kullanın.",
 	"noModelLoadedBatchStopped": "Model yüklü değil. Toplu işlem durduruluyor.",
 	"transcribeEngineStoppedBatchStopped": "Transkripsiyon motoru durdu. Toplu işlem durduruluyor.",
 	"noModelSelected": "Başlamak için Ayarlar'dan bir model seçin",

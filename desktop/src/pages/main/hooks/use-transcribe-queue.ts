@@ -1,12 +1,11 @@
 import { invoke } from '@tauri-apps/api/core'
 import { emit, listen, type UnlistenFn } from '@tauri-apps/api/event'
 import * as webview from '@tauri-apps/api/webviewWindow'
-import * as dialog from '@tauri-apps/plugin-dialog'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
 import { m } from '~/paraglide/messages.js'
-import { trackAvx2NotSupported, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
+import { trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
@@ -278,14 +277,6 @@ export function useTranscribeQueue(): TranscribeQueue {
 		let completedAny = false
 
 		try {
-			const avx2 = await invoke<boolean>('is_avx2_enabled')
-			if (!avx2) {
-				trackAvx2NotSupported()
-				await dialog.message(m.avx2NotSupported(), { kind: 'error' })
-				failPending(m.avx2NotSupported())
-				return
-			}
-
 			const current = preferenceRef.current
 			if (!current.modelPath) {
 				failPending(m.noModelSelected())

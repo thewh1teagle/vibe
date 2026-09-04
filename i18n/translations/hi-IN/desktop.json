@@ -315,7 +315,6 @@
 	"threads": "थ्रेड्स",
 	"transcribe": "लेखन करें",
 	"gpuFallbackToCpu": "GPU मॉडल लोड नहीं कर सका। CPU पर चलाया जा रहा है।",
-	"avx2NotSupported": "Vibe का यह संस्करण आपके CPU को समर्थन नहीं करता। कृपया अधिक आधुनिक कंप्यूटर का उपयोग करें।",
 	"noModelLoadedBatchStopped": "मॉडल लोड नहीं है। बैच रोका जा रहा है।",
 	"transcribeEngineStoppedBatchStopped": "प्रतिलेखन इंजन रुक गया। बैच रोका जा रहा है।",
 	"noModelSelected": "शुरू करने के लिए सेटिंग्स में एक मॉडल चुनें",
