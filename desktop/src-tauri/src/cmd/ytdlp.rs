@@ -18,10 +18,6 @@ use std::process::Stdio;
 #[cfg(windows)]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-fn decode_output_line(bytes: &[u8]) -> String {
-    String::from_utf8_lossy(bytes).into_owned()
-}
-
 fn get_binary_name() -> &'static str {
     if cfg!(windows) {
         if cfg!(target_arch = "aarch64") {
@@ -81,13 +77,6 @@ pub fn get_temp_path(ext: String) -> String {
 mod tests {
     use super::*;
     use std::path::PathBuf;
-
-    #[test]
-    fn lossy_line_preserves_valid_text_around_invalid_bytes() {
-        let line = decode_output_line(b"title: \xFF\n");
-
-        assert_eq!(line, "title: �\n");
-    }
 
     #[test]
     fn download_paths_are_always_staged_in_vibe_temp() {
@@ -159,13 +148,15 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
     if let Some(stdout) = child.stdout.take() {
         let reader = BufReader::new(stdout);
 
+        // yt-dlp can print bytes that are not UTF-8 (a title in the platform's code page on
+        // Windows), and `lines()` would abort the whole download on the first one.
         for line in reader.split(b'\n') {
             if cancel_flag.load(Ordering::Relaxed) {
                 let _ = child.kill();
                 break;
             }
 
-            let mut line = decode_output_line(&line?);
+            let mut line = String::from_utf8_lossy(&line?).into_owned();
             line = line.replace("\r", "").trim().to_string();
 
             if line.starts_with("{\"progress") {
@@ -192,7 +183,7 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
             stderr_output = BufReader::new(stderr)
                 .split(b'\n')
                 .map_while(Result::ok)
-                .map(|line| decode_output_line(&line))
+                .map(|line| String::from_utf8_lossy(&line).into_owned())
                 .collect::<Vec<_>>()
                 .join("\n");
             eprintln!("Error: {}", stderr_output);
