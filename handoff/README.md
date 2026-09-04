@@ -17,7 +17,7 @@ The desktop half lives in `desktop/src-tauri`.
 ```sh
 just phone         # build the wasm, then run the PWA on http://localhost:8088
 just phone-tunnel  # same, but over an HTTPS tunnel a real phone can load
-just phone-probe '<pairing-url>' samples/single.wav
+just phone-probe '<pairing-url>' server/fixtures/single.wav
 just phone-caps '<pairing-url>'
 ```
 

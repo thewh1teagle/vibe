@@ -3,7 +3,6 @@
 .DS_Store
 libs/lib/
 models/
-samples/
 vibe-server
 !vibe-server/
 ggml-src/

@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: samples
+          sparse-checkout: server/fixtures
 
       - name: Setup MSYS2 wget (Windows)
         if: runner.os == 'Windows'
@@ -65,14 +65,14 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           tar xzf ${{ matrix.pattern }}
-          ./vibe.app/Contents/MacOS/vibe transcribe ggml-tiny.bin samples/short.mp4
+          ./vibe.app/Contents/MacOS/vibe transcribe ggml-tiny.bin server/fixtures/short.mp4
 
       - name: Install and test (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb ./${{ matrix.pattern }}
-          xvfb-run -a vibe transcribe ggml-tiny.bin samples/short.mp4
+          xvfb-run -a vibe transcribe ggml-tiny.bin server/fixtures/short.mp4
 
       - name: Install and test (Windows)
         if: runner.os == 'Windows'
@@ -80,4 +80,4 @@ jobs:
         run: |
           $installer = (Get-Item vibe_*_x64-setup.exe).FullName
           Start-Process -FilePath $installer -ArgumentList "/S" -Wait
-          & "$env:LOCALAPPDATA\vibe\vibe.exe" transcribe ggml-tiny.bin samples\short.mp4
+          & "$env:LOCALAPPDATA\vibe\vibe.exe" transcribe ggml-tiny.bin server\fixtures\short.mp4
