@@ -1,0 +1,35 @@
+*.wav
+*.mp3
+.DS_Store
+third_party/lib/
+models/
+samples/
+sona
+!sona/
+ggml-src/
+ggml-build/
+*.tar.gz
+ggml-src/
+ggml-build/
+*.tar.gz
+*.exe
+*.zip
+*.dll
+*.bin
+__pycache__/
+*.pyc
+target/
+*.onnx
+sona-diarize
+sona-diarize-*-*
+
+# Sortformer GGUF port: large artifacts stay out of git
+# Recorded ONNX reference dumps. Regenerate with baseline/regen.sh (needs the
+# 492 MB ONNX checkpoint and a pinned ort).
+baseline/
+*.nemo
+*.gguf
+*.onnx
+baseline/models/
+# Reference clones for study; each carries its own .git
+plans/

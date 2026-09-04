@@ -1,0 +1,62 @@
+# Sona project tasks. Run `chore list` to see them.
+#
+# The pinned ggml release tag, e.g. "v0.22.0".
+version=$(read $ROOT/libs/ggml-version)
+ggml_raw=https://raw.githubusercontent.com/ggml-org/ggml
+ggml_blob=https://github.com/ggml-org/ggml/blob
+
+# Everything that determines the prebuilt ggml libraries lives in libs/, and the
+# tasks that build, publish and fetch them with it: the git tree hash of that
+# directory names the release they are stored under.
+include libs/libs.chore
+
+# Fetch the pinned ggml headers into third_party/include.
+task fetch-headers {
+	out=$ROOT/third_party/include
+	mkdir $out
+	for name in ggml.h ggml-cpu.h ggml-alloc.h ggml-backend.h gguf.h {
+		download $ggml_raw/$version/include/$name $out/$name.raw --timeout 120
+		echo "// Fetched: $NOW" > $out/$name
+		echo "// Source: $ggml_blob/$version/include/$name" >> $out/$name
+		echo "// Version: $version" >> $out/$name
+		echo "" >> $out/$name
+		read $out/$name.raw >> $out/$name
+		remove $out/$name.raw
+		echo "wrote $name ($version)"
+	}
+}
+
+# Package a built sona binary with ffmpeg: package-release <binary> <goos> <goarch> <out>.
+task package-release binary goos goarch out {
+	if !exists $1 { fail "binary not found: $1" }
+	stage=$ROOT/target/sona-package
+	remove $stage
+	mkdir $stage
+
+	name=sona
+	if $2 == windows { name=sona.exe }
+	copy $1 $stage/$name
+	chmod 755 $stage/$name
+
+	url=""
+	if $2 == darwin && $3 == amd64 { url=https://www.osxexperts.net/ffmpeg80intel.zip }
+	else if $2 == darwin && $3 == arm64 { url=https://www.osxexperts.net/ffmpeg80arm.zip }
+	else if $2 == windows && $3 == amd64 { url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip }
+	else { fail "unsupported target for ffmpeg URL: $2/$3" }
+
+	download $url $stage/ffmpeg.zip --timeout 180
+	if $2 == windows {
+		extract $stage/ffmpeg.zip $stage --member ffmpeg.exe --strip 2
+		remove $stage/ffmpeg.zip
+		chmod 755 $stage/ffmpeg.exe
+	} else {
+		extract $stage/ffmpeg.zip $stage --member ffmpeg
+		remove $stage/ffmpeg.zip
+		chmod 755 $stage/ffmpeg
+	}
+
+	# The binary and ffmpeg sit at the archive root; Vibe's setup task extracts them by name.
+	archive $stage/ $4
+	remove $stage
+	echo "packaged $4"
+}

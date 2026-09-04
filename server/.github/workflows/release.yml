@@ -1,0 +1,93 @@
+name: Release Sona
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version/tag (for example: v0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  VERSION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
+
+jobs:
+  create-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: Sona ${{ env.VERSION }}
+          generate_release_notes: true
+
+  build-and-upload:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            binary: sona-linux-amd64
+          - runner: ubuntu-24.04-arm
+            binary: sona-linux-arm64
+          - runner: macos-14
+            binary: sona-darwin-arm64
+            package_os: darwin
+            package_arch: arm64
+            archive: sona-darwin-arm64-with-ffmpeg.tar.gz
+          - runner: macos-15-intel
+            binary: sona-darwin-amd64
+            cargo_flags: --no-default-features
+            package_os: darwin
+            package_arch: amd64
+            archive: sona-darwin-amd64-with-ffmpeg.tar.gz
+          - runner: windows-latest
+            binary: sona-windows-amd64.exe
+            package_os: windows
+            package_arch: amd64
+            archive: sona-windows-amd64-with-ffmpeg.zip
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      # No Vulkan SDK: the loader is opened at runtime (libs/patches/0003), so the binary links nothing from it.
+      - name: Setup chore
+        uses: getchore/setup-chore@v1
+      - name: Download prebuilt GGML libs
+        run: chore fetch-libs
+      - name: Build sona
+        shell: bash
+        env:
+          SONA_VERSION: ${{ env.VERSION }}
+          SONA_COMMIT: ${{ github.sha }}
+        run: |
+          cargo build -p sona --release ${{ matrix.cargo_flags }}
+          src="target/release/sona"
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            src="${src}.exe"
+          fi
+          cp "$src" "${{ matrix.binary }}"
+      - name: Package release bundle with ffmpeg
+        if: matrix.archive != ''
+        shell: bash
+        run: |
+          chore package-release "${{ matrix.binary }}" "${{ matrix.package_os }}" "${{ matrix.package_arch }}" "${{ matrix.archive }}"
+      - name: Upload packaged archive to release
+        if: matrix.archive != ''
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$env:VERSION" "${{ matrix.archive }}" --clobber
+      - name: Upload raw binary to release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$env:VERSION" "${{ matrix.binary }}" --clobber

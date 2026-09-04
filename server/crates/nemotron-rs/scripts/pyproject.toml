@@ -1,0 +1,24 @@
+[project]
+name = "transcribe-parakeet-env"
+version = "0.1.0"
+description = "Python env for Parakeet TDT reference dumps via NeMo"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "torch>=2.2",
+    "nemo-toolkit[asr] @ git+https://github.com/NVIDIA-NeMo/NeMo.git@6967f48fda2a",
+    "huggingface-hub>=0.20",
+    "soundfile>=0.12",
+    "numpy>=1.26",
+    "sentencepiece>=0.2",
+    "gguf>=0.10.0",
+]
+
+# NeMo main maps torch by platform: darwin->pypi (CPU), linux->cu129,
+# windows->cpu. Restrict to the two we actually run on (laptop dumps
+# on darwin, Modal sweeps on linux/cuda) so the resolver picks one
+# torch source per split and the cpu/cu129 indexes do not collide.
+[tool.uv]
+environments = [
+    "sys_platform == 'darwin'",
+    "sys_platform == 'linux'",
+]
