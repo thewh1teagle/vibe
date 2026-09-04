@@ -148,13 +148,15 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
     if let Some(stdout) = child.stdout.take() {
         let reader = BufReader::new(stdout);
 
-        for line in reader.lines() {
+        // yt-dlp can print bytes that are not UTF-8 (a title in the platform's code page on
+        // Windows), and `lines()` would abort the whole download on the first one.
+        for line in reader.split(b'\n') {
             if cancel_flag.load(Ordering::Relaxed) {
                 let _ = child.kill();
                 break;
             }
 
-            let mut line = line?;
+            let mut line = String::from_utf8_lossy(&line?).into_owned();
             line = line.replace("\r", "").trim().to_string();
 
             if line.starts_with("{\"progress") {
@@ -179,8 +181,9 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
         let mut stderr_output: String = "".to_string();
         if let Some(stderr) = child.stderr.take() {
             stderr_output = BufReader::new(stderr)
-                .lines()
+                .split(b'\n')
                 .map_while(Result::ok)
+                .map(|line| String::from_utf8_lossy(&line).into_owned())
                 .collect::<Vec<_>>()
                 .join("\n");
             eprintln!("Error: {}", stderr_output);
