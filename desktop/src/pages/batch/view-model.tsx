@@ -4,6 +4,7 @@ import { m } from '~/paraglide/messages.js'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TextFormat, formatExtensions } from '~/components/format-select'
 import { Segment, Transcript, asCsv, asJson, asSrt, asText, asVtt } from '~/lib/transcript'
+import { gpuOutOfMemoryBefore } from '~/lib/gpu-memory'
 import { fatalRunError, isUserError } from '~/lib/sona-errors'
 import { NamedPath } from '~/lib/types'
 import { pathToNamedPath } from '~/lib/fs'
@@ -164,6 +165,7 @@ export function viewModel() {
 		const loadResult = await invoke<string>('load_model', {
 			modelPath: preference.modelPath,
 			gpuDevice: preference.gpuDevice,
+			noGpu: preference.noGpu || gpuOutOfMemoryBefore(preference.modelPath),
 			unloadTimeoutMinutes: preference.unloadTimeoutMinutes,
 		})
 		if (loadResult === 'gpu_fallback') {

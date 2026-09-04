@@ -6,6 +6,7 @@ import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import { AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
+import { gpuOutOfMemoryBefore } from '~/lib/gpu-memory'
 import { usePersisted } from '~/lib/config-store'
 import { Claude, Llm, Ollama, OpenAICompatible } from '~/lib/llm'
 import { withoutUnsupportedOptions } from '~/lib/model'
@@ -205,7 +206,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				await invoke('load_model', {
 					modelPath,
 					gpuDevice: preferenceRef.current.gpuDevice,
-					noGpu: preferenceRef.current.noGpu,
+					noGpu: preferenceRef.current.noGpu || gpuOutOfMemoryBefore(modelPath),
 					unloadTimeoutMinutes: preferenceRef.current.unloadTimeoutMinutes,
 				})
 				const requiresVad = preferenceRef.current.modelMetadata?.capabilities.requires_vad ?? false
