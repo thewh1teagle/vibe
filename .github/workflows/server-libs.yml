@@ -51,6 +51,12 @@ jobs:
         run: |
           choco install llvm -y
           "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      # Xcode ships llvm-nm but not llvm-objcopy; Intel macOS builds two CPU backends too.
+      - name: Install LLVM tools (macOS Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        run: |
+          brew install llvm
+          echo "$(brew --prefix llvm)/bin" >> "$GITHUB_PATH"
       - name: Configure Vulkan SDK (Windows MSVC)
         if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'msvc'
         shell: pwsh
