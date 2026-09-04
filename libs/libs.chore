@@ -2,14 +2,17 @@
 # Included from the root chorefile, so $ROOT is the repo root and $version the
 # pinned ggml tag from libs/ggml-version.
 #
-# A bundle is published under libraries-ggml-<version>-<id>, where <id> is the git
-# tree hash of this directory: the ggml tag, the patches, and this recipe. Change
-# any of them and the next upload lands under a new tag instead of replacing the
-# one every older sona tag still links against. Uncommitted edits are not in the
-# hash, so upload-libs refuses to run with them.
+# A bundle is published under libraries-ggml-<version>-r<revision>. The revision is
+# libs/revision, bumped by hand in the same commit as any change under libs/ (the
+# ggml tag, the patches, this recipe) and reset to 1 when the ggml tag moves, so a
+# changed bundle never replaces the one an older sona tag still links against.
+# The git tree hash of libs/ is recorded in the release notes and checked by
+# upload-libs: a release that already exists for another tree means the bump was
+# forgotten. Uncommitted edits are not in the hash, so upload-libs refuses them.
 
 sona_repo=vibe-transcribe/sona
 ggml_git=https://github.com/ggml-org/ggml.git
+revision=$(read $ROOT/libs/revision)
 
 # Print the short tree hash of libs/ at HEAD.
 task libs-id {
@@ -18,7 +21,7 @@ task libs-id {
 
 # Print the GitHub release tag the current libs/ inputs are published under.
 task libs-tag {
-	echo "libraries-ggml-$version-$(libs-id)"
+	echo "libraries-ggml-$version-r$revision"
 }
 
 # Print the Windows import library flavor: SONA_WINDOWS_LIB_FLAVOR, or the host toolchain's.
@@ -172,9 +175,13 @@ task upload-libs {
 	# be filed under a name that does not describe it.
 	if "$(git -C $ROOT status --porcelain -- libs)" != "" { fail "libs/ has uncommitted changes; commit them so the release tag matches what was built" }
 	tag=$(libs-tag)
+	id=$(libs-id)
+	# The same tag for another tree means libs/ changed without a revision bump.
+	existing=$(gh release list --repo $sona_repo --json tagName,body --jq ".[] | select(.tagName == \"$tag\") | .body")
+	if "$existing" != "" && !($existing contains "tree $id") { fail "release $tag exists for another libs/ tree; bump libs/revision" }
 	build-libs
 	archive=$ROOT/ggml-libs-$platform.tar.gz
-	try gh release create $tag --title "ggml libraries $version ($(libs-id))" --notes "Prebuilt ggml static libraries: ggml $version plus libs/patches, built by libs/libs.chore at tree $(libs-id)."
+	try gh release create $tag --title "ggml $version libraries r$revision" --notes "ggml $version, libs/ tree $id, revision $revision, built from sona $(git -C $ROOT rev-parse --short=12 HEAD). Patches: $(find $ROOT/libs/patches *.patch)"
 	gh release upload $tag $archive --clobber
 	echo "uploaded $archive to release $tag"
 }
