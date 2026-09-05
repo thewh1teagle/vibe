@@ -86,8 +86,13 @@ curl "$TUNNEL_URL/"                                     # {"status":"ok"}
 ```
 
 Values live only in `.env.local` (gitignored) — pass the file, never print or copy
-the values. The script buffers stdout, so its log stays empty until exit; judge it
-by the curl and later by the Windows job log.
+the values. The server prints a ready-to-paste `export SIGN_TUNNEL_SECRET=…` line
+at startup, so whatever you redirect its output to holds a live secret: keep that
+log outside the repo and delete it when the release is done.
+
+Check the tunnel with **curl**, not urllib or requests — Cloudflare answers a
+non-browser user-agent with `403 error code: 1010`, which looks exactly like a dead
+tunnel.
 
 **Gate:** the curl returns `{"status":"ok"}`. Never trigger step 5 before it does —
 an unsigned Windows build ships a SmartScreen warning to every user.
