@@ -11,7 +11,7 @@ Plan validation scripts: `plans/<name>/<name>_001.py` (+ `.md`), standalone `uv`
 
 ## Skills
 
-Custom skills live in `.skills/`.
+Custom skills live in `.claude/skills/<name>/SKILL.md`.
 
 ## Execution Mindset
 

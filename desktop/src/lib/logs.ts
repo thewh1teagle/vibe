@@ -5,6 +5,11 @@ import { CONFIG_KEYS } from './config-keys'
 import { readConfig } from './config-store'
 import * as os from '@tauri-apps/plugin-os'
 
+/** Just the number, for links that address one release. */
+export async function getVersionNumber() {
+	return app.getVersion()
+}
+
 export async function getPrettyVersion() {
 	const appVersion = await app.getVersion()
 	const appName = await app.getName()

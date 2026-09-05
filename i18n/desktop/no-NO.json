@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Ingen telefoner er sammenkoblet ennå.",
 	"phonePairedOn": "Sammenkoblet {date}",
 	"phoneRevokeDevice": "Trekk tilbake",
-	"phoneRevokeDeviceNamed": "Trekk tilbake {name}"
+	"phoneRevokeDeviceNamed": "Trekk tilbake {name}",
+	"whatsNew": "Hva er nytt"
 }

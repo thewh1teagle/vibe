@@ -699,5 +699,6 @@
 	"audioProcessingInfo": "נורמליזציית עוצמה ואפשרויות FFmpeg מותאמות אישית.",
 	"tuningCustomized": "מותאם אישית",
 	"resetWhisperOptions": "איפוס אפשרויות Whisper",
-	"resetAudioProcessing": "איפוס עיבוד האודיו"
+	"resetAudioProcessing": "איפוס עיבוד האודיו",
+	"whatsNew": "מה חדש"
 }

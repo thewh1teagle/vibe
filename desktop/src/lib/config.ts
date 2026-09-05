@@ -2,6 +2,11 @@ export const aboutURL = 'https://thewh1teagle.github.io/vibe/'
 export const repoURL = 'https://github.com/thewh1teagle/vibe'
 export const updateVersionURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
 export const modelsDocURL = 'https://thewh1teagle.github.io/vibe/docs#models'
+/**
+ * Release notes. With a version it opens that release, otherwise the whole list —
+ * the page falls back to English for a release this locale has not translated.
+ */
+export const changelogURL = (version?: string) => `https://thewh1teagle.github.io/vibe/changelog${version ? `/${version}` : ''}`
 export const discordURL = 'https://discord.gg/EcxWSstQN8'
 export const supportVibeURL = 'https://thewh1teagle.github.io/vibe/?action=support-vibe'
 export const privacyPolicyURL = 'https://thewh1teagle.github.io/vibe/?action=open-privacy-policy'

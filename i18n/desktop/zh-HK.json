@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "尚未配對任何手機。",
 	"phonePairedOn": "配對於 {date}",
 	"phoneRevokeDevice": "撤銷",
-	"phoneRevokeDeviceNamed": "撤銷 {name}"
+	"phoneRevokeDeviceNamed": "撤銷 {name}",
+	"whatsNew": "更新內容"
 }

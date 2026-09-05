@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Nenhum celular pareado ainda.",
 	"phonePairedOn": "Pareado em {date}",
 	"phoneRevokeDevice": "Revogar",
-	"phoneRevokeDeviceNamed": "Revogar {name}"
+	"phoneRevokeDeviceNamed": "Revogar {name}",
+	"whatsNew": "Novidades"
 }

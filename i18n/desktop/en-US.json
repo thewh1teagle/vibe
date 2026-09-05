@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "No phones paired yet.",
 	"phonePairedOn": "Paired {date}",
 	"phoneRevokeDevice": "Revoke",
-	"phoneRevokeDeviceNamed": "Revoke {name}"
+	"phoneRevokeDeviceNamed": "Revoke {name}",
+	"whatsNew": "What's new"
 }

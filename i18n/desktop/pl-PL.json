@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Nie sparowano jeszcze żadnego telefonu.",
 	"phonePairedOn": "Sparowano {date}",
 	"phoneRevokeDevice": "Odwołaj",
-	"phoneRevokeDeviceNamed": "Odwołaj {name}"
+	"phoneRevokeDeviceNamed": "Odwołaj {name}",
+	"whatsNew": "Co nowego"
 }

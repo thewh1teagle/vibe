@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Henüz eşleşmiş telefon yok.",
 	"phonePairedOn": "{date} tarihinde eşleşti",
 	"phoneRevokeDevice": "İptal et",
-	"phoneRevokeDeviceNamed": "{name} erişimini iptal et"
+	"phoneRevokeDeviceNamed": "{name} erişimini iptal et",
+	"whatsNew": "Yenilikler"
 }
