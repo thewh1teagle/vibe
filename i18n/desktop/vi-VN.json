@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Chưa có điện thoại nào được ghép nối.",
 	"phonePairedOn": "Đã ghép nối {date}",
 	"phoneRevokeDevice": "Thu hồi",
-	"phoneRevokeDeviceNamed": "Thu hồi {name}"
+	"phoneRevokeDeviceNamed": "Thu hồi {name}",
+	"whatsNew": "Có gì mới"
 }

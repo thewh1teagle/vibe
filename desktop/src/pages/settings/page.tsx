@@ -1,7 +1,25 @@
 import { ReactNode, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { m } from '~/paraglide/messages.js'
-import { ArrowLeft, Bot, Cpu, Globe, Keyboard, Mic, ShieldCheck, SlidersHorizontal, Smartphone, Sparkles, Terminal, Wrench, X } from 'lucide-react'
+import {
+	ArrowLeft,
+	ArrowUpRight,
+	Bot,
+	Cpu,
+	Globe,
+	Keyboard,
+	Mic,
+	ShieldCheck,
+	SlidersHorizontal,
+	Smartphone,
+	Sparkles,
+	Terminal,
+	Wrench,
+	X,
+} from 'lucide-react'
+import { openUrl } from '@tauri-apps/plugin-opener'
+import * as config from '~/lib/config'
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { ModifyState } from '~/lib/types'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -150,9 +168,25 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 							</div>
 						))}
 					</nav>
-					<p className="mt-2 border-t border-border/55 px-2.5 pt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground/60">
-						{vm.appVersion}
-					</p>
+					{/* The version is also the way into its own release notes — one line, not two affordances. */}
+					<div className="mt-2 border-t border-border/55 pt-3">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<button
+									type="button"
+									onClick={() => openUrl(config.changelogURL(vm.appVersionNumber))}
+									className="group flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground/60 transition-colors hover:text-foreground">
+									<span className="truncate">{vm.appVersion}</span>
+									<ArrowUpRight
+										aria-hidden="true"
+										className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+										strokeWidth={2}
+									/>
+								</button>
+							</TooltipTrigger>
+							<TooltipContent side="top">{m.whatsNew()}</TooltipContent>
+						</Tooltip>
+					</div>
 				</div>
 
 				<div className="min-w-0 flex-1 overflow-y-auto p-6">

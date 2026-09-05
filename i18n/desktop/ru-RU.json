@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Пока нет привязанных телефонов.",
 	"phonePairedOn": "Привязан {date}",
 	"phoneRevokeDevice": "Отозвать",
-	"phoneRevokeDeviceNamed": "Отозвать {name}"
+	"phoneRevokeDeviceNamed": "Отозвать {name}",
+	"whatsNew": "Что нового"
 }

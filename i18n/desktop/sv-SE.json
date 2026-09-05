@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Inga telefoner är parkopplade ännu.",
 	"phonePairedOn": "Parkopplad {date}",
 	"phoneRevokeDevice": "Återkalla",
-	"phoneRevokeDeviceNamed": "Återkalla {name}"
+	"phoneRevokeDeviceNamed": "Återkalla {name}",
+	"whatsNew": "Nyheter"
 }

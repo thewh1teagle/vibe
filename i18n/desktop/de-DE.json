@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Noch keine Telefone gekoppelt.",
 	"phonePairedOn": "Gekoppelt am {date}",
 	"phoneRevokeDevice": "Widerrufen",
-	"phoneRevokeDeviceNamed": "{name} widerrufen"
+	"phoneRevokeDeviceNamed": "{name} widerrufen",
+	"whatsNew": "Neuerungen"
 }

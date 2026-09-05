@@ -18,7 +18,7 @@ import { UnlistenFn, listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/use-store-value'
-import { collectLogs, getPrettyVersion } from '~/lib/logs'
+import { collectLogs, getPrettyVersion, getVersionNumber } from '~/lib/logs'
 import { cleanupPartialDownloads, isModelFileUsable, listInstalledModels, type InstalledModel, type ModelMetadata } from '~/lib/model'
 import { buildSkill, installSkill, type SkillTarget } from '~/lib/skill'
 
@@ -103,6 +103,7 @@ export function viewModel() {
 	const [models, setModels] = useState<NamedPath[]>([])
 	const [corruptModels, setCorruptModels] = useState<InstalledModel[]>([])
 	const [appVersion, setAppVersion] = useState('')
+	const [appVersionNumber, setAppVersionNumber] = useState('')
 	const [defaultProjectsPath, setDefaultProjectsPath] = useState<string>('')
 	const preference = usePreferenceProvider()
 	const listenersRef = useRef<UnlistenFn[]>([])
@@ -164,6 +165,7 @@ export function viewModel() {
 		try {
 			const prettyVersion = await getPrettyVersion()
 			setAppVersion(prettyVersion)
+			setAppVersionNumber(await getVersionNumber())
 		} catch (e) {
 			console.error(e)
 		}
@@ -415,6 +417,7 @@ export function viewModel() {
 		corruptModels,
 		redownloadModel,
 		appVersion,
+		appVersionNumber,
 		reportIssue,
 		loadModels,
 		selectModel,

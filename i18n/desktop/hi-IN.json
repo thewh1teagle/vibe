@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "अभी तक कोई फ़ोन पेयर नहीं हुआ है।",
 	"phonePairedOn": "{date} को पेयर किया गया",
 	"phoneRevokeDevice": "रद्द करें",
-	"phoneRevokeDeviceNamed": "{name} रद्द करें"
+	"phoneRevokeDeviceNamed": "{name} रद्द करें",
+	"whatsNew": "नया क्या है"
 }
