@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Download, FolderOpen, PencilLine, X } from 'lucide-react'
+import { Check, Download, FolderOpen, Pencil, X } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
@@ -47,8 +47,8 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 								}}
 								className={`w-56 ${rowControlClass}`}
 							/>
-							<IconAction label={m.save()} icon={<Check className="h-4 w-4" />} onClick={commitRename} />
-							<IconAction label={m.cancel()} icon={<X className="h-4 w-4" />} onClick={() => setEditingPath(null)} />
+							<IconAction variant="outline" label={m.save()} icon={<Check className="h-4 w-4" />} onClick={commitRename} />
+							<IconAction variant="outline" label={m.cancel()} icon={<X className="h-4 w-4" />} onClick={() => setEditingPath(null)} />
 						</>
 					) : (
 						<>
@@ -73,12 +73,19 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 								</SelectContent>
 							</Select>
 							<IconAction
+								variant="outline"
 								label={m.showInFolder()}
 								icon={<FolderOpen className="h-4 w-4" />}
 								disabled={!currentModel}
 								onClick={() => currentModel && vm.openSelectedModel(currentModel.path)}
 							/>
-							<IconAction label={m.rename()} icon={<PencilLine className="h-4 w-4" />} disabled={!currentModel} onClick={startRename} />
+							<IconAction
+								variant="outline"
+								label={m.rename()}
+								icon={<Pencil className="h-4 w-4" />}
+								disabled={!currentModel}
+								onClick={startRename}
+							/>
 						</>
 					)}
 				</SettingsRow>

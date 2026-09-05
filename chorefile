@@ -193,6 +193,11 @@ task check-i18n {
     uv run scripts/check_i18n.py
 }
 
+# Refresh the source hash on every translated changelog entry and docs page.
+task stamp-translations {
+    uv run scripts/content_i18n.py stamp
+}
+
 # Type-check the desktop app and the website.
 task check-types {
     pnpm check-types

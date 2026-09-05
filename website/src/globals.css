@@ -179,6 +179,24 @@
 		@apply border-border outline-ring/50;
 	}
 
+	/*
+	 * Code is code in every language. A block stays left-to-right and
+	 * left-aligned even on an RTL page, and an inline span is isolated so a
+	 * Latin token cannot disturb the bidi ordering of the sentence holding it.
+	 */
+	pre,
+	pre code,
+	kbd,
+	samp {
+		direction: ltr;
+		text-align: left;
+		unicode-bidi: isolate;
+	}
+
+	code {
+		unicode-bidi: isolate;
+	}
+
 	html {
 		font-family:
 			'Inter Variable',

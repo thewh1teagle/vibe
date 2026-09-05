@@ -29,6 +29,6 @@
 		"https://cdn.jsdelivr.net/npm/@inlang/plugin-m-function-matcher@latest/dist/index.js"
 	],
 	"plugin.inlang.messageFormat": {
-		"pathPattern": "../i18n/translations/{locale}/desktop.json"
+		"pathPattern": "../i18n/desktop/{locale}.json"
 	}
 }

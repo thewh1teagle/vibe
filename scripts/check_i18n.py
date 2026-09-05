@@ -2,6 +2,8 @@ import json
 import sys
 from pathlib import Path
 
+import content_i18n
+
 
 ROOT = Path(__file__).resolve().parent.parent
 issues: list[str] = []
@@ -38,33 +40,33 @@ def compare_keys(reference: Path, candidate: Path):
 
 
 def compare_desktop_locales():
-	directory = ROOT / "i18n/translations"
-	locales = sorted(path.parent.name for path in directory.glob("*/desktop.json"))
+	directory = ROOT / "i18n/desktop"
+	locales = sorted(path.stem for path in directory.glob("*.json"))
 	if "en-US" not in locales:
 		issues.append("desktop: missing reference locale en-US")
 		return
 
 	for locale in locales:
-		candidate = directory / locale / "desktop.json"
-		reference = directory / "en-US" / "desktop.json"
+		candidate = directory / f"{locale}.json"
+		reference = directory / "en-US.json"
 		if locale != "en-US":
 			compare_keys(reference, candidate)
 
 	configured = sorted(read_json(ROOT / "desktop/project.inlang/settings.json")["locales"])
 	if configured != locales:
-		issues.append("desktop: Inlang locales differ from locale directories")
+		issues.append("desktop: Inlang locales differ from the files in i18n/desktop")
 
 
 def compare_website_locales():
-	directory = ROOT / "i18n/translations"
-	reference = directory / "en-US" / "website.json"
-	locales = sorted(path.parent.name for path in directory.glob("*/website.json"))
+	directory = ROOT / "i18n/website"
+	reference = directory / "en-US.json"
+	locales = sorted(path.stem for path in directory.glob("*.json"))
 	if "en-US" not in locales:
 		issues.append("website: missing reference locale en-US")
 		return
 
 	for locale in locales:
-		candidate = directory / locale / "website.json"
+		candidate = directory / f"{locale}.json"
 		if locale != "en-US":
 			compare_keys(reference, candidate)
 
@@ -81,9 +83,16 @@ def compare_locale_registry():
 		issues.append("locale registry: website Inlang locales differ from i18n/locales.json")
 
 
+def compare_translated_content():
+	content_issues, content_warnings = content_i18n.audit()
+	issues.extend(content_issues)
+	warnings.extend(content_warnings)
+
+
 compare_desktop_locales()
 compare_website_locales()
 compare_locale_registry()
+compare_translated_content()
 
 if warnings:
 	print(f"i18n audit warnings ({len(warnings)}):")

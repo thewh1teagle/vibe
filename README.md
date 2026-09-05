@@ -73,7 +73,7 @@
 
 ## Developers
 
-Get started with local development [here](docs/building.md).
+Get started with local development [here](docs/BUILDING.md).
 
 PRs are welcomed!
 In addition, you're welcome to add translations.
@@ -88,7 +88,7 @@ You can see the roadmap in [Vibe-Roadmap](https://github.com/users/thewh1teagle/
 
 # Add translation 🌐
 
-See the [translation guide](docs/translations.md).
+See the [translation guide](docs/TRANSLATIONS.md).
 
 # Docs 📄
 
@@ -100,7 +100,7 @@ Medium [post](https://medium.com/@thewh1teagle/creating-vibe-multilingual-audio-
 
 # Issue report
 
-You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=[Short+title]) and it's recommend to check [debug.md](docs/debug.md) first.
+You can open [new issue](https://github.com/thewh1teagle/vibe/issues/new?assignees=octocat&labels=bug&projects=&template=bug_report.yaml&title=[Short+title]) and it's recommend to check [DEBUG.md](docs/DEBUG.md) first.
 
 # Privacy Policy 🔒
 
