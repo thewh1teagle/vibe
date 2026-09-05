@@ -82,8 +82,10 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 						</>
 					)}
 				</SettingsRow>
+			</SettingsGroup>
 
-				<SettingsRow label={m.transcribeOnCpu()} description={m.transcribeOnCpuInfo()} clampDescription={false}>
+			<SettingsGroup title={m.settingsHardware()}>
+				<SettingsRow label={m.transcribeOnCpu()} description={m.transcribeOnCpuInfo()}>
 					<Switch checked={vm.preference.noGpu} onCheckedChange={vm.preference.setNoGpu} aria-label={m.transcribeOnCpu()} />
 				</SettingsRow>
 
@@ -120,7 +122,23 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 						)}
 					</SettingsRow>
 				)}
+			</SettingsGroup>
 
+			{vm.corruptModels.length > 0 && (
+				<SettingsGroup title={m.modelFileCorrupt()}>
+					{vm.corruptModels.map((model) => (
+						<SettingsRow
+							key={model.path}
+							label={getFriendlyModelName(model.name)}
+							description={m.modelFileCorruptDescription({ name: model.name })}>
+							<IconAction label={m.reDownload()} icon={<Download className="h-4 w-4" />} onClick={() => vm.redownloadModel(model)} />
+							<IconAction label={m.showInFolder()} icon={<FolderOpen className="h-4 w-4" />} onClick={() => vm.openSelectedModel(model.path)} />
+						</SettingsRow>
+					))}
+				</SettingsGroup>
+			)}
+
+			<SettingsGroup title={m.settingsModelFiles()}>
 				<SettingsRow label={m.downloadModel()}>
 					<Input
 						type="text"
@@ -132,24 +150,6 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 					/>
 					<IconAction label={m.downloadModel()} icon={<Download className="h-4 w-4" />} onClick={vm.downloadModel} disabled={!vm.downloadURL} />
 				</SettingsRow>
-			</SettingsGroup>
-
-			{vm.corruptModels.length > 0 && (
-				<SettingsGroup title={m.modelFileCorrupt()}>
-					{vm.corruptModels.map((model) => (
-						<SettingsRow
-							key={model.path}
-							label={getFriendlyModelName(model.name)}
-							description={m.modelFileCorruptDescription({ name: model.name })}
-							clampDescription={false}>
-							<IconAction label={m.reDownload()} icon={<Download className="h-4 w-4" />} onClick={() => vm.redownloadModel(model)} />
-							<IconAction label={m.showInFolder()} icon={<FolderOpen className="h-4 w-4" />} onClick={() => vm.openSelectedModel(model.path)} />
-						</SettingsRow>
-					))}
-				</SettingsGroup>
-			)}
-
-			<SettingsGroup>
 				<ActionRow label={m.downloadModelsLink()} icon={<LinkIcon className="h-4 w-4" />} onClick={vm.openModelsUrl} />
 				<ActionRow label={m.modelsFolder()} icon={<FolderIcon className="h-4 w-4" />} onClick={vm.openModelPath} />
 				<ActionRow label={m.changeModelsFolder()} icon={<WrenchIcon className="h-4 w-4" />} onClick={vm.changeModelsFolder} />

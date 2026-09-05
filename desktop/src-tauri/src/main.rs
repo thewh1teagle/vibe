@@ -105,6 +105,8 @@ async fn main() -> Result<()> {
             cmd::handoff_cmd::handoff_start,
             cmd::handoff_cmd::handoff_stop,
             cmd::handoff_cmd::handoff_regenerate_token,
+            cmd::handoff_cmd::handoff_revoke_device,
+            cmd::handoff_cmd::handoff_revoke_all,
             cmd::keepawake_cmd::keepawake_start,
             cmd::keepawake_cmd::keepawake_stop,
             cmd::app::get_cargo_features,

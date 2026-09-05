@@ -20,6 +20,9 @@ pub const MAX_AUDIO_BYTES: u64 = 512 * 1024 * 1024;
 /// What the phone is asking for. Absent means [`OP_TRANSCRIBE`].
 pub const OP_TRANSCRIBE: &str = "transcribe";
 
+/// Exchange a one-use QR invitation for a dedicated device credential.
+pub const OP_PAIR: &str = "pair";
+
 /// Ask what the loaded model can do. No audio body follows a capabilities request.
 pub const OP_CAPABILITIES: &str = "capabilities";
 
@@ -30,8 +33,13 @@ pub const PHASE_TRANSCRIBING: &str = "transcribing";
 /// The JSON header the phone sends before the audio body.
 #[derive(Debug, Clone, Deserialize)]
 pub struct HandoffHeader {
-    /// 32 hex chars, must match the desktop's persisted pairing token.
+    /// 32 hex chars: invitation for `pair`, dedicated device credential otherwise.
     pub token: String,
+    /// The phone persists this random credential before attempting enrollment.
+    #[serde(default, rename = "deviceToken")]
+    pub device_token: Option<String>,
+    #[serde(default, rename = "deviceName")]
+    pub device_name: Option<String>,
     /// Which operation this stream is. Absent or `"transcribe"` means a
     /// transcription request with an audio body; `"capabilities"` means a
     /// question with no body. Kept as a raw string so an unknown value is
@@ -59,6 +67,9 @@ pub struct HandoffHeader {
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum HandoffEvent {
+    /// The device credential was durably saved; no secret is echoed back.
+    #[serde(rename_all = "camelCase")]
+    Paired { device_id: String },
     /// Header parsed and token accepted; the desktop is reading the audio body.
     Accepted,
     /// A phase change, so the phone can say "Loading model…" instead of showing a
@@ -223,6 +234,24 @@ impl HandoffActivity {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pair_exchange_has_dedicated_credential_and_public_acknowledgment() {
+        let header: HandoffHeader = serde_json::from_value(serde_json::json!({
+            "op": "pair", "token": "invitation", "deviceToken": "credential", "deviceName": "iPhone · Safari"
+        }))
+        .unwrap();
+        assert_eq!(header.op.as_deref(), Some(OP_PAIR));
+        assert_eq!(header.device_token.as_deref(), Some("credential"));
+        assert_eq!(header.device_name.as_deref(), Some("iPhone · Safari"));
+        assert_eq!(
+            HandoffEvent::Paired {
+                device_id: "phone-id".into()
+            }
+            .to_line(),
+            "{\"type\":\"paired\",\"deviceId\":\"phone-id\"}\n"
+        );
+    }
 
     #[test]
     fn capabilities_line_uses_camel_case_field_names() {

@@ -186,11 +186,13 @@ fn full_params(options: &TranscribeOptions) -> FullParams {
     if options.temperature > 0.0 {
         params.temperature = options.temperature;
     }
+    // Older settings and API/CLI callers can exceed the decoder pool. Cap both
+    // values: beam search also uses best_of during temperature fallback.
     if options.best_of > 0 {
-        params.greedy_best_of = options.best_of;
+        params.greedy_best_of = options.best_of.min(crate::state::MAX_DECODERS as i32);
     }
     if options.beam_size > 0 {
-        params.beam_size = options.beam_size;
+        params.beam_size = options.beam_size.min(crate::state::MAX_DECODERS as i32);
     }
 
     params.language = options.language.clone();
@@ -275,4 +277,55 @@ extern "C" fn ggml_abort_callback(message: *const c_char) {
     eprintln!("ggml fatal error: {}", message.trim_end());
     let _ = std::io::stderr().flush();
     tracing::error!(target: "whisper_rs", "ggml fatal error: {}", message.trim_end());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn decoder_options_are_capped_for_both_sampling_strategies() {
+        for sampling_greedy in [true, false] {
+            // Include a hidden oversized best_of with a valid visible beam_size.
+            for (best_of, beam_size, expected_best_of, expected_beam_size) in [
+                (10, 10, 8, 8),
+                (9, 5, 8, 5),
+                (5, 9, 5, 8),
+                (8, 8, 8, 8),
+                (1, 3, 1, 3),
+                (i32::MAX, i32::MAX, 8, 8),
+            ] {
+                let params = full_params(&TranscribeOptions {
+                    sampling_greedy,
+                    best_of,
+                    beam_size,
+                    ..Default::default()
+                });
+                assert_eq!(params.greedy_best_of, expected_best_of);
+                assert_eq!(params.beam_size, expected_beam_size);
+                assert_eq!(
+                    params.strategy,
+                    if sampling_greedy {
+                        SamplingStrategy::Greedy
+                    } else {
+                        SamplingStrategy::BeamSearch
+                    }
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn non_positive_decoder_options_keep_engine_defaults() {
+        let defaults = FullParams::default();
+        for value in [0, -1] {
+            let params = full_params(&TranscribeOptions {
+                best_of: value,
+                beam_size: value,
+                ..Default::default()
+            });
+            assert_eq!(params.greedy_best_of, defaults.greedy_best_of);
+            assert_eq!(params.beam_size, defaults.beam_size);
+        }
+    }
 }

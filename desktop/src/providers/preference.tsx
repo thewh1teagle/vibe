@@ -170,23 +170,25 @@ export interface ModelOptions {
 const systemIsDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 const defaultDisplayLanguage = 'en-US'
 
+export const DEFAULT_MODEL_OPTIONS: ModelOptions = {
+	init_prompt: '',
+	verbose: false,
+	lang: 'en',
+	n_threads: 4,
+	temperature: 0.4,
+	max_text_ctx: undefined,
+	word_timestamps: false,
+	max_sentence_len: undefined,
+	sampling_strategy: 'beam search' as 'greedy' | 'beam search',
+	best_of: 5,
+	beam_size: 5,
+}
+
 const defaultOptions = {
 	soundOnFinish: true,
 	focusOnFinish: true,
 	modelPath: null,
-	modelOptions: {
-		init_prompt: '',
-		verbose: false,
-		lang: 'en',
-		n_threads: 4,
-		temperature: 0.4,
-		max_text_ctx: undefined,
-		word_timestamps: false,
-		max_sentence_len: undefined,
-		sampling_strategy: 'beam search' as 'greedy' | 'beam search',
-		best_of: 5,
-		beam_size: 5,
-	},
+	modelOptions: DEFAULT_MODEL_OPTIONS,
 	ffmpegOptions: {
 		normalize_loudness: false,
 		custom_command: null,

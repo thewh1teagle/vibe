@@ -80,12 +80,8 @@ impl HandoffClient {
     /// `{type:"capabilities", modelLoaded, modelName, languages, languageDetection, translation}`
     /// or `{type:"error", code, message}`. Failures are returned as `error`
     /// objects rather than thrown, so React callers only need one code path.
-    pub async fn fetch_capabilities(
-        &self,
-        endpoint_id: String,
-        token: String,
-    ) -> Result<JsValue, JsError> {
-        let value = match capabilities(&self.endpoint, endpoint_id, token).await {
+    pub async fn fetch_capabilities(&self, endpoint_id: String, token: String) -> Result<JsValue, JsError> {
+        let value = match request(&self.endpoint, endpoint_id, json!({ "op": "capabilities", "token": token })).await {
             Ok(value) => value,
             Err(err) => {
                 tracing::warn!("capabilities request failed: {err:#}");
@@ -95,6 +91,36 @@ impl HandoffClient {
                     "message": format!("{err:#}"),
                 })
             }
+        };
+        to_js(&value).map_err(to_js_err)
+    }
+
+    /// Exchange a QR invitation for the phone's durable, independently revocable credential.
+    pub async fn pair(
+        &self,
+        endpoint_id: String,
+        token: String,
+        device_token: String,
+        device_name: String,
+    ) -> Result<JsValue, JsError> {
+        let value = match request(
+            &self.endpoint,
+            endpoint_id,
+            json!({
+                "op": "pair",
+                "token": token,
+                "deviceToken": device_token,
+                "deviceName": device_name,
+            }),
+        )
+        .await
+        {
+            Ok(value) => value,
+            Err(err) => json!({
+                "type": "error",
+                "code": "transport",
+                "message": format!("{err:#}"),
+            }),
         };
         to_js(&value).map_err(to_js_err)
     }
@@ -152,17 +178,9 @@ impl HandoffClient {
 }
 
 /// One request/response round trip carrying no body.
-async fn capabilities(endpoint: &Endpoint, endpoint_id: String, token: String) -> Result<Value> {
+async fn request(endpoint: &Endpoint, endpoint_id: String, header: Value) -> Result<Value> {
     let endpoint_id = parse_endpoint_id(&endpoint_id)?;
-    // filename/mime are meaningless here but sent as empty strings so the
-    // desktop can deserialize one header struct for every op.
-    let header = encode_header(&json!({
-        "op": "capabilities",
-        "token": token,
-        "filename": "",
-        "mime": "",
-        "lang": null,
-    }))?;
+    let header = encode_header(&header)?;
 
     let conn = connect(endpoint, endpoint_id).await?;
     let (mut send, mut recv) = conn.open_bi().await.context("failed to open stream")?;
@@ -199,9 +217,7 @@ async fn transcribe(
         .ok();
     while sent < total {
         let end = (sent + UPLOAD_CHUNK).min(total);
-        send.write_all(&audio[sent..end])
-            .await
-            .context("failed to write audio")?;
+        send.write_all(&audio[sent..end]).await.context("failed to write audio")?;
         sent = end;
         tx.send(json!({ "type": "uploadProgress", "sent": sent, "total": total }))
             .await
@@ -231,9 +247,7 @@ async fn write_header(send: &mut SendStream, header: &[u8]) -> Result<()> {
     send.write_all(&(header.len() as u32).to_be_bytes())
         .await
         .context("failed to write header length")?;
-    send.write_all(header)
-        .await
-        .context("failed to write header")
+    send.write_all(header).await.context("failed to write header")
 }
 
 fn encode_header(header: &Value) -> Result<Vec<u8>> {
@@ -318,9 +332,7 @@ fn to_js<T: Serialize>(value: &T) -> Result<JsValue> {
         .map_err(|err| anyhow::anyhow!("failed to convert to JS value: {err}"))
 }
 
-fn into_js_readable_stream<T: Serialize>(
-    stream: impl Stream<Item = T> + 'static,
-) -> JsReadableStream {
+fn into_js_readable_stream<T: Serialize>(stream: impl Stream<Item = T> + 'static) -> JsReadableStream {
     let stream = stream.map(|event| Ok(to_js(&event).unwrap()));
     ReadableStream::from_stream(stream).into_raw()
 }

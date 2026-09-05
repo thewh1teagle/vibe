@@ -7,7 +7,8 @@
  * and rebuilding the crate is picked up without touching the app.
  */
 
-export const PEER_KEY = 'vibe.handoff.peer'
+import { PairingError, resolvePeer, type Peer } from './pairing'
+export { PEER_KEY, loadPeer, savePeer, clearPeer, parsePairingHash, resolvePeer, type Peer } from './pairing'
 export const LANG_KEY = 'vibe.handoff.lang'
 
 // Rebased on the deploy base: the app is served from a subpath on GitHub
@@ -16,11 +17,6 @@ export const LANG_KEY = 'vibe.handoff.lang'
 // resolves it against the real document location.
 const WASM_JS_URL = new URL(`${import.meta.env.BASE_URL}wasm/handoff_wasm.js`, document.baseURI).href
 const WASM_BIN_URL = new URL(`${import.meta.env.BASE_URL}wasm/handoff_wasm_bg.wasm`, document.baseURI).href
-
-export interface Peer {
-	endpointId: string
-	token: string
-}
 
 /**
  * Reply to `op: "capabilities"`. The desktop owns this knowledge because it
@@ -61,6 +57,7 @@ export type HandoffEvent =
 
 interface HandoffClient {
 	endpoint_id(): string
+	pair(endpointId: string, token: string, deviceToken: string, deviceName: string): Promise<unknown>
 	fetch_capabilities(endpointId: string, token: string): Promise<unknown>
 	send_recording(
 		endpointId: string,
@@ -69,7 +66,7 @@ interface HandoffClient {
 		mime: string,
 		lang: string | null | undefined,
 		translate: boolean,
-		audio: Uint8Array
+		audio: Uint8Array,
 	): ReadableStream
 }
 
@@ -135,59 +132,15 @@ export async function fetchCapabilities(peer: Peer): Promise<CapabilitiesResult>
 	}
 
 	try {
-		const raw = await client.fetch_capabilities(peer.endpointId, peer.token)
+		const authorized = await resolvePeer(client, peer)
+		const raw = await client.fetch_capabilities(authorized.endpointId, authorized.token)
 		const parsed = normalizeEvent(raw) as CapabilitiesResult | null
 		if (!parsed) return { type: 'error', code: 'protocol', message: 'The desktop sent an unreadable capabilities reply.' }
 		if (parsed.type === 'capabilities' || parsed.type === 'error') return parsed
 		return { type: 'error', code: 'protocol', message: 'Unexpected reply to the capabilities request.' }
 	} catch (err) {
-		return { type: 'error', code: 'transport', message: err instanceof Error ? err.message : String(err) }
+		return { type: 'error', code: err instanceof PairingError ? err.code : 'transport', message: err instanceof Error ? err.message : String(err) }
 	}
-}
-
-/* ------------------------------------------------------------------ pairing */
-
-export function loadPeer(): Peer | null {
-	try {
-		const raw = localStorage.getItem(PEER_KEY)
-		if (!raw) return null
-		const parsed = JSON.parse(raw) as Partial<Peer>
-		if (typeof parsed?.endpointId === 'string' && typeof parsed?.token === 'string') {
-			return { endpointId: parsed.endpointId, token: parsed.token }
-		}
-	} catch {
-		/* corrupt storage — treat as unpaired */
-	}
-	return null
-}
-
-export function savePeer(peer: Peer): void {
-	try {
-		localStorage.setItem(PEER_KEY, JSON.stringify(peer))
-	} catch {
-		/* private mode */
-	}
-}
-
-export function clearPeer(): void {
-	try {
-		localStorage.removeItem(PEER_KEY)
-	} catch {
-		/* ignore */
-	}
-}
-
-/** Pairing URL is `<origin>/#<endpointId>:<token>` — 64 hex, then 32 hex. */
-export function parsePairingHash(hash: string): Peer | null {
-	const raw = hash.replace(/^#/, '').trim()
-	if (!raw) return null
-	const idx = raw.indexOf(':')
-	if (idx <= 0) return null
-	const endpointId = raw.slice(0, idx).trim().toLowerCase()
-	const token = raw.slice(idx + 1).trim()
-	if (!/^[0-9a-f]{64}$/.test(endpointId)) return null
-	if (!/^[0-9a-f]{32}$/.test(token)) return null
-	return { endpointId, token }
 }
 
 export function truncateId(id: string): string {

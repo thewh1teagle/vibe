@@ -102,11 +102,11 @@ task phone-tunnel {
 # Send an audio file to a running Vibe: phone-probe <pairing-url> <file>.
 task phone-probe url file {
     cd handoff/probe
-    cargo run --quiet -- --url $1 --file ../../$2
+    cargo run --quiet -- --pair --url $1 --file ../../$2
 }
 
 # Ask a running Vibe what it supports: phone-caps <pairing-url>.
 task phone-caps url {
     cd handoff/probe
-    cargo run --quiet -- --url $1 --capabilities
+    cargo run --quiet -- --pair --url $1 --capabilities
 }

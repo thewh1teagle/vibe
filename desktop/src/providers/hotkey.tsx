@@ -32,6 +32,8 @@ interface HotkeyContextType {
 	hotkeyEnabled: boolean
 	setHotkeyEnabled: (enabled: boolean) => void
 	hotkeyShortcut: string
+	hotkeyShortcutRegistered: boolean
+	hotkeyShortcutError: string | null
 	setHotkeyShortcut: (shortcut: string) => void
 	/** While true the shortcut is unregistered, so recording a new one cannot trigger dictation. */
 	setHotkeyCapturing: (capturing: boolean) => void
@@ -74,6 +76,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const [hotkeyEnabled, setHotkeyEnabled] = usePersisted(CONFIG_KEYS.hotkeyEnabled, false)
 	const [hotkeyShortcut, setHotkeyShortcut] = usePersisted(CONFIG_KEYS.hotkeyShortcut, getDefaultHotkeyShortcut())
 	const [hotkeyCapturing, setHotkeyCapturingState] = useState(false)
+	const [shortcutRegistration, setShortcutRegistration] = useState<{ shortcut: string; error: string | null } | null>(null)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = usePersisted<HotkeyOutputMode>(CONFIG_KEYS.hotkeyOutputMode, 'clipboard')
 	const [hotkeyActivationMode, setHotkeyActivationMode] = usePersisted<HotkeyActivationMode>(CONFIG_KEYS.hotkeyActivationMode, 'push-to-talk')
 	const shortcutOperationRef = useRef<Promise<void>>(Promise.resolve())
@@ -279,6 +282,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		let cancelled = false
 
 		async function setupShortcut() {
+			if (!cancelled) setShortcutRegistration(null)
 			shortcutPressedRef.current = false
 			// Unregister previous shortcut
 			if (registeredShortcutRef.current) {
@@ -316,8 +320,10 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					return
 				}
 				registeredShortcutRef.current = hotkeyShortcut
+				setShortcutRegistration({ shortcut: hotkeyShortcut, error: null })
 			} catch (e) {
 				console.error('Failed to register shortcut:', e)
+				if (!cancelled) setShortcutRegistration({ shortcut: hotkeyShortcut, error: getErrorMessage(e) })
 			}
 		}
 
@@ -365,6 +371,10 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		setHotkeyEnabled,
 		hotkeyShortcut,
 		setHotkeyShortcut,
+		hotkeyShortcutRegistered: Boolean(
+			hotkeyEnabled && !hotkeyCapturing && shortcutRegistration?.shortcut === hotkeyShortcut && shortcutRegistration.error === null,
+		),
+		hotkeyShortcutError: hotkeyEnabled && !hotkeyCapturing && shortcutRegistration?.shortcut === hotkeyShortcut ? shortcutRegistration.error : null,
 		setHotkeyCapturing,
 		hotkeyOutputMode,
 		setHotkeyOutputMode,

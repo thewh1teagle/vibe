@@ -34,7 +34,7 @@ pub(super) fn stream_transcription(
         return Err(Box::new(error(
             StatusCode::BAD_REQUEST,
             "invalid_request",
-            "'vad_model' is required for Nemotron",
+            "'vad_model' is required for this transcription engine",
         )));
     }
 

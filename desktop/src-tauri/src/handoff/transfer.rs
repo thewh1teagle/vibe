@@ -5,15 +5,14 @@
 //! the transcribe op itself in [`super::transcribe`]; this module is the wire.
 
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use eyre::{bail, Result};
 use iroh::endpoint::Connection;
 use iroh::protocol::{AcceptError, ProtocolHandler};
-use subtle::ConstantTimeEq;
 use tauri::{Emitter, Manager};
 use tokio::io::AsyncWriteExt;
 
+use super::devices;
 use super::protocol::{self, HandoffActivity, HandoffEvent, HandoffHeader, MAX_AUDIO_BYTES, MAX_HEADER_LEN};
 use super::transcribe::model_settings;
 use crate::error::LogError;
@@ -23,7 +22,7 @@ use crate::error::LogError;
 #[derive(Debug, Clone)]
 pub(super) struct HandoffHandler {
     pub(super) app_handle: tauri::AppHandle,
-    pub(super) token: Arc<String>,
+    pub(super) authorization_changes: tokio::sync::watch::Receiver<()>,
 }
 
 impl ProtocolHandler for HandoffHandler {
@@ -42,6 +41,9 @@ impl ProtocolHandler for HandoffHandler {
             }
             .to_line();
             let _ = send.write_all(line.as_bytes()).await;
+            // Stop the upload too: a revoked phone may still be writing audio
+            // and cannot read our terminal reply until that write finishes.
+            let _ = recv.stop(0u32.into());
         }
 
         let _ = send.finish();
@@ -113,15 +115,63 @@ impl HandoffHandler {
     ) -> Result<(), TransferError> {
         let header = read_header(recv).await?;
 
-        // Constant-time comparison so a wrong token leaks nothing about the right one.
-        let expected = self.token.as_bytes();
-        let provided = header.token.as_bytes();
-        let authorized = expected.len() == provided.len() && bool::from(expected.ct_eq(provided));
-        if !authorized {
-            tracing::warn!("handoff connection rejected: invalid pairing token");
-            return Err(TransferError::new("unauthorized", "Invalid pairing token"));
+        if header.op.as_deref() == Some(protocol::OP_PAIR) {
+            let token = header
+                .device_token
+                .as_deref()
+                .ok_or_else(|| TransferError::new("invalid_request", "Missing device credential"))?;
+            let device = devices::pair(
+                &self.app_handle,
+                &header.token,
+                token,
+                header.device_name.as_deref().unwrap_or("Phone"),
+            )
+            .map_err(|error| TransferError::new("pairing_failed", error.to_string()))?;
+            write_event(
+                send,
+                &HandoffEvent::Paired {
+                    device_id: device.id.clone(),
+                },
+            )
+            .await?;
+            self.app_handle
+                .emit_to(
+                    "main",
+                    "handoff_paired",
+                    serde_json::json!({
+                        "pairingId": super::pairing_id(&header.token),
+                        "device": device,
+                    }),
+                )
+                .log_error();
+            return Ok(());
         }
 
+        // Invitations only enroll a device; they never authorize recordings.
+        // Subscribe before checking to close the race with a simultaneous revoke.
+        let mut changes = self.authorization_changes.clone();
+        if devices::authorize(&self.app_handle, &header.token)?.is_none() {
+            return Err(TransferError::new(
+                "unauthorized",
+                "Phone access was revoked or pairing is required. Scan a new code in Vibe.",
+            ));
+        }
+        let token = header.token.clone();
+        tokio::select! {
+            biased;
+            _ = wait_for_revocation(&mut changes, || matches!(devices::authorize(&self.app_handle, &token), Ok(Some(_)))) => {
+                Err(TransferError::new("unauthorized", "Phone access was revoked."))
+            }
+            result = self.dispatch(send, recv, header) => result,
+        }
+    }
+
+    async fn dispatch(
+        &self,
+        send: &mut iroh::endpoint::SendStream,
+        recv: &mut iroh::endpoint::RecvStream,
+        header: HandoffHeader,
+    ) -> Result<(), TransferError> {
         // Dispatch happens only after the token check, and each branch is a
         // separate function, so a capabilities request can never fall through into
         // the audio-reading loop and block on bytes that will never arrive.
@@ -139,7 +189,8 @@ impl HandoffHandler {
                     Some(serde_json::json!({ "model_loaded": model_loaded })),
                 );
                 // Exactly one line, then the caller finishes the stream.
-                write_event(send, &event).await
+                write_event(send, &event).await?;
+                Ok(())
             }
             Some(other) => Err(TransferError::new("invalid_request", format!("Unknown op '{other}'"))),
         }
@@ -195,6 +246,16 @@ impl HandoffHandler {
             translation: metadata.capabilities.translation,
             max_audio_bytes: MAX_AUDIO_BYTES,
         })
+    }
+}
+
+/// Watch before authenticating, then recheck on every mutation. Revoking a
+/// different phone wakes this request without interrupting it.
+async fn wait_for_revocation(changes: &mut tokio::sync::watch::Receiver<()>, authorized: impl Fn() -> bool) {
+    while changes.changed().await.is_ok() {
+        if !authorized() {
+            return;
+        }
     }
 }
 
@@ -313,6 +374,35 @@ fn reserve_recording_file_in(folder: &std::path::Path, stem: &str, extension: &s
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn revocation_interrupts_only_requests_with_removed_credentials() {
+        use futures_util::FutureExt;
+        use std::sync::atomic::{AtomicBool, Ordering};
+        let authorized = AtomicBool::new(true);
+        let (changes, mut receiver) = tokio::sync::watch::channel(());
+        let waiting = wait_for_revocation(&mut receiver, || authorized.load(Ordering::SeqCst));
+        tokio::pin!(waiting);
+        changes.send_replace(()); // Another phone was revoked.
+        assert!(waiting.as_mut().now_or_never().is_none());
+        authorized.store(false, Ordering::SeqCst);
+        changes.send_replace(());
+        tokio::time::timeout(std::time::Duration::from_millis(100), waiting)
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn revocation_between_authentication_and_polling_is_not_lost() {
+        let (changes, mut receiver) = tokio::sync::watch::channel(());
+        changes.send_replace(());
+        tokio::time::timeout(
+            std::time::Duration::from_millis(100),
+            wait_for_revocation(&mut receiver, || false),
+        )
+        .await
+        .unwrap();
+    }
 
     #[test]
     fn extension_comes_from_the_phone_but_only_when_it_is_safe() {

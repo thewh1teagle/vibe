@@ -211,7 +211,7 @@ export function viewModel() {
 		const vadPath = await join(modelsFolder, config.vadModelFilename)
 		if (await isModelFileUsable(vadPath)) return true
 
-		const confirmed = await ask('Nemotron requires the Silero VAD model. Download it before selecting Nemotron?', {
+		const confirmed = await ask('This transcription model requires Silero VAD. Download it before selecting the model?', {
 			title: 'Download required VAD model',
 			kind: 'info',
 		})
