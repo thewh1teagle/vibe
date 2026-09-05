@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "아직 페어링된 휴대폰이 없습니다.",
 	"phonePairedOn": "{date}에 페어링됨",
 	"phoneRevokeDevice": "취소",
-	"phoneRevokeDeviceNamed": "{name} 취소"
+	"phoneRevokeDeviceNamed": "{name} 취소",
+	"whatsNew": "새로운 기능"
 }

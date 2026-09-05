@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "まだペアリングされたスマートフォンはありません。",
 	"phonePairedOn": "{date} にペアリング",
 	"phoneRevokeDevice": "解除",
-	"phoneRevokeDeviceNamed": "{name} を解除"
+	"phoneRevokeDeviceNamed": "{name} を解除",
+	"whatsNew": "更新内容"
 }

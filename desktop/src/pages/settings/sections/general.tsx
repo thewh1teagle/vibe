@@ -1,3 +1,4 @@
+import { getVersion } from '@tauri-apps/api/app'
 import { disable, enable, isEnabled } from '@tauri-apps/plugin-autostart'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { Moon, Sun } from 'lucide-react'
@@ -12,6 +13,41 @@ import * as config from '~/lib/config'
 import { DisplayLanguageInput } from '~/components/display-language-input'
 import { Switch } from '~/components/ui/switch'
 import { SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
+
+/**
+ * Version plus a link to its own release notes. The app shows its version nowhere
+ * else, and the changelog page routes per version, so this opens the entry for the
+ * build in hand rather than the top of the list.
+ */
+function VersionRow() {
+	const [version, setVersion] = useState('')
+
+	useEffect(() => {
+		let cancelled = false
+		getVersion()
+			.then((value) => {
+				if (!cancelled) setVersion(value)
+			})
+			.catch(() => {})
+		return () => {
+			cancelled = true
+		}
+	}, [])
+
+	if (!version) return null
+
+	return (
+		<div className="flex items-center justify-between gap-4 px-1 pt-1">
+			<span className="text-xs text-muted-foreground">Vibe {version}</span>
+			<button
+				type="button"
+				onClick={() => openUrl(config.changelogURL(version))}
+				className="cursor-pointer rounded text-xs font-medium text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+				{m.whatsNew()}
+			</button>
+		</div>
+	)
+}
 
 /**
  * The OS owns this setting, not our config: the user can remove the login item from
@@ -128,6 +164,7 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 						</button>
 					))}
 				</div>
+				<VersionRow />
 			</section>
 		</div>
 	)

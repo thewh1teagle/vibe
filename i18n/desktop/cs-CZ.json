@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Zatím není spárovaný žádný telefon.",
 	"phonePairedOn": "Spárováno {date}",
 	"phoneRevokeDevice": "Odvolat",
-	"phoneRevokeDeviceNamed": "Odvolat {name}"
+	"phoneRevokeDeviceNamed": "Odvolat {name}",
+	"whatsNew": "Novinky"
 }

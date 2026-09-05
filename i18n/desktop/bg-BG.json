@@ -699,5 +699,6 @@
 	"phoneNoPairedDevices": "Още няма сдвоени телефони.",
 	"phonePairedOn": "Сдвоен на {date}",
 	"phoneRevokeDevice": "Отмени",
-	"phoneRevokeDeviceNamed": "Отмени {name}"
+	"phoneRevokeDeviceNamed": "Отмени {name}",
+	"whatsNew": "Какво ново"
 }
