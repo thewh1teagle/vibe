@@ -124,7 +124,7 @@ export function AiPromptSection({ vm, task }: { vm: SettingsViewModel; task: AiT
 			</SettingsGroup>
 
 			{task === 'dictation' && (
-				<SettingsGroup title={m.aiTryIt()} description={m.aiTryItInfo()}>
+				<SettingsGroup title={m.aiTryIt()}>
 					<div className="space-y-2 px-4 py-3">
 						<Textarea
 							value={sample}

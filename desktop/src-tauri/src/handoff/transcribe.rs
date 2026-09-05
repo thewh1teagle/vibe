@@ -24,6 +24,23 @@ const PHONE_TRANSCRIPT_NAME: &str = "Phone recording";
 /// Matches the frontend default in `providers/preference.tsx`.
 const DEFAULT_UNLOAD_TIMEOUT_MINUTES: u32 = 5;
 
+// Keep in sync with lib/config.ts; phone requests do not pass through the frontend.
+const VAD_MODEL_FILENAME: &str = "ggml-silero-v6.2.0.bin";
+
+fn required_vad_model(requires_vad: bool, models_folder: &std::path::Path) -> Result<Option<String>, TransferError> {
+    if !requires_vad {
+        return Ok(None);
+    }
+    let path = models_folder.join(VAD_MODEL_FILENAME);
+    if !path.metadata().is_ok_and(|metadata| metadata.is_file() && metadata.len() > 0) {
+        return Err(TransferError::new(
+            "invalid_request",
+            "The selected model requires Silero VAD. Select the model again in Vibe's model settings to download it.",
+        ));
+    }
+    Ok(Some(path.to_string_lossy().into_owned()))
+}
+
 impl HandoffHandler {
     /// The transcribe op. Wraps [`HandoffHandler::run_transcribe`] so that every
     /// outcome — including a transfer that dies partway — reports exactly one
@@ -157,6 +174,13 @@ impl HandoffHandler {
             (process.client(), process.base_url())
         }; // lock released here, before any I/O
 
+        let metadata = crate::server::ServerProcess::model_metadata_with(&client, &base_url, &settings.path)
+            .await
+            .map_err(|error| TransferError::new("model_metadata_failed", format!("{error:#}")))?;
+        let models_folder = crate::cmd::app::get_models_folder(self.app_handle.clone())
+            .map_err(|error| TransferError::new("invalid_request", format!("{error:#}")))?;
+        let vad_model = required_vad_model(metadata.capabilities.requires_vad, &models_folder)?;
+
         let options = crate::cmd::TranscribeOptions {
             path: audio_path.to_string_lossy().to_string(),
             lang: header.lang.clone(),
@@ -175,7 +199,7 @@ impl HandoffHandler {
             beam_size: None,
             diarize_model: None,
             stable_timestamps: None,
-            vad_model: None,
+            vad_model,
         };
 
         let start = std::time::Instant::now();
@@ -370,6 +394,30 @@ pub(super) fn model_settings(app_handle: &tauri::AppHandle) -> Option<ModelSetti
 mod tests {
     use super::super::protocol::MAX_AUDIO_BYTES;
     use super::*;
+
+    #[test]
+    fn phone_vad_uses_the_configured_models_folder_only_when_required() {
+        let folder = std::env::temp_dir().join(format!("vibe-phone-vad-{}", uuid::Uuid::new_v4()));
+        assert_eq!(
+            required_vad_model(false, &folder).unwrap_or_else(|error| panic!("{}", error.message)),
+            None
+        );
+        assert!(required_vad_model(true, &folder).is_err());
+        std::fs::create_dir_all(&folder).unwrap();
+        let path = folder.join(VAD_MODEL_FILENAME);
+        std::fs::write(&path, []).unwrap();
+        assert!(required_vad_model(true, &folder).is_err(), "empty downloads cannot be used");
+        std::fs::write(&path, b"vad file fixture").unwrap();
+        assert_eq!(
+            required_vad_model(true, &folder).unwrap_or_else(|error| panic!("{}", error.message)),
+            Some(path.to_string_lossy().into_owned())
+        );
+        assert_eq!(
+            required_vad_model(false, &folder).unwrap_or_else(|error| panic!("{}", error.message)),
+            None
+        );
+        std::fs::remove_dir_all(folder).unwrap();
+    }
 
     #[test]
     fn audio_size_is_bucketed_never_exact() {

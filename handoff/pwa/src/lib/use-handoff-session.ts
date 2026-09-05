@@ -17,6 +17,7 @@ import {
 	loadPeer,
 	normalizeEvent,
 	parsePairingHash,
+	resolvePeer,
 	savePeer,
 	type Capabilities,
 	type HandoffError,
@@ -108,7 +109,6 @@ export function useHandoffSession() {
 				void requestPersistentStorage()
 				// Drop the token from the address bar so it does not linger in history.
 				history.replaceState(null, '', location.pathname + location.search)
-				toast.success('Paired with your desktop')
 				return true
 			}
 			return false
@@ -195,8 +195,7 @@ export function useHandoffSession() {
 			setStatus('')
 			setFailure({
 				code: 'connection_lost',
-				message:
-					'The connection to your desktop dropped while the app was in the background. Your recording is still here — send it again.',
+				message: 'The connection to your desktop dropped while the app was in the background. Your recording is still here — send it again.',
 			})
 			setPhase('failed')
 		}, STALL_GRACE_MS)
@@ -214,154 +213,156 @@ export function useHandoffSession() {
 		}
 	}, [])
 
-	const send = useCallback(async (entryId: string) => {
-		const currentPeer = peerRef.current
-		if (!currentPeer || sendingRef.current) return
+	const send = useCallback(
+		async (entryId: string) => {
+			const currentPeer = peerRef.current
+			if (!currentPeer || sendingRef.current) return
 
-		const entry = await getEntry(entryId)
-		if (!entry) {
-			await refreshOutbox()
-			return
-		}
-		const blob = blobFor(entry)
-		blobRef.current = blob
+			const entry = await getEntry(entryId)
+			if (!entry) {
+				await refreshOutbox()
+				return
+			}
+			const blob = blobFor(entry)
+			blobRef.current = blob
 
-		// Refuse an upload the desktop is going to reject on arrival — no point
-		// burning cellular data on it. A missing or zero cap means "unknown".
-		const cap = maxBytesRef.current
-		if (cap > 0 && blob.size > cap) {
-			release()
-			setFailure({
-				code: 'too_large',
-				message: `This recording is ${formatSize(blob.size)}, over your desktop's ${formatSize(cap)} limit. It was not uploaded — record a shorter take.`,
-			})
-			setPhase('failed')
-			setStatus('')
-			return
-		}
-
-		sendingRef.current = true
-		abandonedRef.current = false
-		lastEventAtRef.current = Date.now()
-		// Retry starts an operation with no recording in progress, so take the
-		// lock here too; acquire() is idempotent when we already hold it.
-		void acquire()
-		segmentsRef.current = []
-		setTranscript('')
-		setFailure(null)
-		setUploadPct(0)
-		setTranscribePct(null)
-		setSavedPath(null)
-		setLoadingModel(false)
-		setActiveId(entryId)
-		setPhase('sending')
-		setStatus('Connecting to your desktop…')
-
-		const mime = entry.mime || blob.type || 'application/octet-stream'
-		const filename = entry.filename
-		// The language chosen when the recording was made travels with it, so a
-		// queued recording is not retried under a language picked later.
-		const wireLang = entry.lang
-
-		try {
-			const client = await getClient()
-			const bytes = new Uint8Array(await blob.arrayBuffer())
-			setStatus(`Sending ${formatSize(bytes.length)}…`)
-
-			const stream = client.send_recording(currentPeer.endpointId, currentPeer.token, filename, mime, wireLang, false, bytes)
-			const reader = stream.getReader()
-
-			for (;;) {
-				const { value, done } = await reader.read()
-				if (done) break
-				const event = normalizeEvent(value) as HandoffEvent | null
-				if (!event) continue
-				// A stalled operation was already reported to the user; do not
-				// resurrect it if the connection limps back to life.
-				if (abandonedRef.current) break
-				lastEventAtRef.current = Date.now()
-
-				switch (event.type) {
-					case 'uploadProgress': {
-						const pct = event.total > 0 ? (event.sent / event.total) * 100 : 0
-						setUploadPct(Math.min(100, Math.round(pct)))
-						break
-					}
-					case 'accepted':
-						setUploadPct(100)
-						setStatus('Desktop received it.')
-						break
-					case 'status':
-						// Loading a large model into Server takes tens of seconds and reports
-						// no percentage, so show an indeterminate bar rather than a 0% one
-						// that reads as a stall. Unknown phases are ignored on purpose.
-						if (event.phase === 'loading_model') {
-							setLoadingModel(true)
-							setTranscribePct(null)
-							setStatus('Loading model on your desktop…')
-						} else if (event.phase === 'transcribing') {
-							setLoadingModel(false)
-							setTranscribePct((current) => current ?? 0)
-							setStatus('Transcribing…')
-						}
-						break
-					case 'progress':
-						setLoadingModel(false)
-						setTranscribePct(Math.max(0, Math.min(100, Math.round(Number(event.progress) || 0))))
-						break
-					case 'segment':
-						segmentsRef.current.push(String(event.text ?? ''))
-						setTranscript(segmentsRef.current.join(' ').replace(/\s+/g, ' ').trim())
-						break
-					case 'done':
-						release()
-						// Confirmed terminal success: the only point at which the
-						// recording may be dropped from durable storage.
-						void deleteEntry(entryId).then(refreshOutbox)
-						setLoadingModel(false)
-						if (typeof event.text === 'string') setTranscript(event.text.trim())
-						if (typeof event.savedPath === 'string' && event.savedPath) setSavedPath(event.savedPath)
-						setTranscribePct(100)
-						setPhase('done')
-						setStatus(
-							typeof event.processingTimeSec === 'number' ? `Transcribed in ${Math.round(event.processingTimeSec)}s.` : 'Transcribed.'
-						)
-						break
-					case 'error':
-						release()
-						void markAttempt(entryId, event.message).then(refreshOutbox)
-						setLoadingModel(false)
-						setFailure({ code: event.code || 'error', message: event.message || 'The desktop reported an error.' })
-						setPhase('failed')
-						setStatus('')
-						break
-					default:
-						break
-				}
+			// Refuse an upload the desktop is going to reject on arrival — no point
+			// burning cellular data on it. A missing or zero cap means "unknown".
+			const cap = maxBytesRef.current
+			if (cap > 0 && blob.size > cap) {
+				release()
+				setFailure({
+					code: 'too_large',
+					message: `This recording is ${formatSize(blob.size)}, over your desktop's ${formatSize(cap)} limit. It was not uploaded — record a shorter take.`,
+				})
+				setPhase('failed')
+				setStatus('')
+				return
 			}
 
-			// Stream ended without a terminal event.
-			setPhase((current) => {
-				if (current !== 'sending') return current
-				setFailure({ code: 'incomplete', message: 'The desktop closed the connection before finishing.' })
-				return 'failed'
-			})
-		} catch (err) {
-			const message = err instanceof Error ? err.message : String(err)
-			void markAttempt(entryId, message).then(refreshOutbox)
-			setFailure({ code: 'transport', message })
-			setPhase('failed')
-			setStatus('')
-		} finally {
-			sendingRef.current = false
-			setActiveId(null)
-			clearStallTimer()
-			// Backstop: covers the transport catch, a stream that ends without a
-			// terminal event, and any path the cases above missed.
-			release()
-			void refreshOutbox()
-		}
-	}, [refreshOutbox, release, acquire, clearStallTimer])
+			sendingRef.current = true
+			abandonedRef.current = false
+			lastEventAtRef.current = Date.now()
+			// Retry starts an operation with no recording in progress, so take the
+			// lock here too; acquire() is idempotent when we already hold it.
+			void acquire()
+			segmentsRef.current = []
+			setTranscript('')
+			setFailure(null)
+			setUploadPct(0)
+			setTranscribePct(null)
+			setSavedPath(null)
+			setLoadingModel(false)
+			setActiveId(entryId)
+			setPhase('sending')
+			setStatus('Connecting to your desktop…')
+
+			const mime = entry.mime || blob.type || 'application/octet-stream'
+			const filename = entry.filename
+			// The language chosen when the recording was made travels with it, so a
+			// queued recording is not retried under a language picked later.
+			const wireLang = entry.lang
+
+			try {
+				const client = await getClient()
+				const bytes = new Uint8Array(await blob.arrayBuffer())
+				const authorized = await resolvePeer(client, currentPeer)
+				setStatus(`Sending ${formatSize(bytes.length)}…`)
+
+				const stream = client.send_recording(authorized.endpointId, authorized.token, filename, mime, wireLang, false, bytes)
+				const reader = stream.getReader()
+
+				for (;;) {
+					const { value, done } = await reader.read()
+					if (done) break
+					const event = normalizeEvent(value) as HandoffEvent | null
+					if (!event) continue
+					// A stalled operation was already reported to the user; do not
+					// resurrect it if the connection limps back to life.
+					if (abandonedRef.current) break
+					lastEventAtRef.current = Date.now()
+
+					switch (event.type) {
+						case 'uploadProgress': {
+							const pct = event.total > 0 ? (event.sent / event.total) * 100 : 0
+							setUploadPct(Math.min(100, Math.round(pct)))
+							break
+						}
+						case 'accepted':
+							setUploadPct(100)
+							setStatus('Desktop received it.')
+							break
+						case 'status':
+							// Loading a large model into Server takes tens of seconds and reports
+							// no percentage, so show an indeterminate bar rather than a 0% one
+							// that reads as a stall. Unknown phases are ignored on purpose.
+							if (event.phase === 'loading_model') {
+								setLoadingModel(true)
+								setTranscribePct(null)
+								setStatus('Loading model on your desktop…')
+							} else if (event.phase === 'transcribing') {
+								setLoadingModel(false)
+								setTranscribePct((current) => current ?? 0)
+								setStatus('Transcribing…')
+							}
+							break
+						case 'progress':
+							setLoadingModel(false)
+							setTranscribePct(Math.max(0, Math.min(100, Math.round(Number(event.progress) || 0))))
+							break
+						case 'segment':
+							segmentsRef.current.push(String(event.text ?? ''))
+							setTranscript(segmentsRef.current.join(' ').replace(/\s+/g, ' ').trim())
+							break
+						case 'done':
+							release()
+							// Confirmed terminal success: the only point at which the
+							// recording may be dropped from durable storage.
+							void deleteEntry(entryId).then(refreshOutbox)
+							setLoadingModel(false)
+							if (typeof event.text === 'string') setTranscript(event.text.trim())
+							if (typeof event.savedPath === 'string' && event.savedPath) setSavedPath(event.savedPath)
+							setTranscribePct(100)
+							setPhase('done')
+							setStatus(typeof event.processingTimeSec === 'number' ? `Transcribed in ${Math.round(event.processingTimeSec)}s.` : 'Transcribed.')
+							break
+						case 'error':
+							release()
+							void markAttempt(entryId, event.message).then(refreshOutbox)
+							setLoadingModel(false)
+							setFailure({ code: event.code || 'error', message: event.message || 'The desktop reported an error.' })
+							setPhase('failed')
+							setStatus('')
+							break
+						default:
+							break
+					}
+				}
+
+				// Stream ended without a terminal event.
+				setPhase((current) => {
+					if (current !== 'sending') return current
+					setFailure({ code: 'incomplete', message: 'The desktop closed the connection before finishing.' })
+					return 'failed'
+				})
+			} catch (err) {
+				const message = err instanceof Error ? err.message : String(err)
+				void markAttempt(entryId, message).then(refreshOutbox)
+				setFailure({ code: 'transport', message })
+				setPhase('failed')
+				setStatus('')
+			} finally {
+				sendingRef.current = false
+				setActiveId(null)
+				clearStallTimer()
+				// Backstop: covers the transport catch, a stream that ends without a
+				// terminal event, and any path the cases above missed.
+				release()
+				void refreshOutbox()
+			}
+		},
+		[refreshOutbox, release, acquire, clearStallTimer],
+	)
 
 	/**
 	 * Attempt the oldest pending recording. Deliberately sequential and
@@ -625,7 +626,7 @@ export function useHandoffSession() {
 		(id: string) => {
 			void deleteEntry(id).then(refreshOutbox)
 		},
-		[refreshOutbox]
+		[refreshOutbox],
 	)
 
 	return {

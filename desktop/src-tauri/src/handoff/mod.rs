@@ -4,17 +4,18 @@
 //! The endpoint is *not* spawned at startup — the user opts in from the UI,
 //! which calls the `handoff_start` command.
 
+pub mod devices;
 pub mod protocol;
 mod transcribe;
 mod transfer;
 
 use std::path::PathBuf;
-use std::sync::Arc;
 
 use eyre::{Context, Result};
 use iroh::endpoint::presets;
 use iroh::protocol::Router;
 use iroh::{Endpoint, SecretKey};
+use sha2::{Digest, Sha256};
 use tauri::{Emitter, Manager};
 
 use crate::error::LogError;
@@ -45,7 +46,7 @@ pub const DEFAULT_PWA_ORIGIN: &str = match option_env!("VIBE_PWA_ORIGIN") {
 pub struct HandoffState {
     router: Router,
     endpoint_id: String,
-    token: String,
+    authorization_changes: tokio::sync::watch::Sender<()>,
 }
 
 impl HandoffState {
@@ -54,15 +55,9 @@ impl HandoffState {
         self.endpoint_id.clone()
     }
 
-    /// The 32-hex-char pairing secret the phone must present.
-    #[allow(dead_code)]
-    pub fn token(&self) -> String {
-        self.token.clone()
-    }
-
-    /// The exact URL encoded into the pairing QR code.
-    pub fn pairing_url(&self, pwa_origin: &str) -> String {
-        format_pairing_url(pwa_origin, &self.endpoint_id, &self.token)
+    /// Wake active requests so revoked credentials stop being usable immediately.
+    pub fn authorization_changed(&self) {
+        self.authorization_changes.send_replace(());
     }
 
     pub async fn shutdown(self) {
@@ -74,8 +69,13 @@ impl HandoffState {
     }
 }
 
+/// Correlate successful authentication with the current QR without emitting its secret.
+pub(crate) fn pairing_id(token: &str) -> String {
+    format!("{:x}", Sha256::digest(token.as_bytes()))
+}
+
 /// `<pwa_origin>/#<endpoint_id>:<token>` — the exact string the QR encodes.
-fn format_pairing_url(pwa_origin: &str, endpoint_id: &str, token: &str) -> String {
+pub(crate) fn format_pairing_url(pwa_origin: &str, endpoint_id: &str, token: &str) -> String {
     format!("{}/#{}:{}", pwa_origin.trim_end_matches('/'), endpoint_id, token)
 }
 
@@ -133,31 +133,6 @@ fn generate_token() -> String {
     hex::encode(bytes)
 }
 
-/// Load the persisted pairing token, generating it on first use.
-fn load_or_create_token(app_handle: &tauri::AppHandle) -> Result<String> {
-    let path = handoff_dir(app_handle)?.join("token");
-    if let Ok(existing) = std::fs::read_to_string(&path) {
-        let existing = existing.trim().to_string();
-        if existing.len() == 32 && existing.chars().all(|c| c.is_ascii_hexdigit()) {
-            return Ok(existing);
-        }
-        tracing::warn!("handoff token at {} is malformed, regenerating", path.display());
-    }
-    let token = generate_token();
-    std::fs::write(&path, &token).with_context(|| format!("failed to write {}", path.display()))?;
-    restrict_permissions(&path).log_error();
-    Ok(token)
-}
-
-/// Replace the pairing token, invalidating any QR code handed out earlier.
-pub fn regenerate_token(app_handle: &tauri::AppHandle) -> Result<String> {
-    let path = handoff_dir(app_handle)?.join("token");
-    let token = generate_token();
-    std::fs::write(&path, &token).with_context(|| format!("failed to write {}", path.display()))?;
-    restrict_permissions(&path).log_error();
-    Ok(token)
-}
-
 /// Remember whether the user wants handoff on, so enabling it survives a restart.
 ///
 /// Enablement has to persist alongside the identity: the secret key and token are
@@ -189,7 +164,7 @@ pub fn is_enabled(app_handle: &tauri::AppHandle) -> bool {
 /// Bind the iroh endpoint and start accepting handoff connections.
 pub async fn spawn(app_handle: tauri::AppHandle) -> Result<HandoffState> {
     let secret_key = load_or_create_secret_key(&app_handle)?;
-    let token = load_or_create_token(&app_handle)?;
+    devices::invitation(&app_handle)?;
 
     let endpoint = Endpoint::builder(presets::N0)
         .secret_key(secret_key)
@@ -201,16 +176,17 @@ pub async fn spawn(app_handle: tauri::AppHandle) -> Result<HandoffState> {
     let endpoint_id = endpoint.id().to_string();
     tracing::info!("handoff endpoint bound: {}", endpoint_id);
 
+    let (authorization_changes, authorization_receiver) = tokio::sync::watch::channel(());
     let handler = HandoffHandler {
         app_handle,
-        token: Arc::new(token.clone()),
+        authorization_changes: authorization_receiver,
     };
     let router = Router::builder(endpoint).accept(ALPN, handler).spawn();
 
     Ok(HandoffState {
         router,
         endpoint_id,
-        token,
+        authorization_changes,
     })
 }
 

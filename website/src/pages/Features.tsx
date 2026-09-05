@@ -26,13 +26,13 @@ const content: Record<string, { icon: LucideIcon; title: () => string; descripti
 export default function Features() {
 	return (
 		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20">
-			<header className="max-w-[46ch]">
+			<header className="max-w-[52ch]">
 				<p className="eyebrow">{m['features-eyebrow']()}</p>
-				<h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground lg:text-[2.75rem]">{m.features()}</h1>
-				<p className="mt-4 text-base leading-7 text-muted-foreground">{m.description()}</p>
+				<h1 className="mt-5 text-[2.25rem] font-semibold leading-[1.05] tracking-[-0.035em] text-foreground lg:text-[3rem]">{m.features()}</h1>
+				<p className="mt-5 text-[17px] leading-8 text-muted-foreground">{m.description()}</p>
 			</header>
 
-			<div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			<div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
 				{features.map((feature) => {
 					const entry = content[feature.slug]
 					if (!entry) {

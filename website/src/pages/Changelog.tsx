@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { cn } from '~/lib/style'
-import { findRelease, releases, sections, type Release, type Section } from '~/lib/changelog'
+import { findRelease, loadReleases, releases, sections, type Release, type Section } from '~/lib/changelog'
 import { m } from '~/paraglide/messages.js'
+import { getLocale, getTextDirection, type Locale } from '~/paraglide/runtime.js'
 
 const badge: Record<Section, string> = {
 	New: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
@@ -22,8 +23,17 @@ const inline = [
 	'[&_code]:rounded [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[13px] [&_code]:text-foreground',
 ].join(' ')
 
-function formatDate(date: string) {
-	return new Date(`${date}T00:00:00Z`).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+/** One formatter per locale — building an Intl.DateTimeFormat is the expensive part, not using it. */
+const formatters = new Map<string, Intl.DateTimeFormat>()
+
+/** Written in the language the entry is written in, so "4 בספטמבר 2026" sits under Hebrew notes. */
+function formatDate(date: string, locale: string) {
+	let formatter = formatters.get(locale)
+	if (!formatter) {
+		formatter = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+		formatters.set(locale, formatter)
+	}
+	return formatter.format(new Date(`${date}T00:00:00Z`))
 }
 
 function Entry({ release, single }: { release: Release; single: boolean }) {
@@ -32,14 +42,14 @@ function Entry({ release, single }: { release: Release; single: boolean }) {
 		<article
 			id={id}
 			className="grid scroll-mt-24 gap-4 border-t border-border py-12 [contain-intrinsic-size:auto_28rem] [content-visibility:auto] first:border-t-0 lg:grid-cols-[10rem_1fr] lg:gap-12"
-			dir="ltr">
+			dir={getTextDirection(release.locale as Locale)}>
 			{/* The version and date stay put while the entry's notes scroll past. */}
 			<div className="lg:sticky lg:top-24 lg:self-start">
 				<Link to={`/changelog/${release.version}`} className="text-[15px] font-medium text-foreground transition-colors hover:text-primary">
 					{id}
 				</Link>
 				<time dateTime={release.date} className="mt-1 block text-[13px] text-muted-foreground">
-					{formatDate(release.date)}
+					{formatDate(release.date, release.locale)}
 				</time>
 				{single && (
 					<Link
@@ -74,8 +84,20 @@ function Entry({ release, single }: { release: Release; single: boolean }) {
 
 export default function Changelog() {
 	const { version } = useParams()
-	const one = version ? findRelease(version) : undefined
-	const shown = one ? [one] : releases
+	// The English notes paint immediately; this locale's translations swap in once fetched.
+	const [list, setList] = useState<Release[]>(releases)
+	const one = version ? findRelease(version, list) : undefined
+	const shown = one ? [one] : list
+
+	useEffect(() => {
+		let live = true
+		loadReleases(getLocale()).then((translated) => {
+			if (live) setList(translated)
+		})
+		return () => {
+			live = false
+		}
+	}, [])
 
 	useEffect(() => {
 		document.title = one ? `Vibe v${one.version}: ${one.title}` : `Vibe ${m.changelog()}`
@@ -86,7 +108,7 @@ export default function Changelog() {
 
 	return (
 		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20">
-			<header dir="ltr">
+			<header dir={getTextDirection(getLocale())}>
 				<p className="eyebrow">Vibe</p>
 				<h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground lg:text-[2.5rem]">{m.changelog()}</h1>
 				{version && !one && <p className="mt-4 text-muted-foreground">{m.changelogUnknownVersion({ version })}</p>}

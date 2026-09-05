@@ -21,16 +21,13 @@ export function ApiSection({ vm }: { vm: SettingsViewModel }) {
 						onCheckedChange={(checked) => (checked ? vm.startApiServer() : vm.stopApiServer())}
 					/>
 				</SettingsRow>
-			</SettingsGroup>
-
-			<SettingsGroup title={m.apiSection()} className={!vm.apiBaseUrl ? 'pointer-events-none opacity-50' : undefined}>
+				{/* The docs live on the server, so the link belongs with the switch that starts it. */}
 				<ActionRow
 					label={m.swaggerDocs()}
 					icon={<LinkIcon className="h-4 w-4" />}
 					disabled={!apiDocsUrl}
 					onClick={() => (apiDocsUrl ? openUrl(apiDocsUrl) : null)}
 				/>
-				<ActionRow label={m.copyAgentSkill()} icon={<Bot className="h-4 w-4" />} disabled={!vm.apiBaseUrl} onClick={vm.copyAgentSkill} />
 			</SettingsGroup>
 
 			{/* Installing writes the same instructions to disk, so every future agent session has them. */}
@@ -43,6 +40,7 @@ export function ApiSection({ vm }: { vm: SettingsViewModel }) {
 					onClick={() => vm.installAgentSkill('claude')}
 				/>
 				<ActionRow label={m.installSkillCodex()} icon={<CodexMark />} disabled={!vm.apiBaseUrl} onClick={() => vm.installAgentSkill('codex')} />
+				<ActionRow label={m.copyAgentSkill()} icon={<Bot className="h-4 w-4" />} disabled={!vm.apiBaseUrl} onClick={vm.copyAgentSkill} />
 				<SettingsNote>
 					<span className="italic">{m.agentPromptHint()}</span>
 				</SettingsNote>

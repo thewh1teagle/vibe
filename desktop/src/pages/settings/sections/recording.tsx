@@ -135,7 +135,7 @@ function MeetPermissionRow({ enabled }: { enabled: boolean }) {
 	if (!enabled || status === null || status === 'granted' || status === 'not_applicable') return null
 
 	return (
-		<SettingsRow label={m.meetPermission()} description={m.meetPermissionInfo()} clampDescription={false}>
+		<SettingsRow label={m.meetPermission()} description={m.meetPermissionInfo()}>
 			<button
 				type="button"
 				onClick={() => void invoke('open_screen_recording_settings')}
@@ -153,15 +153,15 @@ export function RecordingSection() {
 
 	return (
 		<div className="space-y-6">
-			<SettingsGroup title={m.meetingDetection()} description={m.meetingDetectionInfo()}>
-				<SettingsRow label={<MeetingServiceIcons label={m.supportedMeetingServices()} />} clampDescription={false}>
+			<SettingsGroup title={m.meetingDetection()}>
+				<SettingsRow label={<MeetingServiceIcons label={m.supportedMeetingServices()} />} description={m.meetingDetectionInfo()}>
 					<Switch checked={meetingDetectionEnabled} onCheckedChange={setMeetingDetectionEnabled} aria-label={m.meetingDetection()} />
 				</SettingsRow>
 				<MeetPermissionRow enabled={meetingDetectionEnabled} />
 			</SettingsGroup>
 
-			<SettingsGroup title={m.recordingControls()} description={m.recordingSettingsInfo()}>
-				<SettingsRow label={m.autoTranscribeAfterRecording()} description={m.autoTranscribeAfterRecordingInfo()} clampDescription={false}>
+			<SettingsGroup title={m.recordingControls()}>
+				<SettingsRow label={m.autoTranscribeAfterRecording()} description={m.autoTranscribeAfterRecordingInfo()}>
 					<Switch
 						checked={autoTranscribeAfterRecording}
 						onCheckedChange={setAutoTranscribeAfterRecording}

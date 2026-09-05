@@ -63,7 +63,7 @@ export function AutoExportSection({ vm }: { vm: SettingsViewModel }) {
 
 	return (
 		<div className="space-y-6">
-			<SettingsGroup description={m.autoExportInfo()}>
+			<SettingsGroup>
 				<SettingsRow label={m.autoExport()}>
 					<Switch checked={settings.enabled} onCheckedChange={(enabled) => update({ enabled })} />
 				</SettingsRow>
@@ -124,7 +124,7 @@ export function AutoExportSection({ vm }: { vm: SettingsViewModel }) {
 				</div>
 			</SettingsGroup>
 
-			<SettingsGroup>
+			<SettingsGroup title={m.exportOptions()}>
 				<SettingsRow label={m.autoExportReplace()} description={m.autoExportReplaceInfo()}>
 					<Switch checked={settings.replace} onCheckedChange={(replace) => update({ replace })} />
 				</SettingsRow>

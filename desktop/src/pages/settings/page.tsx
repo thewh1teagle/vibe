@@ -1,6 +1,7 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useLayoutEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { m } from '~/paraglide/messages.js'
-import { ArrowLeft, Bot, Cpu, Globe, Mic, ShieldCheck, SlidersHorizontal, Smartphone, Sparkles, Terminal, Wrench, X } from 'lucide-react'
+import { ArrowLeft, Bot, Cpu, Globe, Keyboard, Mic, ShieldCheck, SlidersHorizontal, Smartphone, Sparkles, Terminal, Wrench, X } from 'lucide-react'
 import { ModifyState } from '~/lib/types'
 import { viewModel } from './view-model'
 import { Button } from '~/components/ui/button'
@@ -17,6 +18,8 @@ import { AiSection, type AiTaskId } from './sections/ai'
 import { AiPromptSection } from './sections/ai-prompt'
 import { TranscriptionSection } from './sections/transcription'
 import { TuningSection } from './sections/tuning'
+import { WhisperOptionsSection } from './sections/whisper-options'
+import { AudioProcessingSection } from './sections/audio-processing'
 
 interface SettingsPageProps {
 	setVisible: ModifyState<boolean>
@@ -25,7 +28,7 @@ interface SettingsPageProps {
 
 type SectionId = 'general' | 'transcription' | 'models' | 'ai' | 'tuning' | 'recording' | 'dictation' | 'phone' | 'api' | 'privacy' | 'advanced'
 
-type Subpage = 'auto-export' | 'ai-summary' | 'ai-dictation'
+type Subpage = 'auto-export' | 'ai-summary' | 'ai-dictation' | 'whisper-options' | 'audio-processing' | 'phone-pairing'
 
 interface SettingsSection {
 	id: SectionId
@@ -33,52 +36,41 @@ interface SettingsSection {
 	icon: ReactNode
 }
 
-interface SettingsGroup {
-	label: string
-	sections: SettingsSection[]
-}
+/** Sidebar items, split into visually separated runs — no group headings. */
+type SettingsGroup = SettingsSection[]
 
 export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps) {
 	const vm = viewModel()
 
 	const groups: SettingsGroup[] = [
-		{
-			label: m.general(),
-			sections: [
-				{ id: 'general', label: m.general(), icon: <Globe className="h-4 w-4" /> },
-				{ id: 'privacy', label: m.privacy(), icon: <ShieldCheck className="h-4 w-4" /> },
-			],
-		},
-		{
-			label: m.transcription(),
-			sections: [
-				{ id: 'transcription', label: m.transcription(), icon: <SlidersHorizontal className="h-4 w-4" /> },
-				{ id: 'models', label: m.selectModel(), icon: <Bot className="h-4 w-4" /> },
-				{ id: 'tuning', label: m.fineTuning(), icon: <Cpu className="h-4 w-4" /> },
-			],
-		},
-		{
-			label: m.customize(),
-			sections: [
-				{ id: 'recording', label: m.recordingSettings(), icon: <Mic className="h-4 w-4" /> },
-				{ id: 'dictation', label: m.globalDictation(), icon: <Mic className="h-4 w-4" /> },
-				{ id: 'ai', label: m.aiSection(), icon: <Sparkles className="h-4 w-4" /> },
-				{ id: 'phone', label: m.phone(), icon: <Smartphone className="h-4 w-4" /> },
-			],
-		},
-		{
-			label: m.advanced(),
-			sections: [
-				{ id: 'api', label: m.apiAndAgents(), icon: <Terminal className="h-4 w-4" /> },
-				{ id: 'advanced', label: m.advanced(), icon: <Wrench className="h-4 w-4" /> },
-			],
-		},
+		[
+			{ id: 'general', label: m.general(), icon: <Globe className="h-4 w-4" /> },
+			{ id: 'privacy', label: m.privacy(), icon: <ShieldCheck className="h-4 w-4" /> },
+		],
+		[
+			{ id: 'transcription', label: m.transcription(), icon: <SlidersHorizontal className="h-4 w-4" /> },
+			{ id: 'models', label: m.navModels(), icon: <Bot className="h-4 w-4" /> },
+			{ id: 'tuning', label: m.navTuning(), icon: <Cpu className="h-4 w-4" /> },
+		],
+		[
+			{ id: 'recording', label: m.recordingSettings(), icon: <Mic className="h-4 w-4" /> },
+			{ id: 'dictation', label: m.navDictation(), icon: <Keyboard className="h-4 w-4" /> },
+			{ id: 'ai', label: m.aiSection(), icon: <Sparkles className="h-4 w-4" /> },
+			{ id: 'phone', label: m.phone(), icon: <Smartphone className="h-4 w-4" /> },
+		],
+		[
+			{ id: 'api', label: m.navAgents(), icon: <Terminal className="h-4 w-4" /> },
+			{ id: 'advanced', label: m.advanced(), icon: <Wrench className="h-4 w-4" /> },
+		],
 	]
-	const sections = groups.flatMap((group) => group.sections)
+	const sections = groups.flat()
 
 	// Pages under a section, each with its own title and a way back; no dialog over the modal.
 	const subpages: Record<Subpage, { section: SectionId; title: string }> = {
+		'whisper-options': { section: 'tuning', title: m.whisperOptions() },
+		'audio-processing': { section: 'tuning', title: m.audioProcessing() },
 		'auto-export': { section: 'transcription', title: m.autoExport() },
+		'phone-pairing': { section: 'phone', title: m.pairAPhone() },
 		'ai-summary': { section: 'ai', title: m.aiSummaryTask() },
 		'ai-dictation': { section: 'ai', title: m.aiDictationTask() },
 	}
@@ -87,13 +79,41 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 		isSubpage(scrollTo) ? subpages[scrollTo].section : sections.some((s) => s.id === scrollTo) ? (scrollTo as SectionId) : 'general',
 	)
 	const [subpage, setSubpage] = useState<Subpage | null>(isSubpage(scrollTo) ? scrollTo : null)
+	const [animateInnerNavigation, setAnimateInnerNavigation] = useState(false)
+	const reducedMotion = useReducedMotion()
+	const contentRef = useRef<HTMLDivElement>(null)
+	const viewportRef = useRef<HTMLDivElement>(null)
+	const previousHeightRef = useRef<number | null>(null)
+	const navigationSpring = reducedMotion || !animateInnerNavigation ? { duration: 0 } : { type: 'spring' as const, stiffness: 450, damping: 42, mass: 1 }
+
+	useLayoutEffect(() => {
+		const previousHeight = previousHeightRef.current
+		previousHeightRef.current = null
+		const viewport = viewportRef.current
+		const content = contentRef.current
+		if (previousHeight === null || !viewport || !content || reducedMotion) return
+		// Only inner-page navigation animates; ordinary control changes use natural height.
+		const animation = viewport.animate([{ height: `${previousHeight}px` }, { height: `${content.getBoundingClientRect().height}px` }], {
+			duration: 240,
+			easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+		})
+		return () => animation.cancel()
+	}, [activeSection, subpage, reducedMotion])
+
 	function goTo(section: SectionId) {
+		previousHeightRef.current = null
+		setAnimateInnerNavigation(false)
 		setSubpage(null)
 		setActiveSection(section)
 	}
+	function navigateInside(page: Subpage | null) {
+		previousHeightRef.current = viewportRef.current?.getBoundingClientRect().height ?? null
+		setAnimateInnerNavigation(true)
+		setSubpage(page)
+	}
 	function openSubpage(page: Subpage) {
 		setActiveSection(subpages[page].section)
-		setSubpage(page)
+		navigateInside(page)
 	}
 	const openPrompt = (task: AiTaskId) => openSubpage(task === 'summary' ? 'ai-summary' : 'ai-dictation')
 
@@ -109,17 +129,16 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 							<X className="h-4 w-4" />
 						</Button>
 					</div>
-					<nav aria-label={m.settings()} className="flex flex-1 flex-col gap-3 overflow-y-auto">
-						{groups.map((group) => (
-							<div key={group.label} className="space-y-0.5">
-								<p className="px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60">{group.label}</p>
-								{group.sections.map((section) => (
+					<nav aria-label={m.settings()} className="flex-1 overflow-y-auto">
+						{groups.map((group, index) => (
+							<div key={group[0].id} className={`space-y-0.5 ${index > 0 ? 'mt-3 border-t border-border/50 pt-3' : ''}`}>
+								{group.map((section) => (
 									<button
 										key={section.id}
 										type="button"
 										aria-current={activeSection === section.id ? 'page' : undefined}
 										onClick={() => goTo(section.id)}
-										className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm font-medium transition-colors ${
+										className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm font-medium ${
 											activeSection === section.id
 												? 'bg-primary/10 text-primary'
 												: 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
@@ -137,38 +156,72 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 				</div>
 
 				<div className="min-w-0 flex-1 overflow-y-auto p-6">
-					<div className="mb-5 flex items-center gap-2 border-b border-border/55 pb-3">
-						{subpage && (
-							<Button variant="ghost" size="iconSm" className="-ms-1 h-7 w-7 rounded-lg" onClick={() => setSubpage(null)} aria-label={m.back()}>
-								<ArrowLeft className="h-4 w-4" />
-							</Button>
-						)}
+					<div className="mb-5 flex items-center border-b border-border/55 pb-3">
+						<AnimatePresence initial={false}>
+							{subpage && (
+								<motion.div
+									key="back"
+									initial={{ width: 0 }}
+									animate={{ width: 32 }}
+									exit={{ width: 0 }}
+									transition={navigationSpring}
+									className="shrink-0 overflow-hidden">
+									<Button
+										variant="ghost"
+										size="iconSm"
+										className="h-7 w-6 rounded-lg"
+										onClick={() => navigateInside(null)}
+										aria-label={m.back()}>
+										<ArrowLeft className="h-4 w-4" />
+									</Button>
+								</motion.div>
+							)}
+						</AnimatePresence>
 						<h2 className="text-xl font-semibold">{subpage ? subpages[subpage].title : sections.find((s) => s.id === activeSection)?.label}</h2>
 					</div>
-					{subpage === 'auto-export' && <AutoExportSection vm={vm} />}
-					{subpage === 'ai-summary' && <AiPromptSection vm={vm} task="summary" />}
-					{subpage === 'ai-dictation' && <AiPromptSection vm={vm} task="dictation" />}
-					{!subpage && activeSection === 'general' && <GeneralSection vm={vm} />}
+					<div ref={viewportRef} className="overflow-hidden">
+						<div ref={contentRef} className="flow-root">
+							{subpage === 'whisper-options' && <WhisperOptionsSection vm={vm} />}
+							{subpage === 'audio-processing' && <AudioProcessingSection vm={vm} />}
+							{subpage === 'auto-export' && <AutoExportSection vm={vm} />}
+							{subpage === 'ai-summary' && <AiPromptSection vm={vm} task="summary" />}
+							{subpage === 'ai-dictation' && <AiPromptSection vm={vm} task="dictation" />}
+							{!subpage && activeSection === 'general' && <GeneralSection vm={vm} />}
 
-					{!subpage && activeSection === 'transcription' && <TranscriptionSection vm={vm} onOpenAutoExport={() => setSubpage('auto-export')} />}
+							{!subpage && activeSection === 'transcription' && (
+								<TranscriptionSection vm={vm} onOpenAutoExport={() => openSubpage('auto-export')} />
+							)}
 
-					{!subpage && activeSection === 'models' && <ModelsSection vm={vm} />}
+							{!subpage && activeSection === 'models' && <ModelsSection vm={vm} />}
 
-					{!subpage && activeSection === 'ai' && <AiSection vm={vm} onOpenPrompt={openPrompt} />}
+							{!subpage && activeSection === 'ai' && <AiSection vm={vm} onOpenPrompt={openPrompt} />}
 
-					{!subpage && activeSection === 'tuning' && <TuningSection vm={vm} />}
+							{!subpage && activeSection === 'tuning' && (
+								<TuningSection
+									vm={vm}
+									onOpenWhisper={() => openSubpage('whisper-options')}
+									onOpenAudio={() => openSubpage('audio-processing')}
+								/>
+							)}
 
-					{!subpage && activeSection === 'recording' && <RecordingSection />}
+							{!subpage && activeSection === 'recording' && <RecordingSection />}
 
-					{!subpage && activeSection === 'dictation' && <DictationSection vm={vm} onOpenCleanup={() => openSubpage('ai-dictation')} />}
+							{!subpage && activeSection === 'dictation' && <DictationSection vm={vm} onOpenCleanup={() => openSubpage('ai-dictation')} />}
 
-					{!subpage && activeSection === 'phone' && <PhoneSection vm={vm} />}
+							{activeSection === 'phone' && (
+								<PhoneSection
+									pairingOpen={subpage === 'phone-pairing'}
+									onPairingChange={(open) => navigateInside(open ? 'phone-pairing' : null)}
+								/>
+							)}
 
-					{!subpage && activeSection === 'api' && <ApiSection vm={vm} />}
+							{!subpage && activeSection === 'api' && <ApiSection vm={vm} />}
 
-					{!subpage && activeSection === 'privacy' && <PrivacySection vm={vm} />}
+							{!subpage && activeSection === 'privacy' && <PrivacySection vm={vm} />}
 
-					{!subpage && activeSection === 'advanced' && <AdvancedSection vm={vm} />}
+							{!subpage && activeSection === 'advanced' && <AdvancedSection vm={vm} />}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

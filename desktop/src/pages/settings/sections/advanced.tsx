@@ -28,13 +28,10 @@ export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 					</SettingsRow>
 				</SettingsGroup>
 			)}
-			<SettingsGroup title={m.ytdlpOptions()}>
+			<SettingsGroup>
 				<SettingsRow label={m.checkYtdlpUpdates()} description={m.ytdlpOptionsInfo()}>
 					<Switch checked={vm.preference.shouldCheckYtDlpVersion} onCheckedChange={vm.preference.setShouldCheckYtDlpVersion} />
 				</SettingsRow>
-			</SettingsGroup>
-
-			<SettingsGroup title={m.modelMemory()}>
 				<SettingsRow label={m.unloadModelAfterInactivity()} description={`${m.unloadModelAfterInactivityInfo()} ${m.zeroMeansNever()}`}>
 					<NumberField
 						aria-label={m.unloadModelAfterInactivity()}
@@ -47,10 +44,7 @@ export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 						onChange={vm.preference.setUnloadTimeoutMinutes}
 					/>
 				</SettingsRow>
-			</SettingsGroup>
-
-			<SettingsGroup title={m.processor()}>
-				<SettingsRow label={m.cpuVariant()} description={m.cpuVariantInfo()} clampDescription={false}>
+				<SettingsRow label={m.cpuVariant()} description={m.cpuVariantInfo()}>
 					<Select value={vm.preference.cpuVariant} onValueChange={(value: CpuVariant) => vm.preference.setCpuVariant(value)}>
 						<SelectTrigger className={`w-44 ${rowControlClass}`}>
 							<SelectValue />
@@ -66,10 +60,13 @@ export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 				</SettingsRow>
 			</SettingsGroup>
 
-			<SettingsGroup>
+			<SettingsGroup title={m.settingsTroubleshooting()}>
 				<ActionRow label={m.copyLogs()} icon={<CopyIcon className="h-4 w-4" />} onClick={vm.copyLogs} />
 				<ActionRow label={m.logsFolder()} icon={<FolderIcon className="h-4 w-4" />} onClick={vm.revealLogs} />
 				<ActionRow label={m.tempFolder()} icon={<FolderIcon className="h-4 w-4" />} onClick={vm.revealTemp} />
+			</SettingsGroup>
+
+			<SettingsGroup>
 				<ActionRow label={m.resetApp()} icon={<ResetIcon className="h-4 w-4" />} onClick={vm.askAndReset} destructive activateOnClick />
 			</SettingsGroup>
 		</div>

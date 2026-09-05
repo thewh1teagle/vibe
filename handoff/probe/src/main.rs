@@ -12,7 +12,6 @@ use iroh::{endpoint::presets, Endpoint, EndpointId};
 use serde::Serialize;
 use std::path::PathBuf;
 
-
 const ALPN: &[u8] = b"vibe/handoff/0";
 
 #[derive(Parser)]
@@ -25,6 +24,14 @@ struct Cli {
     /// Full pairing URL as encoded in the desktop's QR code.
     #[arg(long)]
     url: Option<String>,
+
+    /// Enroll this probe using the QR invitation before the requested operation.
+    #[arg(long)]
+    pair: bool,
+
+    /// Credential to enroll/reuse with --pair. Random when omitted.
+    #[arg(long, requires = "pair")]
+    device_token: Option<String>,
 
     /// Audio file to send. Not needed with --capabilities.
     #[arg(long, required_unless_present = "capabilities")]
@@ -58,9 +65,7 @@ fn parse_pairing(cli: &Cli) -> Result<(EndpointId, String)> {
         (None, None) => bail!("pass either --peer or --url"),
     };
 
-    let (id, token) = raw
-        .split_once(':')
-        .context("pairing must look like <endpoint_id>:<token>")?;
+    let (id, token) = raw.split_once(':').context("pairing must look like <endpoint_id>:<token>")?;
     let endpoint_id: EndpointId = id.trim().parse().context("invalid endpoint id")?;
     if token.trim().is_empty() {
         bail!("pairing token is empty");
@@ -92,7 +97,32 @@ async fn main() -> Result<()> {
         .init();
 
     let cli = Cli::parse();
-    let (endpoint_id, token) = parse_pairing(&cli)?;
+    let (endpoint_id, mut token) = parse_pairing(&cli)?;
+    let endpoint = Endpoint::bind(presets::N0).await?;
+    if cli.pair {
+        let device_token = cli.device_token.clone().unwrap_or_else(|| {
+            iroh::SecretKey::generate().to_bytes()[..16]
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect()
+        });
+        let header = serde_json::to_vec(&serde_json::json!({
+            "op": "pair", "token": token, "deviceToken": device_token, "deviceName": "Handoff probe"
+        }))?;
+        let connection = endpoint.connect(endpoint_id, ALPN).await?;
+        let (mut send, mut receive) = connection.open_bi().await?;
+        send.write_all(&(header.len() as u32).to_be_bytes()).await?;
+        send.write_all(&header).await?;
+        send.finish()?;
+        let reply = receive.read_to_end(8192).await?;
+        let reply: serde_json::Value = serde_json::from_slice(&reply)?;
+        connection.close(0u32.into(), b"bye");
+        if reply["type"] != "paired" {
+            bail!("pairing failed: {reply}");
+        }
+        println!("paired probe: {}", reply["deviceId"]);
+        token = device_token;
+    }
 
     let (header, audio) = if cli.capabilities {
         let header = serde_json::to_vec(&Header {
@@ -108,11 +138,7 @@ async fn main() -> Result<()> {
         let audio = tokio::fs::read(path)
             .await
             .with_context(|| format!("failed to read {}", path.display()))?;
-        let filename = path
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("recording")
-            .to_string();
+        let filename = path.file_name().and_then(|n| n.to_str()).unwrap_or("recording").to_string();
         let header = serde_json::to_vec(&Header {
             op: "transcribe",
             token,
@@ -124,7 +150,6 @@ async fn main() -> Result<()> {
     };
 
     println!("connecting to {endpoint_id}…");
-    let endpoint = Endpoint::bind(presets::N0).await?;
     let conn = endpoint.connect(endpoint_id, ALPN).await?;
     if cli.capabilities {
         println!("connected; asking for capabilities");
@@ -143,7 +168,6 @@ async fn main() -> Result<()> {
     // Read newline-delimited JSON events until the desktop finishes the stream.
     let mut buf = Vec::new();
     let mut chunk = [0u8; 8192];
-    let mut pending = Vec::new();
     let mut saw_terminal = false;
     loop {
         let n = match recv.read(&mut chunk).await? {
@@ -152,9 +176,9 @@ async fn main() -> Result<()> {
         };
         buf.extend_from_slice(&chunk[..n]);
         while let Some(nl) = buf.iter().position(|b| *b == b'\n') {
-            pending = buf.split_off(nl + 1);
+            let pending = buf.split_off(nl + 1);
             let line = String::from_utf8_lossy(&buf[..nl]).to_string();
-            buf = std::mem::take(&mut pending);
+            buf = pending;
             if line.trim().is_empty() {
                 continue;
             }

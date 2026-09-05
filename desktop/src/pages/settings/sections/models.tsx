@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, Download, FolderOpen, PencilLine, X } from 'lucide-react'
+import { Check, Download, FolderOpen, Pencil, X } from 'lucide-react'
 import { m } from '~/paraglide/messages.js'
 import { ReactComponent as FolderIcon } from '~/icons/folder.svg'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
@@ -47,8 +47,8 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 								}}
 								className={`w-56 ${rowControlClass}`}
 							/>
-							<IconAction label={m.save()} icon={<Check className="h-4 w-4" />} onClick={commitRename} />
-							<IconAction label={m.cancel()} icon={<X className="h-4 w-4" />} onClick={() => setEditingPath(null)} />
+							<IconAction variant="outline" label={m.save()} icon={<Check className="h-4 w-4" />} onClick={commitRename} />
+							<IconAction variant="outline" label={m.cancel()} icon={<X className="h-4 w-4" />} onClick={() => setEditingPath(null)} />
 						</>
 					) : (
 						<>
@@ -73,17 +73,26 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 								</SelectContent>
 							</Select>
 							<IconAction
+								variant="outline"
 								label={m.showInFolder()}
 								icon={<FolderOpen className="h-4 w-4" />}
 								disabled={!currentModel}
 								onClick={() => currentModel && vm.openSelectedModel(currentModel.path)}
 							/>
-							<IconAction label={m.rename()} icon={<PencilLine className="h-4 w-4" />} disabled={!currentModel} onClick={startRename} />
+							<IconAction
+								variant="outline"
+								label={m.rename()}
+								icon={<Pencil className="h-4 w-4" />}
+								disabled={!currentModel}
+								onClick={startRename}
+							/>
 						</>
 					)}
 				</SettingsRow>
+			</SettingsGroup>
 
-				<SettingsRow label={m.transcribeOnCpu()} description={m.transcribeOnCpuInfo()} clampDescription={false}>
+			<SettingsGroup title={m.settingsHardware()}>
+				<SettingsRow label={m.transcribeOnCpu()} description={m.transcribeOnCpuInfo()}>
 					<Switch checked={vm.preference.noGpu} onCheckedChange={vm.preference.setNoGpu} aria-label={m.transcribeOnCpu()} />
 				</SettingsRow>
 
@@ -120,7 +129,23 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 						)}
 					</SettingsRow>
 				)}
+			</SettingsGroup>
 
+			{vm.corruptModels.length > 0 && (
+				<SettingsGroup title={m.modelFileCorrupt()}>
+					{vm.corruptModels.map((model) => (
+						<SettingsRow
+							key={model.path}
+							label={getFriendlyModelName(model.name)}
+							description={m.modelFileCorruptDescription({ name: model.name })}>
+							<IconAction label={m.reDownload()} icon={<Download className="h-4 w-4" />} onClick={() => vm.redownloadModel(model)} />
+							<IconAction label={m.showInFolder()} icon={<FolderOpen className="h-4 w-4" />} onClick={() => vm.openSelectedModel(model.path)} />
+						</SettingsRow>
+					))}
+				</SettingsGroup>
+			)}
+
+			<SettingsGroup title={m.settingsModelFiles()}>
 				<SettingsRow label={m.downloadModel()}>
 					<Input
 						type="text"
@@ -132,24 +157,6 @@ export function ModelsSection({ vm }: { vm: SettingsViewModel }) {
 					/>
 					<IconAction label={m.downloadModel()} icon={<Download className="h-4 w-4" />} onClick={vm.downloadModel} disabled={!vm.downloadURL} />
 				</SettingsRow>
-			</SettingsGroup>
-
-			{vm.corruptModels.length > 0 && (
-				<SettingsGroup title={m.modelFileCorrupt()}>
-					{vm.corruptModels.map((model) => (
-						<SettingsRow
-							key={model.path}
-							label={getFriendlyModelName(model.name)}
-							description={m.modelFileCorruptDescription({ name: model.name })}
-							clampDescription={false}>
-							<IconAction label={m.reDownload()} icon={<Download className="h-4 w-4" />} onClick={() => vm.redownloadModel(model)} />
-							<IconAction label={m.showInFolder()} icon={<FolderOpen className="h-4 w-4" />} onClick={() => vm.openSelectedModel(model.path)} />
-						</SettingsRow>
-					))}
-				</SettingsGroup>
-			)}
-
-			<SettingsGroup>
 				<ActionRow label={m.downloadModelsLink()} icon={<LinkIcon className="h-4 w-4" />} onClick={vm.openModelsUrl} />
 				<ActionRow label={m.modelsFolder()} icon={<FolderIcon className="h-4 w-4" />} onClick={vm.openModelPath} />
 				<ActionRow label={m.changeModelsFolder()} icon={<WrenchIcon className="h-4 w-4" />} onClick={vm.changeModelsFolder} />

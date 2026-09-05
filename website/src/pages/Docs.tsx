@@ -1,42 +1,47 @@
 import { useEffect, useState } from 'react'
 import DocViewer from '~/components/DocViewer'
 import { cn } from '~/lib/style'
-import installDoc from '../../../docs/install.md?raw'
-import modelsDoc from '../../../docs/models.md?raw'
-import debugDoc from '../../../docs/debug.md?raw'
-import buildingDoc from '../../../docs/building.md?raw'
+import { docs as englishDocs, loadDocs, slugs, type Doc, type Slug } from '~/lib/docs'
 import { m } from '~/paraglide/messages.js'
+import { getLocale, getTextDirection, type Locale } from '~/paraglide/runtime.js'
 
-const docs = [
-	{ name: 'Install', label: () => m.docsInstall(), content: installDoc },
-	{ name: 'Models', label: () => m.docsModels(), content: modelsDoc },
-	{ name: 'Debug', label: () => m.docsDebug(), content: debugDoc },
-	{ name: 'Build', label: () => m.docsBuild(), content: buildingDoc },
-]
+const label: Record<Slug, () => string> = {
+	install: () => m.docsInstall(),
+	models: () => m.docsModels(),
+}
 
-function getDocUrl(hash: string) {
-	const docName = hash.replace('#', '')
-	const doc = docs.find((entry) => entry.name.toLowerCase() === docName.toLowerCase())
-
-	return doc ? doc.content : docs[0].content
+function slugFromHash(hash: string): Slug {
+	const wanted = hash.replace('#', '').toLowerCase()
+	return slugs.find((slug) => slug === wanted) ?? slugs[0]
 }
 
 export default function Docs() {
-	const [content, setContent] = useState(docs[0].content)
+	// The English pages paint immediately; this locale's translations swap in once fetched.
+	const [pages, setPages] = useState<Doc[]>(englishDocs)
+	const [slug, setSlug] = useState<Slug>(slugs[0])
+	const shown = pages.find((doc) => doc.slug === slug) ?? pages[0]
 
 	useEffect(() => {
-		if (window.location.hash) {
-			setContent(getDocUrl(window.location.hash))
+		let live = true
+		loadDocs(getLocale()).then((translated) => {
+			if (live) setPages(translated)
+		})
+		return () => {
+			live = false
 		}
+	}, [])
 
-		const onHashChange = () => setContent(getDocUrl(window.location.hash))
+	useEffect(() => {
+		if (window.location.hash) setSlug(slugFromHash(window.location.hash))
+
+		const onHashChange = () => setSlug(slugFromHash(window.location.hash))
 		window.addEventListener('hashchange', onHashChange)
 
 		return () => window.removeEventListener('hashchange', onHashChange)
 	}, [])
 
 	return (
-		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20" dir="ltr">
+		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20" dir={getTextDirection(getLocale())}>
 			<header>
 				<p className="eyebrow">Documentation</p>
 				<h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground lg:text-[2.5rem]">{m.vibeDocumentation()}</h1>
@@ -44,27 +49,27 @@ export default function Docs() {
 
 			<div className="mt-10 flex flex-col gap-10 lg:flex-row lg:gap-14">
 				<nav className="flex shrink-0 flex-row flex-wrap gap-1 border-b border-border pb-4 lg:sticky lg:top-24 lg:h-fit lg:max-h-[calc(100dvh-8rem)] lg:w-44 lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-s lg:pb-0 lg:ps-4">
-					{docs.map((doc) => {
-						const active = content === doc.content
-						return (
-							<button
-								key={doc.name}
-								type="button"
-								onClick={() => {
-									setContent(doc.content)
-									window.location.hash = doc.name.toLowerCase()
-								}}
-								className={cn(
-									'cursor-pointer rounded-full px-3 py-1.5 text-start text-[13px] transition-colors lg:rounded-md',
-									active ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
-								)}>
-								{doc.label()}
-							</button>
-						)
-					})}
+					{slugs.map((entry) => (
+						<button
+							key={entry}
+							type="button"
+							onClick={() => {
+								setSlug(entry)
+								window.location.hash = entry
+							}}
+							className={cn(
+								'cursor-pointer rounded-full px-3 py-1.5 text-start text-[13px] transition-colors lg:rounded-md',
+								entry === slug ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground',
+							)}>
+							{label[entry]()}
+						</button>
+					))}
 				</nav>
 
-				<DocViewer content={content} />
+				{/* An untranslated page stays English, so the article follows its own direction. */}
+				<div className="min-w-0 flex-1" dir={getTextDirection(shown.locale as Locale)}>
+					<DocViewer content={shown.markdown} />
+				</div>
 			</div>
 		</main>
 	)

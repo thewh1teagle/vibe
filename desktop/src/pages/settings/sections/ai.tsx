@@ -75,7 +75,7 @@ export function AiSection({ vm, onOpenPrompt }: { vm: SettingsViewModel; onOpenP
 
 	return (
 		<div className="space-y-6">
-			<SettingsGroup title={m.aiTasks()} description={m.aiTasksInfo()}>
+			<SettingsGroup title={m.aiTasks()}>
 				<SettingsRow label={m.aiSummaryTask()} description={presetLabel(tasks.summary.preset)}>
 					<Button variant="outline" size="sm" className="rounded-lg" onClick={() => onOpenPrompt('summary')}>
 						{m.aiEditPrompt()}
@@ -244,7 +244,7 @@ export function AiSection({ vm, onOpenPrompt }: { vm: SettingsViewModel; onOpenP
 			</SettingsGroup>
 
 			{connection.platform === 'claude' && (
-				<SettingsGroup>
+				<SettingsGroup title={m.settingsUsageAndBilling()}>
 					<ActionRow label={m.setMonthlySpendLimit()} icon={<LinkIcon className="h-4 w-4" />} onClick={() => openUrl(config.llmLimitsUrl)} />
 					<ActionRow label={m.llmCurrentCost()} icon={<LinkIcon className="h-4 w-4" />} onClick={() => openUrl(config.llmCostUrl)} />
 				</SettingsGroup>

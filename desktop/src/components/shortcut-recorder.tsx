@@ -95,7 +95,10 @@ export default function ShortcutRecorder({ value, onChange, defaultValue, onCapt
 
 	useEffect(() => {
 		onCapturingChange?.(capturing)
-	}, [capturing])
+		// Closing Settings or changing pages can unmount an active recorder before
+		// stop() runs. Always release capture so the global shortcut is registered again.
+		return () => onCapturingChange?.(false)
+	}, [capturing, onCapturingChange])
 
 	useEffect(() => {
 		if (!capturing) return

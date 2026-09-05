@@ -11,7 +11,7 @@ import { deleteAllTranscripts, listTranscripts, notifyTranscriptsChanged, TRANSC
 import { ActionRow, SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
 
 /** Bulk cleanup for the projects folder: one row, one confirmation, everything Vibe saved goes. */
-function SavedProjectsGroup({ projectsPath }: { projectsPath: string | null }) {
+function DeleteAllProjectsRow({ projectsPath }: { projectsPath: string | null }) {
 	const [count, setCount] = useState<number | null>(null)
 	const [deleting, setDeleting] = useState(false)
 
@@ -44,17 +44,15 @@ function SavedProjectsGroup({ projectsPath }: { projectsPath: string | null }) {
 	}
 
 	return (
-		<SettingsGroup title={m.savedProjects()} description={m.savedProjectsInfo()}>
-			<ActionRow
-				label={m.deleteAllProjects()}
-				description={count ? m.deleteAllProjectsInfo({ count: String(count) }) : m.noProjectsYet()}
-				icon={<Trash2 className="h-4 w-4" />}
-				onClick={() => void deleteAll()}
-				disabled={deleting || !count}
-				destructive
-				activateOnClick
-			/>
-		</SettingsGroup>
+		<ActionRow
+			label={m.deleteAllProjects()}
+			description={count ? m.deleteAllProjectsInfo({ count: String(count) }) : m.noProjectsYet()}
+			icon={<Trash2 className="h-4 w-4" />}
+			onClick={() => void deleteAll()}
+			disabled={deleting || !count}
+			destructive
+			activateOnClick
+		/>
 	)
 }
 
@@ -69,9 +67,6 @@ export function TranscriptionSection({ vm, onOpenAutoExport }: { vm: SettingsVie
 				<div className="[&>div]:flex [&>div]:min-h-[52px] [&>div]:items-center [&>div]:justify-between [&>div]:gap-4 [&>div]:space-y-0 [&>div]:px-4 [&>div]:py-2.5 [&_label]:text-sm [&_label]:font-normal [&_button]:h-9 [&_button]:w-52 [&_button]:rounded-lg">
 					<LanguageInput />
 				</div>
-			</SettingsGroup>
-
-			<SettingsGroup>
 				<SettingsRow label={m.autoExport()} description={autoExport.enabled ? describeAutoExport(autoExport) : m.autoExportInfo()}>
 					<div className="flex items-center gap-3">
 						<Button variant="outline" size="sm" className="rounded-lg" onClick={onOpenAutoExport}>
@@ -88,7 +83,7 @@ export function TranscriptionSection({ vm, onOpenAutoExport }: { vm: SettingsVie
 				</SettingsRow>
 			</SettingsGroup>
 
-			<SettingsGroup title={m.projectsFolder()} description={m.projectsFolderInfo()}>
+			<SettingsGroup title={m.projectsFolder()}>
 				<SettingsRow
 					label={
 						<span title={projectsPath} className="block truncate font-mono text-xs text-muted-foreground">
@@ -104,9 +99,8 @@ export function TranscriptionSection({ vm, onOpenAutoExport }: { vm: SettingsVie
 						{m.changeProjectsFolder()}
 					</Button>
 				</SettingsRow>
+				<DeleteAllProjectsRow projectsPath={vm.preference.projectsPath} />
 			</SettingsGroup>
-
-			<SavedProjectsGroup projectsPath={vm.preference.projectsPath} />
 		</div>
 	)
 }
