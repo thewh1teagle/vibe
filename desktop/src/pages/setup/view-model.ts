@@ -9,12 +9,15 @@ import * as osExt from '@tauri-apps/plugin-os'
 import * as config from '~/lib/config'
 import { ask } from '@tauri-apps/plugin-dialog'
 import { join } from '@tauri-apps/api/path'
+import { installNativeModelPackage } from '~/lib/native-model'
 
 export function viewModel() {
 	const location = useLocation()
 	const [downloadProgress, setDownloadProgress] = useState(0)
 	const [isOnline, setIsOnline] = useState<boolean | null>(null)
 	const downloadProgressRef = useRef(0)
+	// StrictMode mounts the effect twice in dev; one setup visit must start one download.
+	const startedRef = useRef(false)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const navigate = useNavigate()
 	const preference = usePreferenceProvider()
@@ -64,7 +67,47 @@ export function viewModel() {
 		return true
 	}
 
+	/** A magic-install link (or a pasted catalog URL) can point at a native package component —
+	 * those install as a staged multi-file directory, not a single file. */
+	async function downloadNativePackage(entry: config.NativeModelDownload) {
+		console.log(`[model] Installing native package from magic link: ${entry.name}`)
+		const outcome = await installNativeModelPackage(entry, {
+			onProgress: (percent) => {
+				if (percent > downloadProgressRef.current) {
+					setDownloadProgress(percent)
+					downloadProgressRef.current = percent
+				}
+			},
+		})
+		if (outcome.status === 'cancelled') {
+			console.log('[model] Native package download cancelled')
+			return
+		}
+		if (outcome.status === 'failed') {
+			const error = `Could not download ${entry.name}: ${outcome.error}`
+			console.error(`[model] ${error}`)
+			setErrorModal?.({ open: true, log: error })
+			return
+		}
+		if (!(await selectDownloadedModel(outcome.path))) {
+			navigate('/#settings', { replace: true })
+			return
+		}
+		navigate('/', { replace: true, state: { disableBack: true } })
+	}
+
 	async function downloadModel() {
+		if (startedRef.current) return
+		startedRef.current = true
+
+		// Native packages carry their own pinned integrity metadata and download as several files,
+		// so a catalog URL takes a different path than the plain single-file download below.
+		const nativeEntry = location?.state?.downloadURL ? config.findNativeModelDownload(location.state.downloadURL) : null
+		if (nativeEntry) {
+			await downloadNativePackage(nativeEntry)
+			return
+		}
+
 		handleProgressEvenets()
 
 		let lastError = null

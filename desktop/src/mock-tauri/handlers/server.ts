@@ -168,23 +168,75 @@ function runTranscribe(
 	})
 }
 
+/** Capabilities for an imported native package directory (`funasr-nano-*` / `sensevoice-*`). */
+function nativeMetadata(modelPath: string) {
+	const engine = /funasr-nano/i.test(modelPath) ? 'funasr-nano' : 'sensevoice'
+	return {
+		format: 'vibe-model',
+		capabilities: {
+			engine,
+			requires_vad: true,
+			languages: MOCK_LANGUAGES,
+			language_detection: true,
+			streaming: false,
+			translation: false,
+			timestamps: true,
+			text_prompts: false,
+		},
+	}
+}
+
 export const serverHandlers: CommandHandlerMap = {
 	get_models_folder: () => MODELS_FOLDER,
 
-	// ({ modelPath }) - every mock model reports the same whisper capabilities.
-	get_model_metadata: () => ({
-		format: 'gguf',
-		capabilities: {
-			engine: 'whisper',
-			requires_vad: false,
-			languages: MOCK_LANGUAGES,
-			language_detection: true,
-			streaming: true,
-			translation: true,
-			timestamps: true,
-			text_prompts: true,
-		},
-	}),
+	get_model_metadata: (args) => {
+		const modelPath = String(args.modelPath ?? '')
+		if (/\.vibe-model$/i.test(modelPath)) return nativeMetadata(modelPath)
+		return {
+			format: 'gguf',
+			capabilities: {
+				engine: 'whisper',
+				requires_vad: false,
+				languages: MOCK_LANGUAGES,
+				language_detection: true,
+				streaming: true,
+				translation: true,
+				timestamps: true,
+				text_prompts: true,
+			},
+		}
+	},
+
+	// The in-app native model download: components land in the staging folder the download mock
+	// already registers, then the install turns it into an installed package directory.
+	prepare_model_package_staging: () => `${MODELS_FOLDER}/.download-mock`,
+
+	install_model_package: async (args) => {
+		const engine = String(args.engine ?? '')
+		if (engine !== 'funasr-nano' && engine !== 'sensevoice') {
+			throw serverError('invalid_request', `unsupported engine: ${engine}`)
+		}
+		const directory = `${MODELS_FOLDER}/${engine}-downloaded`
+		await sleep(300)
+		virtualFs.delete(String(args.staging ?? ''))
+		virtualFs.set(`${directory}/model.vibe-model`, JSON.stringify({ format_version: 1, engine, revision: String(args.revision ?? 'mock') }))
+		virtualFs.set(`${directory}/model.gguf`, null)
+		if (engine === 'funasr-nano') virtualFs.set(`${directory}/encoder.gguf`, null)
+		return `${directory}/model.vibe-model`
+	},
+
+	check_model_files: (args) => {
+		const paths = (args.paths ?? []) as string[]
+		return paths.map((path) => {
+			const exists = virtualFs.has(path)
+			return {
+				path,
+				valid: exists,
+				size: exists ? 1_000_000 : 0,
+				reason: exists ? null : 'Model package not found in the mock models folder.',
+			}
+		})
+	},
 
 	load_model: async () => {
 		await sleep(300)

@@ -6,9 +6,13 @@ mod stream;
 mod transcription;
 pub(crate) mod unload_timeout;
 
+use std::io::Read;
 use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
+
+use anyhow::{ensure, Context as _};
+use funasr_runtime::manifest::is_package_path;
 
 use crate::engine::Engine;
 use axum::extract::DefaultBodyLimit;
@@ -36,6 +40,7 @@ pub(super) struct ServerState {
     ctx: Option<Engine>,
     model_name: String,
     model_path: String,
+    manifest_fingerprint: Option<Vec<u8>>,
     gpu_device: i32,
     no_gpu: bool,
 }
@@ -46,16 +51,23 @@ impl ServerState {
             ctx: None,
             model_name: String::new(),
             model_path: String::new(),
+            manifest_fingerprint: None,
             gpu_device: -1,
             no_gpu: false,
         }
     }
 
     fn load_model(&mut self, path: &str, gpu_device: i32, no_gpu: Option<bool>) -> anyhow::Result<()> {
-        let matches_loaded_model = self.ctx.is_some()
-            && self.model_path == path
+        let native = is_package_path(Path::new(path));
+        if native {
+            crate::engine::funasr::validate_device(gpu_device)?;
+        }
+        let fingerprint = manifest_fingerprint(path)?;
+        let matches_loaded_model = self.model_path == path
             && self.gpu_device == gpu_device
-            && no_gpu.is_none_or(|requested| requested == self.no_gpu);
+            && no_gpu.is_none_or(|requested| requested == self.no_gpu)
+            && self.manifest_fingerprint == fingerprint
+            && self.ctx.as_mut().is_some_and(Engine::is_alive);
         if matches_loaded_model {
             tracing::debug!("model already loaded, skipping");
             return Ok(());
@@ -66,8 +78,13 @@ impl ServerState {
         let ctx = Engine::load(path, ContextOptions { gpu_device, no_gpu }).inspect_err(|err| {
             tracing::error!(model = path, gpu_device, no_gpu, "failed to load model: {err:#}");
         })?;
+        ensure!(
+            fingerprint == manifest_fingerprint(path)?,
+            "manifest changed while loading; retry model load"
+        );
         self.model_name = Path::new(path).file_name().unwrap_or_default().to_string_lossy().into_owned();
         self.model_path = path.to_string();
+        self.manifest_fingerprint = fingerprint;
         self.gpu_device = gpu_device;
         self.no_gpu = no_gpu;
         self.ctx = Some(ctx);
@@ -78,9 +95,26 @@ impl ServerState {
         self.ctx = None;
         self.model_name.clear();
         self.model_path.clear();
+        self.manifest_fingerprint = None;
         self.gpu_device = -1;
         self.no_gpu = false;
     }
+}
+
+fn manifest_fingerprint(path: &str) -> anyhow::Result<Option<Vec<u8>>> {
+    if !is_package_path(Path::new(path)) {
+        return Ok(None);
+    }
+    let metadata = std::fs::metadata(path).context("cannot inspect native manifest")?;
+    ensure!(metadata.is_file(), "native manifest must be a regular file");
+    let file = std::fs::File::open(path).context("cannot open native manifest")?;
+    ensure!(file.metadata()?.is_file(), "native manifest must be a regular file");
+    let mut bytes = Vec::new();
+    file.take(64 * 1024 + 1)
+        .read_to_end(&mut bytes)
+        .context("cannot read native manifest")?;
+    ensure!(bytes.len() <= 64 * 1024, "native manifest exceeds 64 KiB");
+    Ok(Some(bytes))
 }
 
 #[derive(OpenApi)]
@@ -122,17 +156,16 @@ pub async fn serve(
     config: AppConfig,
 ) -> anyhow::Result<()> {
     whisper_rs::set_verbose(config.verbose());
-    let mut server_state = ServerState::new();
-    if let Some(model) = initial_model.as_deref() {
-        server_state.load_model(model, -1, Some(false))?;
-    }
-
-    let inner = Arc::new(Mutex::new(server_state));
+    let inner = Arc::new(Mutex::new(ServerState::new()));
     let state = AppState {
         unload_timeout: unload_timeout::UnloadTimeoutRuntime::start(unload_timeout, Arc::clone(&inner)),
         inner,
         config,
     };
+    if let Some(path) = initial_model {
+        let mut model = state.unload_timeout.acquire(state.inner.clone()).await;
+        tokio::task::spawn_blocking(move || model.load_model(&path, -1, Some(false))).await??;
+    }
     let ready_config = state.config;
     let app = Router::new()
         .route("/health", get(routes::health::health))

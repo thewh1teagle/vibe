@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/diarize-rs",
+    "crates/funasr-runtime",
     "crates/nemotron-rs",
     "crates/parakeet-rs",
     "crates/vibe-server",
