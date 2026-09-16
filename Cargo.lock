@@ -1947,6 +1947,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "funasr-runtime"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tempfile",
+]
+
+[[package]]
 name = "futf"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8229,6 +8240,7 @@ dependencies = [
  "crash-handler",
  "enigo",
  "eyre",
+ "funasr-runtime",
  "futures",
  "futures-util",
  "glob",

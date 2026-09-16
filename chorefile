@@ -21,9 +21,26 @@ include website/website.chore
 server=$(read .server-version)
 bin=desktop/src-tauri/binaries
 
+task funasr-build target=$TRIPLE {
+    if $1 != $TRIPLE { fail "build FunASR workers on the target platform: $1" }
+    exe=""
+    if $1 contains windows { exe=.exe }
+    cmake -S server/native/funasr -B server/target/native-funasr -DCMAKE_BUILD_TYPE=Release
+    cmake --build server/target/native-funasr --config Release --parallel --target vibe-funasr-nano-worker vibe-sensevoice-worker
+    mkdir $bin server/target/release
+    for name in vibe-funasr-nano-worker vibe-sensevoice-worker {
+        source=server/target/native-funasr/bin/$name$exe
+        if exists server/target/native-funasr/bin/Release/$name$exe { source=server/target/native-funasr/bin/Release/$name$exe }
+        copy $source $bin/$name-$1$exe
+        copy $source server/target/release/$name$exe
+        if $exe == "" { chmod 755 $bin/$name-$1 server/target/release/$name }
+    }
+}
+
 # Build server/ from the tree and put it where `setup` would have put the
 # release, for iterating on the engine; run `setup` first so ffmpeg is there.
 task server-build target=$TRIPLE {
+    funasr-build $1
     exe=""
     if $1 contains windows { exe=.exe }
     cd server
@@ -61,6 +78,9 @@ task setup target=$TRIPLE {
     exe=""
     if $1 contains windows { exe=.exe }
 
+    if !exists $bin/vibe-funasr-nano-worker-$1$exe || !exists $bin/vibe-sensevoice-worker-$1$exe {
+        funasr-build $1
+    }
     mkdir $bin
     # Linux ships the server alone; every other target gets ffmpeg beside it, so
     # both have to be there before this is a no-op. Checking only the server would

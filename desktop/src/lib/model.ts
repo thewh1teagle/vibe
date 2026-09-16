@@ -2,7 +2,6 @@ import { invoke } from '@tauri-apps/api/core'
 import * as pathExt from '@tauri-apps/api/path'
 import * as fsExt from '@tauri-apps/plugin-fs'
 import { diarizeModelFilename, embeddingModelFilename, segmentModelFilename, vadModelFilename, type ModelDownload, type ModelIntegrity } from './config'
-import { lsFiles } from './fs'
 import { NamedPath } from './types'
 
 export const MODEL_EXTENSIONS = ['bin', 'gguf'] as const
@@ -19,6 +18,10 @@ export function getModelExtension(filename: string): ModelExtension | null {
 
 export function isGgufModel(filename: string) {
 	return getModelExtension(filename) === 'gguf'
+}
+
+export function isModelPackage(filename: string) {
+	return /\.vibe-model$/i.test(filename)
 }
 
 export function randomString(length: number, prefix: string, suffix: string) {
@@ -60,17 +63,26 @@ export async function getModelsFolder() {
 	return invoke<string>('get_models_folder')
 }
 
-/**
- * Size and magic bytes of every given file, checked by the backend. A backend failure fails open:
- * losing the check is better than hiding models the user actually has.
- */
+/** Legacy weights fail open if the backend is unavailable; packages must pass strict validation. */
 export async function checkModelFiles(paths: string[]): Promise<ModelFileCheck[]> {
 	if (paths.length === 0) return []
+	const unchecked = (path: string): ModelFileCheck => ({
+		path,
+		valid: !isModelPackage(path),
+		size: 0,
+		reason: isModelPackage(path) ? 'Model package validation could not be completed.' : null,
+	})
 	try {
-		return await invoke<ModelFileCheck[]>('check_model_files', { paths })
+		const checks = await invoke<ModelFileCheck[]>('check_model_files', { paths })
+		const byPath = new Map(checks.map((check) => [check.path, check]))
+		return paths.map((path) => {
+			const check = byPath.get(path)
+			if (isModelPackage(path) && typeof check?.valid !== 'boolean') return unchecked(path)
+			return check ?? unchecked(path)
+		})
 	} catch (error) {
 		console.error('failed to check model files:', error)
-		return paths.map((path) => ({ path, valid: true, size: 0, reason: null }))
+		return paths.map(unchecked)
 	}
 }
 
@@ -95,13 +107,32 @@ export function isAuxiliaryModelFile(filename: string) {
 	return AUXILIARY_MODEL_FILENAMES.some((auxiliary) => auxiliary.toLowerCase() === filename.toLowerCase())
 }
 
-/** Every transcription model in the folder, with truncated or corrupt ones flagged rather than hidden. */
+/** Direct legacy weights and one-level packages only; never expose package components or staging. */
 export async function listInstalledModels(folder?: string): Promise<InstalledModel[]> {
 	const modelsFolder = folder ?? (await getModelsFolder())
-	const files = (await lsFiles(modelsFolder)).filter((entry) => isModelFile(entry.name) && !isAuxiliaryModelFile(entry.name))
+	const files: NamedPath[] = []
+	for (const entry of await fsExt.readDir(modelsFolder)) {
+		if (entry.isFile && isModelFile(entry.name) && !isAuxiliaryModelFile(entry.name)) {
+			files.push({ name: entry.name, path: await pathExt.join(modelsFolder, entry.name) })
+		} else if (entry.isDirectory && !entry.isSymlink && !entry.name.startsWith('.')) {
+			const directory = await pathExt.join(modelsFolder, entry.name)
+			try {
+				const children = await fsExt.readDir(directory)
+				if (children.some((child) => child.isFile && child.name === 'model.vibe-model')) {
+					files.push({ name: entry.name, path: await pathExt.join(directory, 'model.vibe-model') })
+				}
+			} catch (error) {
+				console.error(`failed to inspect model package directory ${directory}:`, error)
+			}
+		}
+	}
 	const checks = await checkModelFiles(files.map((file) => file.path))
 	const byPath = new Map(checks.map((check) => [check.path, check]))
-	return files.map((file) => ({ ...file, valid: byPath.get(file.path)?.valid ?? true, reason: byPath.get(file.path)?.reason ?? null }))
+	return files.map((file) => ({
+		...file,
+		valid: byPath.get(file.path)?.valid ?? !isModelPackage(file.path),
+		reason: byPath.get(file.path)?.reason ?? null,
+	}))
 }
 
 /**
@@ -111,9 +142,9 @@ export async function listInstalledModels(folder?: string): Promise<InstalledMod
  */
 export async function isModelFileUsable(path: string) {
 	if (!(await fsExt.exists(path))) return false
-	if (!isModelFile(path)) return true
+	if (!isModelFile(path) && !isModelPackage(path)) return true
 	const [check] = await checkModelFiles([path])
-	return check?.valid ?? true
+	return check?.valid ?? !isModelPackage(path)
 }
 
 interface DownloadModelOptions {
@@ -155,7 +186,7 @@ export function isModelFile(filename: string) {
 }
 
 export interface ModelCapabilities {
-	engine: 'whisper' | 'nemotron' | string
+	engine: 'whisper' | 'nemotron' | 'funasr-nano' | 'sensevoice' | string
 	requires_vad: boolean
 	languages: string[]
 	language_detection: boolean
@@ -170,21 +201,31 @@ export interface ModelMetadata {
 	capabilities: ModelCapabilities
 }
 
-/** The subset of transcribe options that only some engines honour. */
-interface EngineSpecificOptions {
-	init_prompt?: string
-	translate?: boolean
+export function isNativeAsr(capabilities: ModelCapabilities | null | undefined) {
+	return capabilities?.engine === 'funasr-nano' || capabilities?.engine === 'sensevoice'
 }
 
+const WHISPER_OPTIONS = [
+	'init_prompt', 'translate', 'n_threads', 'temperature', 'max_text_ctx',
+	'word_timestamps', 'max_sentence_len', 'sampling_strategy', 'best_of', 'beam_size',
+] as const
+
+/** The subset of transcribe options that only some engines honour. */
+type EngineSpecificOptions = Partial<Record<(typeof WHISPER_OPTIONS)[number], unknown>> & { lang?: string }
+
 /**
- * Drop the Whisper-only options a model cannot use instead of letting server reject the run.
- * A prompt written for Turbo stays saved in settings, so switching to Parakeet or Nemotron
- * and back needs no retyping. Unknown capabilities (no metadata yet) leave the options alone.
+ * Filter only the outgoing request, never saved preferences. Switching back to Whisper restores
+ * its prompt, decoding settings and selected language. Unknown capabilities leave options alone.
  */
 export function withoutUnsupportedOptions<T extends EngineSpecificOptions>(options: T, capabilities: ModelCapabilities | null | undefined): T {
 	if (!capabilities) return options
 	const next = { ...options }
-	if (!capabilities.text_prompts) delete next.init_prompt
-	if (!capabilities.translation) delete next.translate
+	if (isNativeAsr(capabilities)) {
+		for (const key of WHISPER_OPTIONS) delete next[key]
+		next.lang = 'auto'
+	} else {
+		if (!capabilities.text_prompts) delete next.init_prompt
+		if (!capabilities.translation) delete next.translate
+	}
 	return next
 }

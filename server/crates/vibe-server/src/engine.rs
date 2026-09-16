@@ -1,5 +1,9 @@
+pub(crate) mod funasr;
+
 use anyhow::{bail, Context as _};
+use funasr_runtime::manifest::{is_package_path, Package};
 use serde::Serialize;
+use std::path::Path;
 use whisper_rs::{ContextOptions, Segment, StreamCallbacks, TranscribeOptions, TranscribeResult};
 
 #[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
@@ -18,6 +22,7 @@ pub struct EngineCapabilities {
 #[allow(clippy::large_enum_variant)]
 pub enum Engine {
     Whisper(whisper_rs::Context),
+    FunAsr(funasr::FunAsr),
     Nemotron {
         model: Box<nemotron_rs::Model>,
         vad: Option<(String, vad_rs::Vad)>,
@@ -30,10 +35,24 @@ pub enum Engine {
 
 impl Engine {
     pub fn requires_vad(&self) -> bool {
-        matches!(self, Self::Nemotron { .. } | Self::Parakeet { .. })
+        matches!(self, Self::FunAsr(_) | Self::Nemotron { .. } | Self::Parakeet { .. })
+    }
+
+    pub fn is_alive(&mut self) -> bool {
+        match self {
+            Self::FunAsr(engine) => engine.is_alive(),
+            _ => true,
+        }
     }
 
     pub fn load(path: &str, options: ContextOptions) -> anyhow::Result<Self> {
+        if is_package_path(Path::new(path)) {
+            funasr::validate_device(options.gpu_device)?;
+            let device = funasr::device_index(options.no_gpu, options.gpu_device);
+            // Shallow: the download and the install already hash-verified the components, and
+            // hashing gigabytes here would add seconds to every model load.
+            return Ok(Self::FunAsr(funasr::FunAsr::load(&Package::load_shallow(path)?, device)?));
+        }
         if path.ends_with(".gguf") {
             if let Ok(info) = parakeet_rs::Model::metadata(path) {
                 if info.architecture == "parakeet" && info.variant.contains("v3") {
@@ -57,6 +76,7 @@ impl Engine {
     pub fn transcribe(&mut self, samples: &[f32], options: TranscribeOptions) -> anyhow::Result<TranscribeResult> {
         match self {
             Self::Whisper(context) => context.transcribe(samples, options).map_err(Into::into),
+            Self::FunAsr(engine) => engine.transcribe(samples, options, StreamCallbacks::default()),
             Self::Nemotron { model, vad } => {
                 if options.translate {
                     bail!("Nemotron does not support translation");
@@ -122,6 +142,7 @@ impl Engine {
     ) -> anyhow::Result<TranscribeResult> {
         match self {
             Self::Whisper(context) => context.transcribe_stream(samples, options, callbacks).map_err(Into::into),
+            Self::FunAsr(engine) => engine.transcribe(samples, options, callbacks),
             Self::Nemotron { model, vad } => {
                 if options.translate {
                     bail!("Nemotron does not support translation");
@@ -212,6 +233,7 @@ impl Engine {
     pub fn capabilities(&self) -> EngineCapabilities {
         match self {
             Self::Whisper(_) => whisper_capabilities(),
+            Self::FunAsr(engine) => engine.capabilities(),
             Self::Nemotron { model, .. } => EngineCapabilities {
                 engine: "nemotron".to_string(),
                 requires_vad: true,

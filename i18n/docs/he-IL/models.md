@@ -1,4 +1,4 @@
-<!-- source: 1d964213251f -->
+<!-- source: f4d810c96dee -->
 
 # 🌟 מודלים של Vibe 🌟
 
@@ -52,6 +52,22 @@
 
 [👉 צפייה במודל](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
 [🔽 הורדת Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
+
+### 🀄 SenseVoice Small
+
+מנוע FunASR. תומך בסינית, קנטונזית, אנגלית, יפנית וקוריאנית עם דיוק רב-שפחתי גבוה בגודל קטן.
+
+[👉 Magic Setup](vibe://download/?url=https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf)  
+[🔽 הורדה ישירה](https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf?download=true)
+
+### 🀄 FunASR Nano
+
+מנוע encoder-decoder של FunASR (מפענח Qwen3 0.6B). תומך בסינית, אנגלית ויפנית. הסינית כוללת 7 ניבים (וו, קנטונזית, מין, האקה, גאן, שיאנג, ג'ין) ו-26 מבטאים אזוריים. אנגלית ויפנית מכסות מגוון מבטאים אזוריים. תומך גם בזיהוי מילות שירים וזיהוי דיבור ראפ.
+
+[👉 Magic Setup](vibe://download/?url=https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF/resolve/main/qwen3-0.6b-q4km.gguf)  
+[👉 צפייה במודל](https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF)
+
+> שני מנועי FunASR מותקנים כחבילת `.vibe-model` (מניפסט ורכיבי GGUF): קישור ה-"Magic Setup" מוריד, מאמת ומתקין את כל החבילה באופן אוטומטי.
 
 ### מודלים המותאמים לשפות נוספות
 

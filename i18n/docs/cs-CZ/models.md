@@ -1,4 +1,4 @@
-<!-- source: 1d964213251f -->
+<!-- source: f4d810c96dee -->
 
 # 🌟 Modely Vibe 🌟
 
@@ -52,6 +52,22 @@ Podporuje streamování a nejlépe se hodí pro diktování.
 
 [👉 Zobrazit model](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
 [🔽 Stáhnout Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
+
+### 🀄 SenseVoice Small
+
+Engine FunASR. Podporuje čínštinu, kantonštinu, angličtinu, japonštinu a korejštinu s vysokou vícejazyčnou přesností při malé velikosti.
+
+[👉 Rychlé nastavení](vibe://download/?url=https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf)  
+[🔽 Přímé stažení](https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf?download=true)
+
+### 🀄 FunASR Nano
+
+Engine FunASR typu encoder-decoder (decoder Qwen3 0.6B). Podporuje čínštinu, angličtinu a japonštinu. Čínština zahrnuje 7 dialektů (wu, kantonština, min, hakka, gan, xiang, jin) a 26 regionálních akcentů. Angličtina a japonština pokrývají různé regionální akcenty. Podporuje také rozpoznávání textů písní a rozpoznávání rapového vokálu.
+
+[👉 Rychlé nastavení](vibe://download/?url=https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF/resolve/main/qwen3-0.6b-q4km.gguf)  
+[👉 Zobrazit model](https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF)
+
+> Oba enginy FunASR se instalují jako balíček `.vibe-model` (manifest a komponenty GGUF): odkaz Rychlé nastavení celý balíček automaticky stáhne, ověří a nainstaluje.
 
 ### Modely optimalizované pro jiné jazyky
 

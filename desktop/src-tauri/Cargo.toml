@@ -13,6 +13,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = ["protocol-asset", "devtools", "macos-private-api", "tray-icon"] }
 meeting-detect = { path = "../../crates/meeting-detect" }
+funasr-runtime = { path = "../../server/crates/funasr-runtime" }
 
 # Plugins
 tauri-plugin-window-state = "2"

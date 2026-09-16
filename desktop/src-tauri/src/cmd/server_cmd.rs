@@ -78,8 +78,9 @@ pub async fn load_model(
     unload_timeout_minutes: u32,
     no_gpu: Option<bool>,
 ) -> Result<String> {
-    // Absent means "use the GPU": the setting is opt-in, and older callers do not send it.
-    let no_gpu = no_gpu.unwrap_or(false);
+    let native_package = funasr_runtime::manifest::is_package_path(std::path::Path::new(&model_path));
+    let no_gpu = native_package || no_gpu.unwrap_or(false);
+    let gpu_device = if native_package { None } else { gpu_device };
     let server_state: State<'_, Mutex<ServerState>> = app_handle.state();
     let mut state_guard = server_state.lock().await;
 
