@@ -44,6 +44,26 @@ Supports streaming and is best suited for dictation.
 [👉 View Model](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
 [🔽 Download Q4_K_M](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf?download=true)
 
+### Orukeet 0.6B Q8
+
+An optional Parakeet v3 derivative for local transcription in 25 European languages.
+Use automatic language detection and download Vibe's VAD model when prompted.
+Translation and text prompts are not supported. The weights use CC BY-SA 4.0 with
+NVIDIA attribution; see the model card for evaluation results and licensing.
+
+Copy the direct link below into **Settings → Models → Download model**. This
+739.5 MB artifact uses Vibe's existing Parakeet backend. It is the
+`orukeet-transcribe-cpp-Q8_0.gguf` export; the separate `orukeet-v0.1.0-q8.gguf`
+file uses a different layout and is not compatible with this backend.
+
+[View model and attribution](https://huggingface.co/oruk/orukeet)
+
+[Download Q8](https://huggingface.co/oruk/orukeet/resolve/eac739d754bb171287930e6e63386f5b88f8179e/orukeet-transcribe-cpp-Q8_0.gguf?download=true)
+
+The pinned download uses Hugging Face's normal GGUF download statistics. Cached
+transcription stays local. SHA-256:
+`cad2f52ac91cad829279422301989687c2cf02e19157352ed25ea501b90dbb7e`.
+
 ### ⚡ Nemotron 3.5 ASR Streaming 0.6B
 
 Supports streaming and is best suited for dictation.
