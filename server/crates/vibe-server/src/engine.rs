@@ -36,7 +36,7 @@ impl Engine {
     pub fn load(path: &str, options: ContextOptions) -> anyhow::Result<Self> {
         if path.ends_with(".gguf") {
             if let Ok(info) = parakeet_rs::Model::metadata(path) {
-                if info.architecture == "parakeet" && info.variant.contains("v3") {
+                if info.architecture == "parakeet" && is_parakeet_variant(&info.variant) {
                     return Ok(Self::Parakeet {
                         model: Box::new(parakeet_rs::Model::load(path)?),
                         vad: None,
@@ -276,6 +276,10 @@ fn parakeet_vad<'a>(cached: &'a mut Option<(String, vad_rs::Vad)>, path: Option<
     Ok(&mut cached.as_mut().expect("VAD initialized").1)
 }
 
+pub(crate) fn is_parakeet_variant(variant: &str) -> bool {
+    variant.contains("v3") || variant == "tdt-0.6b-orukeet"
+}
+
 fn parakeet_segment(transcription: &parakeet_rs::Transcription) -> Option<Segment> {
     (!transcription.text.is_empty()).then(|| Segment {
         start: transcription.tokens.first().map_or(0, |token| token.frame as i64 * 8),
@@ -286,4 +290,18 @@ fn parakeet_segment(transcription: &parakeet_rs::Transcription) -> Option<Segmen
         text: transcription.text.clone(),
         no_speech_prob: 0.0,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[ignore = "requires the official Orukeet GGUF; set VIBE_TEST_ORUKEET_MODEL"]
+    fn orukeet_loads_as_parakeet() {
+        let path =
+            std::env::var("VIBE_TEST_ORUKEET_MODEL").expect("set VIBE_TEST_ORUKEET_MODEL to orukeet-transcribe-cpp-Q8_0.gguf");
+        let engine = Engine::load(&path, ContextOptions::default()).expect("Orukeet must use the Parakeet loader, not Nemotron");
+        assert!(matches!(engine, Engine::Parakeet { .. }));
+    }
 }
