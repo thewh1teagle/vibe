@@ -200,6 +200,7 @@ impl HandoffHandler {
             diarize_model: None,
             stable_timestamps: None,
             vad_model,
+            enhance_audio: None,
         };
 
         let start = std::time::Instant::now();

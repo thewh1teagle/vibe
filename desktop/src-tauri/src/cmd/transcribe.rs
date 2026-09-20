@@ -49,6 +49,7 @@ pub struct TranscribeOptions {
     pub diarize_model: Option<String>,
     pub stable_timestamps: Option<bool>,
     pub vad_model: Option<String>,
+    pub enhance_audio: Option<bool>,
 }
 
 pub(crate) const SERVER_DIED: &str = "vibe-server process died during transcription";

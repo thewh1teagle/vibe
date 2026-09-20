@@ -152,6 +152,7 @@ async function buildSharedOptions(preference: Preference) {
 		...(preference.diarizeEnabled ? { diarize_model: `${modelsFolder}/${config.diarizeModelFilename}` } : {}),
 		...(preference.stableTimestampsEnabled || requiresVad ? { vad_model: `${modelsFolder}/${config.vadModelFilename}` } : {}),
 		...(preference.stableTimestampsEnabled ? { stable_timestamps: true } : {}),
+		...(preference.enhanceAudio ? { enhance_audio: true } : {}),
 	}
 }
 
