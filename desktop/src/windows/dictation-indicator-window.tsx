@@ -17,15 +17,25 @@ export default function DictationIndicatorWindow() {
 	}, [])
 
 	useEffect(() => {
-		invoke('dictation_indicator_ready').catch(console.error)
-		getDictationIndicatorState()
-			.then((initialState) => {
-				if (initialState) setState(initialState)
+		let cancelled = false
+		let stop: (() => void) | undefined
+		// Subscribe before announcing ready: present may emit state on that signal.
+		void (async () => {
+			const unlisten = await listen<DictationIndicatorState>('dictation-indicator-state', ({ payload }) => {
+				if (!cancelled) setState(payload)
 			})
-			.catch(console.error)
-		const unlisten = listen<DictationIndicatorState>('dictation-indicator-state', ({ payload }) => setState(payload))
+			if (cancelled) {
+				unlisten()
+				return
+			}
+			stop = unlisten
+			await invoke('dictation_indicator_ready')
+			const initialState = await getDictationIndicatorState()
+			if (!cancelled && initialState) setState(initialState)
+		})().catch(console.error)
 		return () => {
-			unlisten.then((stop) => stop())
+			cancelled = true
+			stop?.()
 		}
 	}, [])
 

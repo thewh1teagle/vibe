@@ -1,5 +1,6 @@
 use crate::config::STORE_FILENAME;
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 use tauri::webview::PageLoadEvent;
 use tauri::{Emitter, LogicalSize, Manager, PhysicalPosition, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
@@ -23,6 +24,34 @@ pub struct DictationIndicatorPayload {
 #[derive(Default)]
 pub struct DictationIndicatorRuntime {
     current: Mutex<Option<DictationIndicatorPayload>>,
+    page_ready: AtomicBool,
+}
+
+impl DictationIndicatorRuntime {
+    fn current_state(&self) -> Option<DictationIndicatorPayload> {
+        self.current.lock().ok().and_then(|state| state.clone())
+    }
+
+    fn set_current(&self, state: Option<DictationIndicatorPayload>) -> Result<(), String> {
+        *self.current.lock().map_err(|error| error.to_string())? = state;
+        Ok(())
+    }
+
+    fn has_active_state(&self) -> bool {
+        self.current.lock().is_ok_and(|state| state.is_some())
+    }
+
+    fn mark_page_ready(&self) {
+        self.page_ready.store(true, Ordering::SeqCst);
+    }
+
+    fn reset_page_ready(&self) {
+        self.page_ready.store(false, Ordering::SeqCst);
+    }
+
+    fn is_page_ready(&self) -> bool {
+        self.page_ready.load(Ordering::SeqCst)
+    }
 }
 
 pub fn is_enabled(app: &tauri::AppHandle) -> bool {
@@ -34,12 +63,16 @@ pub fn is_enabled(app: &tauri::AppHandle) -> bool {
 }
 
 fn create_window(app: &tauri::AppHandle) -> Result<WebviewWindow, String> {
+    app.state::<DictationIndicatorRuntime>().reset_page_ready();
     let window = WebviewWindowBuilder::new(
         app,
         WINDOW_LABEL,
         WebviewUrl::App("index.html?window=dictation-indicator".into()),
     )
     .inner_size(WIDTH, HEIGHT)
+    .min_inner_size(WIDTH, HEIGHT)
+    .max_inner_size(WIDTH, HEIGHT)
+    .title("Vibe")
     .decorations(false)
     .resizable(false)
     .always_on_top(true)
@@ -49,17 +82,18 @@ fn create_window(app: &tauri::AppHandle) -> Result<WebviewWindow, String> {
     .skip_taskbar(true)
     .transparent(true)
     .shadow(false)
-    .visible(true)
+    // Never paint before HTML/CSS/JS exist — the first frame is otherwise a black rectangle.
+    .visible(false)
     .on_page_load(|window, payload| {
         if payload.event() == PageLoadEvent::Finished {
             tracing::info!("Dictation indicator page loaded: {}", payload.url());
-            let has_active_state = window
-                .app_handle()
-                .state::<DictationIndicatorRuntime>()
-                .current
-                .lock()
-                .is_ok_and(|state| state.is_some());
-            if !has_active_state {
+            let runtime = window.app_handle().state::<DictationIndicatorRuntime>();
+            runtime.mark_page_ready();
+            if runtime.has_active_state() {
+                if let Err(error) = window.show() {
+                    tracing::error!("Could not show dictation indicator after page load: {error}");
+                }
+            } else {
                 let _ = window.hide();
             }
         }
@@ -70,7 +104,8 @@ fn create_window(app: &tauri::AppHandle) -> Result<WebviewWindow, String> {
     window
         .set_size(LogicalSize::new(WIDTH, HEIGHT))
         .map_err(|error| error.to_string())?;
-    window.set_ignore_cursor_events(true).map_err(|error| error.to_string())?;
+    // GDK has no native window until the (hidden) window is realized — set_ignore_cursor_events
+    // would unwrap None and abort. Applied in present_indicator after show.
 
     #[cfg(target_os = "macos")]
     unsafe {
@@ -136,17 +171,49 @@ pub fn set_dictation_indicator_enabled(app: tauri::AppHandle, enabled: bool) -> 
     let store = app.store(STORE_FILENAME).map_err(|error| error.to_string())?;
     store.set(ENABLED_KEY, serde_json::Value::Bool(enabled));
     store.save().map_err(|error| error.to_string())?;
+    let runtime = app.state::<DictationIndicatorRuntime>();
     if !enabled {
-        *app.state::<DictationIndicatorRuntime>()
-            .current
-            .lock()
-            .map_err(|error| error.to_string())? = None;
+        runtime.set_current(None)?;
+        runtime.reset_page_ready();
         if let Some(window) = app.get_webview_window(WINDOW_LABEL) {
             window.close().map_err(|error| error.to_string())?;
         }
     } else if app.get_webview_window(WINDOW_LABEL).is_none() {
         create_window(&app)?;
     }
+    Ok(())
+}
+
+fn present_indicator(app: &tauri::AppHandle, window: &WebviewWindow, state: &DictationIndicatorPayload) -> Result<(), String> {
+    window
+        .set_size(LogicalSize::new(WIDTH, HEIGHT))
+        .map_err(|error| error.to_string())?;
+    if let Err(error) = position_window(app, window) {
+        tracing::error!("Could not position dictation indicator: {error}");
+    }
+    window.show().map_err(|error| error.to_string())?;
+    if let Err(error) = window.set_ignore_cursor_events(true) {
+        tracing::error!("Could not ignore cursor events on dictation indicator: {error}");
+    }
+    #[cfg(target_os = "macos")]
+    unsafe {
+        use objc2_app_kit::{NSStatusWindowLevel, NSWindow};
+
+        let native_window: &NSWindow = &*window.ns_window().map_err(|error| error.to_string())?.cast();
+        native_window.setLevel(NSStatusWindowLevel);
+        native_window.orderFrontRegardless();
+    }
+    window
+        .emit("dictation-indicator-state", state.clone())
+        .map_err(|error| error.to_string())?;
+    tracing::info!(
+        "Dictation indicator shown (visible={:?}, position={:?}, size={:?}, title={:?}, url={:?})",
+        window.is_visible(),
+        window.outer_position(),
+        window.outer_size(),
+        window.title(),
+        window.url()
+    );
     Ok(())
 }
 
@@ -161,50 +228,22 @@ pub fn show_dictation_indicator(app: tauri::AppHandle, state: DictationIndicator
         tracing::info!("Dictation indicator show skipped because it is disabled");
         return Ok(());
     }
-    *app.state::<DictationIndicatorRuntime>()
-        .current
-        .lock()
-        .map_err(|error| error.to_string())? = Some(state.clone());
+    let runtime = app.state::<DictationIndicatorRuntime>();
+    runtime.set_current(Some(state.clone()))?;
     let window = match app.get_webview_window(WINDOW_LABEL) {
         Some(window) => window,
         None => create_window(&app)?,
     };
-    window
-        .set_size(LogicalSize::new(WIDTH, HEIGHT))
-        .map_err(|error| error.to_string())?;
-    if let Err(error) = position_window(&app, &window) {
-        tracing::error!("Could not position dictation indicator: {error}");
+    if !runtime.is_page_ready() {
+        tracing::info!("Dictation indicator state queued until webview is ready");
+        return Ok(());
     }
-    window.show().map_err(|error| error.to_string())?;
-    #[cfg(target_os = "macos")]
-    unsafe {
-        use objc2_app_kit::{NSStatusWindowLevel, NSWindow};
-
-        let native_window: &NSWindow = &*window.ns_window().map_err(|error| error.to_string())?.cast();
-        native_window.setLevel(NSStatusWindowLevel);
-        native_window.orderFrontRegardless();
-    }
-    if let Err(error) = window.emit("dictation-indicator-state", state) {
-        tracing::error!("Could not update dictation indicator: {error}");
-    }
-    tracing::info!(
-        "Dictation indicator shown (visible={:?}, position={:?}, size={:?}, title={:?}, url={:?})",
-        window.is_visible(),
-        window.outer_position(),
-        window.outer_size(),
-        window.title(),
-        window.url()
-    );
-    Ok(())
+    present_indicator(&app, &window, &state)
 }
 
 #[tauri::command]
 pub fn get_dictation_indicator_state(app: tauri::AppHandle) -> Result<Option<DictationIndicatorPayload>, String> {
-    app.state::<DictationIndicatorRuntime>()
-        .current
-        .lock()
-        .map(|state| state.clone())
-        .map_err(|error| error.to_string())
+    Ok(app.state::<DictationIndicatorRuntime>().current_state())
 }
 
 #[tauri::command]
@@ -214,15 +253,32 @@ pub fn dictation_indicator_ready(window: tauri::WebviewWindow) {
         window.label(),
         window.url()
     );
+    let app = window.app_handle().clone();
+    let runtime = app.state::<DictationIndicatorRuntime>();
+    runtime.mark_page_ready();
+    let Some(state) = runtime.current_state() else {
+        tracing::info!("Dictation indicator ready with no active state; staying hidden");
+        return;
+    };
+    if let Err(error) = present_indicator(&app, &window, &state) {
+        tracing::error!("Could not present dictation indicator: {error}");
+    }
 }
 
 #[tauri::command]
 pub fn hide_dictation_indicator(app: tauri::AppHandle, session_id: u64) -> Result<(), String> {
     tracing::info!("Hiding dictation indicator: session={session_id}");
     let runtime = app.state::<DictationIndicatorRuntime>();
-    let mut current = runtime.current.lock().map_err(|error| error.to_string())?;
-    if current.as_ref().is_some_and(|state| state.session_id == session_id) {
-        *current = None;
+    let should_hide = {
+        let mut current = runtime.current.lock().map_err(|error| error.to_string())?;
+        if current.as_ref().is_some_and(|state| state.session_id == session_id) {
+            *current = None;
+            true
+        } else {
+            false
+        }
+    };
+    if should_hide {
         if let Some(window) = app.get_webview_window(WINDOW_LABEL) {
             window.hide().map_err(|error| error.to_string())?;
         }

@@ -44,10 +44,14 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
 
     let devices = host.devices()?;
     tracing::debug!("Devices: ");
+    let mut has_default_input = false;
     for (device_index, device) in devices.enumerate() {
         let name = device.description()?.to_string();
         let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
+        if is_default_in {
+            has_default_input = true;
+        }
 
         let audio_device = AudioDevice {
             is_default: is_default_in || is_default_out,
@@ -56,6 +60,25 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
             name,
         };
         audio_devices.push(audio_device);
+    }
+
+    // On Linux/ALSA the host default is often the synthetic name "Default Audio Device",
+    // which never appears in the enumerated list — so nothing is marked default and
+    // hotkeys bail with "No default microphone". Prefer the PipeWire-friendly aliases
+    // that actually open under exclusive hw: locks.
+    if !has_default_input {
+        if let Some(index) = audio_devices.iter().position(|d| {
+            d.is_input
+                && matches!(
+                    d.name.as_str(),
+                    n if n.contains("Default ALSA Output")
+                        || n.contains("PipeWire Sound Server")
+                        || n.contains("PulseAudio Sound Server")
+                )
+        }) {
+            tracing::debug!("Marking {} as default input (Linux fallback)", audio_devices[index].name);
+            audio_devices[index].is_default = true;
+        }
     }
 
     Ok(audio_devices)

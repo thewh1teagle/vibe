@@ -5,7 +5,7 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
-import { AudioDevice } from '~/lib/audio'
+import { AudioDevice, findDefaultInputDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { gpuOutOfMemoryBefore } from '~/lib/gpu-memory'
 import { usePersisted } from '~/lib/config-store'
@@ -75,6 +75,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 
 	const [hotkeyEnabled, setHotkeyEnabled] = usePersisted(CONFIG_KEYS.hotkeyEnabled, false)
 	const [hotkeyShortcut, setHotkeyShortcut] = usePersisted(CONFIG_KEYS.hotkeyShortcut, getDefaultHotkeyShortcut())
+	const [savedInputDeviceId] = usePersisted<string | null>(CONFIG_KEYS.inputDeviceId, null)
 	const [hotkeyCapturing, setHotkeyCapturingState] = useState(false)
 	const [shortcutRegistration, setShortcutRegistration] = useState<{ shortcut: string; error: string | null } | null>(null)
 	const [hotkeyOutputMode, setHotkeyOutputMode] = usePersisted<HotkeyOutputMode>(CONFIG_KEYS.hotkeyOutputMode, 'clipboard')
@@ -125,12 +126,14 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const handleHotkeyDown = useCallback(async () => {
 		if (isHotkeyRecordingRef.current || isStartingRef.current || isStoppingRef.current) return
 		isStartingRef.current = true
+		// Overlay must appear on key-down even if the mic path fails a moment later.
+		indicatorSessionRef.current += 1
+		showIndicator('recording')
 		try {
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
-			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
+			const defaultInput = findDefaultInputDevice(devices, savedInputDeviceId)
 			if (!defaultInput) {
-				console.error('No default input device found')
-				return
+				throw new Error(m.noDefaultMicrophone())
 			}
 
 			isHotkeyRecordingRef.current = true
@@ -141,17 +144,16 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				devices: [defaultInput],
 				recordingName: null,
 			})
-			indicatorSessionRef.current += 1
-			showIndicator('recording')
 		} catch (error) {
 			console.error('Hotkey start_record error:', error)
+			finishIndicator('error', { message: getErrorMessage(error) })
 			isHotkeyRecordingRef.current = false
 			hotkeyRecordingActive = false
 			setIsHotkeyRecording(false)
 		} finally {
 			isStartingRef.current = false
 		}
-	}, [showIndicator])
+	}, [finishIndicator, showIndicator, savedInputDeviceId])
 
 	const handleHotkeyUp = useCallback(async () => {
 		if (!isHotkeyRecordingRef.current || isStoppingRef.current) return

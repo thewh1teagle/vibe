@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
         .plugin(
             tauri_plugin_window_state::Builder::default()
                 .with_state_flags(!StateFlags::VISIBLE)
-                .with_denylist(&["meeting-prompt"])
+                .with_denylist(&["meeting-prompt", "dictation-indicator"])
                 .build(),
         )
         .plugin(tauri_plugin_store::Builder::default().build())
