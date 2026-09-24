@@ -78,8 +78,13 @@ const SelectLabel = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Lab
 )
 SelectLabel.displayName = SelectPrimitive.Label.displayName
 
-const SelectItem = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Item>, React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>>(
-	({ className, children, ...props }, ref) => (
+interface SelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+	/** Rendered inside the item but outside ItemText, so it shows in the list and never in SelectValue. */
+	leading?: React.ReactNode
+}
+
+const SelectItem = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Item>, SelectItemProps>(
+	({ className, children, leading, ...props }, ref) => (
 		<SelectPrimitive.Item
 			ref={ref}
 			className={cn(
@@ -93,6 +98,7 @@ const SelectItem = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Item
 				</SelectPrimitive.ItemIndicator>
 			</span>
 
+			{leading}
 			<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
 		</SelectPrimitive.Item>
 	),

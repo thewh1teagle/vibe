@@ -32,6 +32,7 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Manage server state
     app.manage(Mutex::new(ServerState { process: None }));
     app.manage(crate::dictation_indicator::DictationIndicatorRuntime::default());
+    app.manage(crate::cmd::audio::InputPreviewState::default());
 
     let store = app.store(STORE_FILENAME)?;
 

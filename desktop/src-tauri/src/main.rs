@@ -138,6 +138,8 @@ async fn main() -> Result<()> {
             cmd::files::get_argv,
             cmd::files::get_default_projects_path,
             cmd::audio::get_audio_devices,
+            cmd::audio::start_input_level_preview,
+            cmd::audio::stop_input_level_preview,
             cmd::audio::start_record,
             cmd::app::get_models_folder,
             cmd::app::get_logs_folder,

@@ -25,6 +25,7 @@ const YTDLP_TICK_MS = 100
 let dictationIndicatorEnabled = false
 let meetingDetectionEnabled = false
 let meetingPromptState: { source: 'meet' | 'zoom' | 'teams' } | null = null
+let inputPreviewTimer: number | null = null
 
 function sleep(ms: number) {
 	return new Promise<void>((resolve) => setTimeout(resolve, ms))
@@ -87,6 +88,25 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 		})
 		// Resolve immediately, like the real command which spawns a background thread.
 		return undefined
+	},
+
+	start_input_level_preview: () => {
+		if (inputPreviewTimer !== null) return
+		// Like the Rust side: one `input_level` per input device, ~10/s.
+		let tick = 0
+		inputPreviewTimer = window.setInterval(() => {
+			tick += 1
+			for (const device of MOCK_AUDIO_DEVICES.filter((d) => d.isInput)) {
+				emitMockEvent('input_level', { deviceId: device.id, level: mockSpeechLevel(tick) })
+			}
+		}, RECORD_LEVEL_TICK_MS)
+	},
+
+	stop_input_level_preview: () => {
+		if (inputPreviewTimer !== null) {
+			window.clearInterval(inputPreviewTimer)
+			inputPreviewTimer = null
+		}
 	},
 
 	// --- Text injection ---------------------------------------------------------

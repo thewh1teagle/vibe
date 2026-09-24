@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use tauri::{AppHandle, Emitter, Listener};
+use tauri::{AppHandle, Emitter, Listener, Manager};
 
 use crate::error::LogError;
 use crate::ffmpeg::{get_local_time, random_string};
@@ -115,6 +115,146 @@ impl LevelMeter {
     }
 }
 
+/// Streams held while the input dropdown is open so every mic can show a live level.
+/// Dropping the vector closes the streams. Guarded by a mutex for idempotent
+/// start/stop from the UI and a defensive stop when a real recording starts.
+#[derive(Default)]
+pub struct InputPreviewState {
+    streams: Mutex<Option<Vec<StreamHandle>>>,
+}
+
+impl InputPreviewState {
+    fn stop(&self) {
+        // Take ownership so the streams are dropped (closed) outside of any other work.
+        let streams = self.streams.lock().map(|mut guard| guard.take()).unwrap_or(None);
+        drop(streams);
+    }
+}
+
+/// Per-device meter for the input-level preview. Unlike [`LevelMeter`] (one shared value
+/// for a recording session), each preview stream owns one of these so the UI can render
+/// a live bar next to every input device in the dropdown.
+///
+/// Emits `input_level` as `{ deviceId, level }`, throttled to ~10/s per device.
+struct DeviceLevelMeter {
+    app_handle: AppHandle,
+    device_id: String,
+    started_at: Instant,
+    peak_bits: AtomicU32,
+    last_emit_ms: AtomicU64,
+}
+
+impl DeviceLevelMeter {
+    fn new(app_handle: AppHandle, device_id: String) -> Self {
+        Self {
+            app_handle,
+            device_id,
+            started_at: Instant::now(),
+            peak_bits: AtomicU32::new(0),
+            last_emit_ms: AtomicU64::new(0),
+        }
+    }
+
+    fn push(&self, peak: f32) {
+        self.peak_bits.fetch_max(peak.to_bits(), Ordering::Relaxed);
+
+        let now_ms = self.started_at.elapsed().as_millis() as u64;
+        let last_ms = self.last_emit_ms.load(Ordering::Relaxed);
+        if now_ms.saturating_sub(last_ms) < LEVEL_EMIT_INTERVAL_MS {
+            return;
+        }
+        if self
+            .last_emit_ms
+            .compare_exchange(last_ms, now_ms, Ordering::Relaxed, Ordering::Relaxed)
+            .is_err()
+        {
+            return;
+        }
+        let level = f32::from_bits(self.peak_bits.swap(0, Ordering::Relaxed)).clamp(0.0, 1.0);
+        self.app_handle
+            .emit_to(
+                "main",
+                "input_level",
+                json!({ "deviceId": self.device_id, "level": level }),
+            )
+            .ok();
+    }
+}
+
+fn build_preview_stream_typed<T>(device: &Device, config: SupportedStreamConfig, meter: Arc<DeviceLevelMeter>) -> Result<Stream>
+where
+    T: SizedSample + FromSample<T> + Copy,
+    f32: FromSample<T>,
+{
+    let stream = device.build_input_stream(
+        config.into(),
+        move |data: &[T], _: &_| {
+            meter.push(buffer_peak(data));
+        },
+        |err| tracing::error!("An error occurred on input preview stream: {}", err),
+        None,
+    )?;
+    Ok(stream)
+}
+
+fn build_preview_stream(device: &Device, config: SupportedStreamConfig, meter: Arc<DeviceLevelMeter>) -> Result<Stream> {
+    match config.sample_format() {
+        cpal::SampleFormat::I8 => build_preview_stream_typed::<i8>(device, config, meter),
+        cpal::SampleFormat::I16 => build_preview_stream_typed::<i16>(device, config, meter),
+        cpal::SampleFormat::I32 => build_preview_stream_typed::<i32>(device, config, meter),
+        cpal::SampleFormat::F32 => build_preview_stream_typed::<f32>(device, config, meter),
+        sample_format => bail!("Unsupported sample format '{}'", sample_format),
+    }
+}
+
+#[tauri::command]
+/// Open a meter-only capture stream per input device and emit `input_level`
+/// events (`{ deviceId, level }`, ~10/s). Idempotent: a second call while the
+/// preview is active is a no-op. Devices that cannot be opened are skipped with
+/// a warning so one busy mic never blocks the rest.
+pub fn start_input_level_preview(app_handle: AppHandle, preview: tauri::State<'_, InputPreviewState>) -> Result<()> {
+    {
+        let guard = preview.streams.lock().map_err(|e| eyre!("{:?}", e))?;
+        if guard.is_some() {
+            return Ok(());
+        }
+    }
+
+    let host = cpal::default_host();
+    let mut streams = Vec::new();
+
+    let devices = host.devices()?;
+    for (device_index, device) in devices.enumerate() {
+        if !device.supports_input() {
+            continue;
+        }
+        let device_id = device_index.to_string();
+        let config = match device.default_input_config() {
+            Ok(config) => config,
+            Err(error) => {
+                tracing::warn!("Skipping input device {device_id} for level preview: {error:#}");
+                continue;
+            }
+        };
+        let meter = Arc::new(DeviceLevelMeter::new(app_handle.clone(), device_id.clone()));
+        match build_preview_stream(&device, config, meter).and_then(|stream| stream.play().map(|_| stream).map_err(Into::into)) {
+            Ok(stream) => streams.push(StreamHandle(stream)),
+            Err(error) => tracing::warn!("Skipping input device {device_id} for level preview: {error:#}"),
+        }
+    }
+
+    let mut guard = preview.streams.lock().map_err(|e| eyre!("{:?}", e))?;
+    *guard = Some(streams);
+    Ok(())
+}
+
+#[tauri::command]
+/// Close the meter-only streams opened by [`start_input_level_preview`].
+pub fn stop_input_level_preview(preview: tauri::State<'_, InputPreviewState>) -> Result<()> {
+    preview.stop();
+    Ok(())
+}
+
 /// Peak magnitude of a buffer, normalized to 0..1.
 fn buffer_peak<T>(input: &[T]) -> f32
 where
@@ -151,6 +291,11 @@ fn remove_recording_intermediates(paths: impl IntoIterator<Item = PathBuf>, keep
 pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, recording_name: Option<String>) -> Result<()> {
     if devices.is_empty() {
         bail!("At least one audio device is required");
+    }
+    // The input-level preview holds the same devices open while the dropdown is shown;
+    // release it first so a real recording never fights the meter-only streams.
+    if let Some(preview) = app_handle.try_state::<InputPreviewState>() {
+        preview.stop();
     }
     let host = cpal::default_host();
 
