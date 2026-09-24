@@ -21,5 +21,5 @@ export function findDefaultInputDevice(devices: AudioDevice[], savedId?: string 
 	if (marked) return marked
 	const pipewire = inputs.find((device) => PIPEWIRE_INPUT_PREFERENCE.test(device.name))
 	if (pipewire) return pipewire
-	return inputs.find((device) => !UNUSABLE_INPUT.test(device.name) && !/fifine Microphone/i.test(device.name)) ?? inputs[0] ?? null
+	return inputs.find((device) => !UNUSABLE_INPUT.test(device.name)) ?? inputs[0] ?? null
 }
