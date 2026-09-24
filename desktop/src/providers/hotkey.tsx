@@ -125,12 +125,14 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 	const handleHotkeyDown = useCallback(async () => {
 		if (isHotkeyRecordingRef.current || isStartingRef.current || isStoppingRef.current) return
 		isStartingRef.current = true
+		// Overlay must appear on key-down even if start_record fails a moment later.
+		indicatorSessionRef.current += 1
+		showIndicator('recording')
 		try {
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
 			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
 			if (!defaultInput) {
-				console.error('No default input device found')
-				return
+				throw new Error(m.noDefaultMicrophone())
 			}
 
 			isHotkeyRecordingRef.current = true
@@ -141,17 +143,16 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				devices: [defaultInput],
 				recordingName: null,
 			})
-			indicatorSessionRef.current += 1
-			showIndicator('recording')
 		} catch (error) {
 			console.error('Hotkey start_record error:', error)
+			finishIndicator('error', { message: getErrorMessage(error) })
 			isHotkeyRecordingRef.current = false
 			hotkeyRecordingActive = false
 			setIsHotkeyRecording(false)
 		} finally {
 			isStartingRef.current = false
 		}
-	}, [showIndicator])
+	}, [finishIndicator, showIndicator])
 
 	const handleHotkeyUp = useCallback(async () => {
 		if (!isHotkeyRecordingRef.current || isStoppingRef.current) return
