@@ -172,11 +172,7 @@ impl DeviceLevelMeter {
         }
         let level = f32::from_bits(self.peak_bits.swap(0, Ordering::Relaxed)).clamp(0.0, 1.0);
         self.app_handle
-            .emit_to(
-                "main",
-                "input_level",
-                json!({ "deviceId": self.device_id, "level": level }),
-            )
+            .emit_to("main", "input_level", json!({ "deviceId": self.device_id, "level": level }))
             .ok();
     }
 }
@@ -212,12 +208,13 @@ fn build_preview_stream(device: &Device, config: SupportedStreamConfig, meter: A
 /// events (`{ deviceId, level }`, ~10/s). Idempotent: a second call while the
 /// preview is active is a no-op. Devices that cannot be opened are skipped with
 /// a warning so one busy mic never blocks the rest.
+///
+/// The mutex is held for the whole open so two concurrent starts cannot both
+/// pass the "already running" check and open duplicate device streams.
 pub fn start_input_level_preview(app_handle: AppHandle, preview: tauri::State<'_, InputPreviewState>) -> Result<()> {
-    {
-        let guard = preview.streams.lock().map_err(|e| eyre!("{:?}", e))?;
-        if guard.is_some() {
-            return Ok(());
-        }
+    let mut guard = preview.streams.lock().map_err(|e| eyre!("{:?}", e))?;
+    if guard.is_some() {
+        return Ok(());
     }
 
     let host = cpal::default_host();
@@ -243,7 +240,6 @@ pub fn start_input_level_preview(app_handle: AppHandle, preview: tauri::State<'_
         }
     }
 
-    let mut guard = preview.streams.lock().map_err(|e| eyre!("{:?}", e))?;
     *guard = Some(streams);
     Ok(())
 }

@@ -51,10 +51,8 @@ export default function AudioDeviceInput({ type, devices, device, setDevice }: A
 		})
 
 		return () => {
-			unlisten.then((fn) => fn())
-			void stopInputLevelPreview().catch(() => {
-				// Best effort on teardown; the backend also stops the preview when a recording starts.
-			})
+			unlisten.then((fn) => fn()).catch(() => {})
+			void stopInputLevelPreview().catch(() => {})
 			setLevels({})
 		}
 	}, [isInput, open])
