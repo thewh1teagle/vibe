@@ -44,6 +44,8 @@ export const CONFIG_KEYS = {
 	// Recording
 	inputDeviceId: 'recording.inputDeviceId',
 	outputDeviceId: 'recording.outputDeviceId',
+	/** deviceId → epoch ms of the last successful start, used when no default mic is marked. */
+	recentInputDeviceActivity: 'recording.recentInputDeviceActivity',
 	recordingShortcutEnabled: 'recording.shortcutEnabled',
 	recordingShortcut: 'recording.shortcut',
 	meetingDetectionEnabled: 'recording.meetingDetectionEnabled',

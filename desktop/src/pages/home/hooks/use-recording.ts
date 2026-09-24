@@ -2,6 +2,7 @@ import { emit } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
 import { type SetStateAction, useContext, useEffect, useState } from 'react'
 import type { AudioDevice } from '~/lib/audio'
+import { findInputDevice, noteInputDeviceUsed, readRecentInputActivity } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
@@ -34,13 +35,13 @@ export function useRecording(onBeforeStart: () => void) {
 
 	async function loadAudioDevices() {
 		const newDevices = await invoke<AudioDevice[]>('get_audio_devices')
-		const inputs = newDevices.filter((device) => device.isInput)
 		const outputs = newDevices.filter((device) => !device.isInput)
-		setInputDevice(
-			savedInputDeviceId === null
-				? (inputs.find((device) => device.isDefault) ?? null)
-				: (inputs.find((device) => device.id === savedInputDeviceId) ?? null),
-		)
+		// Empty string is an explicit "None" choice; null means never configured.
+		if (savedInputDeviceId === '') {
+			setInputDevice(null)
+		} else {
+			setInputDevice(findInputDevice(newDevices, savedInputDeviceId, readRecentInputActivity()))
+		}
 		setOutputDevice(
 			savedOutputDeviceId === null
 				? (outputs.find((device) => device.isDefault) ?? null)
@@ -64,6 +65,7 @@ export function useRecording(onBeforeStart: () => void) {
 				devices: selectedDevices,
 				recordingName: recordingName.trim() || null,
 			})
+			if (inputDevice) noteInputDeviceUsed(inputDevice.id)
 		} catch (error) {
 			stopKeepAwake(KEEP_AWAKE.record)
 			setIsRecording(false)
