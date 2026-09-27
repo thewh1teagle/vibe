@@ -26,6 +26,14 @@ pub struct AudioDevice {
     pub name: String,
 }
 
+fn default_for_direction(is_input: bool, default_input: bool, default_output: bool) -> bool {
+    if is_input {
+        default_input
+    } else {
+        default_output
+    }
+}
+
 #[tauri::command]
 pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
     let host = cpal::default_host();
@@ -48,10 +56,11 @@ pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
         let name = device.description()?.to_string();
         let is_default_in = default_in.as_ref().is_ok_and(|d| d == &name);
         let is_default_out = default_out.as_ref().is_ok_and(|d| d == &name);
+        let is_input = device.supports_input();
 
         let audio_device = AudioDevice {
-            is_default: is_default_in || is_default_out,
-            is_input: device.supports_input(),
+            is_default: default_for_direction(is_input, is_default_in, is_default_out),
+            is_input,
             id: device_index.to_string(),
             name,
         };
@@ -397,8 +406,15 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::best_raw_capture;
+    use super::{best_raw_capture, default_for_direction};
     use std::path::PathBuf;
+
+    #[test]
+    fn default_output_with_input_channels_is_not_the_default_microphone() {
+        assert!(!default_for_direction(true, false, true));
+        assert!(default_for_direction(true, true, false));
+        assert!(default_for_direction(false, false, true));
+    }
 
     #[test]
     fn recovery_prefers_the_capture_with_the_most_samples() {
