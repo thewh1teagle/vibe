@@ -27,6 +27,13 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('manual recording controls', () => {
+	it('can stop a recording started by the global shortcut', async () => {
+		emit.mockResolvedValue(undefined)
+		const { result } = renderHook(() => useRecording(vi.fn()))
+		await act(async () => { await result.current.stopRecord() })
+		expect(emit).toHaveBeenCalledExactlyOnceWith('stop_record')
+	})
+
 	it('waits for the native stop listener before sending stop', async () => {
 		let finishStart!: () => void
 		invoke.mockReturnValue(new Promise<void>((resolve) => { finishStart = resolve }))

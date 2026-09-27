@@ -79,7 +79,6 @@ export function useRecording(onBeforeStart: () => void) {
 	}
 
 	async function stopRecord() {
-		if (!isRecording && !startingRef.current) return
 		// The native stop listener is installed only when start_record resolves.
 		if (startingRef.current && !(await startingRef.current)) return
 		try {
