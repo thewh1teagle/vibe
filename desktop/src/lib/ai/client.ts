@@ -1,5 +1,5 @@
 import { fetch } from '@tauri-apps/plugin-http'
-import { PLACEHOLDERS, type AiConnection } from './config'
+import { DEFAULT_AI, PLACEHOLDERS, type AiConnection } from './config'
 
 /** Output ceiling; the input side of the context is what is left after it and a margin. */
 const MAX_OUTPUT_TOKENS = 8_192
@@ -108,8 +108,16 @@ async function failure(label: string, response: Response) {
 	return new Error(`${label}: ${response.status} ${response.statusText}${detail ? ` · ${String(detail).slice(0, 300)}` : ''}`)
 }
 
+/** Ollama's `/api/generate`; llmman serves the same API, so it is the same client with another base URL. */
 class Ollama implements AiClient {
-	constructor(private connection: AiConnection) {}
+	constructor(
+		private connection: AiConnection,
+		private label = 'Ollama',
+		private baseUrl = connection.ollamaBaseUrl,
+	) {}
+	private url() {
+		return `${this.baseUrl.replace(/\/+$/, '')}/api/generate`
+	}
 	private body(prompt: string, stream: boolean) {
 		return JSON.stringify({
 			model: this.connection.model,
@@ -123,21 +131,13 @@ class Ollama implements AiClient {
 		return { 'Content-Type': 'application/json', Origin: 'http://127.0.0.1' }
 	}
 	async ask(prompt: string) {
-		const response = await fetch(`${this.connection.ollamaBaseUrl.replace(/\/+$/, '')}/api/generate`, {
-			method: 'POST',
-			headers: this.headers(),
-			body: this.body(prompt, false),
-		})
-		if (!response.ok) throw await failure('Ollama', response)
+		const response = await fetch(this.url(), { method: 'POST', headers: this.headers(), body: this.body(prompt, false) })
+		if (!response.ok) throw await failure(this.label, response)
 		return (await response.json())?.response ?? ''
 	}
 	async stream(prompt: string, onToken: (text: string) => void) {
-		const response = await fetch(`${this.connection.ollamaBaseUrl.replace(/\/+$/, '')}/api/generate`, {
-			method: 'POST',
-			headers: this.headers(),
-			body: this.body(prompt, true),
-		})
-		if (!response.ok) throw await failure('Ollama', response)
+		const response = await fetch(this.url(), { method: 'POST', headers: this.headers(), body: this.body(prompt, true) })
+		if (!response.ok) throw await failure(this.label, response)
 		let text = ''
 		await readLines(response, (line) => {
 			if (!line.trim()) return
@@ -241,6 +241,8 @@ class Claude implements AiClient {
 
 export function createClient(connection: AiConnection): AiClient {
 	if (connection.platform === 'ollama') return new Ollama(connection)
+	// Settings saved before llmman existed have no URL for it; fall back to its default port.
+	if (connection.platform === 'llmman') return new Ollama(connection, 'llmman', connection.llmmanBaseUrl || DEFAULT_AI.connection.llmmanBaseUrl)
 	if (connection.platform === 'openai') return new OpenAICompatible(connection)
 	return new Claude(connection)
 }

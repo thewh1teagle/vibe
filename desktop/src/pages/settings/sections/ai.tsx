@@ -1,11 +1,11 @@
 import { openUrl } from '@tauri-apps/plugin-opener'
-import { Check, ChevronRight, Copy, ExternalLink } from 'lucide-react'
+import { Boxes, Check, ChevronRight, Copy, ExternalLink } from 'lucide-react'
 import { siClaude, siOllama } from 'simple-icons'
 import { OPENAI_PATH } from '~/components/brand-glyph'
 import { m } from '~/paraglide/messages.js'
 import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import * as config from '~/lib/config'
-import { defaultModel, type AiPlatform, type AiSettings } from '~/lib/ai'
+import { DEFAULT_AI, defaultModel, type AiPlatform, type AiSettings } from '~/lib/ai'
 import NumberField from '~/components/number-field'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -27,21 +27,27 @@ function LabelWithLink({ label, tooltip, onClick }: { label: string; tooltip: st
 	)
 }
 
-/** Brand marks for the providers, so the picker reads at a glance. */
-const platformIcons: Record<AiPlatform, { path: string; title: string }> = {
+/** Brand marks for the providers, so the picker reads at a glance; llmman has none and gets a neutral box. */
+const platformIcons: Partial<Record<AiPlatform, { path: string; title: string }>> = {
 	claude: { path: siClaude.path, title: siClaude.title },
 	ollama: { path: siOllama.path, title: siOllama.title },
 	openai: { path: OPENAI_PATH, title: 'OpenAI' },
 }
 
+const platformLabels: Record<AiPlatform, string> = { claude: 'Claude', llmman: 'llmman', ollama: 'Ollama', openai: 'OpenAI Compatible' }
+
 function PlatformOption({ platform }: { platform: AiPlatform }) {
 	const icon = platformIcons[platform]
 	return (
 		<span className="flex items-center gap-2">
-			<svg viewBox="0 0 24 24" role="img" aria-hidden className="h-4 w-4 shrink-0">
-				<path d={icon.path} fill="currentColor" />
-			</svg>
-			<span className="capitalize">{platform === 'openai' ? 'OpenAI Compatible' : platform}</span>
+			{icon ? (
+				<svg viewBox="0 0 24 24" role="img" aria-hidden className="h-4 w-4 shrink-0">
+					<path d={icon.path} fill="currentColor" />
+				</svg>
+			) : (
+				<Boxes aria-hidden className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+			)}
+			<span>{platformLabels[platform]}</span>
 		</span>
 	)
 }
@@ -102,7 +108,7 @@ export function AiSection({ vm, onOpenPrompt }: { vm: SettingsViewModel; onOpenP
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
-							{(['claude', 'ollama', 'openai'] as const).map((name) => (
+							{(['claude', 'llmman', 'ollama', 'openai'] as const).map((name) => (
 								<SelectItem key={name} value={name}>
 									<PlatformOption platform={name} />
 								</SelectItem>
@@ -163,6 +169,30 @@ export function AiSection({ vm, onOpenPrompt }: { vm: SettingsViewModel; onOpenP
 								value={connection.model}
 								onChange={(e) => setConnection({ model: e.target.value })}
 								placeholder={defaultModel('ollama')}
+								className={`w-64 ${rowControlClass}`}
+							/>
+						</SettingsRow>
+					</>
+				)}
+
+				{connection.platform === 'llmman' && (
+					<>
+						<SettingsRow label={m.baseUrl()}>
+							<Input
+								value={connection.llmmanBaseUrl ?? ''}
+								onChange={(e) => setConnection({ llmmanBaseUrl: e.target.value })}
+								placeholder={DEFAULT_AI.connection.llmmanBaseUrl}
+								className={`w-64 ${rowControlClass}`}
+							/>
+						</SettingsRow>
+						<SettingsRow
+							label={
+								<LabelWithLink label={m.llmModel()} tooltip={m.findHere()} onClick={() => openUrl('https://github.com/llmmanorg/llmman')} />
+							}>
+							<Input
+								value={connection.model}
+								onChange={(e) => setConnection({ model: e.target.value })}
+								placeholder={defaultModel('llmman')}
 								className={`w-64 ${rowControlClass}`}
 							/>
 						</SettingsRow>

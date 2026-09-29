@@ -20,7 +20,8 @@ export interface LegacyLlmConfig {
  * does to a sentence. Prompts belong to tasks, so changing the platform keeps them.
  */
 
-export type AiPlatform = 'ollama' | 'claude' | 'openai'
+/** `llmman` (https://github.com/llmmanorg/llmman) speaks the Ollama API on port 17434. */
+export type AiPlatform = 'ollama' | 'llmman' | 'claude' | 'openai'
 
 export interface AiConnection {
 	platform: AiPlatform
@@ -28,6 +29,7 @@ export interface AiConnection {
 	contextTokens: number
 	claudeApiKey: string
 	ollamaBaseUrl: string
+	llmmanBaseUrl: string
 	openaiBaseUrl: string
 	openaiApiKey: string
 }
@@ -117,6 +119,7 @@ export const DEFAULT_AI: AiSettings = {
 		contextTokens: 65_536,
 		claudeApiKey: '',
 		ollamaBaseUrl: 'http://localhost:11434',
+		llmmanBaseUrl: 'http://localhost:17434',
 		openaiBaseUrl: 'https://api.openai.com/v1',
 		openaiApiKey: '',
 	},
@@ -128,7 +131,7 @@ export const DEFAULT_AI: AiSettings = {
 
 /** The default model for a platform, so switching platforms never leaves a Claude model on Ollama. */
 export function defaultModel(platform: AiPlatform) {
-	return platform === 'ollama' ? 'gemma4:e2b' : platform === 'openai' ? 'gpt-5.6-luna' : 'claude-sonnet-5'
+	return platform === 'ollama' ? 'gemma4:e2b' : platform === 'llmman' ? 'gemma4' : platform === 'openai' ? 'gpt-5.6-luna' : 'claude-sonnet-5'
 }
 
 /** Old `%s` prompts become `{transcript}` or `{text}`; anything else is left alone. */
@@ -154,6 +157,7 @@ export function migrateLegacy(legacy: LegacyLlmConfig | null | undefined, autoSu
 			contextTokens: legacy.contextTokens ?? DEFAULT_AI.connection.contextTokens,
 			claudeApiKey: legacy.claudeApiKey ?? '',
 			ollamaBaseUrl: legacy.ollamaBaseUrl || DEFAULT_AI.connection.ollamaBaseUrl,
+			llmmanBaseUrl: DEFAULT_AI.connection.llmmanBaseUrl,
 			openaiBaseUrl: legacy.openaiBaseUrl || DEFAULT_AI.connection.openaiBaseUrl,
 			openaiApiKey: legacy.openaiApiKey ?? '',
 		},
