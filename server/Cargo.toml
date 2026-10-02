@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "crates/diarize-rs",
+    "crates/nemotron-diarize-rs",
     "crates/nemotron-rs",
     "crates/parakeet-rs",
     "crates/vibe-server",

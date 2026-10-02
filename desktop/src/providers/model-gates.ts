@@ -45,6 +45,20 @@ export function useModelGates() {
 		[progressToast],
 	)
 
+	/** True once the diarization model is on disk, asking to download it when it is not. */
+	const ensureDiarizeModel = useCallback(
+		() =>
+			ensureModel({
+				filename: config.diarizeModelFilename,
+				url: config.diarizeModelUrl,
+				integrity: config.diarizeModelIntegrity,
+				title: m.diarization(),
+				question: m.downloadDiarizeModel(),
+				downloading: m.downloadingDiarizeModel(),
+			}),
+		[ensureModel],
+	)
+
 	const toggleDiarization = useCallback(
 		async (checked: boolean) => {
 			if (!checked) {
@@ -52,21 +66,14 @@ export function useModelGates() {
 				return
 			}
 			try {
-				const ready = await ensureModel({
-					filename: config.diarizeModelFilename,
-					url: config.diarizeModelUrl,
-					integrity: config.diarizeModelIntegrity,
-					title: m.diarization(),
-					question: m.downloadDiarizeModel(),
-					downloading: m.downloadingDiarizeModel(),
-				})
+				const ready = await ensureDiarizeModel()
 				if (ready) preference.setDiarizeEnabled(true)
 			} catch (error) {
 				console.error('diarization setup failed:', error)
 				toast.error(String(error))
 			}
 		},
-		[ensureModel, preference],
+		[ensureDiarizeModel, preference],
 	)
 
 	const toggleStableTimestamps = useCallback(
@@ -92,5 +99,5 @@ export function useModelGates() {
 		[ensureModel, preference],
 	)
 
-	return { toggleDiarization, toggleStableTimestamps }
+	return { ensureDiarizeModel, toggleDiarization, toggleStableTimestamps }
 }

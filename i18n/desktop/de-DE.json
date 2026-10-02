@@ -50,7 +50,7 @@
 	"customizeInfo": "Laden Sie ein beliebiges unterstütztes Modell im ggml- oder gguf-Format herunter (mit der Dateierweiterung „.bin“). Übertragen Sie es in das Modellverzeichnis und wählen Sie es dann aus dem Dropdown-Menü aus. Kein Neustart erforderlich 🌟",
 	"dark": "Dunkel",
 	"diarizeThreshold": "Schwellenwert für Sprechererkennung",
-	"diarizeMaxSpeakersNote": "Unterstützt die Erkennung von bis zu 4 Sprechern.",
+	"diarizeMaxSpeakersNote": "Unterstützt die Erkennung von bis zu 8 Sprechern.",
 	"diarization": "Diarisierung",
 	"discordCommunity": "Discord-Community",
 	"downloadFile": "Herunterladen und transkribieren",

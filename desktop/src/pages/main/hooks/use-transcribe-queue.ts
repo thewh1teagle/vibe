@@ -31,6 +31,7 @@ import {
 } from '~/lib/transcripts-store'
 import type { NamedPath, ProjectSource } from '~/lib/types'
 import { ErrorModalContext } from '~/providers/error-modal'
+import { useModelGates } from '~/providers/model-gates'
 import { withoutUnsupportedOptions } from '~/lib/model'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
 
@@ -205,6 +206,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 	const preference = usePreferenceProvider()
 	const preferenceRef = useRef(preference)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
+	const { ensureDiarizeModel } = useModelGates()
 
 	const [jobs, setJobs] = useState<Job[]>([])
 	const jobsRef = useRef<Job[]>([])
@@ -399,7 +401,15 @@ export function useTranscribeQueue(): TranscribeQueue {
 					unloadTimeoutMinutes: current.unloadTimeoutMinutes,
 				})
 				if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
-				shared = await buildSharedOptions(current)
+				// Speaker recognition stays on across updates while its model can change name with one, so
+				// an existing user may have it on with the new model missing: ask for it now rather than
+				// transcribing without speakers. Declining turns the setting off and the run goes on.
+				let options = current
+				if (current.diarizeEnabled && !(await ensureDiarizeModel())) {
+					current.setDiarizeEnabled(false)
+					options = { ...current, diarizeEnabled: false }
+				}
+				shared = await buildSharedOptions(options)
 			} catch (error) {
 				const { message } = errorParts(error)
 				failPending(message)
@@ -533,7 +543,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 			// A file enqueued while the loop was winding down would otherwise stay queued forever.
 			if (!abortAllRef.current && jobsRef.current.some((job) => job.status === 'queued')) void runLoop()
 		}
-	}, [autoExportJob, commit, failPending, patch, persist, select, serializeProjectOperation, setErrorModal])
+	}, [autoExportJob, commit, ensureDiarizeModel, failPending, patch, persist, select, serializeProjectOperation, setErrorModal])
 
 	const unexportedCount = jobs.filter((job) => job.status === 'done' && job.segments.length > 0 && !job.exported).length
 

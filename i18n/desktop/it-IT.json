@@ -50,7 +50,7 @@
 	"customizeInfo": "Scarica un qualunque modello supportato nel formato ggml o gguf (con estensione file '.bin'). Copialo nella cartella dei modelli e,selezionalo dal menù a tendina. Non è richiesto il riavvio 🌟",
 	"dark": "Scuro",
 	"diarizeThreshold": "Soglia di riconoscimento dell'relatore",
-	"diarizeMaxSpeakersNote": "Supporta il riconoscimento di massimo 4 interlocutori.",
+	"diarizeMaxSpeakersNote": "Supporta il riconoscimento di massimo 8 interlocutori.",
 	"diarization": "Diarizzazione",
 	"discordCommunity": "Discord",
 	"downloadFile": "Scarica e trascrivi",

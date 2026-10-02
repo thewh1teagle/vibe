@@ -50,7 +50,7 @@
 	"customizeInfo": "Ladda ner valfri modell som stöds i ggml- eller gguf-format (med filändelsen som slutar på '.bin'). Flytta den till modellmappen och välj den sedan i listan. Ingen omstart behövs 🌟",
 	"dark": "Mörk",
 	"diarizeThreshold": "Tröskel för högtalarigenkänning",
-	"diarizeMaxSpeakersNote": "Känner igen upp till 4 talare.",
+	"diarizeMaxSpeakersNote": "Känner igen upp till 8 talare.",
 	"diarization": "Talarigenkänning",
 	"discordCommunity": "Discord-gemenskap",
 	"downloadFile": "Ladda ner och transkribera",

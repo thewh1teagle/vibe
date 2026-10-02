@@ -50,7 +50,7 @@
 	"customizeInfo": "Descarga cualquier modelo soportado en formato ggml o gguf (con la extensión del archivo terminando en '.bin'). Transfiérelo al directorio de los modelos, posteriormente seleccionalo del menú desplegable. No es necesario reiniciar 🌟",
 	"dark": "Oscuro",
 	"diarizeThreshold": "Umbral de reconocimiento del hablante",
-	"diarizeMaxSpeakersNote": "Admite la detección de hasta 4 hablantes.",
+	"diarizeMaxSpeakersNote": "Admite la detección de hasta 8 hablantes.",
 	"diarization": "Diarización",
 	"discordCommunity": "Comunidad de Discord",
 	"downloadFile": "Descargar y transcribir",
