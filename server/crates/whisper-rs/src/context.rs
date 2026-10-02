@@ -11,13 +11,17 @@ use std::sync::Once;
 
 use ggml_rs_sys as ffi;
 
+use crate::vocab::Vocab;
 use crate::{
     model_file, ContextOptions, Error, FullCallbacks, FullParams, FullSegment, Result, SamplingStrategy, Segment,
-    StreamCallbacks, TranscribeOptions, TranscribeResult, Whisper,
+    StreamCallbacks, TranscribeOptions, TranscribeResult, Whisper, Word,
 };
 
 pub struct Context {
     whisper: Whisper,
+    /// A copy of the model's vocabulary, so segments can be turned into words
+    /// from inside the engine's segment callback, which holds the engine.
+    vocab: Vocab,
 }
 
 impl Context {
@@ -38,9 +42,9 @@ impl Context {
             engine_options.gpu_device = options.gpu_device;
         }
 
-        Ok(Self {
-            whisper: Whisper::with_options(path, engine_options)?,
-        })
+        let whisper = Whisper::with_options(path, engine_options)?;
+        let vocab = whisper.model.vocab.clone();
+        Ok(Self { whisper, vocab })
     }
 
     pub fn transcribe(&mut self, samples: &[f32], options: TranscribeOptions) -> Result<TranscribeResult> {
@@ -59,7 +63,7 @@ impl Context {
         set_verbose(options.verbose);
 
         if options.stable_timestamps {
-            return transcribe_stable_timestamps(&mut self.whisper, samples, options, callbacks);
+            return transcribe_stable_timestamps(&mut self.whisper, &self.vocab, samples, options, callbacks);
         }
 
         let params = full_params(&options);
@@ -68,8 +72,9 @@ impl Context {
         if let Some(on_progress) = callbacks.on_progress.as_mut() {
             engine_callbacks.on_progress = Some(Box::new(&mut **on_progress));
         }
+        let vocab = &self.vocab;
         if let Some(on_segment) = callbacks.on_segment.as_mut() {
-            engine_callbacks.on_new_segment = Some(Box::new(|segment: &FullSegment| on_segment(convert(segment))));
+            engine_callbacks.on_new_segment = Some(Box::new(|segment: &FullSegment| on_segment(convert(segment, vocab))));
         }
         if let Some(should_abort) = callbacks.should_abort.as_mut() {
             engine_callbacks.should_abort = Some(Box::new(&mut **should_abort));
@@ -79,18 +84,59 @@ impl Context {
         drop(engine_callbacks);
 
         Ok(TranscribeResult {
-            segments: segments.iter().map(convert).collect(),
+            segments: segments.iter().map(|segment| convert(segment, vocab)).collect(),
         })
     }
 }
 
-fn convert(segment: &FullSegment) -> Segment {
+fn convert(segment: &FullSegment, vocab: &Vocab) -> Segment {
     Segment {
         start: segment.t0,
         end: segment.t1,
         text: segment.text.clone(),
         no_speech_prob: segment.no_speech_prob,
+        words: words(segment, vocab),
     }
+}
+
+/// Groups a segment's text tokens into words: a token whose bytes open with a
+/// space starts a new word. Bytes are joined before decoding, since a BPE token
+/// can hold half of a multi-byte character. Empty unless every text token has
+/// a timestamp, which whisper computes only with `token_timestamps`.
+fn words(segment: &FullSegment, vocab: &Vocab) -> Vec<Word> {
+    let tokens = segment
+        .tokens
+        .iter()
+        .filter(|token| token.id < vocab.token_eot)
+        .collect::<Vec<_>>();
+    if tokens.is_empty() || tokens.iter().any(|token| token.t0 < 0 || token.t1 < 0) {
+        return Vec::new();
+    }
+    let mut words = Vec::new();
+    let mut bytes = Vec::new();
+    let (mut start, mut end) = (tokens[0].t0, tokens[0].t1);
+    for token in tokens {
+        let piece = vocab.token_bytes(token.id);
+        if piece.first() == Some(&b' ') && !bytes.is_empty() {
+            words.push(Word {
+                start,
+                end,
+                text: String::from_utf8_lossy(&bytes).into_owned(),
+            });
+            bytes.clear();
+            start = token.t0;
+        }
+        bytes.extend_from_slice(piece);
+        end = token.t1.max(start);
+    }
+    if !bytes.is_empty() {
+        words.push(Word {
+            start,
+            end,
+            text: String::from_utf8_lossy(&bytes).into_owned(),
+        });
+    }
+    words
 }
 
 /// The stable-timestamps path: VAD the audio, transcribe each speech segment
@@ -98,6 +144,7 @@ fn convert(segment: &FullSegment) -> Segment {
 /// from the previous `stable.rs`.
 fn transcribe_stable_timestamps(
     whisper: &mut Whisper,
+    vocab: &Vocab,
     samples: &[f32],
     options: TranscribeOptions,
     mut callbacks: StreamCallbacks<'_>,
@@ -138,9 +185,13 @@ fn transcribe_stable_timestamps(
         };
 
         for segment in &decoded {
-            let mut segment = convert(segment);
+            let mut segment = convert(segment, vocab);
             segment.start += t0cs;
             segment.end += t0cs;
+            for word in &mut segment.words {
+                word.start += t0cs;
+                word.end += t0cs;
+            }
             if let Some(on_segment) = callbacks.on_segment.as_mut() {
                 on_segment(segment.clone());
             }
