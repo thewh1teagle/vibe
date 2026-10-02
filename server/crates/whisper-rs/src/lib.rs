@@ -78,6 +78,18 @@ pub struct Segment {
     pub end: i64,
     pub text: String,
     pub no_speech_prob: f32,
+    /// Word timings, empty when the engine has none for this run (whisper
+    /// without `word_timestamps`).
+    pub words: Vec<Word>,
+}
+
+/// One word of a [`Segment`]. Times are centiseconds. The text keeps its
+/// leading space, so concatenating a segment's words rebuilds its text.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Word {
+    pub start: i64,
+    pub end: i64,
+    pub text: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]

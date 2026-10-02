@@ -1,6 +1,9 @@
 use anyhow::{bail, Context as _};
 use serde::Serialize;
-use whisper_rs::{ContextOptions, Segment, StreamCallbacks, TranscribeOptions, TranscribeResult};
+use whisper_rs::{ContextOptions, Segment, StreamCallbacks, TranscribeOptions, TranscribeResult, Word};
+
+/// Centiseconds per encoder frame of the Parakeet and Nemotron FastConformers (80 ms).
+const FRAME_CS: i64 = 8;
 
 #[derive(Debug, Clone, Serialize, utoipa::ToSchema)]
 pub struct EngineCapabilities {
@@ -82,17 +85,12 @@ impl Engine {
                 let result = model
                     .transcribe(&mut vad.as_mut().unwrap().1, samples, language)
                     .context("Nemotron inference failed")?;
+                let tokenizer = model.tokenizer();
                 Ok(TranscribeResult {
                     segments: result
                         .segments
-                        .into_iter()
-                        .filter(|segment| !segment.text.is_empty())
-                        .map(|segment| Segment {
-                            start: segment.tokens.first().map_or(0, |token| token.frame as i64 * 8),
-                            end: segment.tokens.last().map_or(0, |token| (token.frame as i64 + 1) * 8),
-                            text: segment.text,
-                            no_speech_prob: 0.0,
-                        })
+                        .iter()
+                        .filter_map(|segment| nemotron_segment(segment, tokenizer))
                         .collect(),
                 })
             }
@@ -107,8 +105,13 @@ impl Engine {
                 let result = model
                     .transcribe(vad, samples, language)
                     .context("Parakeet inference failed")?;
+                let tokenizer = model.tokenizer();
                 Ok(TranscribeResult {
-                    segments: result.segments.iter().filter_map(parakeet_segment).collect(),
+                    segments: result
+                        .segments
+                        .iter()
+                        .filter_map(|segment| parakeet_segment(segment, tokenizer))
+                        .collect(),
                 })
             }
         }
@@ -156,7 +159,7 @@ impl Engine {
                     || should_abort.as_mut().is_some_and(|callback| callback()),
                     |transcription| {
                         if let Some(callback) = on_segment.as_mut() {
-                            if let Some(segment) = nemotron_segment(transcription) {
+                            if let Some(segment) = nemotron_segment(transcription, model.tokenizer()) {
                                 callback(segment);
                             }
                         }
@@ -167,8 +170,13 @@ impl Engine {
                         }
                     },
                 )?;
+                let tokenizer = model.tokenizer();
                 Ok(TranscribeResult {
-                    segments: result.segments.iter().filter_map(nemotron_segment).collect(),
+                    segments: result
+                        .segments
+                        .iter()
+                        .filter_map(|segment| nemotron_segment(segment, tokenizer))
+                        .collect(),
                 })
             }
             Self::Parakeet { model, vad } => {
@@ -191,7 +199,9 @@ impl Engine {
                         language,
                         || should_abort.as_mut().is_some_and(|callback| callback()),
                         |transcription| {
-                            if let (Some(callback), Some(segment)) = (on_segment.as_mut(), parakeet_segment(transcription)) {
+                            if let (Some(callback), Some(segment)) =
+                                (on_segment.as_mut(), parakeet_segment(transcription, model.tokenizer()))
+                            {
                                 callback(segment);
                             }
                         },
@@ -202,8 +212,13 @@ impl Engine {
                         },
                     )
                     .context("Parakeet inference failed")?;
+                let tokenizer = model.tokenizer();
                 Ok(TranscribeResult {
-                    segments: result.segments.iter().filter_map(parakeet_segment).collect(),
+                    segments: result
+                        .segments
+                        .iter()
+                        .filter_map(|segment| parakeet_segment(segment, tokenizer))
+                        .collect(),
                 })
             }
         }
@@ -249,12 +264,19 @@ pub fn whisper_capabilities() -> EngineCapabilities {
     }
 }
 
-fn nemotron_segment(transcription: &nemotron_rs::Transcription) -> Option<Segment> {
+fn nemotron_segment(transcription: &nemotron_rs::Transcription, tokenizer: &nemotron_rs::Tokenizer) -> Option<Segment> {
+    // Nemotron emits a token's start frame only; it ends with its frame.
+    let tokens = transcription
+        .tokens
+        .iter()
+        .map(|token| (token.id, token.frame as i64 * FRAME_CS, (token.frame as i64 + 1) * FRAME_CS))
+        .collect::<Vec<_>>();
     (!transcription.text.is_empty()).then(|| Segment {
-        start: transcription.tokens.first().map_or(0, |token| token.frame as i64 * 8),
-        end: transcription.tokens.last().map_or(0, |token| (token.frame as i64 + 1) * 8),
+        start: tokens.first().map_or(0, |token| token.1),
+        end: tokens.last().map_or(0, |token| token.2),
         text: transcription.text.clone(),
         no_speech_prob: 0.0,
+        words: piece_words(&tokens, |id| tokenizer.piece(id), |ids| tokenizer.decode(ids)),
     })
 }
 
@@ -276,14 +298,76 @@ fn parakeet_vad<'a>(cached: &'a mut Option<(String, vad_rs::Vad)>, path: Option<
     Ok(&mut cached.as_mut().expect("VAD initialized").1)
 }
 
-fn parakeet_segment(transcription: &parakeet_rs::Transcription) -> Option<Segment> {
+fn parakeet_segment(transcription: &parakeet_rs::Transcription, tokenizer: &parakeet_rs::Tokenizer) -> Option<Segment> {
+    let tokens = transcription
+        .tokens
+        .iter()
+        .map(|token| {
+            let start = token.frame as i64 * FRAME_CS;
+            (token.id, start, start + token.duration_frames.max(1) as i64 * FRAME_CS)
+        })
+        .collect::<Vec<_>>();
     (!transcription.text.is_empty()).then(|| Segment {
-        start: transcription.tokens.first().map_or(0, |token| token.frame as i64 * 8),
-        end: transcription
-            .tokens
-            .last()
-            .map_or(0, |token| (token.frame + token.duration_frames.max(1)) as i64 * 8),
+        start: tokens.first().map_or(0, |token| token.1),
+        end: tokens.last().map_or(0, |token| token.2),
         text: transcription.text.clone(),
         no_speech_prob: 0.0,
+        words: piece_words(&tokens, |id| tokenizer.piece(id), |ids| tokenizer.decode(ids)),
     })
+}
+
+/// Groups SentencePiece tokens `(id, start_cs, end_cs)` into words: a piece
+/// opening with `▁` starts one. Control pieces such as `<en-US>` are dropped,
+/// as `decode_clean` drops them from the segment text.
+fn piece_words<'a>(
+    tokens: &[(u32, i64, i64)],
+    piece: impl Fn(u32) -> Option<&'a str>,
+    decode: impl Fn(&[u32]) -> String,
+) -> Vec<Word> {
+    let mut words = Vec::new();
+    let mut ids = Vec::new();
+    let (mut start, mut end) = (0, 0);
+    let mut flush = |ids: &mut Vec<u32>, start: i64, end: i64| {
+        if !ids.is_empty() {
+            words.push(Word {
+                start,
+                end,
+                text: decode(ids),
+            });
+            ids.clear();
+        }
+    };
+    for &(id, token_start, token_end) in tokens {
+        let text = piece(id).unwrap_or_default();
+        if text.starts_with('<') && text.ends_with('>') && text.contains('-') {
+            continue;
+        }
+        if text.starts_with('▁') || ids.is_empty() {
+            flush(&mut ids, start, end);
+            start = token_start;
+        }
+        ids.push(id);
+        end = token_end;
+    }
+    flush(&mut ids, start, end);
+    words
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pieces_group_into_words_with_their_times() {
+        let pieces = ["<en-US>", "▁Hel", "lo", "▁world", "."];
+        let tokens = [(0, 0, 8), (1, 8, 16), (2, 16, 24), (3, 40, 48), (4, 48, 56)];
+        let decode = |ids: &[u32]| {
+            ids.iter()
+                .map(|&id| pieces[id as usize].replace('▁', " "))
+                .collect::<String>()
+        };
+        let words = piece_words(&tokens, |id| pieces.get(id as usize).copied(), decode);
+        let spans = words.iter().map(|w| (w.text.as_str(), w.start, w.end)).collect::<Vec<_>>();
+        assert_eq!(spans, [(" Hello", 8, 24), (" world.", 40, 56)]);
+    }
 }
