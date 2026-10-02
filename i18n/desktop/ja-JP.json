@@ -50,7 +50,7 @@
 	"customizeInfo": "ggmlまたはgguf形式（拡張子が'.bin'）のサポートモデルをダウンロードしてください。モデルディレクトリに移動し、ドロップダウンから選択します。再起動は不要です🌟",
 	"dark": "ダーク",
 	"diarizeThreshold": "話者認識のしきい値",
-	"diarizeMaxSpeakersNote": "最大4人までの話者を検出できます。",
+	"diarizeMaxSpeakersNote": "最大8人までの話者を検出できます。",
 	"diarization": "話者分離",
 	"discordCommunity": "Discordコミュニティ",
 	"downloadFile": "ダウンロードして文字起こし",

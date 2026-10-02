@@ -50,7 +50,7 @@
 	"customizeInfo": "Faça download de qualquer modelo compatível no formato ggml ou gguf (com a extensão de arquivo terminando em '.bin'). Transfira-o para o diretório de modelos e, em seguida, selecione-o na lista suspensa. Não há necessidade de reiniciar 🌟",
 	"dark": "Escuro",
 	"diarizeThreshold": "Limite de reconhecimento do alto-falante",
-	"diarizeMaxSpeakersNote": "Detecta até 4 falantes.",
+	"diarizeMaxSpeakersNote": "Detecta até 8 falantes.",
 	"diarization": "Diarização",
 	"discordCommunity": "Comunidade Discord",
 	"downloadFile": "Baixe e transcreva",

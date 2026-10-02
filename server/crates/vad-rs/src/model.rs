@@ -41,7 +41,7 @@ pub(crate) struct Model {
 }
 
 // The context is only touched behind &mut on one thread at a time, matching
-// the contract diarize-rs uses for its weight context.
+// the contract the other ggml crates use for their weight contexts.
 unsafe impl Send for Model {}
 
 impl Drop for Model {
