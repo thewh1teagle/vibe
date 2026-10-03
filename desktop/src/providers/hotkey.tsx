@@ -5,10 +5,10 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
-import { AudioDevice } from '~/lib/audio'
+import { AudioDevice, selectInputDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { gpuOutOfMemoryBefore } from '~/lib/gpu-memory'
-import { usePersisted } from '~/lib/config-store'
+import { readConfig, usePersisted } from '~/lib/config-store'
 import { createClient, fillPrompt } from '~/lib/ai'
 import { withoutUnsupportedOptions } from '~/lib/model'
 import { isUserError } from '~/lib/server-errors'
@@ -127,9 +127,9 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 		isStartingRef.current = true
 		try {
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
-			const defaultInput = devices.find((d) => d.isDefault && d.isInput)
-			if (!defaultInput) {
-				console.error('No default input device found')
+			const inputDevice = selectInputDevice(devices, readConfig<string | null>(CONFIG_KEYS.inputDeviceId, null))
+			if (!inputDevice) {
+				console.error('No selected input device found')
 				return
 			}
 
@@ -138,7 +138,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 			setIsHotkeyRecording(true)
 
 			await invoke('start_record', {
-				devices: [defaultInput],
+				devices: [inputDevice],
 				recordingName: null,
 			})
 			indicatorSessionRef.current += 1
