@@ -48,8 +48,8 @@ High-level layout of the codebase:
     - Abort callbacks for cancellation
     - Stable timestamp/VAD support
 
-- `crates/diarize-rs`  
-  In-process Sortformer diarization.
+- `crates/nemotron-diarize-rs`  
+  In-process NVIDIA Nemotron-3-Diarization (up to 8 speakers).
 
 - `crates/vibe-server/src/server`  
   HTTP layer:

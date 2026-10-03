@@ -45,23 +45,28 @@ export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/
 export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
 /**
- * Diarization runs NVIDIA Sortformer on ggml now, not ONNX Runtime, so this is a GGUF built from
- * the original `.nemo` checkpoint rather than an ONNX export. Q8_0: the k-quant tiers are unsafe
- * for this model — its speaker-cache compression makes discrete near-tie decisions that quant
- * error can flip, permuting speaker labels mid-stream.
+ * Diarization runs NVIDIA Nemotron-3-Diarization (up to 8 speakers) on ggml, a GGUF exported from
+ * the HF safetensors by `server/crates/nemotron-diarize-rs/scripts/export.py --dtype q8_0`.
+ * Q8_0 matches F32 segments on our checks at a quarter of the size.
  *
- * Mirrored into the vibe-app org from `nvidia/diar_streaming_sortformer_4spk-v2` (cc-by-4.0).
+ * Mirrored into the vibe-app org from `nvidia/Nemotron-3-Diarization` (OpenMDW 1.1).
  *
- * Anyone upgrading still has the old `.onnx` sitting in their models folder. Nothing reads it any
- * more and it is not a `.gguf`/`.bin`, so it stays invisible to the model listing; the gate simply
- * finds this file missing and offers the download. Deleting the stale 492 MB file is left to them.
+ * Anyone upgrading has speaker recognition on with this file missing: the transcription queue
+ * runs the same download gate as the switch before the run. The models they had before stay
+ * untouched — see `legacyDiarizeModelFilenames`.
  */
-export const diarizeModelFilename = 'diar_streaming_sortformer_4spk-v2.q8_0.gguf'
-export const diarizeModelUrl = 'https://huggingface.co/vibe-app/diar-streaming-sortformer-4spk-v2-gguf/resolve/main/diar_streaming_sortformer_4spk-v2.q8_0.gguf'
+export const diarizeModelFilename = 'nemotron-3-diarization-Q8_0.gguf'
+export const diarizeModelUrl = 'https://huggingface.co/vibe-app/nemotron-3-diarization-gguf/resolve/main/nemotron-3-diarization-Q8_0.gguf'
 export const diarizeModelIntegrity: ModelIntegrity = {
-	size: 147075776,
-	sha256: '0679cfeb1ce356d0dea9470b31274f4bfc7eb927497d82005483770666da998a',
+	size: 108541632,
+	sha256: 'a25f026847d765c8661fd5095c73a0e5f20d310dcb8249c654e3828592a2fc73',
 }
+/**
+ * Diarization models earlier releases downloaded. Nothing reads them; they are listed only so the
+ * Sortformer GGUF never shows up as a transcription model. The older 492 MB `.onnx` needs no entry:
+ * it is not a `.gguf`/`.bin`, so the model listing never sees it. Deleting them is left to users.
+ */
+export const legacyDiarizeModelFilenames = ['diar_streaming_sortformer_4spk-v2.q8_0.gguf']
 export const vadModelFilename = 'ggml-silero-v6.2.0.bin'
 export const vadModelUrl = 'https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin'
 

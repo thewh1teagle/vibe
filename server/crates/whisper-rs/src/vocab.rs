@@ -7,6 +7,7 @@ use crate::lang;
 
 pub type Token = i32;
 
+#[derive(Clone)]
 pub struct Vocab {
     pub n_vocab: i32,
     pub token_to_id: HashMap<Vec<u8>, Token>,

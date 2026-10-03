@@ -1,17 +1,17 @@
-# Claude Development Notes
+# Development Notes
+
+Project-specific rules [`docs/PROJECT.md`](docs/PROJECT.md).
 
 ## Tooling
 
 - Tasks: `chore` — see `chore list`
 - JS: `pnpm` only; Python: `uv` standalone scripts (`uv run`)
 
-## Validation
+## Plans & validation
+
+The root folder is holy: put all plan and scratch files under `plans/`, never in the root.
 
 Plan validation scripts: `plans/<name>/<name>_001.py` (+ `.md`), standalone `uv` scripts.
-
-## Skills
-
-Custom skills live in `.claude/skills/<name>/SKILL.md`.
 
 ## Execution Mindset
 
@@ -19,7 +19,8 @@ Agent mode: parallel moves, instant iteration, speed by default. Split heavy wor
 
 ## Working in parallel
 
-Split large work across ~4–5 subagents, one disjoint module-group each — no shared files; only the coordinator touches shared/root config. Fix contracts (interfaces, design docs) up front. Throughput is per-agent (~100 tok/s, no global limit), so N agents ≈ N× speed — delegate bulk implementation to strong subagents (e.g. Opus 5 for correctness-sensitive code); keep the main loop for planning, contracts, and integration.
+Split large tasks across 4–5 strong subagents, each owning a separate module group with no overlapping files. Define interfaces and design contracts first. Delegate bulk implementation; keep planning, shared/root config, and integration with the coordinator. Parallelize independent work for speed, allowing for coordination overhead.
+
 
 ## ETA rule
 
@@ -34,3 +35,11 @@ minutes ≈ (LOC × 40) / (6000 × N_agents) + ~2 min per stage
 700 lines max. On hitting it, ask before splitting.
 
 Split by responsibility into halves — find where the file does two jobs and move one out whole. Not a line-count cut, not a `utils` skim. Keep the public API where callers expect it; move tests with their code.
+
+## Commits
+
+No `Co-Authored-By` or session trailers in commit messages. Plain subject line, optional short body.
+
+## No long sleeps
+
+The user is watching the screen. Never park a command on `sleep 60` or similar to "be sure". Probe cheaply and return: read the log tail, `nvidia-smi`, a pid check, then report. If a wait is unavoidable, run it in the background and report when it fires.
