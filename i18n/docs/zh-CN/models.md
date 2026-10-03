@@ -13,27 +13,6 @@
 [👉 魔法安装](https://shorturl.at/XSP9R)  
 [🔽 直接下载](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
-### 🌿 Small 模型
-
-小巧且能力出色的模型，在效率与性能之间取得平衡。
-
-[👉 魔法安装](https://shorturl.at/EmJS8)  
-[🔽 直接下载](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ Medium 模型
-
-兼顾性能和资源占用，非常适合大多数常规应用场景。
-
-[👉 魔法安装](https://shorturl.at/Ha6br)  
-[🔽 直接下载](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 Large 模型（v3）
-
-追求高精度并需要更多计算资源，擅长处理复杂场景。
-
-[👉 魔法安装](https://tinyurl.com/3cn846h8)  
-[🔽 直接下载](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
-
 ### 🚀 Large v3 Turbo（推荐）
 
 [👉 魔法安装](https://tinyurl.com/yphwban5)  

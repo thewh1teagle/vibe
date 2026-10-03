@@ -13,27 +13,6 @@ Eine kompakte und effiziente Version, geeignet für schnelle Aufgaben und Umgebu
 [👉 Magic Setup](https://shorturl.at/XSP9R)  
 [🔽 Direktdownload](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
-### 🌿 Small-Modell
-
-Ein kleines, aber leistungsfähiges Modell für eine Balance aus Effizienz und Leistung.
-
-[👉 Magic Setup](https://shorturl.at/EmJS8)  
-[🔽 Direktdownload](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ Medium-Modell
-
-Balanciert Leistung und Ressourcenverbrauch und eignet sich damit ideal für die meisten allgemeinen Anwendungen.
-
-[👉 Magic Setup](https://shorturl.at/Ha6br)  
-[🔽 Direktdownload](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 Large-Modell (v3)
-
-Für hohe Genauigkeit und mit höherem Rechenaufwand, überzeugt bei komplexen Szenarien.
-
-[👉 Magic Setup](https://tinyurl.com/3cn846h8)  
-[🔽 Direktdownload](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
-
 ### 🚀 Large v3 Turbo (Empfohlen)
 
 [👉 Magic Setup](https://tinyurl.com/yphwban5)  

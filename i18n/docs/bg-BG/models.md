@@ -13,27 +13,6 @@
 [👉 Magic Setup](https://shorturl.at/XSP9R)  
 [🔽 Директно изтегляне](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
-### 🌿 Модел Small
-
-Малък, но способен модел за баланс между ефективност и производителност.
-
-[👉 Magic Setup](https://shorturl.at/EmJS8)  
-[🔽 Директно изтегляне](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ Модел Medium
-
-Балансира производителността и използването на ресурси, което го прави идеален за повечето общи приложения.
-
-[👉 Magic Setup](https://shorturl.at/Ha6br)  
-[🔽 Директно изтегляне](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 Модел Large (v3)
-
-За висока точност и повече изчислителни ресурси, отличава се в сложни сценарии.
-
-[👉 Magic Setup](https://tinyurl.com/3cn846h8)  
-[🔽 Директно изтегляне](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
-
 ### 🚀 Large v3 Turbo (Препоръчан)
 
 [👉 Magic Setup](https://tinyurl.com/yphwban5)  

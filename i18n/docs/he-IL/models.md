@@ -10,47 +10,26 @@
 
 גרסה קומפקטית ויעילה, מתאימה למשימות מהירות ולסביבות עם משאבים מוגבלים.
 
-[👉 Magic Setup](https://shorturl.at/XSP9R)  
+[👈 Magic Setup](https://shorturl.at/XSP9R)  
 [🔽 הורדה ישירה](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
-
-### 🌿 מודל Small
-
-מודל קטן אך יעיל, המאזן בין יעילות לביצועים.
-
-[👉 Magic Setup](https://shorturl.at/EmJS8)  
-[🔽 הורדה ישירה](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ מודל Medium
-
-מאזן בין ביצועים לשימוש במשאבים, ולכן הוא אידיאלי לרוב השימושים הכלליים.
-
-[👉 Magic Setup](https://shorturl.at/Ha6br)  
-[🔽 הורדה ישירה](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 מודל Large (v3)
-
-לדיוק גבוה ולמשאבי חישוב רבים יותר, מצטיין בתרחישים מורכבים.
-
-[👉 Magic Setup](https://tinyurl.com/3cn846h8)  
-[🔽 הורדה ישירה](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
 
 ### 🚀 Large v3 Turbo (מומלץ)
 
-[👉 Magic Setup](https://tinyurl.com/yphwban5)  
+[👈 Magic Setup](https://tinyurl.com/yphwban5)  
 [🔽 הורדה ישירה](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
 
 ### 🦜 Parakeet TDT 0.6B v3
 
 תומך בהזרמה (streaming) ומתאים במיוחד להכתבה.
 
-[👉 צפייה במודל](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
+[👈 צפייה במודל](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
 [🔽 הורדת Q4_K_M](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf?download=true)
 
 ### ⚡ Nemotron 3.5 ASR Streaming 0.6B
 
 תומך בהזרמה (streaming) ומתאים במיוחד להכתבה.
 
-[👉 צפייה במודל](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
+[👈 צפייה במודל](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
 [🔽 הורדת Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
 
 ### מודלים המותאמים לשפות נוספות
@@ -60,8 +39,13 @@
 
 מותאם במיוחד לנתוני שפה עברית, ומיועל למהירות ולדיוק גבוהים במשימות בעברית.
 
-[👉 Magic Setup ‏(Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
+[👈 Magic Setup ‏(Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
 [🔽 הורדה ישירה (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
+
+**Parakeet TDT 0.6B v3 Hebrew**: גרסה של Parakeet TDT 0.6B v3 שאומנה במיוחד לעברית. מתאים להכתבה.
+
+[👈 צפייה במודל](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-he-gguf)  
+[🔽 הורדת Q8_0](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-he-gguf/resolve/main/parakeet-tdt-0.6b-v3-he-q8_0.gguf?download=true)
 
 </details>
 
@@ -70,10 +54,10 @@
 	
 מיועל לנורווגית על ידי [ה-AI Lab בספרייה הלאומית של נורווגיה](https://huggingface.co/NbAiLab).
 
-[👉 Magic Setup ‏(medium)](https://tinyurl.com/5wzb9ux8)  
+[👈 Magic Setup ‏(medium)](https://tinyurl.com/5wzb9ux8)  
 [🔽 הורדה ישירה (medium)](https://huggingface.co/NbAiLab/nb-whisper-medium/blob/main/ggml-model.bin?download=true)
 
-[👉 Magic Setup ‏(large)](https://tinyurl.com/f228efbu)  
+[👈 Magic Setup ‏(large)](https://tinyurl.com/f228efbu)  
 [🔽 הורדה ישירה (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
 
 מודלים נוספים בגדלים קטנים יותר זמינים דרך [דף ההורדות שלהם ב-huggingface](https://huggingface.co/NbAiLab/nb-whisper-large).  
@@ -86,10 +70,10 @@
 
 מיועל לשוודית על ידי [ה-Data Lab בספרייה הלאומית של שוודיה](https://huggingface.co/KBLab).
 
-[👉 Magic Setup ‏(medium)](https://tinyurl.com/ynawnc33)  
+[👈 Magic Setup ‏(medium)](https://tinyurl.com/ynawnc33)  
 [🔽 הורדה ישירה (medium)](https://huggingface.co/KBLab/kb-whisper-medium/blob/main/ggml-model.bin?download=true)
 
-[👉 Magic Setup ‏(large v3)](https://tinyurl.com/46dvpeky)  
+[👈 Magic Setup ‏(large v3)](https://tinyurl.com/46dvpeky)  
 [🔽 הורדה ישירה (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
 
 מודלים נוספים בגדלים קטנים יותר זמינים דרך [דף ההורדות שלהם ב-huggingface](https://huggingface.co/KBLab/kb-whisper-large).  
@@ -104,7 +88,7 @@
 
 מודלים נוספים תמצאו כאן:
 
-[👉 עוד מודלים](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
+[👈 עוד מודלים](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
 
 ---
 

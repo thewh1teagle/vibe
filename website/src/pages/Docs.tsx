@@ -20,16 +20,18 @@ export default function Docs() {
 	const [pages, setPages] = useState<Doc[]>(englishDocs)
 	const [slug, setSlug] = useState<Slug>(slugs[0])
 	const shown = pages.find((doc) => doc.slug === slug) ?? pages[0]
+	// The language switcher changes locale without a reload, so refetch when it does.
+	const locale = getLocale()
 
 	useEffect(() => {
 		let live = true
-		loadDocs(getLocale()).then((translated) => {
+		loadDocs(locale).then((translated) => {
 			if (live) setPages(translated)
 		})
 		return () => {
 			live = false
 		}
-	}, [])
+	}, [locale])
 
 	useEffect(() => {
 		if (window.location.hash) setSlug(slugFromHash(window.location.hash))
@@ -41,7 +43,7 @@ export default function Docs() {
 	}, [])
 
 	return (
-		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20" dir={getTextDirection(getLocale())}>
+		<main className="mx-auto w-full max-w-[1065px] px-5 pb-24 pt-14 lg:pt-20" dir={getTextDirection(locale)}>
 			<header>
 				<p className="eyebrow">Documentation</p>
 				<h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground lg:text-[2.5rem]">{m.vibeDocumentation()}</h1>

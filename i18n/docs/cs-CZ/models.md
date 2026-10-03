@@ -13,27 +13,6 @@ Kompaktní a efektivní verze, vhodná pro rychlé úkoly a prostředí s omezen
 [👉 Rychlé nastavení](https://shorturl.at/XSP9R)  
 [🔽 Přímé stažení](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
-### 🌿 Model Small
-
-Malý, ale schopný model nabízející rovnováhu mezi efektivitou a výkonem.
-
-[👉 Rychlé nastavení](https://shorturl.at/EmJS8)  
-[🔽 Přímé stažení](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ Model Medium
-
-Vyvažuje výkon a spotřebu zdrojů, což z něj dělá ideální volbu pro většinu běžných aplikací.
-
-[👉 Rychlé nastavení](https://shorturl.at/Ha6br)  
-[🔽 Přímé stažení](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 Model Large (v3)
-
-Vyniká ve složitých scénářích díky vysoké přesnosti, vyžaduje více výpočetních zdrojů.
-
-[👉 Rychlé nastavení](https://tinyurl.com/3cn846h8)  
-[🔽 Přímé stažení](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
-
 ### 🚀 Large v3 Turbo (Doporučeno)
 
 [👉 Rychlé nastavení](https://tinyurl.com/yphwban5)  

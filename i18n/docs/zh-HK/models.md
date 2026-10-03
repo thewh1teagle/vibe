@@ -13,27 +13,6 @@
 [👉 Magic Setup](https://shorturl.at/XSP9R)  
 [🔽 直接下載](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
-### 🌿 Small 模型
-
-小巧但實用的模型，兼顧效率與效能。
-
-[👉 Magic Setup](https://shorturl.at/EmJS8)  
-[🔽 直接下載](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ Medium 模型
-
-在效能與資源使用之間取得平衡，適合大多數一般用途。
-
-[👉 Magic Setup](https://shorturl.at/Ha6br)  
-[🔽 直接下載](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 Large 模型（v3）
-
-高準確度，需要較多運算資源，擅長處理複雜場景。
-
-[👉 Magic Setup](https://tinyurl.com/3cn846h8)  
-[🔽 直接下載](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
-
 ### 🚀 Large v3 Turbo（推薦）
 
 [👉 Magic Setup](https://tinyurl.com/yphwban5)  
