@@ -11,27 +11,6 @@ A compact and efficient version, suitable for quick tasks and limited-resource e
 [👉 Magic Setup](https://shorturl.at/XSP9R)  
 [🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
-### 🌿 Small Model
-
-A small yet capable model for a balance of efficiency and performance.
-
-[👉 Magic Setup](https://shorturl.at/EmJS8)  
-[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ Medium Model
-
-Balances performance and resource usage, making it ideal for most general applications.
-
-[👉 Magic Setup](https://shorturl.at/Ha6br)  
-[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 Large Model (v3)
-
-For high accuracy and more computational resources, excels in complex scenarios.
-
-[👉 Magic Setup](https://tinyurl.com/3cn846h8)  
-[🔽 Direct Download](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
-
 ### 🚀 Large v3 Turbo (Recommended)
 
 [👉 Magic Setup](https://tinyurl.com/yphwban5)  
@@ -60,6 +39,11 @@ Specialized for Hebrew (Ivrit) language data, optimized for high speed and accur
 
 [👉 Magic Setup (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
 [🔽 Direct Download (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
+
+**Parakeet TDT 0.6B v3 Hebrew**: a Hebrew fine-tune of Parakeet TDT 0.6B v3. Best suited for dictation.
+
+[👉 View Model](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-he-gguf)  
+[🔽 Download Q8_0](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-he-gguf/resolve/main/parakeet-tdt-0.6b-v3-he-q8_0.gguf?download=true)
 
 </details>
 

@@ -13,27 +13,6 @@ Vibe 모델 페이지에 오신 것을 환영합니다! 이 페이지에서는 V
 [👉 Magic Setup](https://shorturl.at/XSP9R)  
 [🔽 직접 다운로드](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
 
-### 🌿 Small 모델
-
-효율성과 성능의 균형을 갖춘, 작지만 성능이 뛰어난 모델입니다.
-
-[👉 Magic Setup](https://shorturl.at/EmJS8)  
-[🔽 직접 다운로드](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true)
-
-### ⚖️ Medium 모델
-
-성능과 리소스 사용량의 균형이 잡혀 있어 대부분의 일반적인 용도에 이상적입니다.
-
-[👉 Magic Setup](https://shorturl.at/Ha6br)  
-[🔽 직접 다운로드](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin?download=true)
-
-### 🚀 Large 모델 (v3)
-
-높은 정확도와 더 많은 연산 자원을 활용하며, 복잡한 상황에서 뛰어난 성능을 발휘합니다.
-
-[👉 Magic Setup](https://tinyurl.com/3cn846h8)  
-[🔽 직접 다운로드](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3.bin?download=true)
-
 ### 🚀 Large v3 Turbo (권장)
 
 [👉 Magic Setup](https://tinyurl.com/yphwban5)  
