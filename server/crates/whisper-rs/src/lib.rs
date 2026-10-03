@@ -16,6 +16,8 @@ mod model_file;
 mod options;
 
 #[cfg(feature = "ffi")]
+mod compression;
+#[cfg(feature = "ffi")]
 mod context;
 #[cfg(feature = "ffi")]
 mod decode;
@@ -198,6 +200,8 @@ pub struct FullParams {
 
     pub temperature_inc: f32,
     pub entropy_thold: f32,
+    /// OpenAI's gzip-ratio repetition gate on a window's text; 0 disables it.
+    pub compression_ratio_thold: f32,
     pub logprob_thold: f32,
     pub no_speech_thold: f32,
 
@@ -237,6 +241,7 @@ impl Default for FullParams {
             length_penalty: -1.0,
             temperature_inc: 0.2,
             entropy_thold: 2.4,
+            compression_ratio_thold: 2.4,
             logprob_thold: -1.0,
             no_speech_thold: 0.6,
             greedy_best_of: 5,
