@@ -1,6 +1,6 @@
 import { emit } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
-import { type SetStateAction, useContext, useEffect, useState } from 'react'
+import { type SetStateAction, useContext, useEffect, useRef, useState } from 'react'
 import type { AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
@@ -19,6 +19,7 @@ export function useRecording(onBeforeStart: () => void) {
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 	const [isRecording, setIsRecording] = useState(false)
 	const [recordingName, setRecordingName] = useState('')
+	const startingRef = useRef<Promise<boolean> | null>(null)
 
 	function setInputDeviceAndSave(value: SetStateAction<AudioDevice | null>) {
 		const device = typeof value === 'function' ? value(inputDevice) : value
@@ -54,30 +55,35 @@ export function useRecording(onBeforeStart: () => void) {
 	}, [preference.homeTab])
 
 	async function startRecord() {
+		if (startingRef.current || isRecording) return
 		if (outputDevice && !(await ensureSystemAudioPermission())) return
 		startKeepAwake(KEEP_AWAKE.record)
 		onBeforeStart()
 		setIsRecording(true)
 		const selectedDevices = [inputDevice, outputDevice].filter((device): device is AudioDevice => device !== null)
-		try {
-			await invoke('start_record', {
-				devices: selectedDevices,
-				recordingName: recordingName.trim() || null,
+		const starting = invoke('start_record', {
+			devices: selectedDevices,
+			recordingName: recordingName.trim() || null,
+		})
+			.then(() => true)
+			.catch((error) => {
+				stopKeepAwake(KEEP_AWAKE.record)
+				setIsRecording(false)
+				console.error('startRecord error: ', error)
+				setErrorModal?.({ log: String(error), open: true })
+				return false
 			})
-		} catch (error) {
-			stopKeepAwake(KEEP_AWAKE.record)
-			setIsRecording(false)
-			console.error('startRecord error: ', error)
-			setErrorModal?.({ log: String(error), open: true })
-		}
+		startingRef.current = starting
+		await starting
+		if (startingRef.current === starting) startingRef.current = null
 	}
 
 	async function stopRecord() {
+		// The native stop listener is installed only when start_record resolves.
+		if (startingRef.current && !(await startingRef.current)) return
 		try {
 			await emit('stop_record')
 		} catch (error) {
-			stopKeepAwake(KEEP_AWAKE.record)
-			setIsRecording(false)
 			console.error('stopRecord error: ', error)
 			setErrorModal?.({ log: String(error), open: true })
 		}
