@@ -75,8 +75,8 @@
 
 Get started with local development [here](docs/BUILDING.md).
 
-PRs are welcomed!
-In addition, you're welcome to add translations.
+Ideas, bug reports and translation fixes are welcome — please [open an issue](https://github.com/thewh1teagle/vibe/issues).
+Pull requests are limited to a few collaborators. See [CONTRIBUTE.md](CONTRIBUTE.md).
 
 # Community
 
