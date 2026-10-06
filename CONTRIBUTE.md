@@ -2,31 +2,22 @@
 
 Thanks for thinking about contributing! 🎉
 
-## What We Focus On
+## How to Contribute
 
-This repo contains the core Vibe transcription app and examples.  
-Our goals: improve the app, add useful examples, fix bugs, and keep the codebase minimal and clean.  
-We avoid unnecessary complexity and try to keep things straightforward.
+The best way to help is to **[open an issue](https://github.com/thewh1teagle/vibe/issues)**:
 
-Before contributing, **please open a [new issue](https://github.com/thewh1teagle/vibe/issues)** to discuss your idea **before** starting any work.  
-This keeps contributions aligned with the project and avoids wasted effort.
+- 🐛 **Bug reports** — what happened, what you expected, your OS and Vibe version, and steps to reproduce.
+- 💡 **Suggestions** — new features, improvements, or a model or tool you'd like Vibe to support.
+- 🌐 **Translations** — a wrong or missing string in your language.
 
-✅ **Exception:**  
-If you're fixing a clear **critical bug**, you may open a PR without prior discussion. **but the PR must contain _only_ the relevant fix (no refactors, formatting, etc.)** and the description should mention the bug and link an issue if possible.
+Clear, detailed issues are the most valuable contribution. They often get implemented quickly.
 
-## Pull Request Guidelines
+## Pull Requests
 
-- **Do not open a PR from your `main` branch** — use a feature/fix branch.
-- **Test your changes locally before opening the PR** so reviews and merging stay smooth.
-- If you're fixing a **critical bug**, you may skip issue discussion — but the PR must contain **only the relevant fix** (no refactors, no formatting changes).
-- If your change affects core logic or behavior, include a short explanation or example in the PR description.
+Pull requests are open only to a small group of collaborators. This keeps the codebase minimal and consistent.
 
-## AI-Assisted (Vibe Coding) PRs
+Please don't open a PR. Describe your change in an issue instead. If it's a good fit, we'll take it from there.
 
-We welcome PRs written with AI tools! Just hold them to the same standard as any other PR:
+## Developers
 
-- **Stay focused** — one clear change per PR, no drive-by refactors or formatting noise. Your own build scripts, helper tools, etc. usually don't belong in the PR.
-- **Know the codebase** — have the agent read our docs and follow existing conventions before writing code.
-- **Review what it wrote** — you're responsible for the final result, not the AI.
-- **Large or wide-reaching changes?** Open an issue first so we can align before you invest time.
-- **High bar, same as everyone** — AI-generated code must be clean, tested, and minimal.
+To build and run Vibe locally, see [docs/BUILDING.md](docs/BUILDING.md).
