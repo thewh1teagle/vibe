@@ -60,8 +60,20 @@ if [ -f /etc/os-release ]; then
         wget -q "$RPM_URL" -O vibe.rpm
         sudo rpm -ivh vibe.rpm
     elif grep -iq "arch" /etc/os-release; then
-        echo "Detected Arch Linux. Installing vibe-bin using pacman..."
-        sudo pacman -S vibe-bin
+        echo "Detected Arch Linux. Installing vibe-bin from AUR..."
+        if command -v paru >/dev/null 2>&1; then
+            echo "Using paru..."
+            paru -S --needed vibe-bin
+        elif command -v yay >/dev/null 2>&1; then
+            echo "Using yay..."
+            yay -S --needed vibe-bin
+        elif command -v aura >/dev/null 2>&1; then
+            echo "Using aura..."
+            aura -A --needed vibe-bin
+        else
+            echo "Error: vibe-bin is an AUR package and no supported AUR helper was found."
+            exit 1
+        fi
     else
         echo "Unsupported Linux distribution."
         exit 1
