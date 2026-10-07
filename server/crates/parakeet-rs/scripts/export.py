@@ -149,6 +149,21 @@ VARIANT_PROFILES: dict[str, dict] = {
         "license_name": "Creative Commons Attribution 4.0",
         "license_link": "https://creativecommons.org/licenses/by/4.0/",
     },
+    # v3 fine-tuned on Hebrew (https://huggingface.co/thewh1teagle/parakeet-tdt-0.6b-v3-he):
+    # v3's 8,192 SPM pieces + 1,014 appended Hebrew pieces.
+    "parakeet-tdt-0.6b-v3-he": {
+        "variant": "tdt-0.6b-v3-he",
+        "display_name": "Parakeet TDT 0.6B v3 Hebrew",
+        "version": "v3",
+        "size_label": "0.6B",
+        "head_kind": "tdt",
+        "expected_vocab_size": 9206,
+        "languages": ["he"],
+        "lang_detect": False,
+        "license": "cc-by-4.0",
+        "license_name": "Creative Commons Attribution 4.0",
+        "license_link": "https://creativecommons.org/licenses/by/4.0/",
+    },
     # 1.1B English-only TDT. Predates the v2/v3 split; the upstream
     # repo carries no version suffix, so general.version is "v1".
     "parakeet-tdt-1.1b": {
