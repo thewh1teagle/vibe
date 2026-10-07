@@ -50,7 +50,7 @@
 	"customizeInfo": "Download any supported model in ggml or gguf format (with the file extension ending in '.bin'). Transfer it to the models directory, then select from the dropdown. No need to restart 🌟",
 	"dark": "Dark",
 	"diarizeThreshold": "Speaker recognition threshold",
-	"diarizeMaxSpeakersNote": "Supports up to 4 speakers detection.",
+	"diarizeMaxSpeakersNote": "Supports up to 8 speakers detection.",
 	"diarization": "Diarization",
 	"discordCommunity": "Discord Community",
 	"downloadFile": "Download and transcribe",

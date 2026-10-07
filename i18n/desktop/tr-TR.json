@@ -50,7 +50,7 @@
 	"customizeInfo": "Desteklenen herhangi bir modeli ggml veya gguf formatında (dosya uzantısı '.bin' ile biten) indirin. Modeller dizinine aktarın ve ardından açılır menüden seçin. Yeniden başlatmaya gerek yok.🌟",
 	"dark": "Karanlık",
 	"diarizeThreshold": "Konuşmacı tanıma eşiği",
-	"diarizeMaxSpeakersNote": "En fazla 4 konuşmacıyı algılayabilir.",
+	"diarizeMaxSpeakersNote": "En fazla 8 konuşmacıyı algılayabilir.",
 	"diarization": "Konuşmacı ayrımı",
 	"discordCommunity": "Discord Topluluğu",
 	"downloadFile": "İndir ve yazıya dök",

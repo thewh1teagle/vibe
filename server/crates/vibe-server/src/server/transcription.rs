@@ -78,7 +78,7 @@ pub(super) async fn transcribe(
         ));
     }
 
-    let opts = build_options(&form, verbose, stable_timestamps, vad_model_path);
+    let opts = build_options(&form, verbose, stable_timestamps, vad_model_path, !diar_segments.is_empty());
     let result = ctx.transcribe(&samples, opts).map_err(|err| {
         tracing::error!(samples = samples.len(), "transcription failed: {err:#}");
         error(
@@ -91,11 +91,14 @@ pub(super) async fn transcribe(
     Ok(format_response(&response_format, &result, &diar_segments))
 }
 
+/// `diarized` asks the engine for word timings, which speaker attribution splits
+/// segments on. Parakeet and Nemotron always have them; whisper computes them on request.
 pub(super) fn build_options(
     form: &HashMap<String, String>,
     verbose: bool,
     stable_timestamps: bool,
     vad_model_path: Option<String>,
+    diarized: bool,
 ) -> TranscribeOptions {
     let values = FormValues::new(form);
     TranscribeOptions {
@@ -107,7 +110,7 @@ pub(super) fn build_options(
         verbose,
         temperature: values.f32("temperature"),
         max_text_ctx: values.i32("max_text_ctx"),
-        word_timestamps: values.bool("word_timestamps"),
+        word_timestamps: diarized || values.bool("word_timestamps"),
         max_segment_len: values.i32("max_segment_len"),
         sampling_greedy: form.get("sampling_strategy").is_none_or(|strategy| strategy != "beam_search"),
         best_of: values.i32("best_of"),

@@ -50,7 +50,7 @@
 	"customizeInfo": "Descarrega qualsevol model compatible en format ggml o gguf (amb l'extensió de fitxer acabada en '.bin'). Transfereix-lo al directori de models i selecciona'l al desplegable. No cal reiniciar 🌟",
 	"dark": "Fosc",
 	"diarizeThreshold": "Llindar de reconeixement de veu",
-	"diarizeMaxSpeakersNote": "Suporta la detecció de fins a 4 parlants.",
+	"diarizeMaxSpeakersNote": "Suporta la detecció de fins a 8 parlants.",
 	"diarization": "Diarització",
 	"discordCommunity": "Comunitat de Discord",
 	"downloadFile": "Descarregar i transcriure",

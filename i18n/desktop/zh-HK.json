@@ -50,7 +50,7 @@
 	"customizeInfo": "下載任何支援的 ggml 或 gguf 格式的模型檔案（副檔名以'.bin'結尾），將其放入模型目錄，然後從下拉清單中選擇即可，無需重啟應用程式🌟",
 	"dark": "深色",
 	"diarizeThreshold": "發言者識別閾值",
-	"diarizeMaxSpeakersNote": "最多可識別 4 位發言者。",
+	"diarizeMaxSpeakersNote": "最多可識別 8 位發言者。",
 	"diarization": "發言者分離",
 	"discordCommunity": "Discord 社群",
 	"downloadFile": "下載並轉錄",
