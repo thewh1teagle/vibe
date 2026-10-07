@@ -129,6 +129,28 @@ fn decode_windows_executable_key(key: &str) -> String {
     key.replace('#', "\\")
 }
 
+/// One entry per running process of a browser executable, in place of the pid-less owner the
+/// consent store reported. Owners that are not browsers, and browsers no process matches, pass
+/// through untouched.
+#[cfg(any(target_os = "windows", test))]
+fn expand_browser_pids(processes: Vec<crate::ProcessInfo>, pids_for: impl Fn(&str) -> Vec<u32>) -> Vec<crate::ProcessInfo> {
+    let mut expanded = Vec::with_capacity(processes.len());
+    for owner in processes {
+        let executable = owner
+            .executable
+            .as_deref()
+            .filter(|_| crate::process::source(&owner) == Some(crate::ProcessKind::Browser));
+        match executable.map(&pids_for) {
+            Some(pids) if !pids.is_empty() => expanded.extend(pids.into_iter().map(|pid| crate::ProcessInfo {
+                pid: Some(pid),
+                ..owner.clone()
+            })),
+            _ => expanded.push(owner),
+        }
+    }
+    expanded
+}
+
 #[cfg(target_os = "windows")]
 mod platform {
     use crate::{MicUsage, ProcessInfo};
@@ -180,13 +202,17 @@ mod platform {
     /// confined to the one case that needs the result: matching a browser window title to find
     /// Meet. Zoom and Teams are identified by the consent-store key alone, and an idle machine
     /// never pays for it at all.
-    fn attach_pids(processes: &mut [ProcessInfo]) {
-        let mut wanted: Vec<&mut ProcessInfo> = processes
-            .iter_mut()
-            .filter(|owner| owner.executable.is_some() && crate::process::source(owner) == Some(crate::ProcessKind::Browser))
-            .collect();
-        if wanted.is_empty() {
-            return;
+    ///
+    /// The consent store names an executable, and a browser runs that executable many times over:
+    /// one process per tab, plus GPU and utility helpers. Only one of them owns the window, and
+    /// nothing says which, so every match is kept — handing the title scan a single helper pid
+    /// left Meet undetected almost every time.
+    fn attach_pids(processes: Vec<ProcessInfo>) -> Vec<ProcessInfo> {
+        let wanted = processes
+            .iter()
+            .any(|owner| owner.executable.is_some() && crate::process::source(owner) == Some(crate::ProcessKind::Browser));
+        if !wanted {
+            return processes;
         }
 
         let mut system = System::new();
@@ -195,15 +221,16 @@ mod platform {
             true,
             ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
         );
-        for owner in &mut wanted {
-            let Some(expected) = owner.executable.as_deref() else {
-                continue;
-            };
-            owner.pid = system.processes().values().find_map(|process| {
-                let actual = process.exe()?.to_string_lossy();
-                actual.eq_ignore_ascii_case(expected).then(|| process.pid().as_u32())
-            });
-        }
+        super::expand_browser_pids(processes, |expected| {
+            system
+                .processes()
+                .values()
+                .filter_map(|process| {
+                    let actual = process.exe()?.to_string_lossy();
+                    actual.eq_ignore_ascii_case(expected).then(|| process.pid().as_u32())
+                })
+                .collect()
+        })
     }
 
     pub(super) fn current_usage() -> MicUsage {
@@ -226,7 +253,7 @@ mod platform {
                 });
             }
         }
-        attach_pids(&mut processes);
+        let processes = attach_pids(processes);
         MicUsage {
             active: !processes.is_empty(),
             processes,
@@ -362,5 +389,37 @@ Source Output #18
             decode_windows_executable_key(r"C:#Program Files#Zoom#bin#Zoom.exe"),
             r"C:\Program Files\Zoom\bin\Zoom.exe"
         );
+    }
+
+    fn owner(name: &str, executable: &str) -> crate::ProcessInfo {
+        crate::ProcessInfo {
+            pid: None,
+            name: name.to_string(),
+            executable: Some(executable.to_string()),
+            bundle_id: None,
+        }
+    }
+
+    #[test]
+    fn a_browser_owner_expands_to_every_process_running_its_executable() {
+        let chrome = owner("chrome.exe", r"C:\Program Files\Google\Chrome\Application\chrome.exe");
+        let zoom = owner("Zoom.exe", r"C:\Program Files\Zoom\bin\Zoom.exe");
+        let expanded = expand_browser_pids(vec![chrome.clone(), zoom.clone()], |executable| {
+            if executable.ends_with("chrome.exe") {
+                vec![10, 11, 12]
+            } else {
+                vec![99]
+            }
+        });
+        let pids: Vec<Option<u32>> = expanded.iter().map(|process| process.pid).collect();
+        assert_eq!(pids, vec![Some(10), Some(11), Some(12), None]);
+        assert!(expanded[..3].iter().all(|process| process.executable == chrome.executable));
+        assert_eq!(expanded[3], zoom);
+    }
+
+    #[test]
+    fn a_browser_without_a_running_process_keeps_its_pid_less_owner() {
+        let chrome = owner("chrome.exe", r"C:\Program Files\Google\Chrome\Application\chrome.exe");
+        assert_eq!(expand_browser_pids(vec![chrome.clone()], |_| Vec::new()), vec![chrome]);
     }
 }
