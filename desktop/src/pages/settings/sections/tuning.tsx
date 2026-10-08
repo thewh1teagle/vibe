@@ -23,6 +23,9 @@ export function TuningSection({ vm, onOpenWhisper, onOpenAudio }: { vm: Settings
 					<Switch checked={vm.preference.stableTimestampsEnabled} onCheckedChange={vm.handleStableTimestampsToggle} />
 				</SettingsRow>
 				{vm.preference.stableTimestampsEnabled && <SettingsNote>{m.stableTimestampsSlowNote()}</SettingsNote>}
+				<SettingsRow label={m.enableSilenceRemoval()} description={m.silenceRemovalInfo()}>
+					<Switch checked={vm.preference.enhanceAudio} onCheckedChange={vm.preference.setEnhanceAudio} />
+				</SettingsRow>
 			</SettingsGroup>
 			<SettingsGroup>
 				<ActionRow

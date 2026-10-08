@@ -1,0 +1,60 @@
+name: Build Windows (test)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: desktop/package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: desktop/pnpm-lock.yaml
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+
+      - name: Setup chore
+        uses: getchore/setup-chore@v1
+        with:
+          version: v1.6.0
+
+      - name: Fetch sidecars
+        run: chore setup x86_64-pc-windows-msvc
+
+      - name: Install frontend dependencies
+        working-directory: ./desktop
+        run: pnpm install
+
+      - name: Build
+        working-directory: ./desktop
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          pnpm exec tauri build --target x86_64-pc-windows-msvc --bundles nsis --config '{"bundle":{"createUpdaterArtifacts":false}}'
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: vibe-windows-x64-test
+          path: target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          if-no-files-found: error
+          retention-days: 14

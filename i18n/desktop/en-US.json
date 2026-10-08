@@ -437,6 +437,8 @@
 	"stableTimestampsInfo": "Tighter subtitle timing, around 4x slower.",
 	"stableTimestampsSlowNote": "Highly accurate timestamps, but around 4x slower.",
 	"enableStableTimestamps": "Enable stable timestamps",
+	"enableSilenceRemoval": "Remove silence",
+	"silenceRemovalInfo": "Strips silent pauses before transcribing. Fixes looping when you pause during a recording.",
 	"translateWhisperModelNote": "Whisper medium/large only; not v3 Turbo.",
 	"samplingStrategyInfo": "Beam search explores more paths; greedy is faster.",
 	"samplingStrategy": "Sampling strategy",

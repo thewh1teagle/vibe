@@ -34,6 +34,7 @@ export const CONFIG_KEYS = {
 	recentLanguages: 'transcription.recentLanguages',
 	diarizeEnabled: 'transcription.recognizeSpeakers',
 	stableTimestampsEnabled: 'transcription.stableTimestamps',
+	enhanceAudio: 'transcription.enhanceAudio',
 	soundOnFinish: 'transcription.soundOnFinish',
 	focusOnFinish: 'transcription.focusOnFinish',
 	saveTranscripts: 'transcription.saveTranscripts',

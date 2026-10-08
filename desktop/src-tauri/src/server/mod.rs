@@ -289,6 +289,9 @@ impl ServerProcess {
                 form = form.text("vad_model", model.clone());
             }
         }
+        if options.enhance_audio.unwrap_or(false) {
+            form = form.text("enhance_audio", "true");
+        }
 
         Ok(form)
     }
