@@ -14,5 +14,9 @@
 	// Formatting
 	"prettier.configPath": ".prettierrc.json",
 	"elementaryWatson.defaultLocale": "en-US",
-	"elementaryWatson.realtimeUpdates": true
+	"elementaryWatson.realtimeUpdates": true,
+	"cmake.sourceDirectory": "/Users/wanglin/app/projects/github/vibe/server/native/funasr",
+	"files.associations": {
+		"*.inc": "cpp"
+	}
 }

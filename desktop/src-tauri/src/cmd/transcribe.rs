@@ -5,13 +5,10 @@ use crate::transcript::{Segment, Transcript};
 use eyre::Result;
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
+use std::future::Future;
 use std::path::PathBuf;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
 use tauri::{Emitter, Listener, State};
-use tokio::sync::Mutex;
+use tokio::sync::{watch, Mutex};
 
 use super::{ui::set_progress_bar, CommandError};
 
@@ -53,6 +50,29 @@ pub struct TranscribeOptions {
 
 pub(crate) const SERVER_DIED: &str = "vibe-server process died during transcription";
 
+// Retained cancellation must win even if the I/O is ready.
+async fn wait_or_abort<T>(abort: &mut watch::Receiver<bool>, future: impl Future<Output = T>) -> Option<T> {
+    tokio::select! {
+        biased;
+        _ = abort.wait_for(|should_abort| *should_abort) => None,
+        result = future => Some(result),
+    }
+}
+
+struct TranscribeCleanup {
+    app_handle: tauri::AppHandle,
+    listener: Option<tauri::EventId>,
+}
+
+impl Drop for TranscribeCleanup {
+    fn drop(&mut self) {
+        if let Some(listener) = self.listener.take() {
+            self.app_handle.unlisten(listener);
+        }
+        let _ = set_progress_bar(&self.app_handle, None);
+    }
+}
+
 /// Turn a transcription failure into something diagnosable: a send failure or a
 /// mid-stream decode error is usually the sidecar dying, and only the child
 /// itself knows the exit code, the signal, and what it printed on the way out.
@@ -85,6 +105,11 @@ pub async fn transcribe(
     options: TranscribeOptions,
     server_state: State<'_, Mutex<ServerState>>,
 ) -> Result<Transcript, CommandError> {
+    let mut cleanup = TranscribeCleanup {
+        app_handle: app_handle.clone(),
+        listener: None,
+    };
+
     // Validate file exists before attempting transcription
     let audio_path = PathBuf::from(&options.path);
     if !audio_path.exists() {
@@ -109,30 +134,36 @@ pub async fn transcribe(
         (process.client(), process.base_url())
     }; // lock released here, before any I/O
 
-    let abort_atomic = Arc::new(AtomicBool::new(false));
-    let abort_atomic_c = abort_atomic.clone();
-
-    let app_handle_c = app_handle.clone();
-    app_handle.listen("abort_transcribe", move |_| {
-        let _ = set_progress_bar(&app_handle_c, None);
-        abort_atomic_c.store(true, Ordering::Relaxed);
-    });
+    let (abort_tx, mut abort) = watch::channel(false);
+    cleanup.listener = Some(app_handle.listen("abort_transcribe", move |_| {
+        let _ = abort_tx.send(true);
+    }));
 
     let start = std::time::Instant::now();
 
-    let stream = match crate::server::ServerProcess::transcribe_stream(&client, &base_url, &options).await {
-        Ok(stream) => stream,
-        Err(e) => return Err(transcribe_error(&server_state, e).await),
+    let stream = match wait_or_abort(
+        &mut abort,
+        crate::server::ServerProcess::transcribe_stream(&client, &base_url, &options),
+    )
+    .await
+    {
+        Some(Ok(stream)) => stream,
+        Some(Err(e)) => return Err(transcribe_error(&server_state, e).await),
+        None => {
+            tracing::debug!("transcription aborted by user");
+            return Ok(Transcript {
+                processing_time_sec: start.elapsed().as_secs(),
+                segments: Vec::new(),
+            });
+        }
     };
 
-    tokio::pin!(stream);
-
+    let mut stream = Box::pin(stream);
     let mut segments = Vec::new();
     let mut completed = false;
 
-    while let Some(event_result) = stream.next().await {
-        if abort_atomic.load(Ordering::Relaxed) {
-            tracing::debug!("transcription aborted by user");
+    while let Some(Some(event_result)) = wait_or_abort(&mut abort, stream.next()).await {
+        if *abort.borrow() {
             break;
         }
 
@@ -162,7 +193,6 @@ pub async fn transcribe(
                 }
                 ServerEvent::Error { code, message } => {
                     tracing::error!("vibe-server transcription error: {}", message);
-                    let _ = set_progress_bar(&app_handle, None);
                     return Err(CommandError {
                         code: code.unwrap_or_else(|| "internal_error".to_string()),
                         message,
@@ -171,15 +201,17 @@ pub async fn transcribe(
             },
             Err(e) => {
                 tracing::error!("stream error: {:?}", e);
-                let _ = set_progress_bar(&app_handle, None);
                 return Err(transcribe_error(&server_state, e).await);
             }
         }
     }
 
-    let _ = set_progress_bar(&app_handle, None);
+    // Disconnect before inspecting completion so silent inference can observe cancellation.
+    drop(stream);
 
-    if !abort_atomic.load(Ordering::Relaxed) && !completed {
+    if *abort.borrow() {
+        tracing::debug!("transcription aborted by user");
+    } else if !completed {
         // A stream that just stops is almost always the sidecar dying under it;
         // say how it died rather than reporting a truncated stream.
         let message = crate::server::death_report(&server_state, SERVER_DIED)
@@ -198,4 +230,78 @@ pub async fn transcribe(
     };
 
     Ok(transcript)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::wait_or_abort;
+    use std::future::{pending, ready};
+    use std::sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    };
+    use std::time::Duration;
+    use tokio::sync::{oneshot, watch};
+    use tokio::time::timeout;
+
+    #[tokio::test]
+    async fn already_aborted_wins_over_ready_future() {
+        let (abort_tx, mut abort) = watch::channel(false);
+        abort_tx.send(true).unwrap();
+        let mut polled = false;
+        let result = wait_or_abort(&mut abort, async {
+            polled = true;
+            42
+        })
+        .await;
+
+        assert_eq!(result, None);
+        assert!(!polled);
+        // Cancellation stays latched even after the receiver has seen it.
+        assert_eq!(wait_or_abort(&mut abort, ready(42)).await, None);
+    }
+
+    #[tokio::test]
+    async fn abort_wakes_silent_future_and_drops_it() {
+        struct DropProbe(Arc<AtomicBool>);
+        impl Drop for DropProbe {
+            fn drop(&mut self) {
+                self.0.store(true, Ordering::SeqCst);
+            }
+        }
+
+        let (abort_tx, mut abort) = watch::channel(false);
+        let (started_tx, started_rx) = oneshot::channel();
+        let dropped = Arc::new(AtomicBool::new(false));
+        let probe = DropProbe(dropped.clone());
+        let task = tokio::spawn(async move {
+            wait_or_abort(&mut abort, async move {
+                let _probe = probe;
+                started_tx.send(()).unwrap();
+                pending::<()>().await;
+            })
+            .await
+        });
+
+        timeout(Duration::from_secs(1), async {
+            started_rx.await.unwrap();
+            assert!(!task.is_finished());
+            assert!(!dropped.load(Ordering::SeqCst));
+            abort_tx.send(true).unwrap();
+            assert_eq!(task.await.unwrap(), None);
+        })
+        .await
+        .expect("cancellation must not wait for an I/O event");
+        assert!(dropped.load(Ordering::SeqCst));
+    }
+
+    #[tokio::test]
+    async fn normal_future_result_is_preserved() {
+        let (_abort_tx, mut abort) = watch::channel(false);
+        assert_eq!(wait_or_abort(&mut abort, ready(Ok::<_, &str>(42))).await, Some(Ok(42)));
+        assert_eq!(
+            wait_or_abort(&mut abort, ready(Err::<(), _>("server error"))).await,
+            Some(Err("server error"))
+        );
+    }
 }

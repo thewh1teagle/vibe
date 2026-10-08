@@ -121,6 +121,8 @@ async fn main() -> Result<()> {
             cmd::download::download_model,
             cmd::download::check_model_files,
             cmd::download::cleanup_partial_downloads,
+            cmd::model_package::prepare_model_package_staging,
+            cmd::model_package::install_model_package,
             cmd::server_cmd::load_model,
             cmd::server_cmd::get_gpu_devices,
             cmd::server_cmd::get_model_metadata,
@@ -178,10 +180,11 @@ async fn main() -> Result<()> {
         // Clicking the dock icon while the window is hidden in the tray has to bring it back;
         // macOS reports the click here rather than as a window event.
         #[cfg(target_os = "macos")]
-        tauri::RunEvent::Reopen { has_visible_windows, .. } => {
-            if !has_visible_windows {
-                tray::show_main_window(app);
-            }
+        tauri::RunEvent::Reopen {
+            has_visible_windows: false,
+            ..
+        } => {
+            tray::show_main_window(app);
         }
         tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
             // Both events fire on a normal quit (and the tray's `app.exit(0)` bypasses the

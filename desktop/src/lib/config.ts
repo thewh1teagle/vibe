@@ -39,6 +39,65 @@ export const modelUrls: Record<'default' | 'hebrew', ModelDownload[]> = {
 	hebrew: [{ url: 'https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin' }],
 }
 
+/** One downloadable native (FunASR / SenseVoice) model. The GGUF components download individually
+ * into a staging folder and the manifest is written on install, so every entry pins exact size and
+ * sha256 — a wrong value would reject a perfectly good download. */
+export interface NativeModelDownload {
+	engine: 'funasr-nano' | 'sensevoice'
+	/** Display name shown in the settings download rows. */
+	name: string
+	/** Written into the installed package manifest. */
+	revision: string
+	model: ModelDownload
+	/** FunASR Nano is a dual-GGUF package; SenseVoice forbids an encoder. */
+	encoder?: ModelDownload
+}
+
+export const nativeModelDownloads: NativeModelDownload[] = [
+	{
+		engine: 'sensevoice',
+		name: 'SenseVoice Small',
+		revision: 'v1-20260916',
+		model: {
+			url: 'https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf',
+			size: 254208320,
+			sha256: '4ae45c94422de949b387e2e0fb10d7e14e4c42c69db30c3444ecc7d4b844b7c5',
+		},
+	},
+	{
+		engine: 'funasr-nano',
+		name: 'FunASR Nano',
+		revision: 'v1-20260916',
+		model: {
+			url: 'https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF/resolve/main/qwen3-0.6b-q4km.gguf',
+			size: 484219776,
+			sha256: 'cc5057552aa9dddedcda73ea8889854e8a257eb07d0a561b7234465c1e856f22',
+		},
+		encoder: {
+			url: 'https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF/resolve/main/funasr-encoder-f16.gguf',
+			size: 469331008,
+			sha256: 'f92f91d01a24fbed6c863495b2ee8c6a6788144a02858b75743f0946668de8a2',
+		},
+	},
+]
+
+/** Match a URL the user pasted or opened with `vibe://download/?url=` against the native package
+ * catalog by component filename, so a magic-install link or a pasted catalog URL installs the
+ * whole package instead of dropping a stray GGUF into the models folder. Any component URL —
+ * model or encoder — matches its entry; query strings like `?download=true` are ignored. */
+export function findNativeModelDownload(url: string): NativeModelDownload | null {
+	let filename: string
+	try {
+		filename = new URL(url).pathname.split('/').pop() ?? ''
+	} catch {
+		return null
+	}
+	filename = decodeURIComponent(filename).toLowerCase()
+	if (!filename) return null
+	const matches = (component: ModelDownload) => decodeURIComponent(new URL(component.url).pathname.split('/').pop() ?? '').toLowerCase() === filename
+	return nativeModelDownloads.find((entry) => matches(entry.model) || (entry.encoder !== undefined && matches(entry.encoder))) ?? null
+}
+
 export const embeddingModelFilename = 'wespeaker_en_voxceleb_CAM++.onnx'
 export const segmentModelFilename = 'segmentation-3.0.onnx'
 export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/wespeaker_en_voxceleb_CAM++.onnx'

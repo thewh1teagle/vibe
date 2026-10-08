@@ -1,4 +1,4 @@
-<!-- source: 1d964213251f -->
+<!-- source: f4d810c96dee -->
 
 # 🌟 Vibeモデル 🌟
 
@@ -31,6 +31,22 @@ Vibeモデルのページへようこそ！ここではVibeで使用するおす
 
 [👉 モデルを見る](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
 [🔽 Q4_K_Mをダウンロード](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
+
+### 🀄 SenseVoice Small
+
+FunASRエンジンを使用し、中国語、粤語、英語、日本語、韓国語に対応。小さいサイズながら多言語認識精度に優れています。
+
+[👉 Magic Setup](vibe://download/?url=https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf)  
+[🔽 直接ダウンロード](https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf?download=true)
+
+### 🀄 FunASR Nano
+
+FunASRのエンコーダー・デコーダーエンジン（Qwen3 0.6Bデコーダー）。中国語、英語、日本語に対応。中国語は7種類の方言（呉語、粤語、閩語、客家語、贛語、湘語、晋語）および26種類の地域アクセントをカバー。英語と日本語も様々な地域アクセントに対応。歌詞認識およびラップ音声認識もサポート。
+
+[👉 Magic Setup](vibe://download/?url=https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF/resolve/main/qwen3-0.6b-q4km.gguf)  
+[👉 モデルを見る](https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF)
+
+> 両方のFunASRエンジンは `.vibe-model` パッケージ（マニフェストとGGUFコンポーネント）としてインストールされます。Magic Setupリンクを使えば、パッケージ全体のダウンロード・検証・インストールが自動で行われます。
 
 ### 他言語に最適化されたモデル
 

@@ -43,7 +43,7 @@
 - 📂 Batch transcribe multiple files!
 - 📝 Support `SRT`, `VTT`, `TXT`, `HTML`, `PDF`, `JSON`, `DOCX` formats
 - 👀 Realtime preview
-- 🤖 Supports Whisper, Nemotron 3.5, and Parakeet TDT v3 models
+- 🤖 Supports Whisper, Nemotron 3.5, Parakeet TDT v3, FunASR Nano, and SenseVoice models
 - ✨ Summarize transcripts: Get quick, multilingual summaries using the Claude API
 - 🧠 Ollama support: Do local AI analysis and batch summaries with Ollama
 - 🌐 Translate to English from any language

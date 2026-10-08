@@ -28,7 +28,15 @@ pub(in crate::server) async fn model_metadata(Json(request): Json<ModelMetadataR
         );
     }
     let path = request.path.clone();
+    let native = funasr_runtime::manifest::is_package_path(std::path::Path::new(&path));
     match tokio::task::spawn_blocking(move || {
+        if native {
+            // Shallow: this runs every time the user selects a model, and hashing gigabytes
+            // would make that click take seconds.
+            return funasr_runtime::manifest::Package::load_shallow(&path)
+                .map(|package| crate::engine::funasr::capabilities(package.kind))
+                .map_err(|err| format!("invalid native model package: {err:#}"));
+        }
         // Probing a whisper model with the GGUF readers only makes ggml log a
         // magic mismatch, so files that are not GGUF go straight to whisper.
         if !is_gguf(&path) {
@@ -81,7 +89,13 @@ pub(in crate::server) async fn model_metadata(Json(request): Json<ModelMetadataR
         Ok(Ok(capabilities)) => (
             StatusCode::OK,
             Json(ModelMetadataResponse {
-                format: if capabilities.engine == "whisper" { "whisper" } else { "gguf" },
+                format: if native {
+                    "vibe-model"
+                } else if capabilities.engine == "whisper" {
+                    "whisper"
+                } else {
+                    "gguf"
+                },
                 capabilities,
             }),
         )
@@ -114,21 +128,29 @@ pub(in crate::server) async fn load_model(State(state): State<AppState>, Json(re
         );
     }
 
-    let mut model = state.unload_timeout.acquire(state.inner.clone()).await;
     let gpu_device = request.gpu_device.unwrap_or(-1);
-    match model.load_model(&request.path, gpu_device, request.no_gpu) {
-        Ok(()) => (
-            StatusCode::OK,
-            Json(ModelStatusResponse {
-                status: "loaded",
-                model: model.model_name.clone(),
-            }),
-        )
-            .into_response(),
-        Err(err) => error(
+    if funasr_runtime::manifest::is_package_path(std::path::Path::new(&request.path)) {
+        if let Err(err) = crate::engine::funasr::validate_device(gpu_device) {
+            return error(StatusCode::BAD_REQUEST, "invalid_request", &err.to_string());
+        }
+    }
+    let mut model = state.unload_timeout.acquire(state.inner.clone()).await;
+    match tokio::task::spawn_blocking(move || {
+        model.load_model(&request.path, gpu_device, request.no_gpu)?;
+        Ok::<_, anyhow::Error>(model.model_name.clone())
+    })
+    .await
+    {
+        Ok(Ok(model)) => (StatusCode::OK, Json(ModelStatusResponse { status: "loaded", model })).into_response(),
+        Ok(Err(err)) => error(
             StatusCode::INTERNAL_SERVER_ERROR,
             crate::server::engine_error_code(&err),
-            &format!("failed to load model: {err}"),
+            &format!("failed to load model: {err:#}"),
+        ),
+        Err(err) => error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "internal_error",
+            &format!("model load task failed: {err}"),
         ),
     }
 }

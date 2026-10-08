@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom'
 import { load } from '@tauri-apps/plugin-store'
 import { useStoreValue } from '~/lib/use-store-value'
 import { collectLogs, getPrettyVersion, getVersionNumber } from '~/lib/logs'
-import { cleanupPartialDownloads, isModelFileUsable, listInstalledModels, type InstalledModel, type ModelMetadata } from '~/lib/model'
+import { cleanupPartialDownloads, isModelFileUsable, isNativeAsr, listInstalledModels, type InstalledModel, type ModelMetadata } from '~/lib/model'
 import { buildSkill, installSkill, type SkillTarget } from '~/lib/skill'
 
 export interface GpuDevice {
@@ -181,14 +181,13 @@ export function viewModel() {
 		if (preference.modelPath && !found.some((model) => model.path === preference.modelPath)) {
 			preference.setModelPath(null)
 		}
+		pickDefaultModel(found)
 	}
 
-	async function getDefaultModel() {
-		if (!preference.modelPath) {
-			const files = (await listInstalledModels()).filter((model) => model.valid)
-			if (files.length > 0) {
-				preference.setModelPath(files[0].path)
-			}
+	/** Pick the first usable model when nothing is selected, reusing the listing we already have. */
+	function pickDefaultModel(files: NamedPath[]) {
+		if (!preference.modelPath && files.length > 0) {
+			preference.setModelPath(files[0].path)
 		}
 	}
 
@@ -233,7 +232,8 @@ export function viewModel() {
 	}
 
 	function applyModelLanguage(metadata: ModelMetadata | null) {
-		if (!metadata) return
+		// Native ASR forces auto only on outgoing requests; keep the saved Whisper language.
+		if (!metadata || isNativeAsr(metadata.capabilities)) return
 		const capabilities = metadata.capabilities
 		const currentLanguage = preference.modelOptions.lang
 		const isSupported = currentLanguage === 'auto' ? capabilities.language_detection : capabilities.languages.includes(currentLanguage)
@@ -270,7 +270,6 @@ export function viewModel() {
 			await store.set('models_folder', path)
 			await store.save()
 			await loadModels()
-			await getDefaultModel()
 		}
 	}
 
@@ -361,7 +360,6 @@ export function viewModel() {
 		loadMeta()
 		// Unresumable leftovers from an interrupted download only take up space.
 		cleanupPartialDownloads().then(loadModels).catch(console.error)
-		getDefaultModel()
 		refreshApiServerStatus()
 		loadGpuDevices()
 		onWindowFocus()

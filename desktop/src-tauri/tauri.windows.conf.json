@@ -1,6 +1,11 @@
 {
 	"bundle": {
-		"externalBin": ["binaries/vibe-server", "binaries/ffmpeg"],
+		"externalBin": [
+			"binaries/vibe-server",
+			"binaries/ffmpeg",
+			"binaries/vibe-funasr-nano-worker",
+			"binaries/vibe-sensevoice-worker"
+		],
 		"windows": {
 			"nsis": {
 				"installerHooks": "vc_redist.nsh"

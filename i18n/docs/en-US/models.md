@@ -30,6 +30,22 @@ Supports streaming and is best suited for dictation.
 [👉 View Model](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
 [🔽 Download Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
 
+### 🀄 SenseVoice Small
+
+FunASR engine. Supports Chinese, Cantonese, English, Japanese, and Korean at a small size with strong multilingual accuracy.
+
+[👉 Magic Setup](vibe://download/?url=https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf)  
+[🔽 Direct Download](https://huggingface.co/FunAudioLLM/SenseVoiceSmall-GGUF/resolve/main/sensevoice-small-q8.gguf?download=true)
+
+### 🀄 FunASR Nano
+
+FunASR encoder-decoder engine (Qwen3 0.6B decoder). Supports Chinese, English, and Japanese. Chinese coverage includes 7 dialects (Wu, Cantonese, Min, Hakka, Gan, Xiang, Jin) and 26 regional accents. English and Japanese cover a variety of regional accents. Also features lyrics recognition and rap speech recognition.
+
+[👉 Magic Setup](vibe://download/?url=https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF/resolve/main/qwen3-0.6b-q4km.gguf)  
+[👉 View Model](https://huggingface.co/FunAudioLLM/Fun-ASR-Nano-GGUF)
+
+> Both FunASR engines install as a `.vibe-model` package (a manifest plus GGUF components): the Magic Setup link downloads, validates, and installs the whole package automatically.
+
 ### Models optimised for other languages
 
 <details>

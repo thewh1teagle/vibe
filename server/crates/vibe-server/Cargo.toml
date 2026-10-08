@@ -14,6 +14,7 @@ path = "src/main.rs"
 whisper-rs = { path = "../whisper-rs", features = ["ffi"] }
 nemotron-rs = { path = "../nemotron-rs" }
 parakeet-rs = { path = "../parakeet-rs" }
+funasr-runtime = { path = "../funasr-runtime" }
 vad-rs = { path = "../vad-rs" }
 diarize-rs = { path = "../diarize-rs", optional = true }
 

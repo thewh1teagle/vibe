@@ -93,7 +93,7 @@ fn read_magic(path: &Path) -> Result<[u8; 4]> {
     Ok(magic)
 }
 
-fn sha256_file(path: &Path) -> Result<String> {
+pub(super) fn sha256_file(path: &Path) -> Result<String> {
     let mut file = std::fs::File::open(path).context(format!("Failed to open {}", path.display()))?;
     let mut hasher = Sha256::new();
     let mut buffer = vec![0u8; 1024 * 1024];
@@ -114,8 +114,15 @@ fn sha256_file(path: &Path) -> Result<String> {
 }
 
 /// Minimum size plus GGML/GGUF magic. This is what stands between a truncated download (or an HTML
-/// error page) and a file the app hands to server as if it were a model.
+/// error page) and a file the app hands to server as if it were a model. Packages use the shallow
+/// manifest check — this runs on every window focus and dropdown open, where hashing gigabytes of
+/// weights would freeze the UI.
 pub fn validate_model_file(path: &Path) -> Result<()> {
+    if funasr_runtime::manifest::is_package_path(path) {
+        return funasr_runtime::manifest::Package::load_shallow(path)
+            .map(|_| ())
+            .map_err(|error| eyre::eyre!("{error:#}"));
+    }
     let size = std::fs::metadata(path)
         .context(format!("Failed to read the size of {}", path.display()))?
         .len();
@@ -352,9 +359,20 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
 
 /// Validate model files that are already installed. Legacy downloads (before the `.part` scheme)
 /// wrote straight to the final name, so a truncated file from back then is still sitting in the
-/// models folder looking perfectly installed.
+/// models folder looking perfectly installed. The command must stay off the main thread: a sync
+/// Tauri command runs there, and file walking on every window focus is what the UI waits on.
 #[tauri::command]
-pub fn check_model_files(paths: Vec<String>) -> Vec<ModelFileCheck> {
+pub async fn check_model_files(paths: Vec<String>) -> Vec<ModelFileCheck> {
+    match tauri::async_runtime::spawn_blocking(move || check_model_files_blocking(paths)).await {
+        Ok(checks) => checks,
+        Err(error) => {
+            tracing::error!("failed to check model files: {error}");
+            Vec::new()
+        }
+    }
+}
+
+fn check_model_files_blocking(paths: Vec<String>) -> Vec<ModelFileCheck> {
     paths
         .into_iter()
         .map(|path| {
@@ -406,8 +424,8 @@ pub fn cleanup_partial_downloads(folder: String) -> Result<Vec<String>> {
 #[cfg(test)]
 mod tests {
     use super::{
-        check_model_files, cleanup_partial_downloads, partial_path, publish_download, remove_if_exists, validate_model_file,
-        verify_finished_download, DownloadIntegrity, MIN_MODEL_SIZE,
+        check_model_files_blocking, cleanup_partial_downloads, partial_path, publish_download, remove_if_exists,
+        validate_model_file, verify_finished_download, DownloadIntegrity, MIN_MODEL_SIZE,
     };
     use std::{fs, path::Path, path::PathBuf, time::SystemTime};
 
@@ -538,7 +556,10 @@ mod tests {
         write_model(&good, b"lmgg");
         fs::write(&bad, b"").unwrap();
 
-        let checks = check_model_files(vec![good.to_string_lossy().to_string(), bad.to_string_lossy().to_string()]);
+        let checks = check_model_files_blocking(vec![
+            good.to_string_lossy().to_string(),
+            bad.to_string_lossy().to_string(),
+        ]);
 
         assert!(checks[0].valid);
         assert!(!checks[1].valid);
