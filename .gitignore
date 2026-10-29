@@ -49,3 +49,4 @@ tauri-plugin-aptabase/
 
 # Scratch artifacts for the engine/whisper output comparison (includes a 47MB binary).
 plans/
+*.parquet

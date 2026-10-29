@@ -8,7 +8,7 @@ pub fn clean_old_logs(app: &tauri::AppHandle) -> Result<()> {
     let current_log_path = get_log_path(&app.clone())?;
 
     // Get logs folder
-    let logs_folder = get_logs_folder(app.to_owned())?;
+    let logs_folder = get_logs_folder(app.to_owned()).map_err(crate::error::Error::into_report)?;
     let logs_folder = logs_folder.to_str().context("tostr")?;
 
     // Remove suffix

@@ -1,3 +1,4 @@
+use crate::error::CommandResult;
 use crate::error::LogError;
 use crate::setup::ServerState;
 use eyre::{bail, Context, ContextCompat, Result};
@@ -77,7 +78,7 @@ pub async fn load_model(
     gpu_device: Option<i32>,
     unload_timeout_minutes: u32,
     no_gpu: Option<bool>,
-) -> Result<String> {
+) -> CommandResult<String> {
     // Absent means "use the GPU": the setting is opt-in, and older callers do not send it.
     let no_gpu = no_gpu.unwrap_or(false);
     let server_state: State<'_, Mutex<ServerState>> = app_handle.state();
@@ -122,7 +123,7 @@ pub async fn load_model(
                     crate::analytics::events::SERVER_SPAWN_FAILED,
                     Some(serde_json::json!({"error_message": error_msg})),
                 );
-                return Err(e);
+                return Err(e.into());
             }
         }
     }
@@ -167,7 +168,7 @@ pub async fn load_model(
     // Asking for the CPU is a choice rather than a failure, so there is nothing to fall back to.
     let gpu_fallback = match load_result {
         Ok(()) => false,
-        Err(e) if no_gpu => return Err(e),
+        Err(e) if no_gpu => return Err(e.into()),
         Err(e) => {
             tracing::warn!("model load failed with GPU enabled, falling back to CPU: {:#}", e);
 
@@ -191,14 +192,14 @@ pub async fn load_model(
 }
 
 #[tauri::command]
-pub async fn get_gpu_devices(app_handle: tauri::AppHandle) -> Result<Vec<crate::server::GpuDevice>> {
+pub async fn get_gpu_devices(app_handle: tauri::AppHandle) -> CommandResult<Vec<crate::server::GpuDevice>> {
     let binary_path = resolve_server_binary(&app_handle)?;
     let devices = crate::server::list_gpu_devices(&binary_path)?;
     Ok(devices)
 }
 
 #[tauri::command]
-pub async fn get_model_metadata(app_handle: tauri::AppHandle, model_path: String) -> Result<crate::server::ModelMetadata> {
+pub async fn get_model_metadata(app_handle: tauri::AppHandle, model_path: String) -> CommandResult<crate::server::ModelMetadata> {
     let server_state: State<'_, Mutex<ServerState>> = app_handle.state();
     let mut state = server_state.lock().await;
     if state.process.as_mut().is_none_or(|process| !process.is_alive()) {
@@ -212,11 +213,11 @@ pub async fn get_model_metadata(app_handle: tauri::AppHandle, model_path: String
             cpu_variant,
         )?);
     }
-    state.process.as_ref().unwrap().model_metadata(&model_path).await
+    Ok(state.process.as_ref().unwrap().model_metadata(&model_path).await?)
 }
 
 #[tauri::command]
-pub async fn get_api_base_url(server_state: State<'_, Mutex<ServerState>>) -> Result<Option<String>> {
+pub async fn get_api_base_url(server_state: State<'_, Mutex<ServerState>>) -> CommandResult<Option<String>> {
     let state = server_state.lock().await;
     Ok(state.process.as_ref().map(|process| process.base_url()))
 }
@@ -226,7 +227,7 @@ pub async fn start_api_server(
     app_handle: tauri::AppHandle,
     server_state: State<'_, Mutex<ServerState>>,
     unload_timeout_minutes: u32,
-) -> Result<String> {
+) -> CommandResult<String> {
     let mut state_guard = server_state.lock().await;
     let cpu_variant = crate::cmd::config::cpu_variant(&app_handle);
     if state_guard
@@ -253,7 +254,7 @@ pub async fn start_api_server(
 }
 
 #[tauri::command]
-pub async fn stop_api_server(app_handle: tauri::AppHandle, server_state: State<'_, Mutex<ServerState>>) -> Result<bool> {
+pub async fn stop_api_server(app_handle: tauri::AppHandle, server_state: State<'_, Mutex<ServerState>>) -> CommandResult<bool> {
     let mut state_guard = server_state.lock().await;
     // The port dies with the process, so the hint in the config file has to go with it.
     crate::cmd::config::set_api_base_url(&app_handle, None).log_error();

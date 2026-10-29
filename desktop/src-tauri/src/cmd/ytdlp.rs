@@ -1,5 +1,5 @@
 use crate::ffmpeg::get_vibe_temp_folder;
-use eyre::{bail, Context, ContextCompat, Result};
+use eyre::{eyre, Context, ContextCompat, Result};
 use serde_json::Value;
 use std::{
     io::{BufRead, BufReader},
@@ -11,6 +11,7 @@ use crate::error::LogError;
 
 use super::files::get_ffmpeg_path;
 
+use crate::error::CommandResult;
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
 use std::process::Stdio;
@@ -37,7 +38,7 @@ fn get_binary_name() -> &'static str {
 }
 
 #[tauri::command]
-pub async fn get_latest_ytdlp_version() -> Result<String> {
+pub async fn get_latest_ytdlp_version() -> CommandResult<String> {
     let client = reqwest::Client::builder().user_agent("vibe-app").build()?;
     let resp = client
         .get("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
@@ -97,7 +98,7 @@ mod tests {
 }
 
 #[tauri::command]
-pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String) -> Result<()> {
+pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String) -> CommandResult<()> {
     tracing::debug!("download audio {}", url);
     let name = get_binary_name();
     let path = app_handle.path().app_local_data_dir().context("Can't get data directory")?;
@@ -188,7 +189,7 @@ pub async fn download_audio(app_handle: AppHandle, url: String, out_path: String
                 .join("\n");
             eprintln!("Error: {}", stderr_output);
         }
-        bail!("Failed to download audio: {}", stderr_output);
+        return Err(eyre!("Failed to download audio: {}", stderr_output).into());
     }
     Ok(())
 }
