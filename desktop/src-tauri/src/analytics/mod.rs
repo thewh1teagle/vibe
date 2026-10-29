@@ -1,8 +1,9 @@
+mod client;
+
 use std::sync::OnceLock;
 use std::time::Duration;
 
 use tauri::{App, AppHandle};
-use tauri_plugin_aptabase::EventTracker;
 use tauri_plugin_store::StoreExt;
 
 use crate::config::STORE_FILENAME;
@@ -50,6 +51,32 @@ const ELISION_MARKER: &str = "...";
 
 /// Resolved once per process so a store that cannot be written is not retried on every event.
 static INSTALL_ID: OnceLock<String> = OnceLock::new();
+
+/// Set by `init` when the build carries a valid key; without one every event is dropped.
+static CLIENT: OnceLock<client::Client> = OnceLock::new();
+
+/// Starts the client and its periodic flush. Call once, from setup, before the first event.
+pub fn init(app: &App) {
+    if !is_aptabase_configured() {
+        return;
+    }
+    let Some(url) = client::ingest_url(APTABASE_APP_KEY, APTABASE_BASE_URL) else {
+        tracing::debug!("analytics disabled: the Aptabase app key is not valid");
+        return;
+    };
+    let version = app.package_info().version.to_string();
+    if CLIENT.set(client::Client::new(APTABASE_APP_KEY, url, version)).is_err() {
+        return;
+    }
+    tauri::async_runtime::spawn(async {
+        loop {
+            tokio::time::sleep(client::FLUSH_INTERVAL).await;
+            if let Some(client) = CLIENT.get() {
+                client.flush().await;
+            }
+        }
+    });
+}
 
 fn is_analytics_enabled(app_handle: &AppHandle) -> bool {
     let Ok(store) = app_handle.store(STORE_FILENAME) else {
@@ -112,25 +139,28 @@ fn truncate_keep_tail(value: &str, max_chars: usize) -> String {
     format!("{}{}", ELISION_MARKER, tail)
 }
 
-/// Flush pending events without letting a slow network hold up an exit.
-pub fn flush_events_bounded(app_handle: &AppHandle, timeout: Duration) {
-    if !is_aptabase_configured() {
+/// Send what is queued, giving up after `timeout` so a slow network cannot hold anything up.
+pub async fn flush_events(timeout: Duration) {
+    let Some(client) = CLIENT.get() else { return };
+    if tokio::time::timeout(timeout, client.flush()).await.is_err() {
+        tracing::debug!("analytics flush timed out after {:?}", timeout);
+    }
+}
+
+/// `flush_events` for the exit handler, which is not async. The main thread already sits inside
+/// `#[tokio::main]`, where starting another `block_on` panics (and the release profile aborts on
+/// panic), so the flush runs on a thread of its own.
+pub fn flush_events_bounded(timeout: Duration) {
+    if CLIENT.get().is_none() {
         return;
     }
     let (sender, receiver) = std::sync::mpsc::channel();
-    let handle = app_handle.clone();
-    // flush_events_blocking ends in a reqwest call, which panics without a tokio runtime in
-    // scope. A bare thread has none, and the release profile aborts on panic, so that panic
-    // took the whole app down on quit rather than just losing the flush. Carry the runtime in.
-    let runtime = tauri::async_runtime::handle();
     std::thread::spawn(move || {
-        let _guard = runtime.inner().enter();
-        handle.flush_events_blocking();
+        tauri::async_runtime::block_on(flush_events(timeout));
         let _ = sender.send(());
     });
-    if receiver.recv_timeout(timeout).is_err() {
-        tracing::debug!("analytics flush timed out after {:?}", timeout);
-    }
+    // A little longer than the flush's own timeout, so that one decides.
+    let _ = receiver.recv_timeout(timeout + Duration::from_millis(200));
 }
 
 pub fn track_event(app: &App, event_name: &str) {
@@ -142,13 +172,10 @@ pub fn track_event_handle(app_handle: &AppHandle, event_name: &str) {
 }
 
 pub fn track_event_handle_with_props(app_handle: &AppHandle, event_name: &str, props: Option<serde_json::Value>) {
-    if !is_aptabase_configured() {
-        tracing::debug!(
-            "analytics track_event failed for '{}': APTABASE_APP_KEY or APTABASE_BASE_URL is not set",
-            event_name
-        );
+    let Some(client) = CLIENT.get() else {
+        tracing::debug!("analytics event '{}' dropped: no Aptabase key in this build", event_name);
         return;
-    }
+    };
     if !is_analytics_enabled(app_handle) {
         return;
     }
@@ -163,13 +190,14 @@ pub fn track_event_handle_with_props(app_handle: &AppHandle, event_name: &str, p
         }
     }
     merged.entry("vibe_commit").or_insert_with(|| env!("COMMIT_HASH").into());
-    if let Some(id) = install_id(app_handle) {
-        merged.entry("install_id").or_insert_with(|| id.into());
-    }
-    tracing::trace!("analytics track_event '{}' sent", event_name);
-    if let Err(error) = app_handle.track_event(event_name, Some(serde_json::Value::Object(merged))) {
-        tracing::debug!("analytics track_event failed for '{}': {}", event_name, error);
-    }
+    // The session needs a stable id; an install whose store cannot hold one gets one per run.
+    let id = install_id(app_handle).unwrap_or_else(|| {
+        static RUN_ID: OnceLock<String> = OnceLock::new();
+        RUN_ID.get_or_init(|| uuid::Uuid::new_v4().to_string()).clone()
+    });
+    merged.entry("install_id").or_insert_with(|| id.clone().into());
+    tracing::trace!("analytics event '{}' queued", event_name);
+    client.enqueue(client.event(event_name, serde_json::Value::Object(merged), &id));
 }
 
 #[cfg(test)]

@@ -103,7 +103,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
                     "error_message": format!("failed to spawn server: {}", e),
                 })),
             );
-            crate::analytics::flush_events_bounded(app_handle, std::time::Duration::from_secs(2));
+            crate::analytics::flush_events(std::time::Duration::from_secs(2)).await;
             return Err(eyre::eyre!("failed to spawn server: {}", e));
         }
     };
@@ -143,7 +143,7 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     );
 
     // Bounded, and it also no-ops when analytics are not configured.
-    crate::analytics::flush_events_bounded(app_handle, std::time::Duration::from_secs(5));
+    crate::analytics::flush_events(std::time::Duration::from_secs(5)).await;
     app_handle.cleanup_before_exit();
     process::exit(status.code().unwrap_or(1));
 }
