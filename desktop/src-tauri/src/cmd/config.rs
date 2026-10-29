@@ -1,4 +1,5 @@
 use crate::config::STORE_FILENAME;
+use crate::error::CommandResult;
 use eyre::{eyre, Context, Result};
 use std::fs;
 use std::io::Write;
@@ -71,7 +72,7 @@ pub fn set_cpu_variant(app_handle: &tauri::AppHandle, variant: CpuVariant) -> Re
 
 /// Absolute path of `app_config.json`, so the UI (and agents told where to look) can find it.
 #[tauri::command]
-pub fn get_config_path(app_handle: tauri::AppHandle) -> Result<PathBuf> {
+pub fn get_config_path(app_handle: tauri::AppHandle) -> CommandResult<PathBuf> {
     Ok(app_handle.path().app_config_dir()?.join(STORE_FILENAME))
 }
 
@@ -99,7 +100,7 @@ pub fn set_api_base_url(app_handle: &tauri::AppHandle, base_url: Option<&str>) -
 /// and renaming over the target makes the swap atomic for any reader (same directory, so the
 /// rename never crosses a filesystem boundary).
 #[tauri::command]
-pub fn write_config_atomically(app_handle: tauri::AppHandle, contents: String) -> Result<()> {
+pub fn write_config_atomically(app_handle: tauri::AppHandle, contents: String) -> CommandResult<()> {
     // Reject invalid JSON here rather than letting the store fail to parse it on next load.
     serde_json::from_str::<serde_json::Value>(&contents).context("config contents are not valid JSON")?;
 

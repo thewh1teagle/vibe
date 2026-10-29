@@ -27,7 +27,7 @@ pub struct AudioDevice {
 }
 
 #[tauri::command]
-pub fn get_audio_devices() -> Result<Vec<AudioDevice>> {
+pub fn get_audio_devices() -> CommandResult<Vec<AudioDevice>> {
     let host = cpal::default_host();
     let mut audio_devices = Vec::new();
 
@@ -148,9 +148,9 @@ fn remove_recording_intermediates(paths: impl IntoIterator<Item = PathBuf>, keep
 
 #[tauri::command]
 /// Record audio from the given devices, store to wav, merge with ffmpeg, and return path
-pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, recording_name: Option<String>) -> Result<()> {
+pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, recording_name: Option<String>) -> CommandResult<()> {
     if devices.is_empty() {
-        bail!("At least one audio device is required");
+        return Err(eyre!("At least one audio device is required").into());
     }
     let host = cpal::default_host();
 
@@ -378,6 +378,7 @@ fn wav_spec_from_config(config: &cpal::SupportedStreamConfig) -> hound::WavSpec 
     }
 }
 
+use crate::error::CommandResult;
 use std::ops::Mul;
 
 fn write_input_data<T, U>(input: &[T], writer: &WavWriterHandle)

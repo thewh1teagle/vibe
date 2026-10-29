@@ -1,3 +1,4 @@
+use crate::error::CommandResult;
 use eyre::{ContextCompat, Result};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -44,7 +45,7 @@ fn has_matching_extension(path: &Path, patterns: &[String]) -> bool {
 }
 
 #[tauri::command]
-pub fn get_path_dst(src: String, suffix: String) -> Result<String> {
+pub fn get_path_dst(src: String, suffix: String) -> CommandResult<String> {
     let src = PathBuf::from(src);
     let src_filename = src.file_name().context("filename")?.to_str().context("stostr")?;
     let src_name = src
@@ -91,7 +92,7 @@ pub(crate) fn available_path(parent: &Path, stem: &str, extension: &str) -> Path
 }
 
 #[tauri::command]
-pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> Result<Value> {
+pub fn get_save_path(src_path: PathBuf, target_ext: &str) -> CommandResult<Value> {
     let stem = src_path.file_stem().and_then(|s| s.to_str()).unwrap_or_default();
     let mut new_path = src_path.clone();
     new_path.set_file_name(stem);
@@ -108,7 +109,7 @@ pub fn get_argv() -> Vec<String> {
 }
 
 #[tauri::command]
-pub fn get_default_projects_path(app_handle: AppHandle) -> Result<String> {
+pub fn get_default_projects_path(app_handle: AppHandle) -> CommandResult<String> {
     let path = app_handle
         .path()
         .document_dir()
@@ -118,7 +119,7 @@ pub fn get_default_projects_path(app_handle: AppHandle) -> Result<String> {
 }
 
 #[tauri::command]
-pub async fn open_path(path: PathBuf) -> Result<()> {
+pub async fn open_path(path: PathBuf) -> CommandResult<()> {
     showfile::show_path_in_file_manager(path);
     Ok(())
 }
@@ -136,7 +137,7 @@ pub fn get_ffmpeg_path() -> String {
 /// dialog plugin — and the cross-platform picker it wraps — is one or the other. Elsewhere this
 /// returns `None` so the caller falls back to the plugin's file dialog.
 #[tauri::command]
-pub async fn pick_media_paths(app_handle: AppHandle, extensions: Vec<String>) -> Result<Option<Vec<String>>> {
+pub async fn pick_media_paths(app_handle: AppHandle, extensions: Vec<String>) -> CommandResult<Option<Vec<String>>> {
     #[cfg(target_os = "macos")]
     {
         let (sender, receiver) = tokio::sync::oneshot::channel();

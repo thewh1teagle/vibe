@@ -14,6 +14,7 @@ use tauri::{
     AppHandle, Manager,
 };
 
+use crate::error::CommandResult;
 use crate::error::LogError;
 
 /// Menu labels in the app's language, handed over by the frontend.
@@ -105,6 +106,6 @@ pub fn apply(app: &AppHandle, enabled: bool, labels: TrayLabels) -> Result<()> {
 
 /// Called by the frontend whenever the setting or the app language changes, and once at startup.
 #[tauri::command]
-pub fn set_tray(app: AppHandle, enabled: bool, labels: TrayLabels) -> Result<()> {
-    apply(&app, enabled, labels)
+pub fn set_tray(app: AppHandle, enabled: bool, labels: TrayLabels) -> CommandResult<()> {
+    Ok(apply(&app, enabled, labels)?)
 }

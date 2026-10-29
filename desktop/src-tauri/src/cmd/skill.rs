@@ -1,3 +1,4 @@
+use crate::error::CommandResult;
 use eyre::{eyre, Context, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -52,7 +53,7 @@ fn write_skill(home: &Path, target: &str, contents: &str) -> Result<PathBuf> {
 ///
 /// @returns the absolute path written, so the UI can tell the user where the skill went.
 #[tauri::command]
-pub fn install_agent_skill(app_handle: tauri::AppHandle, target: String, contents: String) -> Result<PathBuf> {
+pub fn install_agent_skill(app_handle: tauri::AppHandle, target: String, contents: String) -> CommandResult<PathBuf> {
     let home = app_handle.path().home_dir().context("resolve the home directory")?;
     let path = write_skill(&home, &target, &contents)?;
     tracing::debug!("installed the agent skill to {}", path.display());

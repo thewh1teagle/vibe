@@ -1,11 +1,11 @@
 use crate::config::STORE_FILENAME;
 use crate::ffmpeg;
-use eyre::{Context, Result};
+use eyre::Context;
 
 /// Return true if there's internet connection
 /// timeout in ms
 #[tauri::command]
-pub async fn is_online(timeout: Option<u64>) -> Result<bool> {
+pub async fn is_online(timeout: Option<u64>) -> CommandResult<bool> {
     let timeout = std::time::Duration::from_millis(timeout.unwrap_or(2000));
     let targets = ["1.1.1.1:80", "1.1.1.1:53", "8.8.8.8:53", "8.8.8.8:80"];
 
@@ -18,6 +18,7 @@ pub async fn is_online(timeout: Option<u64>) -> Result<bool> {
 
     Ok(futures::future::join_all(tasks).await.into_iter().any(|res| res))
 }
+use crate::error::CommandResult;
 use serde_json::Value;
 use std::path::PathBuf;
 use tauri::Manager;
@@ -43,18 +44,18 @@ pub fn is_avx2_enabled() -> bool {
 }
 
 #[tauri::command]
-pub fn track_analytics_event(app_handle: tauri::AppHandle, name: String, props: Option<Value>) -> Result<()> {
+pub fn track_analytics_event(app_handle: tauri::AppHandle, name: String, props: Option<Value>) -> CommandResult<()> {
     crate::analytics::track_event_handle_with_props(&app_handle, &name, props);
     Ok(())
 }
 
 #[tauri::command]
-pub fn get_logs_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
+pub fn get_logs_folder(app_handle: tauri::AppHandle) -> CommandResult<PathBuf> {
     Ok(app_handle.path().app_config_dir()?)
 }
 
 #[tauri::command]
-pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
+pub async fn show_log_path(app_handle: tauri::AppHandle) -> CommandResult<()> {
     let log_path = crate::logging::get_log_path(&app_handle)?;
     if log_path.exists() {
         showfile::show_path_in_file_manager(log_path);
@@ -65,14 +66,14 @@ pub async fn show_log_path(app_handle: tauri::AppHandle) -> Result<()> {
 }
 
 #[tauri::command]
-pub async fn show_temp_path() -> Result<()> {
+pub async fn show_temp_path() -> CommandResult<()> {
     let temp_path = ffmpeg::get_vibe_temp_folder();
     showfile::show_path_in_file_manager(temp_path);
     Ok(())
 }
 
 #[tauri::command]
-pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
+pub fn get_models_folder(app_handle: tauri::AppHandle) -> CommandResult<PathBuf> {
     let store = app_handle.store(STORE_FILENAME)?;
 
     let models_folder = store.get("models_folder").and_then(|p| p.as_str().map(PathBuf::from));
@@ -85,7 +86,7 @@ pub fn get_models_folder(app_handle: tauri::AppHandle) -> Result<PathBuf> {
 }
 
 #[tauri::command]
-pub fn get_logs(app_handle: tauri::AppHandle) -> Result<String> {
+pub fn get_logs(app_handle: tauri::AppHandle) -> CommandResult<String> {
     let path = crate::logging::get_log_path(&app_handle)?;
     let content = std::fs::read_to_string(path)?;
     Ok(content)
@@ -98,16 +99,16 @@ pub fn is_crashed_recently() -> bool {
 }
 
 #[tauri::command]
-pub fn rename_crash_file() -> Result<()> {
-    std::fs::rename(
+pub fn rename_crash_file() -> CommandResult<()> {
+    Ok(std::fs::rename(
         ffmpeg::get_vibe_temp_folder().join("crash.txt"),
         ffmpeg::get_vibe_temp_folder().join("crash.1.txt"),
     )
-    .context("Can't delete file")
+    .context("Can't delete file")?)
 }
 
 #[tauri::command]
-pub fn type_text(text: String) -> Result<()> {
+pub fn type_text(text: String) -> CommandResult<()> {
     use enigo::{Enigo, Keyboard, Settings};
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
     // Small delay to let the user's key release propagate
