@@ -25,8 +25,7 @@ export interface Update {
 }
 
 interface DownloadProgress {
-	chunk: number
-	total: number | null
+	percent: number
 }
 
 type UpdaterContextType = {
@@ -64,8 +63,6 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	const [availableUpdate, setAvailableUpdate] = useState(false)
 	const [update, setUpdate] = useState<Update | undefined>()
 	const [updating, setUpdating] = useState(false)
-	const [totalSize, setTotal] = useState<number | null>(null)
-	const [partSize, setPartSize] = useState<number | null>(null)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const [progress, setProgress] = useState<number | null>(null)
 	const [channel, setChannel] = usePersisted<UpdateChannel>(CONFIG_KEYS.updateChannel, 'stable')
@@ -86,12 +83,6 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 			/* private mode — the flag still holds for this session */
 		}
 	}
-
-	useEffect(() => {
-		if (partSize && totalSize) {
-			setProgress((partSize / totalSize) * 100)
-		}
-	}, [partSize])
 
 	// Checked again on a channel switch, so moving to beta offers its build right away.
 	useEffect(() => {
@@ -126,8 +117,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		setProgress(0)
 		console.info(`Installing update ${update?.version}, ${update?.body}`)
 		const unlisten = await listen<DownloadProgress>('updater-progress', ({ payload }) => {
-			if (payload.total) setTotal(payload.total)
-			setPartSize((prev) => (prev ?? 0) + payload.chunk)
+			setProgress(payload.percent)
 		})
 		try {
 			await invoke('update_download')
@@ -139,10 +129,9 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		// while the (potentially long) download is in progress.
 		await invoke('stop_api_server')
 		await invoke('update_install')
+		// Progress is left at 100 rather than reset: the dialog fades out after this, and a reset
+		// would show the bar sliding back to empty. The next download starts it at 0.
 		setUpdating(false)
-		setTotal(null)
-		setPartSize(null)
-		setProgress(null)
 		await askForRelaunch()
 		setAvailableUpdate(false)
 	}

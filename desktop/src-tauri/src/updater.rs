@@ -42,10 +42,11 @@ pub struct AvailableUpdate {
     body: Option<String>,
 }
 
+/// Whole percent downloaded. Sent only when it changes: one event per chunk floods the webview
+/// and the bar lurches instead of moving.
 #[derive(Clone, Serialize)]
 struct Progress {
-    chunk: usize,
-    total: Option<u64>,
+    percent: u64,
 }
 
 #[tauri::command]
@@ -79,17 +80,27 @@ pub async fn update_check(
     Ok(Some(available))
 }
 
-/// Downloads the pending update, reporting each chunk as `updater-progress`.
+/// Downloads the pending update, reporting the percent done as `updater-progress`.
 #[tauri::command]
 pub async fn update_download(app: AppHandle, pending: State<'_, PendingUpdate>) -> Result<(), String> {
     let update = match pending.0.lock().await.as_ref() {
         Some((update, _)) => update.clone(),
         None => return Err("no update to download".into()),
     };
+    let mut downloaded = 0u64;
+    let mut last_percent = None;
     let bytes = update
         .download(
             |chunk, total| {
-                let _ = app.emit(PROGRESS_EVENT, Progress { chunk, total });
+                downloaded += chunk as u64;
+                let Some(total) = total.filter(|total| *total > 0) else {
+                    return;
+                };
+                let percent = (downloaded * 100 / total).min(100);
+                if last_percent != Some(percent) {
+                    last_percent = Some(percent);
+                    let _ = app.emit(PROGRESS_EVENT, Progress { percent });
+                }
             },
             || {},
         )
