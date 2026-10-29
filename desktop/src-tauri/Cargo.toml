@@ -101,7 +101,7 @@ objc2 = "0.6.4"
 objc2-app-kit = { version = "0.3.2", features = ["NSApplication", "NSWindow", "NSOpenPanel", "NSSavePanel", "NSPanel"] }
 objc2-av-foundation = { version = "0.3.2", default-features = false, features = ["std", "AVCaptureDevice", "AVMediaFormat", "block2"] }
 objc2-foundation = { version = "0.3.2", features = ["NSArray", "NSString", "NSURL"] }
-tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel.git", rev = "c9ec2130422200f0863b23dfdad02b133a529b07" }
+tauri-nspanel = "2.1.1"
 block2 = "0.6.2"
 # The private TCC framework, for the System Audio Recording permission (system_audio.rs)
 libloading = "0.8"
