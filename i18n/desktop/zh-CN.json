@@ -700,5 +700,7 @@
 	"phonePairedOn": "配对于 {date}",
 	"phoneRevokeDevice": "撤销",
 	"phoneRevokeDeviceNamed": "撤销 {name}",
-	"whatsNew": "更新内容"
+	"whatsNew": "更新内容",
+	"betaUpdates": "测试版更新",
+	"betaUpdatesInfo": "比其他人提前几天获得新版本。"
 }

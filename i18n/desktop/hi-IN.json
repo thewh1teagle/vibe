@@ -700,5 +700,7 @@
 	"phonePairedOn": "{date} को पेयर किया गया",
 	"phoneRevokeDevice": "रद्द करें",
 	"phoneRevokeDeviceNamed": "{name} रद्द करें",
-	"whatsNew": "नया क्या है"
+	"whatsNew": "नया क्या है",
+	"betaUpdates": "बीटा अपडेट",
+	"betaUpdatesInfo": "नए वर्शन बाकी सभी से कुछ दिन पहले पाएँ।"
 }

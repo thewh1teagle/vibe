@@ -700,5 +700,7 @@
 	"phonePairedOn": "Associé le {date}",
 	"phoneRevokeDevice": "Révoquer",
 	"phoneRevokeDeviceNamed": "Révoquer {name}",
-	"whatsNew": "Nouveautés"
+	"whatsNew": "Nouveautés",
+	"betaUpdates": "Mises à jour bêta",
+	"betaUpdatesInfo": "Recevez les nouvelles versions quelques jours à l’avance, avant tout le monde."
 }

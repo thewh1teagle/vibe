@@ -700,5 +700,7 @@
 	"phonePairedOn": "{date} tarihinde eşleşti",
 	"phoneRevokeDevice": "İptal et",
 	"phoneRevokeDeviceNamed": "{name} erişimini iptal et",
-	"whatsNew": "Yenilikler"
+	"whatsNew": "Yenilikler",
+	"betaUpdates": "Beta güncellemeleri",
+	"betaUpdatesInfo": "Yeni sürümleri herkesten birkaç gün önce edinin."
 }

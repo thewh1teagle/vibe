@@ -700,5 +700,7 @@
 	"tuningCustomized": "מותאם אישית",
 	"resetWhisperOptions": "איפוס אפשרויות Whisper",
 	"resetAudioProcessing": "איפוס עיבוד האודיו",
-	"whatsNew": "מה חדש"
+	"whatsNew": "מה חדש",
+	"betaUpdates": "עדכוני בטא",
+	"betaUpdatesInfo": "קבלו גרסאות חדשות כמה ימים מוקדם יותר, לפני כולם."
 }

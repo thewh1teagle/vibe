@@ -700,5 +700,7 @@
 	"phonePairedOn": "Vinculat el {date}",
 	"phoneRevokeDevice": "Revoca",
 	"phoneRevokeDeviceNamed": "Revoca {name}",
-	"whatsNew": "Novetats"
+	"whatsNew": "Novetats",
+	"betaUpdates": "Actualitzacions beta",
+	"betaUpdatesInfo": "Rep les versions noves uns dies abans, abans que ningú més."
 }

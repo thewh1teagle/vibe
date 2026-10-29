@@ -701,8 +701,6 @@
 	"phoneRevokeDevice": "Revoke",
 	"phoneRevokeDeviceNamed": "Revoke {name}",
 	"whatsNew": "What's new",
-	"updateChannel": "Update channel",
-	"updateChannelInfo": "Beta gets new versions a few days early, before everyone else.",
-	"updateChannelStable": "Stable",
-	"updateChannelBeta": "Beta"
+	"betaUpdates": "Beta updates",
+	"betaUpdatesInfo": "Get new versions a few days early, before everyone else."
 }

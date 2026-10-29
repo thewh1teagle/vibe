@@ -700,5 +700,7 @@
 	"phonePairedOn": "Spárováno {date}",
 	"phoneRevokeDevice": "Odvolat",
 	"phoneRevokeDeviceNamed": "Odvolat {name}",
-	"whatsNew": "Novinky"
+	"whatsNew": "Novinky",
+	"betaUpdates": "Beta aktualizace",
+	"betaUpdatesInfo": "Získejte nové verze o několik dní dříve než ostatní."
 }

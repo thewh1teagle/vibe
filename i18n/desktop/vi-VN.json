@@ -700,5 +700,7 @@
 	"phonePairedOn": "Đã ghép nối {date}",
 	"phoneRevokeDevice": "Thu hồi",
 	"phoneRevokeDeviceNamed": "Thu hồi {name}",
-	"whatsNew": "Có gì mới"
+	"whatsNew": "Có gì mới",
+	"betaUpdates": "Cập nhật Beta",
+	"betaUpdatesInfo": "Nhận phiên bản mới sớm vài ngày, trước mọi người."
 }
