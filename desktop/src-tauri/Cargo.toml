@@ -27,7 +27,6 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-notification = "2"
-tauri-plugin-aptabase = { git = "https://github.com/vibe-transcribe/tauri-plugin-aptabase", branch = "deterministic-daily-session" }
 # Unsafe headers required for Ollama (to set Origin)
 tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
 tauri-plugin-opener = "2"
@@ -39,7 +38,7 @@ keepawake = "0.6.1"
 serde_json = { workspace = true }
 eyre = { workspace = true }
 
-tokio = { version = "1.49.0", features = ["net", "fs", "macros", "rt-multi-thread"] }
+tokio = { version = "1.49.0", features = ["net", "fs", "macros", "rt-multi-thread", "time"] }
 tokio-util = { version = "0.7", features = ["codec", "io"] }
 bytes = "1"
 # Verify downloaded models against the catalog hash
@@ -55,6 +54,9 @@ hound = "3.5.1"
 rand = "0.9.2"
 # Anonymous, locally generated analytics install id
 uuid = { version = "1", features = ["v4"] }
+# Analytics system props (analytics/client.rs)
+os_info = "3"
+sys-locale = "0.3"
 
 # HTTP client for server communication and downloads
 reqwest = { version = "0.13", features = ["multipart", "stream", "json"] }

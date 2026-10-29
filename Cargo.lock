@@ -2744,22 +2744,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hyper-tls"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70206fc6890eaca9fde8a0bf71caa2ddfc9fe045ac9e5c70df101a7dbde866e0"
-dependencies = [
- "bytes",
- "http-body-util",
- "hyper",
- "hyper-util",
- "native-tls",
- "tokio",
- "tokio-native-tls",
- "tower-service",
-]
-
-[[package]]
 name = "hyper-util"
 version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3651,17 +3635,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dae608c151f68243f2b000364e1f7b186d9c29845f7d2d85bd31b9ad77ad552b"
 
 [[package]]
-name = "machine-uid"
-version = "0.5.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d7217d573cdb141d6da43113b098172e057d39915d79c4bdedbc3aacd46bd96"
-dependencies = [
- "libc",
- "windows-registry 0.6.1",
- "windows-sys 0.61.2",
-]
-
-[[package]]
 name = "malloc_buf"
 version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3910,23 +3883,6 @@ dependencies = [
  "derive_more 2.1.1",
  "n0-error",
  "n0-future",
-]
-
-[[package]]
-name = "native-tls"
-version = "0.2.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "465500e14ea162429d264d44189adc38b199b62b1c21eea9f69e4b73cb03bbf2"
-dependencies = [
- "libc",
- "log",
- "openssl",
- "openssl-probe",
- "openssl-sys",
- "schannel",
- "security-framework",
- "security-framework-sys",
- "tempfile",
 ]
 
 [[package]]
@@ -5856,12 +5812,10 @@ dependencies = [
  "http-body-util",
  "hyper",
  "hyper-rustls",
- "hyper-tls",
  "hyper-util",
  "js-sys",
  "log",
  "mime",
- "native-tls",
  "percent-encoding",
  "pin-project-lite",
  "quinn",
@@ -5872,7 +5826,6 @@ dependencies = [
  "serde_urlencoded",
  "sync_wrapper",
  "tokio",
- "tokio-native-tls",
  "tokio-rustls",
  "tower",
  "tower-http",
@@ -7075,27 +7028,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tauri-plugin-aptabase"
-version = "1.0.0"
-source = "git+https://github.com/vibe-transcribe/tauri-plugin-aptabase?branch=deterministic-daily-session#ef066b3ffafc451fd7a1e4fc788ae57313149a6d"
-dependencies = [
- "futures",
- "log",
- "machine-uid",
- "os_info",
- "rand 0.9.2",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "sys-locale",
- "tauri",
- "tauri-plugin",
- "time",
- "tokio",
-]
-
-[[package]]
 name = "tauri-plugin-autostart"
 version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7664,16 +7596,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
-]
-
-[[package]]
-name = "tokio-native-tls"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbae76ab933c85776efabc971569dd6119c580d8f5d448769dec1764bf796ef2"
-dependencies = [
- "native-tls",
- "tokio",
 ]
 
 [[package]]
@@ -8250,6 +8172,7 @@ dependencies = [
  "objc2-foundation 0.3.2",
  "once_cell",
  "openssl",
+ "os_info",
  "rand 0.9.2",
  "reqwest 0.13.2",
  "serde",
@@ -8257,10 +8180,10 @@ dependencies = [
  "sha2 0.10.9",
  "showfile",
  "subtle",
+ "sys-locale",
  "tauri",
  "tauri-build",
  "tauri-nspanel",
- "tauri-plugin-aptabase",
  "tauri-plugin-autostart",
  "tauri-plugin-clipboard-manager",
  "tauri-plugin-deep-link",
