@@ -3,6 +3,7 @@
 //! The per-token logit filtering and sampling it drives lives in
 //! [`crate::sampling`].
 
+use crate::compression::window_compression_ratio;
 use crate::decode::decode;
 use crate::encode::{encode, Runtime};
 use crate::lang;
@@ -581,6 +582,13 @@ pub(crate) fn full(
                 {
                     tracing::debug!(temperature = t_cur, "decoding failed, trying next temperature");
                     success = false;
+                } else if params.compression_ratio_thold > 0.0 {
+                    let tokens = &decoder.sequence.tokens[..decoder.sequence.result_len];
+                    let ratio = window_compression_ratio(&model.vocab, tokens);
+                    if ratio > params.compression_ratio_thold {
+                        tracing::debug!(temperature = t_cur, ratio, "too repetitive, trying next temperature");
+                        success = false;
+                    }
                 }
             }
             if success {
