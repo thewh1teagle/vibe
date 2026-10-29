@@ -195,7 +195,7 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, reco
     }
 
     let app_handle_clone = app_handle.clone();
-    app_handle.once("stop_record", move |_event| {
+    let stop = std::sync::Mutex::new(Some(move || {
         for (i, stream_handle) in stream_handles.iter().enumerate() {
             let stream_handle = stream_handle.lock().map_err(|e| eyre!("{:?}", e)).log_error();
             if let Some(mut stream_handle) = stream_handle {
@@ -294,6 +294,19 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, reco
             .map_err(|e| eyre!("{e:?}"))
             .log_error();
         crate::meeting_prompt::recording_stopped(&app_handle_clone);
+    }));
+    // Not `once`: its handler panics if `stop_record` arrives again while the first stop is still
+    // merging (a double click, or the button and the shortcut together), and a release build
+    // aborts on that panic. A repeat stop is simply ignored here.
+    let listener_handle = app_handle.clone();
+    app_handle.listen("stop_record", move |event| {
+        let Some(stop) = stop.lock().ok().and_then(|mut stop| stop.take()) else {
+            tracing::debug!("Ignoring a repeated stop_record (event {})", event.id());
+            return;
+        };
+        tracing::debug!("stop_record received (event {})", event.id());
+        listener_handle.unlisten(event.id());
+        stop();
     });
 
     crate::meeting_prompt::recording_started(&app_handle);
@@ -306,6 +319,11 @@ fn get_output_device_and_config(host: &cpal::Host, audio_device: &AudioDevice) -
     // requires this path to build an input stream from an output device.
     #[cfg(target_os = "macos")]
     {
+        // Without the permission CoreAudio still opens the stream and records silence, so fail
+        // clearly instead of handing back an empty recording.
+        if !crate::system_audio::is_granted() {
+            bail!("System audio recording permission is required to record system audio; grant it in System Settings → Privacy & Security → Screen & System Audio Recording");
+        }
         let device = host.default_output_device().context("Failed to get default output device")?;
         let config = device
             .default_output_config()

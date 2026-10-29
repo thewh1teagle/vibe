@@ -50,7 +50,7 @@ url = "2.5.8"
 showfile = "0.1.1"
 futures = "0.3.31"
 futures-util = "0.3"
-cpal = { git = "https://github.com/thewh1teagle/cpal", branch = "feat/macos-system-audio-permission-check" }
+cpal = "0.18.2"
 hound = "3.5.1"
 rand = "0.9.2"
 # Anonymous, locally generated analytics install id
@@ -103,6 +103,9 @@ objc2-av-foundation = { version = "0.3.2", default-features = false, features = 
 objc2-foundation = { version = "0.3.2", features = ["NSArray", "NSString", "NSURL"] }
 tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel.git", rev = "c9ec2130422200f0863b23dfdad02b133a529b07" }
 block2 = "0.6.2"
+# The private TCC framework, for the System Audio Recording permission (system_audio.rs)
+libloading = "0.8"
+objc2-core-foundation = { version = "0.3.2", features = ["CFString"] }
 window-vibrancy = "0.6"
 
 [features]
