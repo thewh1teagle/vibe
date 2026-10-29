@@ -87,6 +87,19 @@ describe('createClient', () => {
 		expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe('Bearer k')
 	})
 
+	it('sends OpenAI max_completion_tokens and compatible servers max_tokens', async () => {
+		fetchMock.mockResolvedValue({ ok: true, json: async () => ({ choices: [{ message: { content: 'ok' } }] }) })
+		await createClient({ ...DEFAULT_AI.connection, platform: 'openai', openaiApiKey: 'k' }).ask('p')
+		const openai = JSON.parse(fetchMock.mock.calls[0][1].body)
+		expect(openai.max_completion_tokens).toBeGreaterThan(0)
+		expect(openai).not.toHaveProperty('max_tokens')
+
+		await createClient({ ...DEFAULT_AI.connection, platform: 'openai', openaiBaseUrl: 'http://localhost:1234/v1' }).ask('p')
+		const compatible = JSON.parse(fetchMock.mock.calls[1][1].body)
+		expect(compatible.max_tokens).toBeGreaterThan(0)
+		expect(compatible).not.toHaveProperty('max_completion_tokens')
+	})
+
 	it('streams Claude content deltas only', async () => {
 		fetchMock.mockResolvedValue(
 			streamResponse([
