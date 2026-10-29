@@ -15,7 +15,7 @@ export default function UpdateProgress() {
 					<DialogDescription>{m.updatingModalBody({ version: String(manifest?.version ?? '') })}</DialogDescription>
 				</DialogHeader>
 				<div className="flex justify-center">
-					<Progress value={progress ?? 0} className="progress-aurora h-1.5 w-56 bg-muted" />
+					<Progress value={progress ?? 0} className="progress-aurora h-1.5 w-56 bg-muted [&>*]:duration-500 [&>*]:ease-linear" />
 				</div>
 			</DialogContent>
 		</Dialog>

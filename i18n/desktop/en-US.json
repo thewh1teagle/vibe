@@ -700,5 +700,9 @@
 	"phonePairedOn": "Paired {date}",
 	"phoneRevokeDevice": "Revoke",
 	"phoneRevokeDeviceNamed": "Revoke {name}",
-	"whatsNew": "What's new"
+	"whatsNew": "What's new",
+	"updateChannel": "Update channel",
+	"updateChannelInfo": "Beta gets new versions a few days early, before everyone else.",
+	"updateChannelStable": "Stable",
+	"updateChannelBeta": "Beta"
 }
