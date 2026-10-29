@@ -184,7 +184,9 @@ fn create_window(app: &tauri::AppHandle) -> Result<WebviewWindow, String> {
     {
         let panel = window.to_panel::<MeetingPromptPanel>().map_err(|error| error.to_string())?;
         panel.set_level(PanelLevel::Floating.value());
-        panel.set_style_mask(StyleMask::empty().nonactivating_panel().into());
+        panel
+            .set_style_mask(StyleMask::empty().nonactivating_panel().into())
+            .map_err(|error| format!("{error:?}"))?;
         panel.set_collection_behavior(CollectionBehavior::new().can_join_all_spaces().full_screen_auxiliary().into());
         panel.set_hides_on_deactivate(false);
         panel.set_works_when_modal(true);
