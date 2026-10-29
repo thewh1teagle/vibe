@@ -700,5 +700,7 @@
 	"phonePairedOn": "Sammenkoblet {date}",
 	"phoneRevokeDevice": "Trekk tilbake",
 	"phoneRevokeDeviceNamed": "Trekk tilbake {name}",
-	"whatsNew": "Hva er nytt"
+	"whatsNew": "Hva er nytt",
+	"betaUpdates": "Betaoppdateringer",
+	"betaUpdatesInfo": "Få nye versjoner noen dager tidligere enn alle andre."
 }

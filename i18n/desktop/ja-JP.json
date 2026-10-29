@@ -700,5 +700,7 @@
 	"phonePairedOn": "{date} にペアリング",
 	"phoneRevokeDevice": "解除",
 	"phoneRevokeDeviceNamed": "{name} を解除",
-	"whatsNew": "更新内容"
+	"whatsNew": "更新内容",
+	"betaUpdates": "ベータアップデート",
+	"betaUpdatesInfo": "新しいバージョンを他のユーザーより数日早く受け取れます。"
 }

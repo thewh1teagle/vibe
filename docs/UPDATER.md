@@ -5,8 +5,8 @@ Vibe updates from two channel files on the website, not from GitHub's latest rel
 - `https://thewh1teagle.github.io/vibe/updater/stable.json`
 - `https://thewh1teagle.github.io/vibe/updater/beta.json`
 
-Each is the `latest.json` a release build produced. Users pick one in Settings → General →
-Update channel (default: Stable). The app side is `desktop/src-tauri/src/updater.rs`.
+Each is the `latest.json` a release build produced. Everyone is on stable unless they turn on
+Settings → General → Beta updates. The app side is `desktop/src-tauri/src/updater.rs`.
 
 ## Shipping a release
 

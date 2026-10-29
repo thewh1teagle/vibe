@@ -700,5 +700,7 @@
 	"phonePairedOn": "Parkopplad {date}",
 	"phoneRevokeDevice": "Återkalla",
 	"phoneRevokeDeviceNamed": "Återkalla {name}",
-	"whatsNew": "Nyheter"
+	"whatsNew": "Nyheter",
+	"betaUpdates": "Betauppdateringar",
+	"betaUpdatesInfo": "Få nya versioner några dagar tidigare, före alla andra."
 }

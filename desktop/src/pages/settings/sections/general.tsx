@@ -11,9 +11,8 @@ import { ReactComponent as LinkIcon } from '~/icons/link.svg'
 import * as config from '~/lib/config'
 import { DisplayLanguageInput } from '~/components/display-language-input'
 import { Switch } from '~/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
-import { UpdaterContext, type UpdateChannel } from '~/providers/updater'
-import { SettingsGroup, SettingsRow, rowControlClass, type SettingsViewModel } from './shared'
+import { UpdaterContext } from '~/providers/updater'
+import { SettingsGroup, SettingsRow, type SettingsViewModel } from './shared'
 
 /**
  * The OS owns this setting, not our config: the user can remove the login item from
@@ -67,10 +66,6 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 	const themeLabels = { light: m.light, dark: m.dark } as const
 	const themeIcons = { light: Sun, dark: Moon } as const
 	const { channel, setChannel } = useContext(UpdaterContext)
-	const channels: Array<{ value: UpdateChannel; label: string }> = [
-		{ value: 'stable', label: m.updateChannelStable() },
-		{ value: 'beta', label: m.updateChannelBeta() },
-	]
 
 	return (
 		<div className="space-y-5">
@@ -114,19 +109,8 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 				<SettingsRow label={m.preventSleep()} description={m.generalAwakeInfo()}>
 					<Switch checked={vm.preference.preventSleep} onCheckedChange={vm.preference.setPreventSleep} />
 				</SettingsRow>
-				<SettingsRow label={m.updateChannel()} description={m.updateChannelInfo()}>
-					<Select value={channel} onValueChange={(value: UpdateChannel) => setChannel(value)}>
-						<SelectTrigger className={`w-32 ${rowControlClass}`}>
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{channels.map((choice) => (
-								<SelectItem key={choice.value} value={choice.value}>
-									{choice.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+				<SettingsRow label={m.betaUpdates()} description={m.betaUpdatesInfo()}>
+					<Switch checked={channel === 'beta'} onCheckedChange={(on) => setChannel(on ? 'beta' : 'stable')} />
 				</SettingsRow>
 			</SettingsGroup>
 

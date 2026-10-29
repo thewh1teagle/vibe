@@ -700,5 +700,7 @@
 	"phonePairedOn": "Сдвоен на {date}",
 	"phoneRevokeDevice": "Отмени",
 	"phoneRevokeDeviceNamed": "Отмени {name}",
-	"whatsNew": "Какво ново"
+	"whatsNew": "Какво ново",
+	"betaUpdates": "Бета актуализации",
+	"betaUpdatesInfo": "Получавайте новите версии няколко дни по-рано, преди всички останали."
 }

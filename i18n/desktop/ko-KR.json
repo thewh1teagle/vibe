@@ -700,5 +700,7 @@
 	"phonePairedOn": "{date}에 페어링됨",
 	"phoneRevokeDevice": "취소",
 	"phoneRevokeDeviceNamed": "{name} 취소",
-	"whatsNew": "새로운 기능"
+	"whatsNew": "새로운 기능",
+	"betaUpdates": "베타 업데이트",
+	"betaUpdatesInfo": "새 버전을 다른 사용자보다 며칠 먼저 받아보세요."
 }
