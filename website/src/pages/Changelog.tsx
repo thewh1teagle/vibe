@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { cn } from '~/lib/style'
-import { findRelease, loadReleases, releases, sections, type Release, type Section } from '~/lib/changelog'
+import { findRelease, hasTranslations, loadReleases, releases, sections, type Release, type Section } from '~/lib/changelog'
 import { m } from '~/paraglide/messages.js'
 import { getLocale, getTextDirection, type Locale } from '~/paraglide/runtime.js'
 
@@ -84,12 +84,14 @@ function Entry({ release, single }: { release: Release; single: boolean }) {
 
 export default function Changelog() {
 	const { version } = useParams()
-	// The English notes paint immediately; this locale's translations swap in once fetched.
-	const [list, setList] = useState<Release[]>(releases)
-	const one = version ? findRelease(version, list) : undefined
-	const shown = one ? [one] : list
+	// A locale with translations waits for them instead of painting English first: swapping
+	// English for, say, Hebrew a moment later flips direction and reflows the whole page.
+	const [list, setList] = useState<Release[] | null>(() => (hasTranslations(getLocale()) ? null : releases))
+	const one = version && list ? findRelease(version, list) : undefined
+	const shown = one ? [one] : (list ?? [])
 
 	useEffect(() => {
+		if (list) return
 		let live = true
 		loadReleases(getLocale()).then((translated) => {
 			if (live) setList(translated)
@@ -111,9 +113,10 @@ export default function Changelog() {
 			<header dir={getTextDirection(getLocale())}>
 				<p className="eyebrow">Vibe</p>
 				<h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground lg:text-[2.5rem]">{m.changelog()}</h1>
-				{version && !one && <p className="mt-4 text-muted-foreground">{m.changelogUnknownVersion({ version })}</p>}
+				{version && list && !one && <p className="mt-4 text-muted-foreground">{m.changelogUnknownVersion({ version })}</p>}
 			</header>
-			<div className="mt-6">
+			{/* Holds the page's height while translations load, so the footer does not jump up and back. */}
+			<div className={cn('mt-6', !list && 'min-h-[100vh]')}>
 				{shown.map((release) => (
 					<Entry key={release.version} release={release} single={Boolean(one)} />
 				))}
