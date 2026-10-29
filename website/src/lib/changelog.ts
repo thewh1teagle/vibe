@@ -66,6 +66,11 @@ export const releases: Release[] = Object.values(files)
 	.map((raw) => parse(raw, 'en-US'))
 	.sort((a, b) => compareVersions(a.version, b.version))
 
+/** Whether this locale has any translated release, so the page should wait for them before painting. */
+export function hasTranslations(locale: string) {
+	return Object.keys(translations).some((path) => path.split('/').at(-2) === locale)
+}
+
 /**
  * The same list with every entry this locale has translated swapped in. One
  * request per translated release, so a locale that has ten of them costs ten

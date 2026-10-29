@@ -23,5 +23,6 @@ few minutes. Promoting to stable also moves beta forward, so beta is never behin
 The updater only moves forward. A bad release is fixed by shipping a newer one — which is what
 beta is for: catch it before stable gets it.
 
-Versions released before channels existed only check GitHub "latest", so don't mark a release
-latest until it is on stable.
+Apps on 3.2.2 or older don't know about these files: they still update from whichever GitHub
+release is marked "latest". So `gh release edit --latest` is what ships a version to them — run it
+last, once the version is already on stable.
