@@ -41,7 +41,7 @@ pub(in crate::server) async fn model_metadata(Json(request): Json<ModelMetadataR
         }
 
         if let Ok(info) = parakeet_rs::Model::metadata(&path) {
-            if info.architecture == "parakeet" && info.head_kind == "tdt" && info.variant.contains("v3") {
+            if info.architecture == "parakeet" && info.head_kind == "tdt" && crate::engine::is_parakeet_variant(&info.variant) {
                 return Ok(crate::engine::EngineCapabilities {
                     engine: "parakeet".to_string(),
                     requires_vad: true,
@@ -178,4 +178,22 @@ fn now_unix() -> i64 {
         .duration_since(UNIX_EPOCH)
         .map(|duration| duration.as_secs() as i64)
         .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    #[ignore = "requires the official Orukeet GGUF; set VIBE_TEST_ORUKEET_MODEL"]
+    async fn orukeet_metadata_reports_parakeet_capabilities() {
+        let path = std::env::var("VIBE_TEST_ORUKEET_MODEL").expect("set VIBE_TEST_ORUKEET_MODEL to the official GGUF");
+        let response = model_metadata(Json(ModelMetadataRequest { path })).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), 4096).await.unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(json["capabilities"]["engine"], "parakeet");
+        assert_eq!(json["capabilities"]["requires_vad"], true);
+        assert_eq!(json["capabilities"]["translation"], false);
+    }
 }
