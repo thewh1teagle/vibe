@@ -978,8 +978,9 @@ dependencies = [
 
 [[package]]
 name = "cpal"
-version = "0.18.1"
-source = "git+https://github.com/thewh1teagle/cpal?branch=feat%2Fmacos-system-audio-permission-check#204e64f420b20d8052e685661d1415c548c500fc"
+version = "0.18.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f02e8d0327b42d3e2e4ab2119af397344eb9fc54a34bf0ddeaa1277af8681f1"
 dependencies = [
  "alsa",
  "block2 0.6.2",
@@ -988,7 +989,6 @@ dependencies = [
  "jni 0.22.4",
  "js-sys",
  "libc",
- "libloading 0.8.9",
  "mach2 0.6.0",
  "ndk",
  "ndk-context",
@@ -8239,11 +8239,13 @@ dependencies = [
  "keepawake",
  "libc",
  "libc-stdhandle",
+ "libloading 0.8.9",
  "meeting-detect",
  "notify",
  "objc2 0.6.4",
  "objc2-app-kit 0.3.2",
  "objc2-av-foundation",
+ "objc2-core-foundation",
  "objc2-foundation 0.3.2",
  "once_cell",
  "openssl",

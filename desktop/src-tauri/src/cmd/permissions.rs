@@ -100,10 +100,10 @@ pub fn open_microphone_settings() {
 pub fn get_system_audio_permission_status() -> PermissionStatus {
     #[cfg(target_os = "macos")]
     {
-        if cpal::platform::check_system_audio_permission() {
+        if crate::system_audio::is_granted() {
             PermissionStatus::Granted
         } else {
-            // CPAL's preflight API intentionally exposes all non-granted states
+            // The preflight check reports every non-granted state
             // as false. Treat the ambiguity as undecided so the UI offers the
             // native request; a failed request then resolves to denied.
             PermissionStatus::NotDetermined
@@ -120,7 +120,7 @@ pub fn get_system_audio_permission_status() -> PermissionStatus {
 pub async fn request_system_audio_permission() -> PermissionStatus {
     #[cfg(target_os = "macos")]
     {
-        if tokio::task::spawn_blocking(cpal::platform::request_system_audio_permission)
+        if tokio::task::spawn_blocking(crate::system_audio::request)
             .await
             .unwrap_or(false)
         {
@@ -140,7 +140,7 @@ pub async fn request_system_audio_permission() -> PermissionStatus {
 pub fn open_system_audio_settings() {
     #[cfg(target_os = "macos")]
     {
-        cpal::platform::open_system_audio_settings();
+        crate::system_audio::open_settings();
     }
 }
 
