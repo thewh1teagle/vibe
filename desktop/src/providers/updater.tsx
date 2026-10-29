@@ -1,16 +1,33 @@
 import * as dialog from '@tauri-apps/plugin-dialog'
 import * as process from '@tauri-apps/plugin-process'
-import { DownloadEvent, Update, check as checkUpdate } from '@tauri-apps/plugin-updater'
+import { listen } from '@tauri-apps/api/event'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { ErrorModalContext } from './error-modal'
 import { ModifyState } from '~/lib/types'
 import { invoke } from '@tauri-apps/api/core'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 // Define the context type
 
 /** Dev-only: pretend an update is waiting so the update affordances can be eyeballed. */
 export const FAKE_UPDATE_KEY = 'vibe_fake_update'
 export const devToolsEnabled = import.meta.env.DEV
+
+/** Which `updater/<channel>.json` the app follows. See docs/UPDATER.md. */
+export type UpdateChannel = 'stable' | 'beta'
+
+/** A newer version `update_check` found on the channel. */
+export interface Update {
+	version: string
+	currentVersion: string
+	body?: string
+}
+
+interface DownloadProgress {
+	chunk: number
+	total: number | null
+}
 
 type UpdaterContextType = {
 	availableUpdate: boolean
@@ -24,6 +41,8 @@ type UpdaterContextType = {
 	/** Dev-only switch that fakes `availableUpdate`; always false in release builds. */
 	fakeUpdate: boolean
 	setFakeUpdate: (value: boolean) => void
+	channel: UpdateChannel
+	setChannel: (value: UpdateChannel) => void
 }
 
 // Create the context
@@ -37,6 +56,8 @@ export const UpdaterContext = createContext<UpdaterContextType>({
 	progress: null,
 	fakeUpdate: false,
 	setFakeUpdate: () => {},
+	channel: 'stable',
+	setChannel: () => {},
 })
 
 export function UpdaterProvider({ children }: { children: React.ReactNode }) {
@@ -47,6 +68,7 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 	const [partSize, setPartSize] = useState<number | null>(null)
 	const { setState: setErrorModal } = useContext(ErrorModalContext)
 	const [progress, setProgress] = useState<number | null>(null)
+	const [channel, setChannel] = usePersisted<UpdateChannel>(CONFIG_KEYS.updateChannel, 'stable')
 	const [fakeUpdate, setFakeUpdateState] = useState(() => {
 		if (!devToolsEnabled) return false
 		try {
@@ -71,21 +93,20 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, [partSize])
 
+	// Checked again on a channel switch, so moving to beta offers its build right away.
 	useEffect(() => {
-		// Check for new updates
-		async function checkForUpdates() {
-			try {
-				const newUpdate = await checkUpdate()
-				if (newUpdate) {
-					setAvailableUpdate(newUpdate?.available)
-					setUpdate(newUpdate)
-				}
-			} catch (error) {
-				console.error(error)
-			}
+		let cancelled = false
+		invoke<Update | null>('update_check', { channel })
+			.then((found) => {
+				if (cancelled) return
+				setAvailableUpdate(found !== null)
+				setUpdate(found ?? undefined)
+			})
+			.catch((error) => console.error(error))
+		return () => {
+			cancelled = true
 		}
-		checkForUpdates()
-	}, [])
+	}, [channel])
 
 	async function askForRelaunch() {
 		const shouldRelaunch = await dialog.ask(m.askForRelaunchBody(), {
@@ -100,29 +121,24 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
-	function onDownloadEvent(downloadEvent: DownloadEvent) {
-		switch (downloadEvent.event) {
-			case 'Started': {
-				setTotal(downloadEvent.data.contentLength!)
-				break
-			}
-			case 'Progress': {
-				setPartSize((prev) => (prev ?? 0) + downloadEvent.data.chunkLength)
-				break
-			}
-		}
-	}
-
 	async function downloadAndInstall() {
 		setUpdating(true)
 		setProgress(0)
-		console.info(`Installing update ${update?.version}, ${update?.date}, ${update?.body}`)
-		await update?.download(onDownloadEvent)
+		console.info(`Installing update ${update?.version}, ${update?.body}`)
+		const unlisten = await listen<DownloadProgress>('updater-progress', ({ payload }) => {
+			if (payload.total) setTotal(payload.total)
+			setPartSize((prev) => (prev ?? 0) + payload.chunk)
+		})
+		try {
+			await invoke('update_download')
+		} finally {
+			unlisten()
+		}
 		// Windows cannot replace the bundled server.exe while it is running. Stop it
 		// only after the update has downloaded so transcription remains available
 		// while the (potentially long) download is in progress.
 		await invoke('stop_api_server')
-		await update?.install()
+		await invoke('update_install')
 		setUpdating(false)
 		setTotal(null)
 		setPartSize(null)
@@ -160,6 +176,8 @@ export function UpdaterProvider({ children }: { children: React.ReactNode }) {
 				setAvailableUpdate,
 				fakeUpdate,
 				setFakeUpdate,
+				channel,
+				setChannel,
 				manifest: update,
 				setManifest: setUpdate,
 				updating,

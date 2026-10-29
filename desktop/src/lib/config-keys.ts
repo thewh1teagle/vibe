@@ -14,6 +14,8 @@ export const CONFIG_KEYS = {
 	closeToTray: 'general.closeToTray',
 	preventSleep: 'general.preventSleep',
 	analyticsEnabled: 'analytics_enabled',
+	/** `stable` or `beta`: which website channel file the updater follows. */
+	updateChannel: 'general.updateChannel',
 
 	// Model
 	modelPath: 'model.path',

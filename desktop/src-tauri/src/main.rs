@@ -19,6 +19,7 @@ mod server;
 mod setup;
 mod transcript;
 mod tray;
+mod updater;
 use tauri::Emitter;
 
 #[cfg(target_os = "macos")]
@@ -46,6 +47,7 @@ async fn main() -> Result<()> {
     let mut builder = tauri::Builder::default()
         .manage(tray::TrayState::default())
         .manage(keepawake::KeepAwake::new())
+        .manage(updater::PendingUpdate::default())
         .manage(tokio::sync::Mutex::<Option<handoff::HandoffState>>::new(None))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
@@ -169,7 +171,10 @@ async fn main() -> Result<()> {
             meeting_prompt::set_meeting_detection_enabled,
             meeting_prompt::get_meeting_prompt_state,
             meeting_prompt::dismiss_meeting_prompt,
-            meeting_prompt::meeting_prompt_ready
+            meeting_prompt::meeting_prompt_ready,
+            updater::update_check,
+            updater::update_download,
+            updater::update_install
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");

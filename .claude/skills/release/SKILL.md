@@ -5,7 +5,7 @@ description: Ship a Vibe release end to end — decide whether server/ needs its
 
 # Release
 
-Seven steps. Each has a gate — do not start the next one until the gate is green.
+Seven steps; stable comes later, when the user says so. Each has a gate — do not start the next one until the gate is green.
 Report the version, the run URLs and the gate results as you go; ask before
 skipping a step.
 
@@ -108,15 +108,27 @@ gh workflow run release.yml --ref main -f sign-windows=true -f sign-macos=true
 **Gate:** all 5 platform jobs green, and `[sign] OK: vibe.exe` in the Windows job
 log. A single failed platform can be re-run with `gh run rerun <id> --failed`.
 
-## 6. Promote
+## 6. Roll out
+
+Users update from `website/public/updater/<channel>.json`, not GitHub. Details in
+`docs/UPDATER.md`.
 
 ```
+uv run scripts/channel.py X.Y.Z --channel beta
+```
+
+Commit and push to main (it only touches `website/public/updater/`); the website
+deploy publishes it. **Stop here and tell the user** — stable comes after beta has
+run for a while, and the user decides when:
+
+```
+uv run scripts/channel.py X.Y.Z --channel stable
 gh release edit vX.Y.Z --prerelease=false --latest
 ```
 
+Marking GitHub latest is last: versions before channels existed update from it.
 Do not write release notes — the body is already a link to
-`https://thewh1teagle.github.io/vibe/changelog/<version>`, which is where the notes
-live, in the reader's language.
+`https://thewh1teagle.github.io/vibe/changelog/<version>`.
 
 ## 7. Deploy the website and stop the sign server
 
