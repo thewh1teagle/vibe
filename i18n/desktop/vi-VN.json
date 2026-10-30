@@ -50,7 +50,7 @@
 	"customizeInfo": "Tải xuống bất kỳ mô hình nào được hỗ trợ ở định dạng ggml hoặc gguf (với phần mở rộng tệp kết thúc bằng '.bin'). Chuyển nó vào thư mục mô hình, sau đó chọn từ danh sách thả xuống. Không cần khởi động lại 🌟",
 	"dark": "Tối",
 	"diarizeThreshold": "Ngưỡng nhận dạng người nói",
-	"diarizeMaxSpeakersNote": "Hỗ trợ nhận diện tối đa 4 người nói.",
+	"diarizeMaxSpeakersNote": "Hỗ trợ nhận diện tối đa 8 người nói.",
 	"diarization": "Phân tách người nói",
 	"discordCommunity": "Cộng đồng Discord",
 	"downloadFile": "Tải xuống và phiên âm",

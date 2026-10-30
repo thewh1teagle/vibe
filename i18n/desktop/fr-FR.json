@@ -50,7 +50,7 @@
 	"customizeInfo": "Téléchargez n’importe quel modèle pris en charge au format ggml ou gguf (avec l’extension de fichier se terminant par ‘.bin’). Transférez-le dans le dossier des modèles, puis sélectionnez-le dans la liste déroulante. Pas besoin de redémarrer 🌟",
 	"dark": "Sombre",
 	"diarizeThreshold": "Seuil de reconnaissance du locuteur",
-	"diarizeMaxSpeakersNote": "Prend en charge la détection de 4 locuteurs au maximum.",
+	"diarizeMaxSpeakersNote": "Prend en charge la détection de 8 locuteurs au maximum.",
 	"diarization": "Diarisation",
 	"discordCommunity": "Communauté Discord",
 	"downloadFile": "Télécharger l'audio",

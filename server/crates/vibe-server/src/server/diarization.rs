@@ -1,7 +1,3 @@
-#[cfg(feature = "diarize")]
-pub use diarize_rs::Segment;
-
-#[cfg(not(feature = "diarize"))]
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct Segment {
     pub start: f64,
@@ -11,8 +7,15 @@ pub struct Segment {
 
 #[cfg(feature = "diarize")]
 pub fn diarize(model_path: &str, samples: &[f32]) -> Vec<Segment> {
-    match diarize_rs::Diarizer::new(model_path).and_then(|mut diarizer| diarizer.diarize(samples, 16_000, 1)) {
-        Ok(segments) => segments,
+    match nemotron_diarize_rs::Diarizer::new(model_path).and_then(|mut diarizer| diarizer.diarize_samples(samples)) {
+        Ok(segments) => segments
+            .into_iter()
+            .map(|segment| Segment {
+                start: segment.start,
+                end: segment.end,
+                speaker_id: segment.speaker_id,
+            })
+            .collect(),
         Err(err) => {
             tracing::warn!("diarization failed, skipping speakers: {err}");
             Vec::new()

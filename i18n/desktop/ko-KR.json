@@ -50,7 +50,7 @@
 	"customizeInfo": "지원되는 모델을 ggml 또는 gguf 형식('.bin' 확장자로 끝나는 파일)으로 다운로드하세요. models 디렉토리로 옮긴 후 드롭다운에서 선택하면 됩니다. 다시 시작할 필요는 없습니다 🌟",
 	"dark": "어둡게",
 	"diarizeThreshold": "화자 인식 임계값",
-	"diarizeMaxSpeakersNote": "최대 4명까지 화자를 감지할 수 있습니다.",
+	"diarizeMaxSpeakersNote": "최대 8명까지 화자를 감지할 수 있습니다.",
 	"diarization": "화자 분리",
 	"discordCommunity": "Discord 커뮤니티",
 	"downloadFile": "다운로드하고 받아쓰기",

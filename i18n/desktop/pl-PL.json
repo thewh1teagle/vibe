@@ -50,7 +50,7 @@
 	"customizeInfo": "Pobierz dowolny obsługiwany model w formacie ggml lub gguf (z rozszerzeniem pliku kończącym się na '.bin'). Przenieś go do katalogu modeli, a następnie wybierz z listy rozwijanej. Nie ma potrzeby ponownego uruchamiania 🌟",
 	"dark": "Ciemny",
 	"diarizeThreshold": "Próg rozpoznawania mówcy",
-	"diarizeMaxSpeakersNote": "Wykrywa maksymalnie 4 mówców.",
+	"diarizeMaxSpeakersNote": "Wykrywa maksymalnie 8 mówców.",
 	"diarization": "Rozpoznawanie mówców",
 	"discordCommunity": "Społeczność Discord",
 	"downloadFile": "Pobierz i transkrybuj",

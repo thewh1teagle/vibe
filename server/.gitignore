@@ -20,7 +20,7 @@ __pycache__/
 target/
 *.onnx
 
-# Sortformer GGUF port: large artifacts stay out of git
+# Large model artifacts stay out of git
 # Recorded ONNX reference dumps. Regenerate with baseline/regen.sh (needs the
 # 492 MB ONNX checkpoint and a pinned ort).
 baseline/

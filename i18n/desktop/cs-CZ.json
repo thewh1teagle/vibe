@@ -50,7 +50,7 @@
 	"customizeInfo": "Stáhněte si jakýkoli podporovaný model ve formátu ggml nebo gguf (s příponou souboru .bin). Přesuňte jej do složky s modely a poté jej vyberte z rozbalovací nabídky. Není potřeba restartovat aplikaci 🌟",
 	"dark": "Tmavý",
 	"diarizeThreshold": "Práh rozpoznávání mluvčích",
-	"diarizeMaxSpeakersNote": "Podporuje detekci až 4 mluvčích.",
+	"diarizeMaxSpeakersNote": "Podporuje detekci až 8 mluvčích.",
 	"diarization": "Diarizace (rozlišení mluvčích)",
 	"discordCommunity": "Komunita na Discordu",
 	"downloadFile": "Stáhnout a přepsat",
