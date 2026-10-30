@@ -403,11 +403,19 @@ export function useTranscribeQueue(): TranscribeQueue {
 				if (loadResult === 'gpu_fallback') toast.warning(m.gpuFallbackToCpu(), { position: 'bottom-center', duration: 8000 })
 				// Speaker recognition stays on across updates while its model can change name with one, so
 				// an existing user may have it on with the new model missing: ask for it now rather than
-				// transcribing without speakers. Declining turns the setting off and the run goes on.
+				// transcribing without speakers. Declining, or a failed download, turns the setting off and
+				// the run goes on.
 				let options = current
-				if (current.diarizeEnabled && !(await ensureDiarizeModel())) {
-					current.setDiarizeEnabled(false)
-					options = { ...current, diarizeEnabled: false }
+				if (current.diarizeEnabled) {
+					const ready = await ensureDiarizeModel().catch((error) => {
+						console.error('diarization model download failed:', error)
+						toast.error(String(error), { position: 'bottom-center' })
+						return false
+					})
+					if (!ready) {
+						current.setDiarizeEnabled(false)
+						options = { ...current, diarizeEnabled: false }
+					}
 				}
 				shared = await buildSharedOptions(options)
 			} catch (error) {
