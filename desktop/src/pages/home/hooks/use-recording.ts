@@ -1,7 +1,7 @@
 import { emit } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
 import { type SetStateAction, useContext, useEffect, useState } from 'react'
-import type { AudioDevice } from '~/lib/audio'
+import { selectInputDevice, type AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
@@ -34,13 +34,8 @@ export function useRecording(onBeforeStart: () => void) {
 
 	async function loadAudioDevices() {
 		const newDevices = await invoke<AudioDevice[]>('get_audio_devices')
-		const inputs = newDevices.filter((device) => device.isInput)
 		const outputs = newDevices.filter((device) => !device.isInput)
-		setInputDevice(
-			savedInputDeviceId === null
-				? (inputs.find((device) => device.isDefault) ?? null)
-				: (inputs.find((device) => device.id === savedInputDeviceId) ?? null),
-		)
+		setInputDevice(selectInputDevice(newDevices, savedInputDeviceId))
 		setOutputDevice(
 			savedOutputDeviceId === null
 				? (outputs.find((device) => device.isDefault) ?? null)

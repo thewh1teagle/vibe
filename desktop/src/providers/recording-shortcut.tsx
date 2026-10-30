@@ -3,9 +3,9 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
-import type { AudioDevice } from '~/lib/audio'
+import { selectInputDevice, type AudioDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
-import { usePersisted } from '~/lib/config-store'
+import { readConfig, usePersisted } from '~/lib/config-store'
 import { getDefaultRecordingShortcut } from '~/lib/config'
 import type { MeetingRecordingOptions } from '~/lib/meeting-prompt'
 import { ensureSystemAudioPermission } from '~/lib/permissions'
@@ -64,7 +64,7 @@ export function RecordingShortcutProvider({ children }: { children: ReactNode })
 		startingRef.current = true
 		try {
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
-			const microphone = devices.find((device) => device.isDefault && device.isInput)
+			const microphone = selectInputDevice(devices, readConfig<string | null>(CONFIG_KEYS.inputDeviceId, null))
 			const systemAudio = devices.find((device) => device.isDefault && !device.isInput)
 			if (options.microphone && !microphone) throw new Error(m.noDefaultMicrophone())
 			if (options.systemAudio && !systemAudio) throw new Error(m.systemAudioPermissionInfo())
