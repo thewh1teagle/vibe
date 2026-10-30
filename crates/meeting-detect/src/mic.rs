@@ -180,12 +180,14 @@ mod platform {
     /// confined to the one case that needs the result: matching a browser window title to find
     /// Meet. Zoom and Teams are identified by the consent-store key alone, and an idle machine
     /// never pays for it at all.
-    fn attach_pids(processes: &mut [ProcessInfo]) {
-        let mut wanted: Vec<&mut ProcessInfo> = processes
-            .iter_mut()
-            .filter(|owner| owner.executable.is_some() && crate::process::source(owner) == Some(crate::ProcessKind::Browser))
-            .collect();
-        if wanted.is_empty() {
+    ///
+    /// A browser runs its executable once per tab and helper, and only one of those owns the
+    /// window, so a browser owner becomes one entry per matching pid.
+    fn attach_pids(processes: &mut Vec<ProcessInfo>) {
+        let is_browser = |owner: &ProcessInfo| {
+            owner.executable.is_some() && crate::process::source(owner) == Some(crate::ProcessKind::Browser)
+        };
+        if !processes.iter().any(is_browser) {
             return;
         }
 
@@ -195,14 +197,24 @@ mod platform {
             true,
             ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
         );
-        for owner in &mut wanted {
-            let Some(expected) = owner.executable.as_deref() else {
-                continue;
-            };
-            owner.pid = system.processes().values().find_map(|process| {
-                let actual = process.exe()?.to_string_lossy();
-                actual.eq_ignore_ascii_case(expected).then(|| process.pid().as_u32())
-            });
+        for owner in std::mem::take(processes) {
+            let expected = owner.executable.as_deref().filter(|_| is_browser(&owner));
+            let pids: Vec<u32> = system
+                .processes()
+                .values()
+                .filter_map(|process| {
+                    let actual = process.exe()?.to_string_lossy();
+                    actual.eq_ignore_ascii_case(expected?).then(|| process.pid().as_u32())
+                })
+                .collect();
+            if pids.is_empty() {
+                processes.push(owner);
+            } else {
+                processes.extend(pids.into_iter().map(|pid| ProcessInfo {
+                    pid: Some(pid),
+                    ..owner.clone()
+                }));
+            }
         }
     }
 
