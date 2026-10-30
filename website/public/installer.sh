@@ -60,8 +60,21 @@ if [ -f /etc/os-release ]; then
         wget -q "$RPM_URL" -O vibe.rpm
         sudo rpm -ivh vibe.rpm
     elif grep -iq "arch" /etc/os-release; then
-        echo "Detected Arch Linux. Installing vibe-bin using pacman..."
-        sudo pacman -S vibe-bin
+        # vibe-bin is in the AUR, not the official repos. Prompts read from the terminal,
+        # since stdin is the script itself when piped from curl.
+        echo "Detected Arch Linux. Installing vibe-bin from the AUR..."
+        if command -v paru >/dev/null 2>&1; then
+            paru -S --needed vibe-bin </dev/tty
+        elif command -v yay >/dev/null 2>&1; then
+            yay -S --needed vibe-bin </dev/tty
+        else
+            echo "No AUR helper found. Building vibe-bin with makepkg..."
+            sudo pacman -S --needed --noconfirm git base-devel </dev/tty
+            git clone https://aur.archlinux.org/vibe-bin.git
+            cd vibe-bin
+            makepkg -si </dev/tty
+            cd ..
+        fi
     else
         echo "Unsupported Linux distribution."
         exit 1
