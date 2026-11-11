@@ -79,7 +79,7 @@ impl Engine {
                 if vad.as_ref().is_none_or(|(path, _)| path != vad_model_path) {
                     *vad = Some((
                         vad_model_path.to_string(),
-                        vad_rs::Vad::new(vad_model_path, vad_rs::Options::default())?,
+                        vad_rs::Vad::new(vad_model_path, vad_rs::Options::regions())?,
                     ));
                 }
                 let result = model
@@ -144,7 +144,7 @@ impl Engine {
                 if vad.as_ref().is_none_or(|(path, _)| path != vad_model_path) {
                     *vad = Some((
                         vad_model_path.to_string(),
-                        vad_rs::Vad::new(vad_model_path, vad_rs::Options::default())?,
+                        vad_rs::Vad::new(vad_model_path, vad_rs::Options::regions())?,
                     ));
                 }
                 let StreamCallbacks {
@@ -293,7 +293,7 @@ fn validate_parakeet_options(options: &TranscribeOptions) -> anyhow::Result<()> 
 fn parakeet_vad<'a>(cached: &'a mut Option<(String, vad_rs::Vad)>, path: Option<&str>) -> anyhow::Result<&'a mut vad_rs::Vad> {
     let path = path.context("vad_model_path is required for Parakeet")?;
     if cached.as_ref().is_none_or(|(cached_path, _)| cached_path != path) {
-        *cached = Some((path.to_owned(), vad_rs::Vad::new(path, vad_rs::Options::default())?));
+        *cached = Some((path.to_owned(), vad_rs::Vad::new(path, vad_rs::Options::regions())?));
     }
     Ok(&mut cached.as_mut().expect("VAD initialized").1)
 }

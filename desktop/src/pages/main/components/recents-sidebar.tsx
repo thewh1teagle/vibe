@@ -25,6 +25,7 @@ import { getTextDirection } from '~/paraglide/runtime.js'
 import { UpdaterContext } from '~/providers/updater'
 import { Spinner } from '~/components/ui/spinner'
 import { useSession } from '../session'
+import { isPreparing, stageLabel } from './preparing-state'
 import RetranscribeDialog from './retranscribe-dialog'
 import type { Job } from '../hooks/use-transcribe-queue'
 
@@ -294,7 +295,9 @@ function RecentRow({
 function SessionRow({ job, active, onOpen }: { job: Job; active: boolean; onOpen: () => void }) {
 	const status =
 		job.status === 'running'
-			? `${m.transcribing()} ${Math.round(job.progress)}%`
+			? isPreparing(job)
+				? stageLabel(job)
+				: `${m.transcribing()} ${Math.round(job.progress)}%`
 			: job.status === 'queued'
 				? m.queued()
 				: job.status === 'error'

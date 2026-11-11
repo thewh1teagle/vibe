@@ -8,20 +8,27 @@ use axum::response::{IntoResponse, Response};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use whisper_rs::StreamCallbacks;
 
+use crate::audio;
 use crate::cli::AppConfig;
 use crate::server::diarization;
 use crate::server::transcription::build_options;
 use crate::server::unload_timeout::ModelLease;
 use crate::server::{error, format, speakers};
 
+/// What a streamed request still has to turn into samples and speaker turns.
+pub(super) struct StreamInput {
+    pub file: Vec<u8>,
+    pub audio_options: audio::ReadOptions,
+    pub diarize_model: Option<String>,
+}
+
 pub(super) fn stream_transcription(
     config: AppConfig,
     mut model: ModelLease,
-    samples: Vec<f32>,
+    input: StreamInput,
     form: HashMap<String, String>,
     stable_timestamps: bool,
     vad_model_path: Option<String>,
-    diar_segments: Vec<diarization::Segment>,
 ) -> Result<Response, Box<Response>> {
     if model.ctx.is_none() {
         return Err(Box::new(error(
@@ -38,13 +45,7 @@ pub(super) fn stream_transcription(
         )));
     }
 
-    let opts = build_options(
-        &form,
-        config.verbose(),
-        stable_timestamps,
-        vad_model_path,
-        !diar_segments.is_empty(),
-    );
+    let verbose = config.verbose();
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<Result<bytes::Bytes, std::convert::Infallible>>();
     let aborted = Arc::new(AtomicBool::new(false));
     let abort_for_progress = Arc::clone(&aborted);
@@ -53,7 +54,6 @@ pub(super) fn stream_transcription(
     let progress_tx = tx.clone();
     let segment_tx = tx.clone();
     let final_tx = tx.clone();
-    let segment_diar_segments = diar_segments.clone();
 
     tokio::task::spawn_blocking(move || {
         let Some(ctx) = model.ctx.as_mut() else {
@@ -66,6 +66,44 @@ pub(super) fn stream_transcription(
             );
             return;
         };
+
+        // Everything before the first word is reported as a stage: on a long
+        // file these steps take minutes and produce no progress of their own.
+        let StreamInput {
+            file,
+            audio_options,
+            diarize_model,
+        } = input;
+        let _ = send_stage(&final_tx, "preparing");
+        let samples = match audio::read_bytes_with_options(file, audio_options) {
+            Ok(samples) => samples,
+            Err(err) => {
+                let _ = send_event(
+                    &final_tx,
+                    serde_json::json!({
+                        "type": "error",
+                        "code": "invalid_audio",
+                        "message": format!("invalid audio file: {err}"),
+                    }),
+                );
+                return;
+            }
+        };
+        let segment_diar_segments = match diarize_model.as_deref() {
+            Some(model_path) if !final_tx.is_closed() => {
+                let _ = send_stage(&final_tx, "speakers");
+                diarization::diarize(model_path, &samples)
+            }
+            _ => Vec::new(),
+        };
+        let _ = send_stage(&final_tx, "transcribing");
+        let opts = build_options(
+            &form,
+            verbose,
+            stable_timestamps,
+            vad_model_path,
+            !segment_diar_segments.is_empty(),
+        );
 
         let result = ctx.transcribe_stream(
             &samples,
@@ -147,6 +185,13 @@ pub(super) fn stream_transcription(
         Body::from_stream(stream),
     )
         .into_response())
+}
+
+fn send_stage(
+    tx: &tokio::sync::mpsc::UnboundedSender<Result<bytes::Bytes, std::convert::Infallible>>,
+    stage: &str,
+) -> Result<(), ()> {
+    send_event(tx, serde_json::json!({ "type": "stage", "stage": stage }))
 }
 
 fn send_event(

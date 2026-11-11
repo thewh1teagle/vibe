@@ -216,6 +216,8 @@ impl HandoffHandler {
 
         while let Some(event_result) = stream.next().await {
             match event_result {
+                // The phone shows its own waiting state until progress arrives.
+                Ok(ServerEvent::Stage { .. }) => {}
                 Ok(ServerEvent::Progress { progress }) => {
                     write_event(send, &HandoffEvent::Progress { progress }).await?;
                 }

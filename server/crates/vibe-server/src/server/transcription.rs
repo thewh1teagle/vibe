@@ -9,7 +9,7 @@ use crate::audio;
 use crate::cli::AppConfig;
 use crate::server::diarization;
 use crate::server::form::FormValues;
-use crate::server::stream::stream_transcription;
+use crate::server::stream::{stream_transcription, StreamInput};
 use crate::server::unload_timeout::ModelLease;
 use crate::server::{error, format, TextResponse};
 
@@ -39,6 +39,33 @@ pub(super) async fn transcribe(
         enhance_audio,
         verbose: config.verbose(),
     };
+    if stable_timestamps && vad_model_path.is_none() {
+        return Err(error(
+            StatusCode::BAD_REQUEST,
+            "invalid_request",
+            "'vad_model' is required when 'stable_timestamps' is true",
+        ));
+    }
+
+    // A streamed request answers at once and reports the slow steps before the
+    // first word (decoding the audio, diarization) as stage events, so the
+    // caller is not left looking at nothing for minutes on a long file.
+    if stream {
+        return stream_transcription(
+            config,
+            model,
+            StreamInput {
+                file,
+                audio_options,
+                diarize_model,
+            },
+            form,
+            stable_timestamps,
+            vad_model_path,
+        )
+        .map_err(|err| *err);
+    }
+
     let samples = audio::read_bytes_with_options(file, audio_options).map_err(|err| {
         error(
             StatusCode::BAD_REQUEST,
@@ -50,19 +77,6 @@ pub(super) async fn transcribe(
     let diar_segments = diarize_model
         .as_deref()
         .map_or_else(Vec::new, |model_path| diarization::diarize(model_path, &samples));
-
-    if stable_timestamps && vad_model_path.is_none() {
-        return Err(error(
-            StatusCode::BAD_REQUEST,
-            "invalid_request",
-            "'vad_model' is required when 'stable_timestamps' is true",
-        ));
-    }
-
-    if stream {
-        return stream_transcription(config, model, samples, form, stable_timestamps, vad_model_path, diar_segments)
-            .map_err(|err| *err);
-    }
 
     let verbose = config.verbose();
     let ctx = model

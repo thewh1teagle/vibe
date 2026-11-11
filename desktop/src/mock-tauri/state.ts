@@ -65,6 +65,8 @@ export const sampleSegments: { start: number; stop: number; text: string; speake
 
 // Tunables so flows are observable but fast.
 export const TRANSCRIBE_SEGMENT_INTERVAL_MS = 700
+/** How long the mock stays on each step before the first word. */
+export const TRANSCRIBE_STAGE_MS = 1500
 export const DOWNLOAD_TICKS = 20
 export const DOWNLOAD_TICK_MS = 150
 

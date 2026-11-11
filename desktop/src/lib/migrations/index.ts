@@ -1,6 +1,7 @@
 import { migrateLegacyLocale } from './migrate-legacy-locale'
 import { migratePrefsToConfig } from './migrate-prefs-to-config'
 import { removeRecordingPathSettings } from './remove-recording-path-settings'
+import { resetLegacyTemperature } from './reset-legacy-temperature'
 
 /**
  * Local storage migration versioning
@@ -17,6 +18,7 @@ const migrations = [
 	{ version: 1, run: migrateLegacyLocale },
 	{ version: 2, run: migratePrefsToConfig },
 	{ version: 3, run: removeRecordingPathSettings },
+	{ version: 4, run: resetLegacyTemperature },
 ]
 const MIGRATION_VERSION_KEY = 'vibe:migration-version'
 

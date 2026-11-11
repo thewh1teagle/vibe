@@ -138,6 +138,9 @@ pub async fn transcribe(
 
         match event_result {
             Ok(event) => match event {
+                ServerEvent::Stage { stage } => {
+                    app_handle.emit_to("main", "transcribe_stage", stage).log_error();
+                }
                 ServerEvent::Progress { progress } => {
                     let _ = set_progress_bar(&app_handle, Some(progress.into()));
                 }

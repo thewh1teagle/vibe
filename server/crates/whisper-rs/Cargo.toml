@@ -10,6 +10,7 @@ description = "Pure-Rust whisper engine on the GGML runtime"
 sysinfo = { version = "0.39", default-features = false, features = ["system"] }
 thiserror = "2"
 tracing = "0.1"
+flate2 = { version = "1", optional = true }
 ggml-rs-sys = { path = "../ggml-rs-sys", optional = true }
 vad-rs = { path = "../vad-rs", optional = true }
 
@@ -22,7 +23,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 default = ["ffi"]
 # Historical name: enables the native GGML engine. Without it the crate
 # builds as pure Rust with a stub Context.
-ffi = ["dep:ggml-rs-sys", "dep:vad-rs"]
+ffi = ["dep:flate2", "dep:ggml-rs-sys", "dep:vad-rs"]
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61", features = [

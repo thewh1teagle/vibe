@@ -134,6 +134,11 @@ struct ReadySignal {
 #[serde(rename_all = "snake_case")]
 #[allow(dead_code)]
 pub enum ServerEvent {
+    /// What the server is doing before the first word: `preparing` (decoding the
+    /// audio), `speakers` (diarization), `transcribing` (the engine has started).
+    Stage {
+        stage: String,
+    },
     Progress {
         progress: i32,
     },
