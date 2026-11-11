@@ -44,7 +44,7 @@ jobs:
             binary: vibe-server-linux-amd64
           - runner: ubuntu-24.04-arm
             binary: vibe-server-linux-arm64
-          - runner: macos-14
+          - runner: macos-15
             binary: vibe-server-darwin-arm64
             package_os: darwin
             package_arch: arm64

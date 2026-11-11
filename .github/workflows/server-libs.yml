@@ -18,7 +18,7 @@ jobs:
         # linux x86_64: ubuntu-22.04 so shipped libs require GLIBC>=2.35/GLIBCXX>=3.4.30, covering Debian/Mint/Ubuntu 22.04 users
         # linux arm64: stays on ubuntu-24.04-arm because LunarG does not publish ARM64 apt packages (glslc/libshaderc-dev unavailable on 22.04 arm)
         include:
-          - runner: macos-14
+          - runner: macos-15
           - runner: macos-15-intel
           - runner: ubuntu-22.04
           - runner: ubuntu-24.04-arm
