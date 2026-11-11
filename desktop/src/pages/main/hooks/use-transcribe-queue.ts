@@ -36,6 +36,8 @@ import { withoutUnsupportedOptions } from '~/lib/model'
 import { type Preference, usePreferenceProvider } from '~/providers/preference'
 
 export type JobStatus = 'queued' | 'running' | 'done' | 'error' | 'cancelled'
+/** What the engine reports doing before the first word arrives. */
+export type JobStage = 'preparing' | 'speakers' | 'transcribing'
 
 /** One transcription input. `projectName` re-runs an existing project under the title it already has. */
 export interface EnqueueItem extends NamedPath {
@@ -52,6 +54,8 @@ export interface Job {
 	status: JobStatus
 	/** 0..100, only meaningful while running */
 	progress: number
+	/** The step before the first word, while running; there is no percentage for it. */
+	stage?: JobStage
 	segments: Segment[]
 	error?: string
 	/** wall clock seconds the transcription took */
@@ -271,6 +275,12 @@ export function useTranscribeQueue(): TranscribeQueue {
 			}),
 		)
 		unlisteners.push(
+			listen<JobStage>('transcribe_stage', ({ payload }) => {
+				const id = activeIdRef.current
+				if (id) patch(id, { stage: payload })
+			}),
+		)
+		unlisteners.push(
 			listen<Segment>('new_segment', ({ payload }) => {
 				const id = activeIdRef.current
 				if (!id) return
@@ -432,7 +442,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 				activeIdRef.current = next.id
 				setActiveId(next.id)
 				if (!pinnedRef.current) select(next.id)
-				patch(next.id, { status: 'running', progress: 0, segments: [], error: undefined })
+				patch(next.id, { status: 'running', progress: 0, stage: 'preparing', segments: [], error: undefined })
 				abortCurrentRef.current = false
 
 				const startedAt = performance.now()

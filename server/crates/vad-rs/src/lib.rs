@@ -48,7 +48,22 @@ impl Default for Options {
     }
 }
 
+/// Speech padding for engines that transcribe each VAD region on its own (Parakeet, Nemotron).
+/// whisper.cpp's 30 ms cuts into the first and last phonemes: the region's first word is dropped
+/// and a word is invented at its abrupt end. Silero's own default pads 30 ms too, but its
+/// examples and NeMo's VAD recipes pad 0.2-0.5 s. Against NeMo on LibriSpeech, Parakeet's
+/// WER goes 3.6 -> 2.4 (clean) and 4.8 -> 4.3 (other) at 300 ms; longer pads gain nothing.
+pub const REGION_SPEECH_PAD_MS: i32 = 300;
+
 impl Options {
+    /// Regions to transcribe independently: padded enough to keep the words at their edges.
+    pub fn regions() -> Self {
+        Self {
+            speech_pad_ms: REGION_SPEECH_PAD_MS,
+            ..Self::default()
+        }
+    }
+
     /// Preserves whisper.cpp's historical stable-timestamp VAD parameters.
     pub fn stable_timestamps() -> Self {
         Self {

@@ -2,7 +2,7 @@
 // Simulates model loading, streaming transcription and downloads with real timers
 // so the UI exercises the same progress/abort code paths as the desktop runtime.
 import { emitMockEvent, onMockEvent } from '../event-bus'
-import { DEFAULT_MODEL_FILE, DOWNLOAD_TICKS, DOWNLOAD_TICK_MS, MODELS_FOLDER, TRANSCRIBE_SEGMENT_INTERVAL_MS, sampleSegments, virtualFs } from '../state'
+import { DEFAULT_MODEL_FILE, DOWNLOAD_TICKS, DOWNLOAD_TICK_MS, MODELS_FOLDER, TRANSCRIBE_SEGMENT_INTERVAL_MS, TRANSCRIBE_STAGE_MS, sampleSegments, virtualFs } from '../state'
 import type { CommandHandlerMap } from '../types'
 
 interface Segment {
@@ -163,8 +163,14 @@ function runTranscribe(
 		}
 
 		unsub = onMockEvent('abort_transcribe', onAbort)
-		emitMockEvent('transcribe_progress', 0)
-		timer = setInterval(tick, TRANSCRIBE_SEGMENT_INTERVAL_MS)
+		// The real server reports these before the first word; walk them so the waiting state shows.
+		const stages = ['preparing', 'speakers', 'transcribing']
+		stages.forEach((stage, at) => setTimeout(() => !settled && emitMockEvent('transcribe_stage', stage), at * TRANSCRIBE_STAGE_MS))
+		setTimeout(() => {
+			if (settled) return
+			emitMockEvent('transcribe_progress', 0)
+			timer = setInterval(tick, TRANSCRIBE_SEGMENT_INTERVAL_MS)
+		}, stages.length * TRANSCRIBE_STAGE_MS)
 	})
 }
 

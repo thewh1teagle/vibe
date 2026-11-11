@@ -417,6 +417,118 @@ html.dictation-indicator-window #root {
 	.stagger-in {
 		animation: fade-up 240ms ease-out both;
 	}
+
+	/*
+	 * Waiting without a number: the steps before the first transcribed word have no
+	 * percentage to show, so these say "working" instead of "0%".
+	 */
+
+	/* A light passing over the label of the step in progress */
+	.shimmer-text {
+		background-image: linear-gradient(
+			90deg,
+			var(--muted-foreground) 0%,
+			var(--muted-foreground) 38%,
+			var(--foreground) 50%,
+			var(--muted-foreground) 62%,
+			var(--muted-foreground) 100%
+		);
+		background-size: 250% 100%;
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+		animation: sheen-sweep 2.4s linear infinite;
+	}
+
+	/* Placeholder lines with the aurora drifting through them */
+	.aurora-sheen {
+		background-color: var(--muted);
+		background-image: linear-gradient(
+			90deg,
+			transparent 0%,
+			color-mix(in srgb, var(--aurora-1) 38%, transparent) 30%,
+			color-mix(in srgb, var(--aurora-2) 38%, transparent) 45%,
+			color-mix(in srgb, var(--aurora-3) 34%, transparent) 60%,
+			transparent 85%
+		);
+		background-size: 250% 100%;
+		background-repeat: no-repeat;
+		animation: sheen-sweep 2.8s ease-in-out infinite;
+	}
+
+	/* The small turning mark beside the label */
+	.aurora-orb {
+		background-image: conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-4), var(--aurora-1));
+		filter: saturate(0.9) blur(0.4px);
+		animation:
+			orb-turn 3.2s linear infinite,
+			orb-breathe 1.8s ease-in-out infinite;
+	}
+
+	/* Indeterminate fill for a thin progress track */
+	.aurora-slide {
+		width: 38%;
+		animation: bar-slide 1.6s ease-in-out infinite;
+	}
+
+	[dir='rtl'] .aurora-slide {
+		animation-direction: reverse;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.shimmer-text,
+		.aurora-sheen,
+		.aurora-orb,
+		.aurora-slide {
+			animation: none;
+		}
+
+		.shimmer-text {
+			color: var(--muted-foreground);
+			background-image: none;
+		}
+
+		.aurora-slide {
+			width: 100%;
+			opacity: 0.5;
+		}
+	}
+}
+
+@keyframes sheen-sweep {
+	from {
+		background-position: 130% 0;
+	}
+	to {
+		background-position: -130% 0;
+	}
+}
+
+@keyframes orb-turn {
+	to {
+		rotate: 360deg;
+	}
+}
+
+@keyframes orb-breathe {
+	0%,
+	100% {
+		scale: 0.82;
+		opacity: 0.75;
+	}
+	50% {
+		scale: 1;
+		opacity: 1;
+	}
+}
+
+@keyframes bar-slide {
+	from {
+		translate: -110% 0;
+	}
+	to {
+		translate: 275% 0;
+	}
 }
 
 [dir='rtl'] select {

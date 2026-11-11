@@ -5,6 +5,7 @@ import { Spinner } from '~/components/ui/spinner'
 import { cn } from '~/lib/style'
 import type { Job } from '../hooks/use-transcribe-queue'
 import { useSession } from '../session'
+import { isPreparing, stageLabel } from './preparing-state'
 
 function StatusIcon({ job }: { job: Job }) {
 	switch (job.status) {
@@ -24,7 +25,7 @@ function StatusIcon({ job }: { job: Job }) {
 function statusLabel(job: Job) {
 	switch (job.status) {
 		case 'running':
-			return `${Math.round(job.progress)}%`
+			return isPreparing(job) ? stageLabel(job) : `${Math.round(job.progress)}%`
 		case 'done': {
 			const took = job.seconds != null ? m.transcribeTook({ total: String(job.seconds) }) : m.transcribed()
 			const exported = job.exported
@@ -109,12 +110,16 @@ export default function FileQueue() {
 
 							{job.status === 'running' && (
 								<div className="mt-2 ms-6 h-[3px] overflow-hidden rounded-full bg-muted-foreground/15">
-									<motion.div
-										className="aurora-bar h-full rounded-full bg-primary/70"
-										initial={false}
-										animate={{ width: `${Math.max(2, job.progress)}%` }}
-										transition={{ duration: 0.2, ease: 'easeOut' }}
-									/>
+									{isPreparing(job) ? (
+										<div className="aurora-bar aurora-slide h-full rounded-full" />
+									) : (
+										<motion.div
+											className="aurora-bar h-full rounded-full bg-primary/70"
+											initial={false}
+											animate={{ width: `${Math.max(2, job.progress)}%` }}
+											transition={{ duration: 0.2, ease: 'easeOut' }}
+										/>
+									)}
 								</div>
 							)}
 						</button>

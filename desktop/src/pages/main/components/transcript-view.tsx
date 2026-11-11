@@ -12,6 +12,7 @@ import { useSession } from '../session'
 import type { Job } from '../hooks/use-transcribe-queue'
 import { textSizeClass, type TranscriptTab, type TranscriptViewOptions } from '../hooks/use-transcript-view'
 import { PLAYER_SEEK_EVENT, PLAYER_TOGGLE_EVENT, PLAYER_TIME_EVENT, type PlayerTimeDetail } from './player-bar'
+import PreparingState, { isPreparing } from './preparing-state'
 import { ProjectNameEditor } from './project-name-editor'
 import QuietRow from './quiet-row'
 import { SpeakerLabel } from './speaker-label'
@@ -648,6 +649,8 @@ export default function TranscriptView({
 								</Button>
 							</div>
 						</div>
+					) : visible.length === 0 && !query && isPreparing(job) ? (
+						<PreparingState job={job} />
 					) : visible.length === 0 ? (
 						<p className="text-sm text-muted-foreground">
 							{query ? m.noMatchingLines() : running ? m.transcriptWillDisplayedShortly() : job.status === 'queued' ? m.loading() : ''}
@@ -687,7 +690,7 @@ export default function TranscriptView({
 						})}
 					</div>
 
-					{running && <div className={cn('mt-8 h-4 w-24 animate-pulse rounded-full bg-muted')} />}
+					{running && !isPreparing(job) && <div className={cn('mt-8 h-4 w-24 animate-pulse rounded-full bg-muted')} />}
 				</div>
 			</div>
 

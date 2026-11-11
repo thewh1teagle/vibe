@@ -64,4 +64,20 @@ describe('local storage migrations', () => {
 		expect(localStorage.getItem('prefs_store_record_in_documents')).toBeNull()
 		expect(localStorage.getItem('prefs_custom_recording_path')).toBeNull()
 	})
+
+	it('resets the old 0.4 temperature default so beam search runs, and keeps a chosen value', () => {
+		localStorage.setItem('vibe:migration-version', '3')
+		writeConfig(CONFIG_KEYS.modelOptions, { lang: 'he', temperature: 0.4, sampling_strategy: 'beam search' })
+
+		runMigrations()
+
+		expect(readConfig(CONFIG_KEYS.modelOptions, null)).toEqual({ lang: 'he', temperature: 0, sampling_strategy: 'beam search' })
+
+		localStorage.setItem('vibe:migration-version', '3')
+		writeConfig(CONFIG_KEYS.modelOptions, { lang: 'en', temperature: 0.2, sampling_strategy: 'greedy' })
+
+		runMigrations()
+
+		expect(readConfig(CONFIG_KEYS.modelOptions, null)).toEqual({ lang: 'en', temperature: 0.2, sampling_strategy: 'greedy' })
+	})
 })

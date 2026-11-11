@@ -175,7 +175,8 @@ export const DEFAULT_MODEL_OPTIONS: ModelOptions = {
 	verbose: false,
 	lang: 'en',
 	n_threads: 4,
-	temperature: 0.4,
+	// Above 0 whisper samples instead of beam searching; 0 still falls back upward on a bad window.
+	temperature: 0,
 	max_text_ctx: undefined,
 	word_timestamps: false,
 	max_sentence_len: undefined,
