@@ -29,7 +29,7 @@ jobs:
             archive: vibe-server-linux-arm64
             binary: vibe-server
             raw: true
-          - runner: macos-14
+          - runner: macos-15
             archive: vibe-server-darwin-arm64-with-ffmpeg.tar.gz
             binary: vibe-server
           - runner: macos-15-intel
