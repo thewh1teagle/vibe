@@ -26,6 +26,7 @@ Verify a signature:
 
 import argparse
 import fnmatch
+import gzip
 import os
 import sys
 
@@ -45,13 +46,17 @@ def upload_for_signing(path: str) -> None:
     url = os.environ["SIGN_TUNNEL_URL"].rstrip("/")
     secret = os.environ["SIGN_TUNNEL_SECRET"]
 
+    # The tunnel refuses a request body over 100 MiB, and the bundled ffmpeg is
+    # past that. Executables compress to well under half, so the file travels
+    # gzipped and the server unpacks it before signing.
     with open(path, "rb") as f:
-        resp = httpx.post(
-            f"{url}/sign",
-            files={"file": (os.path.basename(path), f)},
-            headers={"X-Tunnel-Secret": secret},
-            timeout=120,
-        )
+        body = gzip.compress(f.read(), compresslevel=6)
+    resp = httpx.post(
+        f"{url}/sign",
+        files={"file": (os.path.basename(path), body)},
+        headers={"X-Tunnel-Secret": secret, "X-File-Encoding": "gzip"},
+        timeout=300,
+    )
 
     if resp.status_code != 200:
         print(f"[sign] ERROR: server returned {resp.status_code}: {resp.text}", file=sys.stderr)
@@ -142,7 +147,11 @@ def cmd_serve(args: argparse.Namespace) -> None:
 
         with tempfile.TemporaryDirectory() as tmp:
             filepath = Path(tmp) / file.filename
-            file.save(filepath)
+            if request.headers.get("X-File-Encoding") == "gzip":
+                with gzip.open(file.stream) as packed, open(filepath, "wb") as out:
+                    shutil.copyfileobj(packed, out)
+            else:
+                file.save(filepath)
 
             result = subprocess.run(
                 [
