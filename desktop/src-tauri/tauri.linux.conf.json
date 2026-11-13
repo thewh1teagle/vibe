@@ -3,7 +3,16 @@
 	"bundle": {
 		"linux": {
 			"deb": {
-				"depends": ["ffmpeg", "libxdo-dev"]
+				"depends": ["ffmpeg", "libxdo-dev"],
+				"files": {
+					"/usr/lib/vibe/gstreamer-1.0/libgsttauriasset.so": "gstreamer/libgsttauriasset.so"
+				}
+			},
+			"rpm": {
+				"depends": ["libxdo.so.3()(64bit)"],
+				"files": {
+					"/usr/lib/vibe/gstreamer-1.0/libgsttauriasset.so": "gstreamer/libgsttauriasset.so"
+				}
 			}
 		}
 	}

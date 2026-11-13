@@ -20,6 +20,8 @@ include website/website.chore
 # The server release the app ships, a server-v* tag of this repository.
 server=$(read .server-version)
 bin=desktop/src-tauri/binaries
+# Tauri's GStreamer plugin release, a tag of tauri-apps/tauri-gstreamer-plugin.
+gst_plugin=gst-plugin-tauri-v0.0.1
 
 # Build server/ from the tree and put it where `setup` would have put the
 # release, for iterating on the engine; run `setup` first so ffmpeg is there.
@@ -60,6 +62,9 @@ task setup target=$TRIPLE {
     # suffix has to come from the target rather than from this machine.
     exe=""
     if $1 contains windows { exe=.exe }
+
+    # Before the early returns below: a tree set up before the plugin existed still needs it.
+    if $1 contains linux { gst-plugin $1 }
 
     mkdir $bin
     # Linux ships the server alone; every other target gets ffmpeg beside it, so
@@ -103,6 +108,30 @@ task setup target=$TRIPLE {
         chmod 755 $bin/ffmpeg-$1
     }
     echo "installed vibe-server-$1 and ffmpeg-$1"
+}
+
+# Fetch Tauri's GStreamer plugin for asset:// playback into the Linux packages: gst-plugin <triple>.
+task gst-plugin target=$TRIPLE {
+    # WebKitGTK plays media through GStreamer, which cannot read the asset:// URLs the
+    # player uses (#1711). tauri.linux.conf.json packages this file and linux_media.rs
+    # points GStreamer at it. Pinned by hash: it is loaded into the app's web process.
+    out=desktop/src-tauri/gstreamer
+    if exists $out/libgsttauriasset.so {
+        echo "the GStreamer plugin is already in place"
+        return
+    }
+    if $1 == x86_64-unknown-linux-gnu {
+        asset=libgsttauriasset-x86_64.so
+        sum=abb55c037ac07545c0e19e8d11fbc6bc642c23a24f35f550b5f830d387db0914
+    } else if $1 == aarch64-unknown-linux-gnu {
+        asset=libgsttauriasset-aarch64.so
+        sum=a50347365b0949a3bd251689b7b5e1cbb01b4ae9a2e3446d6d28a77d55b35f6f
+    } else {
+        fail "the GStreamer plugin has no build for $1"
+    }
+    mkdir $out
+    download gh://tauri-apps/tauri-gstreamer-plugin/$gst_plugin/$asset $out/libgsttauriasset.so --sha256 $sum
+    echo "installed the GStreamer plugin for $1"
 }
 
 # Install the Linux build dependencies with apt.

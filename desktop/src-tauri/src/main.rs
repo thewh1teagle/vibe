@@ -30,6 +30,11 @@ mod system_audio;
 #[cfg(windows)]
 mod custom_protocol;
 
+// Compiled for tests everywhere, so its logic is checked on the machines that build it.
+#[cfg(any(target_os = "linux", test))]
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+mod linux_media;
+
 use eyre::{eyre, Result};
 use tauri::Manager;
 use tauri_plugin_window_state::StateFlags;
@@ -44,6 +49,10 @@ async fn main() -> Result<()> {
     // Attach console in Windows:
     #[cfg(all(windows, not(debug_assertions)))]
     cli::attach_console();
+
+    // Before any window: WebKit's processes inherit the environment they are spawned with.
+    #[cfg(target_os = "linux")]
+    linux_media::enable_asset_playback();
 
     #[allow(unused_mut)]
     let mut builder = tauri::Builder::default()
