@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "Otomatik",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Temel (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Whisper seçenekleri",
 	"whisperOptionsInfo": "Varsayılanlar kayıtların çoğu için yeterlidir.",
 	"audioProcessing": "Ses işleme",

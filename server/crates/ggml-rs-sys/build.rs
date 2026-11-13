@@ -45,9 +45,9 @@ fn main() {
     for lib in ["ggml", "ggml-base"] {
         println!("cargo:rustc-link-lib=static={lib}");
     }
-    // x86_64 carries two CPU backends, AVX2 and baseline, chosen at startup (see cpu_variant.rs).
+    // x86_64 carries three CPU backends, AVX2, AVX and SSE4.2, chosen at startup (see cpu_variant.rs).
     if x86_variants() {
-        for lib in ["ggml-cpu-hsw", "ggml-cpu-x64"] {
+        for lib in ["ggml-cpu-hsw", "ggml-cpu-x64", "ggml-cpu-sse"] {
             println!("cargo:rustc-link-lib=static={lib}");
         }
     } else {

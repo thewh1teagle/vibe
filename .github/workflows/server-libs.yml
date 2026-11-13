@@ -44,14 +44,14 @@ jobs:
         if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'msvc'
         shell: pwsh
         run: choco install vulkan-sdk -y
-      # llvm-nm and llvm-objcopy, for the two CPU backend builds (stage-cpu-variant).
+      # llvm-nm and llvm-objcopy, for the three CPU backend builds (stage-cpu-variant).
       - name: Install LLVM tools (Windows MSVC)
         if: runner.os == 'Windows' && matrix.windows_lib_flavor == 'msvc'
         shell: pwsh
         run: |
           choco install llvm -y
           "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-      # Xcode ships llvm-nm but not llvm-objcopy; Intel macOS builds two CPU backends too.
+      # Xcode ships llvm-nm but not llvm-objcopy; Intel macOS builds three CPU backends too.
       - name: Install LLVM tools (macOS Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
         run: |

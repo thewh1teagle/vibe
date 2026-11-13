@@ -16,6 +16,7 @@ export function AdvancedSection({ vm }: { vm: SettingsViewModel }) {
 		{ value: 'auto', label: m.cpuVariantAuto() },
 		{ value: 'avx2', label: m.cpuVariantAvx2() },
 		{ value: 'baseline', label: m.cpuVariantBaseline() },
+		{ value: 'sse', label: m.cpuVariantSse() },
 	]
 
 	return (

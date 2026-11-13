@@ -1,0 +1,26 @@
+cpu: use the SSE3/SSSE3 kernels in an MSVC build without AVX
+
+MSVC never defines __SSE3__ or __SSSE3__; ggml-cpu-impl.h defines them when AVX
+is on, since AVX implies both. A build with AVX off and GGML_SSE42 on got
+neither, so every vector kernel fell back to scalar code. SSE4.2 implies both
+as well, and MSVC accepts the intrinsics without a flag. This is the build
+vibe-server runs on a CPU without AVX (libs.chore, ggml-cpu-sse).
+
+Upstream: not sent yet.
+
+diff --git a/src/ggml-cpu/ggml-cpu-impl.h b/src/ggml-cpu/ggml-cpu-impl.h
+index 5d1ca5f..a7c9e95 100644
+--- a/src/ggml-cpu/ggml-cpu-impl.h
++++ b/src/ggml-cpu/ggml-cpu-impl.h
+@@ -52,8 +52,9 @@ struct ggml_compute_params {
+ #endif
+ #endif
+ 
+-// __SSE3__ and __SSSE3__ are not defined in MSVC, but SSE3/SSSE3 are present when AVX/AVX2/AVX512 are available
+-#if defined(_MSC_VER) && (defined(__AVX__) || defined(__AVX2__) || defined(__AVX512F__))
++// __SSE3__ and __SSSE3__ are not defined in MSVC, but SSE3/SSSE3 are present when AVX/AVX2/AVX512 are available,
++// and when the build asks for SSE4.2 (GGML_SSE42)
++#if defined(_MSC_VER) && (defined(__AVX__) || defined(__AVX2__) || defined(__AVX512F__) || defined(GGML_SSE42))
+ #ifndef __SSE3__
+ #define __SSE3__
+ #endif

@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "自動",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Baseline（AVX）",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Whisperオプション",
 	"whisperOptionsInfo": "ほとんどの録音では初期設定のままで問題ありません。",
 	"audioProcessing": "音声処理",

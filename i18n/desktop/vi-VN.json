@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "Tự động",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Baseline (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Tùy chọn Whisper",
 	"whisperOptionsInfo": "Giá trị mặc định phù hợp với hầu hết bản ghi âm.",
 	"audioProcessing": "Xử lý âm thanh",

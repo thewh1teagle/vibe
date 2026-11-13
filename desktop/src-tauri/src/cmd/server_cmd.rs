@@ -134,25 +134,30 @@ pub async fn load_model(
         server.load_model(&model_path, gpu_device, no_gpu).await
     };
 
-    // A CPU that advertises AVX2 it cannot execute kills the engine on the first AVX2
-    // instruction, while the model loads. Once is enough to know: relaunch on the baseline
-    // build, and keep that choice so the next launch does not die again first (#1499).
-    if load_result.is_err()
-        && cpu_variant == crate::cmd::config::CpuVariant::Auto
-        && state_guard
-            .process
-            .as_mut()
-            .is_some_and(crate::server::ServerProcess::died_with_illegal_instruction)
-    {
-        tracing::warn!("server died with an illegal instruction while loading the model; retrying on the baseline CPU build");
+    // A CPU that advertises instructions it cannot execute kills the engine on the first
+    // one, while the model loads. Once is enough to know: relaunch on the next lower build,
+    // down to the one without AVX, and keep the choice that works so the next launch does
+    // not die again first (#1499, #1731).
+    for &lower in cpu_variant.lower() {
+        let died = load_result.is_err()
+            && state_guard
+                .process
+                .as_mut()
+                .is_some_and(crate::server::ServerProcess::died_with_illegal_instruction);
+        if !died {
+            break;
+        }
+        tracing::warn!(
+            to = lower.as_str(),
+            "server died with an illegal instruction while loading the model; retrying on a lower CPU build"
+        );
         crate::analytics::track_event_handle_with_props(
             &app_handle,
             crate::analytics::events::SERVER_CPU_BASELINE_FALLBACK,
             None,
         );
         state_guard.process = None;
-        let process = spawn_server(crate::cmd::config::CpuVariant::Baseline)
-            .context("failed to respawn server on the baseline CPU build")?;
+        let process = spawn_server(lower).context("failed to respawn server on a lower CPU build")?;
         state_guard.process = Some(process);
         load_result = state_guard
             .process
@@ -161,7 +166,7 @@ pub async fn load_model(
             .load_model(&model_path, gpu_device, no_gpu)
             .await;
         if load_result.is_ok() {
-            crate::cmd::config::set_cpu_variant(&app_handle, crate::cmd::config::CpuVariant::Baseline).log_error();
+            crate::cmd::config::set_cpu_variant(&app_handle, lower).log_error();
         }
     }
 

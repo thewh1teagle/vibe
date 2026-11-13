@@ -35,9 +35,9 @@ cargo build -p vibe-server --release
 
 The library workflow also builds a `windows-amd64-gnu` ggml bundle for compatibility (`VIBE_SERVER_WINDOWS_LIB_FLAVOR=gnu`), but release binaries use `windows-amd64-msvc`.
 
-### Two CPU backends on x86_64
+### Three CPU backends on x86_64
 
-AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU without it. On x86_64 the bundle carries the CPU backend twice, `ggml-cpu-hsw` (AVX2, FMA, BMI2) and `ggml-cpu-x64` (AVX baseline), with every symbol suffixed so both link into the one binary. `ggml-rs-sys` defines `ggml_backend_cpu_reg` in Rust and forwards to the build the CPU can run. The suffixing needs `nm` and `objcopy` (`llvm-nm` and `llvm-objcopy` for MSVC), which `chore build-libs` runs (`stage-cpu-variant` in `libs/libs.chore`); `chore fetch-libs` users need nothing extra.
+AVX2 is compiled into every ggml CPU kernel, so one build cannot serve a CPU without it. On x86_64 the bundle carries the CPU backend three times, `ggml-cpu-hsw` (AVX2, FMA, BMI2), `ggml-cpu-x64` (AVX baseline) and `ggml-cpu-sse` (SSE4.2, for CPUs with no AVX such as Atom-class Pentiums and Celerons), with every symbol suffixed so all three link into the one binary. `ggml-rs-sys` defines `ggml_backend_cpu_reg` in Rust and forwards to the build the CPU can run. The suffixing needs `nm` and `objcopy` (`llvm-nm` and `llvm-objcopy` for MSVC), which `chore build-libs` runs (`stage-cpu-variant` in `libs/libs.chore`); `chore fetch-libs` users need nothing extra.
 
 ### Patches
 

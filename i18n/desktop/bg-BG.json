@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "Автоматично",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Базов (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Настройки на Whisper",
 	"whisperOptionsInfo": "Стойностите по подразбиране вършат работа за повечето записи.",
 	"audioProcessing": "Обработка на звука",

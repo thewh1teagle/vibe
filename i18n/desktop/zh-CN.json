@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "自动",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "基线（AVX）",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Whisper 选项",
 	"whisperOptionsInfo": "默认设置适用于大多数录音。",
 	"audioProcessing": "音频处理",
