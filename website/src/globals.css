@@ -422,6 +422,46 @@
 		opacity: 0.7;
 	}
 
+	/* The one lifted card on /models: the same quiet wash of `--primary` the CTA uses, nothing louder. */
+	.model-card-top {
+		background-image: linear-gradient(180deg, color-mix(in oklab, var(--primary) 5%, var(--card)) 0%, var(--card) 62%);
+	}
+
+	.dark .model-card-top {
+		background-image: linear-gradient(180deg, color-mix(in oklab, var(--primary) 8%, var(--card)) 0%, var(--card) 62%);
+	}
+
+	/* The language picker's list: a thin, quiet bar in place of the page's wide one. */
+	.language-list {
+		scrollbar-width: thin;
+		scrollbar-color: color-mix(in oklab, var(--foreground) 22%, transparent) transparent;
+	}
+
+	/* An English description on a Hebrew page reads left to right but still sits on the row's reading edge. */
+	.model-description {
+		text-align: -webkit-match-parent;
+		text-align: match-parent;
+	}
+
+	/*
+	 * Meta line of a model card: the dot belongs to the item after it and hangs in the gap, so
+	 * an item that wraps to a new line leaves its dot outside the clipped edge instead of dangling.
+	 */
+	.model-meta > li {
+		position: relative;
+	}
+
+	.model-meta > li + li::before {
+		content: '·';
+		position: absolute;
+		inset-inline-start: -0.5rem;
+		transform: translateX(-50%);
+	}
+
+	[dir='rtl'] .model-meta > li + li::before {
+		transform: translateX(50%);
+	}
+
 	/* Thin aurora fill for progress bars and hairline accents */
 	.aurora-bar {
 		background-image: linear-gradient(90deg, var(--aurora-1) 0%, var(--aurora-2) 34%, var(--aurora-3) 67%, var(--aurora-4) 100%);

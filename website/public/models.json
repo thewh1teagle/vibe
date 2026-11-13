@@ -1,0 +1,533 @@
+{
+	"models": [
+		{
+			"id": "whisper-large-v3-turbo",
+			"name": "Whisper Large v3 Turbo",
+			"languages": [
+				"*"
+			],
+			"tags": [
+				"recommended",
+				"accurate"
+			],
+			"publisher": {
+				"name": "OpenAI",
+				"url": "https://huggingface.co/openai/whisper-large-v3-turbo"
+			},
+			"license": "MIT",
+			"url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin",
+			"size": 1624555275,
+			"sha256": "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69",
+			"description": {
+				"en-US": "The all-rounder: accurate in about 100 languages.",
+				"bg-BG": "Универсалният избор: точен на около 100 езика.",
+				"ca-AD": "El model versàtil: precís en unes 100 llengües.",
+				"cs-CZ": "Univerzál: přesný přibližně ve 100 jazycích.",
+				"de-DE": "Der Allrounder: genau in etwa 100 Sprachen.",
+				"es-ES": "El todoterreno: preciso en unos 100 idiomas.",
+				"es-MX": "El todoterreno: preciso en unos 100 idiomas.",
+				"fr-FR": "Le couteau suisse : précis dans une centaine de langues.",
+				"he-IL": "הכול-באחד: מדויק בכ-100 שפות.",
+				"hi-IN": "सबका साथी: लगभग 100 भाषाओं में सटीक।",
+				"it-IT": "Il tuttofare: preciso in circa 100 lingue.",
+				"ja-JP": "万能タイプ: 約100言語で高精度。",
+				"ko-KR": "만능형: 약 100개 언어에서 정확합니다.",
+				"no-NO": "Allroundmodellen: nøyaktig på rundt 100 språk.",
+				"pl-PL": "Model uniwersalny: dokładny w około 100 językach.",
+				"pt-BR": "O completo: preciso em cerca de 100 idiomas.",
+				"ru-RU": "Универсальная модель: точная примерно для 100 языков.",
+				"sv-SE": "Allroundmodellen: träffsäker på cirka 100 språk.",
+				"tr-TR": "Çok yönlü model: yaklaşık 100 dilde doğru sonuç verir.",
+				"vi-VN": "Mô hình đa năng: chính xác với khoảng 100 ngôn ngữ.",
+				"zh-CN": "全能型：支持约 100 种语言，准确率高。",
+				"zh-HK": "全能之選：支援約 100 種語言，準確度高。"
+			}
+		},
+		{
+			"id": "whisper-tiny",
+			"name": "Whisper Tiny",
+			"languages": [
+				"*"
+			],
+			"tags": [
+				"small",
+				"fast"
+			],
+			"publisher": {
+				"name": "OpenAI",
+				"url": "https://huggingface.co/openai/whisper-tiny"
+			},
+			"license": "MIT",
+			"url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin",
+			"size": 77691713,
+			"sha256": "be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21",
+			"description": {
+				"en-US": "Tiny and quick to download, but less accurate.",
+				"bg-BG": "Малък и бърз за изтегляне, но по-малко точен.",
+				"ca-AD": "Minúscul i ràpid de baixar, però menys precís.",
+				"cs-CZ": "Drobný a rychle stažený, ale méně přesný.",
+				"de-DE": "Winzig und schnell geladen, aber weniger genau.",
+				"es-ES": "Diminuto y rápido de descargar, pero menos preciso.",
+				"es-MX": "Diminuto y rápido de descargar, pero menos preciso.",
+				"fr-FR": "Minuscule et rapide à télécharger, mais moins précis.",
+				"he-IL": "קטן ומהיר להורדה, אך פחות מדויק.",
+				"hi-IN": "छोटा और जल्दी डाउनलोड होने वाला, लेकिन कम सटीक।",
+				"it-IT": "Minuscolo e veloce da scaricare, ma meno preciso.",
+				"ja-JP": "小さくてすぐダウンロードできますが、精度は低めです。",
+				"ko-KR": "아주 작아서 빨리 내려받지만, 정확도는 떨어집니다.",
+				"no-NO": "Liten og rask å laste ned, men mindre nøyaktig.",
+				"pl-PL": "Malutki i szybki do pobrania, ale mniej dokładny.",
+				"pt-BR": "Minúsculo e rápido de baixar, mas menos preciso.",
+				"ru-RU": "Крошечная и быстро скачивается, но менее точная.",
+				"sv-SE": "Liten och snabb att ladda ner, men mindre träffsäker.",
+				"tr-TR": "Küçük ve hızlı indirilir, ama daha az doğrudur.",
+				"vi-VN": "Rất nhỏ nên tải nhanh, nhưng kém chính xác hơn.",
+				"zh-CN": "体积小、下载快，但准确率较低。",
+				"zh-HK": "體積細、下載快，但準確度較低。"
+			}
+		},
+		{
+			"id": "whisper-large-v3-turbo-he",
+			"name": "Whisper Large v3 Turbo Hebrew",
+			"languages": [
+				"he"
+			],
+			"tags": [
+				"recommended",
+				"accurate"
+			],
+			"publisher": {
+				"name": "ivrit.ai",
+				"url": "https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml"
+			},
+			"license": "Apache-2.0",
+			"url": "https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin",
+			"size": 1624555275,
+			"sha256": "c8090411113357097bfafc2b8e228ec1639fa7f5fe4ecb5d054ac0ccef8641b1",
+			"description": {
+				"en-US": "The most accurate choice for Hebrew.",
+				"bg-BG": "Най-точният избор за иврит.",
+				"ca-AD": "L'opció més precisa per a l'hebreu.",
+				"cs-CZ": "Nejpřesnější volba pro hebrejštinu.",
+				"de-DE": "Die genaueste Wahl für Hebräisch.",
+				"es-ES": "La opción más precisa para hebreo.",
+				"es-MX": "La opción más precisa para hebreo.",
+				"fr-FR": "Le choix le plus précis pour l'hébreu.",
+				"he-IL": "הבחירה המדויקת ביותר לעברית.",
+				"hi-IN": "हिब्रू के लिए सबसे सटीक विकल्प।",
+				"it-IT": "La scelta più precisa per l'ebraico.",
+				"ja-JP": "ヘブライ語で最も高精度な選択肢。",
+				"ko-KR": "히브리어에서 가장 정확한 선택입니다.",
+				"no-NO": "Det mest nøyaktige valget for hebraisk.",
+				"pl-PL": "Najdokładniejszy wybór dla hebrajskiego.",
+				"pt-BR": "A escolha mais precisa para hebraico.",
+				"ru-RU": "Самый точный выбор для иврита.",
+				"sv-SE": "Det mest träffsäkra valet för hebreiska.",
+				"tr-TR": "İbranice için en doğru seçenek.",
+				"vi-VN": "Lựa chọn chính xác nhất cho tiếng Do Thái.",
+				"zh-CN": "希伯来语准确率最高的选择。",
+				"zh-HK": "希伯來語最準確的選擇。"
+			}
+		},
+		{
+			"id": "zipformer2-66m-streaming-he",
+			"name": "Zipformer2 66M Hebrew",
+			"languages": [
+				"he"
+			],
+			"tags": [
+				"fast",
+				"small"
+			],
+			"publisher": {
+				"name": "thewh1teagle",
+				"url": "https://huggingface.co/thewh1teagle/zipformer2-66m-streaming-he"
+			},
+			"license": "CC-BY-4.0",
+			"url": "https://huggingface.co/vibe-app/zipformer2-66m-streaming-he-gguf/resolve/main/zipformer2-66m-streaming-he-q8_0.gguf",
+			"size": 75359456,
+			"sha256": "5af82236b6b9a26150f1425b23da84acf761441859228529250f29f13373bdf4",
+			"description": {
+				"en-US": "Small and very fast; best for Hebrew-only audio.",
+				"bg-BG": "Малък и много бърз; най-добър за аудио само на иврит.",
+				"ca-AD": "Petit i molt ràpid; ideal per a àudio només en hebreu.",
+				"cs-CZ": "Malý a velmi rychlý; nejlepší pro audio pouze v hebrejštině.",
+				"de-DE": "Klein und sehr schnell; am besten für rein hebräisches Audio.",
+				"es-ES": "Pequeño y muy rápido; ideal para audio solo en hebreo.",
+				"es-MX": "Pequeño y muy rápido; ideal para audio solo en hebreo.",
+				"fr-FR": "Petit et très rapide ; idéal pour l'audio uniquement en hébreu.",
+				"he-IL": "קטן ומהיר מאוד; הכי מתאים לאודיו בעברית בלבד.",
+				"hi-IN": "छोटा और बहुत तेज़; सिर्फ़ हिब्रू ऑडियो के लिए सबसे अच्छा।",
+				"it-IT": "Piccolo e velocissimo; ideale per audio solo in ebraico.",
+				"ja-JP": "小型で非常に高速。ヘブライ語のみの音声に最適。",
+				"ko-KR": "작고 매우 빠르며, 히브리어 음성에만 가장 알맞습니다.",
+				"no-NO": "Liten og svært rask; best for lyd kun på hebraisk.",
+				"pl-PL": "Mały i bardzo szybki; najlepszy dla nagrań wyłącznie po hebrajsku.",
+				"pt-BR": "Pequeno e muito rápido; ideal para áudio somente em hebraico.",
+				"ru-RU": "Маленькая и очень быстрая; лучше всего для аудио только на иврите.",
+				"sv-SE": "Liten och mycket snabb; bäst för enbart hebreiskt tal.",
+				"tr-TR": "Küçük ve çok hızlı; yalnızca İbranice ses için en iyisi.",
+				"vi-VN": "Nhỏ và rất nhanh; tốt nhất cho âm thanh chỉ có tiếng Do Thái.",
+				"zh-CN": "体积小、速度极快；最适合纯希伯来语音频。",
+				"zh-HK": "體積細、速度極快，最適合純希伯來語音頻。"
+			},
+			"minAppVersion": "3.3.3"
+		},
+		{
+			"id": "parakeet-tdt-0.6b-v3-he",
+			"name": "Parakeet TDT 0.6B v3 Hebrew",
+			"languages": [
+				"he"
+			],
+			"tags": [
+				"fast",
+				"dictation"
+			],
+			"publisher": {
+				"name": "thewh1teagle",
+				"url": "https://huggingface.co/thewh1teagle/parakeet-tdt-0.6b-v3-he"
+			},
+			"license": "CC-BY-4.0",
+			"url": "https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-he-gguf/resolve/main/parakeet-tdt-0.6b-v3-he-q8_0.gguf",
+			"size": 758224288,
+			"sha256": "37a6787344617fd7402397cd7ec4dd4f4bda779cb3112ac571e7b3329194e8dd",
+			"minAppVersion": "3.0.22",
+			"description": {
+				"en-US": "Fast Hebrew model, well suited to dictation.",
+				"bg-BG": "Бърз модел за иврит, подходящ за диктовка.",
+				"ca-AD": "Model ràpid d'hebreu, molt adequat per al dictat.",
+				"cs-CZ": "Rychlý hebrejský model, vhodný pro diktování.",
+				"de-DE": "Schnelles Hebräisch-Modell, gut geeignet für Diktat.",
+				"es-ES": "Modelo rápido de hebreo, muy adecuado para el dictado.",
+				"es-MX": "Modelo rápido de hebreo, ideal para el dictado.",
+				"fr-FR": "Modèle hébreu rapide, bien adapté à la dictée.",
+				"he-IL": "מודל עברית מהיר, מתאים להכתבה.",
+				"hi-IN": "तेज़ हिब्रू मॉडल, डिक्टेशन के लिए उपयुक्त।",
+				"it-IT": "Modello veloce per l'ebraico, ideale per la dettatura.",
+				"ja-JP": "高速なヘブライ語モデルで、音声入力に最適。",
+				"ko-KR": "빠른 히브리어 모델로, 받아쓰기에 잘 맞습니다.",
+				"no-NO": "Rask hebraisk modell, godt egnet til diktering.",
+				"pl-PL": "Szybki model hebrajski, dobrze nadaje się do dyktowania.",
+				"pt-BR": "Modelo rápido de hebraico, ideal para ditado.",
+				"ru-RU": "Быстрая модель для иврита, хорошо подходит для диктовки.",
+				"sv-SE": "Snabb hebreisk modell, väl lämpad för diktering.",
+				"tr-TR": "Hızlı İbranice modeli, dikte için çok uygun.",
+				"vi-VN": "Mô hình tiếng Do Thái nhanh, rất phù hợp để đọc chính tả.",
+				"zh-CN": "速度快的希伯来语模型，非常适合听写。",
+				"zh-HK": "快速的希伯來語模型，適合語音輸入。"
+			}
+		},
+		{
+			"id": "nb-whisper-large",
+			"name": "NB-Whisper Large",
+			"languages": [
+				"no"
+			],
+			"tags": [
+				"recommended",
+				"accurate"
+			],
+			"publisher": {
+				"name": "National Library of Norway",
+				"url": "https://huggingface.co/NbAiLab/nb-whisper-large"
+			},
+			"license": "Apache-2.0",
+			"url": "https://huggingface.co/NbAiLab/nb-whisper-large/resolve/main/ggml-model.bin",
+			"size": 3095033483,
+			"sha256": "0f2f66f22e11a7c7da3c582d8e5c89cb2c0011753ba9c7c9731e320a4ba33e76",
+			"description": {
+				"en-US": "Trained on Norwegian speech; the most accurate for Norwegian.",
+				"bg-BG": "Обучен с норвежка реч; най-точният за норвежки.",
+				"ca-AD": "Entrenat amb parla noruega; el més precís per al noruec.",
+				"cs-CZ": "Natrénovaný na norské řeči; nejpřesnější pro norštinu.",
+				"de-DE": "Auf norwegischer Sprache trainiert; das genaueste für Norwegisch.",
+				"es-ES": "Entrenado con habla noruega; el más preciso para noruego.",
+				"es-MX": "Entrenado con voz en noruego; el más preciso para noruego.",
+				"fr-FR": "Entraîné sur de la parole norvégienne ; le plus précis pour le norvégien.",
+				"he-IL": "אומן על דיבור נורווגי; המדויק ביותר לנורווגית.",
+				"hi-IN": "नॉर्वेजियन भाषण पर प्रशिक्षित; नॉर्वेजियन के लिए सबसे सटीक।",
+				"it-IT": "Addestrato sul parlato norvegese; il più preciso per il norvegese.",
+				"ja-JP": "ノルウェー語の音声で学習。ノルウェー語で最も高精度。",
+				"ko-KR": "노르웨이어 음성으로 학습했으며, 노르웨이어에서 가장 정확합니다.",
+				"no-NO": "Trent på norsk tale; den mest nøyaktige for norsk.",
+				"pl-PL": "Wytrenowany na norweskiej mowie; najdokładniejszy dla norweskiego.",
+				"pt-BR": "Treinado com fala norueguesa; o mais preciso para norueguês.",
+				"ru-RU": "Обучена на норвежской речи; самая точная для норвежского.",
+				"sv-SE": "Tränad på norskt tal; den mest träffsäkra för norska.",
+				"tr-TR": "Norveççe konuşmayla eğitildi; Norveççe için en doğru model.",
+				"vi-VN": "Được huấn luyện trên giọng nói tiếng Na Uy; chính xác nhất cho tiếng Na Uy.",
+				"zh-CN": "基于挪威语语音训练；挪威语准确率最高。",
+				"zh-HK": "以挪威語語音訓練；挪威語最準確。"
+			}
+		},
+		{
+			"id": "nb-whisper-medium",
+			"name": "NB-Whisper Medium",
+			"languages": [
+				"no"
+			],
+			"tags": [],
+			"publisher": {
+				"name": "National Library of Norway",
+				"url": "https://huggingface.co/NbAiLab/nb-whisper-medium"
+			},
+			"license": "Apache-2.0",
+			"url": "https://huggingface.co/NbAiLab/nb-whisper-medium/resolve/main/ggml-model.bin",
+			"size": 1533763076,
+			"sha256": "f73141401d203ee77fc7ddf7bf97926a8a85fe85faa6066a6920e4815f48a73d",
+			"description": {
+				"en-US": "A smaller Norwegian model: faster, slightly less accurate.",
+				"bg-BG": "По-малък норвежки модел: по-бърз, но малко по-неточен.",
+				"ca-AD": "Un model noruec més petit: més ràpid, una mica menys precís.",
+				"cs-CZ": "Menší norský model: rychlejší, o něco méně přesný.",
+				"de-DE": "Ein kleineres Norwegisch-Modell: schneller, etwas weniger genau.",
+				"es-ES": "Un modelo noruego más pequeño: más rápido, algo menos preciso.",
+				"es-MX": "Un modelo noruego más pequeño: más rápido, algo menos preciso.",
+				"fr-FR": "Un modèle norvégien plus petit : plus rapide, un peu moins précis.",
+				"he-IL": "מודל נורווגי קטן יותר: מהיר יותר, מעט פחות מדויק.",
+				"hi-IN": "छोटा नॉर्वेजियन मॉडल: तेज़, थोड़ा कम सटीक।",
+				"it-IT": "Un modello norvegese più piccolo: più veloce, leggermente meno preciso.",
+				"ja-JP": "より小型のノルウェー語モデル: 高速ですが、精度はやや低め。",
+				"ko-KR": "더 작은 노르웨이어 모델: 더 빠르지만 정확도는 약간 떨어집니다.",
+				"no-NO": "En mindre norsk modell: raskere, litt mindre nøyaktig.",
+				"pl-PL": "Mniejszy model norweski: szybszy, nieco mniej dokładny.",
+				"pt-BR": "Um modelo norueguês menor: mais rápido, um pouco menos preciso.",
+				"ru-RU": "Модель поменьше для норвежского: быстрее, но чуть менее точная.",
+				"sv-SE": "En mindre norsk modell: snabbare, något mindre träffsäker.",
+				"tr-TR": "Daha küçük bir Norveççe model: daha hızlı, biraz daha az doğru.",
+				"vi-VN": "Mô hình tiếng Na Uy nhỏ hơn: nhanh hơn, kém chính xác một chút.",
+				"zh-CN": "较小的挪威语模型：速度更快，准确率略低。",
+				"zh-HK": "較小的挪威語模型：更快，準確度稍低。"
+			}
+		},
+		{
+			"id": "kb-whisper-large",
+			"name": "KB-Whisper Large",
+			"languages": [
+				"sv"
+			],
+			"tags": [
+				"recommended",
+				"accurate"
+			],
+			"publisher": {
+				"name": "National Library of Sweden",
+				"url": "https://huggingface.co/KBLab/kb-whisper-large"
+			},
+			"license": "Apache-2.0",
+			"url": "https://huggingface.co/KBLab/kb-whisper-large/resolve/main/ggml-model.bin",
+			"size": 3095033483,
+			"sha256": "b66f2dda369a88f6c03fe37326d7cc37aa216f6f34e6fc1be686e497ba9c2f39",
+			"description": {
+				"en-US": "Trained on Swedish speech; the most accurate for Swedish.",
+				"bg-BG": "Обучен с шведска реч; най-точният за шведски.",
+				"ca-AD": "Entrenat amb parla sueca; el més precís per al suec.",
+				"cs-CZ": "Natrénovaný na švédské řeči; nejpřesnější pro švédštinu.",
+				"de-DE": "Auf schwedischer Sprache trainiert; das genaueste für Schwedisch.",
+				"es-ES": "Entrenado con habla sueca; el más preciso para sueco.",
+				"es-MX": "Entrenado con voz en sueco; el más preciso para sueco.",
+				"fr-FR": "Entraîné sur de la parole suédoise ; le plus précis pour le suédois.",
+				"he-IL": "אומן על דיבור שוודי; המדויק ביותר לשוודית.",
+				"hi-IN": "स्वीडिश भाषण पर प्रशिक्षित; स्वीडिश के लिए सबसे सटीक।",
+				"it-IT": "Addestrato sul parlato svedese; il più preciso per lo svedese.",
+				"ja-JP": "スウェーデン語の音声で学習。スウェーデン語で最も高精度。",
+				"ko-KR": "스웨덴어 음성으로 학습했으며, 스웨덴어에서 가장 정확합니다.",
+				"no-NO": "Trent på svensk tale; den mest nøyaktige for svensk.",
+				"pl-PL": "Wytrenowany na szwedzkiej mowie; najdokładniejszy dla szwedzkiego.",
+				"pt-BR": "Treinado com fala sueca; o mais preciso para sueco.",
+				"ru-RU": "Обучена на шведской речи; самая точная для шведского.",
+				"sv-SE": "Tränad på svenskt tal; den mest träffsäkra för svenska.",
+				"tr-TR": "İsveççe konuşmayla eğitildi; İsveççe için en doğru model.",
+				"vi-VN": "Được huấn luyện trên giọng nói tiếng Thụy Điển; chính xác nhất cho tiếng Thụy Điển.",
+				"zh-CN": "基于瑞典语语音训练；瑞典语准确率最高。",
+				"zh-HK": "以瑞典語語音訓練；瑞典語最準確。"
+			}
+		},
+		{
+			"id": "kb-whisper-medium",
+			"name": "KB-Whisper Medium",
+			"languages": [
+				"sv"
+			],
+			"tags": [],
+			"publisher": {
+				"name": "National Library of Sweden",
+				"url": "https://huggingface.co/KBLab/kb-whisper-medium"
+			},
+			"license": "Apache-2.0",
+			"url": "https://huggingface.co/KBLab/kb-whisper-medium/resolve/main/ggml-model.bin",
+			"size": 1533763076,
+			"sha256": "1b7842bc1c3f79fb3bf043a0a3590961d625a49ef3ccbdceb00e738c5dd8b015",
+			"description": {
+				"en-US": "A smaller Swedish model: faster, slightly less accurate.",
+				"bg-BG": "По-малък шведски модел: по-бърз, но малко по-неточен.",
+				"ca-AD": "Un model suec més petit: més ràpid, una mica menys precís.",
+				"cs-CZ": "Menší švédský model: rychlejší, o něco méně přesný.",
+				"de-DE": "Ein kleineres Schwedisch-Modell: schneller, etwas weniger genau.",
+				"es-ES": "Un modelo sueco más pequeño: más rápido, algo menos preciso.",
+				"es-MX": "Un modelo sueco más pequeño: más rápido, algo menos preciso.",
+				"fr-FR": "Un modèle suédois plus petit : plus rapide, un peu moins précis.",
+				"he-IL": "מודל שוודי קטן יותר: מהיר יותר, מעט פחות מדויק.",
+				"hi-IN": "छोटा स्वीडिश मॉडल: तेज़, थोड़ा कम सटीक।",
+				"it-IT": "Un modello svedese più piccolo: più veloce, leggermente meno preciso.",
+				"ja-JP": "より小型のスウェーデン語モデル: 高速ですが、精度はやや低め。",
+				"ko-KR": "더 작은 스웨덴어 모델: 더 빠르지만 정확도는 약간 떨어집니다.",
+				"no-NO": "En mindre svensk modell: raskere, litt mindre nøyaktig.",
+				"pl-PL": "Mniejszy model szwedzki: szybszy, nieco mniej dokładny.",
+				"pt-BR": "Um modelo sueco menor: mais rápido, um pouco menos preciso.",
+				"ru-RU": "Модель поменьше для шведского: быстрее, но чуть менее точная.",
+				"sv-SE": "En mindre svensk modell: snabbare, något mindre träffsäker.",
+				"tr-TR": "Daha küçük bir İsveççe model: daha hızlı, biraz daha az doğru.",
+				"vi-VN": "Mô hình tiếng Thụy Điển nhỏ hơn: nhanh hơn, kém chính xác một chút.",
+				"zh-CN": "较小的瑞典语模型：速度更快，准确率略低。",
+				"zh-HK": "較小的瑞典語模型：更快，準確度稍低。"
+			}
+		},
+		{
+			"id": "parakeet-tdt-0.6b-v3",
+			"name": "Parakeet TDT 0.6B v3",
+			"languages": [
+				"en",
+				"es",
+				"fr",
+				"de",
+				"bg",
+				"hr",
+				"cs",
+				"da",
+				"nl",
+				"et",
+				"fi",
+				"el",
+				"hu",
+				"it",
+				"lv",
+				"lt",
+				"mt",
+				"pl",
+				"pt",
+				"ro",
+				"sk",
+				"sl",
+				"sv",
+				"ru",
+				"uk"
+			],
+			"tags": [
+				"fast",
+				"dictation"
+			],
+			"publisher": {
+				"name": "NVIDIA",
+				"url": "https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3"
+			},
+			"license": "CC-BY-4.0",
+			"url": "https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf",
+			"size": 485425536,
+			"sha256": "5c61c041314d87ef1ffc278f5fb1a8ea25cceb8ce6053f8b516bab7ba16d7508",
+			"minAppVersion": "3.0.22",
+			"description": {
+				"en-US": "Very fast, for 25 European languages.",
+				"bg-BG": "Много бърз, за 25 европейски езика.",
+				"ca-AD": "Molt ràpid, per a 25 llengües europees.",
+				"cs-CZ": "Velmi rychlý, pro 25 evropských jazyků.",
+				"de-DE": "Sehr schnell, für 25 europäische Sprachen.",
+				"es-ES": "Muy rápido, para 25 idiomas europeos.",
+				"es-MX": "Muy rápido, para 25 idiomas europeos.",
+				"fr-FR": "Très rapide, pour 25 langues européennes.",
+				"he-IL": "מהיר מאוד, ל-25 שפות אירופיות.",
+				"hi-IN": "बहुत तेज़, 25 यूरोपीय भाषाओं के लिए।",
+				"it-IT": "Velocissimo, per 25 lingue europee.",
+				"ja-JP": "非常に高速。ヨーロッパ25言語に対応。",
+				"ko-KR": "매우 빠르며, 유럽 25개 언어를 지원합니다.",
+				"no-NO": "Svært rask, for 25 europeiske språk.",
+				"pl-PL": "Bardzo szybki, dla 25 języków europejskich.",
+				"pt-BR": "Muito rápido, para 25 idiomas europeus.",
+				"ru-RU": "Очень быстрая, для 25 европейских языков.",
+				"sv-SE": "Mycket snabb, för 25 europeiska språk.",
+				"tr-TR": "Çok hızlı, 25 Avrupa dili için.",
+				"vi-VN": "Rất nhanh, dành cho 25 ngôn ngữ châu Âu.",
+				"zh-CN": "速度极快，支持 25 种欧洲语言。",
+				"zh-HK": "速度極快，支援 25 種歐洲語言。"
+			}
+		},
+		{
+			"id": "nemotron-3.5-asr-streaming-0.6b",
+			"name": "Nemotron 3.5 ASR Streaming 0.6B",
+			"languages": [
+				"en",
+				"es",
+				"de",
+				"fr",
+				"it",
+				"ar",
+				"ja",
+				"ko",
+				"pt",
+				"ru",
+				"hi",
+				"zh",
+				"vi",
+				"he",
+				"nl",
+				"cs",
+				"da",
+				"pl",
+				"no",
+				"sv",
+				"th",
+				"tr",
+				"bg",
+				"el",
+				"et",
+				"fi",
+				"hr",
+				"hu",
+				"lt",
+				"lv",
+				"ro",
+				"sk",
+				"uk",
+				"mt",
+				"sl"
+			],
+			"tags": [
+				"fast",
+				"dictation"
+			],
+			"publisher": {
+				"name": "NVIDIA",
+				"url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
+			},
+			"license": "OpenMDW-1.1",
+			"url": "https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf",
+			"size": 495831520,
+			"sha256": "41c99fa5fb6f3d35f68e79adc3e755eca2232a8d921178bd647b71194792b8fd",
+			"minAppVersion": "3.0.22",
+			"description": {
+				"en-US": "Streaming model for 35 languages; good for dictation.",
+				"bg-BG": "Поточен модел за 35 езика; добър за диктовка.",
+				"ca-AD": "Model en streaming per a 35 llengües; bo per al dictat.",
+				"cs-CZ": "Streamovací model pro 35 jazyků; dobrý pro diktování.",
+				"de-DE": "Streaming-Modell für 35 Sprachen; gut für Diktat.",
+				"es-ES": "Modelo de streaming para 35 idiomas; bueno para el dictado.",
+				"es-MX": "Modelo de transmisión para 35 idiomas; bueno para el dictado.",
+				"fr-FR": "Modèle en streaming pour 35 langues ; idéal pour la dictée.",
+				"he-IL": "מודל סטרימינג ל-35 שפות; טוב להכתבה.",
+				"hi-IN": "35 भाषाओं के लिए स्ट्रीमिंग मॉडल; डिक्टेशन के लिए अच्छा।",
+				"it-IT": "Modello in streaming per 35 lingue; ottimo per la dettatura.",
+				"ja-JP": "35言語対応のストリーミングモデル。音声入力に向いています。",
+				"ko-KR": "35개 언어를 지원하는 스트리밍 모델로, 받아쓰기에 좋습니다.",
+				"no-NO": "Strømmemodell for 35 språk; god til diktering.",
+				"pl-PL": "Model strumieniowy dla 35 języków; dobry do dyktowania.",
+				"pt-BR": "Modelo de streaming para 35 idiomas; bom para ditado.",
+				"ru-RU": "Потоковая модель для 35 языков; хороша для диктовки.",
+				"sv-SE": "Streamingmodell för 35 språk; bra för diktering.",
+				"tr-TR": "35 dil için akışlı model; dikte için iyi.",
+				"vi-VN": "Mô hình streaming cho 35 ngôn ngữ; phù hợp để đọc chính tả.",
+				"zh-CN": "支持 35 种语言的流式模型；适合听写。",
+				"zh-HK": "支援 35 種語言的串流模型；適合語音輸入。"
+			}
+		}
+	]
+}

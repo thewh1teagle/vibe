@@ -1,83 +1,8 @@
-<!-- source: 5d152baedb46 -->
+<!-- source: 9ffa119e9212 -->
 
 # 🌟 Modely Vibe 🌟
 
-Vítejte na stránce Modely Vibe! Najdete zde pečlivě vybraný seznam doporučených modelů pro použití s Vibe. Model nainstalujete pomocí odkazu „Magic Setup“, který jej otevře přímo ve Vibe, nebo zkopírováním a vložením přímého odkazu ke stažení do nastavení Vibe.
-
-## Dostupné modely
-
-### 🌱 Model Tiny
-
-Kompaktní a efektivní verze, vhodná pro rychlé úkoly a prostředí s omezenými zdroji.
-
-[👉 Rychlé nastavení](https://shorturl.at/XSP9R)  
-[🔽 Přímé stažení](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
-
-### 🚀 Large v3 Turbo (Doporučeno)
-
-[👉 Rychlé nastavení](https://tinyurl.com/yphwban5)  
-[🔽 Přímé stažení](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
-
-### 🦜 Parakeet TDT 0.6B v3
-
-Podporuje streamování a nejlépe se hodí pro diktování.
-
-[👉 Zobrazit model](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
-[🔽 Stáhnout Q4_K_M](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf?download=true)
-
-### ⚡ Nemotron 3.5 ASR Streaming 0.6B
-
-Podporuje streamování a nejlépe se hodí pro diktování.
-
-[👉 Zobrazit model](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
-[🔽 Stáhnout Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
-
-### Modely optimalizované pro jiné jazyky
-
-<details>
-<summary>✡️ Hebrejština (Ivrit)</summary>
-
-Specializovaný na hebrejská (ivrit) jazyková data, optimalizovaný pro vysokou rychlost a přesnost při hebrejských úlohách.
-
-[👉 Rychlé nastavení (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
-[🔽 Přímé stažení (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
-
-</details>
-
-<details>
-<summary>🇳🇴 Norština</summary>
-	
-Optimalizováno pro norštinu laboratoří [AI Lab Norské národní knihovny](https://huggingface.co/NbAiLab).
-
-[👉 Rychlé nastavení (medium)](https://tinyurl.com/5wzb9ux8)  
-[🔽 Přímé stažení (medium)](https://huggingface.co/NbAiLab/nb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Rychlé nastavení (large)](https://tinyurl.com/f228efbu)  
-[🔽 Přímé stažení (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-Další modely menších velikostí jsou k dispozici na [jejich stránce ke stažení na huggingface](https://huggingface.co/NbAiLab/nb-whisper-large).  
-Najděte velikost, kterou chcete, stáhněte soubor _ggml-model.bin_, přejmenujte jej a umístěte do složky s modely ve Vibe.
-
-</details>
-
-<details>
-<summary>🇸🇪 Švédština</summary>
-
-Optimalizováno pro švédštinu laboratoří [Data Lab Švédské národní knihovny](https://huggingface.co/KBLab).
-
-[👉 Rychlé nastavení (medium)](https://tinyurl.com/ynawnc33)  
-[🔽 Přímé stažení (medium)](https://huggingface.co/KBLab/kb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Rychlé nastavení (large v3)](https://tinyurl.com/46dvpeky)  
-[🔽 Přímé stažení (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-Další modely menších velikostí jsou k dispozici na [jejich stránce ke stažení na huggingface](https://huggingface.co/KBLab/kb-whisper-large).  
-Najděte velikost, kterou chcete, stáhněte soubor _ggml-model.bin_, přejmenujte jej a umístěte do složky s modely ve Vibe.
-
-</details>
-</details>
-
-Užijte si objevování těchto modelů a vylepšete si svůj Vibe! 🌐✨
+Modely, které Vibe doporučuje, najdete nově na [stránce Modely](/vibe/models). Vyberte tam jazyk svých nahrávek a poté pomocí „Otevřít ve Vibe“ nainstalujte model jedním kliknutím, nebo pomocí „Kopírovat odkaz“ vložte jeho odkaz ke stažení do nastavení Vibe.
 
 ### Chcete více?
 
