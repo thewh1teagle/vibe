@@ -13,6 +13,7 @@
 
     uv run convert_to_gguf.py thewh1teagle/zipformer2-66m-streaming-he out-f32.gguf
     uv run convert_to_gguf.py /path/to/repo_dir out-q8_0.gguf --quantize q8_0
+    uv run convert_to_gguf.py neurlang/zipformer2-66m-streaming-sk out.gguf --quantize q8_0 --language sk
     uv run convert_to_gguf.py --verify out-f32.gguf /path/to/repo_dir
 
 Source: a directory (or HF repo id) holding `model.pt`, a dict with
@@ -200,10 +201,10 @@ def tokenizer_payload(proto: bytes, cfg: dict) -> dict:
     }
 
 
-def write_metadata(w, cfg: dict, tok: dict, repo_id: str | None, n_params: int, file_type) -> None:
+def write_metadata(w, cfg: dict, tok: dict, repo_id: str | None, n_params: int, file_type, language: str, name: str, variant: str) -> None:
     dims = ints(cfg["encoder_dim"])
     n = len(dims)
-    w.add_string("general.name", "Zipformer2 66M streaming Hebrew")
+    w.add_string("general.name", name)
     w.add_string("general.basename", "zipformer2-streaming")
     w.add_string("general.size_label", f"{n_params // 1_000_000}M")
     w.add_string("general.license", "cc-by-4.0")
@@ -211,8 +212,8 @@ def write_metadata(w, cfg: dict, tok: dict, repo_id: str | None, n_params: int, 
         w.add_string("general.repo_url", f"https://huggingface.co/{repo_id}")
     w.add_string("general.source.url", "https://github.com/k2-fsa/icefall")
     w.add_uint32("general.file_type", int(file_type))
-    w.add_array("general.languages", ["he"])
-    w.add_string("stt.variant", "zipformer2-66m-streaming-he")
+    w.add_array("general.languages", [language])
+    w.add_string("stt.variant", variant)
     w.add_bool("stt.capability.streaming", bool(cfg["causal"]))
     w.add_string(f"{PREFIX}.head_kind", "transducer")
 
@@ -291,7 +292,7 @@ def write_metadata(w, cfg: dict, tok: dict, repo_id: str | None, n_params: int, 
     w.add_array("tokenizer.ggml.token_type", tok["types"])
 
 
-def convert(src_spec: str, out_path: Path, quantize: str) -> None:
+def convert(src_spec: str, out_path: Path, quantize: str, language: str, name: str | None, variant: str | None) -> None:
     import gguf
     from gguf import GGMLQuantizationType, LlamaFileType
     from gguf.quants import quantize as gguf_quantize
@@ -307,7 +308,8 @@ def convert(src_spec: str, out_path: Path, quantize: str) -> None:
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     w = gguf.GGUFWriter(str(out_path), ARCH)
-    write_metadata(w, cfg, tok, repo_id, n_params, file_type)
+    variant = variant or (repo_id.split("/")[-1] if repo_id else out_path.stem)
+    write_metadata(w, cfg, tok, repo_id, n_params, file_type, language, name or variant, variant)
 
     counts: dict[str, int] = {}
     seen: set[str] = set()
@@ -388,11 +390,14 @@ def main(argv: list[str]) -> int:
     ap.add_argument("source", help="HF repo id or directory with model.pt (with --verify: the .gguf)")
     ap.add_argument("out_path", help="output .gguf (with --verify: the source repo id / directory)")
     ap.add_argument("--quantize", choices=["f32", "q8_0"], default="f32")
+    ap.add_argument("--language", default="he", help="ISO 639-1 code of the language the model transcribes")
+    ap.add_argument("--name", help="general.name; defaults to the variant")
+    ap.add_argument("--variant", help="stt.variant; defaults to the repo name")
     ap.add_argument("--verify", action="store_true", help="read a GGUF back and compare it with the checkpoint")
     args = ap.parse_args(argv[1:])
     if args.verify:
         return verify(Path(args.source), args.out_path)
-    convert(args.source, Path(args.out_path), args.quantize)
+    convert(args.source, Path(args.out_path), args.quantize, args.language, args.name, args.variant)
     return 0
 
 
