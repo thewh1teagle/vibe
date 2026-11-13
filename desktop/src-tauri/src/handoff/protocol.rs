@@ -350,6 +350,21 @@ mod tests {
     }
 
     #[test]
+    fn the_phone_segment_event_carries_no_words() {
+        let event = serde_json::to_value(HandoffEvent::Segment {
+            start: 120,
+            stop: 350,
+            text: "hello there".to_string(),
+            speaker: None,
+        })
+        .unwrap();
+        assert!(event.get("words").is_none());
+        assert_eq!(event["start"], 120);
+        assert_eq!(event["stop"], 350);
+        assert_eq!(event["text"], "hello there");
+    }
+
+    #[test]
     fn transcribe_header_carries_lang_and_translate() {
         let header: HandoffHeader = serde_json::from_str(
             r#"{"token":"0123456789abcdef0123456789abcdef","filename":"recording.m4a","mime":"audio/mp4","lang":"he","translate":true}"#,
@@ -376,6 +391,7 @@ mod tests {
                 stop: 350,
                 text: "hello there".to_string(),
                 speaker: None,
+                words: None,
             }],
             language: Some("he".to_string()),
             model_path: Some("/models/ggml-medium.bin".to_string()),
@@ -390,6 +406,7 @@ mod tests {
         assert_eq!(parsed["segments"][0]["start"], 120);
         assert_eq!(parsed["segments"][0]["stop"], 350);
         assert_eq!(parsed["segments"][0]["text"], "hello there");
+        assert!(parsed["segments"][0].get("words").is_none());
     }
 
     #[test]

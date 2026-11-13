@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip
 import { cn } from '~/lib/style'
 import type { TextFormat } from '~/components/format-select'
 import type { Job } from '../hooks/use-transcribe-queue'
+import type { LinesMode } from '~/lib/transcript-grouping'
 import type { TranscriptTab, TranscriptTextSize, TranscriptViewOptions } from '../hooks/use-transcript-view'
 import { useTranscriptExport } from '../hooks/use-transcript-export'
 import TranscriptExportDialog from './transcript-export-dialog'
@@ -22,6 +23,12 @@ const TEXT_SIZES: { value: TranscriptTextSize; label: () => string }[] = [
 	{ value: 'sm', label: () => m.textSizeSmall() },
 	{ value: 'md', label: () => m.textSizeMedium() },
 	{ value: 'lg', label: () => m.textSizeLarge() },
+]
+
+const LINES: { value: LinesMode; label: () => string }[] = [
+	{ value: 'original', label: () => m.linesOriginal() },
+	{ value: 'sentences', label: () => m.linesSentences() },
+	{ value: 'paragraphs', label: () => m.linesParagraphs() },
 ]
 
 /** Reading controls for the transcript: type scale, timestamps, speaker labels. */
@@ -41,9 +48,27 @@ function ViewOptions({ options }: { options: TranscriptViewOptions }) {
 				</TooltipTrigger>
 				<TooltipContent>{m.viewOptions()}</TooltipContent>
 			</Tooltip>
-			<PopoverContent align="end" className="w-64 rounded-2xl p-4">
+			<PopoverContent align="end" className="w-72 rounded-2xl p-4">
 				<p className="mb-2 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{m.viewOptions()}</p>
 				<div className="space-y-3">
+					<div className="space-y-1.5">
+						<span className="text-sm text-foreground">{m.linesLayout()}</span>
+						<div className="inline-flex w-full items-center gap-1 rounded-full border border-border bg-muted/50 p-1">
+							{LINES.map((lines) => (
+								<button
+									key={lines.value}
+									type="button"
+									aria-pressed={options.lines === lines.value}
+									onClick={() => options.setLines(lines.value)}
+									className={cn(
+										'flex-1 cursor-pointer rounded-full py-1 text-[12px] font-medium transition-colors duration-150',
+										options.lines === lines.value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+									)}>
+									{lines.label()}
+								</button>
+							))}
+						</div>
+					</div>
 					<div className="space-y-1.5">
 						<span className="text-sm text-foreground">{m.textSize()}</span>
 						<div className="inline-flex w-full items-center gap-1 rounded-full border border-border bg-muted/50 p-1">

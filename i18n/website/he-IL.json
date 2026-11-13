@@ -71,6 +71,8 @@
 	"changelogImproved": "שופר",
 	"changelogFixed": "תוקן",
 	"changelogAll": "כל הגרסאות",
+	"changelogBeta": "בטא",
+	"changelogBetaHint": "כרגע בערוץ הבטא. כדי לקבל אותה, הפעילו את הגדרות → כללי → עדכוני בטא באפליקציה.",
 	"changelogUnknownVersion": "אין גרסה {version}.",
 	"download-for-mac": "הורדה ל-macOS",
 	"which-mac": "בחרו את הגרסה למחשב ה-Mac שלכם. לא בטוחים? תפריט Apple → אודות ה-Mac הזה מציג את השבב.",

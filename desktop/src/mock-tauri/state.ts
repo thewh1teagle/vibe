@@ -49,6 +49,47 @@ seedProject('podcast-episode', '20260818-174200', [
 	'Thanks for listening, see you next week.',
 ])
 
+// A long two-speaker recording cut the way engines cut them: blocks first, then a line per sentence.
+const interview: [number, number, number, string][] = [
+	[200, 1650, 0, 'Thanks for making the time today. I wanted to start with how the project began, because that explains most of what came later. Can you walk me through the first few months?'],
+	[1730, 3550, 1, 'Sure. We started in March with three people and no budget to speak of. The first version took about 3.5 weeks, and it was held together with tape. But people used it, which surprised all of us.'],
+	[3810, 4180, 1, 'The second thing I should mention is the funding.'],
+	[4210, 4590, 1, 'Dr. Levi introduced us to the lab in June.'],
+	[4610, 4840, 1, 'That changed the pace completely.'],
+	[4930, 5200, 0, 'How did the team react to that?'],
+	[5270, 5400, 1, 'Mixed, at first.'],
+	[5430, 5680, 1, 'Some of us wanted to stay small.'],
+	[5700, 6010, 1, 'Others saw it as the only way to finish.'],
+	[6040, 6390, 1, 'In the end we voted, and it was close.'],
+	[6480, 6790, 0, 'And looking back, was it the right call?'],
+	[6850, 7020, 1, 'I think so.'],
+	[7050, 7480, 1, 'We would not have reached the second release'],
+	[7480, 7800, 1, 'without the extra people.'],
+	[7830, 8260, 1, 'It cost us some of the early speed, though.'],
+	[8560, 8990, 1, 'One more thing about that period.'],
+	[9020, 9530, 1, 'We wrote almost nothing down, and we paid for it later.'],
+	[9610, 9900, 0, 'What would you do differently?'],
+	[9960, 10350, 1, 'Write the decisions down the day we make them.'],
+	[10380, 10700, 1, 'That is really the whole lesson.'],
+]
+{
+	const folder = `${DOCUMENTS_FOLDER}/Vibe/interview-90min-20260822-141000`
+	virtualFs.set(
+		`${folder}/transcript.vibe.json`,
+		JSON.stringify({
+			version: 1,
+			name: 'interview-90min',
+			sourcePath: `${DOCUMENTS_FOLDER}/interview-90min.mp3`,
+			createdAt: new Date().toISOString(),
+			language: 'english',
+			modelPath: `${MODELS_FOLDER}/${DEFAULT_MODEL_FILE}`,
+			audioFile: 'audio.mp3',
+			segments: interview.map(([start, stop, speaker, text]) => ({ start, stop, speaker, text })),
+		}),
+	)
+	virtualFs.set(`${folder}/audio.mp3`, null)
+}
+
 // One save in the pre-project-folder layout, so the mock keeps exercising back-compat.
 virtualFs.set(
 	`${DOCUMENTS_FOLDER}/Vibe/legacy-interview-20260810-101500.vibe.json`,

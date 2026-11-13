@@ -71,6 +71,8 @@
 	"changelogImproved": "Forbedret",
 	"changelogFixed": "Rettet",
 	"changelogAll": "Alle utgivelser",
+	"changelogBeta": "Beta",
+	"changelogBetaHint": "Foreløpig bare på betakanalen. Slå på Innstillinger → generelt → Betaoppdateringer i appen for å få den.",
 	"changelogUnknownVersion": "Det finnes ingen utgivelse {version}.",
 	"download-for-mac": "Last ned for macOS",
 	"which-mac": "Velg versjonen for din Mac. Usikker? Apple-menyen → Om denne Macen viser brikken.",

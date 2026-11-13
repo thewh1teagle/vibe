@@ -125,17 +125,7 @@ pub(super) fn stream_transcription(
                 on_segment: Some(Box::new(move |segment| {
                     // One event per speaker run, so a segment spanning speakers arrives split.
                     for turn in speakers::attribute(&segment, &segment_diar_segments) {
-                        let mut event = serde_json::json!({
-                            "type": "segment",
-                            "start": format::cs_to_seconds(turn.start),
-                            "end": format::cs_to_seconds(turn.end),
-                            "text": turn.text,
-                            "no_speech_prob": turn.no_speech_prob,
-                        });
-                        if let Some(speaker) = turn.speaker {
-                            event["speaker"] = serde_json::json!(speaker);
-                        }
-                        if send_event(&segment_tx, event).is_err() {
+                        if send_event(&segment_tx, segment_event(turn)).is_err() {
                             abort_for_segment.store(true, Ordering::SeqCst);
                             return;
                         }
@@ -187,6 +177,25 @@ pub(super) fn stream_transcription(
         .into_response())
 }
 
+/// The `segment` event of one speaker run. `speaker` and `words` are left out
+/// rather than sent empty, so a client that predates them reads the same event.
+fn segment_event(turn: speakers::Turn) -> serde_json::Value {
+    let mut event = serde_json::json!({
+        "type": "segment",
+        "start": format::cs_to_seconds(turn.start),
+        "end": format::cs_to_seconds(turn.end),
+        "text": turn.text,
+        "no_speech_prob": turn.no_speech_prob,
+    });
+    if let Some(speaker) = turn.speaker {
+        event["speaker"] = serde_json::json!(speaker);
+    }
+    if !turn.words.is_empty() {
+        event["words"] = serde_json::json!(format::verbose_words(turn.words));
+    }
+    event
+}
+
 fn send_stage(
     tx: &tokio::sync::mpsc::UnboundedSender<Result<bytes::Bytes, std::convert::Infallible>>,
     stage: &str,
@@ -201,4 +210,62 @@ fn send_event(
     let mut line = serde_json::to_vec(&value).map_err(|_| ())?;
     line.push(b'\n');
     tx.send(Ok(bytes::Bytes::from(line))).map_err(|_| ())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use whisper_rs::Word;
+
+    fn turn(words: Vec<Word>) -> speakers::Turn {
+        speakers::Turn {
+            start: 120,
+            end: 250,
+            text: "Hello world.".into(),
+            speaker: Some(1),
+            no_speech_prob: 0.0,
+            words,
+        }
+    }
+
+    #[test]
+    fn a_segment_event_carries_its_words_in_seconds() {
+        let event = segment_event(turn(vec![
+            Word {
+                start: 120,
+                end: 170,
+                text: " Hello".into(),
+            },
+            Word {
+                start: 180,
+                end: 250,
+                text: " world.".into(),
+            },
+        ]));
+        assert_eq!(
+            event,
+            serde_json::json!({
+                "type": "segment",
+                "start": 1.2,
+                "end": 2.5,
+                "text": "Hello world.",
+                "no_speech_prob": 0.0,
+                "speaker": 1,
+                "words": [
+                    { "start": 1.2, "end": 1.7, "text": " Hello" },
+                    { "start": 1.8, "end": 2.5, "text": " world." },
+                ],
+            })
+        );
+    }
+
+    #[test]
+    fn a_segment_event_without_words_omits_the_field() {
+        let mut turn = turn(Vec::new());
+        turn.speaker = None;
+        let event = segment_event(turn);
+        assert!(event.get("words").is_none());
+        assert!(event.get("speaker").is_none());
+        assert_eq!(event["text"], "Hello world.");
+    }
 }

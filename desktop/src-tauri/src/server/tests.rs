@@ -28,6 +28,41 @@ async fn decodes_events_across_arbitrary_chunk_boundaries() {
     }
 }
 
+#[test]
+fn a_segment_line_parses_with_and_without_words() {
+    // An older server sends no `words` at all.
+    let old = r#"{"type":"segment","start":0.0,"end":1.5,"text":"hello","no_speech_prob":0.1}"#;
+    let Ok(ServerEvent::Segment { words, speaker, .. }) = serde_json::from_str(old) else {
+        panic!("segment without words did not parse");
+    };
+    assert!(words.is_none());
+    assert!(speaker.is_none());
+
+    let new = concat!(
+        r#"{"type":"segment","start":1.2,"end":2.5,"text":"Hello world.","no_speech_prob":0.0,"speaker":1,"#,
+        r#""words":[{"start":1.2,"end":1.7,"text":" Hello"},{"start":1.8,"end":2.5,"text":" world."}]}"#,
+    );
+    let Ok(ServerEvent::Segment { words, speaker, .. }) = serde_json::from_str(new) else {
+        panic!("segment with words did not parse");
+    };
+    assert_eq!(speaker, Some(1));
+    assert_eq!(
+        words.unwrap(),
+        [
+            super::ServerWord {
+                start: 1.2,
+                end: 1.7,
+                text: " Hello".into(),
+            },
+            super::ServerWord {
+                start: 1.8,
+                end: 2.5,
+                text: " world.".into(),
+            },
+        ]
+    );
+}
+
 #[tokio::test]
 async fn reports_invalid_json_instead_of_dropping_it() {
     let chunks = stream::iter([Ok::<_, std::io::Error>(Bytes::from_static(b"not json\n"))]);

@@ -1,5 +1,6 @@
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
+import type { LinesMode } from '~/lib/transcript-grouping'
 
 export type TranscriptTextSize = 'sm' | 'md' | 'lg'
 
@@ -13,6 +14,8 @@ export interface TranscriptViewOptions {
 	setShowTimestamps: (value: boolean) => void
 	showSpeakers: boolean
 	setShowSpeakers: (value: boolean) => void
+	lines: LinesMode
+	setLines: (lines: LinesMode) => void
 }
 
 /** Reading preferences for the transcript page — they belong to the view, not to a transcription run. */
@@ -20,7 +23,8 @@ export function useTranscriptViewOptions(): TranscriptViewOptions {
 	const [textSize, setTextSize] = usePersisted<TranscriptTextSize>(CONFIG_KEYS.textSize, 'md')
 	const [showTimestamps, setShowTimestamps] = usePersisted<boolean>(CONFIG_KEYS.showTimestamps, true)
 	const [showSpeakers, setShowSpeakers] = usePersisted<boolean>(CONFIG_KEYS.showSpeakers, true)
-	return { textSize, setTextSize, showTimestamps, setShowTimestamps, showSpeakers, setShowSpeakers }
+	const [lines, setLines] = usePersisted<LinesMode>(CONFIG_KEYS.transcriptLines, 'original')
+	return { textSize, setTextSize, showTimestamps, setShowTimestamps, showSpeakers, setShowSpeakers, lines, setLines }
 }
 
 /** Type scale for the transcript body; the editor reuses it so swapping one for the other is invisible. */

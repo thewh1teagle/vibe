@@ -9,7 +9,7 @@ pub struct ReadOptions {
 }
 
 pub fn read_file_with_options(path: impl AsRef<Path>, options: ReadOptions) -> anyhow::Result<Vec<f32>> {
-    let mut file = std::fs::File::open(path)?;
+    let mut file = std::io::BufReader::with_capacity(1 << 20, std::fs::File::open(path)?);
     read_with_options(&mut file, options)
 }
 
@@ -32,7 +32,9 @@ pub fn read_with_options<R: Read + Seek>(reader: &mut R, options: ReadOptions) -
 
     let output_path = PathBuf::from(format!("{}.wav", input.path().display()));
     convert_to_native_wav(input.path(), &output_path, options)?;
-    let mut output = std::fs::File::open(&output_path)?;
+    // Buffered: the WAV reader pulls one sample at a time, and on a bare file that is a system
+    // call per sample, tens of millions of them for an hour of audio.
+    let mut output = std::io::BufReader::with_capacity(1 << 20, std::fs::File::open(&output_path)?);
     let samples = try_read_native_wav(&mut output)?;
     let _ = std::fs::remove_file(output_path);
     Ok(samples)

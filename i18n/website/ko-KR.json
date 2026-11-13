@@ -71,6 +71,8 @@
 	"changelogImproved": "개선",
 	"changelogFixed": "수정",
 	"changelogAll": "모든 릴리스",
+	"changelogBeta": "베타",
+	"changelogBetaHint": "지금은 베타 채널에서만 받을 수 있습니다. 받으려면 앱에서 설정 → 일반 → 베타 업데이트를 켜세요.",
 	"changelogUnknownVersion": "{version} 릴리스가 없습니다.",
 	"download-for-mac": "macOS용 다운로드",
 	"which-mac": "내 Mac에 맞는 빌드를 선택하세요. 잘 모르겠다면 Apple 메뉴 → 이 Mac에 관하여 에서 칩을 확인할 수 있습니다.",

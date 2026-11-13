@@ -115,9 +115,17 @@ function runTranscribe(
 		}
 
 		const diarize = typeof options.diarize_model === 'string' && options.diarize_model.length > 0
-		const segments: Segment[] = sampleSegments.map((segment, index) =>
-			diarize ? { ...segment, speaker: index % 2 } : { start: segment.start, stop: segment.stop, text: segment.text },
-		)
+		// The real engines time every word; share each line's time out evenly so the mock carries them too.
+		const segments: Segment[] = sampleSegments.map((segment, index) => {
+			const texts = segment.text.split(' ')
+			const step = (segment.stop - segment.start) / texts.length
+			const words = texts.map((text, at) => ({
+				start: Math.round(segment.start + step * at),
+				stop: Math.round(segment.start + step * (at + 1)),
+				text: at === 0 ? text : ` ${text}`,
+			}))
+			return { start: segment.start, stop: segment.stop, text: segment.text, words, ...(diarize ? { speaker: index % 2 } : {}) }
+		})
 
 		const startedAt = Date.now()
 		let timer: ReturnType<typeof setInterval> | null = null

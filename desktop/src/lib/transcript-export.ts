@@ -1,5 +1,6 @@
 import type { TextFormat } from '~/components/format-select'
 import { formatTimestamp, speakerName, type Segment, type SpeakerNames } from '~/lib/transcript'
+import { linesForExport, type LinesMode } from '~/lib/transcript-grouping'
 
 export type TranscriptExportContent = 'transcript' | 'summary' | 'both'
 
@@ -13,6 +14,14 @@ export interface TranscriptExportOptions {
 	title: string
 	direction: 'rtl' | 'ltr'
 	theme?: 'dark' | 'light'
+}
+
+/** Formats written to be read; the rest are subtitles or data and keep the engine's own lines. */
+const READABLE_FORMATS: TextFormat[] = ['normal', 'md', 'html', 'docx', 'pdf']
+
+/** The lines a format is written from: a readable one follows the transcript's Lines view. */
+export function segmentsForFormat(format: TextFormat, segments: Segment[], lines: LinesMode): Segment[] {
+	return READABLE_FORMATS.includes(format) ? linesForExport(segments, lines) : segments
 }
 
 export function includesTranscript(content: TranscriptExportContent) {

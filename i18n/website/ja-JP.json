@@ -71,6 +71,8 @@
 	"changelogImproved": "改善",
 	"changelogFixed": "修正",
 	"changelogAll": "すべてのリリース",
+	"changelogBeta": "ベータ",
+	"changelogBetaHint": "現在はベータチャンネルのみ。入手するには、アプリの 設定 → 一般 → ベータアップデート をオンにしてください。",
 	"changelogUnknownVersion": "{version} というリリースはありません。",
 	"download-for-mac": "macOS 版をダウンロード",
 	"which-mac": "お使いの Mac に合うビルドを選んでください。不明な場合は Apple メニュー → このMacについて でチップを確認できます。",

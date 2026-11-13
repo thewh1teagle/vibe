@@ -1,5 +1,5 @@
 use serde::Serialize;
-use whisper_rs::{Segment, TranscribeResult};
+use whisper_rs::{Segment, TranscribeResult, Word};
 
 use crate::server::{diarization, speakers};
 
@@ -69,6 +69,29 @@ pub struct VerboseSegment {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub speaker: Option<usize>,
     pub no_speech_prob: f32,
+    /// The segment's words with their own times. Left out when the engine timed none.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub words: Vec<VerboseWord>,
+}
+
+/// One word of a segment. Times are seconds, like the segment's; the text keeps
+/// its leading space, so joining a segment's words rebuilds its text.
+#[derive(Debug, Serialize, utoipa::ToSchema)]
+pub struct VerboseWord {
+    pub start: f64,
+    pub end: f64,
+    pub text: String,
+}
+
+pub fn verbose_words(words: Vec<Word>) -> Vec<VerboseWord> {
+    words
+        .into_iter()
+        .map(|word| VerboseWord {
+            start: cs_to_seconds(word.start),
+            end: cs_to_seconds(word.end),
+            text: word.text,
+        })
+        .collect()
 }
 
 /// With diarization, a recognizer segment that spans several speakers comes out
@@ -86,7 +109,59 @@ pub fn build_verbose_json(result: &TranscribeResult, diar_segments: &[diarizatio
                 text: turn.text,
                 speaker: turn.speaker,
                 no_speech_prob: turn.no_speech_prob,
+                words: verbose_words(turn.words),
             })
             .collect(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn segment(words: Vec<Word>) -> Segment {
+        Segment {
+            start: 120,
+            end: 250,
+            text: " Hello world.".into(),
+            no_speech_prob: 0.0,
+            words,
+        }
+    }
+
+    #[test]
+    fn verbose_json_segments_carry_words_in_seconds() {
+        let result = TranscribeResult {
+            segments: vec![segment(vec![
+                Word {
+                    start: 120,
+                    end: 170,
+                    text: " Hello".into(),
+                },
+                Word {
+                    start: 180,
+                    end: 250,
+                    text: " world.".into(),
+                },
+            ])],
+        };
+        let json = serde_json::to_value(build_verbose_json(&result, &[])).unwrap();
+        assert_eq!(
+            json["segments"][0]["words"],
+            serde_json::json!([
+                { "start": 1.2, "end": 1.7, "text": " Hello" },
+                { "start": 1.8, "end": 2.5, "text": " world." },
+            ])
+        );
+    }
+
+    #[test]
+    fn verbose_json_omits_words_when_there_are_none() {
+        let result = TranscribeResult {
+            segments: vec![segment(Vec::new())],
+        };
+        let json = serde_json::to_value(build_verbose_json(&result, &[])).unwrap();
+        assert!(json["segments"][0].get("words").is_none());
+        assert_eq!(json["segments"][0]["text"], " Hello world.");
     }
 }

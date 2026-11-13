@@ -5,7 +5,7 @@
 //! segment with word timings is split wherever the speaker changes. Without
 //! word timings the whole segment takes the speaker it overlaps most.
 
-use whisper_rs::Segment;
+use whisper_rs::{Segment, Word};
 
 use crate::server::diarization;
 
@@ -23,6 +23,10 @@ pub struct Turn {
     pub text: String,
     pub speaker: Option<usize>,
     pub no_speech_prob: f32,
+    /// The words of this run, leading spaces kept, so their texts joined and
+    /// trimmed give `text`. Empty when the engine timed no words, or when its
+    /// words do not spell the segment's text.
+    pub words: Vec<Word>,
 }
 
 /// Splits `segment` into one [`Turn`] per run of the same speaker. A segment
@@ -34,6 +38,7 @@ pub fn attribute(segment: &Segment, turns: &[diarization::Segment]) -> Vec<Turn>
         text: segment.text.clone(),
         speaker,
         no_speech_prob: segment.no_speech_prob,
+        words: matching_words(segment),
     };
     if turns.is_empty() {
         return vec![whole(None)];
@@ -66,6 +71,7 @@ pub fn attribute(segment: &Segment, turns: &[diarization::Segment]) -> Vec<Turn>
             Some(run) if run.speaker == speaker => {
                 run.end = word.end;
                 run.text.push_str(&word.text);
+                run.words.push(word.clone());
             }
             _ => runs.push(Turn {
                 start: word.start,
@@ -73,6 +79,7 @@ pub fn attribute(segment: &Segment, turns: &[diarization::Segment]) -> Vec<Turn>
                 text: word.text.clone(),
                 speaker,
                 no_speech_prob: segment.no_speech_prob,
+                words: vec![word.clone()],
             }),
         }
     }
@@ -91,6 +98,20 @@ pub fn attribute(segment: &Segment, turns: &[diarization::Segment]) -> Vec<Turn>
         return vec![whole(match_speaker(cs(segment.start), cs(segment.end), turns))];
     }
     runs
+}
+
+/// The segment's words, if they spell its text. A run split off by speaker is
+/// built from its words, so it matches by construction; a segment kept whole
+/// carries the engine's own text, and words that disagree with it would regroup
+/// into a different transcript (whisper's `--verbose` text holds special tokens
+/// its words leave out).
+fn matching_words(segment: &Segment) -> Vec<Word> {
+    let joined = segment.words.iter().map(|word| word.text.as_str()).collect::<String>();
+    if joined.trim() == segment.text.trim() {
+        segment.words.clone()
+    } else {
+        Vec::new()
+    }
 }
 
 /// The speaker whose turn overlaps `[start, end]` (seconds) most, else the nearest
@@ -210,6 +231,52 @@ mod tests {
         let segment = segment(vec![word(10, 90, " yes"), word(500, 560, " these"), word(560, 620, " academics")]);
         let result = attribute(&segment, &turns);
         assert_eq!(spans(&result), [(Some(0), 10, 90, "yes"), (None, 500, 620, "these academics")]);
+    }
+
+    fn texts(words: &[Word]) -> Vec<&str> {
+        words.iter().map(|w| w.text.as_str()).collect()
+    }
+
+    #[test]
+    fn each_turn_carries_exactly_its_own_words() {
+        let turns = [turn(0.0, 2.0, 0), turn(2.5, 5.0, 1), turn(5.5, 8.0, 0)];
+        let segment = segment(vec![
+            word(10, 60, " held"),
+            word(70, 150, " home."),
+            word(260, 330, " Mr."),
+            word(340, 480, " Cameron"),
+            word(560, 700, " internet"),
+        ]);
+        let result = attribute(&segment, &turns);
+        assert_eq!(texts(&result[0].words), [" held", " home."]);
+        assert_eq!(texts(&result[1].words), [" Mr.", " Cameron"]);
+        assert_eq!(texts(&result[2].words), [" internet"]);
+        // Nothing lost or duplicated, and each turn's words spell and sit inside it.
+        let all = result.iter().flat_map(|t| t.words.iter().cloned()).collect::<Vec<_>>();
+        assert_eq!(all, segment.words);
+        for turn in &result {
+            assert_eq!(texts(&turn.words).concat().trim(), turn.text);
+            assert!(turn.words.iter().all(|w| turn.start <= w.start && w.end <= turn.end));
+        }
+    }
+
+    #[test]
+    fn a_whole_segment_keeps_its_words() {
+        let segment = segment(vec![word(0, 50, " a"), word(60, 90, " b")]);
+        // Without diarization, and with one speaker throughout.
+        assert_eq!(attribute(&segment, &[])[0].words, segment.words);
+        let result = attribute(&segment, &[turn(0.0, 9.0, 3)]);
+        assert_eq!(spans(&result), [(Some(3), 0, 90, "a b")]);
+        assert_eq!(result[0].words, segment.words);
+    }
+
+    #[test]
+    fn words_that_do_not_spell_the_segment_are_left_out() {
+        let mut segment = segment(vec![word(0, 50, " a"), word(60, 90, " b")]);
+        segment.text = "[_BEG_] a b[_TT_45]".into();
+        let result = attribute(&segment, &[]);
+        assert_eq!(spans(&result), [(None, 0, 90, "[_BEG_] a b[_TT_45]")]);
+        assert!(result[0].words.is_empty());
     }
 
     #[test]

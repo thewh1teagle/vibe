@@ -61,6 +61,11 @@ function compareVersions(a: string, b: string) {
 	return 0
 }
 
+/** Whether version `a` is newer than version `b`. */
+export function isNewer(a: string, b: string) {
+	return compareVersions(a, b) < 0
+}
+
 /** Every release in English, newest first. What the page paints before translations land. */
 export const releases: Release[] = Object.values(files)
 	.map((raw) => parse(raw, 'en-US'))

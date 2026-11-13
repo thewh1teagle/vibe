@@ -10,9 +10,12 @@ import { openPath } from '~/lib/app'
 import { toDocx } from '~/lib/docx'
 import { projectExportFilename } from '~/lib/project-name'
 import { transcriptToPdf } from '~/lib/pdf/transcript-pdf'
-import { serializeTranscriptExport, type TranscriptExportContent, type TranscriptExportOptions } from '~/lib/transcript-export'
+import { segmentsForFormat, serializeTranscriptExport, type TranscriptExportContent, type TranscriptExportOptions } from '~/lib/transcript-export'
 import type { Segment, SpeakerNames } from '~/lib/transcript'
+import type { LinesMode } from '~/lib/transcript-grouping'
 import type { NamedPath } from '~/lib/types'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { usePersisted } from '~/lib/config-store'
 import { usePreferenceProvider } from '~/providers/preference'
 
 interface UseTranscriptExportOptions {
@@ -32,7 +35,7 @@ interface UseTranscriptExportOptions {
 export function useTranscriptExport({
 	enabled = true,
 	direction,
-	segments,
+	segments: stored,
 	summary,
 	file,
 	format,
@@ -43,6 +46,9 @@ export function useTranscriptExport({
 }: UseTranscriptExportOptions) {
 	const preference = usePreferenceProvider()
 	const speakerLabel = m.speakerPrefix()
+	// A readable format is written the way the transcript reads on screen; subtitles and data keep the engine's lines.
+	const [lines] = usePersisted<LinesMode>(CONFIG_KEYS.transcriptLines, 'original')
+	const segments = useMemo(() => segmentsForFormat(format, stored, lines), [format, stored, lines])
 	const serializerOptions = useMemo<TranscriptExportOptions>(
 		() => ({
 			content,

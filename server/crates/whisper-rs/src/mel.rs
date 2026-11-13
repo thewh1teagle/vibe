@@ -1,7 +1,7 @@
 //! Log-mel spectrogram, ported bit-for-bit from whisper.cpp
 //! (`log_mel_spectrogram` and its poor-man's Cooley-Tukey FFT with the
-//! precomputed sin/cos table). The C++ splits frames across threads but every
-//! frame is independent, so a sequential port produces identical output.
+//! precomputed sin/cos table). Frames are independent, so they are split across
+//! threads the way the C++ does, with identical output.
 
 use crate::model::Filters;
 
@@ -139,51 +139,82 @@ pub(crate) fn log_mel_spectrogram(samples: &[f32], filters: &Filters, n_mel: i32
     let effective_samples = n_samples + stage_2_pad;
     let n_frames_with_signal = (effective_samples / frame_step + 1).min(n_len);
 
-    let mut fft_in = vec![0.0f32; frame_size * 2];
-    let mut fft_out = vec![0.0f32; frame_size * 2 * 2 * 2];
+    // Every frame is independent, so frames are spread over the cores in bands; each band computes
+    // exactly what the sequential loop did, and the output is the same bit for bit.
+    let workers = std::thread::available_parallelism()
+        .map_or(1, |n| n.get())
+        .min(n_frames_with_signal.max(1));
+    let band = n_frames_with_signal.div_ceil(workers).max(1);
+    let n_mel_usize = n_mel as usize;
+    let padded_ref = &padded;
+    let bands: Vec<Vec<f32>> = std::thread::scope(|scope| {
+        let handles: Vec<_> = (0..n_frames_with_signal)
+            .step_by(band)
+            .map(|first| {
+                scope.spawn(move || {
+                    let last = (first + band).min(n_frames_with_signal);
+                    let mut out = vec![0.0f32; (last - first) * n_mel_usize];
+                    let mut fft_in = vec![0.0f32; frame_size * 2];
+                    let mut fft_out = vec![0.0f32; frame_size * 2 * 2 * 2];
+                    for i in first..last {
+                        let offset = i * frame_step;
+                        let take = frame_size.min(effective_samples - offset);
+                        for j in 0..take {
+                            fft_in[j] = t.hann[j] * padded_ref[offset + j];
+                        }
+                        // The C++ zero-fills only when the frame runs past the signal; the
+                        // padded buffer already carries zeros there, so mirror the fill.
+                        if take < frame_size {
+                            for v in fft_in.iter_mut().skip(take) {
+                                *v = 0.0;
+                            }
+                        }
 
-    for i in 0..n_frames_with_signal {
-        let offset = i * frame_step;
-        let take = frame_size.min(effective_samples - offset);
-        for j in 0..take {
-            fft_in[j] = t.hann[j] * padded[offset + j];
-        }
-        // The C++ zero-fills only when the frame runs past the signal; the
-        // padded buffer already carries zeros there, so mirror the fill.
-        if take < frame_size {
-            for v in fft_in.iter_mut().skip(take) {
-                *v = 0.0;
+                        fft(t, &fft_in[..frame_size], frame_size, &mut fft_out);
+
+                        // The shipped clang build fuses the real square into the add:
+                        // out = fma(re, re, im*im).
+                        for j in 0..n_fft {
+                            fft_out[j] = fft_out[2 * j].mul_add(fft_out[2 * j], fft_out[2 * j + 1] * fft_out[2 * j + 1]);
+                        }
+
+                        for j in 0..n_mel_usize {
+                            // Match the C++ unrolled accumulation exactly: each group of four
+                            // products is summed in f32, then accumulated in f64.
+                            let mut sum = 0.0f64;
+                            let flt = &filters.data[j * n_fft..(j + 1) * n_fft];
+                            let mut k = 0usize;
+                            while k < n_fft - 3 {
+                                let partial = fft_out[k + 3].mul_add(
+                                    flt[k + 3],
+                                    fft_out[k + 2].mul_add(flt[k + 2], fft_out[k + 1].mul_add(flt[k + 1], fft_out[k] * flt[k])),
+                                );
+                                sum += f64::from(partial);
+                                k += 4;
+                            }
+                            while k < n_fft {
+                                sum += f64::from(fft_out[k] * flt[k]);
+                                k += 1;
+                            }
+                            let sum = sum.max(1e-10).log10();
+                            out[(i - first) * n_mel_usize + j] = sum as f32;
+                        }
+                    }
+                    out
+                })
+            })
+            .collect();
+        handles
+            .into_iter()
+            .map(|handle| handle.join().expect("mel worker panicked"))
+            .collect()
+    });
+    for (index, values) in bands.into_iter().enumerate() {
+        let first = index * band;
+        for (at, frame) in values.chunks_exact(n_mel_usize).enumerate() {
+            for (j, value) in frame.iter().enumerate() {
+                mel.data[j * n_len + first + at] = *value;
             }
-        }
-
-        fft(t, &fft_in[..frame_size], frame_size, &mut fft_out);
-
-        // The shipped clang build fuses the real square into the add:
-        // out = fma(re, re, im*im).
-        for j in 0..n_fft {
-            fft_out[j] = fft_out[2 * j].mul_add(fft_out[2 * j], fft_out[2 * j + 1] * fft_out[2 * j + 1]);
-        }
-
-        for j in 0..n_mel as usize {
-            // Match the C++ unrolled accumulation exactly: each group of four
-            // products is summed in f32, then accumulated in f64.
-            let mut sum = 0.0f64;
-            let flt = &filters.data[j * n_fft..(j + 1) * n_fft];
-            let mut k = 0usize;
-            while k < n_fft - 3 {
-                let partial = fft_out[k + 3].mul_add(
-                    flt[k + 3],
-                    fft_out[k + 2].mul_add(flt[k + 2], fft_out[k + 1].mul_add(flt[k + 1], fft_out[k] * flt[k])),
-                );
-                sum += f64::from(partial);
-                k += 4;
-            }
-            while k < n_fft {
-                sum += f64::from(fft_out[k] * flt[k]);
-                k += 1;
-            }
-            let sum = sum.max(1e-10).log10();
-            mel.data[j * n_len + i] = sum as f32;
         }
     }
 

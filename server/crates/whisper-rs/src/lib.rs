@@ -80,8 +80,7 @@ pub struct Segment {
     pub end: i64,
     pub text: String,
     pub no_speech_prob: f32,
-    /// Word timings, empty when the engine has none for this run (whisper
-    /// without `word_timestamps`).
+    /// Word timings, empty when the engine has none for this segment.
     pub words: Vec<Word>,
 }
 

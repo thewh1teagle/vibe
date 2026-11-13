@@ -102,7 +102,7 @@ fn convert(segment: &FullSegment, vocab: &Vocab) -> Segment {
 /// Groups a segment's text tokens into words: a token whose bytes open with a
 /// space starts a new word. Bytes are joined before decoding, since a BPE token
 /// can hold half of a multi-byte character. Empty unless every text token has
-/// a timestamp, which whisper computes only with `token_timestamps`.
+/// a timestamp, which `token_timestamps` computes and `full_params` always asks for.
 fn words(segment: &FullSegment, vocab: &Vocab) -> Vec<Word> {
     let tokens = segment
         .tokens
@@ -220,9 +220,11 @@ fn full_params(options: &TranscribeOptions) -> FullParams {
     params.print_special = options.verbose;
     params.detect_language = options.detect_language;
     params.translate = options.translate;
-    params.token_timestamps = options.word_timestamps;
-    // Segments are only wrapped when max_len is set, so split_on_word is
-    // inert on its own; it just makes the wrap land on word boundaries.
+    // Token timestamps are computed on every run, so every segment carries its
+    // words. They only annotate tokens: text, boundaries and times stay as they
+    // were. Wrapping segments to `max_segment_len` is what a caller sees, so it
+    // stays behind `word_timestamps`, and a length sent without it stays inert.
+    params.token_timestamps = true;
     params.split_on_word = options.word_timestamps;
 
     if options.threads > 0 {
@@ -231,7 +233,7 @@ fn full_params(options: &TranscribeOptions) -> FullParams {
     if options.max_text_ctx > 0 {
         params.n_max_text_ctx = options.max_text_ctx;
     }
-    if options.max_segment_len > 0 {
+    if options.word_timestamps && options.max_segment_len > 0 {
         params.max_len = options.max_segment_len;
     }
     if options.temperature > 0.0 {
@@ -364,6 +366,35 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn token_timestamps_are_always_on_but_wrapping_needs_word_timestamps() {
+        // A segment length sent without word_timestamps is inert.
+        let params = full_params(&TranscribeOptions {
+            max_segment_len: 40,
+            ..Default::default()
+        });
+        assert!(params.token_timestamps);
+        assert_eq!(params.max_len, 0);
+        assert!(!params.split_on_word);
+
+        let params = full_params(&TranscribeOptions {
+            word_timestamps: true,
+            max_segment_len: 40,
+            ..Default::default()
+        });
+        assert!(params.token_timestamps);
+        assert_eq!(params.max_len, 40);
+        assert!(params.split_on_word);
+
+        // word_timestamps alone wraps nothing: max_len stays 0.
+        let params = full_params(&TranscribeOptions {
+            word_timestamps: true,
+            ..Default::default()
+        });
+        assert!(params.token_timestamps);
+        assert_eq!(params.max_len, 0);
     }
 
     #[test]

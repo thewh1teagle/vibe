@@ -105,8 +105,9 @@ pub(super) async fn transcribe(
     Ok(format_response(&response_format, &result, &diar_segments))
 }
 
-/// `diarized` asks the engine for word timings, which speaker attribution splits
-/// segments on. Parakeet and Nemotron always have them; whisper computes them on request.
+/// Every engine times its words on every run, and speaker attribution splits
+/// segments on them. `word_timestamps` only decides whether whisper also wraps
+/// segments to `max_segment_len`; a diarized request has always turned it on.
 pub(super) fn build_options(
     form: &HashMap<String, String>,
     verbose: bool,

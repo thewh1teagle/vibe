@@ -147,6 +147,10 @@ pub enum ServerEvent {
         end: f64,
         text: String,
         speaker: Option<i32>,
+        /// Absent from a server that predates word timings, and for a segment
+        /// the engine timed no words in.
+        #[serde(default)]
+        words: Option<Vec<ServerWord>>,
     },
     Result {
         text: String,
@@ -155,6 +159,15 @@ pub enum ServerEvent {
         code: Option<String>,
         message: String,
     },
+}
+
+/// One word of a segment event. Seconds, like the segment's own times; the text
+/// keeps its leading space.
+#[derive(Debug, Deserialize, Clone, PartialEq)]
+pub struct ServerWord {
+    pub start: f64,
+    pub end: f64,
+    pub text: String,
 }
 
 #[derive(Debug, Deserialize)]

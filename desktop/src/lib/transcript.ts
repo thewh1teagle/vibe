@@ -9,11 +9,20 @@ export interface Transcript {
 	word_segments?: Segment[]
 }
 
+/** One word of a segment. Times are centiseconds; the text keeps its leading space. */
+export interface Word {
+	start: number
+	stop: number
+	text: string
+}
+
 export interface Segment {
 	start: number
 	stop: number
 	text: string
 	speaker?: number
+	/** Word timings from the engine. Absent on older transcripts and on a line whose text was edited. */
+	words?: Word[]
 }
 
 /** Display names chosen for diarized speakers, keyed by the segment's zero-based speaker index. */
@@ -93,6 +102,7 @@ export function asJson(segments: Segment[]) {
 			...s,
 			start: s.start / 100,
 			stop: s.stop / 100,
+			...(s.words ? { words: s.words.map((word) => ({ ...word, start: word.start / 100, stop: word.stop / 100 })) } : {}),
 		})),
 		null,
 		4,

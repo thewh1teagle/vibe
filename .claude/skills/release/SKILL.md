@@ -41,6 +41,10 @@ git log --oneline "server-${pin#v}"..main -- server/ 2>/dev/null ||
 
 ## 2. Bump and write the notes
 
+Pick the number first (`docs/UPDATER.md`, "Version numbers"): a beta is a patch bump on the
+current line (3.3.1, 3.3.2); the real release that follows takes the next minor (3.4.0) and its
+changelog entry covers everything since the previous stable release, betas included.
+
 Three files, one commit:
 
 - `desktop/src-tauri/tauri.conf.json` → `"version"`.

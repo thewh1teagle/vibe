@@ -6,20 +6,31 @@ use crate::mel::SAMPLE_RATE;
 use crate::vocab::Vocab;
 use crate::FullSegment;
 
-/// `get_signal_energy`: moving average of |signal|.
+/// `get_signal_energy`: moving average of |signal|. Each output sample depends only on its own
+/// window, so the signal is cut into bands computed on separate cores, with the same result.
 pub(crate) fn signal_energy(signal: &[f32], half_window: i32) -> Vec<f32> {
     let n = signal.len() as i32;
     let hw = half_window;
     let mut result = vec![0.0f32; signal.len()];
-    for i in 0..n {
-        let mut sum = 0.0f32;
-        for j in -hw..=hw {
-            if i + j >= 0 && i + j < n {
-                sum += signal[(i + j) as usize].abs();
-            }
+    let workers = std::thread::available_parallelism().map_or(1, |count| count.get());
+    let band = signal.len().div_ceil(workers).max(1);
+    std::thread::scope(|scope| {
+        for (index, out) in result.chunks_mut(band).enumerate() {
+            scope.spawn(move || {
+                let first = (index * band) as i32;
+                for (at, value) in out.iter_mut().enumerate() {
+                    let i = first + at as i32;
+                    let mut sum = 0.0f32;
+                    for j in -hw..=hw {
+                        if i + j >= 0 && i + j < n {
+                            sum += signal[(i + j) as usize].abs();
+                        }
+                    }
+                    *value = sum / (2 * hw + 1) as f32;
+                }
+            });
         }
-        result[i as usize] = sum / (2 * hw + 1) as f32;
-    }
+    });
     result
 }
 
@@ -38,14 +49,15 @@ pub(crate) fn voice_length(text: &str) -> f32 {
     res
 }
 
-fn timestamp_to_sample(t: i64, segment_t0: i64, n_samples: usize) -> usize {
-    let relative = t - segment_t0;
-    let sample = (relative * SAMPLE_RATE as i64) / 100;
+/// The sample a timestamp falls on. Timestamps and the energy signal both count from the start of
+/// the audio handed to `full`, so no segment offset applies.
+fn timestamp_to_sample(t: i64, n_samples: usize) -> usize {
+    let sample = (t * SAMPLE_RATE as i64) / 100;
     sample.clamp(0, n_samples as i64 - 1) as usize
 }
 
-fn sample_to_timestamp(i_sample: usize, segment_t0: i64) -> i64 {
-    (100 * i_sample as i64) / SAMPLE_RATE as i64 + segment_t0
+fn sample_to_timestamp(i_sample: usize) -> i64 {
+    (100 * i_sample as i64) / SAMPLE_RATE as i64
 }
 
 pub(crate) struct TimestampState {
@@ -165,8 +177,8 @@ pub(crate) fn compute_token_level_timestamps(
             if tokens[j].id >= vocab.token_eot {
                 continue;
             }
-            let mut s0 = timestamp_to_sample(tokens[j].t0, segment.t0, n_samples);
-            let mut s1 = timestamp_to_sample(tokens[j].t1, segment.t0, n_samples);
+            let mut s0 = timestamp_to_sample(tokens[j].t0, n_samples);
+            let mut s1 = timestamp_to_sample(tokens[j].t1, n_samples);
             let ss0 = s0.saturating_sub(hw);
             let ss1 = (s1 + hw).min(n_samples);
             let ns = ss1 - ss0;
@@ -182,7 +194,7 @@ pub(crate) fn compute_token_level_timestamps(
                     while k > 0 && energy[k] > thold {
                         k -= 1;
                     }
-                    tokens[j].t0 = sample_to_timestamp(k, segment.t0);
+                    tokens[j].t0 = sample_to_timestamp(k);
                     if tokens[j].t0 < tokens[j - 1].t1 {
                         tokens[j].t0 = tokens[j - 1].t1;
                     } else {
@@ -193,7 +205,7 @@ pub(crate) fn compute_token_level_timestamps(
                         k += 1;
                     }
                     s0 = k;
-                    tokens[j].t0 = sample_to_timestamp(k, segment.t0);
+                    tokens[j].t0 = sample_to_timestamp(k);
                 }
             }
 
@@ -203,7 +215,7 @@ pub(crate) fn compute_token_level_timestamps(
                     while k < n_samples - 1 && energy[k] > thold {
                         k += 1;
                     }
-                    tokens[j].t1 = sample_to_timestamp(k, segment.t0);
+                    tokens[j].t1 = sample_to_timestamp(k);
                     if j < n - 1 && tokens[j].t1 > tokens[j + 1].t0 {
                         tokens[j].t1 = tokens[j + 1].t0;
                     } else {
@@ -214,7 +226,7 @@ pub(crate) fn compute_token_level_timestamps(
                         k -= 1;
                     }
                     let _ = s1;
-                    tokens[j].t1 = sample_to_timestamp(k, segment.t0);
+                    tokens[j].t1 = sample_to_timestamp(k);
                 }
             }
         }

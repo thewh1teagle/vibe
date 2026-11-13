@@ -71,6 +71,8 @@
 	"changelogImproved": "改進",
 	"changelogFixed": "修正",
 	"changelogAll": "所有版本",
+	"changelogBeta": "測試版",
+	"changelogBetaHint": "目前只在測試版頻道提供。如要取得,請在應用程式中開啟「設定 → 一般 → 測試版更新」。",
 	"changelogUnknownVersion": "沒有 {version} 這個版本。",
 	"download-for-mac": "下載 macOS 版",
 	"which-mac": "選擇適合你 Mac 的版本。不確定？Apple 選單 → 關於此 Mac 會顯示晶片。",
