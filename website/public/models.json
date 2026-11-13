@@ -384,6 +384,50 @@
 			}
 		},
 		{
+			"id": "zipformer2-66m-streaming-sk",
+			"name": "Zipformer2 66M Slovak",
+			"languages": [
+				"sk"
+			],
+			"tags": [
+				"fast",
+				"small"
+			],
+			"publisher": {
+				"name": "neurlang",
+				"url": "https://huggingface.co/neurlang/zipformer2-66m-streaming-sk"
+			},
+			"license": "CC-BY-4.0",
+			"url": "https://huggingface.co/vibe-app/zipformer2-66m-streaming-sk-gguf/resolve/main/zipformer2-66m-streaming-sk-q8_0.gguf",
+			"size": 75348032,
+			"sha256": "bebae65aabf5544a8f4b503e9b014b75a52c0b8d301078d8173bed442c104113",
+			"description": {
+				"en-US": "Small and very fast; best for Slovak-only audio.",
+				"bg-BG": "Малък и много бърз; най-добър за аудио само на словашки.",
+				"ca-AD": "Petit i molt ràpid; ideal per a àudio només en eslovac.",
+				"cs-CZ": "Malý a velmi rychlý; nejlepší pro audio pouze ve slovenštině.",
+				"de-DE": "Klein und sehr schnell; am besten für rein slowakisches Audio.",
+				"es-ES": "Pequeño y muy rápido; ideal para audio solo en eslovaco.",
+				"es-MX": "Pequeño y muy rápido; ideal para audio solo en eslovaco.",
+				"fr-FR": "Petit et très rapide ; idéal pour l'audio uniquement en slovaque.",
+				"he-IL": "קטן ומהיר מאוד; הכי מתאים לאודיו בסלובקית בלבד.",
+				"hi-IN": "छोटा और बहुत तेज़; सिर्फ़ स्लोवाक ऑडियो के लिए सबसे अच्छा।",
+				"it-IT": "Piccolo e velocissimo; ideale per audio solo in slovacco.",
+				"ja-JP": "小型で非常に高速。スロバキア語のみの音声に最適。",
+				"ko-KR": "작고 매우 빠르며, 슬로바키아어 음성에만 가장 알맞습니다.",
+				"no-NO": "Liten og svært rask; best for lyd kun på slovakisk.",
+				"pl-PL": "Mały i bardzo szybki; najlepszy dla nagrań wyłącznie po słowacku.",
+				"pt-BR": "Pequeno e muito rápido; ideal para áudio somente em eslovaco.",
+				"ru-RU": "Маленькая и очень быстрая; лучше всего для аудио только на словацком.",
+				"sv-SE": "Liten och mycket snabb; bäst för enbart slovakiskt tal.",
+				"tr-TR": "Küçük ve çok hızlı; yalnızca Slovakça ses için en iyisi.",
+				"vi-VN": "Nhỏ và rất nhanh; tốt nhất cho âm thanh chỉ có tiếng Slovak.",
+				"zh-CN": "体积小、速度极快；最适合纯斯洛伐克语音频。",
+				"zh-HK": "體積細、速度極快，最適合純斯洛伐克語音頻。"
+			},
+			"minAppVersion": "3.3.3"
+		},
+		{
 			"id": "parakeet-tdt-0.6b-v3",
 			"name": "Parakeet TDT 0.6B v3",
 			"languages": [
