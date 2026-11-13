@@ -1,93 +1,18 @@
-<!-- source: 5d152baedb46 -->
+<!-- source: 9ffa119e9212 -->
 
 # 🌟 Modèles Vibe 🌟
 
-Bienvenue sur la page des modèles Vibe ! Vous trouverez ici une liste organisée de modèles suggérés à utiliser avec Vibe. Pour installer un modèle, utilisez le lien « Configuration magique » pour l'ouvrir dans Vibe, ou copiez-collez le lien de téléchargement direct dans les paramètres de Vibe.
+Les modèles suggérés par Vibe se trouvent désormais sur la [page des modèles](/vibe/models). Choisissez-y la langue de vos enregistrements, puis utilisez « Ouvrir dans Vibe » pour installer un modèle en un clic, ou « Copier le lien » pour coller son lien de téléchargement dans les paramètres de Vibe.
 
-## Modèles disponibles
+### Envie d’en voir plus ?
 
-### 🌱 Modèle Tiny
-
-Une version compacte et efficace, adaptée aux tâches rapides et aux environnements à ressources limitées.
-
-[👉 Configuration magique](https://shorturl.at/XSP9R)  
-[🔽 Téléchargement direct](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
-
-### 🚀 Large v3 Turbo (Recommandé)
-
-[👉 Configuration magique](https://tinyurl.com/yphwban5)  
-[🔽 Téléchargement direct](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
-
-### 🦜 Parakeet TDT 0.6B v3
-
-Prend en charge le streaming et est particulièrement adapté à la dictée.
-
-[👉 Voir le modèle](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
-[🔽 Télécharger Q4_K_M](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf?download=true)
-
-### ⚡ Nemotron 3.5 ASR Streaming 0.6B
-
-Prend en charge le streaming et est particulièrement adapté à la dictée.
-
-[👉 Voir le modèle](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
-[🔽 Télécharger Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
-
-### Modèles optimisés pour d'autres langues
-
-<details>
-<summary>✡️ Hébreu (Ivrit)</summary>
-
-Spécialisé pour les données en langue hébraïque (Ivrit), optimisé pour une grande rapidité et précision dans les tâches en hébreu.
-
-[👉 Configuration magique (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
-[🔽 Téléchargement direct (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
-
-</details>
-
-<details>
-<summary>🇳🇴 Norvégien</summary>
-	
-Optimisé pour le norvégien par l'[AI Lab de la Bibliothèque nationale de Norvège](https://huggingface.co/NbAiLab).
-
-[👉 Configuration magique (medium)](https://tinyurl.com/5wzb9ux8)  
-[🔽 Téléchargement direct (medium)](https://huggingface.co/NbAiLab/nb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Configuration magique (large)](https://tinyurl.com/f228efbu)  
-[🔽 Téléchargement direct (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-D'autres modèles de tailles plus petites sont disponibles via [leur page de téléchargement huggingface](https://huggingface.co/NbAiLab/nb-whisper-large).  
-Trouvez la taille souhaitée, téléchargez le fichier _ggml-model.bin_, renommez-le, puis placez-le dans le dossier des modèles de vibe.
-
-</details>
-
-<details>
-<summary>🇸🇪 Suédois</summary>
-
-Optimisé pour le suédois par le [Data Lab de la Bibliothèque nationale de Suède](https://huggingface.co/KBLab).
-
-[👉 Configuration magique (medium)](https://tinyurl.com/ynawnc33)  
-[🔽 Téléchargement direct (medium)](https://huggingface.co/KBLab/kb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Configuration magique (large v3)](https://tinyurl.com/46dvpeky)  
-[🔽 Téléchargement direct (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-D'autres modèles de tailles plus petites sont disponibles via [leur page de téléchargement huggingface](https://huggingface.co/KBLab/kb-whisper-large).  
-Trouvez la taille souhaitée, téléchargez le fichier _ggml-model.bin_, renommez-le, puis placez-le dans le dossier des modèles de vibe.
-
-</details>
-</details>
-
-Amusez-vous à explorer ces modèles et à enrichir votre expérience Vibe ! 🌐✨
-
-### Envie de plus ?
-
-Trouvez des modèles supplémentaires ici :
+Retrouvez d’autres modèles ici :
 
 [👉 Voir plus de modèles](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
 
 ---
 
-### Préparez vos propres modèles
+### Préparer vos propres modèles
 
 <details>
 <summary>Convertir des transformers en GGML</summary>

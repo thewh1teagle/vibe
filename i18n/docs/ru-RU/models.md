@@ -1,83 +1,8 @@
-<!-- source: 5d152baedb46 -->
+<!-- source: 9ffa119e9212 -->
 
 # 🌟 Модели Vibe 🌟
 
-Добро пожаловать на страницу моделей Vibe! Здесь вы найдёте подобранный список рекомендуемых моделей для использования с Vibe. Чтобы установить модель, используйте ссылку «Magic Setup», чтобы открыть её в Vibe, либо скопируйте и вставьте ссылку для прямого скачивания в настройках Vibe.
-
-## Доступные модели
-
-### 🌱 Модель Tiny
-
-Компактная и эффективная версия, подходящая для быстрых задач и сред с ограниченными ресурсами.
-
-[👉 Магическая настройка](https://shorturl.at/XSP9R)  
-[🔽 Прямая загрузка](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
-
-### 🚀 Large v3 Turbo (рекомендуется)
-
-[👉 Магическая настройка](https://tinyurl.com/yphwban5)  
-[🔽 Прямая загрузка](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
-
-### 🦜 Parakeet TDT 0.6B v3
-
-Поддерживает потоковую обработку и лучше всего подходит для диктовки.
-
-[👉 Посмотреть модель](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
-[🔽 Скачать Q4_K_M](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf?download=true)
-
-### ⚡ Nemotron 3.5 ASR Streaming 0.6B
-
-Поддерживает потоковую обработку и лучше всего подходит для диктовки.
-
-[👉 Посмотреть модель](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
-[🔽 Скачать Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
-
-### Модели, оптимизированные для других языков
-
-<details>
-<summary>✡️ Иврит (Ivrit)</summary>
-
-Специализирована на данных иврита (Ivrit), оптимизирована для высокой скорости и точности в задачах на иврите.
-
-[👉 Магическая настройка (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
-[🔽 Прямая загрузка (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
-
-</details>
-
-<details>
-<summary>🇳🇴 Норвежский</summary>
-	
-Оптимизирована для норвежского языка [лабораторией ИИ Национальной библиотеки Норвегии](https://huggingface.co/NbAiLab).
-
-[👉 Магическая настройка (medium)](https://tinyurl.com/5wzb9ux8)  
-[🔽 Прямая загрузка (medium)](https://huggingface.co/NbAiLab/nb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Магическая настройка (large)](https://tinyurl.com/f228efbu)  
-[🔽 Прямая загрузка (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-Больше моделей меньшего размера доступно на [странице скачивания на huggingface](https://huggingface.co/NbAiLab/nb-whisper-large).  
-Найдите нужный размер, скачайте файл _ggml-model.bin_, переименуйте файл и поместите его в папку моделей vibe.
-
-</details>
-
-<details>
-<summary>🇸🇪 Шведский</summary>
-
-Оптимизирована для шведского языка [Data Lab Национальной библиотеки Швеции](https://huggingface.co/KBLab).
-
-[👉 Магическая настройка (medium)](https://tinyurl.com/ynawnc33)  
-[🔽 Прямая загрузка (medium)](https://huggingface.co/KBLab/kb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Магическая настройка (large v3)](https://tinyurl.com/46dvpeky)  
-[🔽 Прямая загрузка (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-Больше моделей меньшего размера доступно на [странице скачивания на huggingface](https://huggingface.co/KBLab/kb-whisper-large).  
-Найдите нужный размер, скачайте файл _ggml-model.bin_, переименуйте файл и поместите его в папку моделей vibe.
-
-</details>
-</details>
-
-Наслаждайтесь исследованием этих моделей и делайте Vibe ещё лучше! 🌐✨
+Модели, которые предлагает Vibe, теперь собраны на [странице моделей](/vibe/models). Выберите там язык ваших записей, затем нажмите «Открыть в Vibe», чтобы установить модель в один клик, или «Копировать ссылку», чтобы вставить ссылку для скачивания в настройках Vibe.
 
 ### Хотите больше?
 

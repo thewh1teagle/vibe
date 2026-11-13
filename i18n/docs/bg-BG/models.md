@@ -1,87 +1,12 @@
-<!-- source: 5d152baedb46 -->
+<!-- source: 9ffa119e9212 -->
 
 # 🌟 Модели на Vibe 🌟
 
-Добре дошли в страницата с модели на Vibe! Тук можете да намерите подбран списък с препоръчани модели за използване с Vibe. За да инсталирате модел, използвайте връзката „Magic Setup“, за да го отворите във Vibe, или копирайте и поставете директната връзка за изтегляне в настройките на Vibe.
-
-## Налични модели
-
-### 🌱 Модел Tiny
-
-Компактна и ефективна версия, подходяща за бързи задачи и среди с ограничени ресурси.
-
-[👉 Magic Setup](https://shorturl.at/XSP9R)  
-[🔽 Директно изтегляне](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true)
-
-### 🚀 Large v3 Turbo (Препоръчан)
-
-[👉 Magic Setup](https://tinyurl.com/yphwban5)  
-[🔽 Директно изтегляне](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
-
-### 🦜 Parakeet TDT 0.6B v3
-
-Поддържа поточно предаване и е най-подходящ за диктовка.
-
-[👉 Преглед на модела](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/tree/main)  
-[🔽 Изтегляне на Q4_K_M](https://huggingface.co/vibe-app/parakeet-tdt-0.6b-v3-gguf/resolve/main/parakeet-tdt-0.6b-v3-Q4_K_M.gguf?download=true)
-
-### ⚡ Nemotron 3.5 ASR Streaming 0.6B
-
-Поддържа поточно предаване и е най-подходящ за диктовка.
-
-[👉 Преглед на модела](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf)  
-[🔽 Изтегляне на Q4_K_M](https://huggingface.co/vibe-app/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main/nemotron-3.5-asr-streaming-0.6b-Q4_K_M.gguf?download=true)
-
-### Модели, оптимизирани за други езици
-
-<details>
-<summary>✡️ Иврит (Ivrit)</summary>
-
-Специализиран за данни на иврит (Ivrit), оптимизиран за висока скорост и точност при задачи на иврит.
-
-[👉 Magic Setup (Large v3 Turbo)](https://tinyurl.com/t9r3tyxk)  
-[🔽 Директно изтегляне (Large v3 Turbo)](https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin?download=true)
-
-</details>
-
-<details>
-<summary>🇳🇴 Норвежки</summary>
-	
-Оптимизиран за норвежки от [AI Lab at the National Library of Norway](https://huggingface.co/NbAiLab).
-
-[👉 Magic Setup (medium)](https://tinyurl.com/5wzb9ux8)  
-[🔽 Директно изтегляне (medium)](https://huggingface.co/NbAiLab/nb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Magic Setup (large)](https://tinyurl.com/f228efbu)  
-[🔽 Директно изтегляне (large)](https://huggingface.co/NbAiLab/nb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-Повече модели с по-малки размери са налични чрез [тяхната страница за изтегляне в huggingface](https://huggingface.co/NbAiLab/nb-whisper-large).  
-Намерете желания размер, изтеглете файла _ggml-model.bin_, преименувайте го и го поставете в папката с модели на vibe.
-
-</details>
-
-<details>
-<summary>🇸🇪 Шведски</summary>
-
-Оптимизиран за шведски от [Data Lab at the National Library of Sweden](https://huggingface.co/KBLab).
-
-[👉 Magic Setup (medium)](https://tinyurl.com/ynawnc33)  
-[🔽 Директно изтегляне (medium)](https://huggingface.co/KBLab/kb-whisper-medium/blob/main/ggml-model.bin?download=true)
-
-[👉 Magic Setup (large v3)](https://tinyurl.com/46dvpeky)  
-[🔽 Директно изтегляне (large v3)](https://huggingface.co/KBLab/kb-whisper-large/blob/main/ggml-model.bin?download=true)
-
-Повече модели с по-малки размери са налични чрез [тяхната страница за изтегляне в huggingface](https://huggingface.co/KBLab/kb-whisper-large).  
-Намерете желания размер, изтеглете файла _ggml-model.bin_, преименувайте го и го поставете в папката с модели на vibe.
-
-</details>
-</details>
-
-Насладете се на разглеждането на тези модели и подобряването на вашия Vibe! 🌐✨
+Моделите, които Vibe препоръчва, вече са на [страницата с модели](/vibe/models). Изберете там езика на записите си, после използвайте „Отваряне във Vibe“, за да инсталирате модел с едно щракване, или „Копиране на връзката“, за да поставите връзката за изтегляне в настройките на Vibe.
 
 ### Искате още?
 
-Намерете допълнителни модели тук:
+Още модели ще намерите тук:
 
 [👉 Вижте още модели](https://huggingface.co/ggerganov/whisper.cpp/tree/main)
 

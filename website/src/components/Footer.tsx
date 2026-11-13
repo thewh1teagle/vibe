@@ -46,6 +46,9 @@ export default function Footer({ onOpenKofi, onOpenPrivacyPolicy }: FooterProps)
 						<Link className={linkClass} to="/features">
 							{m.features()}
 						</Link>
+						<Link className={linkClass} to="/models">
+							{m.models()}
+						</Link>
 						<Link className={linkClass} to="/docs">
 							{m.documentation()}
 						</Link>
