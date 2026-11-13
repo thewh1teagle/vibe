@@ -4,6 +4,7 @@ import * as dialog from '@tauri-apps/plugin-dialog'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { toast as notify } from 'sonner'
 import { m } from '~/paraglide/messages.js'
+import { isNewerVersion } from '~/lib/version'
 import * as ytDlp from '~/lib/ytdlp'
 import { ErrorModalContext } from '~/providers/error-modal'
 import { useFilesContext } from '~/providers/files-provider'
@@ -91,8 +92,8 @@ export function useAudioDownload(transcribe: (paths: string[]) => Promise<void>)
 		}
 		preference.setYtDlpLastUpdateCheck(Date.now())
 
-		if (!ytDlp.isNewerVersion(latestVersion, preference.ytDlpVersion)) return
-		if (!force && !ytDlp.isNewerVersion(latestVersion, preference.ytDlpDeclinedVersion)) return
+		if (!isNewerVersion(latestVersion, preference.ytDlpVersion)) return
+		if (!force && !isNewerVersion(latestVersion, preference.ytDlpDeclinedVersion)) return
 
 		notify.message(m.ytdlpUpdateAvailable(), {
 			description: force ? m.ytdlpUpdateAfterFailure({ version: latestVersion }) : m.ytdlpUpdateAvailableInfo({ version: latestVersion }),

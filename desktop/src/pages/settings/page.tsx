@@ -28,6 +28,7 @@ import { AutoExportSection } from './sections/auto-export'
 import { ApiSection } from './sections/api'
 import { DictationSection } from './sections/dictation'
 import { GeneralSection } from './sections/general'
+import { ModelCatalogSection } from './sections/model-catalog'
 import { ModelsSection } from './sections/models'
 import { PhoneSection } from './sections/phone'
 import { PrivacySection } from './sections/privacy'
@@ -46,7 +47,7 @@ interface SettingsPageProps {
 
 type SectionId = 'general' | 'transcription' | 'models' | 'ai' | 'tuning' | 'recording' | 'dictation' | 'phone' | 'api' | 'privacy' | 'advanced'
 
-type Subpage = 'auto-export' | 'ai-summary' | 'ai-dictation' | 'whisper-options' | 'audio-processing' | 'phone-pairing'
+type Subpage = 'model-catalog' | 'auto-export' | 'ai-summary' | 'ai-dictation' | 'whisper-options' | 'audio-processing' | 'phone-pairing'
 
 interface SettingsSection {
 	id: SectionId
@@ -87,6 +88,7 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 	const subpages: Record<Subpage, { section: SectionId; title: string }> = {
 		'whisper-options': { section: 'tuning', title: m.whisperOptions() },
 		'audio-processing': { section: 'tuning', title: m.audioProcessing() },
+		'model-catalog': { section: 'models', title: m.modelCatalogTitle() },
 		'auto-export': { section: 'transcription', title: m.autoExport() },
 		'phone-pairing': { section: 'phone', title: m.pairAPhone() },
 		'ai-summary': { section: 'ai', title: m.aiSummaryTask() },
@@ -97,6 +99,9 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 		isSubpage(scrollTo) ? subpages[scrollTo].section : sections.some((s) => s.id === scrollTo) ? (scrollTo as SectionId) : 'general',
 	)
 	const [subpage, setSubpage] = useState<Subpage | null>(isSubpage(scrollTo) ? scrollTo : null)
+	const [focusModelDownload, setFocusModelDownload] = useState(false)
+	// Where a subpage puts a control of its own on the title line.
+	const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null)
 	const [animateInnerNavigation, setAnimateInnerNavigation] = useState(false)
 	const reducedMotion = useReducedMotion()
 	const contentRef = useRef<HTMLDivElement>(null)
@@ -212,6 +217,7 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 							)}
 						</AnimatePresence>
 						<h2 className="text-xl font-semibold">{subpage ? subpages[subpage].title : sections.find((s) => s.id === activeSection)?.label}</h2>
+						<div ref={setHeaderSlot} className="ms-auto flex shrink-0 items-center ps-3" />
 					</div>
 					<div ref={viewportRef} className="overflow-hidden">
 						<div ref={contentRef} className="flow-root">
@@ -226,7 +232,24 @@ export default function SettingsPage({ setVisible, scrollTo }: SettingsPageProps
 								<TranscriptionSection vm={vm} onOpenAutoExport={() => openSubpage('auto-export')} />
 							)}
 
-							{!subpage && activeSection === 'models' && <ModelsSection vm={vm} />}
+							{subpage === 'model-catalog' && (
+								<ModelCatalogSection
+									vm={vm}
+									headerSlot={headerSlot}
+									onAddModel={() => {
+										setFocusModelDownload(true)
+										navigateInside(null)
+									}}
+								/>
+							)}
+							{!subpage && activeSection === 'models' && (
+								<ModelsSection
+									vm={vm}
+									onOpenCatalog={() => openSubpage('model-catalog')}
+									focusDownload={focusModelDownload}
+									onDownloadFocused={() => setFocusModelDownload(false)}
+								/>
+							)}
 
 							{!subpage && activeSection === 'ai' && <AiSection vm={vm} onOpenPrompt={openPrompt} />}
 
