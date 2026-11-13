@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getLocale, getTextDirection, setLocale, type Locale } from '../paraglide/runtime.js'
 import { supportedWebsiteLocales } from '~/lib/i18n'
 import { Outlet } from 'react-router-dom'
+import useScrollToTop from '~/lib/useScrollToTop'
 import useUrlActions from '~/lib/useUrlActions'
 import Footer from './Footer'
 import KofiDialog from './KofiDialog'
@@ -25,6 +26,8 @@ export default function Layout() {
 		document.documentElement.setAttribute('dir', direction)
 		document.body.setAttribute('dir', direction)
 	}, [direction])
+
+	useScrollToTop()
 
 	useUrlActions({
 		'support-vibe': onOpenKofi,
