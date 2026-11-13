@@ -42,8 +42,8 @@ git log --oneline "server-${pin#v}"..main -- server/ 2>/dev/null ||
 ## 2. Bump and write the notes
 
 Pick the number first (`docs/UPDATER.md`, "Version numbers"): a beta is a patch bump on the
-current line (3.3.1, 3.3.2); the real release that follows takes the next minor (3.4.0) and its
-changelog entry covers everything since the previous stable release, betas included.
+current line (3.3.1, 3.3.2). Stable is either the last beta promoted as it is, or the next minor
+(3.4.0) as a fresh build whose changelog entry covers everything since the previous stable release.
 
 Three files, one commit:
 
@@ -121,17 +121,19 @@ Users update from `website/public/updater/<channel>.json`, not GitHub. Details i
 uv run scripts/channel.py X.Y.Z --channel beta
 ```
 
-Commit and push to main (it only touches `website/public/updater/`); the website
-deploy publishes it. **Stop here and tell the user** — stable comes after beta has
-run for a while, and the user decides when:
+Commit it through a PR (main rejects direct pushes; it only touches `website/public/updater/`) and
+merge; the website deploy publishes it. **Stop here and tell the user** — stable comes after beta
+has run for a day or two, and the user decides when. Promotion is one pass with one deploy at the
+end (`docs/UPDATER.md`, "Promoting to stable"):
 
 ```
-uv run scripts/channel.py X.Y.Z --channel stable
-gh release edit vX.Y.Z --prerelease=false --latest
+uv run scripts/channel.py X.Y.Z --channel stable    # PR, merge
+gh release edit vX.Y.Z --prerelease=false --latest  # the website and pre-channel apps read this
+gh workflow run website.yml --ref main              # then verify the channel files and the download button
 ```
 
-Marking GitHub latest is last: versions before channels existed update from it.
-Do not write release notes — the body is already a link to
+If earlier betas were skipped on stable, the promoted version's changelog entry should carry their
+items. Do not write release notes — the body is already a link to
 `https://thewh1teagle.github.io/vibe/changelog/<version>`.
 
 ## 7. Deploy the website and stop the sign server
