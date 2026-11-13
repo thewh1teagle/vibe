@@ -112,15 +112,24 @@ task build-libs {
 	cmake --build $build --config Release --parallel
 
 	# AVX2 is compiled into every CPU kernel, so one build cannot also serve a CPU
-	# without it. Build the CPU backend a second time at the AVX baseline (2011+);
-	# stage-cpu-variant suffixes each build's symbols and vibe-server picks one at startup.
+	# without it. Build the CPU backend twice more: at the AVX baseline (2011+), and
+	# with AVX off (SSE4.2) for the Atom-class Pentium and Celeron chips that never
+	# had it (#1731). stage-cpu-variant suffixes each build's symbols and vibe-server
+	# picks one at startup.
 	build_x64=$ROOT/ggml-build-x64
+	build_sse=$ROOT/ggml-build-sse
 	if $ARCH == x86_64 {
 		remove $build_x64
 		x64flags="$flags -DGGML_VULKAN=OFF -DGGML_AVX2=OFF -DGGML_FMA=OFF -DGGML_BMI2=OFF"
 		if $OS == windows && $flavor == gnu { cmake -S $src -B $build_x64 $x64flags -G "MinGW Makefiles" }
 		else                                { cmake -S $src -B $build_x64 $x64flags }
 		cmake --build $build_x64 --config Release --parallel --target ggml-cpu
+
+		remove $build_sse
+		sseflags="$x64flags -DGGML_AVX=OFF -DGGML_F16C=OFF"
+		if $OS == windows && $flavor == gnu { cmake -S $src -B $build_sse $sseflags -G "MinGW Makefiles" }
+		else                                { cmake -S $src -B $build_sse $sseflags }
+		cmake --build $build_sse --config Release --parallel --target ggml-cpu
 	}
 
 	remove $pkg
@@ -130,6 +139,7 @@ task build-libs {
 		stage-lib $build $pkg ggml-base.lib ggml-base.lib
 		stage-cpu-variant $build $pkg hsw ggml-cpu.lib ggml-cpu-hsw.lib
 		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.lib ggml-cpu-x64.lib
+		stage-cpu-variant $build_sse $pkg sse ggml-cpu.lib ggml-cpu-sse.lib
 		stage-lib $build $pkg ggml-vulkan.lib ggml-vulkan.lib
 	} else if $OS == windows {
 		stage-lib $build $pkg libggml.a ggml.a
@@ -137,6 +147,7 @@ task build-libs {
 		# MinGW's cmake writes ggml-cpu.a, without the lib prefix the linker looks for.
 		stage-cpu-variant $build $pkg hsw ggml-cpu.a libggml-cpu-hsw.a
 		stage-cpu-variant $build_x64 $pkg x64 ggml-cpu.a libggml-cpu-x64.a
+		stage-cpu-variant $build_sse $pkg sse ggml-cpu.a libggml-cpu-sse.a
 		stage-lib $build $pkg libggml-vulkan.a ggml-vulkan.a
 	} else if $OS == macos {
 		stage-lib $build $pkg libggml.a libggml.a
@@ -144,6 +155,7 @@ task build-libs {
 		if $ARCH == x86_64 {
 			stage-cpu-variant $build $pkg hsw libggml-cpu.a libggml-cpu-hsw.a
 			stage-cpu-variant $build_x64 $pkg x64 libggml-cpu.a libggml-cpu-x64.a
+			stage-cpu-variant $build_sse $pkg sse libggml-cpu.a libggml-cpu-sse.a
 		} else {
 			stage-lib $build $pkg libggml-cpu.a libggml-cpu.a
 		}
@@ -154,6 +166,7 @@ task build-libs {
 		stage-lib $build $pkg libggml-base.a libggml-base.a
 		stage-cpu-variant $build $pkg hsw libggml-cpu.a libggml-cpu-hsw.a
 		stage-cpu-variant $build_x64 $pkg x64 libggml-cpu.a libggml-cpu-x64.a
+		stage-cpu-variant $build_sse $pkg sse libggml-cpu.a libggml-cpu-sse.a
 		stage-lib $build $pkg libggml-vulkan.a libggml-vulkan.a
 	} else {
 		stage-lib $build $pkg libggml.a libggml.a
@@ -199,7 +212,7 @@ task stage-lib build pkg name alt {
 	copy $found $2/lib/$3
 }
 
-# Package one CPU backend build with every symbol it defines suffixed, so two builds
+# Package one CPU backend build with every symbol it defines suffixed, so several builds
 # can be linked into one binary: stage-cpu-variant <build> <pkg> <suffix> <name> <out>.
 # The symbol list comes from the archive itself, so nothing is maintained by hand; a
 # symbol that escaped the rename would fail the link as a duplicate.

@@ -701,6 +701,7 @@
 	"cpuVariantAuto": "אוטומטי",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Baseline (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "אפשרויות Whisper",
 	"whisperOptionsInfo": "ברירות המחדל מתאימות לרוב ההקלטות.",
 	"audioProcessing": "עיבוד אודיו",

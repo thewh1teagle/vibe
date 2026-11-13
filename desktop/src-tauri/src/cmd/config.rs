@@ -15,14 +15,16 @@ pub const CPU_VARIANT_KEY: &str = "server.cpuVariant";
 
 /// Which build of the engine's CPU backend to run.
 ///
-/// `Auto` lets the engine decide from CPUID. `Baseline` is for a machine that advertises
+/// `Auto` lets the engine decide from CPUID. `Baseline` (AVX) is for a machine that advertises
 /// AVX2 it cannot execute, which happens on a Hackintosh with spoofed CPUID (#1499): the
-/// engine then dies with an illegal instruction while loading the model.
+/// engine then dies with an illegal instruction while loading the model. `Sse` is the build
+/// with AVX off, which `Auto` already picks on a CPU that reports no AVX (#1731).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CpuVariant {
     Auto,
     Avx2,
     Baseline,
+    Sse,
 }
 
 impl CpuVariant {
@@ -30,6 +32,7 @@ impl CpuVariant {
         match value {
             "avx2" => Self::Avx2,
             "baseline" => Self::Baseline,
+            "sse" => Self::Sse,
             _ => Self::Auto,
         }
     }
@@ -40,6 +43,7 @@ impl CpuVariant {
             Self::Auto => None,
             Self::Avx2 => Some("avx2"),
             Self::Baseline => Some("baseline"),
+            Self::Sse => Some("sse"),
         }
     }
 
@@ -48,6 +52,16 @@ impl CpuVariant {
             Self::Auto => "auto",
             Self::Avx2 => "avx2",
             Self::Baseline => "baseline",
+            Self::Sse => "sse",
+        }
+    }
+
+    /// The builds to try, in order, after this one died with an illegal instruction.
+    pub fn lower(self) -> &'static [Self] {
+        match self {
+            Self::Auto | Self::Avx2 => &[Self::Baseline, Self::Sse],
+            Self::Baseline => &[Self::Sse],
+            Self::Sse => &[],
         }
     }
 }

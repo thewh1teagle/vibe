@@ -25,7 +25,7 @@ export const CONFIG_KEYS = {
 	/** Models that ran out of GPU memory here, loaded on the CPU from then on. */
 	gpuOutOfMemoryModels: 'model.gpuOutOfMemoryModels',
 	unloadTimeoutMinutes: 'model.unloadTimeoutMinutes',
-	// Which build of the engine's CPU backend to run: auto, avx2, or baseline. Read by Rust at spawn.
+	// Which build of the engine's CPU backend to run: auto, avx2, baseline, or sse. Read by Rust at spawn.
 	cpuVariant: 'server.cpuVariant',
 	modelPromptDismissed: 'model.downloadPromptDismissed',
 

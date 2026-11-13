@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "स्वतः",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Baseline (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Whisper विकल्प",
 	"whisperOptionsInfo": "ज़्यादातर रिकॉर्डिंग के लिए डिफ़ॉल्ट सेटिंग्स ही सही रहती हैं।",
 	"audioProcessing": "ऑडियो प्रोसेसिंग",

@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "자동",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "기본값 (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Whisper 옵션",
 	"whisperOptionsInfo": "대부분의 녹음에는 기본값으로 충분합니다.",
 	"audioProcessing": "오디오 처리",

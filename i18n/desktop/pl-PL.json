@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "Automatycznie",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Podstawowy (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Opcje Whispera",
 	"whisperOptionsInfo": "Domyślne ustawienia sprawdzają się przy większości nagrań.",
 	"audioProcessing": "Przetwarzanie dźwięku",

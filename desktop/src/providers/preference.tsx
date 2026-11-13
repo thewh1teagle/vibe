@@ -18,7 +18,7 @@ import { invoke } from '@tauri-apps/api/core'
 import type { ModelMetadata } from '~/lib/model'
 
 /** Which build of the engine's CPU backend to run; `auto` lets CPUID decide. */
-export type CpuVariant = 'auto' | 'avx2' | 'baseline'
+export type CpuVariant = 'auto' | 'avx2' | 'baseline' | 'sse'
 
 type Direction = 'ltr' | 'rtl'
 export type HomeTab = 'record' | 'file' | 'link'

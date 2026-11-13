@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "Automaticky",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Základní (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Možnosti Whisperu",
 	"whisperOptionsInfo": "Výchozí hodnoty vyhovují většině nahrávek.",
 	"audioProcessing": "Zpracování zvuku",

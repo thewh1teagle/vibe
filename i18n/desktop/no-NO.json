@@ -680,6 +680,7 @@
 	"cpuVariantAuto": "Automatisk",
 	"cpuVariantAvx2": "AVX2",
 	"cpuVariantBaseline": "Basis (AVX)",
+	"cpuVariantSse": "SSE4.2",
 	"whisperOptions": "Whisper-valg",
 	"whisperOptionsInfo": "Standardverdiene passer for de fleste opptak.",
 	"audioProcessing": "Lydbehandling",
