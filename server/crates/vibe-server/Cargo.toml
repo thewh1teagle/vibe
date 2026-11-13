@@ -14,6 +14,7 @@ path = "src/main.rs"
 whisper-rs = { path = "../whisper-rs", features = ["ffi"] }
 nemotron-rs = { path = "../nemotron-rs" }
 parakeet-rs = { path = "../parakeet-rs" }
+zipformer-rs = { path = "../zipformer-rs" }
 vad-rs = { path = "../vad-rs" }
 nemotron-diarize-rs = { path = "../nemotron-diarize-rs", optional = true }
 

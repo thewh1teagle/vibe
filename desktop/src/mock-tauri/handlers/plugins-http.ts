@@ -8,6 +8,8 @@
 // Requests blocked by browser CORS reject, which is expected in mock mode.
 import type { CommandHandlerMap } from '../types'
 import { fakeAiChunks, isFakeAiUrl } from './fake-ai'
+import { modelCatalogURL } from '~/lib/config'
+import modelCatalog from '../../../../website/public/models.json'
 
 interface ClientConfig {
 	method?: string
@@ -74,6 +76,12 @@ export const httpHandlers: CommandHandlerMap = {
 			const bodyRid = nextRid++
 			bodies.set(bodyRid, { chunks: fakeAiChunks(config.url ?? '', request), index: 0, delayMs: 40 })
 			return { status: 200, statusText: 'OK', url: config.url ?? '', headers: [['content-type', 'application/json']], rid: bodyRid }
+		}
+		// The published catalog may be older than this checkout, or not published at all yet.
+		if (config.url === modelCatalogURL) {
+			const bodyRid = nextRid++
+			bodies.set(bodyRid, { chunks: [new TextEncoder().encode(JSON.stringify(modelCatalog))], index: 0 })
+			return { status: 200, statusText: 'OK', url: config.url, headers: [['content-type', 'application/json']], rid: bodyRid }
 		}
 		const hasBody = method !== 'GET' && method !== 'HEAD' && config.data != null
 		const response = await fetch(config.url ?? '', {

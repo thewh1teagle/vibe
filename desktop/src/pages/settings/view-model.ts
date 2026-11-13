@@ -39,7 +39,7 @@ async function openSelectedModel(path: string | null) {
 }
 
 async function openModelsUrl() {
-	openUrl(config.modelsDocURL)
+	openUrl(config.modelsPageURL)
 }
 
 async function reportIssue() {

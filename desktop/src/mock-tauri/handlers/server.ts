@@ -210,15 +210,24 @@ export const serverHandlers: CommandHandlerMap = {
 		return runTranscribe(options)
 	},
 
+	// `localStorage['mock-model-download'] = 'corrupt'` makes the next downloads fail verification
+	// the way the backend words it, to try the retry path.
 	download_model: async (args) => {
 		const path = String(args.path ?? `${MODELS_FOLDER}/${DEFAULT_MODEL_FILE}`)
 		const completed = await runDownloadTicks('abort_download')
 		if (!completed) {
 			return { status: 'cancelled' }
 		}
+		if (localStorage.getItem('mock-model-download') === 'corrupt') {
+			throw 'Corrupt download: expected sha256 00, got ff'
+		}
 		virtualFs.set(path, null)
 		return { status: 'completed', path }
 	},
+
+	check_model_files: (args) => ((args.paths ?? []) as string[]).map((path) => ({ path, valid: true, size: 0, reason: null })),
+
+	cleanup_partial_downloads: () => [],
 
 	download_file: async (args) => {
 		const path = String(args.path ?? '')

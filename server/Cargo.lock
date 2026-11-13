@@ -2180,6 +2180,7 @@ dependencies = [
  "vad-rs",
  "whisper-rs",
  "windows-sys 0.61.2",
+ "zipformer-rs",
 ]
 
 [[package]]
@@ -2636,6 +2637,18 @@ dependencies = [
  "indexmap",
  "memchr",
  "zopfli",
+]
+
+[[package]]
+name = "zipformer-rs"
+version = "0.1.0"
+dependencies = [
+ "ggml-rs-sys",
+ "hound",
+ "rayon",
+ "rustfft",
+ "thiserror",
+ "vad-rs",
 ]
 
 [[package]]

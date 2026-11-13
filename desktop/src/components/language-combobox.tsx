@@ -45,6 +45,8 @@ interface LanguageComboboxProps {
 	/** Extra classes for the trigger (width overrides, mostly). */
 	className?: string
 	contentClassName?: string
+	/** Which edge of the trigger the list lines up with; `end` for a trigger at the far side of a row. */
+	align?: 'start' | 'end'
 	/** Capitalize labels that ship lowercase (the display-language registry does). */
 	capitalize?: boolean
 }
@@ -231,6 +233,7 @@ export function LanguageCombobox({
 	variant = 'default',
 	className,
 	contentClassName,
+	align = 'start',
 	capitalize,
 }: LanguageComboboxProps) {
 	const [open, setOpen] = useState(false)
@@ -322,7 +325,7 @@ export function LanguageCombobox({
 				</div>
 			</PopoverAnchor>
 			<PopoverContent
-				align="start"
+				align={align}
 				onOpenAutoFocus={(event) => event.preventDefault()}
 				className={cn('rounded-2xl p-0', prominent ? 'w-[240px]' : 'w-[var(--radix-popper-anchor-width)] min-w-[240px]', contentClassName)}>
 				<div ref={listRef} className="max-h-72 overflow-y-auto p-1.5">

@@ -1,7 +1,9 @@
 export const aboutURL = 'https://thewh1teagle.github.io/vibe/'
 export const repoURL = 'https://github.com/thewh1teagle/vibe'
 export const updateVersionURL = 'https://github.com/thewh1teagle/vibe/releases/latest'
-export const modelsDocURL = 'https://thewh1teagle.github.io/vibe/docs#models'
+export const modelsPageURL = 'https://thewh1teagle.github.io/vibe/models'
+/** The model catalog, published with the website so models added later reach installed apps. */
+export const modelCatalogURL = 'https://thewh1teagle.github.io/vibe/models.json'
 /**
  * Release notes. With a version it opens that release, otherwise the whole list —
  * the page falls back to English for a release this locale has not translated.
