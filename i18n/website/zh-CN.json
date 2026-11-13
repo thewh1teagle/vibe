@@ -71,6 +71,8 @@
 	"changelogImproved": "改进",
 	"changelogFixed": "修复",
 	"changelogAll": "所有版本",
+	"changelogBeta": "测试版",
+	"changelogBetaHint": "目前仅在测试版通道提供。要获取它，请在应用中打开“设置 → 通用 → 测试版更新”。",
 	"changelogUnknownVersion": "不存在 {version} 版本。",
 	"download-for-mac": "下载 macOS 版",
 	"which-mac": "选择适合你 Mac 的版本。不确定？苹果菜单 → 关于本机 会显示芯片。",

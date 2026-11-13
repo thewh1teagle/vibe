@@ -226,14 +226,12 @@ impl HandoffHandler {
                     end,
                     text,
                     speaker,
+                    words,
                 }) => {
                     // Server reports seconds as f64; the wire format wants centiseconds.
-                    let segment = crate::transcript::Segment {
-                        start: (start * 100.0) as i64,
-                        stop: (end * 100.0) as i64,
-                        text,
-                        speaker,
-                    };
+                    // The words stay on this side: the saved transcript keeps them, the
+                    // phone's segment event does not carry them.
+                    let segment = crate::transcript::Segment::from_server(start, end, text, speaker, words);
                     segments.push(segment.clone());
                     write_event(
                         send,

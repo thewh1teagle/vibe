@@ -71,6 +71,8 @@
 	"changelogImproved": "Vylepšení",
 	"changelogFixed": "Opravy",
 	"changelogAll": "Všechna vydání",
+	"changelogBeta": "Beta",
+	"changelogBetaHint": "Zatím jen v kanálu Beta. Získáte ji zapnutím Nastavení → Obecné → Beta aktualizace v aplikaci.",
 	"changelogUnknownVersion": "Vydání {version} neexistuje.",
 	"download-for-mac": "Stáhnout pro macOS",
 	"which-mac": "Vyberte sestavení pro svůj Mac. Nevíte? Nabídka Apple → O tomto Macu ukáže čip.",

@@ -7,6 +7,8 @@ import successSound from '~/assets/success.mp3'
 import { m } from '~/paraglide/messages.js'
 import { trackGpuOutOfMemory, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import * as config from '~/lib/config'
+import { CONFIG_KEYS } from '~/lib/config-keys'
+import { readConfig } from '~/lib/config-store'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
 import { validPath } from '~/lib/media'
 import { exportTranscript, sharedFolder, summarizeResults, tauriExportIo, type AutoExportResult } from '~/lib/auto-export'
@@ -16,6 +18,7 @@ import { autoProjectName } from '~/lib/project-name'
 import { gpuOutOfMemoryBefore, rememberGpuOutOfMemory } from '~/lib/gpu-memory'
 import { fatalRunError, isGpuOutOfMemory, isUserError, serverErrorCodes } from '~/lib/server-errors'
 import type { Segment, SpeakerNames, Transcript } from '~/lib/transcript'
+import type { LinesMode } from '~/lib/transcript-grouping'
 import {
 	notifyTranscriptsChanged,
 	renameTranscript,
@@ -114,8 +117,8 @@ export interface TranscribeQueue {
 	 * job's path so the player keeps working after the original file moved away.
 	 */
 	hydrate: (record: TranscriptRecord, savedPath: string, audioPath?: string | null, source?: ProjectSource) => string | null
-	/** Inline edit of one segment's text. Persists to the job's saved file when it has one. */
-	updateSegmentText: (jobId: string, segmentIndex: number, text: string) => void
+	/** Replace a job's lines after an inline edit or a speaker change. Persists to the saved file when it has one. */
+	setSegments: (jobId: string, segments: Segment[]) => void
 	/** Rename the visible project and its persisted record, when one exists. */
 	renameJob: (jobId: string, name: string) => Promise<boolean>
 	/** Update the visible title while the inline rename editor is open. */
@@ -126,8 +129,6 @@ export interface TranscribeQueue {
 	setJobThread: (jobId: string, thread: AiThreadEntry[]) => void
 	/** Name one diarized speaker; an empty name restores "Speaker N". Persists like the segment edits. */
 	setSpeakerName: (jobId: string, speaker: number, name: string) => void
-	/** Attribute one line to a speaker: a line diarization missed, or one it got wrong. */
-	setSegmentSpeaker: (jobId: string, segmentIndex: number, speaker: number) => void
 	cancelCurrent: () => void
 	cancelAll: () => void
 	reset: () => void
@@ -322,6 +323,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 					showSpeakers: current.exportOptions.showSpeakers,
 					speakerLabel: m.speakerPrefix(),
 					labels: { transcript: m.exportTranscript(), summary: m.exportSummary() },
+					lines: readConfig<LinesMode>(CONFIG_KEYS.transcriptLines, 'original'),
 				},
 				tauriExportIo(current.projectsPath),
 				{ skipped: (names) => m.autoExportSkipped({ names }), fallback: m.autoExportFallback() },
@@ -653,27 +655,13 @@ export function useTranscribeQueue(): TranscribeQueue {
 	)
 
 	/**
-	 * Replace the text of one segment. The write back to the store is fire-and-forget for the same
+	 * Replace a job's lines after an edit. The write back to the store is fire-and-forget for the same
 	 * reason `persist` is: an unwritable file must not cost the user their edit on screen.
 	 */
-	const updateSegmentText = useCallback(
-		(jobId: string, segmentIndex: number, text: string) => {
+	const setSegments = useCallback(
+		(jobId: string, segments: Segment[]) => {
 			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
-			const segment = job?.segments[segmentIndex]
-			if (!job || !segment || segment.text === text) return
-			const segments = job.segments.map((item, index) => (index === segmentIndex ? { ...item, text } : item))
-			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, segments } : candidate)))
-			if (job.savedPath) void updateTranscriptSegments(job.savedPath, segments)
-		},
-		[commit],
-	)
-
-	const setSegmentSpeaker = useCallback(
-		(jobId: string, segmentIndex: number, speaker: number) => {
-			const job = jobsRef.current.find((candidate) => candidate.id === jobId)
-			const segment = job?.segments[segmentIndex]
-			if (!job || !segment || segment.speaker === speaker) return
-			const segments = job.segments.map((item, index) => (index === segmentIndex ? { ...item, speaker } : item))
+			if (!job || job.segments === segments) return
 			commit(jobsRef.current.map((candidate) => (candidate.id === jobId ? { ...candidate, segments } : candidate)))
 			if (job.savedPath) void updateTranscriptSegments(job.savedPath, segments)
 		},
@@ -781,13 +769,12 @@ export function useTranscribeQueue(): TranscribeQueue {
 		enqueue,
 		transcribeJob,
 		hydrate,
-		updateSegmentText,
+		setSegments,
 		renameJob,
 		previewJobName,
 		setJobSummary,
 		setJobThread,
 		setSpeakerName,
-		setSegmentSpeaker,
 		cancelCurrent,
 		cancelAll,
 		reset,

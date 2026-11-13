@@ -71,6 +71,8 @@
 	"changelogImproved": "Improved",
 	"changelogFixed": "Fixed",
 	"changelogAll": "All releases",
+	"changelogBeta": "Beta",
+	"changelogBetaHint": "On the beta channel for now. To get it, turn on Settings → General → Beta updates in the app.",
 	"changelogUnknownVersion": "There is no release {version}.",
 	"download-for-mac": "Download for macOS",
 	"which-mac": "Pick the build for your Mac. Not sure? Apple menu → About This Mac shows the chip.",

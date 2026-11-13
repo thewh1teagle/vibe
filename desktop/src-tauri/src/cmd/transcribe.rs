@@ -149,13 +149,9 @@ pub async fn transcribe(
                     end,
                     text,
                     speaker,
+                    words,
                 } => {
-                    let segment = Segment {
-                        start: (start * 100.0) as i64,
-                        stop: (end * 100.0) as i64,
-                        text,
-                        speaker,
-                    };
+                    let segment = Segment::from_server(start, end, text, speaker, words);
                     app_handle.emit_to("main", "new_segment", segment.clone()).log_error();
                     segments.push(segment);
                 }

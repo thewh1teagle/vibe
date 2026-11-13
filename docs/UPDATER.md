@@ -8,6 +8,17 @@ Vibe updates from two channel files on the website, not from GitHub's latest rel
 Each is the `latest.json` a release build produced. Everyone is on stable unless they turn on
 Settings → General → Beta updates. The app side is `desktop/src-tauri/src/updater.rs`.
 
+## Version numbers
+
+A beta is a patch bump on the current line: with 3.3.0 on stable, betas are 3.3.1, 3.3.2 and so on,
+each with its own short changelog entry. The real release takes the next minor number (3.4.0): a
+fresh signed build of the last beta's code, with one changelog entry covering everything since the
+previous stable release. Stable users then see a single jump with complete notes, and beta users
+update to it like everyone else.
+
+The changelog page marks every version newer than `stable.json` as Beta by itself, so nothing has
+to be edited when a version is promoted.
+
 ## Shipping a release
 
 ```console

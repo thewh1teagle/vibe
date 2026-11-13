@@ -71,6 +71,8 @@
 	"changelogImproved": "Улучшено",
 	"changelogFixed": "Исправлено",
 	"changelogAll": "Все выпуски",
+	"changelogBeta": "Бета",
+	"changelogBetaHint": "Пока только в бета-канале. Чтобы получить её, включите Настройки → Общие → Бета-обновления в приложении.",
 	"changelogUnknownVersion": "Выпуска {version} нет.",
 	"download-for-mac": "Скачать для macOS",
 	"which-mac": "Выберите сборку для вашего Mac. Не уверены? Меню Apple → Об этом Mac покажет чип.",

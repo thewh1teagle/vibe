@@ -71,6 +71,8 @@
 	"changelogImproved": "Mejorado",
 	"changelogFixed": "Corregido",
 	"changelogAll": "Todas las versiones",
+	"changelogBeta": "Beta",
+	"changelogBetaHint": "Por ahora está en el canal beta. Para recibirla, activa Configuración → General → Actualizaciones beta en la app.",
 	"changelogUnknownVersion": "No existe la versión {version}.",
 	"download-for-mac": "Descargar para macOS",
 	"which-mac": "Elige la versión para tu Mac. ¿No estás seguro? Menú Apple → Acerca de esta Mac muestra el chip.",

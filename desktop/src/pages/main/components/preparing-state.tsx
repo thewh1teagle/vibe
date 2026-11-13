@@ -1,8 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { Check } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { getLocale, getTextDirection } from '~/paraglide/runtime.js'
-import type { Job } from '../hooks/use-transcribe-queue'
+import { cn } from '~/lib/style'
+import { usePreferenceProvider } from '~/providers/preference'
+import type { Job, JobStage } from '../hooks/use-transcribe-queue'
 
 /** How long a job waits before the note about long recordings appears; short files never see it. */
 const HINT_DELAY_MS = 6000
@@ -28,9 +31,30 @@ export function stageLabel(job: Job) {
 	}
 }
 
-/** The transcript's place while a job prepares: the current step, and the shape of the lines to come. */
+const STAGE_LABELS: Record<JobStage, () => string> = {
+	preparing: () => m.stagePreparingAudio(),
+	speakers: () => m.stageRecognizingSpeakers(),
+	transcribing: () => m.stageStartingTranscription(),
+}
+
+/** A step that is not happening right now reads as a name, without the trailing dots of the running one. */
+function restingLabel(label: string) {
+	return label.replace(/[.…。\s]+$/u, '')
+}
+
+/** The transcript's place while a job prepares: every step on the way to the first line, and the shape of the lines to come. */
 export default function PreparingState({ job }: { job: Job }) {
-	const label = stageLabel(job)
+	const preference = usePreferenceProvider()
+	const current: JobStage = job.stage ?? 'preparing'
+	// Telling speakers apart only happens when it is switched on; the list shows the steps this run will take.
+	const [sawSpeakers, setSawSpeakers] = useState(false)
+	useEffect(() => setSawSpeakers(false), [job.id])
+	useEffect(() => {
+		if (current === 'speakers') setSawSpeakers(true)
+	}, [current])
+	const withSpeakers = preference.diarizeEnabled || sawSpeakers || current === 'speakers'
+	const stages: JobStage[] = withSpeakers ? ['preparing', 'speakers', 'transcribing'] : ['preparing', 'transcribing']
+	const at = stages.indexOf(current)
 	const [showHint, setShowHint] = useState(false)
 	// These are interface strings: in a transcript column laid out for another script, their own
 	// direction keeps the trailing dots at the end of the sentence.
@@ -44,21 +68,44 @@ export default function PreparingState({ job }: { job: Job }) {
 
 	return (
 		<div className="w-full" role="status" aria-live="polite">
-			<div className="flex items-center gap-2.5">
-				<span className="aurora-orb h-3.5 w-3.5 shrink-0 rounded-full" aria-hidden />
-				<AnimatePresence mode="wait" initial={false}>
-					<motion.span
-						key={label}
-						dir={dir}
-						initial={{ opacity: 0, y: 4 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -4 }}
-						transition={{ duration: 0.22, ease: 'easeOut' }}
-						className="shimmer-text text-sm font-medium">
-						{label}
-					</motion.span>
-				</AnimatePresence>
-			</div>
+			<ol className="space-y-2.5">
+				{stages.map((stage, position) => {
+					const label = STAGE_LABELS[stage]()
+					const done = position < at
+					const running = position === at
+					return (
+						<li key={stage} aria-current={running ? 'step' : undefined} className="flex items-center gap-2.5">
+							<span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center" aria-hidden>
+								<AnimatePresence mode="wait" initial={false}>
+									<motion.span
+										key={done ? 'done' : running ? 'running' : 'waiting'}
+										initial={{ opacity: 0, scale: 0.6 }}
+										animate={{ opacity: 1, scale: 1 }}
+										exit={{ opacity: 0, scale: 0.6 }}
+										transition={{ duration: 0.18, ease: 'easeOut' }}
+										className="flex items-center justify-center">
+										{done ? (
+											<Check className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2.5} />
+										) : running ? (
+											<span className="aurora-orb block h-3.5 w-3.5 rounded-full" />
+										) : (
+											<span className="block h-1.5 w-1.5 rounded-full bg-muted-foreground/35" />
+										)}
+									</motion.span>
+								</AnimatePresence>
+							</span>
+							<span
+								dir={dir}
+								className={cn(
+									'text-sm transition-colors duration-300',
+									running ? 'shimmer-text font-medium' : done ? 'text-muted-foreground' : 'text-muted-foreground/55',
+								)}>
+								{running ? label : restingLabel(label)}
+							</span>
+						</li>
+					)
+				})}
+			</ol>
 
 			<div className="mt-5 space-y-3" aria-hidden>
 				<div className="aurora-sheen h-3 w-[92%] rounded-full" />

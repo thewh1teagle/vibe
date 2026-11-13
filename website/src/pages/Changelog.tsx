@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { cn } from '~/lib/style'
-import { findRelease, hasTranslations, loadReleases, releases, sections, type Release, type Section } from '~/lib/changelog'
+import { findRelease, hasTranslations, isNewer, loadReleases, releases, sections, type Release, type Section } from '~/lib/changelog'
 import { m } from '~/paraglide/messages.js'
 import { getLocale, getTextDirection, type Locale } from '~/paraglide/runtime.js'
 
@@ -36,7 +36,28 @@ function formatDate(date: string, locale: string) {
 	return formatter.format(new Date(`${date}T00:00:00Z`))
 }
 
-function Entry({ release, single }: { release: Release; single: boolean }) {
+/**
+ * The version on the stable channel, read from the file the app itself updates from. A release
+ * newer than it has only reached the beta channel, and stops being marked the moment it is promoted.
+ */
+function useStableVersion() {
+	const [version, setVersion] = useState<string | null>(null)
+	useEffect(() => {
+		let alive = true
+		fetch(`${import.meta.env.BASE_URL}updater/stable.json`)
+			.then((response) => (response.ok ? response.json() : null))
+			.then((channel) => {
+				if (alive && typeof channel?.version === 'string') setVersion(channel.version)
+			})
+			.catch(() => {})
+		return () => {
+			alive = false
+		}
+	}, [])
+	return version
+}
+
+function Entry({ release, single, beta }: { release: Release; single: boolean; beta: boolean }) {
 	const id = `v${release.version}`
 	return (
 		<article
@@ -48,9 +69,15 @@ function Entry({ release, single }: { release: Release; single: boolean }) {
 				<Link to={`/changelog/${release.version}`} className="text-[15px] font-medium text-foreground transition-colors hover:text-primary">
 					{id}
 				</Link>
+				{beta && (
+					<span className="ms-2 inline-block rounded-full bg-violet-500/12 px-2 py-0.5 align-middle text-[11px] font-medium tracking-wide text-violet-700 dark:text-violet-300">
+						{m.changelogBeta()}
+					</span>
+				)}
 				<time dateTime={release.date} className="mt-1 block text-[13px] text-muted-foreground">
 					{formatDate(release.date, release.locale)}
 				</time>
+				{beta && <p className="mt-2 max-w-[18rem] text-[12px] leading-5 text-muted-foreground">{m.changelogBetaHint()}</p>}
 				{single && (
 					<Link
 						to="/changelog"
@@ -84,6 +111,7 @@ function Entry({ release, single }: { release: Release; single: boolean }) {
 
 export default function Changelog() {
 	const { version } = useParams()
+	const stable = useStableVersion()
 	// A locale with translations waits for them instead of painting English first: swapping
 	// English for, say, Hebrew a moment later flips direction and reflows the whole page.
 	const [list, setList] = useState<Release[] | null>(() => (hasTranslations(getLocale()) ? null : releases))
@@ -118,7 +146,7 @@ export default function Changelog() {
 			{/* Holds the page's height while translations load, so the footer does not jump up and back. */}
 			<div className={cn('mt-6', !list && 'min-h-[100vh]')}>
 				{shown.map((release) => (
-					<Entry key={release.version} release={release} single={Boolean(one)} />
+					<Entry key={release.version} release={release} single={Boolean(one)} beta={stable !== null && isNewer(release.version, stable)} />
 				))}
 			</div>
 		</main>

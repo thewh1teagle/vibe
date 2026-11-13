@@ -71,6 +71,8 @@
 	"changelogImproved": "Ulepszenia",
 	"changelogFixed": "Poprawki",
 	"changelogAll": "Wszystkie wydania",
+	"changelogBeta": "Beta",
+	"changelogBetaHint": "Na razie w kanale beta. Aby ją dostać, włącz Ustawienia → Ogólne → Aktualizacje beta w aplikacji.",
 	"changelogUnknownVersion": "Nie ma wydania {version}.",
 	"download-for-mac": "Pobierz dla macOS",
 	"which-mac": "Wybierz wersję dla swojego Maca. Nie wiesz? Menu Apple → Ten Mac pokazuje układ.",

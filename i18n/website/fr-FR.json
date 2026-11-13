@@ -71,6 +71,8 @@
 	"changelogImproved": "Améliorations",
 	"changelogFixed": "Corrections",
 	"changelogAll": "Toutes les versions",
+	"changelogBeta": "Bêta",
+	"changelogBetaHint": "Pour l’instant sur le canal bêta. Pour l’obtenir, activez Paramètres → Général → Mises à jour bêta dans l’application.",
 	"changelogUnknownVersion": "La version {version} n’existe pas.",
 	"download-for-mac": "Télécharger pour macOS",
 	"which-mac": "Choisissez la version pour votre Mac. Un doute ? Menu Pomme → À propos de ce Mac indique la puce.",

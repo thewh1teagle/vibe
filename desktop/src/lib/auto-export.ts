@@ -6,7 +6,8 @@ import { toDocx } from '~/lib/docx'
 import { transcriptToPdf } from '~/lib/pdf/transcript-pdf'
 import { projectExportFilename } from '~/lib/project-name'
 import type { Segment, SpeakerNames } from '~/lib/transcript'
-import { serializeTranscriptExport, type TranscriptExportOptions } from '~/lib/transcript-export'
+import { segmentsForFormat, serializeTranscriptExport, type TranscriptExportOptions } from '~/lib/transcript-export'
+import type { LinesMode } from '~/lib/transcript-grouping'
 import { transcriptsFolder } from '~/lib/transcripts-store'
 
 /**
@@ -65,6 +66,8 @@ export interface ExportRendering {
 	showSpeakers: boolean
 	speakerLabel: string
 	labels: { transcript: string; summary: string }
+	/** The transcript's Lines view; readable formats are written the way it reads on screen. */
+	lines?: LinesMode
 }
 
 /** The file system as the exporter sees it; swapped for a fake in tests. */
@@ -104,11 +107,12 @@ export async function renderExport(format: TextFormat, input: ExportInput, rende
 		direction: rendering.direction,
 		theme: rendering.theme,
 	}
+	const segments = segmentsForFormat(format, input.segments, rendering.lines ?? 'original')
 	if (format === 'pdf') {
-		return transcriptToPdf(input.segments, input.summary ?? '', options, rendering.labels)
+		return transcriptToPdf(segments, input.summary ?? '', options, rendering.labels)
 	}
 	if (format === 'docx') {
-		const document = await toDocx(input.name, input.segments, rendering.direction, rendering.speakerLabel, {
+		const document = await toDocx(input.name, segments, rendering.direction, rendering.speakerLabel, {
 			content: options.content,
 			showTimestamps: rendering.showTimestamps,
 			showSpeakers: rendering.showSpeakers,
@@ -119,7 +123,7 @@ export async function renderExport(format: TextFormat, input: ExportInput, rende
 		})
 		return new Uint8Array(await document.arrayBuffer())
 	}
-	return serializeTranscriptExport(format, input.segments, input.summary, options)
+	return serializeTranscriptExport(format, segments, input.summary, options)
 }
 
 /** Where one format's file goes for this destination. */
