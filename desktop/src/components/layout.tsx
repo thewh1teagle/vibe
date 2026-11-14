@@ -11,6 +11,7 @@ import { UpdaterContext } from '~/providers/updater'
 import SettingsModal from './settings-modal'
 import PageTransition from './page-transition'
 import ModelDownloadPrompt from './model-download-prompt'
+import UpdateBanner from './update-banner'
 
 /**
  * The topbar lives here but the Recents sidebar belongs to the main page, so the toggle travels as
@@ -133,6 +134,8 @@ export default function Layout({ children, sidebar, bottomBar }: LayoutProps) {
 				{sidebar}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col bg-background" style={{ direction: getTextDirection() }}>
 					<header data-tauri-drag-region className="flex h-14 shrink-0 items-center justify-end gap-4 pe-4"></header>
+					{/* Below the drag strip, so the titlebar and traffic lights stay put; above every page's content. */}
+					<UpdateBanner />
 					{/*
 					 * The main page owns its scrolling (transcript pane, file rail), so the shell must not
 					 * scroll too — otherwise the rails drift away under the reader. Other pages scroll here.

@@ -65,7 +65,7 @@ function LaunchAtStartupSwitch() {
 export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 	const themeLabels = { light: m.light, dark: m.dark } as const
 	const themeIcons = { light: Sun, dark: Moon } as const
-	const { channel, setChannel } = useContext(UpdaterContext)
+	const { channel, setChannel, autoUpdate, setAutoUpdate } = useContext(UpdaterContext)
 
 	return (
 		<div className="space-y-5">
@@ -109,8 +109,11 @@ export function GeneralSection({ vm }: { vm: SettingsViewModel }) {
 				<SettingsRow label={m.preventSleep()} description={m.generalAwakeInfo()}>
 					<Switch checked={vm.preference.preventSleep} onCheckedChange={vm.preference.setPreventSleep} />
 				</SettingsRow>
+				<SettingsRow label={m.autoUpdate()} description={m.autoUpdateInfo()}>
+					<Switch checked={autoUpdate} onCheckedChange={(on) => void setAutoUpdate(on)} />
+				</SettingsRow>
 				<SettingsRow label={m.betaUpdates()} description={m.betaUpdatesInfo()}>
-					<Switch checked={channel === 'beta'} onCheckedChange={(on) => setChannel(on ? 'beta' : 'stable')} />
+					<Switch checked={channel === 'beta'} onCheckedChange={(on) => void setChannel(on ? 'beta' : 'stable')} />
 				</SettingsRow>
 			</SettingsGroup>
 

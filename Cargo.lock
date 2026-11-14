@@ -8372,6 +8372,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 name = "vibe"
 version = "0.0.6"
 dependencies = [
+ "base64 0.22.1",
  "block2 0.6.2",
  "bytemuck",
  "bytes",
@@ -8391,6 +8392,7 @@ dependencies = [
  "libc-stdhandle",
  "libloading 0.8.9",
  "meeting-detect",
+ "minisign-verify",
  "notify",
  "objc2 0.6.4",
  "objc2-app-kit 0.3.2",

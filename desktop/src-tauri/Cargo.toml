@@ -81,6 +81,9 @@ enigo = "0.3"
 iroh = "1"
 subtle = "2"
 hex = "0.4"
+# The updater keeps a downloaded package on disk between runs and checks its signature again before use
+minisign-verify = "0.2"
+base64 = "0.22"
 
 # Linux
 [target.'cfg(target_os = "linux")'.dependencies]

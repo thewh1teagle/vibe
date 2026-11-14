@@ -6,7 +6,35 @@ Vibe updates from two channel files on the website, not from GitHub's latest rel
 - `https://thewh1teagle.github.io/vibe/updater/beta.json`
 
 Each is the `latest.json` a release build produced. Everyone is on stable unless they turn on
-Settings → General → Beta updates. The app side is `desktop/src-tauri/src/updater.rs`.
+Settings → General → Beta updates. The app side is `desktop/src-tauri/src/updater/`.
+
+## How the app updates
+
+All of it is in `desktop/src-tauri/src/updater/`. The webview only shows the `update-state` it
+publishes.
+
+| Step | What happens |
+|---|---|
+| Check | 20 seconds after launch, then every 4 hours, tray included |
+| Download | In the background, signature checked, kept in the app cache |
+| Offer | The dot in the sidebar, at once |
+| Reminder | Still waiting after 2 days: a banner in the app. "Later" hides it for 5 days |
+| Install | Only when the user clicks. Restarts in front, one toast: "Vibe was updated to X" |
+
+Nothing installs by itself: an install restarts the app, and only the user knows when that is fine.
+
+Settings → General: "Download updates automatically" (on). Off: nothing downloads until the click.
+
+Development and e2e builds never check on a schedule.
+
+Telemetry: `update_applied`, `update_failed` (`stage`: `install` or `relaunch`).
+
+In an e2e build, without a real update:
+
+```console
+chore e2e js "window.__TAURI__.core.invoke('update_simulate_relaunch'); return 1"
+chore e2e js "window.__TAURI__.core.invoke('update_simulate_state', {state: {phase: 'ready', currentVersion: '3.3.6', version: '3.3.7', interactive: false, remind: true}}); return 1"
+```
 
 ## Version numbers
 

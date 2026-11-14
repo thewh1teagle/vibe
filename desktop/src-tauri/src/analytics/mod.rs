@@ -33,6 +33,10 @@ pub mod events {
     pub const SERVER_CPU_BASELINE_FALLBACK: &str = "server_cpu_baseline_fallback";
     /// A transcription failed with the GPU enabled and was run again with the model on the CPU.
     pub const SERVER_GPU_TRANSCRIBE_FALLBACK: &str = "server_gpu_transcribe_fallback";
+    /// First launch on a new version. `mode` is `automatic` or `manual`.
+    pub const UPDATE_APPLIED: &str = "update_applied";
+    /// An update did not install. `stage` is `install` or `relaunch`.
+    pub const UPDATE_FAILED: &str = "update_failed";
 
     // Phone handoff. Props are technical facts only: never a transcript, filename,
     // saved path, endpoint id, pairing token, model path, or chosen language.

@@ -164,6 +164,10 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     } else {
         tracing::debug!("Non CLI mode");
         let background_launch = cli::is_background_launch();
+        // Restarted by an update the user asked for: come back in front, even if this copy was
+        // first started hidden at login.
+        let after_update = crate::updater::begin(app.handle());
+        let shown = after_update || !background_launch;
         // Create main window
         let builder = tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
             .inner_size(800.0, 700.0)
@@ -171,9 +175,9 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .center()
             .title("Vibe")
             .resizable(true)
-            .focused(!background_launch)
+            .focused(shown)
             .shadow(true)
-            .visible(!background_launch)
+            .visible(shown)
             .on_navigation(navigation_guard(app));
         // The web content extends under the titlebar so the sidebar toggle can sit
         // beside the traffic lights (ChatGPT-desktop style); the topbar is a drag region.
@@ -200,6 +204,10 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
                 tracing::error!("{:?}", error);
             }
         }
+        if after_update {
+            crate::tray::show_main_window(app.handle());
+        }
+        crate::updater::start(app.handle());
         crate::dictation_indicator::initialize(app.handle());
         if let Err(error) = crate::meeting_prompt::initialize(app.handle()) {
             tracing::error!("could not initialize meeting prompt: {error}");

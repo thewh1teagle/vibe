@@ -16,6 +16,9 @@ export const CONFIG_KEYS = {
 	analyticsEnabled: 'analytics_enabled',
 	/** `stable` or `beta`: which website channel file the updater follows. */
 	updateChannel: 'general.updateChannel',
+	/** Download updates in the background and install them at the next quit or launch. Read by Rust. */
+	autoUpdate: 'general.autoUpdate',
+	/** Also install (and restart) while the app is idle. Off by default. Read by Rust. */
 
 	// Model
 	modelPath: 'model.path',

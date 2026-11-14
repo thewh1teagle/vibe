@@ -336,22 +336,26 @@ const notificationHandlers: CommandHandlerMap = {
 }
 
 // --- updater --------------------------------------------------------------
-// `check` resolves to null when there is nothing to update.
+// Rust owns the lifecycle; the mock has nothing newer to offer and never installs. The dev
+// fake-update switch lives in the frontend (localStorage), so it needs nothing here.
+
+function mockUpdateState() {
+	return { phase: 'idle', currentVersion: appVersion, interactive: false, remind: false }
+}
 
 const updaterHandlers: CommandHandlerMap = {
-	'plugin:updater|check': () => null,
-	'plugin:updater|download': () => {
-		console.warn('[mock-updater] download is a no-op')
-		return 0
+	update_state: () => mockUpdateState(),
+	update_check_now: () => {
+		const state = mockUpdateState()
+		emitMockEvent('update-state', state)
+		return state
 	},
-	'plugin:updater|install': () => {
+	update_install_now: () => {
 		console.warn('[mock-updater] install is a no-op')
 		return null
 	},
-	'plugin:updater|download_and_install': () => {
-		console.warn('[mock-updater] downloadAndInstall is a no-op')
-		return null
-	},
+	update_take_notice: () => null,
+	update_remind_later: () => mockUpdateState(),
 }
 
 // --- global-shortcut ------------------------------------------------------
