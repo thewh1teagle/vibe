@@ -383,7 +383,8 @@ function RecentsList({
 
 export default function RecentsSidebar() {
 	const { queue, startNew, preference } = useSession()
-	const { updateApp, availableUpdate } = useContext(UpdaterContext)
+	const { updateApp, availableUpdate, state: updateState } = useContext(UpdaterContext)
+	const downloadingUpdate = updateState.phase === 'downloading' 
 	const { width, dragging, handleProps } = useResizableWidth()
 	const [entries, setEntries] = useState<TranscriptEntry[]>([])
 	const [query, setQuery] = useState('')
@@ -513,8 +514,9 @@ export default function RecentsSidebar() {
 									type="button"
 									aria-label={m.updateVersion()}
 									onClick={updateApp}
-									className="me-1 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity duration-150 hover:opacity-90">
+									className="relative me-1 flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity duration-150 hover:opacity-90">
 									<Download className="h-3.5 w-3.5" />
+									{downloadingUpdate && <UpdateDownloadRing percent={updateState.percent ?? 0} />}
 								</button>
 							</TooltipTrigger>
 							<TooltipContent side="top">{m.updateVersion()}</TooltipContent>
@@ -536,5 +538,28 @@ export default function RecentsSidebar() {
 				)}
 			/>
 		</aside>
+	)
+}
+
+/** A thin ring around the update button that fills while the new version downloads in the background. */
+function UpdateDownloadRing({ percent }: { percent: number }) {
+	const radius = 16
+	const length = 2 * Math.PI * radius
+	const filled = Math.max(0.06, Math.min(1, percent / 100))
+	return (
+		<svg aria-hidden viewBox="0 0 36 36" className="pointer-events-none absolute -inset-1 h-9 w-9 -rotate-90">
+			<circle cx="18" cy="18" r={radius} fill="none" strokeWidth="2" className="stroke-primary/25" />
+			<circle
+				cx="18"
+				cy="18"
+				r={radius}
+				fill="none"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeDasharray={length}
+				strokeDashoffset={length * (1 - filled)}
+				className="stroke-primary transition-[stroke-dashoffset] duration-300"
+			/>
+		</svg>
 	)
 }
