@@ -27,6 +27,7 @@ Verify a signature:
 import argparse
 import fnmatch
 import gzip
+import hmac
 import os
 import sys
 
@@ -101,7 +102,7 @@ def cmd_serve(args: argparse.Namespace) -> None:
     import subprocess
     import tempfile
     import threading
-    from pathlib import Path
+    from pathlib import Path, PureWindowsPath
 
     from dotenv import load_dotenv
     from flask import Flask, jsonify, request, send_file
@@ -134,7 +135,7 @@ def cmd_serve(args: argparse.Namespace) -> None:
 
     @app.route("/sign", methods=["POST"])
     def sign():
-        if request.headers.get("X-Tunnel-Secret") != secret:
+        if not hmac.compare_digest(request.headers.get("X-Tunnel-Secret", "").encode(), secret.encode()):
             print(f"[DENIED] unauthorized request from {request.remote_addr}")
             return jsonify({"error": "unauthorized"}), 401
 
@@ -146,7 +147,11 @@ def cmd_serve(args: argparse.Namespace) -> None:
         print(f"[SIGN] {file.filename} ({request.content_length} bytes) from {request.remote_addr}")
 
         with tempfile.TemporaryDirectory() as tmp:
-            filepath = Path(tmp) / file.filename
+            # The client's file name is untrusted: keep only its last part so it cannot leave `tmp`.
+            name = PureWindowsPath(file.filename).name
+            if name in ("", ".", ".."):
+                return jsonify({"error": "bad file name"}), 400
+            filepath = Path(tmp) / name
             if request.headers.get("X-File-Encoding") == "gzip":
                 with gzip.open(file.stream) as packed, open(filepath, "wb") as out:
                     shutil.copyfileobj(packed, out)

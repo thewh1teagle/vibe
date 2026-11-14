@@ -1,7 +1,7 @@
-import { m } from '~/paraglide/messages.js'
 import { ModifyState, NamedPath } from './types'
 import { pathToNamedPath } from './fs'
-import { ask } from '@tauri-apps/plugin-dialog'
+import { isDownloadLink } from './model-deep-link'
+import { handleDownloadLink } from './model-deep-link-handler'
 import { useEffect } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
@@ -21,19 +21,9 @@ export function useSingleInstance({ setFiles }: UseSingleInstanceProps) {
 			const argv = event.payload
 			const action = argv?.[1]
 
-			// vibe://download/?url=google.com
-			// already handled in deep links in macos
-			if (action && action.startsWith('vibe://download/?') && platform != 'macos') {
-				const params = new URLSearchParams(action.replace('vibe://download/?', ''))
-				const url = params.get('url')
-				if (url) {
-					const downloadURL = url.replace('vibe://download/?url=', '')
-					const hostname = new URL(url).hostname
-					const confirm = await ask(`${m.askForDownloadModel()} ${hostname}?`, { title: m.downloadModel(), kind: 'info' })
-					if (confirm) {
-						navigate('/setup', { state: { downloadURL } })
-					}
-				}
+			// vibe://download/?url=<model address>; macOS gets it through the deep-link plugin instead.
+			if (action && isDownloadLink(action) && platform != 'macos') {
+				await handleDownloadLink(action, navigate)
 			}
 			// if not action, probably it's open with action
 			const newFiles: NamedPath[] = []

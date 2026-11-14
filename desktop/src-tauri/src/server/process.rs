@@ -132,6 +132,28 @@ fn build_client() -> Result<reqwest::Client> {
         .context("failed to build server http client")
 }
 
+/// Where the sidecar runs and where its temp files go.
+///
+/// ggml's backend loader scans the working directory (and `GGML_BACKEND_PATH`) for `ggml-*`
+/// shared libraries and loads them, so the child starts in the folder holding its own binary
+/// rather than wherever the app was launched from. Every path the app sends it (models, audio)
+/// is absolute, so nothing depends on the inherited directory.
+///
+/// The temp copies the sidecar makes of uploaded audio follow the platform temp variables; point
+/// them at the staging folder so a crash leaves them where the launch sweep finds them.
+fn confine_child(cmd: &mut Command, binary_path: &Path, staging: &Path) {
+    // A relative program path would be resolved against the new directory on unix, so only an
+    // absolute one (which is all `resolve_server_binary` returns) moves the child.
+    if let Some(dir) = binary_path.parent().filter(|_| binary_path.is_absolute()) {
+        cmd.current_dir(dir);
+    }
+    cmd.env_remove("GGML_BACKEND_PATH");
+    #[cfg(unix)]
+    cmd.env("TMPDIR", staging);
+    #[cfg(windows)]
+    cmd.env("TEMP", staging).env("TMP", staging);
+}
+
 impl ServerProcess {
     pub fn spawn(
         binary_path: &Path,
@@ -170,6 +192,7 @@ impl ServerProcess {
         if let Some(value) = cpu_variant.env_value() {
             cmd.env("VIBE_SERVER_CPU_VARIANT", value);
         }
+        confine_child(&mut cmd, binary_path, &crate::ffmpeg::get_vibe_temp_folder());
         #[cfg(target_os = "windows")]
         {
             use std::os::windows::process::CommandExt;
@@ -432,5 +455,43 @@ fn kill_and_describe(child: &mut Child, stderr_buf: &Arc<Mutex<StderrTail>>) -> 
 impl Drop for ServerProcess {
     fn drop(&mut self) {
         self.kill();
+    }
+}
+
+#[cfg(test)]
+mod confine_tests {
+    use super::confine_child;
+    use std::ffi::OsStr;
+    use std::path::Path;
+    use std::process::Command;
+
+    fn env<'a>(cmd: &'a Command, key: &str) -> Option<Option<&'a OsStr>> {
+        cmd.get_envs()
+            .find(|(name, _)| *name == OsStr::new(key))
+            .map(|(_, value)| value)
+    }
+
+    #[test]
+    fn the_sidecar_runs_from_its_own_folder_with_staged_temp_files() {
+        let binary = std::env::temp_dir().join("bin").join("vibe-server");
+        let staging = std::env::temp_dir().join("staging");
+        let mut cmd = Command::new(&binary);
+        confine_child(&mut cmd, &binary, &staging);
+        assert_eq!(cmd.get_current_dir(), binary.parent());
+        assert_eq!(env(&cmd, "GGML_BACKEND_PATH"), Some(None), "removed, not inherited");
+        #[cfg(unix)]
+        assert_eq!(env(&cmd, "TMPDIR"), Some(Some(staging.as_os_str())));
+        #[cfg(windows)]
+        {
+            assert_eq!(env(&cmd, "TEMP"), Some(Some(staging.as_os_str())));
+            assert_eq!(env(&cmd, "TMP"), Some(Some(staging.as_os_str())));
+        }
+    }
+
+    #[test]
+    fn a_relative_binary_keeps_the_inherited_directory() {
+        let mut cmd = Command::new("vibe-server");
+        confine_child(&mut cmd, Path::new("vibe-server"), Path::new("/staging"));
+        assert_eq!(cmd.get_current_dir(), None);
     }
 }

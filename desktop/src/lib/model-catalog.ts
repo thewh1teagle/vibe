@@ -1,3 +1,4 @@
+import type { ModelDownload } from './config'
 import { getModelExtension } from './model'
 import { isNewerVersion } from './version'
 
@@ -18,6 +19,9 @@ export interface CatalogModel {
 	publisher: { name: string; url?: string }
 	license?: string
 	url: string
+	/** Other addresses of the very same file, tried in order when `url` fails. Only kept when
+	 * `sha256` is set, since the hash is what makes them interchangeable. */
+	mirrors: string[]
 	size?: number
 	sha256?: string
 	minAppVersion?: string
@@ -25,9 +29,27 @@ export interface CatalogModel {
 	description: Record<string, string>
 }
 
+/** A support file the app downloads on demand (Silero VAD, the diarization model), never listed as a model. */
+export interface HelperModel {
+	id: string
+	filename: string
+	url: string
+	size: number
+	sha256: string
+}
+
+/**
+ * `helperModels` and `defaults` are top-level keys and `mirrors` a per-model one: releases up to
+ * 3.3.5 parse this same file and ignore any key they do not know, so new data has to live there.
+ */
 export interface ModelCatalog {
 	models: CatalogModel[]
+	helperModels: HelperModel[]
+	/** Language code (or `*`) to the id of the model onboarding downloads for it. */
+	defaults: Record<string, string>
 }
+
+export const EMPTY_CATALOG: ModelCatalog = { models: [], helperModels: [], defaults: {} }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -51,6 +73,16 @@ function urlFilename(url: string) {
 	return new URL(url).pathname.split('/').pop() ?? ''
 }
 
+function sha256Hex(value: unknown): string | undefined {
+	return typeof value === 'string' && /^[0-9a-f]{64}$/i.test(value) ? value.toLowerCase() : undefined
+}
+
+function positiveSize(value: unknown): number | undefined {
+	return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 ? value : undefined
+}
+
+const ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/i
+
 /**
  * One catalog entry, or `null` when it cannot be installed safely. The id becomes a filename, so it
  * is held to a strict alphabet; a hash that is present but malformed drops the entry rather than
@@ -61,7 +93,7 @@ function normalizeModel(value: unknown): CatalogModel | null {
 	const id = text(value.id)
 	const name = text(value.name)
 	const url = httpsUrl(value.url)
-	if (!id || !/^[a-z0-9][a-z0-9._-]*$/i.test(id) || !name || !url || !getModelExtension(urlFilename(url))) return null
+	if (!id || !ID_PATTERN.test(id) || !name || !url || !getModelExtension(urlFilename(url))) return null
 
 	const languages = Array.isArray(value.languages)
 		? [...new Set(value.languages.filter((code): code is string => typeof code === 'string' && /^(\*|[a-z]{2,3})$/i.test(code.trim())).map((code) => code.trim().toLowerCase()))]
@@ -76,9 +108,13 @@ function normalizeModel(value: unknown): CatalogModel | null {
 
 	let sha256: string | undefined
 	if (value.sha256 !== undefined && value.sha256 !== null) {
-		if (typeof value.sha256 !== 'string' || !/^[0-9a-f]{64}$/i.test(value.sha256)) return null
-		sha256 = value.sha256.toLowerCase()
+		sha256 = sha256Hex(value.sha256)
+		if (!sha256) return null
 	}
+	const mirrors =
+		sha256 && Array.isArray(value.mirrors)
+			? [...new Set(value.mirrors.map((mirror) => httpsUrl(mirror)).filter((mirror): mirror is string => !!mirror && mirror !== url && !!getModelExtension(urlFilename(mirror))))]
+			: []
 
 	return {
 		id,
@@ -88,7 +124,8 @@ function normalizeModel(value: unknown): CatalogModel | null {
 		publisher: { name: publisher, url: httpsUrl((value.publisher as Record<string, unknown>).url, ['https:', 'http:']) },
 		license: text(value.license),
 		url,
-		size: typeof value.size === 'number' && Number.isSafeInteger(value.size) && value.size > 0 ? value.size : undefined,
+		mirrors,
+		size: positiveSize(value.size),
 		sha256,
 		minAppVersion: text(value.minAppVersion),
 		description,
@@ -109,7 +146,62 @@ export function normalizeCatalog(value: unknown): ModelCatalog | null {
 		seen.add(model.id.toLowerCase())
 		models.push(model)
 	}
-	return models.length > 0 ? { models } : null
+	if (models.length === 0) return null
+	return { models, helperModels: normalizeHelperModels(value.helperModels), defaults: normalizeDefaults(value.defaults, models) }
+}
+
+/** Support files must be fully pinned: a plain filename, an https address, the exact size and hash. */
+function normalizeHelperModels(value: unknown): HelperModel[] {
+	if (!Array.isArray(value)) return []
+	const result: HelperModel[] = []
+	for (const entry of value) {
+		if (!isRecord(entry)) continue
+		const id = text(entry.id)
+		const filename = text(entry.filename)
+		const url = httpsUrl(entry.url)
+		const size = positiveSize(entry.size)
+		const sha256 = sha256Hex(entry.sha256)
+		if (!id || !ID_PATTERN.test(id) || !filename || !ID_PATTERN.test(filename) || !url || !size || !sha256) continue
+		if (result.some((other) => other.id === id)) continue
+		result.push({ id, filename, url, size, sha256 })
+	}
+	return result
+}
+
+function normalizeDefaults(value: unknown, models: CatalogModel[]): Record<string, string> {
+	if (!isRecord(value)) return {}
+	const defaults: Record<string, string> = {}
+	for (const [language, id] of Object.entries(value)) {
+		// An upper-case two-letter key is a region (`IL`); anything else is a language code.
+		const code = /^[A-Z]{2}$/.test(language.trim()) ? language.trim() : language.trim().toLowerCase()
+		if (/^(\*|[a-z]{2,3}|[A-Z]{2})$/.test(code) && typeof id === 'string' && models.some((model) => model.id === id)) defaults[code] = id
+	}
+	return defaults
+}
+
+/** The addresses to try for a catalog model, primary first, with the catalog's size and hash on each. */
+export function catalogDownloads(model: CatalogModel): ModelDownload[] {
+	return [model.url, ...model.mirrors].map((url) => ({ url, size: model.size, sha256: model.sha256 }))
+}
+
+/**
+ * The models onboarding tries for a UI locale: the language's own default, then the `*` one, so
+ * a failed Hebrew download still leaves the user with a working multilingual model.
+ */
+export function defaultModelsFor(catalog: ModelCatalog, locale: string | null | undefined): CatalogModel[] {
+	const language = toIsoLanguage(locale)
+	// Keys are a language (`he`) or an upper-case region (`IL`): an English-language system in Israel
+	// still wants the Hebrew model, which the language alone would miss.
+	const region = /[-_]([A-Za-z]{2})\b/.exec(locale ?? '')?.[1]?.toUpperCase()
+	const ids = [...new Set([language ? catalog.defaults[language] : undefined, region ? catalog.defaults[region] : undefined, catalog.defaults[ANY_LANGUAGE]])]
+	return ids.flatMap((id) => catalog.models.find((model) => model.id === id) ?? [])
+}
+
+/** A support file by id; it ships inside the app, so a missing one is a build error, not a runtime state. */
+export function helperModel(catalog: ModelCatalog, id: string): HelperModel {
+	const found = catalog.helperModels.find((entry) => entry.id === id)
+	if (!found) throw new Error(`The model catalog has no helper model "${id}"`)
+	return found
 }
 
 /** Codes older software still emits for a language ISO 639-1 has since renamed or split. */

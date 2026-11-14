@@ -141,12 +141,15 @@ export function useAudioDownload(transcribe: (paths: string[]) => Promise<void>)
 		}
 	}
 
-	/** Move the box's text into the list, or the given text; repeats are dropped. */
+	/**
+	 * Move the box's links into the list, or the given text's; repeats are dropped. Words that are
+	 * not http(s) links stay in the box so the user sees what was not taken.
+	 */
 	function queueLinks(text = audioUrl) {
-		const links = ytDlp.parseMediaLinks(text)
+		const { links, rest } = ytDlp.splitMediaLinks(text)
 		if (!links.length) return
 		setQueuedLinks((current) => [...new Set([...current, ...links])])
-		setAudioUrl('')
+		setAudioUrl(rest.join(' '))
 	}
 
 	function removeQueuedLink(url: string) {
@@ -164,7 +167,8 @@ export function useAudioDownload(transcribe: (paths: string[]) => Promise<void>)
 	async function downloadAudio() {
 		const urls = pendingLinks
 		if (!urls.length) return
-		setAudioUrl('')
+		// Anything in the box that is not a link is left there rather than silently dropped.
+		setAudioUrl(ytDlp.splitMediaLinks(audioUrl).rest.join(' '))
 		setQueuedLinks([])
 		cancelYtDlpRef.current = false
 		setDownloadingAudio(true)

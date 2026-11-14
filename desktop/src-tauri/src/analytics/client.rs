@@ -128,6 +128,13 @@ impl Client {
         queue.drain(..overflow);
     }
 
+    /// Drops everything queued, unsent: analytics was turned off after the events were made.
+    pub fn clear(&self) {
+        if let Ok(mut queue) = self.queue.lock() {
+            queue.clear();
+        }
+    }
+
     /// Sends everything queued. A batch the server rejects outright is dropped, since sending it
     /// again would fail the same way; one lost to the network or a server error is kept.
     pub async fn flush(&self) {

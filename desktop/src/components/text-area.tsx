@@ -15,7 +15,7 @@ import { invoke } from '@tauri-apps/api/core'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { toDocx } from '~/lib/docx'
 import { path } from '@tauri-apps/api'
-import Markdown from 'react-markdown'
+import SafeMarkdown from '~/components/safe-markdown'
 import { Button } from '~/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
@@ -197,7 +197,7 @@ export default function TextArea({
 				<div
 					dir={preference.textAreaDirection}
 					className="transcript-editor prose prose-sm dark:prose-invert min-h-0 max-w-none flex-1 overflow-x-hidden overflow-y-auto rounded-bl-lg rounded-br-lg border-x border-b border-input/70 bg-card px-4 py-3">
-					<Markdown>{text}</Markdown>
+					<SafeMarkdown>{text}</SafeMarkdown>
 				</div>
 			) : (
 				<textarea

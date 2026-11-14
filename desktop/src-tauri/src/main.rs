@@ -2,7 +2,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod analytics;
-mod cleaner;
 mod cli;
 mod cmd;
 mod config;
@@ -17,6 +16,7 @@ mod logging;
 mod meeting_prompt;
 mod server;
 mod setup;
+mod startup_cleanup;
 mod transcript;
 mod tray;
 mod updater;
@@ -100,9 +100,14 @@ async fn main() -> Result<()> {
         builder = builder.plugin(tauri_nspanel::init());
     }
 
+    // Test builds only (`--features e2e`): a WebDriver server inside the app. Not compiled otherwise.
+    #[cfg(feature = "e2e")]
+    {
+        builder = builder.plugin(tauri_plugin_wdio_webdriver::init());
+    }
+
     let app = builder
         .invoke_handler(tauri::generate_handler![
-            cmd::download::download_file,
             cmd::handoff_cmd::handoff_status,
             cmd::handoff_cmd::handoff_start,
             cmd::handoff_cmd::handoff_stop,
@@ -147,6 +152,7 @@ async fn main() -> Result<()> {
             cmd::app::show_temp_path,
             cmd::files::get_ffmpeg_path,
             cmd::ytdlp::download_audio,
+            cmd::ytdlp::download_ytdlp,
             cmd::ytdlp::get_temp_path,
             cmd::ytdlp::get_latest_ytdlp_version,
             cmd::app::is_crashed_recently,

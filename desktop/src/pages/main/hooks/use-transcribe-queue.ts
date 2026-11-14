@@ -5,7 +5,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import successSound from '~/assets/success.mp3'
 import { m } from '~/paraglide/messages.js'
-import { trackGpuOutOfMemory, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
+import { errorCode, trackGpuOutOfMemory, trackTranscribeCancelled, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import * as config from '~/lib/config'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { readConfig } from '~/lib/config-store'
@@ -497,7 +497,7 @@ export function useTranscribeQueue(): TranscribeQueue {
 						}
 						patch(next.id, { status: 'error', progress: 0, error: message })
 						const userError = Boolean(code && isUserError(code))
-						trackTranscribeFailed('main', next.path, { errorMessage: message, userError })
+						trackTranscribeFailed('main', next.path, { errorCode: errorCode(error), errorMessage: message, userError })
 						if (userError) {
 							toast.error(`${m.error()}: ${message}`, { position: 'bottom-center' })
 						} else {

@@ -1,8 +1,8 @@
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
-import { m } from '~/paraglide/messages.js'
 import { ModifyState, NamedPath } from './types'
 import { pathToNamedPath } from './fs'
-import { ask } from '@tauri-apps/plugin-dialog'
+import { isDownloadLink } from './model-deep-link'
+import { handleDownloadLink } from './model-deep-link-handler'
 import * as config from '~/lib/config'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -19,13 +19,8 @@ export function useDeepLinks({ setFiles }: UseDeepLinksProps) {
 	async function processURLs(urls: string[]): Promise<void> {
 		const newFiles: NamedPath[] = []
 		for (let url of urls) {
-			if (url.startsWith('vibe://download/?url=')) {
-				const downloadURL = url.replace('vibe://download/?url=', '')
-				const host = new URL(downloadURL).hostname
-				const confirm = await ask(`${m.askForDownloadModel()} ${host}`, { kind: 'info', title: m.downloadModel() })
-				if (confirm) {
-					navigate('/setup', { state: { downloadURL } })
-				}
+			if (isDownloadLink(url)) {
+				await handleDownloadLink(url, navigate)
 				break
 			} else if (config.videoExtensions.some((e) => url.endsWith(e)) || config.audioExtensions.some((e) => url.endsWith(e))) {
 				url = url.replace('file://', '')

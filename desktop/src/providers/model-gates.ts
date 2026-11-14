@@ -6,9 +6,16 @@ import { toast } from 'sonner'
 import { m } from '~/paraglide/messages.js'
 import * as config from '~/lib/config'
 import type { ModelIntegrity } from '~/lib/config'
+import { bundledHelperModel } from '~/lib/model-catalog-source'
 import { isModelFileUsable } from '~/lib/model'
 import { usePreferenceProvider } from '~/providers/preference'
 import { useToastProvider } from '~/providers/toast'
+
+/** Address and pinned size/hash of a support file, from the catalog bundled with the app. */
+function helperDownload(id: 'vad' | 'diarize'): { url: string; integrity: ModelIntegrity } {
+	const { url, size, sha256 } = bundledHelperModel(id)
+	return { url, integrity: { size, sha256 } }
+}
 
 /**
  * Speaker recognition and stable timestamps each need a model on disk. Turning them on therefore
@@ -50,8 +57,7 @@ export function useModelGates() {
 		() =>
 			ensureModel({
 				filename: config.diarizeModelFilename,
-				url: config.diarizeModelUrl,
-				integrity: config.diarizeModelIntegrity,
+				...helperDownload('diarize'),
 				title: m.diarization(),
 				question: m.downloadDiarizeModel(),
 				downloading: m.downloadingDiarizeModel(),
@@ -85,7 +91,7 @@ export function useModelGates() {
 			try {
 				const ready = await ensureModel({
 					filename: config.vadModelFilename,
-					url: config.vadModelUrl,
+					...helperDownload('vad'),
 					title: m.stableTimestamps(),
 					question: m.stableTimestampsConfirm(),
 					downloading: m.downloadingVadModel(),

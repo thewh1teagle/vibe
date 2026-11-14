@@ -18,6 +18,8 @@ export interface Model {
 	license: string
 	/** The one file Install downloads. */
 	url: string
+	/** Other addresses of the same file (same `sha256`); the app falls back to them in order. */
+	mirrors?: string[]
 	size: number
 	sha256: string
 	/** First app version able to run it; absent when every supported version can. */

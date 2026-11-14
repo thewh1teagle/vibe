@@ -22,23 +22,11 @@ export interface ModelIntegrity {
 	sha256?: string
 }
 
-/** One downloadable model. Only catalog entries carry integrity metadata — a URL the user pastes
- * into settings or opens with `vibe://download/?url=` never does, and falls back to the size and
- * magic-byte checks the backend runs on every download. */
+/** One downloadable model. Catalog entries (`website/public/models.json`) carry integrity metadata;
+ * a URL the user pastes into settings, or an unverified `vibe://download/?url=` link, does not and
+ * falls back to the size and magic-byte checks the backend runs on every download. */
 export interface ModelDownload extends ModelIntegrity {
 	url: string
-}
-
-// TODO: fill in `size` and `sha256` for every entry below from the real published artifacts
-// (`curl -sI <url>` for the length, `shasum -a 256 <file>` for the hash). They are deliberately
-// left unset rather than guessed: a wrong value would reject a perfectly good download.
-export const modelUrls: Record<'default' | 'hebrew', ModelDownload[]> = {
-	default: [
-		{ url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin' },
-		{ url: 'https://huggingface.co/vibe-app/whisper-large-v3-turbo-gguf/resolve/main/ggml-large-v3-turbo.bin' }, // Hugging Face fallback
-		{ url: 'https://github.com/thewh1teagle/vibe/releases/download/model-files-v1.0/ggml-large-v3-turbo.bin' }, // GitHub fallback
-	],
-	hebrew: [{ url: 'https://huggingface.co/ivrit-ai/whisper-large-v3-turbo-ggml/resolve/main/ggml-model.bin' }],
 }
 
 export const embeddingModelFilename = 'wespeaker_en_voxceleb_CAM++.onnx'
@@ -47,6 +35,9 @@ export const embeddingModelUrl = 'https://github.com/thewh1teagle/vibe/releases/
 export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/download/v0.0.1/segmentation-3.0.onnx'
 
 /**
+ * The download address, size and hash of this file and of `vadModelFilename` live in the `helperModels`
+ * section of the model catalog; a test keeps the filenames here equal to the catalog's.
+ *
  * Diarization runs NVIDIA Nemotron-3-Diarization (up to 8 speakers) on ggml, a GGUF exported from
  * the HF safetensors by `server/crates/nemotron-diarize-rs/scripts/export.py --dtype q8_0`.
  * Q8_0 matches F32 segments on our checks at a quarter of the size.
@@ -58,19 +49,14 @@ export const segmentModelUrl = 'https://github.com/thewh1teagle/vibe/releases/do
  * untouched — see `legacyDiarizeModelFilenames`.
  */
 export const diarizeModelFilename = 'nemotron-3-diarization-Q8_0.gguf'
-export const diarizeModelUrl = 'https://huggingface.co/vibe-app/nemotron-3-diarization-gguf/resolve/main/nemotron-3-diarization-Q8_0.gguf'
-export const diarizeModelIntegrity: ModelIntegrity = {
-	size: 108541632,
-	sha256: 'a25f026847d765c8661fd5095c73a0e5f20d310dcb8249c654e3828592a2fc73',
-}
 /**
  * Diarization models earlier releases downloaded. Nothing reads them; they are listed only so the
  * Sortformer GGUF never shows up as a transcription model. The older 492 MB `.onnx` needs no entry:
  * it is not a `.gguf`/`.bin`, so the model listing never sees it. Deleting them is left to users.
  */
 export const legacyDiarizeModelFilenames = ['diar_streaming_sortformer_4spk-v2.q8_0.gguf']
+/** Must match `VAD_MODEL_FILENAME` in `src-tauri/src/handoff/transcribe.rs`. */
 export const vadModelFilename = 'ggml-silero-v6.2.0.bin'
-export const vadModelUrl = 'https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin'
 
 export const llmApiKeyUrl = 'https://console.anthropic.com/settings/keys'
 export const llmDefaultMaxTokens = 8192 // https://docs.anthropic.com/en/docs/about-claude/models
@@ -84,10 +70,6 @@ export const ytDlpAssetNames: Record<string, string> = {
 	'linux-aarch64': 'yt-dlp_linux_aarch64',
 	'macos-x86_64': 'yt-dlp_macos',
 	'macos-aarch64': 'yt-dlp_macos',
-}
-
-export function ytDlpDownloadUrl(version: string, key: string): string {
-	return `https://github.com/yt-dlp/yt-dlp/releases/download/${version}/${ytDlpAssetNames[key]}`
 }
 
 export const videoExtensions = ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'webm', 'mxf']

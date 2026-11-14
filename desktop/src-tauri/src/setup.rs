@@ -20,6 +20,40 @@ pub struct ServerState {
     pub process: Option<ServerProcess>,
 }
 
+/// Lets a window navigate only within the app's own pages. A link or a script that tries to load
+/// anything else into the window (a remote page would inherit the IPC bridge) is refused; links the
+/// user should follow open in the system browser instead.
+pub fn navigation_guard<R: tauri::Runtime, M: Manager<R>>(manager: &M) -> impl Fn(&tauri::Url) -> bool + Send + 'static {
+    let dev_url = if tauri::is_dev() {
+        manager.config().build.dev_url.clone()
+    } else {
+        None
+    };
+    move |url| {
+        let allowed = is_app_url(url, dev_url.as_ref());
+        if !allowed {
+            // Scheme and host only: the rest of a blocked URL can carry transcript text.
+            tracing::warn!(
+                "blocked navigation to {}://{}",
+                url.scheme(),
+                url.host_str().unwrap_or_default()
+            );
+        }
+        allowed
+    }
+}
+
+/// `tauri://localhost` on macOS and Linux, `http(s)://tauri.localhost` on Windows, and the dev
+/// server while running `tauri dev`.
+pub fn is_app_url(url: &tauri::Url, dev_url: Option<&tauri::Url>) -> bool {
+    match (url.scheme(), url.host_str()) {
+        ("tauri", Some("localhost")) => true,
+        ("http" | "https", Some("tauri.localhost")) => true,
+        ("about", None) => url.path() == "blank",
+        _ => dev_url.is_some_and(|dev| dev.origin() == url.origin()),
+    }
+}
+
 pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // Create app directories
     let local_app_data_dir = app.path().app_local_data_dir()?;
@@ -41,9 +75,11 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
         *app_handle = Some(app.handle().clone());
     }
     crate::logging::setup_logging(app.handle(), store).unwrap();
-    crate::cleaner::clean_old_logs(app.handle()).log_error();
-    crate::cleaner::clean_old_files().log_error();
-    crate::cleaner::clean_updater_files().log_error();
+    // Before anything touches the staging folder, including the sweep right below.
+    crate::ffmpeg::init_staging_dir(app.handle());
+    crate::startup_cleanup::remove_old_logs(app.handle()).log_error();
+    crate::startup_cleanup::sweep_staging().log_error();
+    crate::startup_cleanup::remove_updater_leftovers().log_error();
     tracing::debug!("Vibe App Running");
 
     // Re-applying an existing registration upgrades installs created before the hidden launch
@@ -137,7 +173,8 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             .resizable(true)
             .focused(!background_launch)
             .shadow(true)
-            .visible(!background_launch);
+            .visible(!background_launch)
+            .on_navigation(navigation_guard(app));
         // The web content extends under the titlebar so the sidebar toggle can sit
         // beside the traffic lights (ChatGPT-desktop style); the topbar is a drag region.
         #[cfg(target_os = "macos")]
@@ -172,4 +209,36 @@ pub fn setup(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     // in the background, so an offline or slow network never delays launch.
     crate::handoff::restore_on_startup(app.handle());
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_app_url;
+    use tauri::Url;
+
+    fn allowed(url: &str, dev: Option<&str>) -> bool {
+        let dev = dev.map(|dev| Url::parse(dev).unwrap());
+        is_app_url(&Url::parse(url).unwrap(), dev.as_ref())
+    }
+
+    #[test]
+    fn only_the_app_origins_are_navigable() {
+        assert!(allowed("tauri://localhost/index.html", None));
+        assert!(allowed("http://tauri.localhost/index.html?window=meeting-prompt", None));
+        assert!(allowed("https://tauri.localhost/", None));
+        assert!(allowed("about:blank", None));
+        assert!(!allowed("https://attacker.test/?q=secret", None));
+        assert!(!allowed("http://tauri.localhost.attacker.test/", None));
+        assert!(!allowed("tauri://evil/", None));
+        assert!(!allowed("file:///etc/passwd", None));
+        assert!(!allowed("data:text/html,hi", None));
+        assert!(!allowed("http://localhost:1420/", None));
+    }
+
+    #[test]
+    fn the_dev_server_is_allowed_only_when_configured() {
+        assert!(allowed("http://localhost:1420/index.html", Some("http://localhost:1420")));
+        assert!(!allowed("http://localhost:1421/", Some("http://localhost:1420")));
+        assert!(!allowed("https://localhost:1420/", Some("http://localhost:1420")));
+    }
 }

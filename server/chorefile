@@ -38,13 +38,25 @@ task package-release binary goos goarch out {
 	copy $1 $stage/$name
 	chmod 755 $stage/$name
 
+	# ffmpeg ships inside the app and runs on every file a user opens, so each archive is
+	# pinned by hash; a changed upload fails the build instead of reaching a release.
+	# osxexperts names its zips by version (80 = 8.0); the Intel binary matches the checksum
+	# that site publishes. The Windows build is gyan.dev's versioned release, from its GitHub
+	# mirror; the hash equals the one gyan.dev publishes beside the archive.
 	url=""
-	if $2 == darwin && $3 == amd64 { url=https://www.osxexperts.net/ffmpeg80intel.zip }
-	else if $2 == darwin && $3 == arm64 { url=https://www.osxexperts.net/ffmpeg80arm.zip }
-	else if $2 == windows && $3 == amd64 { url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip }
-	else { fail "unsupported target for ffmpeg URL: $2/$3" }
+	sum=""
+	if $2 == darwin && $3 == amd64 {
+		url=https://www.osxexperts.net/ffmpeg80intel.zip
+		sum=2d24d22db78c87f394a5822867acd5c5dc5e762cd261a44bd26923f3a5af3e07
+	} else if $2 == darwin && $3 == arm64 {
+		url=https://www.osxexperts.net/ffmpeg80arm.zip
+		sum=0d4efcaf6a098430a708e0af694a84792938921fa126162787ae98c6151d7a95
+	} else if $2 == windows && $3 == amd64 {
+		url=gh://GyanD/codexffmpeg/9.0.2/ffmpeg-9.0.2-essentials_build.zip
+		sum=60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba
+	} else { fail "unsupported target for ffmpeg URL: $2/$3" }
 
-	download $url $stage/ffmpeg.zip --timeout 180
+	download $url $stage/ffmpeg.zip --timeout 180 --sha256 $sum
 	if $2 == windows {
 		extract $stage/ffmpeg.zip $stage --member ffmpeg.exe --strip 2
 		remove $stage/ffmpeg.zip

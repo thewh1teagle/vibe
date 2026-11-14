@@ -16,7 +16,31 @@
 				},
 				"enable": true
 			},
-			"csp": null
+			"csp": {
+				"default-src": "'self'",
+				"script-src": "'self' 'wasm-unsafe-eval'",
+				"style-src": "'self' 'unsafe-inline'",
+				"img-src": "'self' asset: http://asset.localhost data: blob:",
+				"media-src": "'self' asset: http://asset.localhost data: blob:",
+				"font-src": "'self' data:",
+				"connect-src": "'self' ipc: http://ipc.localhost asset: http://asset.localhost data: blob:",
+				"worker-src": "'self' blob:",
+				"object-src": "'none'",
+				"base-uri": "'self'"
+			},
+			"devCsp": {
+				"default-src": "'self'",
+				"script-src": "'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'",
+				"style-src": "'self' 'unsafe-inline'",
+				"img-src": "'self' asset: http://asset.localhost data: blob:",
+				"media-src": "'self' asset: http://asset.localhost data: blob:",
+				"font-src": "'self' data:",
+				"connect-src": "'self' ipc: http://ipc.localhost asset: http://asset.localhost data: blob: http://localhost:1420 ws://localhost:1420",
+				"worker-src": "'self' blob:",
+				"object-src": "'none'",
+				"base-uri": "'self'"
+			},
+			"dangerousDisableAssetCspModification": ["style-src"]
 		}
 	},
 	"build": {

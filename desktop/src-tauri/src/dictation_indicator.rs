@@ -50,6 +50,7 @@ fn create_window(app: &tauri::AppHandle) -> Result<WebviewWindow, String> {
     .transparent(true)
     .shadow(false)
     .visible(true)
+    .on_navigation(crate::setup::navigation_guard(app))
     .on_page_load(|window, payload| {
         if payload.event() == PageLoadEvent::Finished {
             tracing::info!("Dictation indicator page loaded: {}", payload.url());

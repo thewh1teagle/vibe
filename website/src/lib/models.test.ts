@@ -3,7 +3,7 @@ import catalog from 'virtual:model-catalog'
 import { ANY_LANGUAGE, deepLink, defaultLanguage, describe, languageFromParam, models, modelsFor, needsNewerApp, tags } from './models'
 
 const required = ['id', 'name', 'languages', 'tags', 'publisher', 'license', 'url', 'size', 'sha256', 'description']
-const allowed = [...required, 'minAppVersion']
+const allowed = [...required, 'minAppVersion', 'mirrors']
 
 suite('models.json', () => {
 	const entries = catalog.models
@@ -40,6 +40,10 @@ suite('models.json', () => {
 		expect(url.hash).toBe('')
 		expect(url.pathname.split('/').at(-1)).toMatch(/\.(bin|gguf)$/)
 		expect(model.url).not.toContain('/blob/')
+		for (const mirror of model.mirrors ?? []) {
+			expect(new URL(mirror).protocol).toBe('https:')
+			expect(mirror).not.toBe(model.url)
+		}
 
 		expect(Number.isInteger(model.size) && model.size > 0).toBe(true)
 		expect(model.sha256).toMatch(/^[0-9a-f]{64}$/)

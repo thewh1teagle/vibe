@@ -9,9 +9,22 @@ import * as osExt from '@tauri-apps/plugin-os'
 import * as config from '~/lib/config'
 import { ask } from '@tauri-apps/plugin-dialog'
 import { join } from '@tauri-apps/api/path'
+import { toast } from 'sonner'
+import { m } from '~/paraglide/messages.js'
+import { catalogDownloads, catalogFilename, defaultModelsFor, type CatalogModel } from '~/lib/model-catalog'
+import { bundledHelperModel, bundledCatalog } from '~/lib/model-catalog-source'
+import type { SetupState } from './state'
+
+/** One address to try, where to save it, and the catalog model it installs, if any. */
+interface Attempt {
+	source: config.ModelDownload
+	path?: string
+	model?: CatalogModel
+}
 
 export function viewModel() {
 	const location = useLocation()
+	const state = (location?.state ?? {}) as SetupState
 	const [downloadProgress, setDownloadProgress] = useState(0)
 	const [isOnline, setIsOnline] = useState<boolean | null>(null)
 	const downloadProgressRef = useRef(0)
@@ -52,7 +65,8 @@ export function viewModel() {
 			kind: 'info',
 		})
 		if (!confirmed) return false
-		await invoke('download_model', { url: config.vadModelUrl, path: vadPath })
+		const vad = bundledHelperModel('vad')
+		await invoke('download_model', { url: vad.url, path: vadPath, integrity: { size: vad.size, sha256: vad.sha256 } })
 		return true
 	}
 
@@ -64,43 +78,62 @@ export function viewModel() {
 		return true
 	}
 
+	/**
+	 * A catalog model is saved as `<id>.<ext>` with its size and hash pinned, trying its mirrors in
+	 * turn; the hashes come from the catalog bundled with the app, never from the fetched one.
+	 */
+	async function catalogAttempts(models: CatalogModel[]): Promise<Attempt[]> {
+		const modelsFolder = await invoke<string>('get_models_folder')
+		const attempts: Attempt[] = []
+		for (const model of models) {
+			const path = state.replacePath ?? (await join(modelsFolder, catalogFilename(model)))
+			attempts.push(...catalogDownloads(model).map((source) => ({ source, path, model })))
+		}
+		return attempts
+	}
+
+	async function planAttempts(): Promise<Attempt[]> {
+		if (state.catalogModel) {
+			console.log(`[model] Installing catalog model from link: ${state.catalogModel.id}`)
+			return catalogAttempts([state.catalogModel])
+		}
+		if (state.downloadURL) {
+			// A URL the user supplied carries no size or hash, so the backend falls back to the
+			// size and magic-byte checks it runs on every download.
+			console.log(`[model] Using provided model URL: ${state.downloadURL}`)
+			return [{ source: { url: state.downloadURL }, path: state.replacePath }]
+		}
+		const locale = await osExt.locale()
+		console.log(`[locale] Detected locale: ${locale}`)
+		return catalogAttempts(defaultModelsFor(bundledCatalog, locale))
+	}
+
 	async function downloadModel() {
 		handleProgressEvenets()
 
 		let lastError = null
 
 		try {
-			let urls: config.ModelDownload[] = []
+			const attempts = await planAttempts()
 
-			// Determine model URLs
-			if (location?.state?.downloadURL) {
-				// A URL the user supplied carries no size or hash, so the backend falls back to the
-				// size and magic-byte checks it runs on every download.
-				urls = [{ url: location.state.downloadURL }]
-				console.log(`[model] Using provided model URL: ${urls[0].url}`)
-			} else {
-				urls = [...config.modelUrls.default]
-				const locale = await osExt.locale()
-				console.log(`[locale] Detected locale: ${locale}`)
-
-				if (locale?.endsWith('-IL')) {
-					console.log(`[model] Prioritizing Hebrew models`)
-					urls.unshift(...config.modelUrls.hebrew)
-				}
-			}
-
-			// Try downloading from each URL
-			for (const source of urls) {
+			for (const { source, path: target, model } of attempts) {
 				try {
 					console.log(`[model] Attempting to download from: ${source.url}`)
 					// Re-downloading a corrupt model overwrites it in place instead of dropping a
 					// second, randomly named copy next to the broken one.
-					const path = await utils.downloadModel(source, { replacePath: location?.state?.replacePath })
+					const path = await utils.downloadModel(source, { replacePath: target })
 					if (!path) {
 						console.log('[model] Download cancelled')
 						return
 					}
 					console.log(`[model] Download succeeded: ${path}`)
+					if (model) preference.setModelDisplayNames((names) => ({ ...names, [path]: model.name }))
+					if (state.select === false) {
+						// An unverified file from a link is kept, but never made the active model behind the user's back.
+						toast.success(m.downloadComplete())
+						navigate('/#settings', { replace: true })
+						return
+					}
 					if (!(await selectDownloadedModel(path))) {
 						navigate('/#settings', { replace: true })
 						return
