@@ -108,6 +108,7 @@ async function runDownloadTicks(abortEvent: string): Promise<boolean> {
 
 function runTranscribe(
 	options: Record<string, unknown>,
+	transcriptionId: unknown,
 ): Promise<{ processing_time: { secs: number; nanos: number }; segments: Segment[]; word_segments: undefined }> {
 	return new Promise((resolve, reject) => {
 		if (!fileExists(options.path)) {
@@ -145,8 +146,9 @@ function runTranscribe(
 			}
 		}
 
-		function onAbort() {
-			if (settled) return
+		// Like the backend: only an abort naming this transcription stops it.
+		function onAbort(payload?: unknown) {
+			if (settled || typeof transcriptionId !== 'string' || payload !== transcriptionId) return
 			settled = true
 			cleanup()
 			reject(serverError('aborted', 'transcription aborted'))
@@ -208,7 +210,7 @@ export const serverHandlers: CommandHandlerMap = {
 
 	transcribe: (args) => {
 		const options = (args.options ?? {}) as Record<string, unknown>
-		return runTranscribe(options)
+		return runTranscribe(options, args.transcriptionId)
 	},
 
 	// `localStorage['mock-model-download'] = 'corrupt'` makes the next downloads fail verification

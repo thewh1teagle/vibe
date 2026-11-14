@@ -14,7 +14,8 @@ use crate::server::unload_timeout::ModelLease;
 use crate::server::{error, format, TextResponse};
 
 pub(super) struct TranscriptionRequest {
-    pub file: Vec<u8>,
+    /// The uploaded file on disk; deleted when this drops.
+    pub file: tempfile::TempPath,
     pub form: HashMap<String, String>,
 }
 
@@ -66,13 +67,13 @@ pub(super) async fn transcribe(
         .map_err(|err| *err);
     }
 
-    let samples = audio::read_bytes_with_options(file, audio_options).map_err(|err| {
-        error(
-            StatusCode::BAD_REQUEST,
-            "invalid_audio",
-            &format!("invalid audio file: {err}"),
-        )
+    let samples = audio::read_file_with_options(&file, audio_options).map_err(|err| {
+        let (status, code, message) = audio_error(&err);
+        error(status, code, &message)
     })?;
+    // The decoded samples are all that is needed from here on; free the disk now rather
+    // than after a transcription that can take as long as the audio.
+    drop(file);
 
     let diar_segments = diarize_model
         .as_deref()
@@ -103,6 +104,18 @@ pub(super) async fn transcribe(
     })?;
 
     Ok(format_response(&response_format, &result, &diar_segments))
+}
+
+/// How a failed decode is reported. ffmpeg that is missing or cannot be started is the
+/// server's problem, not the file's, so it is not called "invalid audio".
+pub(super) fn audio_error(err: &anyhow::Error) -> (StatusCode, &'static str, String) {
+    if err.downcast_ref::<audio::FfmpegError>().is_some() {
+        // The error already names its io cause; `{err:#}` would print it twice.
+        tracing::error!("{err}");
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal_error", err.to_string())
+    } else {
+        (StatusCode::BAD_REQUEST, "invalid_audio", format!("invalid audio file: {err}"))
+    }
 }
 
 /// Every engine times its words on every run, and speaker attribution splits

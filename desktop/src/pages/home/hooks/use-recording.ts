@@ -1,7 +1,7 @@
 import { emit } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/core'
 import { type SetStateAction, useContext, useEffect, useState } from 'react'
-import { selectInputDevice, type AudioDevice } from '~/lib/audio'
+import { resolveSavedDevice, warnDeviceFallback, type AudioDevice, type StartRecordOutcome } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { usePersisted } from '~/lib/config-store'
 import { KEEP_AWAKE, startKeepAwake, stopKeepAwake } from '~/lib/keep-awake'
@@ -15,6 +15,8 @@ export function useRecording(onBeforeStart: () => void) {
 	const [devices, setDevices] = useState<AudioDevice[]>([])
 	const [savedInputDeviceId, setSavedInputDeviceId] = usePersisted<string | null>(CONFIG_KEYS.inputDeviceId, null)
 	const [savedOutputDeviceId, setSavedOutputDeviceId] = usePersisted<string | null>(CONFIG_KEYS.outputDeviceId, null)
+	const [savedInputDeviceName, setSavedInputDeviceName] = usePersisted<string | null>(CONFIG_KEYS.inputDeviceName, null)
+	const [savedOutputDeviceName, setSavedOutputDeviceName] = usePersisted<string | null>(CONFIG_KEYS.outputDeviceName, null)
 	const [inputDevice, setInputDevice] = useState<AudioDevice | null>(null)
 	const [outputDevice, setOutputDevice] = useState<AudioDevice | null>(null)
 	const [isRecording, setIsRecording] = useState(false)
@@ -23,24 +25,27 @@ export function useRecording(onBeforeStart: () => void) {
 	function setInputDeviceAndSave(value: SetStateAction<AudioDevice | null>) {
 		const device = typeof value === 'function' ? value(inputDevice) : value
 		setSavedInputDeviceId(device?.id ?? '')
+		setSavedInputDeviceName(device?.name ?? null)
 		setInputDevice(device)
 	}
 
 	function setOutputDeviceAndSave(value: SetStateAction<AudioDevice | null>) {
 		const device = typeof value === 'function' ? value(outputDevice) : value
 		setSavedOutputDeviceId(device?.id ?? '')
+		setSavedOutputDeviceName(device?.name ?? null)
 		setOutputDevice(device)
 	}
 
 	async function loadAudioDevices() {
 		const newDevices = await invoke<AudioDevice[]>('get_audio_devices')
-		const outputs = newDevices.filter((device) => !device.isInput)
-		setInputDevice(selectInputDevice(newDevices, savedInputDeviceId))
-		setOutputDevice(
-			savedOutputDeviceId === null
-				? (outputs.find((device) => device.isDefault) ?? null)
-				: (outputs.find((device) => device.id === savedOutputDeviceId) ?? null),
-		)
+		// A saved device that is not connected shows the default in its place, with a warning. The
+		// saved choice itself is left alone, so the device comes back once it reconnects.
+		const input = resolveSavedDevice(newDevices, true, savedInputDeviceId)
+		const output = resolveSavedDevice(newDevices, false, savedOutputDeviceId)
+		if (input.missing) warnDeviceFallback(savedInputDeviceName ?? String(savedInputDeviceId), input.device?.name ?? null, `in:${savedInputDeviceId}`)
+		if (output.missing) warnDeviceFallback(savedOutputDeviceName ?? String(savedOutputDeviceId), output.device?.name ?? null, `out:${savedOutputDeviceId}`)
+		setInputDevice(input.device)
+		setOutputDevice(output.device)
 		setDevices(newDevices)
 	}
 
@@ -55,10 +60,12 @@ export function useRecording(onBeforeStart: () => void) {
 		setIsRecording(true)
 		const selectedDevices = [inputDevice, outputDevice].filter((device): device is AudioDevice => device !== null)
 		try {
-			await invoke('start_record', {
+			const outcome = await invoke<StartRecordOutcome | null>('start_record', {
 				devices: selectedDevices,
 				recordingName: recordingName.trim() || null,
 			})
+			// Unplugged between loading the list and pressing record: Rust recorded from the default.
+			for (const fallback of outcome?.deviceFallbacks ?? []) warnDeviceFallback(fallback.requested, fallback.used)
 		} catch (error) {
 			stopKeepAwake(KEEP_AWAKE.record)
 			setIsRecording(false)

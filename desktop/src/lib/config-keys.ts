@@ -46,6 +46,9 @@ export const CONFIG_KEYS = {
 	// Recording
 	inputDeviceId: 'recording.inputDeviceId',
 	outputDeviceId: 'recording.outputDeviceId',
+	/** Display names of the saved devices, to name one in the warning when it is not connected. */
+	inputDeviceName: 'recording.inputDeviceName',
+	outputDeviceName: 'recording.outputDeviceName',
 	recordingShortcutEnabled: 'recording.shortcutEnabled',
 	recordingShortcut: 'recording.shortcut',
 	meetingDetectionEnabled: 'recording.meetingDetectionEnabled',

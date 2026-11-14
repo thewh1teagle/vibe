@@ -19,7 +19,7 @@ real app: no test runner, one command per action, JSON on stdout.
     uv run e2e/wd.py shot out.png
     uv run e2e/wd.py csp                         # CSP violations recorded in every window; exit 1 if any
     uv run e2e/wd.py reset                       # delete the test profile (app must be closed)
-    uv run e2e/wd.py seed                        # keep projects inside the test profile (`chore e2e-app` runs it)
+    uv run e2e/wd.py seed                        # isolate the test profile: own projects folder, global shortcuts off (`chore e2e-app` runs it)
     uv run e2e/wd.py end
 """
 
@@ -157,11 +157,19 @@ def main() -> None:
         config_path = config_dir / "app_config.json"
         config = json.loads(config_path.read_text()) if config_path.exists() else {}
         projects = config_dir / "projects"
-        if config.get("transcription.projectsPath") != str(projects):
-            projects.mkdir(parents=True, exist_ok=True)
-            config["transcription.projectsPath"] = str(projects)
+        projects.mkdir(parents=True, exist_ok=True)
+        wanted = {
+            "transcription.projectsPath": str(projects),
+            # Global shortcuts are system-wide: left on, the test app would answer the user's own
+            # dictation key next to their real Vibe, record their microphone and type the text twice.
+            "dictation.enabled": False,
+            "recording.shortcutEnabled": False,
+        }
+        if any(config.get(key) != value for key, value in wanted.items()):
+            config.update(wanted)
+            config_dir.mkdir(parents=True, exist_ok=True)
             config_path.write_text(json.dumps(config, indent=2))
-        out = {"projects": str(projects)}
+        out = {"projects": str(projects), "global_shortcuts": "off"}
     elif command == "end":
         call("DELETE", f"/session/{session()}")
         SESSION_FILE.unlink(missing_ok=True)

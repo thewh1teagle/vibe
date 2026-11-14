@@ -54,6 +54,21 @@ pub struct ServerProcess {
     exit_status: Option<std::process::ExitStatus>,
     client: reqwest::Client,
     stderr_buf: Arc<Mutex<StderrTail>>,
+    /// The last model this process loaded, kept so a transcription that fails on the
+    /// GPU can reload the same model on the CPU.
+    loaded_model: Option<LoadedModel>,
+}
+
+/// What [`ServerProcess::load_model`] last loaded successfully.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoadedModel {
+    pub path: String,
+    pub gpu_device: Option<i32>,
+    /// Asked for with the GPU allowed. The engine may still run on the CPU when no GPU
+    /// backend is available, or when the server kept a CPU copy of the same model (a load
+    /// that does not send `no_gpu` reuses it); the server does not say, so this errs
+    /// towards "GPU" and at worst costs one needless CPU retry.
+    pub gpu: bool,
 }
 
 /// The child's most recent stderr. A crash message is the *last* thing written,

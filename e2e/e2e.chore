@@ -15,7 +15,8 @@ task e2e-build {
 
 # Run the test build. WebDriver listens on 127.0.0.1:4445 (TAURI_WEBDRIVER_PORT to change).
 task e2e-app {
-    # Projects would otherwise be the user's real Documents/Vibe.
+    # Projects would otherwise be the user's real Documents/Vibe, and the global shortcuts would
+    # fire alongside the installed app's.
     uv run e2e/wd.py seed
     $ROOT/target/e2e/debug/vibe $@
 }

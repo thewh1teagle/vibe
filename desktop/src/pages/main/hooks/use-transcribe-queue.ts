@@ -267,27 +267,24 @@ export function useTranscribeQueue(): TranscribeQueue {
 	}, [])
 
 	useEffect(() => {
-		const unlisteners: Promise<UnlistenFn>[] = []
-
-		unlisteners.push(
+		const unlisteners: Promise<UnlistenFn>[] = [
 			listen<number>('transcribe_progress', ({ payload }) => {
 				const id = activeIdRef.current
 				if (id && payload >= 0 && payload <= 100) patch(id, { progress: payload })
 			}),
-		)
-		unlisteners.push(
 			listen<JobStage>('transcribe_stage', ({ payload }) => {
 				const id = activeIdRef.current
 				if (id) patch(id, { stage: payload })
 			}),
-		)
-		unlisteners.push(
 			listen<Segment>('new_segment', ({ payload }) => {
 				const id = activeIdRef.current
-				if (!id) return
-				commit(jobsRef.current.map((job) => (job.id === id ? { ...job, segments: [...job.segments, payload] } : job)))
+				if (id) commit(jobsRef.current.map((job) => (job.id === id ? { ...job, segments: [...job.segments, payload] } : job)))
 			}),
-		)
+			// The backend runs this job again (on the CPU after a GPU failure): its lines arrive anew.
+			listen<string | null>('transcribe_restart', ({ payload }) => {
+				if (payload && payload === activeIdRef.current) patch(payload, { progress: 0, stage: 'preparing', segments: [] })
+			}),
+		]
 
 		return () => {
 			unlisteners.forEach((promise) => promise.then((unlisten) => unlisten()))
@@ -451,6 +448,8 @@ export function useTranscribeQueue(): TranscribeQueue {
 				trackTranscribeStarted('main', next.path)
 				try {
 					const result = await invoke<Transcript>('transcribe', {
+						// The job id names this transcription for `abort_transcribe` and `transcribe_restart`.
+						transcriptionId: next.id,
 						options: {
 							path: next.path,
 							...withoutUnsupportedOptions(preferenceRef.current.modelOptions, preferenceRef.current.modelMetadata?.capabilities),
@@ -736,23 +735,23 @@ export function useTranscribeQueue(): TranscribeQueue {
 		if (!activeIdRef.current) return
 		abortCurrentRef.current = true
 		setIsAborting(true)
-		emit('abort_transcribe')
+		emit('abort_transcribe', activeIdRef.current)
 	}, [])
 
 	const cancelAll = useCallback(() => {
 		abortAllRef.current = true
 		abortCurrentRef.current = true
 		setIsAborting(true)
-		emit('abort_transcribe')
+		if (activeIdRef.current) emit('abort_transcribe', activeIdRef.current)
 		commit(jobsRef.current.map((job) => (job.status === 'queued' ? { ...job, status: 'cancelled' } : job)))
 	}, [commit])
 
+	// A run in progress is never discarded by starting anew (#1477): it keeps going, and new files queue behind it.
 	const reset = useCallback(() => {
-		if (runningRef.current) cancelAll()
 		pinnedRef.current = false
-		commit([])
-		select(null)
-	}, [cancelAll, commit, select])
+		commit(runningRef.current ? jobsRef.current.filter((job) => job.status === 'queued' || job.status === 'running') : [])
+		select(runningRef.current ? activeIdRef.current : null)
+	}, [commit, select])
 
 	const selectedJob = jobs.find((job) => job.id === selectedId) ?? null
 	const hasResults = jobs.some((job) => job.segments.length > 0)

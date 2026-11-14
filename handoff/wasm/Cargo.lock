@@ -1148,6 +1148,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tracing-subscriber-wasm",
+ "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-streams",

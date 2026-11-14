@@ -21,6 +21,8 @@ use tracing_subscriber_wasm::MakeConsoleWriter;
 use wasm_bindgen::{prelude::wasm_bindgen, JsError, JsValue};
 use wasm_streams::{readable::sys::ReadableStream as JsReadableStream, ReadableStream};
 
+mod relay;
+
 /// ALPN for the handoff protocol (see CONTRACT.md).
 pub const ALPN: &[u8] = b"vibe/handoff/0";
 
@@ -61,7 +63,8 @@ pub struct HandoffClient {
 impl HandoffClient {
     /// Bind a browser endpoint. Relay-only; that is expected.
     pub async fn create() -> Result<HandoffClient, JsError> {
-        let endpoint = Endpoint::builder(iroh::endpoint::presets::N0)
+        // Not `presets::N0`: its relay hosts end in a dot, which WebKit refuses.
+        let endpoint = relay::endpoint_builder()
             .bind()
             .await
             .context("failed to bind endpoint")

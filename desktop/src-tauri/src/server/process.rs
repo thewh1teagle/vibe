@@ -294,6 +294,7 @@ impl ServerProcess {
             exit_status: None,
             client: build_client()?,
             stderr_buf,
+            loaded_model: None,
         })
     }
 
@@ -327,6 +328,10 @@ impl ServerProcess {
 
     pub fn cpu_variant(&self) -> CpuVariant {
         self.cpu_variant
+    }
+
+    pub fn loaded_model(&self) -> Option<&super::LoadedModel> {
+        self.loaded_model.as_ref()
     }
 
     /// The child is gone and died on an instruction this CPU cannot run.
@@ -398,6 +403,11 @@ impl ServerProcess {
             match self.client.post(&url).json(&body).send().await {
                 Ok(response) if response.status().is_success() => {
                     tracing::debug!("vibe-server model loaded: {path}");
+                    self.loaded_model = Some(super::LoadedModel {
+                        path: path.to_string(),
+                        gpu_device,
+                        gpu: !no_gpu,
+                    });
                     return Ok(());
                 }
                 Ok(response) => bail!("vibe-server load_model failed: {}", response.text().await.unwrap_or_default()),

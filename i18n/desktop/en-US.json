@@ -256,6 +256,8 @@
 	"noDefaultMicrophone": "No default microphone is available.",
 	"recordingAlreadyInProgress": "Another recording is already in progress.",
 	"recordingRecoveredWarning": "Recording saved with reduced processing",
+	"recordingDeviceMissingTitle": "Recording device not connected",
+	"recordingDeviceMissing": "“{name}” is not connected, so Vibe records from “{fallback}” instead. Your choice comes back when it reconnects.",
 	"recordingName": "Recording Name",
 	"recordingNamePlaceholder": "e.g. Team Standup",
 	"projectsFolder": "Projects folder",
