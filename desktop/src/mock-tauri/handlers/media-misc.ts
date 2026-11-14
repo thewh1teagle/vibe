@@ -12,8 +12,9 @@ interface MockAudioDevice {
 }
 
 const MOCK_AUDIO_DEVICES: MockAudioDevice[] = [
-	{ isDefault: true, isInput: true, id: 'mock-mic', name: 'Mock Microphone' },
-	{ isDefault: true, isInput: false, id: 'mock-out', name: 'Mock Speakers' },
+	// Shaped like the real stable ids (cpal's `<host>:<uid>`), never a list position.
+	{ isDefault: true, isInput: true, id: 'mock:mic', name: 'Mock Microphone' },
+	{ isDefault: true, isInput: false, id: 'mock:out', name: 'Mock Speakers' },
 ]
 
 const RECORD_FINISH_DELAY_MS = 200
@@ -85,8 +86,17 @@ export const mediaMiscHandlers: CommandHandlerMap = {
 				emitMockEvent('record_finish', { path, name: basename(path) })
 			}, RECORD_FINISH_DELAY_MS)
 		})
-		// Resolve immediately, like the real command which spawns a background thread.
-		return undefined
+		// Resolve immediately, like the real command which spawns a background thread. The real
+		// command resolves devices by id and reports any it had to replace with the default.
+		const requested = Array.isArray(args?.devices) ? (args.devices as MockAudioDevice[]) : []
+		const deviceFallbacks = requested
+			.filter((device) => !MOCK_AUDIO_DEVICES.some((known) => known.id === device.id && known.isInput === device.isInput))
+			.map((device) => ({
+				requested: device.name,
+				used: MOCK_AUDIO_DEVICES.find((known) => known.isDefault && known.isInput === device.isInput)?.name ?? '',
+				isInput: device.isInput,
+			}))
+		return { deviceFallbacks }
 	},
 
 	// --- Text injection ---------------------------------------------------------

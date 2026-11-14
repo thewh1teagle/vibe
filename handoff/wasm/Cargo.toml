@@ -21,6 +21,8 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt"] }
 tracing-subscriber-wasm = "0.1"
 async-channel = "2"
+# Already in the tree through iroh; used to rewrite relay hosts (src/relay.rs).
+url = "2"
 
 getrandom = { version = "0.3", features = ["wasm_js"] }
 wasm-bindgen = "=0.2.122"

@@ -1,0 +1,263 @@
+vulkan: keep C++ exceptions inside the backend
+
+ggml's Vulkan backend reports failures by throwing: vk::SystemError when a fence
+or a submission fails ("device lost", "getFenceStatus"), std::runtime_error when
+a device cannot be used ("does not support 16-bit storage"). Only backend
+registration catches them. Everything else is reached through the C interface
+(ggml_backend_dev_init, ggml_backend_graph_compute, ggml_backend_synchronize,
+the tensor and buffer calls), and vibe-server calls that interface from Rust,
+which cannot unwind a C++ exception: the process aborts with "fatal runtime
+error: Rust cannot catch foreign exceptions". That was the last line of stderr
+on 86 installs in two weeks of vibe telemetry (2026-10-31 to 11-14), nearly all
+on Windows.
+
+This patch:
+
+- routes every interface entry that can throw through a guard that logs the
+  exception and returns a failure the entry can express: GGML_STATUS_FAILED,
+  a null backend or buffer, false;
+- makes graph_compute wait for its own work. The backend submits in
+  graph_compute and waits in synchronize, which returns nothing, so a lost
+  device surfaced where it could not be reported. Waiting inside graph_compute
+  turns it into a status. The synchronous compute functions synchronize right
+  after it anyway, so this costs their callers nothing;
+- stops ggml_vk_get_device from leaving a half-initialised device in its cache
+  when set-up throws, so the next caller gets the same error instead of a
+  device that was never finished;
+- returns no backend from ggml_backend_vk_init when the device cannot be set
+  up. Callers already take a null backend to mean "no GPU" and use the CPU.
+
+Not upstream as of ggml v0.22.0. Applies after 0001-0004.
+
+diff --git a/src/ggml-vulkan/ggml-vulkan.cpp b/src/ggml-vulkan/ggml-vulkan.cpp
+index ecac3f9..72392fa 100644
+--- a/src/ggml-vulkan/ggml-vulkan.cpp
++++ b/src/ggml-vulkan/ggml-vulkan.cpp
+@@ -380,9 +380,37 @@ static ggml_backend_buffer_t ggml_backend_vk_buffer_type_alloc_buffer(ggml_backe
+ static size_t ggml_backend_vk_buffer_type_get_alignment(ggml_backend_buffer_type_t buft);
+ static size_t ggml_backend_vk_buffer_type_get_max_size(ggml_backend_buffer_type_t buft);
+ static size_t ggml_backend_vk_buffer_type_get_alloc_size(ggml_backend_buffer_type_t buft, const ggml_tensor * tensor);
++// No exception may leave the backend through its C interface: a caller that is not C++ (Rust,
++// or C) cannot unwind one, and the process aborts. Every interface entry below goes through
++// these, logs what happened, and reports failure the way that entry can.
++template <typename F>
++static void ggml_vk_guard(const char * what, F && fn) {
++    try {
++        fn();
++    } catch (const std::exception & e) {
++        GGML_LOG_ERROR("ggml_vulkan: %s failed: %s\n", what, e.what());
++    } catch (...) {
++        GGML_LOG_ERROR("ggml_vulkan: %s failed with an unknown exception\n", what);
++    }
++}
++
++template <typename R, typename F>
++static R ggml_vk_guard(const char * what, R fallback, F && fn) {
++    try {
++        return fn();
++    } catch (const std::exception & e) {
++        GGML_LOG_ERROR("ggml_vulkan: %s failed: %s\n", what, e.what());
++    } catch (...) {
++        GGML_LOG_ERROR("ggml_vulkan: %s failed with an unknown exception\n", what);
++    }
++    return fallback;
++}
++
+ static ggml_backend_buffer_type_i ggml_backend_vk_buffer_type_interface = {
+     /* .get_name         = */ ggml_backend_vk_buffer_type_name,
+-    /* .alloc_buffer     = */ ggml_backend_vk_buffer_type_alloc_buffer,
++    /* .alloc_buffer     = */ [](ggml_backend_buffer_type_t buft, size_t size) -> ggml_backend_buffer_t {
++        return ggml_vk_guard("buffer allocation", (ggml_backend_buffer_t) nullptr, [&] { return ggml_backend_vk_buffer_type_alloc_buffer(buft, size); });
++    },
+     /* .get_alignment    = */ ggml_backend_vk_buffer_type_get_alignment,
+     /* .get_max_size     = */ ggml_backend_vk_buffer_type_get_max_size,
+     /* .get_alloc_size   = */ ggml_backend_vk_buffer_type_get_alloc_size,
+@@ -6176,7 +6204,7 @@ static void ggml_vk_load_shaders(vk_device& device, vk_pipeline requested) {
+ static bool ggml_vk_khr_cooperative_matrix_support(const vk::PhysicalDeviceProperties& props, const vk::PhysicalDeviceDriverProperties& driver_props, vk_device_architecture arch);
+ static uint32_t ggml_vk_intel_shader_core_count(const vk::PhysicalDevice& vkdev);
+ 
+-static vk_device ggml_vk_get_device(size_t idx) {
++static vk_device ggml_vk_get_device(size_t idx) try {
+     VK_LOG_DEBUG("ggml_vk_get_device(" << idx << ")");
+ 
+     if (vk_instance.devices[idx] == nullptr) {
+@@ -7109,6 +7137,11 @@ static vk_device ggml_vk_get_device(size_t idx) {
+     }
+ 
+     return vk_instance.devices[idx];
++} catch (...) {
++    // The slot is filled before the device is set up; leaving it there would hand the next
++    // caller a half-initialised device instead of this error.
++    vk_instance.devices[idx] = nullptr;
++    throw;
+ }
+ 
+ static void ggml_vk_print_gpu_info(size_t idx) {
+@@ -16151,16 +16184,36 @@ static void ggml_backend_vk_buffer_clear(ggml_backend_buffer_t buffer, uint8_t v
+ }
+ 
+ static ggml_backend_buffer_i ggml_backend_vk_buffer_interface = {
+-    /* .free_buffer     = */ ggml_backend_vk_buffer_free_buffer,
++    /* .free_buffer     = */ [](ggml_backend_buffer_t buffer) {
++        ggml_vk_guard("buffer free", [&] { ggml_backend_vk_buffer_free_buffer(buffer); });
++    },
+     /* .get_base        = */ ggml_backend_vk_buffer_get_base,
+-    /* .init_tensor     = */ ggml_backend_vk_buffer_init_tensor,
+-    /* .memset_tensor   = */ ggml_backend_vk_buffer_memset_tensor,
+-    /* .set_tensor      = */ ggml_backend_vk_buffer_set_tensor,
+-    /* .get_tensor      = */ ggml_backend_vk_buffer_get_tensor,
+-    /* .set_tensor_2d   = */ ggml_backend_vk_buffer_set_tensor_2d,
+-    /* .get_tensor_2d   = */ ggml_backend_vk_buffer_get_tensor_2d,
+-    /* .cpy_tensor      = */ ggml_backend_vk_buffer_cpy_tensor,
+-    /* .clear           = */ ggml_backend_vk_buffer_clear,
++    /* .init_tensor     = */ [](ggml_backend_buffer_t buffer, ggml_tensor * tensor) -> enum ggml_status {
++        return ggml_vk_guard("tensor init", GGML_STATUS_FAILED, [&] { return ggml_backend_vk_buffer_init_tensor(buffer, tensor); });
++    },
++    /* .memset_tensor   = */ [](ggml_backend_buffer_t buffer, ggml_tensor * tensor, uint8_t value, size_t offset, size_t size) {
++        ggml_vk_guard("tensor memset", [&] { ggml_backend_vk_buffer_memset_tensor(buffer, tensor, value, offset, size); });
++    },
++    /* .set_tensor      = */ [](ggml_backend_buffer_t buffer, ggml_tensor * tensor, const void * data, size_t offset, size_t size) {
++        ggml_vk_guard("tensor write", [&] { ggml_backend_vk_buffer_set_tensor(buffer, tensor, data, offset, size); });
++    },
++    /* .get_tensor      = */ [](ggml_backend_buffer_t buffer, const ggml_tensor * tensor, void * data, size_t offset, size_t size) {
++        ggml_vk_guard("tensor read", [&] { ggml_backend_vk_buffer_get_tensor(buffer, tensor, data, offset, size); });
++    },
++    /* .set_tensor_2d   = */ [](ggml_backend_buffer_t buffer, ggml_tensor * tensor, const void * data, size_t offset, size_t size,
++                                size_t n_copies, size_t stride_tensor, size_t stride_data) {
++        ggml_vk_guard("tensor write", [&] { ggml_backend_vk_buffer_set_tensor_2d(buffer, tensor, data, offset, size, n_copies, stride_tensor, stride_data); });
++    },
++    /* .get_tensor_2d   = */ [](ggml_backend_buffer_t buffer, const ggml_tensor * tensor, void * data, size_t offset, size_t size,
++                                size_t n_copies, size_t stride_tensor, size_t stride_data) {
++        ggml_vk_guard("tensor read", [&] { ggml_backend_vk_buffer_get_tensor_2d(buffer, tensor, data, offset, size, n_copies, stride_tensor, stride_data); });
++    },
++    /* .cpy_tensor      = */ [](ggml_backend_buffer_t buffer, const ggml_tensor * src, ggml_tensor * dst) -> bool {
++        return ggml_vk_guard("tensor copy", false, [&] { return ggml_backend_vk_buffer_cpy_tensor(buffer, src, dst); });
++    },
++    /* .clear           = */ [](ggml_backend_buffer_t buffer, uint8_t value) {
++        ggml_vk_guard("buffer clear", [&] { ggml_backend_vk_buffer_clear(buffer, value); });
++    },
+     /* .reset           = */ NULL,
+ };
+ 
+@@ -17891,21 +17944,55 @@ static void ggml_backend_vk_event_wait(ggml_backend_t backend, ggml_backend_even
+ // TODO: enable async and synchronize
+ static ggml_backend_i ggml_backend_vk_interface = {
+     /* .get_name                = */ ggml_backend_vk_name,
+-    /* .free                    = */ ggml_backend_vk_free,
+-    /* .set_tensor_async        = */ ggml_backend_vk_set_tensor_async,
+-    /* .get_tensor_async        = */ ggml_backend_vk_get_tensor_async,
+-    /* .set_tensor_2d_async     = */ ggml_backend_vk_set_tensor_2d_async,
+-    /* .get_tensor_2d_async     = */ ggml_backend_vk_get_tensor_2d_async,
+-    /* .cpy_tensor_async        = */ ggml_backend_vk_cpy_tensor_async,
+-    /* .synchronize             = */ ggml_backend_vk_synchronize,
++    /* .free                    = */ [](ggml_backend_t backend) {
++        ggml_vk_guard("backend free", [&] { ggml_backend_vk_free(backend); });
++    },
++    /* .set_tensor_async        = */ [](ggml_backend_t backend, ggml_tensor * tensor, const void * data, size_t offset, size_t size) {
++        ggml_vk_guard("tensor write", [&] { ggml_backend_vk_set_tensor_async(backend, tensor, data, offset, size); });
++    },
++    /* .get_tensor_async        = */ [](ggml_backend_t backend, const ggml_tensor * tensor, void * data, size_t offset, size_t size) {
++        ggml_vk_guard("tensor read", [&] { ggml_backend_vk_get_tensor_async(backend, tensor, data, offset, size); });
++    },
++    /* .set_tensor_2d_async     = */ [](ggml_backend_t backend, ggml_tensor * tensor, const void * data, size_t offset, size_t size,
++                                        size_t n_copies, size_t stride_tensor, size_t stride_data) {
++        ggml_vk_guard("tensor write", [&] { ggml_backend_vk_set_tensor_2d_async(backend, tensor, data, offset, size, n_copies, stride_tensor, stride_data); });
++    },
++    /* .get_tensor_2d_async     = */ [](ggml_backend_t backend, const ggml_tensor * tensor, void * data, size_t offset, size_t size,
++                                        size_t n_copies, size_t stride_tensor, size_t stride_data) {
++        ggml_vk_guard("tensor read", [&] { ggml_backend_vk_get_tensor_2d_async(backend, tensor, data, offset, size, n_copies, stride_tensor, stride_data); });
++    },
++    /* .cpy_tensor_async        = */ [](ggml_backend_t backend_src, ggml_backend_t backend_dst, const ggml_tensor * src, ggml_tensor * dst) -> bool {
++        return ggml_vk_guard("tensor copy", false, [&] { return ggml_backend_vk_cpy_tensor_async(backend_src, backend_dst, src, dst); });
++    },
++    /* .synchronize             = */ [](ggml_backend_t backend) {
++        ggml_vk_guard("synchronize", [&] { ggml_backend_vk_synchronize(backend); });
++    },
+     /* .graph_plan_create       = */ NULL,
+     /* .graph_plan_free         = */ NULL,
+     /* .graph_plan_update       = */ NULL,
+     /* .graph_plan_compute      = */ NULL,
+-    /* .graph_compute           = */ ggml_backend_vk_graph_compute,
+-    /* .event_record            = */ ggml_backend_vk_event_record,
+-    /* .event_wait              = */ ggml_backend_vk_event_wait,
+-    /* .graph_optimize          = */ ggml_vk_graph_optimize,
++    // Work is submitted here but only waited for in synchronize, which returns nothing, so a lost
++    // device or a failed fence would otherwise surface where it cannot be reported. Waiting here
++    // turns it into a status. Callers of the synchronous compute functions synchronize right
++    // after this anyway, so it costs them nothing.
++    /* .graph_compute           = */ [](ggml_backend_t backend, ggml_cgraph * cgraph) -> ggml_status {
++        return ggml_vk_guard("graph compute", GGML_STATUS_FAILED, [&] {
++            ggml_status status = ggml_backend_vk_graph_compute(backend, cgraph);
++            if (status == GGML_STATUS_SUCCESS) {
++                ggml_backend_vk_synchronize(backend);
++            }
++            return status;
++        });
++    },
++    /* .event_record            = */ [](ggml_backend_t backend, ggml_backend_event_t event) {
++        ggml_vk_guard("event record", [&] { ggml_backend_vk_event_record(backend, event); });
++    },
++    /* .event_wait              = */ [](ggml_backend_t backend, ggml_backend_event_t event) {
++        ggml_vk_guard("event wait", [&] { ggml_backend_vk_event_wait(backend, event); });
++    },
++    /* .graph_optimize          = */ [](ggml_backend_t backend, struct ggml_cgraph * graph) {
++        ggml_vk_guard("graph optimize", [&] { ggml_vk_graph_optimize(backend, graph); });
++    },
+ };
+ 
+ static ggml_guid_t ggml_backend_vk_guid() {
+@@ -17917,7 +18004,12 @@ ggml_backend_t ggml_backend_vk_init(size_t dev_num) {
+     VK_LOG_DEBUG("ggml_backend_vk_init(" << dev_num << ")");
+ 
+     ggml_backend_vk_context * ctx = new ggml_backend_vk_context;
+-    ggml_vk_init(ctx, dev_num);
++    // A device that cannot be used (no 16-bit storage, a driver that fails to set up) yields no
++    // backend, which callers already treat as "no GPU". The context is left alone rather than
++    // destroyed: it is only partly set up, and tearing that down is not safe.
++    if (!ggml_vk_guard("backend init", false, [&] { ggml_vk_init(ctx, dev_num); return true; })) {
++        return nullptr;
++    }
+ 
+     ggml_backend_t vk_backend = new ggml_backend {
+         /* .guid    = */ ggml_backend_vk_guid(),
+@@ -18831,16 +18923,33 @@ static ggml_backend_buffer_t ggml_backend_vk_device_buffer_from_host_ptr(ggml_ba
+ static const struct ggml_backend_device_i ggml_backend_vk_device_i = {
+     /* .get_name             = */ ggml_backend_vk_device_get_name,
+     /* .get_description      = */ ggml_backend_vk_device_get_description,
+-    /* .get_memory           = */ ggml_backend_vk_device_get_memory,
++    /* .get_memory           = */ [](ggml_backend_dev_t device, size_t * free, size_t * total) {
++        *free = 0;
++        *total = 0;
++        ggml_vk_guard("device memory query", [&] { ggml_backend_vk_device_get_memory(device, free, total); });
++    },
+     /* .get_type             = */ ggml_backend_vk_device_get_type,
+-    /* .get_props            = */ ggml_backend_vk_device_get_props,
+-    /* .init_backend         = */ ggml_backend_vk_device_init,
++    /* .get_props            = */ [](ggml_backend_dev_t dev, struct ggml_backend_dev_props * props) {
++        *props = {};
++        ggml_vk_guard("device properties query", [&] { ggml_backend_vk_device_get_props(dev, props); });
++    },
++    /* .init_backend         = */ [](ggml_backend_dev_t dev, const char * params) -> ggml_backend_t {
++        return ggml_vk_guard("backend init", (ggml_backend_t) nullptr, [&] { return ggml_backend_vk_device_init(dev, params); });
++    },
+     /* .get_buffer_type      = */ ggml_backend_vk_device_get_buffer_type,
+     /* .get_host_buffer_type = */ ggml_backend_vk_device_get_host_buffer_type,
+-    /* .buffer_from_host_ptr = */ ggml_backend_vk_device_buffer_from_host_ptr,
+-    /* .supports_op          = */ ggml_backend_vk_device_supports_op,
+-    /* .supports_buft        = */ ggml_backend_vk_device_supports_buft,
+-    /* .offload_op           = */ ggml_backend_vk_device_offload_op,
++    /* .buffer_from_host_ptr = */ [](ggml_backend_dev_t dev, void * ptr, size_t size, size_t max_tensor_size) -> ggml_backend_buffer_t {
++        return ggml_vk_guard("host buffer", (ggml_backend_buffer_t) nullptr, [&] { return ggml_backend_vk_device_buffer_from_host_ptr(dev, ptr, size, max_tensor_size); });
++    },
++    /* .supports_op          = */ [](ggml_backend_dev_t dev, const ggml_tensor * op) -> bool {
++        return ggml_vk_guard("op support query", false, [&] { return ggml_backend_vk_device_supports_op(dev, op); });
++    },
++    /* .supports_buft        = */ [](ggml_backend_dev_t dev, ggml_backend_buffer_type_t buft) -> bool {
++        return ggml_vk_guard("buffer type support query", false, [&] { return ggml_backend_vk_device_supports_buft(dev, buft); });
++    },
++    /* .offload_op           = */ [](ggml_backend_dev_t dev, const ggml_tensor * op) -> bool {
++        return ggml_vk_guard("offload query", false, [&] { return ggml_backend_vk_device_offload_op(dev, op); });
++    },
+     /* .event_new            = */ ggml_backend_vk_device_event_new,
+     /* .event_free           = */ ggml_backend_vk_device_event_free,
+     /* .event_synchronize    = */ ggml_backend_vk_device_event_synchronize,

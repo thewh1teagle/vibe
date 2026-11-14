@@ -11,13 +11,14 @@ use whisper_rs::StreamCallbacks;
 use crate::audio;
 use crate::cli::AppConfig;
 use crate::server::diarization;
-use crate::server::transcription::build_options;
+use crate::server::transcription::{audio_error, build_options};
 use crate::server::unload_timeout::ModelLease;
 use crate::server::{error, format, speakers};
 
 /// What a streamed request still has to turn into samples and speaker turns.
 pub(super) struct StreamInput {
-    pub file: Vec<u8>,
+    /// The uploaded file on disk; deleted when this drops.
+    pub file: tempfile::TempPath,
     pub audio_options: audio::ReadOptions,
     pub diarize_model: Option<String>,
 }
@@ -75,20 +76,22 @@ pub(super) fn stream_transcription(
             diarize_model,
         } = input;
         let _ = send_stage(&final_tx, "preparing");
-        let samples = match audio::read_bytes_with_options(file, audio_options) {
+        let samples = match audio::read_file_with_options(&file, audio_options) {
             Ok(samples) => samples,
             Err(err) => {
+                let (_, code, message) = audio_error(&err);
                 let _ = send_event(
                     &final_tx,
                     serde_json::json!({
                         "type": "error",
-                        "code": "invalid_audio",
-                        "message": format!("invalid audio file: {err}"),
+                        "code": code,
+                        "message": message,
                     }),
                 );
                 return;
             }
         };
+        drop(file);
         let segment_diar_segments = match diarize_model.as_deref() {
             Some(model_path) if !final_tx.is_closed() => {
                 let _ = send_stage(&final_tx, "speakers");

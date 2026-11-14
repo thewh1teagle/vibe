@@ -124,11 +124,11 @@ Documentation endpoints:
 
 ## Transcription Execution Flow 🧠
 
-1. The transcription service attempts to acquire a global mutex using `try_lock`
-2. If already busy, request fails with `429` (no queue)
-3. If no model is loaded, request fails with `503`
-4. Multipart `file` is read (max size: `1 GB`)
-5. Audio is decoded via `audio::read_bytes_with_options`
+1. Multipart `file` is streamed to a temp file on disk as it arrives (max size: `15 GiB`; other fields max `64 KiB` each). The temp file is removed when the request ends, on every path
+2. The transcription service then attempts to acquire a global mutex using `try_lock`
+3. If already busy, request fails with `429` (no queue)
+4. If no model is loaded, request fails with `503`
+5. Audio is decoded from that path via `audio::read_file_with_options` (a 16 kHz mono s16 WAV directly, anything else through ffmpeg into a private temp WAV); ffmpeg is looked up in `VIBE_SERVER_FFMPEG_PATH`, then next to the executable, then on PATH
 6. Transcription runs via `Context::transcribe_stream(...)`
     - non-stream requests still use the stream-capable path
     - client disconnect triggers the abort callback

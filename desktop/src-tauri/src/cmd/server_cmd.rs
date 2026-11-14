@@ -176,16 +176,7 @@ pub async fn load_model(
         Err(e) if no_gpu => return Err(e.into()),
         Err(e) => {
             tracing::warn!("model load failed with GPU enabled, falling back to CPU: {:#}", e);
-
-            // Kill existing process and respawn, then reload with no_gpu
-            if let Some(mut old) = state_guard.process.take() {
-                old.kill();
-            }
-            let process = spawn_server(crate::cmd::config::cpu_variant(&app_handle)).context("failed to respawn server")?;
-            state_guard.process = Some(process);
-
-            let server = state_guard.process.as_mut().unwrap();
-            server.load_model(&model_path, gpu_device, true).await?;
+            respawn_on_cpu(&app_handle, &mut state_guard, &model_path, gpu_device, unload_timeout_minutes).await?;
             true
         }
     };
@@ -194,6 +185,46 @@ pub async fn load_model(
     } else {
         Ok(model_path)
     }
+}
+
+/// Kill the sidecar, start a fresh one and load `model_path` on the CPU. A fresh process
+/// because a GPU that failed once (a lost Vulkan device, say) can leave the old one unusable.
+/// The CPU copy then lasts as long as that process keeps the model: a later `load_model`
+/// that does not send `no_gpu` reuses it rather than going back to the GPU.
+async fn respawn_on_cpu(
+    app_handle: &tauri::AppHandle,
+    state: &mut ServerState,
+    model_path: &str,
+    gpu_device: Option<i32>,
+    unload_timeout_minutes: u32,
+) -> Result<()> {
+    if let Some(mut old) = state.process.take() {
+        old.kill();
+    }
+    let binary_path = resolve_server_binary(app_handle)?;
+    let ffmpeg_path = resolve_ffmpeg_path(app_handle);
+    let cpu_variant = crate::cmd::config::cpu_variant(app_handle);
+    let process = crate::server::ServerProcess::spawn(&binary_path, ffmpeg_path.as_deref(), unload_timeout_minutes, cpu_variant)
+        .context("failed to respawn server")?;
+    state.process.insert(process).load_model(model_path, gpu_device, true).await
+}
+
+/// Reload the model the sidecar last loaded, on the CPU, in a fresh process. For a
+/// transcription the GPU failed under; `load_model` does the same when the load itself fails.
+pub(crate) async fn reload_loaded_model_on_cpu(app_handle: &tauri::AppHandle) -> Result<()> {
+    let server_state: State<'_, Mutex<ServerState>> = app_handle.state();
+    let mut state_guard = server_state.lock().await;
+    let process = state_guard.process.as_ref().context("no server process to reload")?;
+    let model = process.loaded_model().cloned().context("no model was loaded")?;
+    let unload_timeout_minutes = process.unload_timeout_minutes();
+    respawn_on_cpu(
+        app_handle,
+        &mut state_guard,
+        &model.path,
+        model.gpu_device,
+        unload_timeout_minutes,
+    )
+    .await
 }
 
 #[tauri::command]

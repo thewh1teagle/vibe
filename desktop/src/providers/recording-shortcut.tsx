@@ -3,7 +3,7 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
-import { selectInputDevice, type AudioDevice } from '~/lib/audio'
+import { resolveSavedDevice, warnDeviceFallback, type AudioDevice, type StartRecordOutcome } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { readConfig, usePersisted } from '~/lib/config-store'
 import { getDefaultRecordingShortcut } from '~/lib/config'
@@ -64,7 +64,8 @@ export function RecordingShortcutProvider({ children }: { children: ReactNode })
 		startingRef.current = true
 		try {
 			const devices = await invoke<AudioDevice[]>('get_audio_devices')
-			const microphone = selectInputDevice(devices, readConfig<string | null>(CONFIG_KEYS.inputDeviceId, null))
+			const savedMicrophoneId = readConfig<string | null>(CONFIG_KEYS.inputDeviceId, null)
+			const { device: microphone, missing: microphoneMissing } = resolveSavedDevice(devices, true, savedMicrophoneId)
 			const systemAudio = devices.find((device) => device.isDefault && !device.isInput)
 			if (options.microphone && !microphone) throw new Error(m.noDefaultMicrophone())
 			if (options.systemAudio && !systemAudio) throw new Error(m.systemAudioPermissionInfo())
@@ -73,7 +74,12 @@ export function RecordingShortcutProvider({ children }: { children: ReactNode })
 				(device): device is AudioDevice => device != null,
 			)
 			if (selectedDevices.length === 0) throw new Error(m.noDefaultMicrophone())
-			await invoke('start_record', { devices: selectedDevices, recordingName: null })
+			const outcome = await invoke<StartRecordOutcome | null>('start_record', { devices: selectedDevices, recordingName: null })
+			if (options.microphone && microphoneMissing) {
+				const savedName = readConfig<string | null>(CONFIG_KEYS.inputDeviceName, null)
+				warnDeviceFallback(savedName ?? String(savedMicrophoneId), microphone?.name ?? null)
+			}
+			for (const fallback of outcome?.deviceFallbacks ?? []) warnDeviceFallback(fallback.requested, fallback.used)
 			recordingRef.current = true
 			normalRecordingActiveRef.current = true
 			setIsShortcutRecording(true)

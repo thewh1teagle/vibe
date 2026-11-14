@@ -196,7 +196,7 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 					...(requiresVad ? { vad_model: `${modelsFolder}/${config.vadModelFilename}` } : {}),
 				}
 				const startedAt = performance.now()
-				const res: transcript.Transcript = await invoke('transcribe', { options })
+				const res: transcript.Transcript = await invoke('transcribe', { options, transcriptionId: `hotkey-${crypto.randomUUID()}` })
 				transcribed = true
 				trackTranscribeSucceeded('hotkey', {
 					durationSeconds: Math.round((performance.now() - startedAt) / 1000),

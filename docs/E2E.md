@@ -25,6 +25,9 @@ Other commands: `use <window>`, `text <css>`, `type <css> <text>`, `wait <css> [
 - Own app identifier (`github.com.thewh1teagle.vibe.e2e`): own config, models, cache.
   Never touches the installed app or `chore dev`, and runs beside both.
 - Own projects folder inside that profile (`chore e2e-app` sets it). Your `Documents/Vibe` is not touched.
+- Global shortcuts (dictation, record) are turned off in the test profile on every start. They are system-wide,
+  so the test app would otherwise answer your own dictation key and type the text a second time. To test
+  them, turn them on in the test app's settings for that run.
 - Own build folder `target/e2e`.
 - The driver is behind the cargo feature `e2e`. A normal or release build does not compile it.
 - Listens on loopback only.

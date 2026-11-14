@@ -31,6 +31,8 @@ pub mod events {
     pub const SERVER_SPAWN_FAILED: &str = "sona_spawn_failed";
     /// The engine died with an illegal instruction and was relaunched on a lower CPU build.
     pub const SERVER_CPU_BASELINE_FALLBACK: &str = "server_cpu_baseline_fallback";
+    /// A transcription failed with the GPU enabled and was run again with the model on the CPU.
+    pub const SERVER_GPU_TRANSCRIBE_FALLBACK: &str = "server_gpu_transcribe_fallback";
 
     // Phone handoff. Props are technical facts only: never a transcript, filename,
     // saved path, endpoint id, pairing token, model path, or chosen language.
