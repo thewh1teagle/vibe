@@ -1,55 +1,55 @@
 {
-  "version": "3.3.6",
-  "notes": "Release notes: https://thewh1teagle.github.io/vibe/changelog/3.3.6\n\nSigned and notarized on macOS and Windows.",
-  "pub_date": "2026-11-14T18:09:49.468Z",
+  "version": "3.3.7",
+  "notes": "Release notes: https://thewh1teagle.github.io/vibe/changelog/3.3.7\n\nSigned and notarized on macOS and Windows.",
+  "pub_date": "2026-11-14T20:05:10.744Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3VNS3ZRRFovUjZqSUxWS1d1ZGhHYzMxbW9EQVFHNXFFYnFRTHV2eDgzdVlQQklLdWMyTjFDbHladTVxVGx6dFFFV2NIbVljbVJMRGlkeGo3bG5uTGdnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NDA3CWZpbGU6dmliZV8zLjMuNl9hbWQ2NC5kZWIKMXRUZWpkTHIyei9Kb2FLaXFDdkVLa0wra2JGTE9jaVRNdU1xdytVTmdtakFBRk9DWGVYZVZRWm1hdmFEdXF0MTNzUG50bXdtY2lTMFJVb0IrQzluRFE9PQo=",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_3.3.6_amd64.deb"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3ZSdlYxZGxjOUx1enRRNzh6TXI4QWs2eU5XSlJxUUxFVU8rK1dyQ2RXT2FaSzE3d0dmc3hFa3VzTEFadlhzalZUaC81RE9rNG9MdkNmSnIxUVllZndNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2MzYwCWZpbGU6dmliZV8zLjMuN19hbWQ2NC5kZWIKaCtOb09taE5yU2NOTHpPeWVIQld6M1k0WENUbTdBcnlMWlFLVVBPNEJoTFhrMjY2SURzNnh0LzRXakhIdStrQnZHZThjOEZJdWxVUXNyRTBWQVgyQ0E9PQo=",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_3.3.7_amd64.deb"
     },
     "linux-x86_64-deb": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3VNS3ZRRFovUjZqSUxWS1d1ZGhHYzMxbW9EQVFHNXFFYnFRTHV2eDgzdVlQQklLdWMyTjFDbHladTVxVGx6dFFFV2NIbVljbVJMRGlkeGo3bG5uTGdnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NDA3CWZpbGU6dmliZV8zLjMuNl9hbWQ2NC5kZWIKMXRUZWpkTHIyei9Kb2FLaXFDdkVLa0wra2JGTE9jaVRNdU1xdytVTmdtakFBRk9DWGVYZVZRWm1hdmFEdXF0MTNzUG50bXdtY2lTMFJVb0IrQzluRFE9PQo=",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_3.3.6_amd64.deb"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3ZSdlYxZGxjOUx1enRRNzh6TXI4QWs2eU5XSlJxUUxFVU8rK1dyQ2RXT2FaSzE3d0dmc3hFa3VzTEFadlhzalZUaC81RE9rNG9MdkNmSnIxUVllZndNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2MzYwCWZpbGU6dmliZV8zLjMuN19hbWQ2NC5kZWIKaCtOb09taE5yU2NOTHpPeWVIQld6M1k0WENUbTdBcnlMWlFLVVBPNEJoTFhrMjY2SURzNnh0LzRXakhIdStrQnZHZThjOEZJdWxVUXNyRTBWQVgyQ0E9PQo=",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_3.3.7_amd64.deb"
     },
     "linux-x86_64-rpm": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3VGL2M3QmZkNndNYzJMRzFHL2NXVUN6VjZVRG1FRXl2YWN1SGROY3BJdTlHUUwwRS9vZlFKaDZnY0JNZkw4VFBuOU1rcWcvTktHaTY3NElFWGlDSEFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NDA3CWZpbGU6dmliZS0zLjMuNi0xLng4Nl82NC5ycG0KNWhWQWxXN0dKSUY4YVlBODRINS82dldhdFRxQXgyTkJiTEhTMHhwTkh5bUhsKytDWEtJM1VLcW9Pd2lnbUlmdnlyaS9EYVJjbWxtaTBVaXAxWXNQRFE9PQo=",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe-3.3.6-1.x86_64.rpm"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3FScHdHRFl4d2ZtRFVCVHhJdFNvNXFTbUtNSERIaEZBdlNuS0pnZDRrMXhsazJ4NVo2QlJHN0hUdUdvdnJTN3A1bXBqMzlsZDNscWxucG80QW5KV3drPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2MzYwCWZpbGU6dmliZS0zLjMuNy0xLng4Nl82NC5ycG0KZVJaQTFLWURGMHlUaldTTm96V1NEZ0g3RXdNUDA1dHZhY0U1bDhqYi9KMDNXemVGOGJnd1NvZ0VMemJ5dkE3WEpOdGdDZEszVU5DY3dCemxDU2hzQ2c9PQo=",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe-3.3.7-1.x86_64.rpm"
     },
     "linux-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL2k5bnoyUTNnN2ZaNUNnUjF0WkhsSC8zR3BYanEvbTNEM3poQTFRamU3T2poUXZacWd0TTNNSVFXYnhvdHc1MVpPTDAxL25Edm9tQ0NRNHV6RkpjV0FvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NDEwCWZpbGU6dmliZV8zLjMuNl9hcm02NC5kZWIKTVY3RkRSQ0FzakRsS3cwTUZpTm9SRHozazB4K0toWlRLTURSb2p6TU9wZXFkcGRURFl2VVJDL21QSW1WMnE5UDUvNWhqKzY5aElSVy9oczZLYVJtQ0E9PQo=",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_3.3.6_arm64.deb"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3BMbzRrRjFxcHQzRWZXMzh1QXJrdU1RclRXSWtwNkpvZm1HWW8xY2phNHNxSFJPVWlXa01LcjU0THlQbjJrOGdLUnE0dzlxc0lud24xV1B4UERnZkFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2Mzg5CWZpbGU6dmliZV8zLjMuN19hcm02NC5kZWIKRmNDNDkyLzFvT2dZaTYzOVIxQ1FxUkgrSDR5SURERGt1MVhXdGdtQUl5bGw4Y1hqZGlrVHBNNzJ1cU9aTG5wMDQ3Sk13clI0VTBhdkEwNUJoRm1EQkE9PQo=",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_3.3.7_arm64.deb"
     },
     "linux-aarch64-deb": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL2k5bnoyUTNnN2ZaNUNnUjF0WkhsSC8zR3BYanEvbTNEM3poQTFRamU3T2poUXZacWd0TTNNSVFXYnhvdHc1MVpPTDAxL25Edm9tQ0NRNHV6RkpjV0FvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NDEwCWZpbGU6dmliZV8zLjMuNl9hcm02NC5kZWIKTVY3RkRSQ0FzakRsS3cwTUZpTm9SRHozazB4K0toWlRLTURSb2p6TU9wZXFkcGRURFl2VVJDL21QSW1WMnE5UDUvNWhqKzY5aElSVy9oczZLYVJtQ0E9PQo=",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_3.3.6_arm64.deb"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3BMbzRrRjFxcHQzRWZXMzh1QXJrdU1RclRXSWtwNkpvZm1HWW8xY2phNHNxSFJPVWlXa01LcjU0THlQbjJrOGdLUnE0dzlxc0lud24xV1B4UERnZkFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2Mzg5CWZpbGU6dmliZV8zLjMuN19hcm02NC5kZWIKRmNDNDkyLzFvT2dZaTYzOVIxQ1FxUkgrSDR5SURERGt1MVhXdGdtQUl5bGw4Y1hqZGlrVHBNNzJ1cU9aTG5wMDQ3Sk13clI0VTBhdkEwNUJoRm1EQkE9PQo=",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_3.3.7_arm64.deb"
     },
     "linux-aarch64-rpm": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL20wWGd6MFlidmpjRkhJc1NQdFBqYVhTUVBnSVV4clJ2eFFGWjlOTXZ6citGQWU2bENyS2tIRHhTZjNuRmlBQ08vdGMzcGlGcm1talR1bEhWNFNPZndnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NDEwCWZpbGU6dmliZS0zLjMuNi0xLmFhcmNoNjQucnBtClQ4ZGUvdWdmSUdOOTBueHRnL0Vqem5VRWFNRVZPL0RqRDB6MHJEM3FlMXBwWE92N3hmV3dyS1EzRXlOdENJOURwbzFwZU9JK25VUXUyNlJERUdpT0NRPT0K",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe-3.3.6-1.aarch64.rpm"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL2xnVDhQYmdWR1NPU1B0aStwdTRpR05CKzQwUTEvMFdwaldWR0RvWVVCd3g5OGNTbGVTMSs3ZThia0NldUZ4SC81ZXBCYnpiTzBTUnBPWmU4MUM3S3dBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2Mzg5CWZpbGU6dmliZS0zLjMuNy0xLmFhcmNoNjQucnBtCm40bWJDZDRDT2NXaDM2YmpITzF5dHVzUDFCRDlSWUt6TWN5SkgrODZsb01QZzhucGFIYW1EU25tKzlDdDhLd3FlNCtXZ0xTM2Yra0VNbm81Y1RDYUFnPT0K",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe-3.3.7-1.aarch64.rpm"
     },
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL2oxOWVFNTkyRWhRVVhSaHJhSWFWNUp5SXRudDdrU1kzRHlmMFNraU9IOG9YUWdkUG5najF1eVFjWDJYMktnNWpCa0xYeitCZU44V2ZCNDVFZUdQaVFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NTI5CWZpbGU6dmliZS5hcHAudGFyLmd6CmxrUVY1c0dIQUtQTEVZM1ZYeGFZc0UzY0R2a1g1TDVYRTFjQlZYam9oLzlETUdhK08xL29TbGFPYkd5czlzRXE0cWxYWnJaMHgzNGdTMmpqVDJqTENRPT0K",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_aarch64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL216L2RUZ04xclU0Z0VaeTJvNEZJdGFYOHB1YWxxL2dLRXRjclBwQjZ2Y3BtaEsva0lyY2dMWjVuaitxbmgveVhLMDI3TE8zUTlHakF5bStSWklaTmdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2NDAyCWZpbGU6dmliZS5hcHAudGFyLmd6CjhlbWRQVVIyUW4zRGYxVDVFUjAwd1U2WjR4d0JIMnFKV21yZGVkek8vYUdJQUNuL2NicFdtZXhmejBPOEFrSWJZN09QWDJCb3lXajB6Wmt5YzNNR0J3PT0K",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_aarch64.app.tar.gz"
     },
     "darwin-aarch64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL2oxOWVFNTkyRWhRVVhSaHJhSWFWNUp5SXRudDdrU1kzRHlmMFNraU9IOG9YUWdkUG5najF1eVFjWDJYMktnNWpCa0xYeitCZU44V2ZCNDVFZUdQaVFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NTI5CWZpbGU6dmliZS5hcHAudGFyLmd6CmxrUVY1c0dIQUtQTEVZM1ZYeGFZc0UzY0R2a1g1TDVYRTFjQlZYam9oLzlETUdhK08xL29TbGFPYkd5czlzRXE0cWxYWnJaMHgzNGdTMmpqVDJqTENRPT0K",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_aarch64.app.tar.gz"
-    },
-    "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3BLbnc1VFVLSVZNVUNodGc4WEFST3RjNnYyNW1JWlhQSTRzblFxYXRvN0JHVDBmeEJjMmVLd0JrQjhEMDBVZExjNnNZUk56dkdzZWhveFVDRFpVdGdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NTc1CWZpbGU6dmliZS5hcHAudGFyLmd6CnhpWlVZZW5yK2x0SWI0amVIY1NRa0FiTUdqRGxwanhOUnNheUp5bnQva0Nwb3FoWUdka0plcC9BVzZqdm9SaGUrdVM3QUNrekZPTERTekFBRlF6QUR3PT0K",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_x64.app.tar.gz"
-    },
-    "darwin-x86_64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3BLbnc1VFVLSVZNVUNodGc4WEFST3RjNnYyNW1JWlhQSTRzblFxYXRvN0JHVDBmeEJjMmVLd0JrQjhEMDBVZExjNnNZUk56dkdzZWhveFVDRFpVdGdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5NTc1CWZpbGU6dmliZS5hcHAudGFyLmd6CnhpWlVZZW5yK2x0SWI0amVIY1NRa0FiTUdqRGxwanhOUnNheUp5bnQva0Nwb3FoWUdka0plcC9BVzZqdm9SaGUrdVM3QUNrekZPTERTekFBRlF6QUR3PT0K",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL216L2RUZ04xclU0Z0VaeTJvNEZJdGFYOHB1YWxxL2dLRXRjclBwQjZ2Y3BtaEsva0lyY2dMWjVuaitxbmgveVhLMDI3TE8zUTlHakF5bStSWklaTmdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2NDAyCWZpbGU6dmliZS5hcHAudGFyLmd6CjhlbWRQVVIyUW4zRGYxVDVFUjAwd1U2WjR4d0JIMnFKV21yZGVkek8vYUdJQUNuL2NicFdtZXhmejBPOEFrSWJZN09QWDJCb3lXajB6Wmt5YzNNR0J3PT0K",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_aarch64.app.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL295T21UNzB6aXJuSlU3K3I1QWdRM2RLUEtiSTB4WFZZQ1lsOFpQYW1Idk5hSlFReHVXeGVWQlJRQWhVS0FROG9jY2o5U05wanoxWjZSdEpJV2JVM1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5Nzg2CWZpbGU6dmliZV8zLjMuNl94NjQtc2V0dXAuZXhlCmlNTVNxTU91TUo2blREaUpva3BLS1Z6bU5ZcTR3ZEV5Y0xrOHg2WlNWSTJBMWh5ZzZqN1VMUGd1a01uVHZIbEprMGpiVzlXVUhvcHB0cGk0ZndUNUR3PT0K",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_3.3.6_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3A4YVhDSFJwbVQ1dzNLejh3cVN6U3N3Z2Y4ZXM5aThPN05KbDU5VFo2VVlsVGtaWWNuc1RtSml2ck1wdEh5RmZic0pvZWlScGdZcVBuaktYamEySEFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2NTk4CWZpbGU6dmliZV8zLjMuN194NjQtc2V0dXAuZXhlCmx0UzFUVDJGSGZLMlBWeUpSbTRqTnVsTGcvT0MxY1dCYlpNSk9Dc3FFc2Y4ZXNqbmlGYjN6SGR5VHRlbjRCSWtvWEZxRC96dUhKdHZyMkVZbno2YUJ3PT0K",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_3.3.7_x64-setup.exe"
     },
     "windows-x86_64-nsis": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL295T21UNzB6aXJuSlU3K3I1QWdRM2RLUEtiSTB4WFZZQ1lsOFpQYW1Idk5hSlFReHVXeGVWQlJRQWhVS0FROG9jY2o5U05wanoxWjZSdEpJV2JVM1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njc5Nzg2CWZpbGU6dmliZV8zLjMuNl94NjQtc2V0dXAuZXhlCmlNTVNxTU91TUo2blREaUpva3BLS1Z6bU5ZcTR3ZEV5Y0xrOHg2WlNWSTJBMWh5ZzZqN1VMUGd1a01uVHZIbEprMGpiVzlXVUhvcHB0cGk0ZndUNUR3PT0K",
-      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.6/vibe_3.3.6_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL3A4YVhDSFJwbVQ1dzNLejh3cVN6U3N3Z2Y4ZXM5aThPN05KbDU5VFo2VVlsVGtaWWNuc1RtSml2ck1wdEh5RmZic0pvZWlScGdZcVBuaktYamEySEFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2NTk4CWZpbGU6dmliZV8zLjMuN194NjQtc2V0dXAuZXhlCmx0UzFUVDJGSGZLMlBWeUpSbTRqTnVsTGcvT0MxY1dCYlpNSk9Dc3FFc2Y4ZXNqbmlGYjN6SGR5VHRlbjRCSWtvWEZxRC96dUhKdHZyMkVZbno2YUJ3PT0K",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_3.3.7_x64-setup.exe"
+    },
+    "darwin-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL25yLzdXZmRETnN6OWRYVElrd3ZKOVVwaHdma3FlY2ErQ2R4TnBmWEF3djlVc2w2cmlRN090Zlp5VDlLVDhHaytHemJYQkhyKzBNK3Ezb0VCejBkQ3dZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2NzA0CWZpbGU6dmliZS5hcHAudGFyLmd6Ck00czJWM3NLdzA3bnpwVkpxY0lDRCtBY0ZURXFYVWQwWXI5bGJCTXhJV1FPSDNWTkw1aDNZYmRXelQyczFITzJLZVgraEZmY0sxY1JLak1nZGNVdEJnPT0K",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_x64.app.tar.gz"
+    },
+    "darwin-x86_64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSVFZVlRzZFpTL25yLzdXZmRETnN6OWRYVElrd3ZKOVVwaHdma3FlY2ErQ2R4TnBmWEF3djlVc2w2cmlRN090Zlp5VDlLVDhHaytHemJYQkhyKzBNK3Ezb0VCejBkQ3dZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0Njg2NzA0CWZpbGU6dmliZS5hcHAudGFyLmd6Ck00czJWM3NLdzA3bnpwVkpxY0lDRCtBY0ZURXFYVWQwWXI5bGJCTXhJV1FPSDNWTkw1aDNZYmRXelQyczFITzJLZVgraEZmY0sxY1JLak1nZGNVdEJnPT0K",
+      "url": "https://github.com/thewh1teagle/vibe/releases/download/v3.3.7/vibe_x64.app.tar.gz"
     }
   }
 }
