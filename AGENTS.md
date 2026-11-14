@@ -30,6 +30,13 @@ Quote minutes, never days: single tasks 1–10 min, multi-agent work tens of min
 minutes ≈ (LOC × 40) / (6000 × N_agents) + ~2 min per stage
 ```
 
+## Updates
+
+One owner: `desktop/src-tauri/src/updater/` — see [`docs/UPDATER.md`](docs/UPDATER.md).
+
+- Downloads in the background; installs only when the user clicks. Never restart the app for them.
+- Only `setup.rs` shows or focuses the main window at launch; never from the webview.
+
 ## File size
 
 700 lines max. On hitting it, ask before splitting.

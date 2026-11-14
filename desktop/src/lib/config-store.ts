@@ -68,6 +68,14 @@ export function writeConfig<T>(key: string, value: T) {
 	void store?.set(key, value)
 }
 
+/** Like `writeConfig`, but resolves once the value is saved, for when Rust reads it right after. */
+export async function writeConfigNow<T>(key: string, value: T) {
+	cache.set(key, value)
+	notify(key)
+	await store?.set(key, value)
+	await store?.save()
+}
+
 /** Remove a setting from both the live cache and the persisted config file. */
 export function deleteConfig(key: string) {
 	cache.delete(key)

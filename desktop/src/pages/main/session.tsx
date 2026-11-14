@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
-import { webviewWindow } from '@tauri-apps/api'
 import * as dialog from '@tauri-apps/plugin-dialog'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -292,15 +291,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 			}
 		}
 
-		async function showWindow() {
-			const currentWindow = webviewWindow.getCurrentWebviewWindow()
-			await currentWindow.show()
-			if (import.meta.env.PROD) await currentWindow.setFocus()
-		}
-
+		// The window is not shown from here: whether it starts visible, hidden (launch at login) or
+		// behind other apps (after an update) is decided once, where it is created (setup.rs).
 		void checkIfCrashedRecently()
 		void checkModelExists()
-		void showWindow()
 	}, [])
 
 	// Results persist the moment they exist, so closing only warns when something would

@@ -58,7 +58,7 @@ async fn main() -> Result<()> {
     let mut builder = tauri::Builder::default()
         .manage(tray::TrayState::default())
         .manage(keepawake::KeepAwake::new())
-        .manage(updater::PendingUpdate::default())
+        .manage(updater::Updater::default())
         .manage(tokio::sync::Mutex::<Option<handoff::HandoffState>>::new(None))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_http::init())
@@ -178,9 +178,15 @@ async fn main() -> Result<()> {
             meeting_prompt::get_meeting_prompt_state,
             meeting_prompt::dismiss_meeting_prompt,
             meeting_prompt::meeting_prompt_ready,
-            updater::update_check,
-            updater::update_download,
-            updater::update_install
+            updater::update_state,
+            updater::update_check_now,
+            updater::update_install_now,
+            updater::update_take_notice,
+            updater::update_remind_later,
+            #[cfg(feature = "e2e")]
+            updater::update_simulate_relaunch,
+            #[cfg(feature = "e2e")]
+            updater::update_simulate_state
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
