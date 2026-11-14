@@ -29,6 +29,7 @@ tauri-plugin-global-shortcut = "2"
 tauri-plugin-notification = "2"
 # Unsafe headers required for Ollama (to set Origin)
 tauri-plugin-http = { version = "2", features = ["unsafe-headers"] }
+tauri-plugin-wdio-webdriver = { version = "1.5", optional = true }
 tauri-plugin-opener = "2"
 tauri-plugin-autostart = "2"
 
@@ -112,3 +113,6 @@ window-vibrancy = "0.6"
 
 [features]
 default = []
+# End-to-end test builds only: embeds a WebDriver server so tests and agents can drive the real app.
+# Never enabled for a release; the release workflow builds without it.
+e2e = ["dep:tauri-plugin-wdio-webdriver"]

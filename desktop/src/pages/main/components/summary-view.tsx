@@ -1,5 +1,5 @@
 import { ArrowUp, Sparkles, X } from 'lucide-react'
-import Markdown from 'react-markdown'
+import SafeMarkdown from '~/components/safe-markdown'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '~/paraglide/messages.js'
 import { Button } from '~/components/ui/button'
@@ -14,7 +14,7 @@ import { textSizeClass, type TranscriptViewOptions } from '../hooks/use-transcri
 function Streaming({ text, size }: { text: string; size: TranscriptViewOptions['textSize'] }) {
 	return (
 		<div className={cn('prose prose-neutral max-w-none dark:prose-invert', textSizeClass[size])}>
-			<Markdown>{text}</Markdown>
+			<SafeMarkdown>{text}</SafeMarkdown>
 			<span aria-hidden className="ms-0.5 inline-block h-[1em] w-[2px] animate-pulse bg-foreground/60 align-text-bottom" />
 		</div>
 	)
@@ -85,7 +85,7 @@ export default function SummaryView({ job, options }: { job: Job; options: Trans
 					) : job.summary ? (
 						// The models answer in markdown; render it rather than showing the syntax.
 						<div className={cn('prose prose-neutral max-w-none dark:prose-invert', textSizeClass[options.textSize])}>
-							<Markdown>{job.summary}</Markdown>
+							<SafeMarkdown>{job.summary}</SafeMarkdown>
 						</div>
 					) : summarizing ? (
 						<p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -121,7 +121,7 @@ export default function SummaryView({ job, options }: { job: Job; options: Trans
 											</button>
 										</div>
 										<div className={cn('prose prose-neutral mt-3 max-w-none ps-1 dark:prose-invert', textSizeClass[options.textSize])}>
-											<Markdown>{entry.answer}</Markdown>
+											<SafeMarkdown>{entry.answer}</SafeMarkdown>
 										</div>
 									</div>
 								))}

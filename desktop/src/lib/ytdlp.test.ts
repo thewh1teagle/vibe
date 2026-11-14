@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseMediaLinks } from './ytdlp'
+import { parseMediaLinks, splitMediaLinks } from './ytdlp'
 
 describe('parseMediaLinks', () => {
 	it('takes one link per line, or several on a line, without repeats', () => {
@@ -9,5 +9,13 @@ describe('parseMediaLinks', () => {
 			'https://a.example/3',
 		])
 		expect(parseMediaLinks('   ')).toEqual([])
+	})
+
+	it('keeps only http and https links, so nothing else can reach yt-dlp as an option', () => {
+		expect(parseMediaLinks('--exec=touch https://a.example/1 -a file:///etc/passwd http://b.example/2 javascript:alert(1)')).toEqual([
+			'https://a.example/1',
+			'http://b.example/2',
+		])
+		expect(splitMediaLinks('hello https://a.example/1 --update-to=x').rest).toEqual(['hello', '--update-to=x'])
 	})
 })

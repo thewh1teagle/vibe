@@ -1,9 +1,10 @@
 mod client;
+mod sanitize;
 
 use std::sync::OnceLock;
 use std::time::Duration;
 
-use tauri::{App, AppHandle};
+use tauri::{App, AppHandle, Manager};
 use tauri_plugin_store::StoreExt;
 
 use crate::config::STORE_FILENAME;
@@ -55,6 +56,10 @@ static INSTALL_ID: OnceLock<String> = OnceLock::new();
 /// Set by `init` when the build carries a valid key; without one every event is dropped.
 static CLIENT: OnceLock<client::Client> = OnceLock::new();
 
+/// Kept by `init` so a flush can re-read the opt-out: a queue filled before the user turned
+/// analytics off must not be sent after.
+static APP_HANDLE: OnceLock<AppHandle> = OnceLock::new();
+
 /// Starts the client and its periodic flush. Call once, from setup, before the first event.
 pub fn init(app: &App) {
     if !is_aptabase_configured() {
@@ -65,27 +70,54 @@ pub fn init(app: &App) {
         return;
     };
     let version = app.package_info().version.to_string();
+    let _ = APP_HANDLE.set(app.app_handle().clone());
     if CLIENT.set(client::Client::new(APTABASE_APP_KEY, url, version)).is_err() {
         return;
     }
     tauri::async_runtime::spawn(async {
         loop {
             tokio::time::sleep(client::FLUSH_INTERVAL).await;
-            if let Some(client) = CLIENT.get() {
-                client.flush().await;
-            }
+            flush_if_enabled().await;
         }
     });
 }
 
+/// Fails closed: a store that cannot be opened means no tracking. An absent key is the default,
+/// which is enabled. The environment opt-out wins over the setting.
 fn is_analytics_enabled(app_handle: &AppHandle) -> bool {
+    if env_opted_out(|key| std::env::var(key).ok()) {
+        return false;
+    }
     let Ok(store) = app_handle.store(STORE_FILENAME) else {
-        return true; // default to enabled if store unavailable
+        return false;
     };
-    store
-        .get("analytics_enabled")
-        .and_then(|v: serde_json::Value| v.as_bool())
-        .unwrap_or(true)
+    match store.get("analytics_enabled") {
+        None => true,
+        Some(value) => value.as_bool().unwrap_or(false),
+    }
+}
+
+/// `DO_NOT_TRACK` set to anything but an explicit "no" (consoledonottrack.com), or
+/// `VIBE_NO_ANALYTICS` set at all.
+fn env_opted_out(var: impl Fn(&str) -> Option<String>) -> bool {
+    if var("VIBE_NO_ANALYTICS").is_some() {
+        return true;
+    }
+    var("DO_NOT_TRACK").is_some_and(|value| {
+        let value = value.trim().to_ascii_lowercase();
+        !matches!(value.as_str(), "" | "0" | "false" | "no" | "off")
+    })
+}
+
+/// Sends the queue, or drops it when analytics is off now (or the setting cannot be read).
+async fn flush_if_enabled() {
+    let Some(client) = CLIENT.get() else { return };
+    let enabled = APP_HANDLE.get().is_some_and(is_analytics_enabled);
+    if enabled {
+        client.flush().await;
+    } else {
+        client.clear();
+    }
 }
 
 pub fn is_aptabase_configured() -> bool {
@@ -141,8 +173,10 @@ fn truncate_keep_tail(value: &str, max_chars: usize) -> String {
 
 /// Send what is queued, giving up after `timeout` so a slow network cannot hold anything up.
 pub async fn flush_events(timeout: Duration) {
-    let Some(client) = CLIENT.get() else { return };
-    if tokio::time::timeout(timeout, client.flush()).await.is_err() {
+    if CLIENT.get().is_none() {
+        return;
+    }
+    if tokio::time::timeout(timeout, flush_if_enabled()).await.is_err() {
         tracing::debug!("analytics flush timed out after {:?}", timeout);
     }
 }
@@ -171,6 +205,15 @@ pub fn track_event_handle(app_handle: &AppHandle, event_name: &str) {
     track_event_handle_with_props(app_handle, event_name, None);
 }
 
+/// An event the webview asked for. Only the events and props it is known to send get through
+/// (see `sanitize::webview_event`); anything else is dropped without an error.
+pub fn track_webview_event(app_handle: &AppHandle, event_name: &str, props: Option<serde_json::Value>) {
+    match sanitize::webview_event(event_name, props) {
+        Some((name, props)) => track_event_handle_with_props(app_handle, name, Some(props)),
+        None => tracing::debug!("analytics event from the webview dropped: not on the allowlist"),
+    }
+}
+
 pub fn track_event_handle_with_props(app_handle: &AppHandle, event_name: &str, props: Option<serde_json::Value>) {
     let Some(client) = CLIENT.get() else {
         tracing::debug!("analytics event '{}' dropped: no Aptabase key in this build", event_name);
@@ -183,11 +226,13 @@ pub fn track_event_handle_with_props(app_handle: &AppHandle, event_name: &str, p
         Some(serde_json::Value::Object(m)) => m,
         _ => serde_json::Map::new(),
     };
+    // OS and server errors quote paths; scrub before the cap so the cap keeps message, not path.
     if let Some(serde_json::Value::String(message)) = merged.get("error_message") {
-        let truncated = truncate_keep_tail(message, MAX_PROP_CHARS);
-        if truncated != *message {
-            merged.insert("error_message".to_string(), truncated.into());
-        }
+        let scrubbed = sanitize::scrub_message(message, &sanitize::Identity::current());
+        merged.insert(
+            "error_message".to_string(),
+            truncate_keep_tail(&scrubbed, MAX_PROP_CHARS).into(),
+        );
     }
     merged.entry("vibe_commit").or_insert_with(|| env!("COMMIT_HASH").into());
     // The session needs a stable id; an install whose store cannot hold one gets one per run.
@@ -242,6 +287,22 @@ mod tests {
         assert_eq!(truncate_keep_tail("abcdef", 3), "def");
         assert_eq!(truncate_keep_tail("abcdef", 2), "ef");
         assert_eq!(truncate_keep_tail("abcdef", 4), "...f");
+    }
+
+    #[test]
+    fn environment_opt_out() {
+        let env = |pairs: &'static [(&'static str, &'static str)]| {
+            move |key: &str| pairs.iter().find(|(k, _)| *k == key).map(|(_, v)| v.to_string())
+        };
+        assert!(!env_opted_out(env(&[])));
+        assert!(env_opted_out(env(&[("DO_NOT_TRACK", "1")])));
+        assert!(env_opted_out(env(&[("DO_NOT_TRACK", "true")])));
+        assert!(env_opted_out(env(&[("DO_NOT_TRACK", "yes")])));
+        assert!(!env_opted_out(env(&[("DO_NOT_TRACK", "0")])));
+        assert!(!env_opted_out(env(&[("DO_NOT_TRACK", "")])));
+        assert!(!env_opted_out(env(&[("DO_NOT_TRACK", "false")])));
+        assert!(env_opted_out(env(&[("VIBE_NO_ANALYTICS", "")])));
+        assert!(env_opted_out(env(&[("VIBE_NO_ANALYTICS", "1"), ("DO_NOT_TRACK", "0")])));
     }
 
     #[test]

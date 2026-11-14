@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { load } from '@tauri-apps/plugin-store'
-import { storeFilename } from '~/lib/config'
+import { audioExtensions, storeFilename, videoExtensions } from '~/lib/config'
 import { getMediaDurationSeconds } from '~/lib/media'
 
 export const analyticsEvents = {
@@ -17,6 +17,7 @@ export type TranscribeSource = 'home' | 'batch' | 'main' | 'hotkey'
 type AnalyticsProps = Record<string, string | number>
 
 export async function trackAnalyticsEvent(eventName: string, props?: AnalyticsProps) {
+	// Fails closed: a setting that cannot be read means no tracking. The backend checks again.
 	try {
 		const store = await load(storeFilename)
 		const enabled = await store.get<boolean>('analytics_enabled')
@@ -24,7 +25,7 @@ export async function trackAnalyticsEvent(eventName: string, props?: AnalyticsPr
 			return
 		}
 	} catch {
-		// If store fails, proceed with tracking
+		return
 	}
 	void invoke('track_analytics_event', {
 		name: eventName,
@@ -34,8 +35,26 @@ export async function trackAnalyticsEvent(eventName: string, props?: AnalyticsPr
 	})
 }
 
-function fileExt(path: string) {
-	return path.split('.').pop() ?? 'unknown'
+const mediaExtensions: readonly string[] = [...videoExtensions, ...audioExtensions]
+
+/**
+ * The file's media extension, lowercase, for analytics: `none` without one, `other` for anything
+ * not on the media list. Only the basename is looked at, so a dot in a folder name
+ * (`/Users/john.doe/rec`) can never send part of the path.
+ */
+export function fileExt(path: string): string {
+	const name = path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1)
+	const dot = name.lastIndexOf('.')
+	if (dot < 1) return 'none'
+	const ext = name.slice(dot + 1).toLowerCase()
+	if (!ext) return 'none'
+	return /^[a-z0-9]{1,8}$/.test(ext) && mediaExtensions.includes(ext) ? ext : 'other'
+}
+
+/** The `code` of a backend `CommandError`, when it is a plain code; `unknown` otherwise. */
+export function errorCode(error: unknown): string {
+	const code = typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined
+	return typeof code === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(code) ? code : 'unknown'
 }
 
 /**
@@ -67,10 +86,17 @@ export function trackTranscribeSucceeded(source: TranscribeSource, options: { du
 /**
  * `error_kind` separates the failures worth acting on from the ones the person caused (a broken
  * file, a bad request); user errors used to emit nothing at all, which lost their start events.
+ * `error_code` is the backend's code (`errorCode`). The message may quote paths: the backend
+ * scrubs every `error_message` of them before it is queued.
  */
-export function trackTranscribeFailed(source: TranscribeSource, path: string, options: { errorMessage: string; userError?: boolean }) {
+export function trackTranscribeFailed(
+	source: TranscribeSource,
+	path: string,
+	options: { errorCode: string; errorMessage: string; userError?: boolean },
+) {
 	return trackAnalyticsEvent(analyticsEvents.TRANSCRIBE_FAILED, {
 		source,
+		error_code: options.errorCode,
 		error_message: options.errorMessage,
 		file_ext: fileExt(path),
 		error_kind: options.userError ? 'user' : 'internal',

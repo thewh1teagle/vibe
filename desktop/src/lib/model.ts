@@ -97,16 +97,16 @@ export async function cleanupPartialDownloads(folder?: string): Promise<string[]
  * are never transcription models. The gates that need them address them by exact path, so leaving
  * them out of this listing does not make them look missing.
  */
-const AUXILIARY_MODEL_FILENAMES = [vadModelFilename, diarizeModelFilename, ...legacyDiarizeModelFilenames, embeddingModelFilename, segmentModelFilename]
+const HELPER_MODEL_FILENAMES = [vadModelFilename, diarizeModelFilename, ...legacyDiarizeModelFilenames, embeddingModelFilename, segmentModelFilename]
 
-export function isAuxiliaryModelFile(filename: string) {
-	return AUXILIARY_MODEL_FILENAMES.some((auxiliary) => auxiliary.toLowerCase() === filename.toLowerCase())
+export function isHelperModelFile(filename: string) {
+	return HELPER_MODEL_FILENAMES.some((helper) => helper.toLowerCase() === filename.toLowerCase())
 }
 
 /** Every transcription model in the folder, with truncated or corrupt ones flagged rather than hidden. */
 export async function listInstalledModels(folder?: string): Promise<InstalledModel[]> {
 	const modelsFolder = folder ?? (await getModelsFolder())
-	const files = (await lsFiles(modelsFolder)).filter((entry) => isModelFile(entry.name) && !isAuxiliaryModelFile(entry.name))
+	const files = (await lsFiles(modelsFolder)).filter((entry) => isModelFile(entry.name) && !isHelperModelFile(entry.name))
 	const checks = await checkModelFiles(files.map((file) => file.path))
 	const byPath = new Map(checks.map((check) => [check.path, check]))
 	return files.map((file) => ({ ...file, valid: byPath.get(file.path)?.valid ?? true, reason: byPath.get(file.path)?.reason ?? null }))

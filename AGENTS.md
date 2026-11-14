@@ -5,6 +5,7 @@ Project-specific rules [`docs/PROJECT.md`](docs/PROJECT.md).
 ## Tooling
 
 - Tasks: `chore` — see `chore list`
+- Check UI changes in the real app yourself: `chore e2e-build`, `chore e2e-app`, `chore e2e …` — see [`docs/E2E.md`](docs/E2E.md)
 - JS: `pnpm` only; Python: `uv` standalone scripts (`uv run`)
 
 ## Plans & validation

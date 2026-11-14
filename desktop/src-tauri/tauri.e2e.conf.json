@@ -1,0 +1,18 @@
+{
+	"identifier": "github.com.thewh1teagle.vibe.e2e",
+	"app": {
+		"security": {
+			"capabilities": [
+				"default",
+				"dictation-indicator",
+				{
+					"identifier": "e2e-webdriver",
+					"description": "Loads the embedded WebDriver plugin's ACL. Test builds only.",
+					"local": true,
+					"windows": ["*"],
+					"permissions": ["wdio-webdriver:default"]
+				}
+			]
+		}
+	}
+}

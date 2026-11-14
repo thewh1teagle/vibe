@@ -45,7 +45,8 @@ pub fn is_avx2_enabled() -> bool {
 
 #[tauri::command]
 pub fn track_analytics_event(app_handle: tauri::AppHandle, name: String, props: Option<Value>) -> CommandResult<()> {
-    crate::analytics::track_event_handle_with_props(&app_handle, &name, props);
+    // The webview is not trusted with the event set: only its known events and props get through.
+    crate::analytics::track_webview_event(&app_handle, &name, props);
     Ok(())
 }
 
@@ -107,9 +108,55 @@ pub fn rename_crash_file() -> CommandResult<()> {
     .context("Can't delete file")?)
 }
 
+/// Longest text `type_text` will type: about an hour of continuous speech.
+const MAX_TYPED_CHARS: usize = 50_000;
+
+/// How long after a recording ends its text may still be typed. Covers transcribing a long
+/// dictation on a slow CPU plus an optional LLM clean-up, with room to spare.
+const TYPE_TEXT_WINDOW: std::time::Duration = std::time::Duration::from_secs(30 * 60);
+
+/// When the last recording finished, set by the audio recorder. Each finished recording lets
+/// `type_text` run once; typing consumes it.
+static RECORDING_FINISHED_AT: std::sync::Mutex<Option<std::time::Instant>> = std::sync::Mutex::new(None);
+
+/// Called by the recorder when a recording has been written, just before `record_finish`.
+pub fn recording_finished() {
+    if let Ok(mut finished) = RECORDING_FINISHED_AT.lock() {
+        *finished = Some(std::time::Instant::now());
+    }
+}
+
+/// Whether a recording finished within `window` of `now`. Consumes it either way, so one
+/// recording authorizes one typing, and a stale one does not linger.
+fn take_recording_permit(now: std::time::Instant, window: std::time::Duration) -> bool {
+    let Ok(mut finished) = RECORDING_FINISHED_AT.lock() else {
+        return false;
+    };
+    finished.take().is_some_and(|at| now.saturating_duration_since(at) <= window)
+}
+
+/// The text with control characters removed, except newline and tab (dictation with
+/// "normalize output" off keeps its line breaks); `\r\n` becomes `\n`. `None` when it is too long.
+fn sanitize_typed_text(text: &str) -> Option<String> {
+    let cleaned: String = text.chars().filter(|&c| c == '\n' || c == '\t' || !c.is_control()).collect();
+    (cleaned.chars().count() <= MAX_TYPED_CHARS).then_some(cleaned)
+}
+
+/// Types the dictated text into the focused application. Only right after a recording made by the
+/// Rust recorder finished (see `recording_finished`), once per recording, so a webview that merely
+/// calls this command cannot type into other apps at will.
 #[tauri::command]
 pub fn type_text(text: String) -> CommandResult<()> {
     use enigo::{Enigo, Keyboard, Settings};
+    let Some(text) = sanitize_typed_text(&text) else {
+        return Err(eyre::eyre!("Text is too long to type ({} characters at most)", MAX_TYPED_CHARS).into());
+    };
+    if !take_recording_permit(std::time::Instant::now(), TYPE_TEXT_WINDOW) {
+        return Err(eyre::eyre!("Refusing to type: no dictation recording finished recently").into());
+    }
+    if text.is_empty() {
+        return Ok(());
+    }
     let mut enigo = Enigo::new(&Settings::default()).map_err(|e| eyre::eyre!("Failed to create enigo: {}", e))?;
     // Small delay to let the user's key release propagate
     std::thread::sleep(std::time::Duration::from_millis(100));
@@ -120,4 +167,47 @@ pub fn type_text(text: String) -> CommandResult<()> {
 #[tauri::command]
 pub fn get_cargo_features() -> Vec<String> {
     Vec::new()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::{Duration, Instant};
+
+    #[test]
+    fn typed_text_keeps_newlines_and_tabs_and_drops_other_controls() {
+        assert_eq!(sanitize_typed_text("hello world").unwrap(), "hello world");
+        assert_eq!(
+            sanitize_typed_text("line one\nline two\tend").unwrap(),
+            "line one\nline two\tend"
+        );
+        assert_eq!(sanitize_typed_text("a\r\nb").unwrap(), "a\nb");
+        assert_eq!(sanitize_typed_text("a\u{1b}[2Jb\u{0}c\u{7f}d\u{8}").unwrap(), "a[2Jbcd");
+        assert_eq!(sanitize_typed_text("שלום 🎉 naïve").unwrap(), "שלום 🎉 naïve");
+        assert_eq!(sanitize_typed_text("\u{85}x\u{9b}").unwrap(), "x");
+    }
+
+    #[test]
+    fn typed_text_is_capped() {
+        assert!(sanitize_typed_text(&"ש".repeat(MAX_TYPED_CHARS)).is_some());
+        assert!(sanitize_typed_text(&"a".repeat(MAX_TYPED_CHARS + 1)).is_none());
+        // Stripped controls do not count against the cap.
+        assert!(sanitize_typed_text(&format!("{}{}", "a".repeat(MAX_TYPED_CHARS), "\u{0}".repeat(10))).is_some());
+    }
+
+    #[test]
+    fn a_recording_permits_one_typing_within_the_window() {
+        let window = Duration::from_secs(60);
+        *RECORDING_FINISHED_AT.lock().unwrap() = None;
+        assert!(!take_recording_permit(Instant::now(), window), "no recording, no typing");
+        recording_finished();
+        assert!(take_recording_permit(Instant::now(), window));
+        assert!(!take_recording_permit(Instant::now(), window), "one recording, one typing");
+        recording_finished();
+        assert!(
+            !take_recording_permit(Instant::now() + window + Duration::from_secs(1), window),
+            "stale"
+        );
+        assert!(!take_recording_permit(Instant::now(), window), "a stale permit is consumed");
+    }
 }

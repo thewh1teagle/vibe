@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { join } from '@tauri-apps/api/path'
 import * as config from '~/lib/config'
+import { bundledHelperModel } from '~/lib/model-catalog-source'
 import { NamedPath } from '~/lib/types'
 import { getIssueUrl, resetApp } from '~/lib/app'
 import { usePreferenceProvider } from '~/providers/preference'
@@ -223,7 +224,8 @@ export function viewModel() {
 		progressToast.setOpen(true)
 		progressToast.setProgress(0)
 		try {
-			await invoke('download_model', { url: config.vadModelUrl, path: vadPath })
+			const vad = bundledHelperModel('vad')
+			await invoke('download_model', { url: vad.url, path: vadPath, integrity: { size: vad.size, sha256: vad.sha256 } })
 			toast.success(m.downloadComplete())
 			return true
 		} finally {

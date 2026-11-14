@@ -16,6 +16,7 @@ require 1.6.0
 
 include handoff/handoff.chore
 include website/website.chore
+include e2e/e2e.chore
 
 # The server release the app ships, a server-v* tag of this repository.
 server=$(read .server-version)

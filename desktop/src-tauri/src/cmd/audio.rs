@@ -282,6 +282,8 @@ pub async fn start_record(app_handle: AppHandle, devices: Vec<AudioDevice>, reco
 
         let intermediates = wav_paths.into_iter().map(|(path, _)| path).chain(std::iter::once(dst));
         remove_recording_intermediates(intermediates, &output);
+        // A recording this process made just finished: the one thing that lets `type_text` run.
+        crate::cmd::app::recording_finished();
         app_handle_clone
             .emit(
                 "record_finish",

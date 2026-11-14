@@ -1,0 +1,26 @@
+# Driving the real app from a script or an agent: a test build with an embedded
+# WebDriver server, and the thin client that talks to it. See docs/E2E.md.
+#
+# Not named `chorefile` on purpose (see handoff/handoff.chore); included from
+# the root chorefile, so paths are relative to the repo root.
+
+# Build the test variant of the app into target/e2e (cargo feature `e2e`, own app identifier).
+task e2e-build {
+    setup
+    cd desktop
+    # Its own target folder: sharing target/debug with `chore dev` would rebuild both on every switch.
+    env CARGO_TARGET_DIR $ROOT/target/e2e
+    pnpm exec tauri build --debug --no-bundle --features e2e --config src-tauri/tauri.e2e.conf.json
+}
+
+# Run the test build. WebDriver listens on 127.0.0.1:4445 (TAURI_WEBDRIVER_PORT to change).
+task e2e-app {
+    # Projects would otherwise be the user's real Documents/Vibe.
+    uv run e2e/wd.py seed
+    $ROOT/target/e2e/debug/vibe $@
+}
+
+# Talk to the running test build: e2e status | windows | js | click | text | type | wait | shot | csp | reset.
+task e2e {
+    uv run e2e/wd.py $@
+}

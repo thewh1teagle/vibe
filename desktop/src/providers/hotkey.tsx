@@ -4,7 +4,7 @@ import { notify } from '~/lib/notify'
 import { emit, listen } from '@tauri-apps/api/event'
 import { register, unregister, isRegistered } from '@tauri-apps/plugin-global-shortcut'
 import * as clipboard from '@tauri-apps/plugin-clipboard-manager'
-import { trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
+import { errorCode, trackTranscribeFailed, trackTranscribeStarted, trackTranscribeSucceeded } from '~/lib/analytics'
 import { AudioDevice, selectInputDevice } from '~/lib/audio'
 import { CONFIG_KEYS } from '~/lib/config-keys'
 import { gpuOutOfMemoryBefore } from '~/lib/gpu-memory'
@@ -232,7 +232,11 @@ export function HotkeyProvider({ children }: { children: ReactNode }) {
 				// Anything that goes wrong after the transcript is in hand already reported its success.
 				if (!transcribed) {
 					const code = getErrorCode(error)
-					trackTranscribeFailed('hotkey', path, { errorMessage: message, userError: Boolean(code && isUserError(code)) })
+					trackTranscribeFailed('hotkey', path, {
+						errorCode: errorCode(error),
+						errorMessage: message,
+						userError: Boolean(code && isUserError(code)),
+					})
 				}
 				finishIndicator('error', { message })
 				await notify('Vibe', message)

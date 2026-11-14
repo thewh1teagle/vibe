@@ -16,6 +16,10 @@
 			},
 			"license": "MIT",
 			"url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin",
+			"mirrors": [
+				"https://huggingface.co/vibe-app/whisper-large-v3-turbo-gguf/resolve/main/ggml-large-v3-turbo.bin",
+				"https://github.com/thewh1teagle/vibe/releases/download/model-files-v1.0/ggml-large-v3-turbo.bin"
+			],
 			"size": 1624555275,
 			"sha256": "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69",
 			"description": {
@@ -572,6 +576,27 @@
 				"zh-CN": "支持 35 种语言的流式模型；适合听写。",
 				"zh-HK": "支援 35 種語言的串流模型；適合語音輸入。"
 			}
+		}
+	],
+	"defaults": {
+		"he": "whisper-large-v3-turbo-he",
+		"IL": "whisper-large-v3-turbo-he",
+		"*": "whisper-large-v3-turbo"
+	},
+	"helperModels": [
+		{
+			"id": "vad",
+			"filename": "ggml-silero-v6.2.0.bin",
+			"url": "https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin",
+			"size": 885098,
+			"sha256": "2aa269b785eeb53a82983a20501ddf7c1d9c48e33ab63a41391ac6c9f7fb6987"
+		},
+		{
+			"id": "diarize",
+			"filename": "nemotron-3-diarization-Q8_0.gguf",
+			"url": "https://huggingface.co/vibe-app/nemotron-3-diarization-gguf/resolve/main/nemotron-3-diarization-Q8_0.gguf",
+			"size": 108541632,
+			"sha256": "a25f026847d765c8661fd5095c73a0e5f20d310dcb8249c654e3828592a2fc73"
 		}
 	]
 }

@@ -11,6 +11,8 @@
 	"apiStopping": "Stopping…",
 	"appTitle": "Vibe",
 	"askForDownloadModel": "Would you like to download the model from the website",
+	"deepLinkUnverifiedModel": "Unverified model. It is not in the Vibe model catalog, so Vibe cannot check it. Download it only if you trust the source:\n\n{url}",
+	"deepLinkRefused": "Link blocked. Vibe downloads models only over HTTPS from the Vibe catalog, huggingface.co or github.com:\n\n{url}",
 	"askForInstallYtdlpMessage": "Do you want to install yt-dlp which is used for downloading audio from popular websites?",
 	"askForInstallYtdlpTitle": "Install yt-dlp",
 	"askForRelaunchBody": "Do you want to relaunch now?",

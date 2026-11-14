@@ -11,6 +11,8 @@ use std::{
 };
 use tauri::{Emitter, Listener, Manager};
 
+use super::app::get_models_folder;
+use super::model_paths::resolve_model_destination;
 use super::ui::set_progress_bar;
 use crate::error::CommandResult;
 
@@ -36,7 +38,7 @@ pub enum DownloadModelResult {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-enum DownloadOutcome {
+pub(super) enum DownloadOutcome {
     Completed,
     Cancelled,
 }
@@ -215,7 +217,22 @@ fn publish_download(partial: &Path, destination: &Path) -> Result<()> {
     }
 }
 
-async fn download_to_partial(
+/// Client for every download in this module. Redirects are followed (Hugging Face and GitHub both
+/// bounce to a CDN) but only to `https`, so a redirect can never downgrade the transfer to plain HTTP.
+pub(super) fn download_client() -> reqwest::Result<reqwest::Client> {
+    let policy = reqwest::redirect::Policy::custom(|attempt| {
+        if attempt.url().scheme() != "https" {
+            attempt.error("refusing to follow a redirect to a non-https URL")
+        } else if attempt.previous().len() >= 10 {
+            attempt.error("too many redirects")
+        } else {
+            attempt.follow()
+        }
+    });
+    reqwest::Client::builder().redirect(policy).build()
+}
+
+pub(super) async fn download_to_partial(
     app_handle: &tauri::AppHandle,
     url: &str,
     destination: &Path,
@@ -250,8 +267,7 @@ async fn download_to_partial(
     });
 
     let operation = async {
-        let client = reqwest::Client::new();
-        let response = client.get(url).send().await?.error_for_status()?;
+        let response = download_client()?.get(url).send().await?.error_for_status()?;
         let content_length = response.content_length().filter(|length| *length > 0);
         let total_size = content_length.unwrap_or(0);
         let mut file = std::fs::File::create(&partial).context(format!("Failed to create file {}", partial.display()))?;
@@ -334,20 +350,17 @@ pub async fn download_model(
 ) -> CommandResult<DownloadModelResult> {
     tracing::debug!("Download model invoked! with path {}", path);
 
+    let parsed = reqwest::Url::parse(&url).context("Invalid model URL")?;
+    if parsed.scheme() != "https" {
+        return Err(eyre!("Model downloads must use https, got {}", parsed.scheme()).into());
+    }
+    let models_folder = get_models_folder(app_handle.clone())?;
+    let destination = resolve_model_destination(&models_folder, Path::new(&path))?;
+
     let integrity = integrity.unwrap_or_default();
-    match download_to_partial(&app_handle, &url, Path::new(&path), &integrity, true).await? {
+    match download_to_partial(&app_handle, parsed.as_str(), &destination, &integrity, true).await? {
         DownloadOutcome::Completed => Ok(DownloadModelResult::Completed { path }),
         DownloadOutcome::Cancelled => Ok(DownloadModelResult::Cancelled),
-    }
-}
-
-#[tauri::command]
-pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: String) -> CommandResult<()> {
-    tracing::debug!("Download file invoked! with path {}", path);
-
-    match download_to_partial(&app_handle, &url, Path::new(&path), &DownloadIntegrity::default(), false).await? {
-        DownloadOutcome::Completed => Ok(()),
-        DownloadOutcome::Cancelled => Err(eyre!("Download cancelled").into()),
     }
 }
 
@@ -355,7 +368,13 @@ pub async fn download_file(app_handle: tauri::AppHandle, url: String, path: Stri
 /// wrote straight to the final name, so a truncated file from back then is still sitting in the
 /// models folder looking perfectly installed.
 #[tauri::command]
-pub fn check_model_files(paths: Vec<String>) -> Vec<ModelFileCheck> {
+pub fn check_model_files(paths: Vec<String>) -> CommandResult<Vec<ModelFileCheck>> {
+    Ok(check_model_files_in(paths))
+}
+
+/// Read-only: existence, size and the 4 magic bytes. Not confined to the models folder, because the
+/// selected model may legitimately live elsewhere (an older folder, a hand-edited config).
+fn check_model_files_in(paths: Vec<String>) -> Vec<ModelFileCheck> {
     paths
         .into_iter()
         .map(|path| {
@@ -380,11 +399,29 @@ pub fn check_model_files(paths: Vec<String>) -> Vec<ModelFileCheck> {
 
 /// Delete leftover `*.part` files in the models folder. Partial downloads cannot be resumed, and a
 /// stale one only wastes disk space — except the one the caller is about to publish, which
-/// `download_to_partial` handles before this ever runs.
+/// `download_to_partial` handles before this ever runs. Only the models folder itself is swept.
 #[tauri::command]
-pub fn cleanup_partial_downloads(folder: String) -> CommandResult<Vec<String>> {
+pub fn cleanup_partial_downloads(app_handle: tauri::AppHandle, folder: String) -> CommandResult<Vec<String>> {
+    let models_folder = get_models_folder(app_handle)?;
+    cleanup_partial_downloads_in(&models_folder, folder)
+}
+
+fn cleanup_partial_downloads_in(models_folder: &Path, folder: String) -> CommandResult<Vec<String>> {
     let mut removed = Vec::new();
-    let entries = match std::fs::read_dir(&folder) {
+    let canonical = match std::fs::canonicalize(&folder) {
+        Ok(canonical) => canonical,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(removed),
+        Err(error) => {
+            return Err(error)
+                .context(format!("Failed to read the models folder {folder}"))
+                .map_err(Into::into)
+        }
+    };
+    let expected = std::fs::canonicalize(models_folder).context("Failed to resolve the models folder")?;
+    if canonical != expected {
+        return Err(eyre!("{folder} is not the models folder").into());
+    }
+    let entries = match std::fs::read_dir(&canonical) {
         Ok(entries) => entries,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(removed),
         Err(error) => {
@@ -411,8 +448,8 @@ pub fn cleanup_partial_downloads(folder: String) -> CommandResult<Vec<String>> {
 #[cfg(test)]
 mod tests {
     use super::{
-        check_model_files, cleanup_partial_downloads, partial_path, publish_download, remove_if_exists, validate_model_file,
-        verify_finished_download, DownloadIntegrity, MIN_MODEL_SIZE,
+        check_model_files_in, cleanup_partial_downloads_in, download_client, partial_path, publish_download, remove_if_exists,
+        validate_model_file, verify_finished_download, DownloadIntegrity, MIN_MODEL_SIZE,
     };
     use std::{fs, path::Path, path::PathBuf, time::SystemTime};
 
@@ -543,11 +580,18 @@ mod tests {
         write_model(&good, b"lmgg");
         fs::write(&bad, b"").unwrap();
 
-        let checks = check_model_files(vec![good.to_string_lossy().to_string(), bad.to_string_lossy().to_string()]);
+        let outside = std::env::temp_dir().join("ggml-elsewhere.bin");
+        let checks = check_model_files_in(vec![
+            good.to_string_lossy().to_string(),
+            bad.to_string_lossy().to_string(),
+            outside.to_string_lossy().to_string(),
+        ]);
 
         assert!(checks[0].valid);
         assert!(!checks[1].valid);
         assert!(checks[1].reason.is_some());
+        // A model selected from outside the folder is judged on its own bytes, not its location.
+        assert!(!checks[2].valid);
         fs::remove_dir_all(dir).unwrap();
     }
 
@@ -560,11 +604,32 @@ mod tests {
         write_model(&model, b"lmgg");
         fs::write(&leftover, b"half").unwrap();
 
-        let removed = cleanup_partial_downloads(dir.to_string_lossy().to_string()).unwrap();
+        let other = test_dir("sweep-other");
+        fs::create_dir_all(&other).unwrap();
+        assert!(cleanup_partial_downloads_in(&other, dir.to_string_lossy().to_string()).is_err());
+        assert!(leftover.exists());
+        fs::remove_dir_all(other).unwrap();
+
+        let removed = cleanup_partial_downloads_in(&dir, dir.to_string_lossy().to_string()).unwrap();
 
         assert_eq!(removed.len(), 1);
         assert!(model.exists());
         assert!(!leftover.exists());
         fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// Network: `cargo test redirects_stay_on_https -- --ignored`. Hugging Face and GitHub both
+    /// redirect to a CDN over https, which the redirect policy must keep following.
+    #[tokio::test]
+    #[ignore]
+    async fn redirects_stay_on_https() {
+        for url in [
+            "https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin",
+            "https://github.com/yt-dlp/yt-dlp/releases/download/2026.08.19/SHA2-256SUMS",
+        ] {
+            let response = download_client().unwrap().head(url).send().await.unwrap();
+            assert!(response.status().is_success(), "{url}: {}", response.status());
+            assert_ne!(response.url().as_str(), url, "{url} was expected to redirect");
+        }
     }
 }

@@ -91,6 +91,9 @@ pub async fn run(app_handle: &AppHandle) -> Result<()> {
     if let Some(ref ffmpeg) = ffmpeg_path {
         cmd.env("VIBE_SERVER_FFMPEG_PATH", ffmpeg);
     }
+    // ggml loads backend libraries from this variable; the bundled ones are static. The working
+    // directory stays the user's, because CLI arguments may be relative paths.
+    cmd.env_remove("GGML_BACKEND_PATH");
 
     let mut child = match cmd.spawn() {
         Ok(child) => child,

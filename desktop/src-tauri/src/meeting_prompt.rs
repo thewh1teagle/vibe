@@ -161,6 +161,7 @@ fn create_window(app: &tauri::AppHandle) -> Result<WebviewWindow, String> {
         .transparent(true)
         .shadow(false)
         .visible(false)
+        .on_navigation(crate::setup::navigation_guard(app))
         .on_page_load(|window, payload| {
             if payload.event() == PageLoadEvent::Finished {
                 let has_state = window

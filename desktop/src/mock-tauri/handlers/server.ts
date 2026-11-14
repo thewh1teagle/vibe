@@ -2,7 +2,8 @@
 // Simulates model loading, streaming transcription and downloads with real timers
 // so the UI exercises the same progress/abort code paths as the desktop runtime.
 import { emitMockEvent, onMockEvent } from '../event-bus'
-import { DEFAULT_MODEL_FILE, DOWNLOAD_TICKS, DOWNLOAD_TICK_MS, MODELS_FOLDER, TRANSCRIBE_SEGMENT_INTERVAL_MS, TRANSCRIBE_STAGE_MS, sampleSegments, virtualFs } from '../state'
+import { ytDlpAssetNames } from '~/lib/config'
+import { APP_LOCAL_DATA, DEFAULT_MODEL_FILE, DOWNLOAD_TICKS, DOWNLOAD_TICK_MS, MODELS_FOLDER, TRANSCRIBE_SEGMENT_INTERVAL_MS, TRANSCRIBE_STAGE_MS, mockArch, mockPlatform, sampleSegments, virtualFs } from '../state'
 import type { CommandHandlerMap } from '../types'
 
 interface Segment {
@@ -229,12 +230,11 @@ export const serverHandlers: CommandHandlerMap = {
 
 	cleanup_partial_downloads: () => [],
 
-	download_file: async (args) => {
-		const path = String(args.path ?? '')
+	// ({ version }) - the backend owns the URL and the destination; mirror where it lands.
+	download_ytdlp: async () => {
 		const completed = await runDownloadTicks('abort_download')
-		if (completed && path) {
-			virtualFs.set(path, null)
-		}
+		if (!completed) throw 'Download cancelled'
+		virtualFs.set(`${APP_LOCAL_DATA}/${ytDlpAssetNames[`${mockPlatform}-${mockArch}`]}`, null)
 		return undefined
 	},
 
