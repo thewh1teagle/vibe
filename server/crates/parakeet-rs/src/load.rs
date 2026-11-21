@@ -298,10 +298,15 @@ unsafe fn read_info(ctx: *const sys::gguf_context) -> Result<ModelInfo> {
             tdt_max_symbols: 10,
         });
     }
+    let head_kind = string(ctx, "stt.parakeet.head_kind")?;
+    // Only for a model this engine would run: an RNN-T file is Nemotron's to judge.
+    if head_kind == "tdt" {
+        check_frontend(ctx)?;
+    }
     Ok(ModelInfo {
         architecture: string(ctx, "general.architecture")?,
         variant: string(ctx, "stt.variant")?,
-        head_kind: string(ctx, "stt.parakeet.head_kind")?,
+        head_kind,
         languages: strings(ctx, "general.languages")?,
         language_detection: optional_bool(ctx, "stt.capability.lang_detect").unwrap_or(false),
         tensor_count: sys::gguf_get_n_tensors(ctx) as usize,
@@ -320,6 +325,31 @@ unsafe fn read_info(ctx: *const sys::gguf_context) -> Result<ModelInfo> {
         tdt_durations: i32_array(ctx, "stt.parakeet.tdt.durations")?,
         tdt_max_symbols: optional_u32(ctx, "stt.parakeet.tdt.max_symbols").unwrap_or(10) as i32,
     })
+}
+
+/// The features are computed with one fixed front end (`MelConfig::default`), whatever the
+/// file says. A model trained on another one, 80 mel bins say, would load and then fail or
+/// write nonsense, so any TDT model is taken by what it declares here, not by its name.
+unsafe fn check_frontend(ctx: *const sys::gguf_context) -> Result<()> {
+    let config = crate::MelConfig::default();
+    for (key, expected) in [
+        ("stt.frontend.num_mels", config.num_mels),
+        ("stt.frontend.sample_rate", config.sample_rate),
+        ("stt.frontend.n_fft", config.n_fft),
+        ("stt.frontend.win_length", config.win_length),
+        ("stt.frontend.hop_length", config.hop_length),
+    ] {
+        frontend_matches(key, optional_u32(ctx, key), expected)?;
+    }
+    Ok(())
+}
+
+/// A key the file leaves out is not held against it: older exports carry none.
+fn frontend_matches(key: &'static str, found: Option<u32>, expected: usize) -> Result<()> {
+    match found {
+        Some(found) if found as usize != expected => Err(Error::UnsupportedFrontend { key, found, expected }),
+        _ => Ok(()),
+    }
 }
 
 const V3_LANGUAGES: &[&str] = &[
@@ -429,10 +459,11 @@ unsafe fn u32_value(ctx: *const sys::gguf_context, name: &'static str) -> Result
     Ok(sys::gguf_get_val_u32(ctx, key(ctx, name)?))
 }
 
+/// `None` for a key that is missing or not a `u32`: ggml aborts on a read of the wrong type.
 unsafe fn optional_u32(ctx: *const sys::gguf_context, name: &'static str) -> Option<u32> {
     let c_name = CString::new(name).unwrap();
     let id = sys::gguf_find_key(ctx, c_name.as_ptr());
-    (id >= 0).then(|| sys::gguf_get_val_u32(ctx, id))
+    (id >= 0 && sys::gguf_get_kv_type(ctx, id) == sys::gguf_type_GGUF_TYPE_UINT32).then(|| sys::gguf_get_val_u32(ctx, id))
 }
 
 unsafe fn i32_array(ctx: *const sys::gguf_context, name: &'static str) -> Result<Vec<i32>> {
@@ -456,4 +487,20 @@ unsafe fn optional_bool(ctx: *const sys::gguf_context, name: &'static str) -> Op
     let c_name = CString::new(name).unwrap();
     let id = sys::gguf_find_key(ctx, c_name.as_ptr());
     (id >= 0).then(|| sys::gguf_get_val_bool(ctx, id))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_front_end_the_engine_does_not_compute_is_refused() {
+        assert!(frontend_matches("stt.frontend.num_mels", Some(128), 128).is_ok());
+        assert!(frontend_matches("stt.frontend.num_mels", None, 128).is_ok());
+        let error = frontend_matches("stt.frontend.num_mels", Some(80), 128).unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "unsupported Parakeet audio front end: stt.frontend.num_mels is 80, this engine computes 128"
+        );
+    }
 }

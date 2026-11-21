@@ -31,6 +31,8 @@ pub enum Error {
     UnsupportedArchitecture(String),
     #[error("unsupported Parakeet head {0:?}; expected tdt")]
     UnsupportedHead(String),
+    #[error("unsupported Parakeet audio front end: {key} is {found}, this engine computes {expected}")]
+    UnsupportedFrontend { key: &'static str, found: u32, expected: usize },
     #[error("model is missing required tensor {0}")]
     MissingTensor(String),
     #[error("unsupported transcription language {0:?}")]
