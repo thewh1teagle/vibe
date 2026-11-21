@@ -54,7 +54,13 @@ pub fn convert_to_native_wav(
 }
 
 fn convert_with(ffmpeg: PathBuf, input_path: &Path, output_path: &Path, options: ReadOptions) -> anyhow::Result<()> {
-    let mut args = vec!["-i".to_string(), input_path.to_string_lossy().into_owned()];
+    // No banner, and warnings only on request: what ffmpeg prints is the error message when
+    // the conversion fails, and the version and build flags used to be all of it.
+    let mut args = vec!["-hide_banner".to_string()];
+    if !options.verbose {
+        args.extend(["-loglevel".to_string(), "error".to_string()]);
+    }
+    args.extend(["-i".to_string(), input_path.to_string_lossy().into_owned()]);
 
     // ffmpeg's default stream selection keeps one audio track, the one with the
     // most channels. A recording with a track per source (OBS, Discord) would lose
@@ -94,17 +100,31 @@ fn convert_with(ffmpeg: PathBuf, input_path: &Path, output_path: &Path, options:
         .output()
         .map_err(|source| FfmpegError::Spawn { path: ffmpeg, source })?;
     if !output.status.success() {
-        let mut stderr = String::from_utf8_lossy(&output.stderr).into_owned();
-        if stderr.len() > 500 {
-            stderr.truncate(500);
-            stderr.push_str("...");
-        }
-        anyhow::bail!("ffmpeg WAV conversion failed: {stderr}");
+        anyhow::bail!(
+            "ffmpeg WAV conversion failed: {}",
+            stderr_tail(&output.stderr, MAX_STDERR_CHARS)
+        );
     }
     if options.verbose && !output.stderr.is_empty() {
         eprint!("{}", String::from_utf8_lossy(&output.stderr));
     }
     Ok(())
+}
+
+/// How much of ffmpeg's output a failed conversion quotes.
+const MAX_STDERR_CHARS: usize = 500;
+
+/// The end of what ffmpeg printed: the reason it failed is on its last lines, after
+/// anything it said about the input. Cut on a character, never inside one.
+fn stderr_tail(stderr: &[u8], max_chars: usize) -> String {
+    let text = String::from_utf8_lossy(stderr);
+    let text = text.trim();
+    let count = text.chars().count();
+    if count <= max_chars {
+        return text.to_string();
+    }
+    let tail: String = text.chars().skip(count - max_chars).collect();
+    format!("...{tail}")
 }
 
 /// How many audio streams the container holds. `ffmpeg -i` without an output
@@ -237,6 +257,35 @@ mod tests {
         )
         .unwrap();
         assert!(trimmed.len() < plain.len(), "silenceremove had no effect on the mix");
+    }
+
+    #[test]
+    fn a_long_stderr_keeps_its_end() {
+        assert_eq!(stderr_tail(b"  short\n", 500), "short");
+        let long = format!("{}Invalid data found when processing input\n", "banner ".repeat(200));
+        let tail = stderr_tail(long.as_bytes(), 60);
+        assert_eq!(tail.chars().count(), 63);
+        assert!(tail.starts_with("..."));
+        assert!(tail.ends_with("Invalid data found when processing input"));
+        // Multi-byte text is cut between characters: `String::truncate` panicked here.
+        assert_eq!(stderr_tail("Недостаточно места".as_bytes(), 5), "...места");
+    }
+
+    /// A failed conversion reports why, not which ffmpeg ran: the banner alone is longer
+    /// than what telemetry keeps of a message.
+    #[test]
+    fn a_failed_conversion_says_why() {
+        if find_ffmpeg().is_err() {
+            return;
+        }
+        let dir = tempfile::tempdir().unwrap();
+        let input = dir.path().join("broken.mp4");
+        std::fs::write(&input, b"this is not a video").unwrap();
+        let error = read_file_with_options(&input, ReadOptions::default()).unwrap_err();
+        let message = format!("{error:#}");
+        assert!(message.contains("ffmpeg WAV conversion failed"), "{message}");
+        assert!(!message.contains("configuration:"), "{message}");
+        assert!(message.contains("Invalid data found"), "{message}");
     }
 
     fn touch(path: &Path) -> PathBuf {
