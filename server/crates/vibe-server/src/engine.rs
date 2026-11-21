@@ -54,7 +54,8 @@ pub fn is_gguf(path: &str) -> bool {
 
 /// Identifies a GGUF model by `general.architecture` and its head, without
 /// loading tensor data: `zipformer2` is Zipformer, `parakeet` is Parakeet
-/// (TDT v3) or Nemotron (RNN-T).
+/// (TDT) or Nemotron (RNN-T). Never by its name: a fine-tune or a re-export
+/// of either is the same model to the engine, whoever published it.
 pub fn probe_gguf(path: &str) -> anyhow::Result<(GgufModel, EngineCapabilities)> {
     let architecture = match zipformer_rs::Model::metadata(path) {
         Ok(info) => {
@@ -69,13 +70,19 @@ pub fn probe_gguf(path: &str) -> anyhow::Result<(GgufModel, EngineCapabilities)>
     if architecture != "parakeet" {
         bail!("unsupported GGUF architecture '{architecture}'; expected parakeet or zipformer2");
     }
-    if let Ok(info) = parakeet_rs::Model::metadata(path) {
-        if info.head_kind == "tdt" && info.variant.contains("v3") {
+    match parakeet_rs::Model::metadata(path) {
+        Ok(info) if info.head_kind == "tdt" => {
             return Ok((
                 GgufModel::Parakeet,
                 gguf_capabilities("parakeet", info.languages, info.language_detection),
             ));
         }
+        // A TDT model the engine cannot feed: say so, rather than let Nemotron
+        // reject it for its head.
+        Err(error @ parakeet_rs::Error::UnsupportedFrontend { .. }) => {
+            return Err(error).context("unsupported Parakeet model");
+        }
+        _ => {}
     }
     let info = nemotron_rs::Model::metadata(path).context("failed to read GGUF metadata")?;
     if info.head_kind != "rnnt" {
@@ -592,6 +599,20 @@ mod tests {
         let parakeet = gguf(&[("general.architecture", Value::Text("parakeet"))]);
         let error = probe_gguf(parakeet.path().to_str().unwrap()).unwrap_err();
         assert!(format!("{error:#}").contains("failed to read GGUF metadata"), "{error:#}");
+    }
+
+    /// Routing is by head, not by who published the file. Point `VIBE_TEST_GGUF_MODELS` at
+    /// real models to check it, as `engine=path` pairs separated by commas.
+    #[test]
+    #[ignore = "needs real GGUF models; set VIBE_TEST_GGUF_MODELS"]
+    fn real_models_reach_their_engine() {
+        let models = std::env::var("VIBE_TEST_GGUF_MODELS").expect("set VIBE_TEST_GGUF_MODELS to engine=path,...");
+        for pair in models.split(',') {
+            let (engine, path) = pair.split_once('=').expect("engine=path");
+            let (_, capabilities) = probe_gguf(path).unwrap_or_else(|error| panic!("{path}: {error:#}"));
+            assert_eq!(capabilities.engine, engine, "{path}");
+            Engine::load(path, ContextOptions::default()).unwrap_or_else(|error| panic!("{path}: {error:#}"));
+        }
     }
 
     #[test]
